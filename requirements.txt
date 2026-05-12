@@ -1,0 +1,5 @@
+# PKAF tooling requirements
+# Required for tools/ci_validate.py
+
+pyshacl>=0.31.0
+rdflib>=7.0.0

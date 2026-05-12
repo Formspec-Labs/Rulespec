@@ -1,0 +1,16 @@
+# Licensing
+
+PKAF uses a dual-license arrangement appropriate for a specification project:
+
+- **Specifications, shapes, contexts, fixtures, and documentation** (everything in `spec/`, `shapes/`, `context/`, `fixtures/`, `reports/`, and Markdown documentation files): see `LICENSE-SPEC` (Creative Commons Attribution 4.0 International placeholder)
+
+- **Tooling and code** (everything in `tools/` and any Python/JavaScript/etc. source): see `LICENSE-CODE` (Apache License 2.0 placeholder)
+
+Both license files are placeholders pending final selection by the publishing organization. Suggested licenses are widely adopted for ontology + tooling repositories:
+
+- CC BY 4.0 for the specification surface allows reuse and derivative work with attribution; appropriate for a public-interest data ontology
+- Apache 2.0 for tooling provides patent grants and is industry-standard for open-source utilities
+
+If a different license model is required (e.g., dedicated to the public domain via CC0, or a different copyleft arrangement), update both `LICENSE-SPEC` and `LICENSE-CODE` accordingly.
+
+Contributions to PKAF are accepted under the same dual-license terms (see `CONTRIBUTING.md`).

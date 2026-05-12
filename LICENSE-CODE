@@ -1,0 +1,30 @@
+# PKAF Tooling License (PLACEHOLDER)
+
+Copyright (c) [YEAR] [PUBLISHING ORGANIZATION]
+
+This software — including the contents of `tools/` and any source code
+in this repository — is intended to be licensed under the Apache License,
+Version 2.0.
+
+Until this placeholder is replaced with the full license text, the software
+is provided in confidence to reviewers of the v0.1.1 release candidate.
+
+To finalize, replace this file with the full Apache License 2.0 text from:
+  https://www.apache.org/licenses/LICENSE-2.0.txt
+
+And update the copyright line above with the publishing organization name
+and year.
+
+## Why Apache 2.0 for tooling
+
+Apache 2.0 is the industry standard for open-source utilities that may be
+integrated into commercial or government systems. Its explicit patent grant
+clause is appropriate for tooling that performs structural validation on
+public-interest data — implementers should not face patent risk for using
+the canonical validation gate.
+
+## Alternative: MIT
+
+If the publishing organization prefers a simpler permissive license without
+the patent grant clause, replace this file with the MIT License text from:
+  https://opensource.org/license/mit

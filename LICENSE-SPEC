@@ -1,0 +1,33 @@
+# PKAF Specification License (PLACEHOLDER)
+
+Copyright (c) [YEAR] [PUBLISHING ORGANIZATION]
+
+This work — including the contents of `spec/`, `shapes/`, `context/`,
+`fixtures/`, `reports/`, and all Markdown documentation — is intended to be
+licensed under the Creative Commons Attribution 4.0 International License
+(CC BY 4.0).
+
+Until this placeholder is replaced with the full license text, the work is
+provided in confidence to reviewers of the v0.1.1 release candidate.
+
+To finalize, replace this file with the full CC BY 4.0 license text from:
+  https://creativecommons.org/licenses/by/4.0/legalcode.txt
+
+And update the copyright line above with the publishing organization name
+and year.
+
+## Why CC BY 4.0 for the specification surface
+
+PKAF is a public-interest data ontology intended for use by search engines,
+wikis, form builders, workflow engines, case systems, content management,
+AI assistants, publication tools, auditing tools, and knowledge graphs.
+CC BY 4.0 maximizes reuse and derivative work while requiring attribution
+back to the canonical specification, which serves the integrity of the
+"evidence-backed assertion" claim PKAF makes.
+
+## Alternative: CC0 1.0 Universal
+
+If the publishing organization prefers to dedicate the specification to the
+public domain without any attribution requirement, replace this file with
+the CC0 1.0 Universal text from:
+  https://creativecommons.org/publicdomain/zero/1.0/legalcode.txt

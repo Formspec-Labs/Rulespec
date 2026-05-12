@@ -1,0 +1,400 @@
+# PKAF Shapes Batch 2 — ConceptRegistry
+# Status: draft, additive to pkaf-shapes-core-v0.1.ttl
+# Profile: PKAF-SHACL-AF
+# Bridge contract: pkaf-bridge/1.0
+# Spec anchors: ConceptRegistry v0.1.2 sections referenced inline
+
+@prefix sh:    <http://www.w3.org/ns/shacl#> .
+@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
+@prefix skos:  <http://www.w3.org/2004/02/skos/core#> .
+@prefix prov:  <http://www.w3.org/ns/prov#> .
+@prefix pkaf:  <https://w3id.org/pkaf/ns/v1#> .
+
+# === 1. RegisteredConceptShape (ConceptRegistry v0.1.2 §2.1) ===
+
+pkaf:RegisteredConceptShape
+  a sh:NodeShape ;
+  sh:targetClass pkaf:RegisteredConcept ;
+  rdfs:label "Registered Concept" ;
+
+  sh:property [
+    sh:path skos:prefLabel ;
+    sh:minCount 1 ;
+    sh:message "RegisteredConcept must have skos:prefLabel." ;
+  ] ;
+
+  sh:property [
+    sh:path pkaf:managedByRegistry ;
+    sh:minCount 1 ; sh:maxCount 1 ;
+    sh:nodeKind sh:IRI ;
+    sh:message "RegisteredConcept must declare its managing ConceptRegistry." ;
+  ] ;
+
+  sh:property [
+    sh:path pkaf:conceptScope ;
+    sh:minCount 1 ; sh:maxCount 1 ;
+    sh:in ( pkaf:public pkaf:organization pkaf:jurisdictional pkaf:program ) ;
+  ] ;
+
+  sh:property [
+    sh:path pkaf:conceptStatus ;
+    sh:minCount 1 ; sh:maxCount 1 ;
+    sh:in (
+      pkaf:proposed pkaf:registered pkaf:deprecated
+      pkaf:replacedBy pkaf:mergedInto pkaf:splitInto
+      pkaf:withdrawn pkaf:localActive
+    ) ;
+    sh:message "Concept status must be from the v0.1 enum." ;
+  ] .
+
+# === 2. LocalConceptShape (ConceptRegistry v0.1.2 §2.2) ===
+
+pkaf:LocalConceptShape
+  a sh:NodeShape ;
+  sh:targetClass pkaf:LocalConcept ;
+  rdfs:label "Local Concept" ;
+
+  sh:property [
+    sh:path skos:prefLabel ;
+    sh:minCount 1 ;
+    sh:message "LocalConcept must have skos:prefLabel." ;
+  ] ;
+
+  sh:property [
+    sh:path pkaf:definedInScope ;
+    sh:minCount 1 ; sh:maxCount 1 ;
+    sh:nodeKind sh:IRI ;
+    sh:message "LocalConcept must declare definedInScope (the organization or workspace that minted it)." ;
+  ] ;
+
+  sh:property [
+    sh:path pkaf:conceptScope ;
+    sh:minCount 1 ; sh:maxCount 1 ;
+    sh:in ( pkaf:organization pkaf:workspace pkaf:personal pkaf:team ) ;
+    sh:message "LocalConcept scope must be organization/workspace/personal/team (NOT public)." ;
+  ] ;
+
+  sh:property [
+    sh:path pkaf:conceptStatus ;
+    sh:minCount 1 ; sh:maxCount 1 ;
+    sh:in (
+      pkaf:proposed pkaf:localActive pkaf:deprecated pkaf:withdrawn
+    ) ;
+  ] .
+
+# === 3. ConceptRegistryShape (ConceptRegistry v0.1.2 §3.1) ===
+
+pkaf:ConceptRegistryShape
+  a sh:NodeShape ;
+  sh:targetClass pkaf:ConceptRegistry ;
+  rdfs:label "Concept Registry" ;
+
+  sh:property [
+    sh:path pkaf:namespacePrefix ;
+    sh:minCount 1 ; sh:maxCount 1 ;
+    sh:datatype xsd:string ;
+  ] ;
+
+  sh:property [
+    sh:path pkaf:mintingAuthority ;
+    sh:minCount 1 ; sh:maxCount 1 ;
+    sh:nodeKind sh:IRI ;
+  ] ;
+
+  sh:property [
+    sh:path pkaf:governanceModel ;
+    sh:minCount 1 ; sh:maxCount 1 ;
+    sh:in (
+      pkaf:singleOrgGovernance
+      pkaf:federatedCuration
+      pkaf:openCommunity
+      pkaf:statutoryRegistry
+      pkaf:externalSkosVocabulary
+    ) ;
+  ] ;
+
+  sh:property [
+    sh:path pkaf:resolutionEndpoint ;
+    sh:minCount 1 ; sh:maxCount 1 ;
+    sh:nodeKind sh:IRI ;
+  ] ;
+
+  sh:property [
+    sh:path pkaf:registryVersion ;
+    sh:minCount 1 ; sh:maxCount 1 ;
+    sh:datatype xsd:string ;
+  ] .
+
+# === 4. ConceptMintingAuthorityShape (ConceptRegistry v0.1.2 §3.2) ===
+
+pkaf:ConceptMintingAuthorityShape
+  a sh:NodeShape ;
+  sh:targetClass pkaf:ConceptMintingAuthority ;
+  rdfs:label "Concept Minting Authority" ;
+
+  sh:property [
+    sh:path pkaf:authorityKind ;
+    sh:minCount 1 ; sh:maxCount 1 ;
+    sh:in (
+      pkaf:curationBoard pkaf:agencyAuthority pkaf:statutoryBody
+      pkaf:singleOrgAuthority pkaf:communityProcess
+    ) ;
+  ] ;
+
+  sh:property [
+    sh:path pkaf:authorizedActions ;
+    sh:minCount 1 ;
+    sh:nodeKind sh:IRI ;
+  ] .
+
+# === 5. MappingAssertionShape (ConceptRegistry v0.1.2 §4) ===
+# A mapping assertion is a RelationshipAssertion whose predicate is a SKOS
+# mapping property. We use sh:if on the predicate value to conditionally
+# require MappingApplicabilityContext at operational eligibility.
+
+pkaf:MappingAssertionShape
+  a sh:NodeShape ;
+  sh:targetClass pkaf:RelationshipAssertion ;
+  rdfs:label "Mapping Assertion (SKOS-predicate-conditional)" ;
+  rdfs:comment "Rewritten in Batch 4 using Pattern C for reliable pyshacl evaluation." ;
+
+  # If predicate=skos:closeMatch AND eligibility is operational+, then must
+  # declare MappingApplicabilityContext via hasApplicability.
+  sh:or (
+    # Branch 1: NOT a closeMatch mapping
+    [ sh:not [
+        sh:property [ sh:path pkaf:assertsPredicate ; sh:hasValue skos:closeMatch ]
+    ] ]
+    # Branch 2: NOT operational-or-higher eligibility
+    [ sh:not [
+        sh:property [
+          sh:path pkaf:usageEligibility ;
+          sh:in ( pkaf:localOperationalUse pkaf:publicationAllowed pkaf:officialUse )
+        ]
+    ] ]
+    # Branch 3: has MappingApplicabilityContext applicability
+    [ sh:property [
+        sh:path pkaf:hasApplicability ;
+        sh:qualifiedValueShape [
+          sh:class pkaf:MappingApplicabilityContext ;
+        ] ;
+        sh:qualifiedMinCount 1 ;
+    ] ]
+  ) ;
+  sh:message "skos:closeMatch mapping at localOperationalUse or higher MUST declare MappingApplicabilityContext via hasApplicability. See ConceptRegistry v0.1.2 §4.4." .
+
+# === 6. MappingApplicabilityContextShape (ConceptRegistry v0.1.2 §4.4) ===
+
+pkaf:MappingApplicabilityContextShape
+  a sh:NodeShape ;
+  sh:targetClass pkaf:MappingApplicabilityContext ;
+  rdfs:label "Mapping Applicability Context" ;
+
+  sh:property [
+    sh:path pkaf:applicationDomain ;
+    sh:minCount 1 ;
+    sh:message "MappingApplicabilityContext must declare applicationDomain (program, workflow, benefit category, process area, or service line)." ;
+  ] ;
+
+  sh:property [
+    sh:path pkaf:evidencePurpose ;
+    sh:minCount 1 ;
+    sh:message "MappingApplicabilityContext must declare evidencePurpose (at least one purpose the mapping covers)." ;
+  ] .
+
+# === 7. ConceptResolutionResultShape (ConceptRegistry v0.1.2 §5.4) ===
+
+pkaf:ConceptResolutionResultShape
+  a sh:NodeShape ;
+  sh:targetClass pkaf:ConceptResolutionResult ;
+  rdfs:label "Concept Resolution Result" ;
+
+  sh:property [
+    sh:path pkaf:inputConcept ;
+    sh:minCount 1 ; sh:maxCount 1 ;
+    sh:nodeKind sh:IRI ;
+  ] ;
+
+  sh:property [
+    sh:path pkaf:resolutionStatus ;
+    sh:minCount 1 ; sh:maxCount 1 ;
+    sh:in (
+      pkaf:resolvedDirect
+      pkaf:resolvedViaMapping
+      pkaf:unresolvedForOperationalUse
+      pkaf:unresolvedNoMapping
+      pkaf:unresolvedRegistryUnavailable
+      pkaf:unresolvedConceptDeprecated
+      pkaf:unresolvedConceptSplit
+      pkaf:unresolvedConceptWithdrawn
+    ) ;
+  ] ;
+
+  sh:property [
+    sh:path pkaf:usageCeiling ;
+    sh:minCount 1 ; sh:maxCount 1 ;
+    sh:in (
+      pkaf:notEligible
+      pkaf:searchOnly
+      pkaf:reviewQueueOnly
+      pkaf:draftGenerationAllowed
+      pkaf:localOperationalUse
+      pkaf:publicationAllowed
+      pkaf:officialUse
+    ) ;
+    sh:message "ConceptResolutionResult must declare usageCeiling so consumers know the maximum eligibility this concept can support." ;
+  ] .
+
+# === 8. SuggestedRemediationShape (ConceptRegistry v0.1.2 §5.9) ===
+
+pkaf:SuggestedRemediationShape
+  a sh:NodeShape ;
+  sh:targetClass pkaf:SuggestedRemediation ;
+  rdfs:label "Suggested Remediation" ;
+
+  sh:property [
+    sh:path pkaf:remediationAction ;
+    sh:minCount 1 ; sh:maxCount 1 ;
+    sh:in (
+      pkaf:createMapping
+      pkaf:adoptMapping
+      pkaf:narrowApplicability
+      pkaf:obtainAttestation
+      pkaf:obtainLocalAdoption
+      pkaf:awaitConceptRegistration
+      pkaf:disambiguateSplitConcept
+      pkaf:replaceSupersededReference
+      pkaf:requestCanonicalMapping
+      pkaf:refreshRegistryCache
+    ) ;
+    sh:message "SuggestedRemediation must declare a remediationAction from the enumerated vocabulary." ;
+  ] .
+
+# === 9. ConceptLifecyclePacketShape (ConceptRegistry v0.1.2 §7.5) ===
+
+pkaf:ConceptLifecyclePacketShape
+  a sh:NodeShape ;
+  sh:targetClass pkaf:ConceptLifecyclePacket ;
+  rdfs:label "Concept Lifecycle Packet" ;
+
+  sh:property [
+    sh:path pkaf:lifecycleEvent ;
+    sh:minCount 1 ; sh:maxCount 1 ;
+    sh:in (
+      pkaf:deprecation pkaf:withdrawal pkaf:merge pkaf:split pkaf:replacedBy
+    ) ;
+  ] ;
+
+  sh:property [
+    sh:path pkaf:subjectConcept ;
+    sh:minCount 1 ; sh:maxCount 1 ;
+    sh:nodeKind sh:IRI ;
+  ] ;
+
+  sh:property [
+    sh:path pkaf:effectiveDate ;
+    sh:minCount 1 ; sh:maxCount 1 ;
+    sh:datatype xsd:dateTime ;
+  ] ;
+
+  sh:property [
+    sh:path pkaf:bridgeContractVersion ;
+    sh:minCount 1 ; sh:maxCount 1 ;
+    sh:pattern "^pkaf-bridge/[0-9]+\\.[0-9]+$" ;
+  ] ;
+
+  sh:property [
+    sh:path pkaf:cascadeAlgorithm ;
+    sh:minCount 1 ; sh:maxCount 1 ;
+    sh:nodeKind sh:IRI ;
+    sh:message "ConceptLifecyclePacket must declare cascadeAlgorithm (e.g., pkaf:CascadeClosureV1)." ;
+  ] ;
+
+  # For split/merge/replacedBy events, successorConcepts must be present.
+  # Rewritten in Batch 4 using Pattern C for reliable pyshacl evaluation.
+  sh:or (
+    # Branch 1: lifecycleEvent is NOT split/merge/replacedBy
+    [ sh:not [
+        sh:property [
+          sh:path pkaf:lifecycleEvent ;
+          sh:in ( pkaf:split pkaf:merge pkaf:replacedBy )
+        ]
+    ] ]
+    # Branch 2: has successorConcepts
+    [ sh:property [
+        sh:path pkaf:successorConcepts ;
+        sh:minCount 1 ;
+        sh:nodeKind sh:IRI ;
+    ] ]
+  ) ;
+  sh:message "split, merge, and replacedBy lifecycle events MUST declare successorConcepts." .
+
+# === 10. MappingConflictShape (ConceptRegistry v0.1.2 §8) ===
+
+pkaf:MappingConflictShape
+  a sh:NodeShape ;
+  sh:targetClass pkaf:MappingConflict ;
+  rdfs:label "Mapping Conflict" ;
+
+  sh:property [
+    sh:path pkaf:conflictingMappings ;
+    sh:minCount 2 ;
+    sh:nodeKind sh:IRI ;
+    sh:message "MappingConflict must reference at least 2 conflicting mappings." ;
+  ] ;
+
+  sh:property [
+    sh:path pkaf:severity ;
+    sh:minCount 1 ; sh:maxCount 1 ;
+    sh:in (
+      pkaf:informational
+      pkaf:operationalConflict
+      pkaf:publicationBlocking
+      pkaf:authorityCritical
+    ) ;
+  ] ;
+
+  # Operational and publication-blocking severities MUST reference an artifact.
+  # Rewritten in Batch 4 using Pattern C for reliable pyshacl evaluation.
+  sh:or (
+    # Branch 1: severity is NOT operationalConflict/publicationBlocking
+    [ sh:not [
+        sh:property [
+          sh:path pkaf:severity ;
+          sh:in ( pkaf:operationalConflict pkaf:publicationBlocking )
+        ]
+    ] ]
+    # Branch 2: has sharedArtifact
+    [ sh:property [ sh:path pkaf:sharedArtifact ; sh:minCount 1 ; sh:nodeKind sh:IRI ] ]
+    # Branch 3: has relatedPublishedArtifact
+    [ sh:property [ sh:path pkaf:relatedPublishedArtifact ; sh:minCount 1 ; sh:nodeKind sh:IRI ] ]
+  ) ;
+  sh:message "operationalConflict and publicationBlocking severity MUST reference the affected artifact via sharedArtifact or relatedPublishedArtifact." .
+
+# === 11. BridgeConsumerRegistrationShape (PKAF Core §5.1) ===
+
+pkaf:BridgeConsumerRegistrationShape
+  a sh:NodeShape ;
+  sh:targetClass pkaf:BridgeConsumerRegistration ;
+  rdfs:label "Bridge Consumer Registration" ;
+
+  sh:property [
+    sh:path pkaf:consumer ;
+    sh:minCount 1 ; sh:maxCount 1 ;
+    sh:nodeKind sh:IRI ;
+  ] ;
+
+  sh:property [
+    sh:path pkaf:bridgeContractVersion ;
+    sh:minCount 1 ; sh:maxCount 1 ;
+    sh:pattern "^pkaf-bridge/[0-9]+\\.[0-9]+$" ;
+  ] ;
+
+  sh:property [
+    sh:path pkaf:supportedEvaluationAnchors ;
+    sh:minCount 1 ;
+    sh:nodeKind sh:IRI ;
+    sh:message "BridgeConsumerRegistration must declare at least one supportedEvaluationAnchor." ;
+  ] .

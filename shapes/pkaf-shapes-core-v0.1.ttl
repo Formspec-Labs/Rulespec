@@ -1,0 +1,508 @@
+# PKAF Core Shapes v0.1
+# Merged Shapes Batch 1 + Shapes Batch 1.1
+# Profile: PKAF-SHACL-AF (requires SHACL Advanced Features)
+# Bridge contract: pkaf-bridge/1.0
+# Companion to: PKAF Core v0.1, ConceptRegistry v0.1.2, four conformance fixtures
+
+@prefix sh:    <http://www.w3.org/ns/shacl#> .
+@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
+@prefix skos:  <http://www.w3.org/2004/02/skos/core#> .
+@prefix prov:  <http://www.w3.org/ns/prov#> .
+@prefix oa:    <http://www.w3.org/ns/oa#> .
+@prefix pkaf:  <https://w3id.org/pkaf/ns/v1#> .
+
+# === Profile declaration ===
+
+pkaf:PKAFCoreShapesV01
+  a sh:NodeShape ;
+  rdfs:label "PKAF Core Shapes v0.1" ;
+  rdfs:comment "Requires SHACL Advanced Features. Validators supporting SHACL-Core only will not enforce conditional shapes correctly." .
+
+# === 1. RelationshipAssertionShape (Batch 1, base) ===
+
+pkaf:RelationshipAssertionShape
+  a sh:NodeShape ;
+  sh:targetClass pkaf:RelationshipAssertion ;
+  rdfs:label "Relationship Assertion (base)" ;
+
+  sh:property [
+    sh:path pkaf:assertsSubject ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:nodeKind sh:IRI ;
+    sh:message "Every assertion must have exactly one IRI-typed subject." ;
+  ] ;
+
+  sh:property [
+    sh:path pkaf:assertsPredicate ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:nodeKind sh:IRI ;
+    sh:message "Every assertion must have exactly one IRI-typed predicate." ;
+  ] ;
+
+  sh:property [
+    sh:path pkaf:assertsObject ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:message "Every assertion must have exactly one object (IRI or literal)." ;
+  ] ;
+
+  sh:property [
+    sh:path pkaf:hasTrustZone ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:in (
+      pkaf:Z0RawArtifact
+      pkaf:Z1ParsedFragment
+      pkaf:Z2ExtractedCandidateClaim
+      pkaf:Z3ScoredCandidateRelationship
+      pkaf:Z4AttestedAssertion
+      pkaf:Z5LocallyAdopted
+      pkaf:Z6CanonicalOperational
+      pkaf:Z7GeneratedWorkProduct
+      pkaf:Z8PublishedOutput
+    ) ;
+    sh:message "Trust zone must be one of Z0–Z8." ;
+  ] ;
+
+  sh:property [
+    sh:path pkaf:hasSafetyLabel ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:in (
+      pkaf:D0Deterministic
+      pkaf:S1SearchOnly
+      pkaf:R2ReviewedOperational
+      pkaf:A3AuthorityCritical
+      pkaf:P4Published
+    ) ;
+    sh:message "Safety label must be one of D0, S1, R2, A3, P4." ;
+  ] ;
+
+  sh:property [
+    sh:path pkaf:usageEligibility ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:in (
+      pkaf:notEligible
+      pkaf:searchOnly
+      pkaf:reviewQueueOnly
+      pkaf:draftGenerationAllowed
+      pkaf:localOperationalUse
+      pkaf:publicationAllowed
+      pkaf:officialUse
+    ) ;
+    sh:message "Usage eligibility must be one of the lattice values." ;
+  ] ;
+
+  sh:property [
+    sh:path pkaf:assertionOrigin ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:in (
+      pkaf:humanAsserted
+      pkaf:aiSuggested
+      pkaf:aiPromoted
+      pkaf:humanQualified
+      pkaf:humanRevalidation
+      pkaf:reviewClassified
+      pkaf:importedFromSource
+      pkaf:systemDerived
+    ) ;
+    sh:message "Assertion origin must be from the closed enum." ;
+  ] ;
+
+  sh:or (
+    [ sh:property [ sh:path pkaf:hasEvidence ; sh:minCount 1 ] ]
+    [ sh:property [ sh:path pkaf:noEvidenceReason ; sh:minCount 1 ; sh:datatype xsd:string ] ]
+  ) ;
+  sh:message "Assertion must have at least one pkaf:hasEvidence binding, or an explicit pkaf:noEvidenceReason." .
+
+# === 2. OperationalAssertionEvidenceShape (Batch 1.1 patch 2) ===
+
+pkaf:OperationalAssertionEvidenceShape
+  a sh:NodeShape ;
+  sh:targetClass pkaf:RelationshipAssertion ;
+  rdfs:label "Operational Assertion Evidence (R2/A3/P4 require real evidence)" ;
+  rdfs:comment "Rewritten in Batch 4 using Pattern C (sh:or + sh:not) because pyshacl 0.31.0 does not correctly evaluate sh:if/sh:then patterns with compound sh:then bodies." ;
+
+  # If safety label is R2/A3/P4, then hasEvidence minCount 1.
+  # Pattern C equivalent: (NOT precondition) OR (requirement)
+  sh:or (
+    # Branch 1: safety label is NOT in the operational/authority/published set
+    [ sh:not [
+        sh:property [
+          sh:path pkaf:hasSafetyLabel ;
+          sh:in ( pkaf:R2ReviewedOperational pkaf:A3AuthorityCritical pkaf:P4Published )
+        ]
+    ] ]
+    # Branch 2: assertion has at least one hasEvidence binding
+    [ sh:property [
+        sh:path pkaf:hasEvidence ;
+        sh:minCount 1 ;
+    ] ]
+  ) ;
+  sh:message "R2, A3, and P4 assertions MUST have at least one pkaf:hasEvidence binding. pkaf:noEvidenceReason is NOT sufficient at these safety levels." .
+
+# === 3. AuthorityAssertionShape (Batch 1.1 patch 3, interim broadened evidence roles) ===
+
+pkaf:AuthorityAssertionShape
+  a sh:NodeShape ;
+  sh:targetClass pkaf:RelationshipAssertion ;
+  rdfs:label "Authority-Critical Assertion (A3 conditional, interim)" ;
+  rdfs:comment "Rewritten in Batch 4 using Pattern C (sh:or + sh:not + sh:and) for reliable pyshacl evaluation." ;
+
+  # If safety label is A3, then authorityKind AND hasApplicability AND qualified evidence
+  sh:or (
+    # Branch 1: NOT A3
+    [ sh:not [
+        sh:property [ sh:path pkaf:hasSafetyLabel ; sh:hasValue pkaf:A3AuthorityCritical ]
+    ] ]
+    # Branch 2: all three A3 requirements met
+    [ sh:and (
+        [ sh:property [
+            sh:path pkaf:authorityKind ;
+            sh:minCount 1 ; sh:maxCount 1 ;
+            sh:in (
+              pkaf:legal pkaf:statutory pkaf:regulatory pkaf:delegated
+              pkaf:organizational pkaf:contractual pkaf:localOperational pkaf:publication
+            ) ;
+          ]
+        ]
+        [ sh:property [
+            sh:path pkaf:hasApplicability ;
+            sh:minCount 1 ;
+          ]
+        ]
+        [ sh:property [
+            sh:path pkaf:hasEvidence ;
+            sh:qualifiedValueShape [
+              sh:property [
+                sh:path pkaf:evidenceRole ;
+                sh:in (
+                  pkaf:authorityCitation
+                  pkaf:officialSourceMetadata
+                  pkaf:reviewedAuthorityChain
+                  pkaf:formalAdoptionEvent
+                  pkaf:rescissionEvidence
+                  pkaf:amendmentEvidence
+                  pkaf:supersessionEvidence
+                  pkaf:structuralEvidence
+                )
+              ]
+            ] ;
+            sh:qualifiedMinCount 1 ;
+          ]
+        ]
+    ) ]
+  ) ;
+  sh:message "A3 authority-critical assertions must declare authorityKind (from enum), hasApplicability, and at least one hasEvidence binding with an authority or lifecycle evidence role." .
+
+# === 4. EvidenceBindingShape (Batch 1) ===
+
+pkaf:EvidenceBindingShape
+  a sh:NodeShape ;
+  sh:targetClass pkaf:EvidenceBinding ;
+  rdfs:label "Evidence Binding" ;
+
+  sh:property [
+    sh:path pkaf:evidenceRole ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:in (
+      pkaf:textualEvidence
+      pkaf:structuralEvidence
+      pkaf:retrievalSignal
+      pkaf:authorityCitation
+      pkaf:officialSourceMetadata
+      pkaf:reviewedAuthorityChain
+      pkaf:formalAdoptionEvent
+      pkaf:mappingRationale
+      pkaf:registrationEvent
+      pkaf:rescissionEvidence
+      pkaf:amendmentEvidence
+      pkaf:supersessionEvidence
+      pkaf:corroboratingEvidence
+      pkaf:counterEvidence
+    ) ;
+    sh:message "Evidence role must be from the enumerated vocabulary." ;
+  ] ;
+
+  sh:or (
+    [ sh:property [ sh:path pkaf:sourceFragment ; sh:minCount 1 ; sh:nodeKind sh:IRI ] ]
+    [ sh:property [ sh:path pkaf:supportingQuote ; sh:minCount 1 ; sh:datatype xsd:string ] ]
+    [ sh:property [ sh:path pkaf:supportingEvent ; sh:minCount 1 ; sh:nodeKind sh:IRI ] ]
+    [ sh:property [ sh:path pkaf:basedOnClassification ; sh:minCount 1 ; sh:nodeKind sh:IRI ] ]
+    [ sh:property [ sh:path pkaf:rationaleText ; sh:minCount 1 ; sh:datatype xsd:string ] ]
+  ) ;
+  sh:message "Evidence binding must reference at least one of: sourceFragment, supportingQuote, supportingEvent, basedOnClassification, or rationaleText." .
+
+# === 5. AttestationShape (Batch 1.1 patch 4, generalized target) ===
+
+pkaf:AttestationShape
+  a sh:NodeShape ;
+  sh:targetClass pkaf:Attestation ;
+  rdfs:label "Attestation (generalized target)" ;
+
+  sh:or (
+    [ sh:property [ sh:path pkaf:targetAssertion        ; sh:minCount 1 ; sh:nodeKind sh:IRI ] ]
+    [ sh:property [ sh:path pkaf:targetWorkProduct      ; sh:minCount 1 ; sh:nodeKind sh:IRI ] ]
+    [ sh:property [ sh:path pkaf:targetPacket           ; sh:minCount 1 ; sh:nodeKind sh:IRI ] ]
+    [ sh:property [ sh:path pkaf:targetConcept          ; sh:minCount 1 ; sh:nodeKind sh:IRI ] ]
+    [ sh:property [ sh:path pkaf:targetMappingConflict  ; sh:minCount 1 ; sh:nodeKind sh:IRI ] ]
+    [ sh:property [ sh:path pkaf:targetBridgeValidation ; sh:minCount 1 ; sh:nodeKind sh:IRI ] ]
+    [ sh:property [ sh:path pkaf:targetRegistry         ; sh:minCount 1 ; sh:nodeKind sh:IRI ] ]
+  ) ;
+  sh:message "Attestation must reference at least one target via targetAssertion, targetWorkProduct, targetPacket, targetConcept, targetMappingConflict, targetBridgeValidation, or targetRegistry." ;
+
+  sh:property [
+    sh:path pkaf:attestor ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:nodeKind sh:IRI ;
+  ] ;
+
+  sh:property [
+    sh:path pkaf:attestorType ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:in (
+      pkaf:humanUser
+      pkaf:AIModel
+      pkaf:AIAgent
+      pkaf:automatedParser
+      pkaf:team
+      pkaf:organization
+      pkaf:community
+      pkaf:formalReviewer
+      pkaf:ConceptMintingAuthority
+    ) ;
+  ] ;
+
+  sh:property [
+    sh:path pkaf:visibility ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:in ( pkaf:personalVisible pkaf:teamVisible pkaf:orgVisible pkaf:publicVisible ) ;
+  ] ;
+
+  sh:property [
+    sh:path prov:generatedAtTime ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:dateTime ;
+  ] .
+
+# === 5a. AttestationDecisionShape (Batch 1.1 patch 5, decision with extension URIs) ===
+
+pkaf:AttestationDecisionShape
+  a sh:NodeShape ;
+  sh:targetClass pkaf:Attestation ;
+  sh:property [
+    sh:path pkaf:decision ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:or (
+      [ sh:in (
+          pkaf:endorse pkaf:endorseWithQualifier pkaf:object pkaf:qualify
+          pkaf:correct pkaf:retract pkaf:markStale pkaf:markNotAuthoritative
+          pkaf:addEvidence pkaf:requestLegalReview pkaf:requestProgramReview
+          pkaf:adoptForSearch pkaf:adoptForDrafting pkaf:adoptForOperations
+          pkaf:approveForPublication pkaf:rejectLocally
+          pkaf:promoteCandidate pkaf:declareCanonicalMapping
+        ) ]
+      [ sh:nodeKind sh:IRI ; sh:pattern "^https?://" ]
+    ) ;
+    sh:message "Attestation decision must be from the closed v0.1 enum or a declared extension URI." ;
+  ] .
+
+# === 5b. AttestationScopeShape (Batch 1.1 patch 5, scope with extension URIs) ===
+
+pkaf:AttestationScopeShape
+  a sh:NodeShape ;
+  sh:targetClass pkaf:Attestation ;
+  sh:property [
+    sh:path pkaf:scope ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:or (
+      [ sh:in (
+          pkaf:personal pkaf:team pkaf:organization pkaf:community
+          pkaf:public pkaf:reviewQueue pkaf:jurisdictional
+        ) ]
+      [ sh:nodeKind sh:IRI ; sh:pattern "^https?://" ]
+    ) ;
+    sh:message "Attestation scope must be from the closed v0.1 enum or a declared extension URI." ;
+  ] .
+
+# === 6. LocalAdoptionShape (Batch 1, with Batch 1.1 patch 6 adoptionScope string-or-IRI) ===
+
+pkaf:LocalAdoptionShape
+  a sh:NodeShape ;
+  sh:targetClass pkaf:LocalAdoption ;
+  rdfs:label "Local Adoption" ;
+
+  sh:property [
+    sh:path pkaf:organization ;
+    sh:minCount 1 ; sh:maxCount 1 ;
+    sh:nodeKind sh:IRI ;
+  ] ;
+
+  sh:property [
+    sh:path pkaf:targetAssertion ;
+    sh:minCount 1 ; sh:maxCount 1 ;
+    sh:nodeKind sh:IRI ;
+  ] ;
+
+  sh:property [
+    sh:path pkaf:adoptionStatus ;
+    sh:minCount 1 ; sh:maxCount 1 ;
+    sh:in (
+      pkaf:notApplicable pkaf:watchOnly pkaf:searchOnly pkaf:needsReview
+      pkaf:adoptedForDrafting pkaf:adoptedForLocalOperations
+      pkaf:approvedForPublication pkaf:rejectedLocally
+    ) ;
+  ] ;
+
+  sh:property [
+    sh:path pkaf:usageEligibility ;
+    sh:minCount 1 ; sh:maxCount 1 ;
+    sh:in (
+      pkaf:notEligible pkaf:searchOnly pkaf:reviewQueueOnly
+      pkaf:draftGenerationAllowed pkaf:localOperationalUse
+      pkaf:publicationAllowed pkaf:officialUse
+    ) ;
+  ] ;
+
+  sh:property [
+    sh:path pkaf:adoptionAuthorityKind ;
+    sh:minCount 1 ; sh:maxCount 1 ;
+    sh:in (
+      pkaf:organizational pkaf:localOperational
+      pkaf:contractual pkaf:publication
+    ) ;
+    sh:message "LocalAdoption authority kind must be organizational, localOperational, contractual, or publication. NOT statutory/regulatory/delegated — those flow only through hasAuthority/derivesAuthorityFrom chains." ;
+  ] ;
+
+  sh:property [
+    sh:path pkaf:adoptionScope ;
+    sh:minCount 1 ;
+    sh:or (
+      [ sh:datatype xsd:string ]
+      [ sh:nodeKind sh:IRI ]
+    ) ;
+    sh:message "adoptionScope MUST be a string or IRI." ;
+  ] ;
+
+  sh:property [
+    sh:path pkaf:authorizedBy ;
+    sh:minCount 1 ; sh:maxCount 1 ;
+    sh:nodeKind sh:IRI ;
+  ] ;
+
+  sh:property [
+    sh:path prov:generatedAtTime ;
+    sh:minCount 1 ; sh:maxCount 1 ;
+    sh:datatype xsd:dateTime ;
+  ] .
+
+# === 7. AuthorityChainHopShape (Batch 1.1 patch 7, implements removed) ===
+
+pkaf:AuthorityChainHopShape
+  a sh:NodeShape ;
+  sh:targetClass pkaf:AuthorityChainHop ;
+  rdfs:label "Authority Chain Hop (authority predicates only)" ;
+
+  sh:property [
+    sh:path pkaf:assertion ;
+    sh:minCount 1 ; sh:maxCount 1 ;
+    sh:nodeKind sh:IRI ;
+  ] ;
+
+  sh:property [
+    sh:path pkaf:predicate ;
+    sh:minCount 1 ; sh:maxCount 1 ;
+    sh:in ( pkaf:hasAuthority pkaf:derivesAuthorityFrom ) ;
+    sh:message "Authority chain hop predicates are limited to hasAuthority and derivesAuthorityFrom. The implements predicate belongs to a justification chain, not an authority chain." ;
+  ] ;
+
+  sh:property [
+    sh:path pkaf:object ;
+    sh:minCount 1 ; sh:maxCount 1 ;
+    sh:nodeKind sh:IRI ;
+  ] ;
+
+  sh:property [
+    sh:path pkaf:authorityKind ;
+    sh:minCount 1 ; sh:maxCount 1 ;
+    sh:in (
+      pkaf:legal pkaf:statutory pkaf:regulatory pkaf:delegated
+      pkaf:organizational pkaf:contractual pkaf:localOperational pkaf:publication
+    ) ;
+  ] .
+
+# === 8. BridgeValidationResultShape (Batch 1.1 patch 8, remediation OR noRemediationReason) ===
+
+pkaf:BridgeValidationResultShape
+  a sh:NodeShape ;
+  sh:targetClass pkaf:BridgeValidationResult ;
+  rdfs:label "Bridge Validation Result (minimal, patched)" ;
+
+  sh:property [
+    sh:path pkaf:packetId ;
+    sh:minCount 1 ; sh:maxCount 1 ;
+    sh:nodeKind sh:IRI ;
+  ] ;
+
+  sh:property [
+    sh:path pkaf:consumer ;
+    sh:minCount 1 ; sh:maxCount 1 ;
+    sh:nodeKind sh:IRI ;
+  ] ;
+
+  sh:property [
+    sh:path pkaf:bridgeContractVersion ;
+    sh:minCount 1 ; sh:maxCount 1 ;
+    sh:datatype xsd:string ;
+    sh:pattern "^pkaf-bridge/[0-9]+\\.[0-9]+$" ;
+  ] ;
+
+  sh:property [
+    sh:path pkaf:result ;
+    sh:minCount 1 ; sh:maxCount 1 ;
+    sh:in ( pkaf:accepted pkaf:acceptedWithWarnings pkaf:rejected ) ;
+  ] ;
+
+  sh:property [
+    sh:path prov:generatedAtTime ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:dateTime ;
+  ] ;
+
+  # If result is rejected, must have suggestedRemediation OR noRemediationReason
+  # Rewritten in Batch 4 using Pattern C for reliable pyshacl evaluation.
+  sh:or (
+    # Branch 1: result is NOT rejected
+    [ sh:not [
+        sh:property [ sh:path pkaf:result ; sh:hasValue pkaf:rejected ]
+    ] ]
+    # Branch 2: has suggestedRemediation
+    [ sh:property [ sh:path pkaf:suggestedRemediation ; sh:minCount 1 ] ]
+    # Branch 3: has noRemediationReason from enum
+    [ sh:property [
+        sh:path pkaf:noRemediationReason ;
+        sh:minCount 1 ; sh:maxCount 1 ;
+        sh:in (
+          pkaf:restrictedEvidenceUnavailable
+          pkaf:securityBlocked
+          pkaf:unsupportedBridgeVersion
+          pkaf:malformedPacket
+          pkaf:registryAuthorityBlocked
+          pkaf:noActionableRemediation
+        ) ;
+    ] ]
+  ) ;
+  sh:message "Rejected BridgeValidationResults MUST include either pkaf:suggestedRemediation OR an enumerated pkaf:noRemediationReason." .

@@ -1,0 +1,278 @@
+# PKAF Shapes Batch 3 — Lifecycle Packets and Revalidation
+# Status: draft, additive to pkaf-shapes-core-v0.1.ttl + pkaf-shapes-conceptregistry-v0.1.ttl
+# Profile: PKAF-SHACL-AF
+# Bridge contract: pkaf-bridge/1.0
+# Spec anchors: PKAF Core v0.1 §4
+#
+# IMPORTANT: These shapes validate packet STRUCTURE. They do NOT validate
+# cascade CORRECTNESS. Whether the affectedAssertions / affectedWorkProducts /
+# affectedAdoptions lists were computed correctly by CascadeClosureV1 is a
+# runtime conformance test, not a SHACL constraint.
+
+@prefix sh:    <http://www.w3.org/ns/shacl#> .
+@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
+@prefix prov:  <http://www.w3.org/ns/prov#> .
+@prefix pkaf:  <https://w3id.org/pkaf/ns/v1#> .
+
+# === 1. AmendmentPacketShape (PKAF Core §4.4) ===
+
+pkaf:AmendmentPacketShape
+  a sh:NodeShape ;
+  sh:targetClass pkaf:AmendmentPacket ;
+  rdfs:label "Amendment Packet" ;
+
+  sh:property [
+    sh:path pkaf:emittedBy ;
+    sh:minCount 1 ; sh:maxCount 1 ;
+    sh:nodeKind sh:IRI ;
+    sh:message "AmendmentPacket must reference the emittedBy amends-assertion." ;
+  ] ;
+
+  sh:property [
+    sh:path pkaf:effectiveDate ;
+    sh:minCount 1 ; sh:maxCount 1 ;
+    sh:datatype xsd:dateTime ;
+  ] ;
+
+  sh:property [
+    sh:path pkaf:bridgeContractVersion ;
+    sh:minCount 1 ; sh:maxCount 1 ;
+    sh:pattern "^pkaf-bridge/[0-9]+\\.[0-9]+$" ;
+  ] ;
+
+  sh:property [
+    sh:path pkaf:cascadeAlgorithm ;
+    sh:minCount 1 ; sh:maxCount 1 ;
+    sh:nodeKind sh:IRI ;
+    sh:message "AmendmentPacket must declare cascadeAlgorithm (e.g., pkaf:CascadeClosureV1). Structural requirement only; SHACL does not verify cascade output correctness." ;
+  ] .
+
+# === 2. RescissionPacketShape (PKAF Core §4.4) ===
+
+pkaf:RescissionPacketShape
+  a sh:NodeShape ;
+  sh:targetClass pkaf:RescissionPacket ;
+  rdfs:label "Rescission Packet" ;
+
+  sh:property [
+    sh:path pkaf:emittedBy ;
+    sh:minCount 1 ; sh:maxCount 1 ;
+    sh:nodeKind sh:IRI ;
+  ] ;
+
+  sh:property [
+    sh:path pkaf:effectiveDate ;
+    sh:minCount 1 ; sh:maxCount 1 ;
+    sh:datatype xsd:dateTime ;
+  ] ;
+
+  sh:property [
+    sh:path pkaf:bridgeContractVersion ;
+    sh:minCount 1 ; sh:maxCount 1 ;
+    sh:pattern "^pkaf-bridge/[0-9]+\\.[0-9]+$" ;
+  ] ;
+
+  sh:property [
+    sh:path pkaf:cascadeAlgorithm ;
+    sh:minCount 1 ; sh:maxCount 1 ;
+    sh:nodeKind sh:IRI ;
+  ] .
+
+# === 3. SupersessionPacketShape (PKAF Core §4.4) ===
+# Note: not exercised by any v0.1 fixture; shape is correct but unbound.
+
+pkaf:SupersessionPacketShape
+  a sh:NodeShape ;
+  sh:targetClass pkaf:SupersessionPacket ;
+  rdfs:label "Supersession Packet" ;
+
+  sh:property [
+    sh:path pkaf:emittedBy ;
+    sh:minCount 1 ; sh:maxCount 1 ;
+    sh:nodeKind sh:IRI ;
+  ] ;
+
+  sh:property [
+    sh:path pkaf:effectiveDate ;
+    sh:minCount 1 ; sh:maxCount 1 ;
+    sh:datatype xsd:dateTime ;
+  ] ;
+
+  sh:property [
+    sh:path pkaf:bridgeContractVersion ;
+    sh:minCount 1 ; sh:maxCount 1 ;
+    sh:pattern "^pkaf-bridge/[0-9]+\\.[0-9]+$" ;
+  ] ;
+
+  sh:property [
+    sh:path pkaf:cascadeAlgorithm ;
+    sh:minCount 1 ; sh:maxCount 1 ;
+    sh:nodeKind sh:IRI ;
+  ] .
+
+# === 4. MaterialRevisionPacketShape (PKAF Core §4.4) ===
+# Note: not exercised by any v0.1 fixture; shape is correct but unbound.
+
+pkaf:MaterialRevisionPacketShape
+  a sh:NodeShape ;
+  sh:targetClass pkaf:MaterialRevisionPacket ;
+  rdfs:label "Material Revision Packet" ;
+
+  sh:property [
+    sh:path pkaf:emittedBy ;
+    sh:minCount 1 ; sh:maxCount 1 ;
+    sh:nodeKind sh:IRI ;
+  ] ;
+
+  sh:property [
+    sh:path pkaf:effectiveDate ;
+    sh:minCount 1 ; sh:maxCount 1 ;
+    sh:datatype xsd:dateTime ;
+  ] ;
+
+  sh:property [
+    sh:path pkaf:bridgeContractVersion ;
+    sh:minCount 1 ; sh:maxCount 1 ;
+    sh:pattern "^pkaf-bridge/[0-9]+\\.[0-9]+$" ;
+  ] ;
+
+  sh:property [
+    sh:path pkaf:cascadeAlgorithm ;
+    sh:minCount 1 ; sh:maxCount 1 ;
+    sh:nodeKind sh:IRI ;
+  ] .
+
+# === 5. RevalidationEventShape (PKAF Core §4.8) ===
+
+pkaf:RevalidationEventShape
+  a sh:NodeShape ;
+  sh:targetClass pkaf:RevalidationEvent ;
+  rdfs:label "Revalidation Event" ;
+
+  sh:property [
+    sh:path pkaf:triggeredByPacket ;
+    sh:minCount 1 ; sh:maxCount 1 ;
+    sh:nodeKind sh:IRI ;
+    sh:message "RevalidationEvent must reference the triggeredByPacket." ;
+  ] ;
+
+  # Must target an assertion, a work product, or both — at least one
+  sh:or (
+    [ sh:property [ sh:path pkaf:targetAssertion ; sh:minCount 1 ; sh:nodeKind sh:IRI ] ]
+    [ sh:property [ sh:path pkaf:targetWorkProduct ; sh:minCount 1 ; sh:nodeKind sh:IRI ] ]
+  ) ;
+  sh:message "RevalidationEvent must reference at least one of: targetAssertion or targetWorkProduct." ;
+
+  sh:property [
+    sh:path pkaf:transitionTo ;
+    sh:minCount 1 ; sh:maxCount 1 ;
+    sh:in ( pkaf:staleForCurrentUse pkaf:needsRevalidation pkaf:blocked pkaf:disputed ) ;
+    sh:message "RevalidationEvent must declare transitionTo from the enumerated set." ;
+  ] ;
+
+  sh:property [
+    sh:path pkaf:queuedFor ;
+    sh:minCount 1 ; sh:maxCount 1 ;
+    sh:nodeKind sh:IRI ;
+    sh:message "RevalidationEvent must queue to a reviewer or role (queuedFor)." ;
+  ] ;
+
+  sh:property [
+    sh:path prov:generatedAtTime ;
+    sh:minCount 1 ; sh:maxCount 1 ;
+    sh:datatype xsd:dateTime ;
+  ] .
+
+# === 6. RevalidationClosureEventShape (PKAF Core §4.8) ===
+
+pkaf:RevalidationClosureEventShape
+  a sh:NodeShape ;
+  sh:targetClass pkaf:RevalidationClosureEvent ;
+  rdfs:label "Revalidation Closure Event" ;
+
+  sh:property [
+    sh:path pkaf:closesRevalidationEvent ;
+    sh:minCount 1 ; sh:maxCount 1 ;
+    sh:nodeKind sh:IRI ;
+    sh:message "RevalidationClosureEvent must reference the RevalidationEvent being closed." ;
+  ] ;
+
+  sh:property [
+    sh:path pkaf:closureDecision ;
+    sh:minCount 1 ; sh:maxCount 1 ;
+    sh:in (
+      pkaf:revalidatedWithSuccessor
+      pkaf:revalidatedWithoutSuccessor
+      pkaf:closedAsObsolete
+      pkaf:closedAsResolved
+    ) ;
+  ] ;
+
+  sh:property [
+    sh:path pkaf:closedBy ;
+    sh:minCount 1 ; sh:maxCount 1 ;
+    sh:nodeKind sh:IRI ;
+  ] ;
+
+  sh:property [
+    sh:path prov:generatedAtTime ;
+    sh:minCount 1 ; sh:maxCount 1 ;
+    sh:datatype xsd:dateTime ;
+  ] ;
+
+  # If closure decision is revalidatedWithSuccessor, must reference at least one successor.
+  # Rewritten in Batch 4 using Pattern C for reliable pyshacl evaluation.
+  sh:or (
+    # Branch 1: closureDecision is NOT revalidatedWithSuccessor
+    [ sh:not [
+        sh:property [
+          sh:path pkaf:closureDecision ;
+          sh:hasValue pkaf:revalidatedWithSuccessor
+        ]
+    ] ]
+    # Branch 2: has successorAssertion (singular)
+    [ sh:property [ sh:path pkaf:successorAssertion ; sh:minCount 1 ; sh:nodeKind sh:IRI ] ]
+    # Branch 3: has successorAssertions (plural list for split cases)
+    [ sh:property [ sh:path pkaf:successorAssertions ; sh:minCount 1 ; sh:nodeKind sh:IRI ] ]
+    # Branch 4: has successorWorkProduct (for work-product-level revalidation)
+    [ sh:property [ sh:path pkaf:successorWorkProduct ; sh:minCount 1 ; sh:nodeKind sh:IRI ] ]
+  ) ;
+  sh:message "RevalidationClosureEvent with closureDecision=revalidatedWithSuccessor must reference at least one successor via successorAssertion (singular), successorAssertions (plural for split cases), or successorWorkProduct." .
+
+# === 7. PointInTimeExceptionShape (PKAF Core §4.6, §4.7) ===
+
+pkaf:PointInTimeExceptionShape
+  a sh:NodeShape ;
+  sh:targetClass pkaf:PointInTimeException ;
+  rdfs:label "Point-in-Time Exception" ;
+
+  sh:property [
+    sh:path pkaf:evaluationAnchor ;
+    sh:minCount 1 ; sh:maxCount 1 ;
+    sh:or (
+      [ sh:in (
+          pkaf:applicationSubmissionTime
+          pkaf:eventOccurrenceTime
+          pkaf:eligibilityDeterminationTime
+          pkaf:noticeGenerationTime
+          pkaf:workflowStartTime
+          pkaf:workflowStepStartTime
+          pkaf:currentTime
+          pkaf:effectivePeriodStart
+          pkaf:publicationTime
+        ) ]
+      [ sh:nodeKind sh:IRI ; sh:pattern "^https?://" ;
+        sh:description "Extension URIs MUST be HTTP(S) IRIs declared in a pkaf:EvaluationAnchorExtensionRegistry." ]
+    ) ;
+    sh:message "PointInTimeException must declare evaluationAnchor from the closed v0.1 enum or a declared extension URI." ;
+  ] ;
+
+  # Must retain at least an assertion or work product so consumers know what
+  # the exception preserves
+  sh:or (
+    [ sh:property [ sh:path pkaf:retainsAssertion ; sh:minCount 1 ; sh:nodeKind sh:IRI ] ]
+    [ sh:property [ sh:path pkaf:retainsWorkProduct ; sh:minCount 1 ; sh:nodeKind sh:IRI ] ]
+  ) ;
+  sh:message "PointInTimeException must reference what it retains via retainsAssertion or retainsWorkProduct." .

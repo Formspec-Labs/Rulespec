@@ -1,0 +1,586 @@
+{
+  "@context": {
+    "pkaf": "https://w3id.org/pkaf/ns/v1#",
+    "prov": "http://www.w3.org/ns/prov#",
+    "oa": "http://www.w3.org/ns/oa#",
+    "skos": "http://www.w3.org/2004/02/skos/core#",
+    "wos": "https://w3id.org/wos/ns/v1#",
+    "formspec": "https://w3id.org/formspec/ns/v1#",
+    "xsd": "http://www.w3.org/2001/XMLSchema#",
+    "pkaf:assertsSubject": {
+      "@type": "@id"
+    },
+    "pkaf:assertsPredicate": {
+      "@type": "@id"
+    },
+    "pkaf:assertsObject": {
+      "@type": "@id"
+    },
+    "pkaf:hasTrustZone": {
+      "@type": "@id"
+    },
+    "pkaf:hasSafetyLabel": {
+      "@type": "@id"
+    },
+    "pkaf:usageEligibility": {
+      "@type": "@id"
+    },
+    "pkaf:assertionOrigin": {
+      "@type": "@id"
+    },
+    "pkaf:authorityKind": {
+      "@type": "@id"
+    },
+    "pkaf:adoptionAuthorityKind": {
+      "@type": "@id"
+    },
+    "pkaf:adoptionStatus": {
+      "@type": "@id"
+    },
+    "pkaf:result": {
+      "@type": "@id"
+    },
+    "pkaf:resolutionStatus": {
+      "@type": "@id"
+    },
+    "pkaf:resolutionMethod": {
+      "@type": "@id"
+    },
+    "pkaf:cacheStatus": {
+      "@type": "@id"
+    },
+    "pkaf:usageCeiling": {
+      "@type": "@id"
+    },
+    "pkaf:lifecycleEvent": {
+      "@type": "@id"
+    },
+    "pkaf:cascadeAlgorithm": {
+      "@type": "@id"
+    },
+    "pkaf:evidenceRole": {
+      "@type": "@id"
+    },
+    "pkaf:warningCode": {
+      "@type": "@id"
+    },
+    "pkaf:errorCode": {
+      "@type": "@id"
+    },
+    "pkaf:severity": {
+      "@type": "@id"
+    },
+    "pkaf:decision": {
+      "@type": "@id"
+    },
+    "pkaf:scope": {
+      "@type": "@id"
+    },
+    "pkaf:visibility": {
+      "@type": "@id"
+    },
+    "pkaf:attestorType": {
+      "@type": "@id"
+    },
+    "pkaf:role": {
+      "@type": "@id"
+    },
+    "pkaf:transitionTo": {
+      "@type": "@id"
+    },
+    "pkaf:closureDecision": {
+      "@type": "@id"
+    },
+    "pkaf:status": {
+      "@type": "@id"
+    },
+    "pkaf:predicate": {
+      "@type": "@id"
+    },
+    "pkaf:conceptStatus": {
+      "@type": "@id"
+    },
+    "pkaf:conceptScope": {
+      "@type": "@id"
+    },
+    "pkaf:governanceModel": {
+      "@type": "@id"
+    },
+    "pkaf:revisedUsageEligibility": {
+      "@type": "@id"
+    },
+    "pkaf:effectiveUsageEligibility": {
+      "@type": "@id"
+    },
+    "pkaf:proposedUsageEligibility": {
+      "@type": "@id"
+    },
+    "pkaf:safeAutomaticMigration": {
+      "@type": "@id"
+    },
+    "pkaf:resourceKind": {
+      "@type": "@id"
+    },
+    "pkaf:officialStatus": {
+      "@type": "@id"
+    },
+    "pkaf:legalValue": {
+      "@type": "@id"
+    },
+    "pkaf:publicationStatus": {
+      "@type": "@id"
+    },
+    "pkaf:remediationAction": {
+      "@type": "@id"
+    },
+    "pkaf:requiredPredicate": {
+      "@type": "@id"
+    },
+    "pkaf:minimumUsageEligibility": {
+      "@type": "@id"
+    },
+    "pkaf:noEvidenceReason": {
+      "@type": "@id"
+    },
+    "pkaf:noRemediationReason": {
+      "@type": "@id"
+    },
+    "pkaf:authorityChainStatus": {
+      "@type": "@id"
+    },
+    "pkaf:chainTerminusKind": {
+      "@type": "@id"
+    },
+    "pkaf:fragmentType": {
+      "@type": "@id"
+    },
+    "pkaf:reviewStatus": {
+      "@type": "@id"
+    },
+    "pkaf:consumerLifecycleState": {
+      "@type": "@id"
+    },
+    "pkaf:newWorkProductStatus": {
+      "@type": "@id"
+    },
+    "pkaf:newUsageEligibility": {
+      "@type": "@id"
+    },
+    "pkaf:newAssertionState": {
+      "@type": "@id"
+    },
+    "pkaf:resourceFamily": {
+      "@type": "@id"
+    },
+    "pkaf:assertedBy": {
+      "@type": "@id"
+    },
+    "pkaf:attestor": {
+      "@type": "@id"
+    },
+    "pkaf:targetAssertion": {
+      "@type": "@id"
+    },
+    "pkaf:targetWorkProduct": {
+      "@type": "@id"
+    },
+    "pkaf:targetPacket": {
+      "@type": "@id"
+    },
+    "pkaf:targetConcept": {
+      "@type": "@id"
+    },
+    "pkaf:targetMappingConflict": {
+      "@type": "@id"
+    },
+    "pkaf:targetBridgeValidation": {
+      "@type": "@id"
+    },
+    "pkaf:targetRegistry": {
+      "@type": "@id"
+    },
+    "pkaf:targetAdoption": {
+      "@type": "@id"
+    },
+    "pkaf:authorizedBy": {
+      "@type": "@id"
+    },
+    "pkaf:organization": {
+      "@type": "@id"
+    },
+    "pkaf:packetId": {
+      "@type": "@id"
+    },
+    "pkaf:consumer": {
+      "@type": "@id"
+    },
+    "pkaf:emittedBy": {
+      "@type": "@id"
+    },
+    "pkaf:triggeredByPacket": {
+      "@type": "@id"
+    },
+    "pkaf:closesRevalidationEvent": {
+      "@type": "@id"
+    },
+    "pkaf:successorAssertion": {
+      "@type": "@id"
+    },
+    "pkaf:successorAssertions": {
+      "@type": "@id",
+      "@container": "@set"
+    },
+    "pkaf:successorWorkProduct": {
+      "@type": "@id"
+    },
+    "pkaf:closedBy": {
+      "@type": "@id"
+    },
+    "pkaf:queuedFor": {
+      "@type": "@id"
+    },
+    "pkaf:supersedesAssertion": {
+      "@type": "@id"
+    },
+    "pkaf:supersedesWorkProduct": {
+      "@type": "@id"
+    },
+    "pkaf:revalidationOf": {
+      "@type": "@id"
+    },
+    "pkaf:precedingArtifact": {
+      "@type": "@id"
+    },
+    "pkaf:precedingVersion": {
+      "@type": "@id"
+    },
+    "pkaf:sourceFragment": {
+      "@type": "@id"
+    },
+    "pkaf:supportingEvent": {
+      "@type": "@id"
+    },
+    "pkaf:basedOnClassification": {
+      "@type": "@id"
+    },
+    "pkaf:basedOnEvent": {
+      "@type": "@id"
+    },
+    "pkaf:basedOnAttestation": {
+      "@type": "@id",
+      "@container": "@set"
+    },
+    "pkaf:basedOnAttestations": {
+      "@type": "@id",
+      "@container": "@set"
+    },
+    "pkaf:artifactId": {
+      "@type": "@id"
+    },
+    "pkaf:realizedByArtifact": {
+      "@type": "@id"
+    },
+    "pkaf:resourceLineage": {
+      "@type": "@id"
+    },
+    "pkaf:sourceAuthorityHint": {
+      "@type": "@id"
+    },
+    "pkaf:capturedBy": {
+      "@type": "@id"
+    },
+    "pkaf:subjectArtifact": {
+      "@type": "@id"
+    },
+    "pkaf:priorArtifact": {
+      "@type": "@id"
+    },
+    "pkaf:classifiedBy": {
+      "@type": "@id"
+    },
+    "pkaf:classification": {
+      "@type": "@id"
+    },
+    "pkaf:managedByRegistry": {
+      "@type": "@id"
+    },
+    "pkaf:hostedByRegistry": {
+      "@type": "@id"
+    },
+    "pkaf:mintingAuthority": {
+      "@type": "@id"
+    },
+    "pkaf:resolutionEndpoint": {
+      "@type": "@id"
+    },
+    "pkaf:registeredVia": {
+      "@type": "@id"
+    },
+    "pkaf:replacedBy": {
+      "@type": "@id",
+      "@container": "@set"
+    },
+    "pkaf:absorbedConcepts": {
+      "@type": "@id",
+      "@container": "@set"
+    },
+    "pkaf:splitInto": {
+      "@type": "@id",
+      "@container": "@set"
+    },
+    "pkaf:successorConcepts": {
+      "@type": "@id",
+      "@container": "@set"
+    },
+    "pkaf:subjectConcept": {
+      "@type": "@id"
+    },
+    "pkaf:relatedConcept": {
+      "@type": "@id"
+    },
+    "pkaf:sharedArtifact": {
+      "@type": "@id"
+    },
+    "pkaf:relatedPublishedArtifact": {
+      "@type": "@id"
+    },
+    "pkaf:conflictingMappings": {
+      "@type": "@id",
+      "@container": "@set"
+    },
+    "pkaf:concept": {
+      "@type": "@id"
+    },
+    "pkaf:inputConcept": {
+      "@type": "@id"
+    },
+    "pkaf:resolvedConcept": {
+      "@type": "@id"
+    },
+    "pkaf:mappingAssertion": {
+      "@type": "@id"
+    },
+    "pkaf:resolutionTrustedVia": {
+      "@type": "@id"
+    },
+    "pkaf:registry": {
+      "@type": "@id"
+    },
+    "pkaf:resolvedToConcepts": {
+      "@type": "@id",
+      "@container": "@set"
+    },
+    "pkaf:assertion": {
+      "@type": "@id"
+    },
+    "pkaf:subject": {
+      "@type": "@id"
+    },
+    "pkaf:object": {
+      "@type": "@id"
+    },
+    "pkaf:dataConcept": {
+      "@type": "@id"
+    },
+    "pkaf:proposedFromLocalConcept": {
+      "@type": "@id"
+    },
+    "pkaf:registeredConcept": {
+      "@type": "@id"
+    },
+    "pkaf:registrationAuthority": {
+      "@type": "@id"
+    },
+    "pkaf:proposedBy": {
+      "@type": "@id"
+    },
+    "pkaf:delegatingAuthority": {
+      "@type": "@id"
+    },
+    "pkaf:delegatedTo": {
+      "@type": "@id"
+    },
+    "pkaf:publisher": {
+      "@type": "@id"
+    },
+    "pkaf:retainsAssertion": {
+      "@type": "@id"
+    },
+    "pkaf:retainsWorkProduct": {
+      "@type": "@id"
+    },
+    "pkaf:evaluationAnchor": {
+      "@type": "@id"
+    },
+    "pkaf:appliesTo": {
+      "@type": "@id"
+    },
+    "pkaf:affectedAssertions": {
+      "@type": "@id",
+      "@container": "@set"
+    },
+    "pkaf:affectedAuthorityAssertions": {
+      "@type": "@id",
+      "@container": "@set"
+    },
+    "pkaf:affectedImplementationAssertions": {
+      "@type": "@id",
+      "@container": "@set"
+    },
+    "pkaf:affectedWorkProducts": {
+      "@type": "@id",
+      "@container": "@set"
+    },
+    "pkaf:affectedAdoptions": {
+      "@type": "@id",
+      "@container": "@set"
+    },
+    "pkaf:affectedFragments": {
+      "@type": "@id",
+      "@container": "@set"
+    },
+    "pkaf:affectedWorkProduct": {
+      "@type": "@id"
+    },
+    "pkaf:affectedAdoption": {
+      "@type": "@id"
+    },
+    "pkaf:affectedConcepts": {
+      "@type": "@id",
+      "@container": "@set"
+    },
+    "pkaf:staleDependencies": {
+      "@type": "@id",
+      "@container": "@set"
+    },
+    "pkaf:unresolvedConcepts": {
+      "@type": "@id",
+      "@container": "@set"
+    },
+    "pkaf:registryUnavailable": {
+      "@type": "@id",
+      "@container": "@set"
+    },
+    "pkaf:staleConceptCache": {
+      "@type": "@id",
+      "@container": "@set"
+    },
+    "pkaf:supportedEvaluationAnchors": {
+      "@type": "@id",
+      "@container": "@set"
+    },
+    "pkaf:supportedAutomaticMigrations": {
+      "@type": "@id",
+      "@container": "@set"
+    },
+    "pkaf:supportedAuthorityKinds": {
+      "@type": "@id",
+      "@container": "@set"
+    },
+    "pkaf:justifiedByAssertion": {
+      "@type": "@id",
+      "@container": "@set"
+    },
+    "pkaf:justificationBackedBy": {
+      "@type": "@id"
+    },
+    "pkaf:derivedFromFragment": {
+      "@type": "@id",
+      "@container": "@set"
+    },
+    "pkaf:associatedWorkflowStep": {
+      "@type": "@id"
+    },
+    "pkaf:generationRun": {
+      "@type": "@id"
+    },
+    "pkaf:fromConcept": {
+      "@type": "@id"
+    },
+    "pkaf:toConcept": {
+      "@type": "@id"
+    },
+    "pkaf:requiredAdoptionScope": {
+      "@type": "@id"
+    },
+    "pkaf:collectsEvidenceType": {
+      "@type": "@id"
+    },
+    "pkaf:requiresEvidenceType": {
+      "@type": "@id"
+    },
+    "pkaf:acceptedDocumentTypes": {
+      "@type": "@id",
+      "@container": "@set"
+    },
+    "pkaf:excludesCategory": {
+      "@container": "@set"
+    },
+    "pkaf:evidencePurpose": {
+      "@container": "@set"
+    },
+    "pkaf:excludesPurposes": {
+      "@container": "@set"
+    },
+    "pkaf:jurisdiction": {
+      "@container": "@set"
+    },
+    "prov:wasGeneratedBy": {
+      "@type": "@id"
+    },
+    "prov:wasAttributedTo": {
+      "@type": "@id"
+    },
+    "prov:wasDerivedFrom": {
+      "@type": "@id"
+    },
+    "prov:generatedAtTime": {
+      "@type": "xsd:dateTime"
+    },
+    "pkaf:capturedAt": {
+      "@type": "xsd:dateTime"
+    },
+    "pkaf:registeredAt": {
+      "@type": "xsd:dateTime"
+    },
+    "pkaf:effectiveDate": {
+      "@type": "xsd:dateTime"
+    },
+    "pkaf:effectivePeriodStart": {
+      "@type": "xsd:dateTime"
+    },
+    "pkaf:effectivePeriodEnd": {
+      "@type": "xsd:dateTime"
+    },
+    "pkaf:exceptionEffectivePeriodEnd": {
+      "@type": "xsd:dateTime"
+    },
+    "pkaf:exceptionEffectivePeriodStart": {
+      "@type": "xsd:dateTime"
+    },
+    "pkaf:cachedAt": {
+      "@type": "xsd:dateTime"
+    },
+    "pkaf:deprecatedAt": {
+      "@type": "xsd:dateTime"
+    },
+    "pkaf:rescissionEffectiveDate": {
+      "@type": "xsd:dateTime"
+    },
+    "pkaf:detectedAt": {
+      "@type": "xsd:dateTime"
+    },
+    "pkaf:definedInScope": {
+      "@type": "@id"
+    }
+  },
+  "_meta": {
+    "version": "v0.2",
+    "supersedes": "v0.1",
+    "relationship": "strict additive superset of v0.1; no semantic change",
+    "delta_from_v0.1": [
+      "Added pkaf:definedInScope as @type:@id (was missing, treated as string literal in v0.1)"
+    ],
+    "note": "_meta is JSON-LD-safe: keys not in @context are ignored by JSON-LD processors."
+  }
+}
