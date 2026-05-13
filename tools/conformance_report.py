@@ -153,6 +153,16 @@ def l2_validate(doc: dict) -> tuple[bool, list[str]]:
         nodes.extend(n for n in doc["@graph"] if isinstance(n, dict))
     else:
         nodes.append(doc)
+    # Behavior fixtures (rkaf:BehaviorTestCase) carry their substantive payload
+    # at `rkaf:input.@graph`. Walk that too — otherwise type errors in the
+    # input pass silently and only surface at L4. Fix from semi-formal review
+    # Finding 15 of Plan 7b Phase A.
+    nested = doc.get("rkaf:input")
+    if isinstance(nested, dict):
+        if "@graph" in nested and isinstance(nested["@graph"], list):
+            nodes.extend(n for n in nested["@graph"] if isinstance(n, dict))
+        elif isinstance(nested.get("@type"), str):
+            nodes.append(nested)
 
     errs: list[str] = []
     for node in nodes:

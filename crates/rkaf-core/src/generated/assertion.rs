@@ -42,6 +42,18 @@ pub struct Assertion {
     pub id: Option<String>,
     #[serde(rename = "rkaf:assertionOrigin")]
     pub assertion_origin: AssertionOrigin,
+    #[serde(rename = "rkaf:usageEligibility", skip_serializing_if = "Option::is_none", default)]
+    pub usage_eligibility: Option<crate::generated::usage_eligibility::UsageEligibility>,
+    #[serde(rename = "rkaf:hasApplicability", skip_serializing_if = "Option::is_none", default)]
+    pub has_applicability: Option<String>,
+    #[serde(rename = "rkaf:hasJustification", skip_serializing_if = "Option::is_none", default)]
+    pub has_justification: Option<String>,
+    #[serde(rename = "rkaf:hasWarrant", skip_serializing_if = "Option::is_none", default)]
+    pub has_warrant: Option<String>,
+    #[serde(rename = "rkaf:hasAuthority", skip_serializing_if = "Option::is_none", default)]
+    pub has_authority: Option<String>,
+    #[serde(rename = "rkaf:consumerLifecycleState", skip_serializing_if = "Option::is_none", default)]
+    pub consumer_lifecycle_state: Option<crate::generated::generated_work_product::ConsumerLifecycleState>,
     #[serde(flatten)]
     pub extra: BTreeMap<String, serde_json::Value>,
 }

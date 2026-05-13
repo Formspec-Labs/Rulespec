@@ -78,45 +78,62 @@ fn reduce_usage_eligibility(
 2. **`LocalAdoption` is the only authorized broadening operation** (v0.1 §1.4 invariant preserved).
 3. **Recompute on every event affecting any input.** Cached effective state MUST be invalidated on attestation, adoption, lifecycle event, or PIT exception ingest.
 4. **`assertion.consumerLifecycleState == staleForCurrentUse` plus no honored PIT** ⇒ `notEligible` regardless of all other inputs.
+5. **Reducer reports unsupported-anchor errors.** §1.2 step 3 computes `honored_pit_exceptions` by intersecting `retainsAssertion == assertion.@id` AND `evaluationAnchor ∈ consumer.supportedEvaluationAnchors`. PITs failing the second clause SHOULD be reported as a separate `rkaf:UnsupportedEvaluationAnchor` diagnostic, NOT silently dropped — Rule 4 (§3.4) fires on the same condition.
 
-### §1.4 — Output
+### §1.4 — Scope enumeration
 
-For evaluations carrying a scope:
+The reducer is evaluated per scope. For behavior fixtures, the L4 runtime reads the explicit scope list from `BehaviorTestCase.rkaf:evaluationScopes` (a list of scope IRIs). Production runtimes derive the scope set from the union of:
+
+- All `adoptionScope` values across `LocalAdoption` targeting the assertion
+- All `appliesInJurisdiction` values across `assertion.hasApplicability`'s `ApplicabilityScope` records
+- The literal IRI `"(workspace)"` representing workspace-wide evaluation (no scope)
+
+### §1.5 — Output
+
+For evaluations carrying explicit scopes:
 ```
 { byScope: { "<scope-iri>": "<rkaf:level>", ... } }
 ```
 
-For workspace-wide evaluations (no scope):
+For workspace-wide evaluations (no scope), the runtime treats `eval_scope = None`; step 4's LocalAdoption broadening is skipped (LocalAdoptions are scoped facts) and the output is:
 ```
 { effectiveUsageEligibility: "<rkaf:level>", rationale: "<string>" }
 ```
+
+A LocalAdoption with `adoptionScope == "(workspace)"` is intentionally not a thing today; adoptions are always scope-bound. Workspace-wide reduction therefore only sees baseline + lifecycle + consumer cap.
 
 ---
 
 ## §2 — CascadeClosureV1
 
-Transitive closure over the **inverse** of the edges listed in v0.1 §4.3, scoped to nodes that are active/adopted at the triggering `LifecycleEvent.effectiveDate`. The algorithm name `rkaf:CascadeClosureV1` is the L4 conformance identifier; partner implementations MUST emit this string.
+Transitive closure over the **inverse** of the *dependency* edges listed below, scoped to nodes that are active/adopted at the triggering `LifecycleEvent.effectiveDate`. The algorithm name `rkaf:CascadeClosureV1` is the L4 conformance identifier; partner implementations MUST emit this string.
 
-### §2.1 — Tracked edges (the inverse-traversal set)
+### §2.1 — Trigger edges vs. cascade edges
 
-Twelve edge predicates, all traversed BACKWARD:
+v0.1 §4.3 lists 11 edges as "the cascade closure set." This spec disambiguates two functionally distinct categories:
 
-```
- 1. rkaf:derivedFromFragment           ← cascade reaches the deriver
- 2. rkaf:justifiedByAssertion          ← cascade reaches every work product
- 3. rkaf:hasAuthority                  ← cascade reaches every dependent decision
- 4. rkaf:derivesAuthorityFrom          ← cascade reaches every downstream hop
- 5. rkaf:implements                    ← cascade reaches every realization
- 6. rkaf:requiresEvidenceType          ← cascade reaches every requirement consumer
- 7. rkaf:collectsEvidenceType          ← cascade reaches every collector
- 8. rkaf:operationallyDependsOn        ← cascade reaches every dependent
- 9. rkaf:supersedesAssertion           ← cascade reaches every superseded predecessor
-10. rkaf:supersedesWorkProduct         ← cascade reaches every superseded product
-11. rkaf:LocalAdoption.targetAssertion ← cascade reaches every adoption
-12. rkaf:assertsObject (concept-typed) plus the 5 SKOS mapping edges
-    (exactMatch / closeMatch / broadMatch / narrowMatch / relatedMatch)
-                                       ← concept-lifecycle cascade
-```
+**Trigger edges** — these *establish the seed* of a cascade but are NOT traversed by the closure algorithm. They identify which node was disrupted (the predecessor in a supersession, the assertion superseded by a new version, etc.). The successor / superseder is not affected by its own act of superseding.
+
+| # | Predicate | Role |
+|---|---|---|
+| T1 | `rkaf:supersedesAssertion` | Successor's outgoing edge ⇒ predecessor is the cascade seed |
+| T2 | `rkaf:supersedesWorkProduct` | Successor's outgoing edge ⇒ predecessor is the cascade seed |
+| T3 | `rkaf:LifecycleEvent.appliesTo` | LifecycleEvent's outgoing list ⇒ each entry is a cascade seed |
+
+**Cascade edges** — these *propagate* the affected set, traversed BACKWARD from the seed (find all `M` such that `M.predicate = seed.@id` and recurse).
+
+| # | Predicate | What inverse traversal reaches |
+|---|---|---|
+| C1 | `rkaf:derivedFromFragment` | Every deriver |
+| C2 | `rkaf:justifiedByAssertion` | Every dependent work product |
+| C3 | `rkaf:hasAuthority` | Every assertion that cited this authority |
+| C4 | `rkaf:derivesAuthorityFrom` | Every downstream chain hop |
+| C5 | `rkaf:implements` | Every realization |
+| C6 | `rkaf:requiresEvidenceType` | Every requirement consumer |
+| C7 | `rkaf:collectsEvidenceType` | Every collector |
+| C8 | `rkaf:operationallyDependsOn` | Every dependent |
+| C9 | `rkaf:LocalAdoption.targetAssertion` | Every adoption of the seed |
+| C10 | `rkaf:assertsObject` (concept-typed) + 5 SKOS mapping edges | Concept-lifecycle propagation |
 
 ### §2.2 — Algorithm
 
@@ -128,31 +145,40 @@ fn cascade_closure_v1(
 ) -> Set<IRI>:
 
     let active_filter = node => node.is_active_or_adopted_at(as_of)
-    let visited = HashSet::new()
+    let visited = HashSet::from([seed_node_id])       // seed IS in affectedSet
     let queue = VecDeque::from([seed_node_id])
 
     while let Some(current_id) = queue.pop_front():
-        if visited.contains(current_id) { continue }
-        visited.insert(current_id)
-        for predicate in [TRACKED_EDGE_PREDICATES]:
+        for predicate in CASCADE_EDGE_PREDICATES:     // C1..C10 only
             for incoming_node in graph.incoming(current_id, predicate):
                 if active_filter(incoming_node):
-                    queue.push_back(incoming_node.@id)
+                    if !visited.contains(incoming_node.@id):
+                        visited.insert(incoming_node.@id)
+                        queue.push_back(incoming_node.@id)
 
     return visited
 ```
 
-### §2.3 — Termination + cycle safety
+### §2.3 — Seed determination
+
+The cascade seed is identified by the trigger edge that initiated the closure:
+
+- A `rkaf:LifecycleEvent` that `appliesTo` an `@id` ⇒ seed is that `@id`.
+- A `supersedesAssertion`/`supersedesWorkProduct` relationship ⇒ seed is the *predecessor* (the node being superseded), NOT the successor.
+
+Behavior fixtures carry the seed explicitly as `rkaf:cascadeSeed` on the `BehaviorTestCase`. The L4 runtime reads this field; production runtimes derive the seed from incoming `LifecycleEvent.appliesTo` or from supersession edges.
+
+### §2.4 — Termination + cycle safety
 
 The graph is finite. The visited set prevents revisiting. **Cycles are not normatively prohibited** (a `Warrant` MAY have `hasPredecessor` pointing back at itself per the edge fixture `warrant-self-predecessor-edge.jsonld`); the algorithm tolerates them via the visited check.
 
-### §2.4 — Output
+### §2.5 — Output
 
 ```
 { affectedSet: ["<@id>", ...], algorithm: "rkaf:CascadeClosureV1" }
 ```
 
-`affectedSet` is an unordered set; the test harness compares as a set. The algorithm IRI is required for L4 verdicts.
+`affectedSet` is an unordered set INCLUDING the seed; the test harness compares as a set. The algorithm IRI is required for L4 verdicts.
 
 ---
 
@@ -180,7 +206,7 @@ Per v0.1 §5.4. Each rule has a decidable predicate over the graph + the consume
 
 ### §3.4 — Rule 4: declared EvaluationAnchor support; unsupported anchors refused
 
-**Predicate:** for every `PointInTimeException` honored by a `BridgeValidationResult`, the `evaluationAnchor` is in the consumer's `BridgeConsumerRegistration.supportedEvaluationAnchors`.
+**Predicate:** for every `PointInTimeException` in the graph, the `evaluationAnchor` is in the consumer's `BridgeConsumerRegistration.supportedEvaluationAnchors`. The rule fires on any PIT, not only on those a BVR has chosen to honor — v0.1 §4.6 says consumers MUST refuse unsupported anchors, not silently ignore them.
 
 **Verdict on violation:** `rkaf:rejected` with `errorClass: rkaf:UnsupportedEvaluationAnchor`.
 
@@ -203,6 +229,8 @@ Per v0.1 §5.4. Each rule has a decidable predicate over the graph + the consume
 **Verdict on violation:** `rkaf:rejected` with `errorClass: rkaf:UnterminatedJustificationChain`.
 
 **Chain-walk depth:** unbounded by spec; runtime uses a visited-set to protect against cycles.
+
+**Warrant↔Authority transition:** `rkaf:Authority` is a specialization of `rkaf:Warrant` (per `archive/v0.1/spec/rkaf-core.md` §2 and the comment block at `constraints/core/authority.cue:1-8`). The chain walker treats every node typed `rkaf:Authority` as also satisfying the `rkaf:Warrant` type for chain-traversal purposes. `derivesAuthorityFrom` hops live on `Authority` nodes and the walker follows them transparently when present.
 
 ### §3.8 — Rule 8: bridge-emitted attestations for consumer-detected issues
 

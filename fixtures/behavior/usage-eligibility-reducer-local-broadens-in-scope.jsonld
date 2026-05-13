@@ -18,7 +18,11 @@
         "rkaf:targetAssertion": "a1",
         "rkaf:usageEligibility": "rkaf:officialUse",
         "rkaf:adoptionScope": "scope:state-tx-snap",
-        "rkaf:adoptionStatus": "rkaf:active"
+        "rkaf:adoptionStatus": "rkaf:active",
+        "rkaf:organization": "urn:rkaf:org:test",
+        "rkaf:adoptionAuthorityKind": "rkaf:organizational",
+        "rkaf:authorizedBy": "urn:rkaf:actor:test-authority",
+        "rkaf:adoptedAt": "2026-04-15T00:00:00Z"
       }
     ]
   },

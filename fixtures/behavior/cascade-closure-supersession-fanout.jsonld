@@ -3,16 +3,19 @@
   "@id": "urn:rkaf:fixture:beh:casc-fan:case1",
   "@type": "rkaf:BehaviorTestCase",
   "rkaf:behaviorContract": "rkaf:CascadeClosureV1",
-  "rkaf:rationale": "Assertion A is superseded by B. Two work products W1 + W2 are justifiedByAssertion A. Cascade must transitively close to {A, W1, W2}.",
+  "rkaf:cascadeSeed": "A",
+  "rkaf:rationale": "Assertion A is superseded by B (trigger edge T1; B's supersedesAssertion identifies A as the seed). Two work products W1 + W2 are justifiedByAssertion A (cascade edge C2). Cascade closure from seed A reaches {A, W1, W2}; B is the superseder and per §2.1 is NOT in the affected set.",
   "rkaf:input": {
     "@graph": [
       {
         "@id": "A",
-        "@type": "rkaf:Assertion"
+        "@type": "rkaf:Assertion",
+        "rkaf:assertionOrigin": "rkaf:humanAsserted"
       },
       {
         "@id": "B",
         "@type": "rkaf:Assertion",
+        "rkaf:assertionOrigin": "rkaf:humanAsserted",
         "rkaf:supersedesAssertion": "A"
       },
       {

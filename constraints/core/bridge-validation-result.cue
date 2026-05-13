@@ -37,9 +37,10 @@ package rkaf
 	// usage. Bridge rule #6 fires if any of these IRIs is a Concept /
 	// ConceptResolutionResult (resolution is NOT authority per spec §7).
 	"rkaf:usedAsAuthority"?:                 [...string]
-	// IRIs of detected issues that the bridge has not yet attested to.
-	// Bridge rule #8 fires when an issue kind in a consumer's
-	// BridgeIssueAttestationContract appears here without a matching
-	// rkaf:Attestation referencing this BVR.
-	"rkaf:detectedIssues"?:                  [...string]
+	// Issue kinds the bridge has detected for the validated packet. Each
+	// entry is one of #BridgeIssueKind (closed enum codified in
+	// constraints/core/bridge-issue-attestation-contract.cue). Bridge rule #8
+	// fires when an issue kind in a consumer's BridgeIssueAttestationContract
+	// appears here without a matching rkaf:Attestation referencing this BVR.
+	"rkaf:detectedIssues"?:                  [...#BridgeIssueKind]
 }

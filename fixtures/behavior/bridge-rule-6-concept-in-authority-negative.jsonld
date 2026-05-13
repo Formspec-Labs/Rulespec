@@ -25,7 +25,8 @@
         "@id": "concept1",
         "@type": "rkaf:LocalConcept",
         "rkaf:conceptScope": "urn:rkaf:scope:test",
-        "rkaf:conceptStatus": "rkaf:active"
+        "rkaf:conceptStatus": "rkaf:active",
+        "rkaf:definedInScope": "urn:rkaf:scope:test"
       }
     ]
   },

@@ -18,4 +18,9 @@ package rkaf
 	"rkaf:supportsRegistryVersionRange":    [...string] // SemVer range strings, one per registry
 	"rkaf:supportedAutomaticMigrations":    [...string] // migration kind IRIs
 	"rkaf:supportedAuthorityKinds":         [...#AuthorityKind] // cross-file enum (codified in constraints/core/authority.cue)
+	// L4 reducer input (rkaf-behavior.md §1.2 step 5). The maximum
+	// usageEligibility this consumer accepts; reducer caps the effective
+	// output to this lattice level. If absent, reducer treats as `officialUse`
+	// (no cap).
+	"rkaf:capabilityCap"?:                  #UsageEligibility
 }

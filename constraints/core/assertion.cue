@@ -24,4 +24,12 @@ package rkaf
 	if "rkaf:assertionOrigin" == "rkaf:humanRevalidation" {
 		"rkaf:hasAILineage": string
 	}
+	// L4 reducer inputs (rkaf-behavior.md §1.2). The reducer reads
+	// these to compute effective usageEligibility per scope.
+	"rkaf:usageEligibility"?:         #UsageEligibility
+	"rkaf:hasApplicability"?:         string // IRI of an ApplicabilityScope
+	"rkaf:hasJustification"?:         string // IRI of a Justification
+	"rkaf:hasWarrant"?:               string // IRI of the warrant grounding this assertion
+	"rkaf:hasAuthority"?:             string // IRI; legal-family Warrant or Authority
+	"rkaf:consumerLifecycleState"?:   #ConsumerLifecycleState
 }

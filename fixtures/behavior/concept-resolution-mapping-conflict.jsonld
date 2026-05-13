@@ -8,7 +8,10 @@
     "@graph": [
       {
         "@id": "X",
-        "@type": "rkaf:LocalConcept"
+        "@type": "rkaf:LocalConcept",
+        "rkaf:definedInScope": "urn:rkaf:scope:test",
+        "rkaf:conceptScope": "urn:rkaf:scope:test",
+        "rkaf:conceptStatus": "rkaf:active"
       },
       {
         "@id": "m1",

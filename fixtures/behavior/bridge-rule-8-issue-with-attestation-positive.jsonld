@@ -35,8 +35,8 @@
         "@id": "att1",
         "@type": "rkaf:Attestation",
         "rkaf:attestor": "urn:rkaf:consumer:test",
-        "rkaf:attestorKind": "rkaf:bridgeRuntime",
-        "rkaf:decision": "rkaf:flag",
+        "rkaf:attestorKind": "rkaf:automatedParser",
+        "rkaf:decision": "rkaf:flaggedForReview",
         "rkaf:attestationScope": "urn:rkaf:scope:bridge",
         "rkaf:attestedAt": "2026-04-15T00:00:00Z",
         "rkaf:targets": [

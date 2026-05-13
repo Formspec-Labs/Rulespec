@@ -27,6 +27,13 @@
         "rkaf:registeredAt": "2026-04-15T00:00:00Z",
         "rkaf:supportedEvaluationAnchors": [
           "rkaf:applicationSubmissionTime"
+        ],
+        "rkaf:supportsRegistryVersionRange": [
+          "^1.0"
+        ],
+        "rkaf:supportedAutomaticMigrations": [],
+        "rkaf:supportedAuthorityKinds": [
+          "rkaf:statutory"
         ]
       }
     ]

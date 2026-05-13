@@ -15,7 +15,8 @@
       {
         "@id": "a1",
         "@type": "rkaf:Assertion",
-        "rkaf:hasJustification": "j1"
+        "rkaf:hasJustification": "j1",
+        "rkaf:assertionOrigin": "rkaf:humanAsserted"
       },
       {
         "@id": "j1",
@@ -32,7 +33,7 @@
   },
   "rkaf:expectedOutput": {
     "bridgeValidationResult": "rkaf:rejected",
-    "errorClass": "rkaf:UntermimatedJustificationChain",
+    "errorClass": "rkaf:UnterminatedJustificationChain",
     "rationale": "rule 7 \u2014 chain has editorial warrant but no hasAuthority or LocalAdoption terminus"
   }
 }

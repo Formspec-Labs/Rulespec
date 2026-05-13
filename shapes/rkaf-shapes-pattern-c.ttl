@@ -78,6 +78,20 @@ rkaf:WarrantFamilyKindAgreementShape a sh:NodeShape ;
   sh:message "Warrant.warrantFamily MUST agree with the family of its warrantKind (§4.4). E.g., warrantKind=rkaf:statutory requires warrantFamily=rkaf:legal." .
 
 # ---------------------------------------------------------------------------
+# §4.6 — PointInTimeException MUST retain at least one of {Assertion, WorkProduct}
+# CUE can't express "exactly-one-of-these-two-properties is required"; this
+# Pattern-C shape enforces "at least one of retainsAssertion / retainsWorkProduct
+# is present".
+# ---------------------------------------------------------------------------
+rkaf:PointInTimeExceptionRetainsShape a sh:NodeShape ;
+  sh:targetClass rkaf:PointInTimeException ;
+  sh:or (
+    [ sh:property [ sh:path rkaf:retainsAssertion   ; sh:minCount 1 ] ]
+    [ sh:property [ sh:path rkaf:retainsWorkProduct ; sh:minCount 1 ] ]
+  ) ;
+  sh:message "PointInTimeException MUST carry rkaf:retainsAssertion OR rkaf:retainsWorkProduct (Core v0.1 §4.6)." .
+
+# ---------------------------------------------------------------------------
 # §5.2 — BridgeValidationResult rejected → remediation required:
 # When result=rkaf:rejected, the BVR MUST carry either suggestedRemediation
 # OR noRemediationReason.

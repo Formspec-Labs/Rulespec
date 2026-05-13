@@ -48,6 +48,8 @@ pub struct LifecycleEvent {
     pub bridge_contract_version: Option<String>,
     #[serde(rename = "rkaf:cascadeAlgorithm", skip_serializing_if = "Option::is_none", default)]
     pub cascade_algorithm: Option<String>,
+    #[serde(rename = "rkaf:safeAutomaticMigration", skip_serializing_if = "Option::is_none", default)]
+    pub safe_automatic_migration: Option<String>,
     #[serde(flatten)]
     pub extra: BTreeMap<String, serde_json::Value>,
 }
