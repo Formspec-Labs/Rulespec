@@ -993,6 +993,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "rkaf-validate-cli"
+version = "0.2.0-pre.5"
+dependencies = [
+ "anyhow",
+ "clap",
+ "rkaf-validate",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
 name = "rustversion"
 version = "1.0.22"
 source = "registry+https://github.com/rust-lang/crates.io-index"

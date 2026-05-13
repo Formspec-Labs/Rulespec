@@ -1,0 +1,19 @@
+[package]
+name = "rkaf-validate-cli"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+rust-version.workspace = true
+description = "Rulespec CLI — `rkaf-validate <file>` validates a v0.2 JSON-LD document against the embedded JSON Schema gate."
+
+[[bin]]
+name = "rkaf-validate"
+path = "src/main.rs"
+
+[dependencies]
+rkaf-validate = { path = "../rkaf-validate" }
+serde       = { workspace = true }
+serde_json  = { workspace = true }
+anyhow      = { workspace = true }
+clap        = { workspace = true }

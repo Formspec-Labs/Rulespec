@@ -3,6 +3,7 @@ resolver = "2"
 members = [
     "rkaf-core",
     "rkaf-validate",
+    "rkaf-validate-cli",
     "rkaf-projector-core",
     "rkaf-projector-json-schema",
     "rkaf-projector-json-ld",
