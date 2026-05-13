@@ -1,0 +1,70 @@
+name: constraints-parity
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  parity:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install pinned CUE
+        run: ./tools/install-cue.sh
+
+      - name: Install Python deps
+        run: |
+          python3 -m pip install --upgrade pip
+          pip install pyshacl rdflib pyld jsonschema
+
+      - name: Recompile every constraint to every target
+        run: |
+          for f in constraints/core/*.cue constraints/adversarial/*.cue constraints/ai-extraction/*.cue; do
+            base=$(basename "$f" .cue)
+            if [[ "$f" == constraints/core/* ]]; then sub="core"
+            elif [[ "$f" == constraints/adversarial/* ]]; then sub="adversarial"
+            else sub="ai-extraction"; fi
+            for t in json-schema rust typescript shacl cue rego; do
+              case "$t" in
+                json-schema) ext=".schema.json" ;;
+                rust) ext=".rs" ;;
+                typescript) ext=".ts" ;;
+                shacl) ext=".ttl" ;;
+                cue) ext=".cue" ;;
+                rego) ext=".rego" ;;
+              esac
+              mkdir -p "compiled/$t/$sub"
+              python3 tools/constraints_compile.py --in "$f" --target "$t" --out "compiled/$t/$sub/$base$ext"
+            done
+          done
+
+      - name: SHACL Pattern-C lint (no sh:if/sh:then in compiled output)
+        run: |
+          if grep -rE 'sh:(if|then)' compiled/shacl/; then
+            echo 'compiled SHACL contains forbidden sh:if/sh:then; Pattern C only.' >&2
+            exit 1
+          fi
+
+      - name: Cross-target parity (CORE Vocabulary fixtures must agree)
+        run: python3 tools/constraints_parity.py
+
+      - name: Vocab audit (every term has a fixture)
+        run: python3 tools/vocab_audit.py
+
+      - name: Negative-fixture audit (every -negative.jsonld FAILS as designed)
+        run: python3 tools/validate_negatives.py
+
+      - name: Rename audit (no pkaf:/PKAF strings introduced)
+        run: python3 tools/rename_audit.py
+
+      - name: v0.1 SHACL regression (batch4 mode still PASS)
+        run: python3 tools/ci_validate.py --mode batch4
+
+      - name: v0.2 SHACL positive-fixture suite (v02 mode)
+        run: python3 tools/ci_validate.py --mode v02

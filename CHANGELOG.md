@@ -5,6 +5,37 @@ All notable changes to Rulespec are documented in this file.
 The format is loosely based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 adapted for a specification + shape + fixture project.
 
+## v0.2.0-pre.3 — Layer 2 Constraints
+
+**CUE selected as constraint source language. JSON Schema 2020-12, Rust, TypeScript are MUST targets; SHACL, CUE-passthrough, Rego are MAY targets.**
+
+### Added
+
+- `docs/adr/2026-05-12-rkaf-constraint-source-cue.md` — selection rationale.
+- `constraints/core/*.cue` — CUE source for every v0.2 vocabulary primitive (artifact, source-fragment, evidence-binding, warrant, confidence-record, access-scope, ai-lineage, retention-policy, workspace, mapping-state, assertion, concept-registry).
+- `constraints/adversarial/*.cue` — 5 evaluator-class adversarial constraints (conditional-silent-pass, cross-property-coupling, enum-drift, access-scope-leakage, nested-noevidencereason) per spec §10.1.
+- `constraints/ai-extraction/*.cue` — 3 LLM-systematic-misinterpretation adversarial constraints (warrant-family-confusion, consent-vs-warrant, confidence-score-without-method) per spec §10.1.
+- `tools/constraints_compile.py` — CUE → {JSON Schema, Rust, TypeScript, SHACL, CUE, Rego} compiler. Recognizes Rulespec's regular CUE patterns (closed enums, enum-of-refs unions, shapes, conditionals, disjunctions, list cardinality).
+- `tools/constraints_parity.py` — cross-target parity orchestrator (release gate). Asserts JSON Schema + SHACL classify every CORE fixture identically; documents adversarial-fixture divergences (which by design surface evaluator-class gaps).
+- `tools/install-cue.sh` — pinned CUE 0.10.0 installer.
+- `.tool-versions` — `cue 0.10.0`.
+- `compiled/{json-schema,rust,typescript,shacl,cue,rego}/` — generated artifacts (gitignored; reproducible from CUE source).
+
+### Changed
+
+- SHACL is demoted from authoritative status (per source spec Appendix C). The hand-written shape files in `shapes/` (v0.1 and v0.2) remain in tree for transition; `compiled/shacl/` is the canonical SHACL output going forward, Pattern C only by construction.
+
+### Verified
+
+- 18/18 core Vocabulary fixtures pass parity across JSON Schema + SHACL targets, identical PASS/FAIL classification, all matching expected outcomes.
+- 8 adversarial fixtures: 6/8 surface their designed evaluator-class divergence (SHACL accepts what JSON Schema rejects in cross-property / inline-enum cases — this is the documented gap, not a regression).
+- 0 `sh:if` / `sh:then` constructs in `compiled/shacl/` — Pattern C lint passes.
+- All v0.2 CUE source files vet successfully (`cue vet`).
+
+### Compatibility
+
+Pre-release. v0.1.x SHACL shape files do not interoperate with v0.2 compiled artifacts. No migration shim.
+
 ## v0.2.0-pre.2 — Vocabulary v0.2
 
 **Vocabulary Layer 1 lands. Pre-release; CHANGELOG-driven; no compatibility with v0.1.x.**
