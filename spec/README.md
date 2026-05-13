@@ -1,67 +1,40 @@
 # Rulespec Specifications
 
-This directory contains the two specification documents that define Rulespec semantics. The text in these files is **semantically identical to v0.1-rc1**; the v0.1.1 release fixed shape implementations and patched fixtures but introduced no spec text changes.
+This directory holds the active normative specifications. The CUE source under `constraints/core/` is the source of truth for shape; `tools/constraints_compile.py` projects each CUE file to JSON Schema, SHACL, TypeScript, and Rust targets. The spec markdown files in this directory describe vocabulary, normative behavior, and the layered architecture.
 
 ## Documents
 
-### `rkaf-core-v0.1.md`
+### `rkaf-core.md`
 
-The core Rulespec specification. Defines:
+Normative architecture and conformance — the load-bearing surface above the vocabulary. Defines the framework's layered model (vocabulary, constraints, registries, projectors, SDKs, conformance, corpora), the overlay pattern, anchoring contract, adoption-depth gradient, and conformance levels.
 
-- **Assertions** (`rkaf:RelationshipAssertion`): subject-predicate-object claims with trust zone, safety label, evidence
-- **Evidence bindings** (`rkaf:EvidenceBinding`): role-typed evidence backing an assertion
-- **Attestations** (`rkaf:Attestation`): authoritative actions on assertions (endorse, object, qualify, retract, adopt, etc.)
-- **Local adoption** (`rkaf:LocalAdoption`): consumer-side authority to use an assertion in a scope
-- **Authority chains** (`rkaf:AuthorityChainHop`): traversal of `hasAuthority` and `derivesAuthorityFrom` edges
-- **Applicability context** (`rkaf:ApplicabilityContext`): where an assertion applies
-- **Bridge model** (`rkaf:BridgeValidationResult`): structured output for consumer-facing validation
-- **Generated work products** (`rkaf:GeneratedWorkProduct`): consumer artifact overlay type
-- **Lifecycle packets**: `AmendmentPacket`, `RescissionPacket`, `SupersessionPacket`, `MaterialRevisionPacket`
-- **Revalidation events** (`rkaf:RevalidationEvent`, `rkaf:RevalidationClosureEvent`)
-- **Point-in-time exceptions** (`rkaf:PointInTimeException`) with evaluation anchors
-- **Cascade closure** (`rkaf:CascadeClosureV1`): the transitive closure algorithm for affected sets
+### `rkaf-vocabulary.md`
 
-The Core spec is the load-bearing surface. All shape files anchor on specific sections of this document.
+Enumerates every codified Rulespec class and predicate, with the CUE source file, fixture, and purpose for each. §5 covers the v0.2 normative-tier primitives (Assertion, Warrant, Artifact, SourceFragment, EvidenceBinding, ConfidenceRecord, AccessScope, AILineage, RetentionPolicy, MappingState, Workspace, anchoring). §6 covers the codified additional terms (Authority, Attestation, LocalAdoption, ApplicabilityScope, EffectivePeriod, LifecycleEvent, Concept, ConceptMapping, ConceptResolutionResult, BridgeValidationResult, closed-enum lattices, predicates).
 
-### `rkaf-concept-registry-v0.1.2.md`
+### `rkaf-concept-registry.md`
 
-The concept registry specification. Defines:
+The concept registry specification — companion to `rkaf-vocabulary.md` §6. Defines `RegisteredConcept`, `LocalConcept`, `ConceptRegistry`, `ConceptMintingAuthority`, the SKOS mapping predicates, `MappingApplicabilityContext`, `ConceptResolutionResult`, and the three conformance levels (Core, Lifecycle, Federated).
 
-- **Registered concepts** (`rkaf:RegisteredConcept`): canonical concept IRIs in a registry
-- **Local concepts** (`rkaf:LocalConcept`): consumer-side concepts defined in a local scope
-- **Concept registries** (`rkaf:ConceptRegistry`): authoritative sources of concepts
-- **Concept minting authorities** (`rkaf:ConceptMintingAuthority`): who can introduce new concepts
-- **Mapping assertions**: `RelationshipAssertion` with `skos:closeMatch` / `skos:exactMatch` / `skos:broadMatch` / `skos:narrowMatch` / `skos:relatedMatch` predicate
-- **Mapping applicability contexts** (`rkaf:MappingApplicabilityContext`): where a mapping applies operationally
-- **Concept resolution results** (`rkaf:ConceptResolutionResult`): bridge-side resolution output with usage ceiling
-- **Suggested remediation** (`rkaf:SuggestedRemediation`): bridge-side remediation guidance
-- **Concept lifecycle packets** (`rkaf:ConceptLifecyclePacket`): split, merge, replacedBy, retire events
-- **Mapping conflicts** (`rkaf:MappingConflict`): conflicting mappings with severity
-- **Bridge consumer registration** (`rkaf:BridgeConsumerRegistration`): consumer capability declaration
+### `rkaf-behavior.md`
 
-### Three conformance levels
+Layer 5 (runtime) behavioral semantics — the contracts that are *not* CUE-validatable shape: the `usageEligibility` reducer, the `CascadeClosureV1` cascade-closure algorithm, the 10 bridge contract rules, point-in-time-exception evaluation, and lifecycle packet ingest semantics. The full v0.1 normative prose is preserved at `archive/v0.1/spec/rkaf-core.md`; this document is the active-tree summary plus codification roadmap.
 
-The ConceptRegistry spec defines three conformance levels:
+### `projectors/json-schema.md`, `projectors/json-ld.md`, `projectors/openapi.md`
 
-- **ConceptRegistry-Core** — base structural conformance (fully structurally enforced in v0.1.1)
-- **ConceptRegistry-Lifecycle** — structurally enforced; runtime cache/TTL behavior remains bridge-implementation conformance
-- **ConceptRegistry-Federated** — partial; mapping conflicts validated; cross-org sync deferred
+Carrier conventions per source spec §8.1 — how a Rulespec overlay attaches to JSON Schema, JSON-LD, and OpenAPI documents. Each projector implements Attach / Extract / Validate / RoundTrip / Derive.
 
 ## What's NOT in spec/
 
-The spec defines the data model and the bridge contract. It does NOT define:
+The spec defines the data model, the carrier conventions, and the behavioral contracts. It does NOT define:
 
-- Consumer-system internals (Formspec schema, WOS workflow runtime, search ranking, CMS storage, etc.)
-- Behavioral correctness checks (cascade closure output, reducer output, registry cache TTL) — these belong in the runtime conformance test layer planned for v0.2
+- Consumer-system internals (Formspec schema, WOS workflow runtime, Policy Studio compiler, etc.) — those live in their own repos.
+- Cryptographic anchoring substrates (Trellis, COSE, JWS, VC, Sigstore, IPFS) — Rulespec defines the abstract anchoring contract; the bindings depend on Rulespec, never the reverse.
+
+## Where the historical v0.1 line lives
+
+The pre-rebrand PKAF v0.1.1 corpus is preserved at `archive/v0.1/` (spec, shapes, context, fixtures, release manifest). It's not loaded by any active gate; it's reference material for the `rkaf-behavior.md` codification work and any consumer wanting to understand the supersession path.
 
 ## Spec evolution policy
 
-Spec text changes require deliberate discussion. The shape-batch discipline (see `CONTRIBUTING.md`) assumes spec text is stable; shapes and fixtures are the artifacts that iterate. If a batch reveals a spec ambiguity, it's raised as an issue and resolved before any shape or fixture patch is applied.
-
-Semantic versioning for spec text:
-
-- Bug fix or clarification (no semantic change): no version bump
-- New optional structure: minor version bump (`v0.1` → `v0.2`)
-- Breaking semantic change: major version bump (`v0.1` → `v1.0` or new major)
-
-v0.1.1 contains NO spec text changes from v0.1-rc1.
+Pre-1.0, no migration shims. CUE source is authoritative for shape; spec markdown is authoritative for behavior. A vocab addition lands as a CUE edit + spec text update + at least one positive fixture; the four target projections (JSON Schema, Rust, TypeScript, SHACL) regenerate together via `tools/constraints_compile.py`. Tests gate every fixture through both `rkaf-validate` (JSON Schema) and `tools/ci_validate.py` (SHACL).

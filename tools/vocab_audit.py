@@ -32,34 +32,57 @@ IGNORE_TOKENS = {
 
 
 def parse_required_fixtures(text: str) -> set[str]:
+    """Parse the vocab spec's term-reference tables and return the union of
+    fixture names declared across §5 and §6.
+
+    Recognizes two table headers:
+      §5 (the 7-cell layout):
+        `| Term | IRI | Kind | Domain | Range | Cardinality | Required fixtures |`
+        — fixtures live in the LAST cell, comma-or-space-separated.
+      §6 (the 4-cell codified-terms layout):
+        `| Term | CUE | Fixture | Purpose |`
+        — the single fixture lives in cell index 2 (`Fixture`).
+    """
     required: set[str] = set()
     in_table = False
+    table_fixture_col: int | None = None   # which cell holds the fixture name
     for line in text.splitlines():
         if line.startswith("| Term "):
             in_table = True
+            # Header signature determines column layout.
+            cells = [c.strip() for c in line.strip().strip("|").split("|")]
+            if len(cells) >= 7 and "Required fixtures" in cells[-1]:
+                # §5 layout — fixtures in the last cell.
+                table_fixture_col = len(cells) - 1
+            elif "Fixture" in cells:
+                # §6 layout — single fixture column.
+                table_fixture_col = cells.index("Fixture")
+            else:
+                table_fixture_col = None
             continue
         if not in_table:
             continue
         if not line.startswith("|"):
             in_table = False
+            table_fixture_col = None
+            continue
+        if table_fixture_col is None:
             continue
         cells = [c.strip() for c in line.strip().strip("|").split("|")]
-        if len(cells) < 7:
+        if not cells or cells[0].startswith("-"):  # separator row
             continue
-        if cells[0].startswith("-"):  # separator row
+        if table_fixture_col >= len(cells):
             continue
-        # Last cell: "Required fixtures"
-        last_cell = cells[-1]
-        for token in re.split(r"[,\s]+", last_cell):
-            token = token.strip()
+        cell = cells[table_fixture_col]
+        for token in re.split(r"[,\s`]+", cell):
+            token = token.strip().rstrip(".jsonld").rstrip(".")
             if not token:
-                continue
-            if not FIXTURE_NAME.fullmatch(token):
                 continue
             if token in IGNORE_TOKENS:
                 continue
-            # Fixture names always contain a hyphen (positive / negative / kind tag).
             if "-" not in token:
+                continue
+            if not FIXTURE_NAME.fullmatch(token):
                 continue
             required.add(token)
     return required

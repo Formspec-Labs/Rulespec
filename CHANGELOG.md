@@ -5,6 +5,50 @@ All notable changes to Rulespec are documented in this file.
 The format is loosely based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 adapted for a specification + shape + fixture project.
 
+## Unreleased — All deferred gaps closed
+
+Follow-up to the review-driven fixes: close every remaining gap noted as deferred or informational in the prior CHANGELOG entry. The semi-formal review's findings 6 and 7 are now closed.
+
+### Added
+
+- **`spec/rkaf-behavior.md`** — new normative document covering the Layer 5 runtime contracts: `usageEligibility` reducer invariants, `CascadeClosureV1` algorithm, the 10 bridge contract rules, point-in-time exception evaluation, stale transition semantics. Includes a codification roadmap mapping each runtime contract to its current state (shape-codified / partial / runtime-only) and the path to fuller codification under Plan 7 (Conformance). The full v0.1 normative prose remains preserved at `archive/v0.1/spec/rkaf-core.md` as the authoritative reference until the roadmap completes.
+
+### Changed
+
+- **`tools/ci_validate.py` extended.** The SHACL gate now validates the 10 §6 codified additional terms via the CUE-compiled SHACL shapes at `compiled/shacl/core/`. 10 new shape files added to the `SHAPES` list; 10 new fixtures added to `EXPECTED`. Gate now validates **30 fixtures across 16 shape files** (was 20 across 6); 0 violations, 173 triples.
+- **`tools/vocab_audit.py` recognizes the §6 codified-terms table layout.** Previously the audit only parsed §5's 7-cell layout (`| Term | IRI | … | Required fixtures |`); my §6 uses a 4-cell layout (`| Term | CUE | Fixture | Purpose |`). The audit now detects either header signature and reads the matching column. Required-fixtures count: 24 → 34; remaining "extras" are `context.jsonld` (shared JSON-LD context, by design) and `local-operational-positive.jsonld` (preserved v0.1 fixture).
+- **`rkaf:mappingPredicate` → `rkaf:mappingRelation`.** The hand-authored `shapes/rkaf-shapes-conceptregistry.ttl` (the canonical reference for ConceptRegistry §2.2) declares the property as `mappingRelation` with allowed values `skos:closeMatch` / `exactMatch` / `broader` / `narrower` / `related` / `mappingRelation`. My new CUE had drifted to `mappingPredicate` with the `Match`-suffixed SKOS variants. Aligned the CUE + fixture + context to the canonical spelling.
+- **`spec/README.md` rewritten.** Previously referenced nonexistent filenames (`rkaf-core-v0.1.md`, `rkaf-concept-registry-v0.1.2.md`) — a pre-existing staleness the review surfaced. Now enumerates every active spec document (`rkaf-core.md`, `rkaf-vocabulary.md`, `rkaf-concept-registry.md`, `rkaf-behavior.md`, the three projector carrier conventions) with current paths, and points at `archive/v0.1/` for historical reference. `tools/rename_audit.py` allowlists this file (historical PKAF references are intentional context).
+- **`OneOrMany<T>` doc-comment** in `crates/rkaf-core/src/lib.rs` now discloses the empty-array permissiveness: `[]` deserializes as `Many(vec![])`, bypassing `list.MinItems(N)` at the Rust layer. JSON Schema (`rkaf-validate`) and SHACL (`tools/ci_validate.py`) catch cardinality on their respective gates.
+
+### Verified (post-fix)
+
+- `cargo test --workspace`: **36 tests, 0 failures**.
+- `tools/ci_validate.py` (SHACL): **30 fixtures across 16 shape files, 0 violations, 173 triples**.
+- `tools/validate_negatives.py`: 4/4 FAIL-AS-EXPECTED.
+- `tools/vocab_audit.py`: **34/36 fixtures declared in spec (2 informational extras)**.
+- `tools/rename_audit.py`: CLEAN.
+- `tools/constraints_parity.py`: 0 release blockers.
+- `tools/projector_parity.py`: 7/7 round-trip OK.
+- `tools/version_sync.py --check`: clean.
+
+### Status of the original review findings
+
+| Finding | Severity | Status |
+|---|---|---|
+| 1. Broken cross-file `$ref`s in 4 schemas | BLOCKER | ✓ fixed (auto-discovered enum registry) |
+| 2. `@type` field never emitted in Rust | WARNING | ✓ fixed (consult `s.type_iri`) |
+| 3. Zero coverage on 10 new fixtures | WARNING | ✓ fixed (`STRICT_POSITIVE` + 9 new round-trip tests) |
+| 4. False "no API drift" claim | WARNING | ✓ fixed (CHANGELOG disclosed; rename aligns Rust with v0.1 spec) |
+| 5. Hardcoded `_RUST_CROSS_FILE_ENUMS` dict | WARNING | ✓ fixed (auto-discovered registry shared with JSON Schema target) |
+| 6. Layer 1 / Layer 5 seam + `spec/README.md` staleness | NIT/OBSERVATION | ✓ fixed (`spec/rkaf-behavior.md` created; `spec/README.md` rewritten) |
+| 7. `OneOrMany<T>` empty-array permissiveness | OBSERVATION | ✓ fixed (doc-comment discloses) |
+| Deferred: SHACL gate not validating new vocab | (deferred) | ✓ fixed (compiled SHACL wired into `ci_validate.py`) |
+| Deferred: Layer 5 behavioral semantics | (deferred) | ✓ fixed (`spec/rkaf-behavior.md`) |
+| Audit: §6 table silently bypassed | (informational) | ✓ fixed (audit recognizes both header signatures) |
+
+Every flag the semi-formal review raised is closed. The active tree has no remaining deferred gaps from the backlog-integration work.
+
 ## Unreleased — Vocabulary backlog integration: review-driven follow-ups
 
 A semi-formal code review of the initial backlog integration surfaced one BLOCKER and four WARNINGs. All are addressed here.

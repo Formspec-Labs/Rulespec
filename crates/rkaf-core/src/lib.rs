@@ -26,6 +26,14 @@ pub const RKAF_CONTEXT: &str = "https://rulespec.org/context/rkaf-context.jsonld
 /// or an array of scalars on the wire. The compiled JSON Schema reflects this
 /// with `anyOf: [scalar, array]`; this wrapper enum mirrors the same
 /// permissiveness in Rust.
+///
+/// **Caveat — empty-array permissiveness.** `OneOrMany<T>` accepts an empty
+/// array (`[]` → `Many(vec![])`), which bypasses any `list.MinItems(N)` CUE
+/// cardinality declaration at the Rust layer. JSON Schema validation (via
+/// `rkaf-validate`) and SHACL validation (via `tools/ci_validate.py`) catch
+/// the cardinality violation on their respective gates; the Rust layer
+/// trades type-strictness for round-trip parity. Callers needing strict
+/// cardinality should validate via `rkaf-validate` after deserializing.
 #[derive(Debug, Clone, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
 #[serde(untagged)]
 pub enum OneOrMany<T> {

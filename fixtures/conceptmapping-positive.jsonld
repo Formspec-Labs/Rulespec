@@ -4,6 +4,6 @@
   "@type": "rkaf:ConceptMapping",
   "rkaf:sourceConcept": "urn:rkaf:fixture:concept:tx-grossEarnedIncome",
   "rkaf:targetConcept": "urn:rkaf:fixture:concept:household-income",
-  "rkaf:mappingPredicate": "skos:closeMatch",
+  "rkaf:mappingRelation": "skos:closeMatch",
   "rkaf:usageEligibility": "rkaf:localOperationalUse"
 }

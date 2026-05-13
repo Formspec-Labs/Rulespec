@@ -6,16 +6,18 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum SkosMappingPredicate {
-    #[serde(rename = "skos:exactMatch")]
-    ExactMatch,
     #[serde(rename = "skos:closeMatch")]
     CloseMatch,
-    #[serde(rename = "skos:broadMatch")]
-    BroadMatch,
-    #[serde(rename = "skos:narrowMatch")]
-    NarrowMatch,
-    #[serde(rename = "skos:relatedMatch")]
-    RelatedMatch,
+    #[serde(rename = "skos:exactMatch")]
+    ExactMatch,
+    #[serde(rename = "skos:broader")]
+    Broader,
+    #[serde(rename = "skos:narrower")]
+    Narrower,
+    #[serde(rename = "skos:related")]
+    Related,
+    #[serde(rename = "skos:mappingRelation")]
+    MappingRelation,
 }
 
 use std::collections::BTreeMap;
@@ -30,8 +32,8 @@ pub struct ConceptMapping {
     pub source_concept: String,
     #[serde(rename = "rkaf:targetConcept")]
     pub target_concept: String,
-    #[serde(rename = "rkaf:mappingPredicate")]
-    pub mapping_predicate: SkosMappingPredicate,
+    #[serde(rename = "rkaf:mappingRelation")]
+    pub mapping_relation: SkosMappingPredicate,
     #[serde(rename = "rkaf:hasApplicability", skip_serializing_if = "Option::is_none", default)]
     pub has_applicability: Option<String>,
     #[serde(rename = "rkaf:usageEligibility", skip_serializing_if = "Option::is_none", default)]

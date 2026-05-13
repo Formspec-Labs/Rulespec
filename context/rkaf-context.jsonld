@@ -246,7 +246,7 @@
     "rkaf:lifecycleEventKind": {
       "@type": "@vocab"
     },
-    "rkaf:mappingPredicate": {
+    "rkaf:mappingRelation": {
       "@type": "@vocab"
     },
     "rkaf:bridgeContractVersion": {

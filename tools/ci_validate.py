@@ -23,12 +23,28 @@ MIN_PYSHACL = (0, 31, 0)
 
 # Single conformance mode: full positive-fixture set.
 SHAPES = [
+    # Hand-authored shapes carry Pattern-C cross-property invariants for the
+    # v0.2 normative-tier primitives. CUE-compiled equivalents are weaker
+    # (no sh:or / sh:not / cross-property predicates), so these stay authored.
     "shapes/rkaf-shapes-core.ttl",
     "shapes/rkaf-shapes-warrant.ttl",
     "shapes/rkaf-shapes-confidence.ttl",
     "shapes/rkaf-shapes-accessscope.ttl",
     "shapes/rkaf-shapes-studio-promotions.ttl",
     "shapes/rkaf-shapes-conceptregistry.ttl",
+    # CUE-compiled shapes for the §6 codified additional terms. These cover
+    # enum-membership + cardinality only; Pattern-C invariants for these
+    # classes (if any) are runtime contracts per spec/rkaf-behavior.md.
+    "compiled/shacl/core/authority.ttl",
+    "compiled/shacl/core/attestation.ttl",
+    "compiled/shacl/core/local-adoption.ttl",
+    "compiled/shacl/core/applicability-scope.ttl",
+    "compiled/shacl/core/effective-period.ttl",
+    "compiled/shacl/core/lifecycle-event.ttl",
+    "compiled/shacl/core/concept.ttl",
+    "compiled/shacl/core/concept-mapping.ttl",
+    "compiled/shacl/core/concept-resolution-result.ttl",
+    "compiled/shacl/core/bridge-validation-result.ttl",
 ]
 EXPECTED = {
     "artifact-eli-positive":                       {"triples": (1, 50)},
@@ -51,6 +67,17 @@ EXPECTED = {
     "retentionpolicy-positive":                    {"triples": (1, 50)},
     "mappingstate-positive":                       {"triples": (1, 50)},
     "workspace-positive":                          {"triples": (1, 50)},
+    # §6 codified additional terms (backlog integration).
+    "authority-positive":                          {"triples": (1, 50)},
+    "attestation-positive":                        {"triples": (1, 50)},
+    "localadoption-positive":                      {"triples": (1, 50)},
+    "applicabilityscope-positive":                 {"triples": (1, 50)},
+    "effectiveperiod-positive":                    {"triples": (1, 50)},
+    "lifecycleevent-positive":                     {"triples": (1, 50)},
+    "concept-registered-positive":                 {"triples": (1, 50)},
+    "conceptmapping-positive":                     {"triples": (1, 50)},
+    "conceptresolutionresult-positive":            {"triples": (1, 50)},
+    "bridgevalidationresult-positive":             {"triples": (1, 50)},
 }
 
 FIXTURES_DIR = "fixtures"

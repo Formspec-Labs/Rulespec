@@ -42,6 +42,7 @@ ALLOWLIST_RELATIVE = {
     "CHANGELOG.md",                              # rename-note entry references the old names
     "GITHUB-SIDE-STEPS.md",                      # documents the rename cutover; references old name by design
     "spec/rkaf-core.md",                    # §11 (Compatibility) and §12 (References) cite v0.1.x prefix / source-spec filename
+    "spec/README.md",                       # mentions the pre-rebrand PKAF v0.1.1 corpus as historical context
     ".github/workflows/constraints-parity.yml",  # CI step name documents the audit's intent
 }
 
