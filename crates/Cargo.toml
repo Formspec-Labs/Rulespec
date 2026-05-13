@@ -1,6 +1,8 @@
 [workspace]
 resolver = "2"
 members = [
+    "rkaf-core",
+    "rkaf-validate",
     "rkaf-projector-core",
     "rkaf-projector-json-schema",
     "rkaf-projector-json-ld",

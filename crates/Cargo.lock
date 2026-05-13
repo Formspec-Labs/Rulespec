@@ -927,6 +927,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "rkaf-core"
+version = "0.2.0-pre.5"
+dependencies = [
+ "serde",
+ "serde_json",
+]
+
+[[package]]
 name = "rkaf-projector-core"
 version = "0.2.0-pre.5"
 dependencies = [
@@ -971,6 +979,17 @@ dependencies = [
  "serde_json",
  "thiserror",
  "tokio",
+]
+
+[[package]]
+name = "rkaf-validate"
+version = "0.2.0-pre.5"
+dependencies = [
+ "jsonschema",
+ "rkaf-core",
+ "serde",
+ "serde_json",
+ "thiserror",
 ]
 
 [[package]]
