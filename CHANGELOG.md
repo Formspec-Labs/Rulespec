@@ -5,6 +5,39 @@ All notable changes to Rulespec are documented in this file.
 The format is loosely based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 adapted for a specification + shape + fixture project.
 
+## v0.2.0-pre.5 — Layer 4 Projectors (MVP triangle)
+
+**Three bidirectional projectors landed: JSON Schema 2020-12, JSON-LD 1.1, OpenAPI 3.1. Each implements the source spec §8.1 contract (Attach, Extract, Validate, RoundTrip, Derive). Round-trip parity is the release gate.**
+
+### Added
+
+- `crates/Cargo.toml` — workspace root for the Layer 4 Rust crates.
+- `crates/rkaf-projector-core/` — `Projector` trait per source spec §8.1.
+- `crates/rkaf-projector-json-schema/` — JSON Schema 2020-12 projector. Carrier convention: root `x-rkaf` extension key (`{rkaf-version, rkaf-depth, "rkaf:overlay"}`). Validate uses `jsonschema` Rust crate against compiled v0.2 schemas. Derive shells out to `tools/constraints_compile.py --target json-schema`.
+- `crates/rkaf-projector-json-ld/` — JSON-LD 1.1 projector. Carrier convention: `@graph` merge, type-namespace partition (`rkaf:` prefix → overlay) on Extract; context-array single-element collapse preserves byte-equality on common-shape inputs.
+- `crates/rkaf-projector-openapi/` — OpenAPI 3.1 projector. Carrier convention: document-level `x-rkaf` extension. Derive wraps the JSON Schema target's `$defs` into a complete OpenAPI 3.1 document with populated `components.schemas`.
+- `crates/projector-harness/` — CLI binary used by `tools/projector_parity.py` to exercise Attach/Extract/RoundTrip and Derive across all three targets.
+- `spec/projectors/json-schema-v0.2.md` — JSON Schema carrier convention v0.2 (normative subordinate).
+- `spec/projectors/json-ld-v0.2.md` — JSON-LD carrier convention v0.2 (normative subordinate).
+- `spec/projectors/openapi-v0.2.md` — OpenAPI 3.1 carrier convention v0.2 (normative subordinate).
+- `tools/projector_parity.py` — round-trip parity orchestrator (release gate).
+- `fixtures/v0.2/projectors/{json-schema,json-ld,openapi}/round-trip-*.{jsonld,yaml}` — 7 round-trip fixtures covering SNAP redetermination, warrant chains, empty overlays, and OpenAPI source-authority API documents.
+
+### Verified
+
+- 9 projector unit tests pass (3 per projector: identity round-trip, attach-collision refusal, extract-collision refusal).
+- 7/7 round-trip fixtures pass byte-identical Attach → Extract through the harness binary.
+- Derive operation produces parseable JSON Schema, JSON-LD context fragment, and OpenAPI 3.1 documents end-to-end via subprocess to `tools/constraints_compile.py`.
+- CI workflow `constraints-parity.yml` now builds the Layer 4 crates, runs `cargo test --workspace`, and exercises the projector parity orchestrator.
+
+### Conformance
+
+All three projectors implement the full §8.1 contract: Attach, Extract, Validate (delegated to JSON Schema in JSON-LD/OpenAPI for v0.2 MVP; per-node-validate loop deferred to Layer 5 SDKs), RoundTrip (default trait impl), Derive. Round-trip parity verified across the fixture set; the Studio-profile Derive output (Gate C of the master sequence) is the next gate to land in Plan 10 (Studio cutover), which depends on a published Studio profile.
+
+### Compatibility
+
+Pre-release. The reference Validate implementations in JSON-LD and OpenAPI projectors are stubs that return `Ok(())`; the production Validate composition (loop overlay nodes, validate each against compiled JSON Schema by `@type`) lands with the Layer 5 SDK harness in Plan 6. The MVP triangle's correctness contract is round-trip identity, asserted in CI.
+
 ## v0.2.0-pre.3 — Layer 2 Constraints
 
 **CUE selected as constraint source language. JSON Schema 2020-12, Rust, TypeScript are MUST targets; SHACL, CUE-passthrough, Rego are MAY targets.**
