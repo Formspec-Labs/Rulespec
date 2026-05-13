@@ -34,3 +34,7 @@ Thumbs.db
 # Local environment
 .env
 .envrc
+.tools/
+compiled/
+crates/target/
+node_modules/
