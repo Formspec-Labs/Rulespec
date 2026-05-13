@@ -1,6 +1,6 @@
 //! Rulespec JSON Schema 2020-12 projector.
 //!
-//! Carrier convention: `spec/projectors/json-schema-v0.2.md`.
+//! Carrier convention: `spec/projectors/json-schema.md`.
 
 use async_trait::async_trait;
 use rkaf_projector_core::{Projector, ProjectorError, TargetId};

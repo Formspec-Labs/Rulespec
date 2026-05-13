@@ -1,0 +1,21 @@
+{
+  "@context": "../context/rkaf-context.jsonld",
+  "@graph": [
+    {
+      "@id": "urn:rkaf:fixture:sf-aknt:artifact",
+      "@type": "rkaf:Artifact",
+      "rkaf:hasArtifactIdentifier": "http://data.europa.eu/eli/dir/2016/680/oj",
+      "rkaf:artifactIdentifierScheme": "rkaf:aknt-eId"
+    },
+    {
+      "@id": "urn:rkaf:fixture:sf-aknt:fragment",
+      "@type": "rkaf:SourceFragment",
+      "rkaf:bindsArtifact": "urn:rkaf:fixture:sf-aknt:artifact",
+      "rkaf:hasSelector": {
+        "@type": "rkaf:AktnEIdSelector",
+        "rdf:value": "art_5__para_2__list_a"
+      },
+      "rkaf:selectorKind": "rkaf:aknt-eId"
+    }
+  ]
+}

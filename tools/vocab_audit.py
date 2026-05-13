@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-"""Vocab audit — fails the build if a v0.2 vocabulary term has zero fixtures.
+"""Vocab audit — fails the build if a vocabulary term has zero fixtures.
 
-Parses spec/rkaf-vocabulary-v0.2.md (the term reference tables) and verifies
+Parses spec/rkaf-vocabulary.md (the term reference tables) and verifies
 that every fixture name listed in the `Required fixtures` column exists
-under fixtures/v0.2/ as a `<name>.jsonld` file.
+under fixtures/ as a `<name>.jsonld` file.
 
 Exit codes:
   0  every required fixture present
@@ -15,8 +15,8 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-TERM_DOC = ROOT / "spec" / "rkaf-vocabulary-v0.2.md"
-FIXTURE_DIR = ROOT / "fixtures" / "v0.2"
+TERM_DOC = ROOT / "spec" / "rkaf-vocabulary.md"
+FIXTURE_DIR = ROOT / "fixtures"
 
 # Fixture names look like: lowercase-with-hyphens, possibly mixed case for camelCase enums.
 FIXTURE_NAME = re.compile(r"[a-zA-Z][a-zA-Z0-9-]+")

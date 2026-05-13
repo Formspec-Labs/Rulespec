@@ -31,5 +31,5 @@ pub use source_fragment::{SelectorKind, SourceFragment};
 pub use warrant::{Warrant, WarrantFamily, WarrantKind};
 
 /// Canonical Rulespec v0.2 JSON-LD context URL.
-pub const RKAF_CONTEXT_V02: &str =
-    "https://rulespec.org/context/rkaf-context-v0.2.jsonld";
+pub const RKAF_CONTEXT: &str =
+    "https://rulespec.org/context/rkaf-context.jsonld";

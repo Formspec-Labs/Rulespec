@@ -104,7 +104,7 @@ python3 tools/ci_validate.py --mode batch4    # 1,206 triples (default)
 
 ## context.jsonld
 
-The file `context.jsonld` in this directory is the **fixture-prep source** for the inline `@context` that each fixture carries. It is identical in content to `context/rkaf-context-v0.2.jsonld`. See `context/README.md` for the rationale for this duplication.
+The file `context.jsonld` in this directory is the **fixture-prep source** for the inline `@context` that each fixture carries. It is identical in content to `context/rkaf-context.jsonld`. See `context/README.md` for the rationale for this duplication.
 
 ## Adding new fixtures
 

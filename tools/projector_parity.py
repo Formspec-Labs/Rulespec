@@ -2,7 +2,7 @@
 """Projector parity orchestrator (Rulespec Layer 4).
 
 For every `round-trip-*.{jsonld,yaml}` fixture under
-`fixtures/v0.2/projectors/<target>/`, invoke the `projector-harness` CLI to
+`fixtures/projectors/<target>/`, invoke the `projector-harness` CLI to
 run Attach → Extract on the matching projector and assert that round-trip
 identity holds.
 

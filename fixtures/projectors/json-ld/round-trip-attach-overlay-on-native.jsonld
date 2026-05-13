@@ -1,0 +1,22 @@
+{
+  "native": {
+    "@context": "https://w3id.org/wos/ns/v1",
+    "@graph": [
+      { "@id": "wf-1", "@type": "wos:Workflow" }
+    ]
+  },
+  "overlay": {
+    "@context": "https://rulespec.org/context/rkaf-context.jsonld",
+    "@graph": [
+      {
+        "@id": "a-1",
+        "@type": "rkaf:Assertion",
+        "rkaf:hasWarrant": {
+          "@type": "rkaf:Warrant",
+          "rkaf:warrantKind": "rkaf:statute",
+          "rkaf:warrantFamily": "rkaf:regulatory"
+        }
+      }
+    ]
+  }
+}

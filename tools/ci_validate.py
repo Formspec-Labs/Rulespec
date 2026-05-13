@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
-"""Rulespec CI validation gate (v0.2 conformance).
+"""Rulespec CI validation gate (conformance).
 
-Validates the v0.2 positive-fixture set against the v0.2 SHACL shape suite.
+Validates the positive-fixture set against the SHACL shape suite.
 v0.1 was wholesale-superseded (master plan §1; source spec §11) and lives
 under `archive/v0.1/` — it is not loaded by this gate.
 
@@ -21,36 +21,36 @@ from pathlib import Path
 
 MIN_PYSHACL = (0, 31, 0)
 
-# Single conformance mode: v0.2 full positive-fixture set.
+# Single conformance mode: full positive-fixture set.
 SHAPES = [
-    "shapes/rkaf-shapes-core-v0.2.ttl",
-    "shapes/rkaf-shapes-warrant-v0.2.ttl",
-    "shapes/rkaf-shapes-confidence-v0.2.ttl",
-    "shapes/rkaf-shapes-accessscope-v0.2.ttl",
-    "shapes/rkaf-shapes-studio-promotions-v0.2.ttl",
-    "shapes/rkaf-shapes-conceptregistry-v0.2.ttl",
+    "shapes/rkaf-shapes-core.ttl",
+    "shapes/rkaf-shapes-warrant.ttl",
+    "shapes/rkaf-shapes-confidence.ttl",
+    "shapes/rkaf-shapes-accessscope.ttl",
+    "shapes/rkaf-shapes-studio-promotions.ttl",
+    "shapes/rkaf-shapes-conceptregistry.ttl",
 ]
 EXPECTED = {
-    "v0.2/artifact-eli-positive":                       {"triples": (1, 50)},
-    "v0.2/artifact-doi-positive":                       {"triples": (1, 50)},
-    "v0.2/artifact-cid-positive":                       {"triples": (1, 50)},
-    "v0.2/sourcefragment-oa-textquote-positive":        {"triples": (1, 50)},
-    "v0.2/sourcefragment-oa-xpath-positive":            {"triples": (1, 50)},
-    "v0.2/sourcefragment-aknt-eid-positive":            {"triples": (1, 50)},
-    "v0.2/sourcefragment-uslm-section-positive":        {"triples": (1, 50)},
-    "v0.2/evidencebinding-positive":                    {"triples": (1, 50)},
-    "v0.2/evidencebinding-no-evidence-reason-positive": {"triples": (1, 50)},
-    "v0.2/warrant-legal-positive":                      {"triples": (1, 50)},
-    "v0.2/warrant-scientific-positive":                 {"triples": (1, 50)},
-    "v0.2/warrant-cross-family-transition-positive":    {"triples": (1, 50)},
-    "v0.2/confidencerecord-uncalibrated-positive":      {"triples": (1, 50)},
-    "v0.2/confidencerecord-calibrated-positive":        {"triples": (1, 50)},
-    "v0.2/accessscope-public-positive":                 {"triples": (1, 50)},
-    "v0.2/accessscope-organizationVisible-positive":    {"triples": (1, 50)},
-    "v0.2/ailineage-positive":                          {"triples": (1, 50)},
-    "v0.2/retentionpolicy-positive":                    {"triples": (1, 50)},
-    "v0.2/mappingstate-positive":                       {"triples": (1, 50)},
-    "v0.2/workspace-positive":                          {"triples": (1, 50)},
+    "artifact-eli-positive":                       {"triples": (1, 50)},
+    "artifact-doi-positive":                       {"triples": (1, 50)},
+    "artifact-cid-positive":                       {"triples": (1, 50)},
+    "sourcefragment-oa-textquote-positive":        {"triples": (1, 50)},
+    "sourcefragment-oa-xpath-positive":            {"triples": (1, 50)},
+    "sourcefragment-aknt-eid-positive":            {"triples": (1, 50)},
+    "sourcefragment-uslm-section-positive":        {"triples": (1, 50)},
+    "evidencebinding-positive":                    {"triples": (1, 50)},
+    "evidencebinding-no-evidence-reason-positive": {"triples": (1, 50)},
+    "warrant-legal-positive":                      {"triples": (1, 50)},
+    "warrant-scientific-positive":                 {"triples": (1, 50)},
+    "warrant-cross-family-transition-positive":    {"triples": (1, 50)},
+    "confidencerecord-uncalibrated-positive":      {"triples": (1, 50)},
+    "confidencerecord-calibrated-positive":        {"triples": (1, 50)},
+    "accessscope-public-positive":                 {"triples": (1, 50)},
+    "accessscope-organizationVisible-positive":    {"triples": (1, 50)},
+    "ailineage-positive":                          {"triples": (1, 50)},
+    "retentionpolicy-positive":                    {"triples": (1, 50)},
+    "mappingstate-positive":                       {"triples": (1, 50)},
+    "workspace-positive":                          {"triples": (1, 50)},
 }
 
 FIXTURES_DIR = "fixtures"
@@ -115,7 +115,7 @@ def validate_one(fixture_path, shapes_paths):
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Rulespec CI validation gate (v0.2)")
+    parser = argparse.ArgumentParser(description="Rulespec CI validation gate")
     parser.add_argument("--repo-root", default=".")
     parser.add_argument("--json", action="store_true")
     args = parser.parse_args()
@@ -124,7 +124,7 @@ def main():
     shapes_paths = [repo_root / p for p in SHAPES]
     fixtures_dir = repo_root / FIXTURES_DIR
 
-    print("Rulespec CI validation gate (v0.2)")
+    print("Rulespec CI validation gate")
     print("=" * 60)
 
     print("\n[1/3] Environment check")

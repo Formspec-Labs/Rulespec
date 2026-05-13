@@ -505,7 +505,7 @@ def target_json_schema(doc: ConstraintDoc) -> str:
 
     envelope = {
         "$schema": "https://json-schema.org/draft/2020-12/schema",
-        "$id": f"https://rulespec.org/jsonschema/v0.2/{doc.package}.json",
+        "$id": f"https://rulespec.org/jsonschema/{doc.package}.json",
         "title": doc.package,
         "$defs": schemas,
     }

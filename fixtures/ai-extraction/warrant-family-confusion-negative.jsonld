@@ -1,0 +1,7 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@id": "urn:rkaf:fixture:wfc-neg:w1",
+  "@type": "rkaf:Warrant",
+  "rkaf:warrantKind": "rkaf:statutory",
+  "rkaf:warrantFamily": "rkaf:scientific"
+}

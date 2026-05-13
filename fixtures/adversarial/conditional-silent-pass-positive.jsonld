@@ -1,0 +1,12 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@id": "urn:rkaf:fixture:csp-pos:a1",
+  "@type": "rkaf:Assertion",
+  "rkaf:hasSafetyLabel": "rkaf:permits-consensus-without-citation",
+  "rkaf:hasEvidenceBinding": [
+    {
+      "@type": "rkaf:EvidenceBinding",
+      "rkaf:noEvidenceReason": "rkaf:consensus-without-citation"
+    }
+  ]
+}

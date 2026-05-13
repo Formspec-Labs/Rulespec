@@ -1,0 +1,21 @@
+{
+  "@context": "../context/rkaf-context.jsonld",
+  "@graph": [
+    {
+      "@id": "urn:rkaf:fixture:sf-uslm:artifact",
+      "@type": "rkaf:Artifact",
+      "rkaf:hasArtifactIdentifier": "https://www.govinfo.gov/link/uslm/title42/chapter6A/subchapterVII",
+      "rkaf:artifactIdentifierScheme": "rkaf:uslm"
+    },
+    {
+      "@id": "urn:rkaf:fixture:sf-uslm:fragment",
+      "@type": "rkaf:SourceFragment",
+      "rkaf:bindsArtifact": "urn:rkaf:fixture:sf-uslm:artifact",
+      "rkaf:hasSelector": {
+        "@type": "rkaf:USLMSectionSelector",
+        "rdf:value": "/us/usc/t42/s9601(a)"
+      },
+      "rkaf:selectorKind": "rkaf:uslm-section"
+    }
+  ]
+}

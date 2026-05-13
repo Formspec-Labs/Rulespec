@@ -17,18 +17,18 @@ ROOT = Path(__file__).resolve().parent.parent
 SHAPES = [
     # v0.2 shape files. v0.1 was wholesale-superseded (spec §11) and lives under
     # archive/v0.1/; this gate never loads it.
-    "shapes/rkaf-shapes-core-v0.2.ttl",
-    "shapes/rkaf-shapes-warrant-v0.2.ttl",
-    "shapes/rkaf-shapes-confidence-v0.2.ttl",
-    "shapes/rkaf-shapes-accessscope-v0.2.ttl",
-    "shapes/rkaf-shapes-studio-promotions-v0.2.ttl",
-    "shapes/rkaf-shapes-conceptregistry-v0.2.ttl",
+    "shapes/rkaf-shapes-core.ttl",
+    "shapes/rkaf-shapes-warrant.ttl",
+    "shapes/rkaf-shapes-confidence.ttl",
+    "shapes/rkaf-shapes-accessscope.ttl",
+    "shapes/rkaf-shapes-studio-promotions.ttl",
+    "shapes/rkaf-shapes-conceptregistry.ttl",
 ]
 NEGATIVES = [
-    "fixtures/v0.2/evidencebinding-missing-negative.jsonld",
-    "fixtures/v0.2/confidencerecord-score-theater-negative.jsonld",
-    "fixtures/v0.2/accessscope-leak-negative.jsonld",
-    "fixtures/v0.2/ailineage-missing-approver-negative.jsonld",
+    "fixtures/evidencebinding-missing-negative.jsonld",
+    "fixtures/confidencerecord-score-theater-negative.jsonld",
+    "fixtures/accessscope-leak-negative.jsonld",
+    "fixtures/ailineage-missing-approver-negative.jsonld",
 ]
 
 

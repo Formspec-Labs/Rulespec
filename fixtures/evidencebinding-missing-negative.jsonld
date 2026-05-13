@@ -1,0 +1,15 @@
+{
+  "@context": "../context/rkaf-context.jsonld",
+  "@graph": [
+    {
+      "@id": "urn:rkaf:fixture:eb-neg:assertion",
+      "@type": "rkaf:Assertion",
+      "rkaf:assertionOrigin": "rkaf:humanAsserted"
+    },
+    {
+      "@id": "urn:rkaf:fixture:eb-neg:binding",
+      "@type": "rkaf:EvidenceBinding",
+      "rkaf:bindsAssertion": "urn:rkaf:fixture:eb-neg:assertion"
+    }
+  ]
+}

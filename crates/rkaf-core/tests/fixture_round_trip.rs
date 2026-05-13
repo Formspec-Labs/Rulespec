@@ -7,7 +7,7 @@ use serde_json::Value;
 
 fn fixture(slug: &str) -> Value {
     let path =
-        format!("{}/../../fixtures/v0.2/{slug}.jsonld", env!("CARGO_MANIFEST_DIR"));
+        format!("{}/../../fixtures/{slug}.jsonld", env!("CARGO_MANIFEST_DIR"));
     let bytes = std::fs::read(&path).unwrap_or_else(|e| {
         panic!("read fixture {path}: {e}")
     });

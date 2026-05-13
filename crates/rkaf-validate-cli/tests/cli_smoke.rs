@@ -14,7 +14,7 @@ fn bin() -> PathBuf {
 
 fn fixture(name: &str) -> PathBuf {
     let mut p = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
-    p.push("../../fixtures/v0.2");
+    p.push("../../fixtures");
     p.push(format!("{name}.jsonld"));
     p
 }

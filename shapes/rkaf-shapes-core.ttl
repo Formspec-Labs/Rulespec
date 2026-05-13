@@ -1,0 +1,35 @@
+# Rulespec Core Shapes v0.2 — Umbrella
+# Profile: Pattern C only (no sh:if / sh:then)
+# Composes the five v0.2 modular shape files. v0.1 was wholesale-superseded
+# (archive/v0.1/) and is not imported.
+
+@prefix sh:    <http://www.w3.org/ns/shacl#> .
+@prefix owl:   <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix rkaf:  <https://rulespec.org/ns/v1#> .
+
+<https://rulespec.org/shapes/core>
+  a owl:Ontology ;
+  rdfs:label "Rulespec Core SHACL shapes v0.2 (umbrella)" ;
+  rdfs:comment "Compiled SHACL target. Composes the v0.2 modular shape files. Source of truth for constraints lives in Layer 2 (Plan 3, CUE)." ;
+  owl:imports
+    <https://rulespec.org/shapes/warrant> ,
+    <https://rulespec.org/shapes/confidence> ,
+    <https://rulespec.org/shapes/accessscope> ,
+    <https://rulespec.org/shapes/studio-promotions> ,
+    <https://rulespec.org/shapes/conceptregistry> .
+
+# Authority is now a specialization of Warrant (§4.4).
+rkaf:Authority rdfs:subClassOf rkaf:Warrant .
+
+# Assertion-level Pattern-C requirement: an Assertion whose assertionOrigin is
+# in the AI-touched set MUST carry rkaf:hasAILineage (§5.3).
+rkaf:AssertionAILineageShape a sh:NodeShape ;
+  sh:targetClass rkaf:Assertion ;
+  sh:or (
+    [ sh:property [ sh:path rkaf:assertionOrigin ;
+        sh:not [ sh:in ( rkaf:aiSuggested rkaf:aiPromoted
+                          rkaf:humanQualified rkaf:humanRevalidation ) ] ] ]
+    [ sh:property [ sh:path rkaf:hasAILineage ; sh:minCount 1 ] ]
+  ) ;
+  sh:message "Assertion with AI-touched assertionOrigin MUST carry rkaf:hasAILineage (§5.3)." .

@@ -1,6 +1,6 @@
 //! Rulespec OpenAPI 3.1 projector.
 //!
-//! Carrier convention: `spec/projectors/openapi-v0.2.md`.
+//! Carrier convention: `spec/projectors/openapi.md`.
 
 use async_trait::async_trait;
 use rkaf_projector_core::{Projector, ProjectorError, TargetId};

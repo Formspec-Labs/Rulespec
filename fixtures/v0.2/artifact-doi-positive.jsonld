@@ -1,7 +1,0 @@
-{
-  "@context": "../../context/rkaf-context-v0.2.jsonld",
-  "@id": "https://rulespec.org/fixtures/v0.2/artifact-doi-positive#a1",
-  "@type": "rkaf:Artifact",
-  "rkaf:hasArtifactIdentifier": "doi:10.1038/s41586-020-2649-2",
-  "rkaf:artifactIdentifierScheme": "rkaf:doi"
-}

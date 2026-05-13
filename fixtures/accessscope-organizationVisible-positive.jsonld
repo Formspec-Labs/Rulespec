@@ -1,0 +1,6 @@
+{
+  "@context": "../context/rkaf-context.jsonld",
+  "@id": "urn:rkaf:fixture:as-org:s1",
+  "@type": "rkaf:AccessScope",
+  "rkaf:accessScopeKind": "rkaf:organizationVisible"
+}

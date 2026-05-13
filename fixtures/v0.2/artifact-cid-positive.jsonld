@@ -1,7 +1,0 @@
-{
-  "@context": "../../context/rkaf-context-v0.2.jsonld",
-  "@id": "https://rulespec.org/fixtures/v0.2/artifact-cid-positive#a1",
-  "@type": "rkaf:Artifact",
-  "rkaf:hasArtifactIdentifier": "ipfs://bafybeigdyrztmdklm5wvtfa3kxkqx6vbxlikwwykqcjvmprxjcxz5jwlne",
-  "rkaf:artifactIdentifierScheme": "rkaf:cid"
-}

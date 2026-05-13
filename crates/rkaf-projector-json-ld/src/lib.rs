@@ -1,6 +1,6 @@
 //! Rulespec JSON-LD 1.1 projector.
 //!
-//! Carrier convention: `spec/projectors/json-ld-v0.2.md`.
+//! Carrier convention: `spec/projectors/json-ld.md`.
 
 use async_trait::async_trait;
 use rkaf_projector_core::{Projector, ProjectorError, TargetId};
@@ -8,8 +8,8 @@ use serde_json::{json, Map, Value};
 use std::path::{Path, PathBuf};
 
 /// The canonical Rulespec v0.2 JSON-LD context URL appended on Attach.
-pub const RKAF_CONTEXT_V02: &str =
-    "https://rulespec.org/context/rkaf-context-v0.2.jsonld";
+pub const RKAF_CONTEXT: &str =
+    "https://rulespec.org/context/rkaf-context.jsonld";
 
 pub struct JsonLdProjector {
     pub version: String,
@@ -97,7 +97,7 @@ impl Projector for JsonLdProjector {
         let mut merged: Map<String, Value> = native_obj.clone();
         merged.insert(
             "@context".into(),
-            append_context(native_obj.get("@context"), RKAF_CONTEXT_V02),
+            append_context(native_obj.get("@context"), RKAF_CONTEXT),
         );
         let mut graph = graph_nodes(&native);
         for node in graph_nodes(&overlay) {
@@ -122,7 +122,7 @@ impl Projector for JsonLdProjector {
         let native_ctx = merged_obj
             .get("@context")
             .cloned()
-            .map(|c| strip_context(c, RKAF_CONTEXT_V02))
+            .map(|c| strip_context(c, RKAF_CONTEXT))
             .unwrap_or(Value::Null);
 
         let mut native_out = Map::new();
@@ -132,7 +132,7 @@ impl Projector for JsonLdProjector {
         native_out.insert("@graph".into(), Value::Array(native_nodes));
 
         let overlay_out = json!({
-            "@context": RKAF_CONTEXT_V02,
+            "@context": RKAF_CONTEXT,
             "@graph":   overlay_nodes,
         });
 
@@ -142,7 +142,7 @@ impl Projector for JsonLdProjector {
     async fn validate(&self, _overlay: Value) -> Result<(), ProjectorError> {
         // Per-node validation (against per-class compiled JSON Schemas keyed by @type) lands with
         // the Layer 5 SDK harness; v0.2 MVP delegates Validate to the JSON Schema projector when
-        // composed with a validator. See spec/projectors/json-ld-v0.2.md §2.
+        // composed with a validator. See spec/projectors/json-ld.md §2.
         Ok(())
     }
 
@@ -163,7 +163,7 @@ impl Projector for JsonLdProjector {
         // Full derive (per-profile context narrowing) lands in Plan 10 Studio cutover.
         Ok(json!({
             "@context-derived-from": profile_cue_path,
-            "@context":              RKAF_CONTEXT_V02,
+            "@context":              RKAF_CONTEXT,
             "cue-source-length":     String::from_utf8_lossy(&out.stdout).len(),
         }))
     }

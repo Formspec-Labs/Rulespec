@@ -9,7 +9,7 @@ use serde_json::Value;
 
 fn fixture(name: &str) -> Value {
     let path = format!(
-        "{}/../../fixtures/v0.2/{name}.jsonld",
+        "{}/../../fixtures/{name}.jsonld",
         env!("CARGO_MANIFEST_DIR")
     );
     serde_json::from_slice(&std::fs::read(&path).expect(&path)).unwrap()

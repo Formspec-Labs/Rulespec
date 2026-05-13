@@ -1,0 +1,5 @@
+{
+  "@context": "../context/rkaf-context.jsonld",
+  "@id": "urn:rkaf:fixture:ms-pos:m1",
+  "rkaf:mappingState": "rkaf:mapsToWos"
+}

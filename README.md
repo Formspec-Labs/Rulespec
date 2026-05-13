@@ -72,7 +72,7 @@ python3 tools/ci_validate.py --mode batch4    # + Justification (default)
 ├── context/                           ← Published JSON-LD contexts
 │   ├── README.md
 │   ├── rkaf-context-v0.1.jsonld       ← Frozen historical
-│   └── rkaf-context-v0.2.jsonld       ← Current; additive superset of v0.1
+│   └── rkaf-context.jsonld       ← Current; additive superset of v0.1
 │
 ├── shapes/                            ← SHACL shape files (Pattern C, pySHACL-evaluable)
 │   ├── README.md
@@ -83,7 +83,7 @@ python3 tools/ci_validate.py --mode batch4    # + Justification (default)
 │
 ├── fixtures/                          ← Conformance fixtures (4)
 │   ├── README.md
-│   ├── context.jsonld                 ← Inline-context source-of-truth (== context/rkaf-context-v0.2.jsonld)
+│   ├── context.jsonld                 ← Inline-context source-of-truth (== context/rkaf-context.jsonld)
 │   ├── local-operational-v0.2.jsonld
 │   ├── mapping-v0.1.jsonld
 │   ├── statutory-authority-v0.1.jsonld

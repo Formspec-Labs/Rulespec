@@ -80,7 +80,7 @@ Added to `fixtures/context.jsonld`:
 
 This is an **additive** fix to the context that doesn't change v0.1 semantics. The property was always conceptually an IRI reference; the v0.1 context simply didn't declare it. v0.1-rc1 frozen context remains untouched; Batch 2 uses an extended working context.
 
-Recommendation: publish this extended context as `rkaf-context-v0.2.jsonld`, strict superset of v0.1 context.
+Recommendation: publish this extended context as `rkaf-context.jsonld`, strict superset of v0.1 context.
 
 ### 3.2 Mapping fixture — terminology rename (4 patches)
 

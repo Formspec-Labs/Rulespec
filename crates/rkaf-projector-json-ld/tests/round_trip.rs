@@ -18,7 +18,7 @@ async fn attach_then_extract_partitions_by_type_namespace() {
         "@graph": [{"@id": "wf-1", "@type": "wos:Workflow"}]
     });
     let overlay = json!({
-        "@context": "https://rulespec.org/context/rkaf-context-v0.2.jsonld",
+        "@context": "https://rulespec.org/context/rkaf-context.jsonld",
         "@graph": [{
             "@id": "a-1",
             "@type": "rkaf:Assertion",
@@ -40,7 +40,7 @@ async fn round_trip_returns_true_on_common_shape() {
         "@graph": [{"@id": "wf-1", "@type": "wos:Workflow"}]
     });
     let overlay = json!({
-        "@context": "https://rulespec.org/context/rkaf-context-v0.2.jsonld",
+        "@context": "https://rulespec.org/context/rkaf-context.jsonld",
         "@graph": [{"@id": "a-1", "@type": "rkaf:Assertion"}]
     });
     assert!(p.round_trip(native, overlay).await.unwrap());

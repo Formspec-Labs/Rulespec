@@ -1,0 +1,22 @@
+{
+  "native": {
+    "@context": "https://w3id.org/wos/ns/v1",
+    "@graph": [
+      {
+        "@id": "snap-2026-04-redet-0001",
+        "@type": "wos:Workflow",
+        "name": "SNAP April 2026 Redetermination"
+      }
+    ]
+  },
+  "overlay": {
+    "@context": "https://rulespec.org/context/rkaf-context.jsonld",
+    "@graph": [
+      {
+        "@id": "a-1",
+        "@type": "rkaf:Assertion",
+        "rkaf:assertsSubject": "snap-2026-04-redet-0001"
+      }
+    ]
+  }
+}

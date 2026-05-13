@@ -6,7 +6,7 @@ into every other call site, or verifies they're already in sync.
 
 Call sites kept in lock-step:
   - crates/Cargo.toml         (workspace.package.version)
-  - context/rkaf-context-v0.2.jsonld  (top-level "version" field)
+  - context/rkaf-context.jsonld  (top-level "version" field)
 
 Rust source files and tests read `env!("CARGO_PKG_VERSION")` so they auto-track
 the workspace version; they are not touched here.
@@ -72,7 +72,7 @@ def sync_cargo_toml(truth: str, write: bool) -> bool:
 
 
 def sync_jsonld_context(truth: str, write: bool) -> bool:
-    path = ROOT / "context" / "rkaf-context-v0.2.jsonld"
+    path = ROOT / "context" / "rkaf-context.jsonld"
     if not path.is_file():
         return True
     src = path.read_text(encoding="utf-8")

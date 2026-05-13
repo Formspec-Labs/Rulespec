@@ -1,0 +1,18 @@
+{
+  "@context": "../context/rkaf-context.jsonld",
+  "@graph": [
+    {
+      "@id": "urn:rkaf:fixture:warrant-xfam:editorial",
+      "@type": "rkaf:Warrant",
+      "rkaf:warrantKind": "rkaf:editorial",
+      "rkaf:warrantFamily": "rkaf:editorial"
+    },
+    {
+      "@id": "urn:rkaf:fixture:warrant-xfam:scientific",
+      "@type": "rkaf:Warrant",
+      "rkaf:warrantKind": "rkaf:methodological",
+      "rkaf:warrantFamily": "rkaf:scientific",
+      "rkaf:derivesAuthorityFrom": "urn:rkaf:fixture:warrant-xfam:editorial"
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@id": "urn:rkaf:fixture:asl-neg:eb1",
+  "@type": "rkaf:EvidenceBinding",
+  "rkaf:bindsAssertion": "urn:rkaf:fixture:asl-neg:a1",
+  "rkaf:bindsSourceFragment": ["urn:rkaf:fixture:asl-neg:sf1"],
+  "rkaf:hasAccessScope": {
+    "@type": "rkaf:AccessScope",
+    "rkaf:accessScopeKind": "rkaf:public"
+  }
+}

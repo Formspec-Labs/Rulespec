@@ -1,0 +1,7 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@id": "urn:rkaf:fixture:ed-neg:w1",
+  "@type": "rkaf:Warrant",
+  "rkaf:warrantKind": "rkaf:provisional",
+  "rkaf:warrantFamily": "rkaf:legal"
+}

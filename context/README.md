@@ -8,7 +8,7 @@ Rulespec uses JSON-LD for serialization. The context files in this directory def
 
 The original v0.1 context shipped with v0.1-rc1. Preserved unchanged as a historical record.
 
-### `rkaf-context-v0.2.jsonld` (current)
+### `rkaf-context.jsonld` (current)
 
 The current published context for v0.1.1. A strict additive superset of v0.1 — no semantic changes, only additions:
 
@@ -21,7 +21,7 @@ Documented via `_meta` block at the top of the file. JSON-LD processors ignore k
 Once published, these contexts will be hosted at stable URIs:
 
 - `https://rulespec.org/context/v1.jsonld` → `rkaf-context-v0.1.jsonld` (frozen)
-- `https://rulespec.org/context/v2.jsonld` → `rkaf-context-v0.2.jsonld` (current)
+- `https://rulespec.org/context/v2.jsonld` → `rkaf-context.jsonld` (current)
 
 Fixtures and consumer artifacts reference one of these URIs via their `@context` field. Until hosting is set up, fixtures inline the full context as a literal object in their `@context` field; the file `fixtures/context.jsonld` is the canonical source for that inlined content.
 
@@ -37,9 +37,9 @@ The v0.1 context is preserved because:
 
 Each fixture file in `fixtures/` carries its `@context` inline (a full copy of the v0.2 context content, minus the `_meta` block). This is the canonical reference state for fixture validation.
 
-The `fixtures/context.jsonld` file is the source from which the inline contexts are refreshed. It is **identical** to `context/rkaf-context-v0.2.jsonld` in content. The two files exist for distinct purposes:
+The `fixtures/context.jsonld` file is the source from which the inline contexts are refreshed. It is **identical** to `context/rkaf-context.jsonld` in content. The two files exist for distinct purposes:
 
-- `context/rkaf-context-v0.2.jsonld` → the **published** context (the canonical artifact for hosting)
+- `context/rkaf-context.jsonld` → the **published** context (the canonical artifact for hosting)
 - `fixtures/context.jsonld` → the **fixture-prep source** (used by tooling to refresh fixture inlined contexts)
 
 If you edit one, edit both. A future tooling improvement could collapse this duplication.

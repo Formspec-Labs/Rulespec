@@ -79,7 +79,7 @@ The runtime conformance test layer (planned post-v0.1.1) will add:
 
 - `tools/runtime_conformance.py` — runs cascade closure, reducer, and authority chain traversal tests against an implementation under test, diffing actual output against expected output in fixture-specific JSON files
 
-- `tools/fixture_prep.py` — refreshes the inline `@context` in fixtures from `context/rkaf-context-v0.2.jsonld` (currently this is done ad-hoc; codifying it prevents drift between the canonical context and inline fixture contexts)
+- `tools/fixture_prep.py` — refreshes the inline `@context` in fixtures from `context/rkaf-context.jsonld` (currently this is done ad-hoc; codifying it prevents drift between the canonical context and inline fixture contexts)
 
 - `tools/synthetic_defect.py` — runs the synthetic defect injection test suite (currently embedded in batch reports) as a standing CI gate
 

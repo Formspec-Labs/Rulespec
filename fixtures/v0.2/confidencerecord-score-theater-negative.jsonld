@@ -1,6 +1,0 @@
-{
-  "@context": "../../context/rkaf-context-v0.2.jsonld",
-  "@id": "urn:rkaf:fixture:conf-st:c1",
-  "@type": "rkaf:ConfidenceRecord",
-  "rkaf:score": 0.97
-}

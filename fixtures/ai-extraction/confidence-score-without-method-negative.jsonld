@@ -1,0 +1,6 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@id": "urn:rkaf:fixture:cswm-neg:c1",
+  "@type": "rkaf:ConfidenceRecord",
+  "rkaf:score": 0.92
+}
