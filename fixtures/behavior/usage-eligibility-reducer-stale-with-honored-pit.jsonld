@@ -3,6 +3,7 @@
   "@id": "urn:rkaf:fixture:beh:ue-pit:case1",
   "@type": "rkaf:BehaviorTestCase",
   "rkaf:behaviorContract": "rkaf:UsageEligibilityReducer",
+  "rkaf:subjectAssertion": "a1",
   "rkaf:rationale": "Assertion is staleForCurrentUse but a PointInTimeException retains it and the consumer supports the anchor. Reducer step 3 restores baseline per \u00a71.2 step 3.",
   "rkaf:input": {
     "@graph": [

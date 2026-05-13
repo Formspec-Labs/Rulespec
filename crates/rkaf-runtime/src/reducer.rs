@@ -33,22 +33,19 @@ fn min_on_lattice(a: &str, b: &str) -> String {
 
 pub fn evaluate(test_case: &Value, graph: &Graph) -> Result<Verdict, RuntimeError> {
     let consumer = crate::consumer::select_consumer(test_case, graph)?;
-    // Locate the Assertion under evaluation. Fixtures SHOULD declare
-    // `rkaf:subjectAssertion` explicitly when the graph contains multiple
-    // Assertions; otherwise the runtime picks the first rkaf:Assertion node
-    // for backward compat with v0.2-pre fixtures.
-    let assertion = if let Some(id) = test_case
+    // Locate the Assertion under evaluation. Per spec §1, the fixture MUST
+    // declare `rkaf:subjectAssertion` — greenfield contract, no implicit
+    // "pick the first Assertion" fallback. Graphs commonly carry multiple
+    // Assertions (e.g., justification chain), so silent selection is unsafe.
+    let assertion_id_field = test_case
         .get("rkaf:subjectAssertion")
         .and_then(Value::as_str)
-    {
-        graph.require(id)?
-    } else {
-        graph.nodes_by_type("rkaf:Assertion").next().ok_or_else(|| {
+        .ok_or_else(|| {
             RuntimeError::MalformedTestCase(
-                "UsageEligibilityReducer fixture missing an rkaf:Assertion in input (and no rkaf:subjectAssertion declared)".into(),
+                "UsageEligibilityReducer fixture MUST declare rkaf:subjectAssertion (no implicit selection)".into(),
             )
-        })?
-    };
+        })?;
+    let assertion = graph.require(assertion_id_field)?;
     let assertion_id = assertion
         .get("@id")
         .and_then(Value::as_str)

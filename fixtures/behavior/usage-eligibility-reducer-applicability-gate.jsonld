@@ -3,6 +3,7 @@
   "@id": "urn:rkaf:fixture:beh:ue-app:case1",
   "@type": "rkaf:BehaviorTestCase",
   "rkaf:behaviorContract": "rkaf:UsageEligibilityReducer",
+  "rkaf:subjectAssertion": "a1",
   "rkaf:rationale": "Assertion has hasApplicability pointing at an ApplicabilityScope with appliesInJurisdiction = ['scope:tx']. Reducer queried for scope:ca \u2014 outside applicability \u2192 notEligible per \u00a71.2 step 1.",
   "rkaf:input": {
     "@graph": [

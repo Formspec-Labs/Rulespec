@@ -48,7 +48,7 @@ pub fn evaluate(test_case: &Value, graph: &Graph) -> Result<Verdict, RuntimeErro
     }
 
     // Conflict — multiple distinct targets. Severity per spec §6.1.
-    let severity = compute_severity(&mappings, test_case, graph);
+    let severity = compute_severity(&mappings, test_case, graph)?;
 
     let conflicting: Vec<Value> = mappings
         .iter()
@@ -72,7 +72,14 @@ pub fn evaluate(test_case: &Value, graph: &Graph) -> Result<Verdict, RuntimeErro
 ///   authorityCritical     — publicationBlocking AND ≥1 of the approved
 ///                            mappings is managedByRegistry ∈
 ///                            consumer.trustedRegistries
-fn compute_severity(mappings: &[&Value], test_case: &Value, graph: &Graph) -> &'static str {
+///
+/// Multi-BCR errors from the consumer resolver propagate — a malformed
+/// graph MUST NOT silently degrade to a lower severity.
+fn compute_severity(
+    mappings: &[&Value],
+    test_case: &Value,
+    graph: &Graph,
+) -> Result<&'static str, RuntimeError> {
     let approved: Vec<&&Value> = mappings
         .iter()
         .filter(|m| {
@@ -81,9 +88,10 @@ fn compute_severity(mappings: &[&Value], test_case: &Value, graph: &Graph) -> &'
         .collect();
 
     if approved.len() >= 2 {
-        // Check for authority-critical upgrade. Pick the consumer (if any)
-        // via the same resolver the rest of the runtime uses.
-        if let Ok(Some(reg)) = crate::consumer::select_consumer(test_case, graph) {
+        // Authority-critical upgrade requires the canonical consumer. Any
+        // resolver error (multi-BCR without rkaf:evaluationConsumer, etc.)
+        // propagates rather than degrading to publicationBlocking.
+        if let Some(reg) = crate::consumer::select_consumer(test_case, graph)? {
             let trusted: Vec<&str> = reg
                 .get("rkaf:trustedRegistries")
                 .and_then(Value::as_array)
@@ -96,18 +104,18 @@ fn compute_severity(mappings: &[&Value], test_case: &Value, graph: &Graph) -> &'
                     .unwrap_or(false)
             });
             if any_trusted {
-                return "rkaf:authorityCritical";
+                return Ok("rkaf:authorityCritical");
             }
         }
-        return "rkaf:publicationBlocking";
+        return Ok("rkaf:publicationBlocking");
     }
 
     let any_exact = mappings.iter().any(|m| {
         m.get("rkaf:mappingRelation").and_then(Value::as_str) == Some("skos:exactMatch")
     });
-    if any_exact {
+    Ok(if any_exact {
         "rkaf:operationalConflict"
     } else {
         "rkaf:informational"
-    }
+    })
 }

@@ -91,7 +91,7 @@ An L4 implementation MUST:
 
 ### 4.2 Gate
 
-L4 conformance is gated by `crates/rkaf-runtime-cli/src/main.rs` (the `rkaf-behavior-validate` binary). `tools/conformance_report.py` shells out to this binary for every fixture under `fixtures/behavior/`, parses the per-fixture JSON verdict, and populates the L4 column with `pass` / `fail` / `error` / `skip`. Exit 0 from the binary across all behavior fixtures (24 today: 1 cascade, 2 reducer, 1 PIT, 1 concept-resolution, 19 bridge-rule fixtures covering all 10 contract rules) is the L4 gate.
+L4 conformance is gated by `crates/rkaf-runtime-cli/src/main.rs` (the `rkaf-behavior-validate` binary). `tools/conformance_report.py` shells out to this binary for every fixture under `fixtures/behavior/`, parses the per-fixture JSON verdict, and populates the L4 column with `pass` / `fail` / `error` / `skip`. Exit 0 from the binary across all behavior fixtures (33 today: 2 cascade — base + as_of; 5 reducer — applicability gate, capability cap, local broadens, stale narrows, stale-with-honored-PIT; 2 PIT — base + unsupported anchor; 4 concept-resolution — base conflict + 3-step severity ladder (informational, publicationBlocking, authorityCritical); 20 bridge-rule — positive + negative per all 10 contract rules) is the L4 gate.
 
 When the binary is missing (e.g., the workspace has not been built), the reporter degrades to `L4: skip` with a clear note pointing at `cargo build -p rkaf-runtime-cli`.
 

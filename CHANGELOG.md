@@ -5,6 +5,40 @@ All notable changes to Rulespec are documented in this file.
 The format is loosely based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 adapted for a specification + shape + fixture project.
 
+## Unreleased — Plan 7c: concept severity ladder + cascade `as_of` date predicate + greenfield-strict reducer
+
+Closes the two Plan 7c reservations in `spec/rkaf-behavior.md` and the deferred cascade `as_of` work, then closes the six findings from the Plan 7c semi-formal-code-review.
+
+### Added (Plan 7c)
+
+- **Concept-resolution 4-level severity ladder** (§6.1, full):
+  - `authorityCritical` ⇐ `publicationBlocking` + ≥1 approved mapping in `consumer.trustedRegistries`
+  - `publicationBlocking` ⇐ ≥2 mappings with `lifecycleState=approved` AND targets differ
+  - `operationalConflict` ⇐ ≥1 mapping with `skos:exactMatch` AND targets differ
+  - `informational` ⇐ no exactMatch, targets differ
+- **New CUE fields** load-bearing for the ladder:
+  - `ConceptMapping.lifecycleState` — closed enum: `proposed` / `underReview` / `approved` / `deprecated` / `retired`
+  - `ConceptMapping.managedByRegistry` — IRI identifying the owning registry
+  - `BridgeConsumerRegistration.trustedRegistries: [...string]` — authorityCritical-escalation set
+- **Cascade `rkaf:cascadeAsOf` literal-date predicate** (§2.4, §2.2 row (b)) — closure scoped to nodes whose attached `EffectivePeriod` contains the `as_of` instant. Timestamps parse as timezone-aware RFC-3339 via `chrono::DateTime::parse_from_rfc3339` and compare as instants (no lex foot-guns; any RFC-3339 offset spelling works).
+- **3 new behavior fixtures**: `concept-resolution-publication-blocking`, `concept-resolution-authority-critical`, `cascade-closure-as-of-excludes-expired`.
+- **3 new cascade unit tests**: semantic non-Z offset equivalence, out-of-period exclusion, malformed-EffectivePeriod loud error.
+
+### Changed (Plan 7c — review findings closed)
+
+- **`concept::compute_severity`** — multi-BCR errors from `select_consumer` now propagate via `?` instead of silently degrading to `publicationBlocking`. Return type `Result<&'static str, RuntimeError>`.
+- **`cascade::closure` + `is_active`** — accept `Option<&DateTime<FixedOffset>>` rather than `Option<&str>`. Malformed `cascadeAsOf` or `EffectivePeriod.{start,end}` returns `MalformedTestCase` with the offending node + field + raw value — no silent inclusion/exclusion.
+- **`reducer::evaluate`** — `rkaf:subjectAssertion` is now REQUIRED on every UsageEligibilityReducer fixture. Removed the "pick the first `rkaf:Assertion`" fallback (greenfield contract; silent selection is unsafe in any graph carrying a justification chain). All 5 existing reducer fixtures updated to declare it explicitly.
+- **`spec/rkaf-conformance.md` §4.2** — fixture count corrected: 33 today (2 cascade · 5 reducer · 2 PIT · 4 concept-resolution · 20 bridge-rule), with breakdown.
+- **`crates/rkaf-runtime/Cargo.toml`** — `chrono` (default-features-off; `std`+`clock` only) added for semantic RFC-3339 comparison.
+- **Repo hygiene** — two cross-stack proposal documents (formspec generalization, implementation- and spec-side; 1133 lines) swept in by an upstream commit have been moved to the parent stack's `thoughts/proposals/` where they belong. PKAF's `thoughts/proposals/` no longer exists.
+
+### Verified (Plan 7c)
+
+- `cargo test --workspace` — **all tests passing**; rkaf-runtime now reports 33 integration tests (was 30) + 15 unit tests (was 12, +3 cascade semantic-tz cases).
+- `cargo test -p rkaf-runtime` — **48 passing, 0 failing** (15 unit + 33 fixture).
+- Behavior fixtures: 33 in `fixtures/behavior/`, all `L4=pass`.
+
 ## Unreleased — Plan 7b: L4 behavioral runtime (`rkaf-runtime` + `rkaf-behavior-validate` CLI)
 
 L4 stops being aspirational. Ships a Rust runtime crate (`crates/rkaf-runtime/`) implementing all 5 algorithmic contracts in `spec/rkaf-behavior.md` — UsageEligibility reducer, CascadeClosureV1, all 10 bridge contract rules, PointInTimeException evaluation, concept resolution with conflict — plus a CLI binary (`rkaf-behavior-validate`) the conformance reporter shells out to. 24 behavior fixtures (6 prior + 18 new bridge-rule fixtures, covering all 10 rules) produce real L4 verdicts.

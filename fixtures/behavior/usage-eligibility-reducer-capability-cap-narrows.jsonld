@@ -3,6 +3,7 @@
   "@id": "urn:rkaf:fixture:beh:ue-cap:case1",
   "@type": "rkaf:BehaviorTestCase",
   "rkaf:behaviorContract": "rkaf:UsageEligibilityReducer",
+  "rkaf:subjectAssertion": "a1",
   "rkaf:rationale": "Baseline=officialUse but consumer.capabilityCap=reviewQueueOnly; reducer narrows to reviewQueueOnly per \u00a71.2 step 5.",
   "rkaf:input": {
     "@graph": [

@@ -25,6 +25,8 @@ The reducer is a pure function of:
 |---|---|---|
 | `assertion.baseline_eligibility` | `rkaf:Assertion.rkaf:usageEligibility` | `rkaf:UsageEligibility` |
 | `assertion.@id` | the Assertion under evaluation | IRI |
+
+> **Normative — fixture wrapper:** `BehaviorTestCase.rkaf:subjectAssertion` is **REQUIRED** on every `UsageEligibilityReducer` fixture and MUST carry the `@id` of the Assertion the reducer is applied to. There is no implicit "first `rkaf:Assertion` in the graph" fallback — graphs commonly carry multiple Assertions (justification chains, supersession pairs) and silent selection is unsafe. A fixture omitting `rkaf:subjectAssertion` MUST yield `MalformedTestCase`.
 | `assertion.consumerLifecycleState` | `rkaf:Assertion.rkaf:consumerLifecycleState` (if set) | `rkaf:ConsumerLifecycleState` (closed enum) |
 | `assertion.applicability_set` | `rkaf:Assertion.rkaf:hasApplicability` (zero or more `ApplicabilityScope` IRIs) | `Set<IRI>` |
 | `active_adoptions(assertion.@id)` | every `rkaf:LocalAdoption` where `targetAssertion == assertion.@id` AND `adoptionStatus == rkaf:active` | `Set<LocalAdoption>` |
@@ -174,7 +176,7 @@ The `active_filter` referenced in §2.2 excludes nodes from visitation iff EITHE
 
 (a) **Lifecycle-state exclusion** — `node.rkaf:consumerLifecycleState` is in the terminal/stale set: `{rkaf:staleForCurrentUse, rkaf:retired, rkaf:withdrawn}`. Nodes without a lifecycle state are active by default.
 
-(b) **Effective-period exclusion** — when the `BehaviorTestCase.rkaf:cascadeAsOf` timestamp is provided, the node's attached `rkaf:hasEffectivePeriod` resolves to an `EffectivePeriod`. The as-of timestamp MUST fall within `effectivePeriodStart..effectivePeriodEnd`. Nodes whose period ends before `as_of` (expired) or starts after `as_of` (not yet effective) are excluded. RFC-3339 lexicographic comparison is exact for Z-suffixed UTC.
+(b) **Effective-period exclusion** — when the `BehaviorTestCase.rkaf:cascadeAsOf` timestamp is provided, the node's attached `rkaf:hasEffectivePeriod` resolves to an `EffectivePeriod`. The as-of timestamp MUST fall within `effectivePeriodStart..effectivePeriodEnd`. Nodes whose period ends before `as_of` (expired) or starts after `as_of` (not yet effective) are excluded. Comparison is **semantic, not lexicographic** — `as_of`, `effectivePeriodStart`, and `effectivePeriodEnd` are parsed as timezone-aware RFC-3339 (e.g. `chrono::DateTime::parse_from_rfc3339`) and compared as instants, so any valid RFC-3339 offset spelling (`Z`, `+00:00`, `-05:00`, …) is supported. A value that fails RFC-3339 parsing MUST yield `MalformedTestCase`; the runtime MUST NOT silently include or exclude a node whose temporal scope it cannot evaluate.
 
 Production runtimes derive `as_of` from the triggering `LifecycleEvent.effectiveDate`. Behavior fixtures pass it explicitly via `BehaviorTestCase.rkaf:cascadeAsOf`.
 

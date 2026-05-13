@@ -3,6 +3,7 @@
   "@id": "urn:rkaf:fixture:beh:ue-stale:case1",
   "@type": "rkaf:BehaviorTestCase",
   "rkaf:behaviorContract": "rkaf:UsageEligibilityReducer",
+  "rkaf:subjectAssertion": "a1",
   "rkaf:rationale": "Baseline officialUse; a SupersessionPacket has marked the assertion staleForCurrentUse; reducer must drop to notEligible per spec/rkaf-behavior.md \u00a71.",
   "rkaf:input": {
     "@graph": [
