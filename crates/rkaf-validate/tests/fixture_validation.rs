@@ -55,6 +55,10 @@ const STRICT_POSITIVE: &[&str] = &[
     "conceptmapping-positive",
     "conceptresolutionresult-positive",
     "bridgevalidationresult-positive",
+    // Second-pass spec re-scan additions.
+    "registryconflict-positive",
+    "bridgeconsumerregistration-positive",
+    "justification-positive",
 ];
 
 const NEGATIVE: &[(&str, &str)] = &[

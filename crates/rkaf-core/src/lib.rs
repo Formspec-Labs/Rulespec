@@ -60,6 +60,7 @@ pub mod generated {
     pub mod assertion                    { include!("generated/assertion.rs"); }
     pub mod attestation                  { include!("generated/attestation.rs"); }
     pub mod authority                    { include!("generated/authority.rs"); }
+    pub mod bridge_consumer_registration { include!("generated/bridge_consumer_registration.rs"); }
     pub mod bridge_validation_result     { include!("generated/bridge_validation_result.rs"); }
     pub mod concept                      { include!("generated/concept.rs"); }
     pub mod concept_mapping              { include!("generated/concept_mapping.rs"); }
@@ -68,8 +69,10 @@ pub mod generated {
     pub mod confidence_record            { include!("generated/confidence_record.rs"); }
     pub mod effective_period             { include!("generated/effective_period.rs"); }
     pub mod evidence_binding             { include!("generated/evidence_binding.rs"); }
+    pub mod justification                { include!("generated/justification.rs"); }
     pub mod lifecycle_event              { include!("generated/lifecycle_event.rs"); }
     pub mod local_adoption               { include!("generated/local_adoption.rs"); }
+    pub mod registry_conflict            { include!("generated/registry_conflict.rs"); }
     pub mod mapping_state                { include!("generated/mapping_state.rs"); }
     pub mod retention_policy             { include!("generated/retention_policy.rs"); }
     pub mod source_fragment              { include!("generated/source_fragment.rs"); }
@@ -88,14 +91,17 @@ pub use generated::artifact::Artifact;
 pub use generated::assertion::Assertion;
 pub use generated::attestation::Attestation;
 pub use generated::authority::Authority;
+pub use generated::bridge_consumer_registration::BridgeConsumerRegistration;
 pub use generated::bridge_validation_result::BridgeValidationResult;
 pub use generated::concept_mapping::ConceptMapping;
 pub use generated::concept_resolution_result::ConceptResolutionResult;
 pub use generated::confidence_record::ConfidenceRecord;
 pub use generated::effective_period::EffectivePeriod;
 pub use generated::evidence_binding::EvidenceBinding;
+pub use generated::justification::Justification;
 pub use generated::lifecycle_event::LifecycleEvent;
 pub use generated::local_adoption::LocalAdoption;
+pub use generated::registry_conflict::RegistryConflict;
 pub use generated::source_fragment::SourceFragment;
 pub use generated::warrant::Warrant;
 pub use generated::workspace::Workspace;

@@ -45,6 +45,9 @@ SHAPES = [
     "compiled/shacl/core/concept-mapping.ttl",
     "compiled/shacl/core/concept-resolution-result.ttl",
     "compiled/shacl/core/bridge-validation-result.ttl",
+    "compiled/shacl/core/bridge-consumer-registration.ttl",
+    "compiled/shacl/core/registry-conflict.ttl",
+    "compiled/shacl/core/justification.ttl",
 ]
 EXPECTED = {
     "artifact-eli-positive":                       {"triples": (1, 50)},
@@ -78,6 +81,10 @@ EXPECTED = {
     "conceptmapping-positive":                     {"triples": (1, 50)},
     "conceptresolutionresult-positive":            {"triples": (1, 50)},
     "bridgevalidationresult-positive":             {"triples": (1, 50)},
+    # Second-pass spec re-scan additions.
+    "bridgeconsumerregistration-positive":         {"triples": (1, 50)},
+    "registryconflict-positive":                   {"triples": (1, 50)},
+    "justification-positive":                      {"triples": (1, 50)},
 }
 
 FIXTURES_DIR = "fixtures"

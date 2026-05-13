@@ -5,6 +5,40 @@ All notable changes to Rulespec are documented in this file.
 The format is loosely based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 adapted for a specification + shape + fixture project.
 
+## Unreleased — Second-pass spec re-scan: 3 more codifications + SHACL emitter bug
+
+A second careful re-read of `thoughts/specs/2026-05-12-pkaf-as-public-schema-interop-framework.md` surfaced three primitives the spec names but we hadn't codified.
+
+### Added
+
+- **`rkaf:RegistryConflict`** (`registry-conflict.cue`, `registryconflict-positive.jsonld`) — Appendix A explicitly names it as the generalization of v0.1.2's `MappingConflict` (concept-registry §8). Closed `severity` enum (`informational` / `operationalConflict` / `publicationBlocking` / `authorityCritical`); ≥2 conflicting entries; optional applicability scope.
+- **`rkaf:BridgeConsumerRegistration`** (`bridge-consumer-registration.cue`, `bridgeconsumerregistration-positive.jsonld`) — §7.1 names "Bridge Contract Registry" as one of three normative registries; Core §5.1 specifies the registration record's properties. Carries `consumer`, `bridgeContractVersion`, `supportedEvaluationAnchors`, `supportsRegistryVersionRange`, `supportedAutomaticMigrations`, and `supportedAuthorityKinds` (the last typed against the cross-file `AuthorityKind` enum).
+- **`rkaf:Justification`** (`justification.cue`, `justification-positive.jsonld`) — §1.1 abstract primitive list names "justification" alongside attestation, adoption, etc. `spec/rkaf-concept-registry.md` §2.5 describes `rkaf:hasJustification` carrying a `Justification` with `hasWarrant`. Warrant-family-agnostic; generalizes v0.1.2's authority-chain hop into any-family grounding.
+
+### Fixed (SHACL emitter bug surfaced by RegistryConflict)
+
+- **Duplicate `sh:minCount` predicates.** When a property is both `required` (auto-`sh:minCount 1`) AND has `list.MinItems(N)` cardinality (`sh:minCount N`), the SHACL target previously emitted both predicates on the same property block. pySHACL 0.31+ refuses with `MinCountConstraintComponent must have at most one sh:minCount`. Fix: consolidate to `max(required ? 1 : 0, list_min_items)`. Affects every property with both flags set; surfaced first by `RegistryConflict.conflictingEntries` (`list.MinItems(2)` and required).
+
+### Coverage
+
+- `cargo test --workspace`: 36 → **39 tests passing** (3 new round-trip tests).
+- `tools/ci_validate.py` (SHACL): 30 → **33 fixtures × 19 shape files**, 0 violations, **198 triples** (up from 173).
+- `tools/vocab_audit.py`: 34 → **37 required terms declared** in spec.
+- `rkaf-validate` `EMBEDDED_SCHEMAS`: 20 → **23 entries** (some classes share schema files).
+
+### Remaining intentional gaps (not blockers)
+
+Per `spec/rkaf-behavior.md` §7 codification roadmap, these are deferred to Plan 7 (Conformance) work:
+
+- Lifecycle packet subclasses (`AmendmentPacket`, `SupersessionPacket`, etc.) — subsumed today into `LifecycleEvent` with `lifecycleEventKind` enum; explicit subclass shapes deferred.
+- `GeneratedWorkProduct` overlay class — Core §6.1.
+- `DelegationInstrument`, `AuthorityChainHop` — Core §2.3–§2.4 (chain-traversal infrastructure).
+- `RevalidationEvent` / `RevalidationClosureEvent` — Core §4.8; today covered by generic `LifecycleEvent`.
+- `EvaluationAnchor` closed enum — Core §4.7; today carried as open IRI string.
+- Pre-Assertion candidate state (Studio's `ExtractedClaim`) — Studio-profile-scoped per earlier decision; not promoted to universal Vocabulary.
+
+These are not in the active-spec normative list; they're Plan 7 codification candidates documented in the behavior spec's roadmap.
+
 ## Unreleased — All deferred gaps closed
 
 Follow-up to the review-driven fixes: close every remaining gap noted as deferred or informational in the prior CHANGELOG entry. The semi-formal review's findings 6 and 7 are now closed.

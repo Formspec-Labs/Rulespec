@@ -900,18 +900,25 @@ def target_shacl(doc: ConstraintDoc) -> str:
         out.append(f"  sh:targetClass {type_iri} ;")
         for p in s.properties:
             line = f"  sh:property [ sh:path {p.name} ;"
+            # Consolidate min-cardinality: max(required ? 1 : 0, list min items).
+            # Emitting both sh:minCount predicates yields a malformed SHACL shape
+            # (pyshacl 0.31+ refuses load with `MinCountConstraintComponent must
+            # have at most one sh:minCount`).
+            min_count = 0
             if not p.optional:
-                line += " sh:minCount 1 ;"
+                min_count = 1
+            if p.type_ref == "list" and p.list_min_items > min_count:
+                min_count = p.list_min_items
+            if min_count > 0:
+                line += f" sh:minCount {min_count} ;"
             if p.type_ref == "enum":
                 values = " ".join(resolve_enum(p.enum_ref or ""))
                 if values:
                     line += f" sh:in ( {values} ) ;"
-            if p.type_ref == "list" and p.list_min_items > 0:
-                line += f" sh:minCount {p.list_min_items} ;"
-                if p.list_inner_enum:
-                    values = " ".join(resolve_enum(p.list_inner_enum))
-                    if values:
-                        line += f" sh:in ( {values} ) ;"
+            if p.type_ref == "list" and p.list_inner_enum:
+                values = " ".join(resolve_enum(p.list_inner_enum))
+                if values:
+                    line += f" sh:in ( {values} ) ;"
             line += " ] ;"
             out.append(line)
         # Conditional branches → Pattern C (sh:or with sh:not)

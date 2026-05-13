@@ -131,6 +131,23 @@ const EMBEDDED_SCHEMAS: &[(&str, &str, &str)] = &[
             "../../../compiled/json-schema/core/bridge-validation-result.schema.json"
         ),
     ),
+    (
+        "rkaf:BridgeConsumerRegistration",
+        "BridgeConsumerRegistration",
+        include_str!(
+            "../../../compiled/json-schema/core/bridge-consumer-registration.schema.json"
+        ),
+    ),
+    (
+        "rkaf:RegistryConflict",
+        "RegistryConflict",
+        include_str!("../../../compiled/json-schema/core/registry-conflict.schema.json"),
+    ),
+    (
+        "rkaf:Justification",
+        "Justification",
+        include_str!("../../../compiled/json-schema/core/justification.schema.json"),
+    ),
 ];
 
 /// A single validation error, paired with the validating class's `@type` IRI

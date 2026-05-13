@@ -73,6 +73,9 @@ Beyond the v0.2 normative tier in §5, the following terms are codified as CUE c
 | `rkaf:MappingApplicabilityContext` | `concept-mapping.cue` | (shares fixture) | Scopes a mapping by application-domain + evidence-purpose. |
 | `rkaf:ConceptResolutionResult` | `concept-resolution-result.cue` | `conceptresolutionresult-positive.jsonld` | Output of resolving a concept reference against the federation. |
 | `rkaf:BridgeValidationResult` | `bridge-validation-result.cue` | `bridgevalidationresult-positive.jsonld` | Control-plane record per packet ingestion: verdict + effective eligibility + authority-chain status + warnings/errors. |
+| `rkaf:BridgeConsumerRegistration` | `bridge-consumer-registration.cue` | `bridgeconsumerregistration-positive.jsonld` | Bridge consumer capability declaration (Core §5.1): supported authority kinds, evaluation anchors, registry version ranges, automatic migrations. |
+| `rkaf:RegistryConflict` | `registry-conflict.cue` | `registryconflict-positive.jsonld` | Two or more registry entries disagree on the same canonical claim (Appendix A; v0.1.2 §8 MappingConflict generalization). Closed severity enum. |
+| `rkaf:Justification` | `justification.cue` | `justification-positive.jsonld` | Warrant-family-agnostic grounding record carried by ConceptMapping or other nodes (`hasJustification` predicate). Generalizes v0.1.2's authority-chain hop. |
 
 **Closed enums and lattices** (referenced by the classes above):
 

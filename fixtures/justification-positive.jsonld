@@ -1,0 +1,10 @@
+{
+  "@context": "../context/rkaf-context.jsonld",
+  "@id": "urn:rkaf:fixture:just:income-mapping-statutory",
+  "@type": "rkaf:Justification",
+  "rkaf:hasWarrant": "urn:rkaf:fixture:auth:cfr-7-273",
+  "rkaf:basedOnEvidence": [
+    "urn:rkaf:fixture:eb-pos:binding"
+  ],
+  "rkaf:assertedAt": "2026-04-15T10:00:00Z"
+}

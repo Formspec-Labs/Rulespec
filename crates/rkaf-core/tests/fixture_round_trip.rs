@@ -137,3 +137,18 @@ fn round_trip_concept_resolution_result_fixture() {
 fn round_trip_bridge_validation_result_fixture() {
     round_trip::<BridgeValidationResult>("bridgevalidationresult-positive", "rkaf:BridgeValidationResult");
 }
+
+#[test]
+fn round_trip_bridge_consumer_registration_fixture() {
+    round_trip::<BridgeConsumerRegistration>("bridgeconsumerregistration-positive", "rkaf:BridgeConsumerRegistration");
+}
+
+#[test]
+fn round_trip_registry_conflict_fixture() {
+    round_trip::<RegistryConflict>("registryconflict-positive", "rkaf:RegistryConflict");
+}
+
+#[test]
+fn round_trip_justification_fixture() {
+    round_trip::<Justification>("justification-positive", "rkaf:Justification");
+}

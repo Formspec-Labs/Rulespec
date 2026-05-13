@@ -222,6 +222,18 @@
     "rkaf:BridgeValidationResult": {
       "@type": "@id"
     },
+    "rkaf:BridgeConsumerRegistration": {
+      "@type": "@id"
+    },
+    "rkaf:RegistryConflict": {
+      "@type": "@id"
+    },
+    "rkaf:Justification": {
+      "@type": "@id"
+    },
+    "rkaf:hasJustification": {
+      "@type": "@id"
+    },
     "rkaf:derivesAuthorityFrom": {
       "@type": "@id"
     },
