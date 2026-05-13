@@ -73,7 +73,7 @@ jobs:
       - name: v0.2 SHACL positive-fixture suite
         run: python3 tools/ci_validate.py
 
-      - name: Build Layer 4 projector crates
+      - name: Build all crates (Layer 4 projectors + Layer 5 rkaf-runtime-cli)
         run: cargo build --manifest-path crates/Cargo.toml --workspace
 
       - name: Layer 4 projector unit tests (Attach/Extract/RoundTrip per crate)

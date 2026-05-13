@@ -1023,6 +1023,28 @@ dependencies = [
 ]
 
 [[package]]
+name = "rkaf-runtime"
+version = "0.2.0-pre.5"
+dependencies = [
+ "anyhow",
+ "rkaf-core",
+ "semver",
+ "serde",
+ "serde_json",
+ "thiserror 1.0.69",
+]
+
+[[package]]
+name = "rkaf-runtime-cli"
+version = "0.2.0-pre.5"
+dependencies = [
+ "anyhow",
+ "clap",
+ "rkaf-runtime",
+ "serde_json",
+]
+
+[[package]]
 name = "rkaf-validate"
 version = "0.2.0-pre.5"
 dependencies = [

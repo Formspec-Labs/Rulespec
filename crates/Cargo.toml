@@ -9,6 +9,8 @@ members = [
     "rkaf-projector-json-ld",
     "rkaf-projector-openapi",
     "projector-harness",
+    "rkaf-runtime",
+    "rkaf-runtime-cli",
 ]
 
 [workspace.package]

@@ -327,14 +327,42 @@ def evaluate(path: Path) -> FixtureResult:
         else:
             result.diverged = not (result.l2 == "fail" or result.l3 == "fail")
     elif result.expected == "behavior":
-        # L1+L2 must pass on the wrapper; L3 may fail (stub graphs are
-        # declarative content, not validated nodes). L4 = "skip" (pending
-        # Plan 7b runtime impl).
-        result.l4 = "skip"
+        # L1+L2 must pass on the wrapper + the inner rkaf:input graph.
+        # L3 is permissive (input graph carries stubs as declarative content;
+        # the SHACL gate validates the rkaf:BehaviorTestCase wrapper, not the
+        # contracts' input nodes).
+        # L4 is computed by main() in a batched subprocess call to
+        # rkaf-behavior-validate after per-fixture L1/L2/L3 evaluation.
         result.diverged = not (result.l1 == "pass" and result.l2 == "pass")
     # edges: no strict expectation — report only.
 
     return result
+
+
+_RUNTIME_BIN = ROOT / "crates" / "target" / "debug" / "rkaf-behavior-validate"
+
+
+def _l4_batch_evaluate(results: list) -> dict[str, str]:
+    """Run rkaf-behavior-validate on every behavior fixture in one subprocess.
+    Returns a {fixture_stem: "pass"|"fail"|"error"} map. If the binary is
+    missing, returns an empty map (caller treats as skip).
+    """
+    if not _RUNTIME_BIN.is_file():
+        return {}
+    import subprocess
+    paths = [str(FIXTURES_DIR / r.name) for r in results]
+    proc = subprocess.run(
+        [str(_RUNTIME_BIN), "--json", *paths],
+        capture_output=True, cwd=ROOT,
+    )
+    if proc.returncode not in (0, 1):
+        # 2 = setup error, others unexpected; report all as error
+        return {Path(p).stem: "error" for p in paths}
+    try:
+        envelope = json.loads(proc.stdout.decode() or "{}")
+    except json.JSONDecodeError:
+        return {Path(p).stem: "error" for p in paths}
+    return {entry["name"]: entry["result"] for entry in envelope.get("fixtures", [])}
 
 
 def main() -> int:
@@ -346,6 +374,26 @@ def main() -> int:
     args = ap.parse_args()
 
     results = [evaluate(p) for p in walk_fixtures()]
+
+    # L4 batch evaluation: every "behavior" fixture is run through
+    # rkaf-behavior-validate (single subprocess invocation). Result populates
+    # the L4 column. Missing-binary = skip (with a clear note).
+    behavior_results = [r for r in results if r.expected == "behavior"]
+    if behavior_results:
+        l4_map = _l4_batch_evaluate(behavior_results)
+        for r in behavior_results:
+            verdict = l4_map.get(Path(r.name).stem)
+            if verdict in ("pass", "fail"):
+                r.l4 = verdict
+                if verdict == "fail":
+                    r.diverged = True
+            elif verdict == "error":
+                r.l4 = "error"
+                r.diverged = True
+            else:
+                r.l4 = "skip"
+                r.notes.append("L4: rkaf-behavior-validate binary missing; build with `cargo build -p rkaf-runtime-cli`")
+
     diverged = [r for r in results if r.diverged]
 
     if args.json:
@@ -393,18 +441,18 @@ notes: |
         return 1 if diverged else 0
 
     # Human-readable table.
-    print(f"{'fixture':<55} {'exp':<10} {'L1':<6} {'L2':<6} {'L3':<6}")
-    print("-" * 90)
+    print(f"{'fixture':<55} {'exp':<10} {'L1':<6} {'L2':<6} {'L3':<6} {'L4':<6}")
+    print("-" * 95)
     for r in results:
         flag = " *" if r.diverged else ""
-        print(f"{r.name:<55} {r.expected:<10} {r.l1:<6} {r.l2:<6} {r.l3:<6}{flag}")
+        print(f"{r.name:<55} {r.expected:<10} {r.l1:<6} {r.l2:<6} {r.l3:<6} {r.l4:<6}{flag}")
     print()
     print(f"Total: {len(results)} fixtures, {len(diverged)} divergences")
     if diverged:
         print()
         print("Divergent:")
         for r in diverged:
-            print(f"  {r.name} (expected={r.expected}, L1={r.l1} L2={r.l2} L3={r.l3})")
+            print(f"  {r.name} (expected={r.expected}, L1={r.l1} L2={r.l2} L3={r.l3} L4={r.l4})")
             for n in r.notes[:2]:
                 print(f"    {n}")
     return 1 if diverged else 0

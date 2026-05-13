@@ -4,6 +4,10 @@
   "@type": "rkaf:BehaviorTestCase",
   "rkaf:behaviorContract": "rkaf:UsageEligibilityReducer",
   "rkaf:rationale": "Baseline publicationAllowed; LocalAdoption grants officialUse within state-TX scope. Inside scope: effective=officialUse. Outside scope: effective=publicationAllowed.",
+  "rkaf:evaluationScopes": [
+    "scope:state-tx-snap",
+    "scope:state-ca-snap"
+  ],
   "rkaf:input": {
     "@graph": [
       {

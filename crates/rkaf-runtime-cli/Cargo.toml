@@ -1,0 +1,18 @@
+[package]
+name = "rkaf-runtime-cli"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+rust-version.workspace = true
+description = "Rulespec Layer 5 — rkaf-behavior-validate CLI. Validates BehaviorTestCase fixtures against the 5 behavioral contracts."
+
+[[bin]]
+name = "rkaf-behavior-validate"
+path = "src/main.rs"
+
+[dependencies]
+rkaf-runtime = { path = "../rkaf-runtime" }
+serde_json   = { workspace = true }
+clap         = { workspace = true }
+anyhow       = { workspace = true }
