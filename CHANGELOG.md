@@ -5,6 +5,48 @@ All notable changes to Rulespec are documented in this file.
 The format is loosely based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 adapted for a specification + shape + fixture project.
 
+## Unreleased — Plan 7b: L4 behavioral runtime (`rkaf-runtime` + `rkaf-behavior-validate` CLI)
+
+L4 stops being aspirational. Ships a Rust runtime crate (`crates/rkaf-runtime/`) implementing all 5 algorithmic contracts in `spec/rkaf-behavior.md` — UsageEligibility reducer, CascadeClosureV1, all 10 bridge contract rules, PointInTimeException evaluation, concept resolution with conflict — plus a CLI binary (`rkaf-behavior-validate`) the conformance reporter shells out to. 24 behavior fixtures (6 prior + 18 new bridge-rule fixtures, covering all 10 rules) produce real L4 verdicts.
+
+### Added (Plan 7b)
+
+- **`spec/rkaf-behavior.md` rewritten** from ~173 lines of descriptive prose to ~470 lines of algorithmic pseudocode + decidable predicates + per-contract output format spec. §7 declares the format per contract; §7.1 closes the errorClass IRI registry; §8 enumerates 8 open ambiguities resolved during codification.
+- **7 codified primitives**: `EvaluationAnchor` (9-value closed enum), `PointInTimeException`, `GeneratedWorkProduct`, `RevalidationEvent` + `RevalidationClosureEvent`, plus 3 new support concepts (`ConsumerEffectiveDeclaration`, `BridgeIssueAttestationContract`, BVR fields `usedAsAuthority` + `detectedIssues`). Each ships full vertical slice (CUE + JSON Schema + Rust + SHACL + positive fixture + context entry + rkaf-validate embedded schema + vocab spec §6 row).
+- **Additional CUE fields** on existing primitives: `Assertion.{usageEligibility, hasApplicability, hasJustification, hasWarrant, hasAuthority, consumerLifecycleState}`, `BridgeConsumerRegistration.capabilityCap`, `LifecycleEvent.safeAutomaticMigration` — load-bearing for the reducer + bridge rules.
+- **`crates/rkaf-runtime/`** — Layer 5 behavioral runtime crate (~1500 LOC). Modules: `graph` (per-`@id` index + by-type index + inverse-edge traversal), `cascade` (BFS over the 10 cascade-edges + 5 SKOS mapping edges per §2.1), `reducer` (5-step lattice composition including applicability gate, PIT-honored override, LocalAdoption broadening, capabilityCap narrowing), `bridge` (10 rule predicates; rule_2 calls `reducer::reduce_for_scope` to stay in lock-step), `pit` (anchor-supported check with proper error verdict on unsupported anchor), `stale` (state machine + safeAutomaticMigration exemption), `concept` (resolver + severity assignment).
+- **`crates/rkaf-runtime-cli/`** — `rkaf-behavior-validate` binary. Exit 0/1/2; `--json` emits the per-fixture verdict envelope the conformance reporter consumes.
+- **18 new bridge-rule behavior fixtures** — one positive + one negative per rules 1-6 + 8-10. Rule 7 fixture already existed.
+- **Integration test** at `crates/rkaf-runtime/tests/behavior_fixtures.rs` — every fixture in `fixtures/behavior/` runs as a `#[test]`.
+
+### Changed (Plan 7b)
+
+- **`tools/conformance_report.py`** — `_l4_batch_evaluate` shells out to `rkaf-behavior-validate` once with all behavior fixture paths, parses JSON envelope, populates L4 column. L3-fail in behavior fixtures surfaces in `notes` (no longer silently masked). Human table includes L4 column. Binary-missing falls back to `L4=skip` with note.
+- **`spec/rkaf-conformance.md` §4.2** — L4 gate is no longer "deferred". Points at `rkaf-behavior-validate` + describes the reporter integration.
+- **`.github/workflows/constraints-parity.yml`** — workspace `cargo build` step now compiles `rkaf-runtime` + `rkaf-runtime-cli`.
+
+### Verified
+
+- `cargo test --workspace` — **75 tests passing** (was 39).
+- `conformance_report.py` — 161 fixtures, 0 divergences; behavior fixtures show **L4=pass** (was L4=skip).
+- `ci_validate.py` — 38 fixtures × 25 shape files, 0 violations, 229 triples.
+- `rkaf-behavior-validate --json fixtures/behavior/*.jsonld` → pass=24 fail=0 error=0.
+
+### Two review checkpoints honored
+
+Both rounds of `semi-formal-code-review` caught real bugs the test corpus didn't surface — same pattern (tests-pass but spec-drift hidden) as the prior backlog-integration review:
+
+- **Phase A review (5fe0ce8)** — 6 BLOCKERs + 7 WARNINGs: missing CUE fields (`safeAutomaticMigration`, `capabilityCap`), fixture typos (`UntermimatedJustificationChain`), ambiguous CascadeClosureV1 (trigger vs cascade edges), invalid enum values in fixtures, vacuous inner-@graph L2 gate. All closed in commit 7b43431.
+- **Phase G review (035a0f6)** — 4 BLOCKERs + 7 WARNINGs: reducer missing applicability gate + rule_2 inline reducer drift, PIT unsupported-anchor silent-degradation, Rule 10 missing chain check, cascade missing 5 SKOS mapping edges. All closed in this commit.
+
+### Honest gaps (intentionally deferred)
+
+- **Multi-BCR graphs** — `stale.rs`, `reducer.rs` step 5, and `bridge.rs` rule_9 pick the first BridgeConsumerRegistration via `.next()`. Single-consumer is the v0.2 assumption; federated scenarios are post-Plan-7b.
+- **Cascade `as_of` active filter** — promised in §2.2 but not threaded through the implementation. Closure visits every reachable node regardless of lifecycle state.
+- **Six coverage-gap fixtures** identified by review (Rule 7 positive standalone, capabilityCap narrowing, `informational` severity branch, reducer applicability gate, reducer+PIT composition, PIT unsupported-anchor error verdict) — the code paths now exist; explicit regression fixtures are post-Plan-7b work.
+
+---
+
 ## Unreleased — Plan 7a: shape conformance (L1–L4) + complete negative coverage
 
 Closes the §10.1 fixture-coverage target for shape conformance. Defines what "Rulespec-compliant" means as a graded contract (L1 Parse / L2 Shape / L3 Constraint / L4 Behavior). Adds a per-fixture conformance reporter, a self-certification document template + reference implementation entry, and 71 mechanically-generated negative fixtures.

@@ -328,9 +328,12 @@ def evaluate(path: Path) -> FixtureResult:
             result.diverged = not (result.l2 == "fail" or result.l3 == "fail")
     elif result.expected == "behavior":
         # L1+L2 must pass on the wrapper + the inner rkaf:input graph.
-        # L3 is permissive (input graph carries stubs as declarative content;
-        # the SHACL gate validates the rkaf:BehaviorTestCase wrapper, not the
-        # contracts' input nodes).
+        # L3 is permissive in the divergence check (input graph carries
+        # declarative content + may use shapes a SHACL gate wouldn't validate),
+        # but L3=fail surfaces in `notes` for visibility instead of being
+        # silently masked.
+        if result.l3 == "fail":
+            result.notes.append("L3: behavior fixture's input graph has SHACL violations (permitted; not gated)")
         # L4 is computed by main() in a batched subprocess call to
         # rkaf-behavior-validate after per-fixture L1/L2/L3 evaluation.
         result.diverged = not (result.l1 == "pass" and result.l2 == "pass")

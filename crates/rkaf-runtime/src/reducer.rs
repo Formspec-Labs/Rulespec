@@ -57,6 +57,33 @@ pub fn evaluate(test_case: &Value, graph: &Graph) -> Result<Verdict, RuntimeErro
     let is_stale = assertion.get("rkaf:consumerLifecycleState").and_then(Value::as_str)
         == Some("rkaf:staleForCurrentUse");
 
+    // hasApplicability is a single IRI per CUE; runtime accepts a list too
+    // (defensive for graphs where authors used an array). The applicability
+    // set is the IRIs pointing at ApplicabilityScope nodes; we resolve each
+    // to its `appliesInJurisdiction` list and union them.
+    let applicability_iris: Vec<&str> = match assertion.get("rkaf:hasApplicability") {
+        Some(Value::String(s)) => vec![s.as_str()],
+        Some(Value::Array(arr)) => arr.iter().filter_map(Value::as_str).collect(),
+        _ => Vec::new(),
+    };
+    let mut applicability_set: Vec<&str> = Vec::new();
+    for app_iri in &applicability_iris {
+        if let Some(app) = graph.find(app_iri) {
+            if let Some(arr) = app.get("rkaf:appliesInJurisdiction").and_then(Value::as_array) {
+                for v in arr {
+                    if let Some(s) = v.as_str() {
+                        applicability_set.push(s);
+                    }
+                }
+            }
+            // Fall back: if appliesInJurisdiction missing, the applicability
+            // IRI itself is the scope match key (a one-element set).
+            if applicability_set.is_empty() {
+                applicability_set.push(app_iri);
+            }
+        }
+    }
+
     // Determine evaluation scopes.
     // Behavior fixtures MAY carry rkaf:evaluationScopes; otherwise derive from
     // LocalAdoptions targeting the assertion.
@@ -87,7 +114,7 @@ pub fn evaluate(test_case: &Value, graph: &Graph) -> Result<Verdict, RuntimeErro
 
     // No scopes declared → workspace-wide reduction (no LocalAdoption).
     if scopes.is_empty() {
-        let level = reduce_for_scope(&assertion_id, &baseline, is_stale, None, graph);
+        let level = reduce_for_scope(&assertion_id, &baseline, is_stale, &applicability_set, None, graph);
         return Ok(Verdict::new(json!({
             "effectiveUsageEligibility": level,
             "rationale": if is_stale {
@@ -100,22 +127,35 @@ pub fn evaluate(test_case: &Value, graph: &Graph) -> Result<Verdict, RuntimeErro
 
     let mut by_scope = serde_json::Map::new();
     for scope in scopes {
-        let level = reduce_for_scope(&assertion_id, &baseline, is_stale, Some(&scope), graph);
+        let level = reduce_for_scope(&assertion_id, &baseline, is_stale, &applicability_set, Some(&scope), graph);
         by_scope.insert(scope, Value::String(level));
     }
     Ok(Verdict::new(json!({ "byScope": Value::Object(by_scope) })))
 }
 
-fn reduce_for_scope(
+/// Compute effective UsageEligibility per spec/rkaf-behavior.md §1.2.
+/// Public for cross-contract reuse (bridge.rs::rule_2 calls this to stay
+/// in lock-step with the reducer's canonical algorithm).
+pub fn reduce_for_scope(
     assertion_id: &str,
     baseline: &str,
     is_stale: bool,
+    applicability_set: &[&str],
     scope: Option<&str>,
     graph: &Graph,
 ) -> String {
-    let lifecycle_floor: String = if is_stale {
-        // No PIT-honored exceptions modeled yet here (would be added by
-        // composing the PIT contract). Per §1.3 invariant 4.
+    // Step 1 — applicability gate. If eval scope is non-None AND the
+    // assertion declares applicability AND eval scope is not in the
+    // applicability set, return notEligible (§1.2 step 1).
+    if let Some(scope_iri) = scope {
+        if !applicability_set.is_empty() && !applicability_set.contains(&scope_iri) {
+            return "rkaf:notEligible".to_string();
+        }
+    }
+
+    // Step 2 — baseline.
+    // Step 3 — lifecycle stale check (honored PITs restore baseline).
+    let lifecycle_floor: String = if is_stale && !has_honored_pit(assertion_id, graph) {
         "rkaf:notEligible".to_string()
     } else {
         baseline.to_string()
@@ -148,6 +188,27 @@ fn reduce_for_scope(
     }
 
     effective
+}
+
+/// True iff a PointInTimeException retains this assertion AND its anchor
+/// is in the (first) BridgeConsumerRegistration's supportedEvaluationAnchors.
+/// Used by reducer step 3 (§1.2) — a stale assertion with a honored PIT
+/// keeps its baseline rather than falling to notEligible.
+fn has_honored_pit(assertion_id: &str, graph: &Graph) -> bool {
+    let supported: Vec<&str> = graph
+        .nodes_by_type("rkaf:BridgeConsumerRegistration")
+        .next()
+        .and_then(|reg| reg.get("rkaf:supportedEvaluationAnchors").and_then(Value::as_array))
+        .map(|arr| arr.iter().filter_map(Value::as_str).collect())
+        .unwrap_or_default();
+    for pit in graph.nodes_by_type("rkaf:PointInTimeException") {
+        let retains = pit.get("rkaf:retainsAssertion").and_then(Value::as_str);
+        let anchor = pit.get("rkaf:evaluationAnchor").and_then(Value::as_str);
+        if retains == Some(assertion_id) && anchor.map(|a| supported.contains(&a)).unwrap_or(false) {
+            return true;
+        }
+    }
+    false
 }
 
 #[cfg(test)]

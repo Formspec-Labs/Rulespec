@@ -91,7 +91,9 @@ An L4 implementation MUST:
 
 ### 4.2 Gate
 
-L4 conformance is currently **not gated by an automated test suite**. Fixtures verifying behavioral contracts are tracked in `spec/rkaf-behavior.md` §7 as Plan 7b work; the conformance reporter (`tools/conformance_report.py`) emits `L4: not-tested` until that suite lands.
+L4 conformance is gated by `crates/rkaf-runtime-cli/src/main.rs` (the `rkaf-behavior-validate` binary). `tools/conformance_report.py` shells out to this binary for every fixture under `fixtures/behavior/`, parses the per-fixture JSON verdict, and populates the L4 column with `pass` / `fail` / `error` / `skip`. Exit 0 from the binary across all behavior fixtures (24 today: 1 cascade, 2 reducer, 1 PIT, 1 concept-resolution, 19 bridge-rule fixtures covering all 10 contract rules) is the L4 gate.
+
+When the binary is missing (e.g., the workspace has not been built), the reporter degrades to `L4: skip` with a clear note pointing at `cargo build -p rkaf-runtime-cli`.
 
 ### 4.3 Self-certification
 

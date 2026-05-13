@@ -44,8 +44,17 @@ pub fn evaluate(_test_case: &Value, graph: &Graph) -> Result<Verdict, RuntimeErr
         .map(|arr| arr.iter().filter_map(Value::as_str).collect())
         .unwrap_or_default();
 
-    let pit_applies = retains == Some(assertion_id.as_str())
-        && supported_anchors.contains(&anchor);
+    // Spec §4: if the anchor is not supported, the consumer MUST refuse
+    // (not silently degrade). Return an error-shaped verdict.
+    let retains_this = retains == Some(assertion_id.as_str());
+    if retains_this && !supported_anchors.contains(&anchor) {
+        return Ok(Verdict::new(serde_json::json!({
+            "errorClass": "rkaf:UnsupportedEvaluationAnchor",
+            "rationale": format!("PIT anchor {anchor} not in consumer's supportedEvaluationAnchors"),
+        })));
+    }
+
+    let pit_applies = retains_this && supported_anchors.contains(&anchor);
 
     let lifecycle_state = assertion
         .get("rkaf:consumerLifecycleState")

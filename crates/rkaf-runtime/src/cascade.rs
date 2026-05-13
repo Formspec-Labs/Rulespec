@@ -9,9 +9,14 @@ use serde_json::{json, Value};
 
 use crate::{errors::RuntimeError, graph::Graph, verdict::Verdict};
 
-/// The 10 cascade-edge predicates traversed BACKWARD by the closure.
+/// The cascade-edge predicates traversed BACKWARD by the closure.
 /// Per spec/rkaf-behavior.md §2.1 — these are the "dependency" edges; the
 /// trigger edges (supersedesAssertion etc.) are out of scope here.
+///
+/// The 5 SKOS mapping edges (exactMatch / closeMatch / broadMatch /
+/// narrowMatch / relatedMatch) propagate concept-lifecycle cascades
+/// (§2.1 row C10): when a concept is superseded, every mapping pointing
+/// at it transitively pulls in dependents.
 const CASCADE_EDGES: &[&str] = &[
     "rkaf:derivedFromFragment",
     "rkaf:justifiedByAssertion",
@@ -22,7 +27,17 @@ const CASCADE_EDGES: &[&str] = &[
     "rkaf:collectsEvidenceType",
     "rkaf:operationallyDependsOn",
     "rkaf:targetAssertion", // LocalAdoption → Assertion
-    "rkaf:assertsObject",   // concept-typed
+    "rkaf:assertsObject",   // concept-typed assertions
+    // §2.1 C10: 5 SKOS mapping edges for concept-lifecycle cascade.
+    "skos:exactMatch",
+    "skos:closeMatch",
+    "skos:broadMatch",
+    "skos:narrowMatch",
+    "skos:relatedMatch",
+    // ConceptMapping.sourceConcept / targetConcept point AT concepts;
+    // inverse from a concept reaches its mappings.
+    "rkaf:sourceConcept",
+    "rkaf:targetConcept",
 ];
 
 pub fn evaluate(test_case: &Value, graph: &Graph) -> Result<Verdict, RuntimeError> {

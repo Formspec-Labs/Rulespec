@@ -8,7 +8,7 @@
 use serde_json::{json, Value};
 use std::collections::HashSet;
 
-use crate::{errors::RuntimeError, graph::Graph, stale, verdict::Verdict};
+use crate::{errors::RuntimeError, graph::Graph, reducer, stale, verdict::Verdict};
 
 /// Bridge rules are typed verdicts: accepted / acceptedWithWarnings /
 /// rejected. The runtime emits the §7 output shape.
@@ -84,6 +84,8 @@ fn rule_1(graph: &Graph) -> Result<Verdict, RuntimeError> {
 }
 
 // ── Rule 2 — usageEligibility narrow OK, broaden NOT ──
+// Calls the canonical `reducer::reduce_for_scope` (NOT a re-implementation)
+// so the two contracts can never silently diverge.
 fn rule_2(graph: &Graph) -> Result<Verdict, RuntimeError> {
     for decl in graph.nodes_by_type("rkaf:ConsumerEffectiveDeclaration") {
         let Some(assertion_id) = decl.get("rkaf:forAssertion").and_then(Value::as_str) else {
@@ -100,8 +102,6 @@ fn rule_2(graph: &Graph) -> Result<Verdict, RuntimeError> {
         };
         let scope = decl.get("rkaf:declaredScope").and_then(Value::as_str);
 
-        // Inline reducer computation (avoids reducer module re-entry; the
-        // reducer logic is small enough to duplicate here).
         let baseline = assertion
             .get("rkaf:usageEligibility")
             .and_then(Value::as_str)
@@ -110,23 +110,38 @@ fn rule_2(graph: &Graph) -> Result<Verdict, RuntimeError> {
             .get("rkaf:consumerLifecycleState")
             .and_then(Value::as_str)
             == Some("rkaf:staleForCurrentUse");
-        let lifecycle_floor = if is_stale { "rkaf:notEligible" } else { baseline };
-        let mut computed = lifecycle_floor.to_string();
-        // Local-adoption broadening (only in-scope).
-        if let Some(scope_iri) = scope {
-            for la in graph.nodes_by_type("rkaf:LocalAdoption") {
-                if la.get("rkaf:targetAssertion").and_then(Value::as_str) == Some(assertion_id)
-                    && la.get("rkaf:adoptionScope").and_then(Value::as_str) == Some(scope_iri)
-                    && la.get("rkaf:adoptionStatus").and_then(Value::as_str) == Some("rkaf:active")
-                {
-                    if let Some(eligibility) = la.get("rkaf:usageEligibility").and_then(Value::as_str) {
-                        if rank_index(eligibility) > rank_index(&computed) {
-                            computed = eligibility.into();
+
+        // Resolve applicability set (mirror reducer::evaluate's logic; one
+        // pass through applicability scopes).
+        let applicability_iris: Vec<&str> = match assertion.get("rkaf:hasApplicability") {
+            Some(Value::String(s)) => vec![s.as_str()],
+            Some(Value::Array(arr)) => arr.iter().filter_map(Value::as_str).collect(),
+            _ => Vec::new(),
+        };
+        let mut applicability_set: Vec<&str> = Vec::new();
+        for app_iri in &applicability_iris {
+            if let Some(app) = graph.find(app_iri) {
+                if let Some(arr) = app.get("rkaf:appliesInJurisdiction").and_then(Value::as_array) {
+                    for v in arr {
+                        if let Some(s) = v.as_str() {
+                            applicability_set.push(s);
                         }
                     }
                 }
+                if applicability_set.is_empty() {
+                    applicability_set.push(app_iri);
+                }
             }
         }
+
+        let computed = reducer::reduce_for_scope(
+            assertion_id,
+            baseline,
+            is_stale,
+            &applicability_set,
+            scope,
+            graph,
+        );
 
         if rank_above(declared, Some(&computed)) {
             return Ok(rejected(
@@ -404,12 +419,20 @@ fn rule_9(graph: &Graph) -> Result<Verdict, RuntimeError> {
 }
 
 // ── Rule 10 — generated artifacts preserve Rulespec justification metadata ──
+// Per spec §3.10: BOTH justifiedByAssertion presence AND the referenced
+// assertion's chain terminates per Rule 7.
 fn rule_10(graph: &Graph) -> Result<Verdict, RuntimeError> {
     for wp in graph.nodes_by_type("rkaf:GeneratedWorkProduct") {
-        if wp.get("rkaf:justifiedByAssertion").is_none() {
+        let Some(assertion_id) = wp.get("rkaf:justifiedByAssertion").and_then(Value::as_str) else {
             return Ok(rejected(
                 "rkaf:MissingJustificationMetadata",
                 "GeneratedWorkProduct lacks justifiedByAssertion",
+            ));
+        };
+        if !chain_terminates(assertion_id, graph) {
+            return Ok(rejected(
+                "rkaf:UnterminatedJustificationChain",
+                "GeneratedWorkProduct's justifiedByAssertion has no terminating chain per Rule 7",
             ));
         }
     }
