@@ -1,0 +1,7 @@
+{
+  "@context": "../../context/rkaf-context-v0.2.jsonld",
+  "@id": "https://rulespec.org/fixtures/v0.2/artifact-eli-positive#a1",
+  "@type": "rkaf:Artifact",
+  "rkaf:hasArtifactIdentifier": "http://data.europa.eu/eli/dir/2016/680/oj",
+  "rkaf:artifactIdentifierScheme": "rkaf:eli"
+}
