@@ -4,9 +4,95 @@
     "prov": "http://www.w3.org/ns/prov#",
     "oa": "http://www.w3.org/ns/oa#",
     "skos": "http://www.w3.org/2004/02/skos/core#",
+    "dcterms": "http://purl.org/dc/terms/",
+    "cito": "http://purl.org/spar/cito/",
+    "dcat": "http://www.w3.org/ns/dcat#",
     "wos": "https://w3id.org/wos/ns/v1#",
     "formspec": "https://w3id.org/formspec/ns/v1#",
+    "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+    "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
     "xsd": "http://www.w3.org/2001/XMLSchema#",
+    "sh": "http://www.w3.org/ns/shacl#",
+    "eli": "http://data.europa.eu/eli/ontology#",
+    "aknt": "http://docs.oasis-open.org/legaldocml/ns/akn/3.0/",
+    "uslm": "https://uslm.gov/2.1.0/",
+    "lrml": "http://docs.oasis-open.org/legalruleml/ns/v1.0/",
+    "rrmv": "http://data.europa.eu/m8g/rrmv/",
+    "eco": "http://purl.obolibrary.org/obo/ECO_",
+    "sepio": "http://purl.obolibrary.org/obo/SEPIO_",
+    "dpv": "https://w3id.org/dpv#",
+    "odrl": "http://www.w3.org/ns/odrl/2/",
+    "nano": "http://www.nanopub.org/nschema#",
+    "schemaorg": "https://schema.org/",
+
+    "rkaf:Artifact": {"@type": "@id"},
+    "rkaf:hasArtifactIdentifier": {"@type": "@id"},
+    "rkaf:artifactIdentifierScheme": {"@type": "@vocab"},
+
+    "rkaf:SourceFragment": {"@type": "@id"},
+    "rkaf:bindsArtifact": {"@type": "@id"},
+    "rkaf:hasSelector": {"@type": "@id"},
+    "rkaf:selectorKind": {"@type": "@vocab"},
+
+    "rkaf:EvidenceBinding": {"@type": "@id"},
+    "rkaf:bindsAssertion": {"@type": "@id"},
+    "rkaf:bindsSourceFragment": {"@type": "@id"},
+    "rkaf:noEvidenceReason": {"@type": "@vocab"},
+
+    "rkaf:Warrant": {"@type": "@id"},
+    "rkaf:hasWarrant": {"@type": "@id"},
+    "rkaf:warrantKind": {"@type": "@vocab"},
+    "rkaf:warrantFamily": {"@type": "@vocab"},
+    "rkaf:defeasible": {"@type": "xsd:boolean"},
+
+    "rkaf:ConfidenceRecord": {"@type": "@id"},
+    "rkaf:hasConfidence": {"@type": "@id"},
+    "rkaf:confidenceMethod": {"@type": "@vocab"},
+    "rkaf:calibrationStatus": {"@type": "@vocab"},
+    "rkaf:confidenceBasis": {"@type": "@id"},
+    "rkaf:evaluatedAgainst": {"@type": "@id"},
+    "rkaf:generatedBy": {"@type": "@id"},
+    "rkaf:score": {"@type": "xsd:float"},
+    "rkaf:scoreCategorical": {"@type": "@vocab"},
+
+    "rkaf:AccessScope": {"@type": "@id"},
+    "rkaf:hasAccessScope": {"@type": "@id"},
+    "rkaf:accessScopeKind": {"@type": "@vocab"},
+    "rkaf:regulatoryClass": {"@type": "@vocab"},
+    "rkaf:embargoUntil": {"@type": "xsd:dateTime"},
+    "rkaf:permittedRole": {"@type": "@id"},
+
+    "rkaf:AILineage": {"@type": "@id"},
+    "rkaf:hasAILineage": {"@type": "@id"},
+    "rkaf:modelId": {"@type": "xsd:string"},
+    "rkaf:modelVersion": {"@type": "xsd:string"},
+    "rkaf:promptTemplateRef": {"@type": "@id"},
+    "rkaf:temperature": {"@type": "xsd:float"},
+    "rkaf:seed": {"@type": "xsd:integer"},
+    "rkaf:inputContextHash": {"@type": "xsd:string"},
+    "rkaf:humanApprover": {"@type": "@id"},
+    "rkaf:humanRationale": {"@type": "xsd:string"},
+
+    "rkaf:MappingState": {"@type": "@id"},
+    "rkaf:mappingState": {"@type": "@vocab"},
+
+    "rkaf:RetentionPolicy": {"@type": "@id"},
+    "rkaf:hasRetentionPolicy": {"@type": "@id"},
+    "rkaf:retentionDurationDays": {"@type": "xsd:int"},
+    "rkaf:retentionTrigger": {"@type": "@vocab"},
+    "rkaf:retentionPostExpiry": {"@type": "@vocab"},
+
+    "rkaf:Workspace": {"@type": "@id"},
+    "rkaf:scopedToWorkspace": {"@type": "@id"},
+    "rkaf:workspaceId": {"@type": "xsd:string"},
+    "rkaf:workspaceTrustList": {"@type": "@id"},
+
+    "rkaf:projectsTo": {"@type": "@id"},
+    "rkaf:llmHint": {"@type": "@id"},
+
+    "rkaf:anchoredBy": {"@type": "@id"},
+    "rkaf:anchorType": {"@type": "@id"},
+
     "rkaf:assertsSubject": {
       "@type": "@id"
     },
@@ -575,11 +661,18 @@
     }
   },
   "_meta": {
-    "version": "v0.2",
-    "supersedes": "v0.1",
-    "relationship": "strict additive superset of v0.1; no semantic change",
+    "version": "v0.2.0-pre.2",
+    "supersedes": "v0.1.1",
+    "relationship": "Vocabulary v0.2 — first-class Warrant/Artifact/SourceFragment/EvidenceBinding/ConfidenceRecord/AccessScope/AILineage/RetentionPolicy/MappingState/Workspace primitives; OA/PROV-O/SKOS/DCTERMS/CiTO/DCAT imports; ELI/ELI-DL/ELI-I/Akoma-Ntoso/USLM/LegalRuleML/RRMV/ECO/SEPIO/ODRL/DPV/Schema.org alignments. v0.1.x is editorial baseline only — wholesale supersession.",
     "delta_from_v0.1": [
-      "Added rkaf:definedInScope as @type:@id (was missing, treated as string literal in v0.1)"
+      "Added rkaf:definedInScope as @type:@id (was missing, treated as string literal in v0.1)",
+      "Added rkaf:Artifact, rkaf:SourceFragment, rkaf:EvidenceBinding, rkaf:Warrant, rkaf:ConfidenceRecord, rkaf:AccessScope as first-class primitives",
+      "Added rkaf:hasWarrant universal grounding predicate (rkaf:hasAuthority becomes legal-family specialization)",
+      "Added rkaf:AILineage with mandatory humanApprover",
+      "Added rkaf:MappingState, rkaf:RetentionPolicy, rkaf:Workspace, rkaf:projectsTo, rkaf:llmHint (Studio-derived promotions)",
+      "Added rkaf:anchoredBy / rkaf:anchorType (abstract anchoring contract, bindings live outside Rulespec)",
+      "Imported namespaces: prov, oa, skos, dcterms, cito, dcat, rdf, rdfs, xsd, sh",
+      "Aligned namespaces: eli, eli-dl, eli-i, aknt, uslm, lrml, rrmv, eco, sepio, dpv, odrl, nano, schemaorg"
     ],
     "note": "_meta is JSON-LD-safe: keys not in @context are ignored by JSON-LD processors."
   }
