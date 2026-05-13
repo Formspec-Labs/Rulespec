@@ -67,11 +67,11 @@ jobs:
       - name: Rename audit (no pkaf:/PKAF strings introduced)
         run: python3 tools/rename_audit.py
 
-      - name: v0.1 SHACL regression (batch4 mode still PASS)
-        run: python3 tools/ci_validate.py --mode batch4
+      - name: Version sync check (VERSION ↔ Cargo.toml ↔ jsonld context)
+        run: python3 tools/version_sync.py --check
 
-      - name: v0.2 SHACL positive-fixture suite (v02 mode)
-        run: python3 tools/ci_validate.py --mode v02
+      - name: v0.2 SHACL positive-fixture suite
+        run: python3 tools/ci_validate.py
 
       - name: Build Layer 4 projector crates
         run: cargo build --manifest-path crates/Cargo.toml --workspace

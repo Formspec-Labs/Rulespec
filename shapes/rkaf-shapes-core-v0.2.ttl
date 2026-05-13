@@ -1,6 +1,7 @@
 # Rulespec Core Shapes v0.2 — Umbrella
 # Profile: Pattern C only (no sh:if / sh:then)
-# Composes v0.2 modular shape files with v0.1 inherited shapes.
+# Composes the five v0.2 modular shape files. v0.1 was wholesale-superseded
+# (archive/v0.1/) and is not imported.
 
 @prefix sh:    <http://www.w3.org/ns/shacl#> .
 @prefix owl:   <http://www.w3.org/2002/07/owl#> .
@@ -10,17 +11,13 @@
 <https://rulespec.org/shapes/v0.2/core>
   a owl:Ontology ;
   rdfs:label "Rulespec Core SHACL shapes v0.2 (umbrella)" ;
-  rdfs:comment "Compiled SHACL target. Composes v0.2 modular shape files with v0.1 inherited shapes. Source of truth for constraints lives in Layer 2 (Plan 3, CUE)." ;
+  rdfs:comment "Compiled SHACL target. Composes the v0.2 modular shape files. Source of truth for constraints lives in Layer 2 (Plan 3, CUE)." ;
   owl:imports
     <https://rulespec.org/shapes/v0.2/warrant> ,
     <https://rulespec.org/shapes/v0.2/confidence> ,
     <https://rulespec.org/shapes/v0.2/accessscope> ,
     <https://rulespec.org/shapes/v0.2/studio-promotions> ,
-    <https://rulespec.org/shapes/v0.2/conceptregistry> ,
-    <https://rulespec.org/shapes/v0.1/core> ,
-    <https://rulespec.org/shapes/v0.1/conceptregistry> ,
-    <https://rulespec.org/shapes/v0.1/lifecycle> ,
-    <https://rulespec.org/shapes/v0.1/justification> .
+    <https://rulespec.org/shapes/v0.2/conceptregistry> .
 
 # Authority is now a specialization of Warrant (§4.4).
 rkaf:Authority rdfs:subClassOf rkaf:Warrant .

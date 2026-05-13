@@ -29,7 +29,7 @@ PATTERNS = [
 ]
 
 # directories never audited
-SKIP_DIRS = {".git", "__pycache__", ".venv", "node_modules", "target", "thoughts"}
+SKIP_DIRS = {".git", "__pycache__", ".venv", "node_modules", "target", "thoughts", "archive"}
 # file extensions audited
 EXTS = {".md", ".py", ".rs", ".ts", ".js", ".mjs", ".json", ".jsonld",
         ".ttl", ".yaml", ".yml", ".toml", ".sh", ".cue"}

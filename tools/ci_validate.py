@@ -1,22 +1,12 @@
 #!/usr/bin/env python3
-"""Rulespec CI validation gate (multi-mode).
+"""Rulespec CI validation gate (v0.2 conformance).
 
-Supports three conformance modes via --mode flag:
-
-  --mode core      Rulespec v0.1-rc1 baseline (Core shapes only, v0.1-rc1 fixtures)
-                   Expected: 1,183 triples, 0 violations
-  --mode batch2    Rulespec Core + ConceptRegistry (Batch 2, v0.2 fixtures)
-                   Expected: 1,184 triples, 0 violations
-  --mode batch3    Rulespec Core + ConceptRegistry + Lifecycle (Batch 3 fixtures)
-                   Expected: 1,186 triples, 0 violations  ← DEFAULT
-
-Each mode loads a specific shape set and validates the matching fixture set.
-Triple counts differ between modes because each shape batch may surface
-fixture additions (e.g., usageCeiling on case-4 in Batch 2, retainsAssertion
-on inline PIT in Batch 3).
+Validates the v0.2 positive-fixture set against the v0.2 SHACL shape suite.
+v0.1 was wholesale-superseded (master plan §1; source spec §11) and lives
+under `archive/v0.1/` — it is not loaded by this gate.
 
 Usage:
-  python3 ci_validate.py [--mode core|batch2|batch3] [--repo-root <path>]
+  python3 ci_validate.py [--repo-root <path>] [--json]
 
 Exit codes:
   0  all invariants pass
@@ -31,102 +21,36 @@ from pathlib import Path
 
 MIN_PYSHACL = (0, 31, 0)
 
-MODES = {
-    "core": {
-        "label": "RKAF v0.1-rc1 Core",
-        "shapes": ["shapes/rkaf-shapes-core-v0.1.ttl"],
-        "expected": {
-            "local-operational-v0.2":           {"triples": (340, 370)},
-            "mapping-v0.1":                     {"triples": (310, 330)},
-            "statutory-authority-v0.1":         {"triples": (285, 315)},
-            "registry-failure-conflict-v0.1":   {"triples": (215, 240)},
-        },
-        "expected_total_triples_label": "1,183 (v0.1-rc1 frozen fixtures, Core-only conformance)",
-    },
-    "batch2": {
-        "label": "RKAF Core + ConceptRegistry (Batch 2)",
-        "shapes": [
-            "shapes/rkaf-shapes-core-v0.1.ttl",
-            "shapes/rkaf-shapes-conceptregistry-v0.1.ttl",
-        ],
-        "expected": {
-            "local-operational-v0.2":           {"triples": (340, 370)},
-            "mapping-v0.1":                     {"triples": (310, 330)},
-            "statutory-authority-v0.1":         {"triples": (285, 315)},
-            "registry-failure-conflict-v0.1":   {"triples": (215, 240)},
-        },
-        "expected_total_triples_label": "1,184 (Batch 2 fixtures, Core+ConceptRegistry conformance)",
-    },
-
-    "batch4": {
-        "label": "RKAF Core + ConceptRegistry + Lifecycle + Justification (Batch 4)",
-        "shapes": [
-            "shapes/rkaf-shapes-core-v0.1.ttl",
-            "shapes/rkaf-shapes-conceptregistry-v0.1.ttl",
-            "shapes/rkaf-shapes-lifecycle-v0.1.ttl",
-            "shapes/rkaf-shapes-justification-v0.1.ttl",
-        ],
-        "expected": {
-            "local-operational-v0.2":           {"triples": (340, 370)},
-            "mapping-v0.1":                     {"triples": (310, 330)},
-            "statutory-authority-v0.1":         {"triples": (285, 315)},
-            "registry-failure-conflict-v0.1":   {"triples": (215, 240)},
-        },
-        "expected_total_triples_label": "1,206 (Batch 4 fixtures, Core+ConceptRegistry+Lifecycle+Justification conformance, includes Pattern C shape patches and 6 fixture defect fixes)",
-    },
-    "batch3": {
-        "label": "RKAF Core + ConceptRegistry + Lifecycle (Batch 3)",
-        "shapes": [
-            "shapes/rkaf-shapes-core-v0.1.ttl",
-            "shapes/rkaf-shapes-conceptregistry-v0.1.ttl",
-            "shapes/rkaf-shapes-lifecycle-v0.1.ttl",
-        ],
-        "expected": {
-            "local-operational-v0.2":           {"triples": (340, 370)},
-            "mapping-v0.1":                     {"triples": (310, 330)},
-            "statutory-authority-v0.1":         {"triples": (285, 315)},
-            "registry-failure-conflict-v0.1":   {"triples": (215, 240)},
-        },
-        "expected_total_triples_label": "1,186 (Batch 3 fixtures, Core+ConceptRegistry+Lifecycle conformance)",
-    },
-
-    "v02": {
-        "label": "Rulespec Vocabulary v0.2 (full positive-fixture set)",
-        # v0.2 is greenfield supersession of v0.1 (spec/rkaf-core-v0.2.md §11).
-        # v0.1 shapes are NOT loaded here — they target the same classes with
-        # v0.1 property names that v0.2 has replaced (e.g., v0.1 EvidenceBindingShape).
-        "shapes": [
-            "shapes/rkaf-shapes-core-v0.2.ttl",
-            "shapes/rkaf-shapes-warrant-v0.2.ttl",
-            "shapes/rkaf-shapes-confidence-v0.2.ttl",
-            "shapes/rkaf-shapes-accessscope-v0.2.ttl",
-            "shapes/rkaf-shapes-studio-promotions-v0.2.ttl",
-            "shapes/rkaf-shapes-conceptregistry-v0.2.ttl",
-        ],
-        "expected": {
-            "v0.2/artifact-eli-positive":                       {"triples": (1, 50)},
-            "v0.2/artifact-doi-positive":                       {"triples": (1, 50)},
-            "v0.2/artifact-cid-positive":                       {"triples": (1, 50)},
-            "v0.2/sourcefragment-oa-textquote-positive":        {"triples": (1, 50)},
-            "v0.2/sourcefragment-oa-xpath-positive":            {"triples": (1, 50)},
-            "v0.2/sourcefragment-aknt-eid-positive":            {"triples": (1, 50)},
-            "v0.2/sourcefragment-uslm-section-positive":        {"triples": (1, 50)},
-            "v0.2/evidencebinding-positive":                    {"triples": (1, 50)},
-            "v0.2/evidencebinding-no-evidence-reason-positive": {"triples": (1, 50)},
-            "v0.2/warrant-legal-positive":                      {"triples": (1, 50)},
-            "v0.2/warrant-scientific-positive":                 {"triples": (1, 50)},
-            "v0.2/warrant-cross-family-transition-positive":    {"triples": (1, 50)},
-            "v0.2/confidencerecord-uncalibrated-positive":      {"triples": (1, 50)},
-            "v0.2/confidencerecord-calibrated-positive":        {"triples": (1, 50)},
-            "v0.2/accessscope-public-positive":                 {"triples": (1, 50)},
-            "v0.2/accessscope-organizationVisible-positive":    {"triples": (1, 50)},
-            "v0.2/ailineage-positive":                          {"triples": (1, 50)},
-            "v0.2/retentionpolicy-positive":                    {"triples": (1, 50)},
-            "v0.2/mappingstate-positive":                       {"triples": (1, 50)},
-            "v0.2/workspace-positive":                          {"triples": (1, 50)},
-        },
-        "expected_total_triples_label": "v0.2 positive fixtures (loose initial triple ranges)",
-    },
+# Single conformance mode: v0.2 full positive-fixture set.
+SHAPES = [
+    "shapes/rkaf-shapes-core-v0.2.ttl",
+    "shapes/rkaf-shapes-warrant-v0.2.ttl",
+    "shapes/rkaf-shapes-confidence-v0.2.ttl",
+    "shapes/rkaf-shapes-accessscope-v0.2.ttl",
+    "shapes/rkaf-shapes-studio-promotions-v0.2.ttl",
+    "shapes/rkaf-shapes-conceptregistry-v0.2.ttl",
+]
+EXPECTED = {
+    "v0.2/artifact-eli-positive":                       {"triples": (1, 50)},
+    "v0.2/artifact-doi-positive":                       {"triples": (1, 50)},
+    "v0.2/artifact-cid-positive":                       {"triples": (1, 50)},
+    "v0.2/sourcefragment-oa-textquote-positive":        {"triples": (1, 50)},
+    "v0.2/sourcefragment-oa-xpath-positive":            {"triples": (1, 50)},
+    "v0.2/sourcefragment-aknt-eid-positive":            {"triples": (1, 50)},
+    "v0.2/sourcefragment-uslm-section-positive":        {"triples": (1, 50)},
+    "v0.2/evidencebinding-positive":                    {"triples": (1, 50)},
+    "v0.2/evidencebinding-no-evidence-reason-positive": {"triples": (1, 50)},
+    "v0.2/warrant-legal-positive":                      {"triples": (1, 50)},
+    "v0.2/warrant-scientific-positive":                 {"triples": (1, 50)},
+    "v0.2/warrant-cross-family-transition-positive":    {"triples": (1, 50)},
+    "v0.2/confidencerecord-uncalibrated-positive":      {"triples": (1, 50)},
+    "v0.2/confidencerecord-calibrated-positive":        {"triples": (1, 50)},
+    "v0.2/accessscope-public-positive":                 {"triples": (1, 50)},
+    "v0.2/accessscope-organizationVisible-positive":    {"triples": (1, 50)},
+    "v0.2/ailineage-positive":                          {"triples": (1, 50)},
+    "v0.2/retentionpolicy-positive":                    {"triples": (1, 50)},
+    "v0.2/mappingstate-positive":                       {"triples": (1, 50)},
+    "v0.2/workspace-positive":                          {"triples": (1, 50)},
 }
 
 FIXTURES_DIR = "fixtures"
@@ -191,20 +115,16 @@ def validate_one(fixture_path, shapes_paths):
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Rulespec multi-mode CI validation gate")
-    parser.add_argument("--mode", choices=list(MODES.keys()), default="batch4",
-                        help="Conformance mode (default: batch3)")
+    parser = argparse.ArgumentParser(description="Rulespec CI validation gate (v0.2)")
     parser.add_argument("--repo-root", default=".")
     parser.add_argument("--json", action="store_true")
     args = parser.parse_args()
 
-    mode_config = MODES[args.mode]
     repo_root = Path(args.repo_root).resolve()
-    shapes_paths = [repo_root / p for p in mode_config["shapes"]]
+    shapes_paths = [repo_root / p for p in SHAPES]
     fixtures_dir = repo_root / FIXTURES_DIR
 
-    print(f"Rulespec CI validation gate — mode: {args.mode}")
-    print(f"  {mode_config['label']}")
+    print("Rulespec CI validation gate (v0.2)")
     print("=" * 60)
 
     print("\n[1/3] Environment check")
@@ -215,14 +135,13 @@ def main():
         print(f"  shapes:  {sp.relative_to(repo_root)}")
     if not fixtures_dir.is_dir():
         die(f"Fixtures dir missing: {fixtures_dir}")
-    print(f"  expected total: {mode_config['expected_total_triples_label']}")
 
     print("\n[2/3] Per-fixture validation")
     results = {}
     failed = False
     drift_warnings = []
 
-    for slug, expected in mode_config["expected"].items():
+    for slug, expected in EXPECTED.items():
         fixture_path = fixtures_dir / f"{slug}.jsonld"
         if not fixture_path.exists():
             die(f"Fixture missing: {fixture_path}")
@@ -252,8 +171,7 @@ def main():
     print("\n[3/3] Summary")
     total_triples = sum(r.get("triples", 0) for r in results.values())
     total_violations = sum(r.get("violations", 0) for r in results.values())
-    print(f"  Mode:       {args.mode} ({mode_config['label']})")
-    print(f"  Shapes:     {len(mode_config['shapes'])} files")
+    print(f"  Shapes:     {len(SHAPES)} files")
     print(f"  Fixtures:   {len(results)}")
     print(f"  Triples:    {total_triples}")
     print(f"  Violations: {total_violations}")
@@ -267,16 +185,12 @@ def main():
     if args.json:
         print("\n--- JSON ---")
         print(json.dumps({
-            "mode": args.mode,
-            "label": mode_config["label"],
-            "pass": not failed,
-            "total_triples": total_triples,
-            "total_violations": total_violations,
-            "fixtures": {k: {"triples": v.get("triples"), "violations": v.get("violations")} for k, v in results.items()},
+            "result": "FAIL" if failed else "PASS",
+            "fixtures": results,
         }, indent=2))
 
-    return 1 if failed else 0
+    sys.exit(1 if failed else 0)
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

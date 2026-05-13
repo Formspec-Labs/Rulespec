@@ -15,12 +15,8 @@ from pyshacl import validate
 
 ROOT = Path(__file__).resolve().parent.parent
 SHAPES = [
-    # v0.2 shape files only — v0.2 is greenfield supersession of v0.1 (spec §11).
-    # v0.1 shapes are retained in the tree for v0.1 conformance modes (ci_validate.py
-    # --mode core / batch2 / batch3 / batch4) but NOT loaded for v0.2 validation,
-    # because the v0.1 EvidenceBindingShape targets the same rkaf:EvidenceBinding
-    # class with v0.1 property names (rkaf:sourceFragment, rkaf:evidenceRole) that
-    # v0.2 has wholesale replaced.
+    # v0.2 shape files. v0.1 was wholesale-superseded (spec §11) and lives under
+    # archive/v0.1/; this gate never loads it.
     "shapes/rkaf-shapes-core-v0.2.ttl",
     "shapes/rkaf-shapes-warrant-v0.2.ttl",
     "shapes/rkaf-shapes-confidence-v0.2.ttl",
