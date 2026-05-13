@@ -4,6 +4,7 @@
     {
       "@id": "urn:rkaf:fixture:eb-ner:assertion",
       "@type": "rkaf:Assertion",
+      "rkaf:assertionOrigin": "rkaf:humanAsserted",
       "rkaf:hasSafetyLabel": "rkaf:A3AdvisoryAggregated"
     },
     {

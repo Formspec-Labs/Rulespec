@@ -3,7 +3,8 @@
   "@graph": [
     {
       "@id": "urn:rkaf:fixture:eb-neg:assertion",
-      "@type": "rkaf:Assertion"
+      "@type": "rkaf:Assertion",
+      "rkaf:assertionOrigin": "rkaf:humanAsserted"
     },
     {
       "@id": "urn:rkaf:fixture:eb-neg:binding",

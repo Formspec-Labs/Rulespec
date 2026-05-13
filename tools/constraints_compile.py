@@ -372,11 +372,13 @@ def parse_property_line(line: str) -> Optional[PropDef]:
         p.type_ref = "list"
         p.list_of_string = True
         return p
-    # `list.MinItems(N)`
+    # `list.MinItems(N)` — bare list with no item-type constraint. Items may
+    # be any JSON value (string, object, array, …). Note: we deliberately do
+    # NOT set `list_of_string` here; the previous behavior degraded structured
+    # OA selector objects to string, which broke `SourceFragment.hasSelector`.
     lmo = re.match(r"^list\.MinItems\((\d+)\)$", rhs)
     if lmo:
         p.type_ref = "list"
-        p.list_of_string = True
         p.list_min_items = int(lmo.group(1))
         return p
     # `>=N.M & <=N.M`
@@ -529,8 +531,11 @@ def property_to_jsonschema(p: PropDef, doc: ConstraintDoc) -> dict:
         items: dict
         if p.list_inner_enum:
             items = {"$ref": f"#/$defs/{p.list_inner_enum}"}
-        else:
+        elif p.list_of_string:
             items = {"type": "string"}
+        else:
+            # Bare `list.MinItems(N)` — items may be any JSON value.
+            items = {}
         arr: dict = {"type": "array", "items": items}
         if p.list_min_items > 0:
             arr["minItems"] = p.list_min_items

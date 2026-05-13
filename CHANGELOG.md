@@ -18,16 +18,21 @@ adapted for a specification + shape + fixture project.
 ### Verified
 
 - 16 v0.2 positive fixtures round-trip through their matching `rkaf-core` types byte-identically.
-- 11 of 17 positive fixtures validate cleanly via `rkaf-validate` (the JSON-Schema target). 6 fixtures live in `SHACL_ONLY_POSITIVE` — documented Appendix-C divergences where SHACL is the stronger gate. The split is honestly named in the test source.
+- **All 17 positive fixtures validate cleanly via `rkaf-validate`**. The two Appendix-C divergences surfaced during Plan 6a development were both closed in the same pass (see "Constraint compiler + fixture fixes" below).
 - CLI integration tests cover PASS/FAIL/--json across positive and negative fixtures.
-- All 23 unit/integration tests across the new crates pass; full workspace `cargo test --workspace` passes.
+- Full workspace `cargo test --workspace` passes; `tools/ci_validate.py` (SHACL) passes 20/20; `tools/validate_negatives.py` passes 4/4 fail-as-expected.
 
-### Documented Appendix-C divergences (JSON Schema < SHACL)
+### Constraint compiler + fixture fixes
 
-- **SourceFragment `rkaf:hasSelector`**: CUE → JSON Schema compiler emits `string | array[string]`, but real fixtures use structured OA selector objects (`oa:TextQuoteSelector`, `oa:XPathSelector`, `rkaf:AktnEIdSelector`, `rkaf:USLMSectionSelector`). A future compiler iteration should emit the structured shape.
-- **EvidenceBinding cross-ref placeholders**: fixtures contain sparse `{"@type": "rkaf:Assertion"}` nodes for cross-reference. SHACL targetClass validation does not trip on sparse nodes; JSON Schema `required` does.
+Plan 6a surfaced two real Layer 2/3 issues that previously produced JSON-Schema vs SHACL divergence on positive fixtures. Both are now fixed:
 
-Neither divergence affects user code that authors well-formed v0.2 nodes for validation; the divergence is in *which gate catches what*. Full v0.2 conformance requires both `rkaf-validate` (JSON Schema) and `tools/ci_validate.py` (SHACL).
+1. **`tools/constraints_compile.py` — bare `list.MinItems(N)` items.**
+   The CUE → JSON Schema codegen treated a bare `list.MinItems(N)` (no item type constraint) as if the items were strings. The fix: leave `list_of_string` unset and emit `items: {}` (any) when neither an inner enum nor an explicit string item constraint is present. This affected `SourceFragment.hasSelector`, which on the wire is a structured OA selector object (`oa:TextQuoteSelector`, `oa:XPathSelector`, `rkaf:AktnEIdSelector`, `rkaf:USLMSectionSelector`).
+
+2. **Cross-ref Assertion placeholders carry `assertionOrigin` now.**
+   The `evidencebinding-{positive,no-evidence-reason-positive,missing-negative}` fixtures previously contained sparse `{"@type": "rkaf:Assertion", "@id": "…"}` nodes as cross-reference placeholders for the EvidenceBinding's `bindsAssertion`. SHACL targetClass validation didn't trip; JSON Schema `required` did. The fixtures now carry `"rkaf:assertionOrigin": "rkaf:humanAsserted"` on every Assertion node, matching the actual vocabulary contract.
+
+After both fixes, every v0.2 positive fixture validates byte-identically across the JSON Schema (`rkaf-validate`) and SHACL (`tools/ci_validate.py`) gates. The `STRICT_POSITIVE` / `SHACL_ONLY_POSITIVE` split in the test source was retired.
 
 ### Compatibility
 
