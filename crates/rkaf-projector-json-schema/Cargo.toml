@@ -1,0 +1,19 @@
+[package]
+name = "rkaf-projector-json-schema"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+rust-version.workspace = true
+description = "Rulespec Layer 4 — JSON Schema 2020-12 projector."
+
+[dependencies]
+rkaf-projector-core = { path = "../rkaf-projector-core" }
+serde       = { workspace = true }
+serde_json  = { workspace = true }
+thiserror   = { workspace = true }
+async-trait = { workspace = true }
+jsonschema  = { workspace = true }
+
+[dev-dependencies]
+tokio = { workspace = true }
