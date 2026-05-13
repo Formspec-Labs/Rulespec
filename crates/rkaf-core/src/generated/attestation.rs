@@ -48,6 +48,8 @@ use std::collections::BTreeMap;
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Attestation {
+    #[serde(rename = "@type", default = "Attestation::default_type")]
+    pub type_: String,
     #[serde(rename = "@id", skip_serializing_if = "Option::is_none", default)]
     pub id: Option<String>,
     #[serde(rename = "rkaf:attestor")]
@@ -66,4 +68,8 @@ pub struct Attestation {
     pub rationale: Option<String>,
     #[serde(flatten)]
     pub extra: BTreeMap<String, serde_json::Value>,
+}
+
+impl Attestation {
+    fn default_type() -> String { "rkaf:Attestation".into() }
 }

@@ -8,6 +8,8 @@ use std::collections::BTreeMap;
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Workspace {
+    #[serde(rename = "@type", default = "Workspace::default_type")]
+    pub type_: String,
     #[serde(rename = "@id", skip_serializing_if = "Option::is_none", default)]
     pub id: Option<String>,
     #[serde(rename = "rkaf:workspaceId")]
@@ -16,4 +18,8 @@ pub struct Workspace {
     pub workspace_trust_list: Option<crate::OneOrMany<String>>,
     #[serde(flatten)]
     pub extra: BTreeMap<String, serde_json::Value>,
+}
+
+impl Workspace {
+    fn default_type() -> String { "rkaf:Workspace".into() }
 }

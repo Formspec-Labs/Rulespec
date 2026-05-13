@@ -22,6 +22,8 @@ use std::collections::BTreeMap;
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct ConceptMapping {
+    #[serde(rename = "@type", default = "ConceptMapping::default_type")]
+    pub type_: String,
     #[serde(rename = "@id", skip_serializing_if = "Option::is_none", default)]
     pub id: Option<String>,
     #[serde(rename = "rkaf:sourceConcept")]
@@ -38,8 +40,14 @@ pub struct ConceptMapping {
     pub extra: BTreeMap<String, serde_json::Value>,
 }
 
+impl ConceptMapping {
+    fn default_type() -> String { "rkaf:ConceptMapping".into() }
+}
+
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct MappingApplicabilityContext {
+    #[serde(rename = "@type", default = "MappingApplicabilityContext::default_type")]
+    pub type_: String,
     #[serde(rename = "@id", skip_serializing_if = "Option::is_none", default)]
     pub id: Option<String>,
     #[serde(rename = "rkaf:applicationDomain")]
@@ -48,4 +56,8 @@ pub struct MappingApplicabilityContext {
     pub evidence_purpose: Option<crate::OneOrMany<String>>,
     #[serde(flatten)]
     pub extra: BTreeMap<String, serde_json::Value>,
+}
+
+impl MappingApplicabilityContext {
+    fn default_type() -> String { "rkaf:MappingApplicabilityContext".into() }
 }

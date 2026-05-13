@@ -140,6 +140,8 @@ use std::collections::BTreeMap;
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Warrant {
+    #[serde(rename = "@type", default = "Warrant::default_type")]
+    pub type_: String,
     #[serde(rename = "@id", skip_serializing_if = "Option::is_none", default)]
     pub id: Option<String>,
     #[serde(rename = "rkaf:warrantKind")]
@@ -152,6 +154,10 @@ pub struct Warrant {
     pub defeasible: Option<bool>,
     #[serde(flatten)]
     pub extra: BTreeMap<String, serde_json::Value>,
+}
+
+impl Warrant {
+    fn default_type() -> String { "rkaf:Warrant".into() }
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]

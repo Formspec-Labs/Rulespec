@@ -20,6 +20,8 @@ use std::collections::BTreeMap;
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct LocalAdoption {
+    #[serde(rename = "@type", default = "LocalAdoption::default_type")]
+    pub type_: String,
     #[serde(rename = "@id", skip_serializing_if = "Option::is_none", default)]
     pub id: Option<String>,
     #[serde(rename = "rkaf:organization")]
@@ -44,4 +46,8 @@ pub struct LocalAdoption {
     pub based_on_attestation: Option<String>,
     #[serde(flatten)]
     pub extra: BTreeMap<String, serde_json::Value>,
+}
+
+impl LocalAdoption {
+    fn default_type() -> String { "rkaf:LocalAdoption".into() }
 }

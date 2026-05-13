@@ -90,3 +90,50 @@ fn round_trip_evidence_binding_fixtures() {
     round_trip::<EvidenceBinding>("evidencebinding-positive", "rkaf:EvidenceBinding");
     round_trip::<EvidenceBinding>("evidencebinding-no-evidence-reason-positive", "rkaf:EvidenceBinding");
 }
+
+// === Vocabulary backlog round-trip coverage ===
+
+#[test]
+fn round_trip_authority_fixture() {
+    round_trip::<Authority>("authority-positive", "rkaf:Authority");
+}
+
+#[test]
+fn round_trip_attestation_fixture() {
+    round_trip::<Attestation>("attestation-positive", "rkaf:Attestation");
+}
+
+#[test]
+fn round_trip_local_adoption_fixture() {
+    round_trip::<LocalAdoption>("localadoption-positive", "rkaf:LocalAdoption");
+}
+
+#[test]
+fn round_trip_applicability_scope_fixture() {
+    round_trip::<ApplicabilityScope>("applicabilityscope-positive", "rkaf:ApplicabilityScope");
+}
+
+#[test]
+fn round_trip_effective_period_fixture() {
+    round_trip::<EffectivePeriod>("effectiveperiod-positive", "rkaf:EffectivePeriod");
+}
+
+#[test]
+fn round_trip_lifecycle_event_fixture() {
+    round_trip::<LifecycleEvent>("lifecycleevent-positive", "rkaf:LifecycleEvent");
+}
+
+#[test]
+fn round_trip_concept_mapping_fixture() {
+    round_trip::<ConceptMapping>("conceptmapping-positive", "rkaf:ConceptMapping");
+}
+
+#[test]
+fn round_trip_concept_resolution_result_fixture() {
+    round_trip::<ConceptResolutionResult>("conceptresolutionresult-positive", "rkaf:ConceptResolutionResult");
+}
+
+#[test]
+fn round_trip_bridge_validation_result_fixture() {
+    round_trip::<BridgeValidationResult>("bridgevalidationresult-positive", "rkaf:BridgeValidationResult");
+}

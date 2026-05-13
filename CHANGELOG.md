@@ -5,6 +5,48 @@ All notable changes to Rulespec are documented in this file.
 The format is loosely based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 adapted for a specification + shape + fixture project.
 
+## Unreleased — Vocabulary backlog integration: review-driven follow-ups
+
+A semi-formal code review of the initial backlog integration surfaced one BLOCKER and four WARNINGs. All are addressed here.
+
+### Fixed (review follow-ups)
+
+- **BLOCKER: cross-file enum `$ref`s in compiled JSON Schemas.** The Rust target had a `_RUST_CROSS_FILE_ENUMS` registry; the JSON Schema target did not. As a result, 4 of 10 new positive fixtures (`conceptmapping-positive`, `conceptresolutionresult-positive`, `localadoption-positive`, `bridgevalidationresult-positive`) failed validation at runtime with `Invalid reference: #/$defs/UsageEligibility` errors. **Fix:** `tools/constraints_compile.py` now scans every sibling CUE file at startup (`_scan_global_enum_registry`), builds an enum-name → source-file map, and the JSON Schema target inlines cross-file enum definitions into each consuming schema's `$defs`. The Rust target was migrated off the hardcoded `_RUST_CROSS_FILE_ENUMS` dict onto the same auto-discovered registry. (Findings 1 + 5.)
+- **`@type` field was never emitted in generated Rust structs.** The parser diverts `@type` into `shape.type_iri` before the property loop; the Rust target was looking for `@type` in `s.properties` and never finding it, making the `pub type_: String` + `default_type()` constructor emission dead code. **Fix:** consult `s.type_iri` directly. 21 of 24 generated modules now emit `@type` (the 3 without are pure enum-only files). (Finding 2.)
+- **Missing test coverage on the 10 new fixtures.** None were in `STRICT_POSITIVE` (rkaf-validate) or as round-trip tests (rkaf-core). The BLOCKER above was invisible because the coverage gap concealed it. **Fix:** all 10 fixtures added to `STRICT_POSITIVE`; 9 new round-trip tests added (one per backlog class — Authority, Attestation, LocalAdoption, ApplicabilityScope, EffectivePeriod, LifecycleEvent, ConceptMapping, ConceptResolutionResult, BridgeValidationResult). Round-trip test count: 7 → 16. Total workspace test count: 20 → 36. (Finding 3.)
+
+### Disclosed (review-prompted API-break narrative)
+
+The "no public API drift" claim in the prior CHANGELOG entry was wrong. The CUE→Rust pivot is a public API break, intentional and aligned with the v0.1 normative spec:
+
+| Before | After | Rationale |
+|---|---|---|
+| `AssertionOrigin::HumanAuthored` | `AssertionOrigin::HumanAsserted` | Matches `archive/v0.1/spec/rkaf-core.md:21` ("rkaf:humanAsserted"). The previous Rust spelling was a hand-authored drift. |
+| `Warrant::new(kind, family)` constructor | (removed) | Generated structs use `Warrant { type_: Warrant::default_type(), warrant_kind, warrant_family, ... }`. |
+| `Assertion::new(origin)` constructor | (removed) | Same — direct struct literal construction. |
+| `AssertionOrigin::is_ai_touched()` helper | (removed) | The v0.1 spec doesn't normatively define an AI-touched subset of origins; the helper was a Studio-side concern that incorrectly leaked into Layer 1. |
+| (absent) | `AssertionOrigin::Imported` variant | New variant matching `archive/v0.1/spec/rkaf-core.md:21` ("rkaf:importedFromSource"). The hand-authored enum was missing this. |
+
+Pre-release, no published crates.io consumer; the break is internal-only.
+
+### Gaps explicitly deferred (not blockers)
+
+- **SHACL coverage of new vocab.** The 12 new CUE files do generate SHACL Turtle output (now in `compiled/shacl/core/`) — but the hand-authored `shapes/rkaf-shapes-*.ttl` files used by `tools/ci_validate.py` don't yet include the new classes. The CUE-source-of-truth SHACL is regenerated but not yet wired into the SHACL gate. This is intentional scope for a follow-up (the path is: switch `ci_validate.py` from hand-authored shapes to `compiled/shacl/` outputs).
+- **Behavioral semantics (Layer 5).** The v0.1 `usageEligibility` reducer, `CascadeClosureV1` algorithm, and 10 bridge contract rules remain normative prose only (in `archive/v0.1/spec/rkaf-core.md`). They're not CUE-validatable shape; they're runtime contracts. A future `spec/rkaf-behavior.md` or `rkaf-runtime` crate would close this. Tracked in `spec/rkaf-vocabulary.md:94`.
+- **`OneOrMany<T>` empty-array permissiveness.** The wrapper deserializes `[]` as `Many(vec![])`, bypassing `list.MinItems(N)` at the Rust layer. JSON Schema catches it on the validator side; the Rust layer trades type-strictness for round-trip parity. Documented in the lib.rs doc-comment.
+
+### Verified (post-fix)
+
+- `cargo test --workspace`: **36 tests passing** (up from 20); zero failures.
+- `tools/ci_validate.py` (SHACL): 20/20 pre-existing fixtures, 0 violations.
+- `tools/validate_negatives.py`: 4/4 FAIL-AS-EXPECTED.
+- `tools/constraints_parity.py`: 0 release blockers.
+- `tools/projector_parity.py`: 7/7 round-trip OK.
+- `tools/version_sync.py --check`: clean.
+- `tools/rename_audit.py`: 0 findings.
+- **All 10 new positive fixtures validate cleanly via `rkaf-validate`.**
+- **All 10 new typed structs round-trip cleanly through `rkaf-core` serde.**
+
 ## Unreleased — Vocabulary backlog integration + CUE→Rust pipeline
 
 **Closes the 17-term vocabulary backlog. The CUE source-of-truth is now the canonical generator for the Rust SDK as well as JSON Schema, SHACL, and TypeScript. Hand-authored Rust types are gone.**

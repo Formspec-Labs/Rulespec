@@ -48,6 +48,8 @@ use std::collections::BTreeMap;
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct ConfidenceRecord {
+    #[serde(rename = "@type", default = "ConfidenceRecord::default_type")]
+    pub type_: String,
     #[serde(rename = "@id", skip_serializing_if = "Option::is_none", default)]
     pub id: Option<String>,
     #[serde(rename = "rkaf:confidenceMethod")]
@@ -60,4 +62,8 @@ pub struct ConfidenceRecord {
     pub generated_by: String,
     #[serde(flatten)]
     pub extra: BTreeMap<String, serde_json::Value>,
+}
+
+impl ConfidenceRecord {
+    fn default_type() -> String { "rkaf:ConfidenceRecord".into() }
 }

@@ -32,6 +32,8 @@ use std::collections::BTreeMap;
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct RetentionPolicy {
+    #[serde(rename = "@type", default = "RetentionPolicy::default_type")]
+    pub type_: String,
     #[serde(rename = "@id", skip_serializing_if = "Option::is_none", default)]
     pub id: Option<String>,
     #[serde(rename = "rkaf:retentionDurationDays")]
@@ -42,4 +44,8 @@ pub struct RetentionPolicy {
     pub retention_post_expiry: RetentionPostExpiry,
     #[serde(flatten)]
     pub extra: BTreeMap<String, serde_json::Value>,
+}
+
+impl RetentionPolicy {
+    fn default_type() -> String { "rkaf:RetentionPolicy".into() }
 }

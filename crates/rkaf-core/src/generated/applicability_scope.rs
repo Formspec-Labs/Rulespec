@@ -8,6 +8,8 @@ use std::collections::BTreeMap;
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct ApplicabilityScope {
+    #[serde(rename = "@type", default = "ApplicabilityScope::default_type")]
+    pub type_: String,
     #[serde(rename = "@id", skip_serializing_if = "Option::is_none", default)]
     pub id: Option<String>,
     #[serde(rename = "rkaf:appliesInJurisdiction")]
@@ -20,4 +22,8 @@ pub struct ApplicabilityScope {
     pub applicability_condition: Option<String>,
     #[serde(flatten)]
     pub extra: BTreeMap<String, serde_json::Value>,
+}
+
+impl ApplicabilityScope {
+    fn default_type() -> String { "rkaf:ApplicabilityScope".into() }
 }

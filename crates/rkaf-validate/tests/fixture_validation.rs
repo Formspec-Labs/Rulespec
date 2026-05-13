@@ -44,6 +44,17 @@ const STRICT_POSITIVE: &[&str] = &[
     "sourcefragment-uslm-section-positive",
     "evidencebinding-positive",
     "evidencebinding-no-evidence-reason-positive",
+    // Vocabulary backlog additions (must validate via embedded schemas).
+    "authority-positive",
+    "attestation-positive",
+    "localadoption-positive",
+    "applicabilityscope-positive",
+    "effectiveperiod-positive",
+    "lifecycleevent-positive",
+    "concept-registered-positive",
+    "conceptmapping-positive",
+    "conceptresolutionresult-positive",
+    "bridgevalidationresult-positive",
 ];
 
 const NEGATIVE: &[(&str, &str)] = &[

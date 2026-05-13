@@ -26,6 +26,8 @@ use std::collections::BTreeMap;
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct RegisteredConcept {
+    #[serde(rename = "@type", default = "RegisteredConcept::default_type")]
+    pub type_: String,
     #[serde(rename = "@id", skip_serializing_if = "Option::is_none", default)]
     pub id: Option<String>,
     #[serde(rename = "rkaf:managedByRegistry")]
@@ -38,8 +40,14 @@ pub struct RegisteredConcept {
     pub extra: BTreeMap<String, serde_json::Value>,
 }
 
+impl RegisteredConcept {
+    fn default_type() -> String { "rkaf:RegisteredConcept".into() }
+}
+
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct LocalConcept {
+    #[serde(rename = "@type", default = "LocalConcept::default_type")]
+    pub type_: String,
     #[serde(rename = "@id", skip_serializing_if = "Option::is_none", default)]
     pub id: Option<String>,
     #[serde(rename = "rkaf:definedInScope")]
@@ -50,4 +58,8 @@ pub struct LocalConcept {
     pub concept_status: ConceptStatus,
     #[serde(flatten)]
     pub extra: BTreeMap<String, serde_json::Value>,
+}
+
+impl LocalConcept {
+    fn default_type() -> String { "rkaf:LocalConcept".into() }
 }

@@ -36,6 +36,8 @@ use std::collections::BTreeMap;
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Artifact {
+    #[serde(rename = "@type", default = "Artifact::default_type")]
+    pub type_: String,
     #[serde(rename = "@id", skip_serializing_if = "Option::is_none", default)]
     pub id: Option<String>,
     #[serde(rename = "rkaf:hasArtifactIdentifier")]
@@ -44,4 +46,8 @@ pub struct Artifact {
     pub artifact_identifier_scheme: crate::OneOrMany<ArtifactIdentifierScheme>,
     #[serde(flatten)]
     pub extra: BTreeMap<String, serde_json::Value>,
+}
+
+impl Artifact {
+    fn default_type() -> String { "rkaf:Artifact".into() }
 }
