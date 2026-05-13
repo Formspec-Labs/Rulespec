@@ -39,9 +39,10 @@ SELF = Path(__file__).resolve()
 # Files where historical PKAF/pkaf references are intentionally preserved
 # (rename-note prose, change-history tables, file-rename mappings).
 ALLOWLIST_RELATIVE = {
-    "CHANGELOG.md",                  # rename-note entry references the old names
-    "GITHUB-SIDE-STEPS.md",          # documents the rename cutover; references old name by design
-    "spec/rkaf-core-v0.2.md",        # §11 (Compatibility) and §12 (References) cite v0.1.x prefix / source-spec filename
+    "CHANGELOG.md",                              # rename-note entry references the old names
+    "GITHUB-SIDE-STEPS.md",                      # documents the rename cutover; references old name by design
+    "spec/rkaf-core-v0.2.md",                    # §11 (Compatibility) and §12 (References) cite v0.1.x prefix / source-spec filename
+    ".github/workflows/constraints-parity.yml",  # CI step name documents the audit's intent
 }
 
 def walk(root: Path):
