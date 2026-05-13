@@ -5,7 +5,7 @@ use serde_json::json;
 fn projector() -> JsonSchemaProjector {
     JsonSchemaProjector {
         depth: "D1".into(),
-        version: "0.2.0-pre.5".into(),
+        version: env!("CARGO_PKG_VERSION").into(),
         overlay_validator_schema_path: None,
         constraints_compile_script: "tools/constraints_compile.py".into(),
     }

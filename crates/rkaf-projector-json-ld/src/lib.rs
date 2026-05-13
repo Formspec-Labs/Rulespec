@@ -20,7 +20,7 @@ pub struct JsonLdProjector {
 impl JsonLdProjector {
     pub fn with_repo_root(repo_root: impl AsRef<Path>) -> Self {
         Self {
-            version: "0.2.0-pre.5".into(),
+            version: env!("CARGO_PKG_VERSION").into(),
             depth: "D1".into(),
             constraints_compile_script: repo_root
                 .as_ref()

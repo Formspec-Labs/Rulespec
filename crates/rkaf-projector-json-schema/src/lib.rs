@@ -24,7 +24,7 @@ impl JsonSchemaProjector {
         let root = repo_root.as_ref();
         Self {
             depth: "D1".into(),
-            version: "0.2.0-pre.5".into(),
+            version: env!("CARGO_PKG_VERSION").into(),
             overlay_validator_schema_path: None,
             constraints_compile_script: root.join("tools/constraints_compile.py"),
         }

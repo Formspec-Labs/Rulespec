@@ -4,7 +4,7 @@ use serde_json::json;
 
 fn projector() -> JsonLdProjector {
     JsonLdProjector {
-        version: "0.2.0-pre.5".into(),
+        version: env!("CARGO_PKG_VERSION").into(),
         depth: "D1".into(),
         constraints_compile_script: "tools/constraints_compile.py".into(),
     }

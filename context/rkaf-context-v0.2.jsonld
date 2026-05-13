@@ -24,75 +24,174 @@
     "odrl": "http://www.w3.org/ns/odrl/2/",
     "nano": "http://www.nanopub.org/nschema#",
     "schemaorg": "https://schema.org/",
-
-    "rkaf:Artifact": {"@type": "@id"},
-    "rkaf:hasArtifactIdentifier": {"@type": "@id"},
-    "rkaf:artifactIdentifierScheme": {"@type": "@vocab"},
-
-    "rkaf:SourceFragment": {"@type": "@id"},
-    "rkaf:bindsArtifact": {"@type": "@id"},
-    "rkaf:hasSelector": {"@type": "@id"},
-    "rkaf:selectorKind": {"@type": "@vocab"},
-
-    "rkaf:EvidenceBinding": {"@type": "@id"},
-    "rkaf:bindsAssertion": {"@type": "@id"},
-    "rkaf:bindsSourceFragment": {"@type": "@id"},
-    "rkaf:noEvidenceReason": {"@type": "@vocab"},
-
-    "rkaf:Warrant": {"@type": "@id"},
-    "rkaf:hasWarrant": {"@type": "@id"},
-    "rkaf:warrantKind": {"@type": "@vocab"},
-    "rkaf:warrantFamily": {"@type": "@vocab"},
-    "rkaf:defeasible": {"@type": "xsd:boolean"},
-
-    "rkaf:ConfidenceRecord": {"@type": "@id"},
-    "rkaf:hasConfidence": {"@type": "@id"},
-    "rkaf:confidenceMethod": {"@type": "@vocab"},
-    "rkaf:calibrationStatus": {"@type": "@vocab"},
-    "rkaf:confidenceBasis": {"@type": "@id"},
-    "rkaf:evaluatedAgainst": {"@type": "@id"},
-    "rkaf:generatedBy": {"@type": "@id"},
-    "rkaf:score": {"@type": "xsd:float"},
-    "rkaf:scoreCategorical": {"@type": "@vocab"},
-
-    "rkaf:AccessScope": {"@type": "@id"},
-    "rkaf:hasAccessScope": {"@type": "@id"},
-    "rkaf:accessScopeKind": {"@type": "@vocab"},
-    "rkaf:regulatoryClass": {"@type": "@vocab"},
-    "rkaf:embargoUntil": {"@type": "xsd:dateTime"},
-    "rkaf:permittedRole": {"@type": "@id"},
-
-    "rkaf:AILineage": {"@type": "@id"},
-    "rkaf:hasAILineage": {"@type": "@id"},
-    "rkaf:modelId": {"@type": "xsd:string"},
-    "rkaf:modelVersion": {"@type": "xsd:string"},
-    "rkaf:promptTemplateRef": {"@type": "@id"},
-    "rkaf:temperature": {"@type": "xsd:float"},
-    "rkaf:seed": {"@type": "xsd:integer"},
-    "rkaf:inputContextHash": {"@type": "xsd:string"},
-    "rkaf:humanApprover": {"@type": "@id"},
-    "rkaf:humanRationale": {"@type": "xsd:string"},
-
-    "rkaf:MappingState": {"@type": "@id"},
-    "rkaf:mappingState": {"@type": "@vocab"},
-
-    "rkaf:RetentionPolicy": {"@type": "@id"},
-    "rkaf:hasRetentionPolicy": {"@type": "@id"},
-    "rkaf:retentionDurationDays": {"@type": "xsd:int"},
-    "rkaf:retentionTrigger": {"@type": "@vocab"},
-    "rkaf:retentionPostExpiry": {"@type": "@vocab"},
-
-    "rkaf:Workspace": {"@type": "@id"},
-    "rkaf:scopedToWorkspace": {"@type": "@id"},
-    "rkaf:workspaceId": {"@type": "xsd:string"},
-    "rkaf:workspaceTrustList": {"@type": "@id"},
-
-    "rkaf:projectsTo": {"@type": "@id"},
-    "rkaf:llmHint": {"@type": "@id"},
-
-    "rkaf:anchoredBy": {"@type": "@id"},
-    "rkaf:anchorType": {"@type": "@id"},
-
+    "rkaf:Artifact": {
+      "@type": "@id"
+    },
+    "rkaf:hasArtifactIdentifier": {
+      "@type": "@id"
+    },
+    "rkaf:artifactIdentifierScheme": {
+      "@type": "@vocab"
+    },
+    "rkaf:SourceFragment": {
+      "@type": "@id"
+    },
+    "rkaf:bindsArtifact": {
+      "@type": "@id"
+    },
+    "rkaf:hasSelector": {
+      "@type": "@id"
+    },
+    "rkaf:selectorKind": {
+      "@type": "@vocab"
+    },
+    "rkaf:EvidenceBinding": {
+      "@type": "@id"
+    },
+    "rkaf:bindsAssertion": {
+      "@type": "@id"
+    },
+    "rkaf:bindsSourceFragment": {
+      "@type": "@id"
+    },
+    "rkaf:noEvidenceReason": {
+      "@type": "@id"
+    },
+    "rkaf:Warrant": {
+      "@type": "@id"
+    },
+    "rkaf:hasWarrant": {
+      "@type": "@id"
+    },
+    "rkaf:warrantKind": {
+      "@type": "@vocab"
+    },
+    "rkaf:warrantFamily": {
+      "@type": "@vocab"
+    },
+    "rkaf:defeasible": {
+      "@type": "xsd:boolean"
+    },
+    "rkaf:ConfidenceRecord": {
+      "@type": "@id"
+    },
+    "rkaf:hasConfidence": {
+      "@type": "@id"
+    },
+    "rkaf:confidenceMethod": {
+      "@type": "@vocab"
+    },
+    "rkaf:calibrationStatus": {
+      "@type": "@vocab"
+    },
+    "rkaf:confidenceBasis": {
+      "@type": "@id"
+    },
+    "rkaf:evaluatedAgainst": {
+      "@type": "@id"
+    },
+    "rkaf:generatedBy": {
+      "@type": "@id"
+    },
+    "rkaf:score": {
+      "@type": "xsd:float"
+    },
+    "rkaf:scoreCategorical": {
+      "@type": "@vocab"
+    },
+    "rkaf:AccessScope": {
+      "@type": "@id"
+    },
+    "rkaf:hasAccessScope": {
+      "@type": "@id"
+    },
+    "rkaf:accessScopeKind": {
+      "@type": "@vocab"
+    },
+    "rkaf:regulatoryClass": {
+      "@type": "@vocab"
+    },
+    "rkaf:embargoUntil": {
+      "@type": "xsd:dateTime"
+    },
+    "rkaf:permittedRole": {
+      "@type": "@id"
+    },
+    "rkaf:AILineage": {
+      "@type": "@id"
+    },
+    "rkaf:hasAILineage": {
+      "@type": "@id"
+    },
+    "rkaf:modelId": {
+      "@type": "xsd:string"
+    },
+    "rkaf:modelVersion": {
+      "@type": "xsd:string"
+    },
+    "rkaf:promptTemplateRef": {
+      "@type": "@id"
+    },
+    "rkaf:temperature": {
+      "@type": "xsd:float"
+    },
+    "rkaf:seed": {
+      "@type": "xsd:integer"
+    },
+    "rkaf:inputContextHash": {
+      "@type": "xsd:string"
+    },
+    "rkaf:humanApprover": {
+      "@type": "@id"
+    },
+    "rkaf:humanRationale": {
+      "@type": "xsd:string"
+    },
+    "rkaf:MappingState": {
+      "@type": "@id"
+    },
+    "rkaf:mappingState": {
+      "@type": "@vocab"
+    },
+    "rkaf:RetentionPolicy": {
+      "@type": "@id"
+    },
+    "rkaf:hasRetentionPolicy": {
+      "@type": "@id"
+    },
+    "rkaf:retentionDurationDays": {
+      "@type": "xsd:int"
+    },
+    "rkaf:retentionTrigger": {
+      "@type": "@vocab"
+    },
+    "rkaf:retentionPostExpiry": {
+      "@type": "@vocab"
+    },
+    "rkaf:Workspace": {
+      "@type": "@id"
+    },
+    "rkaf:scopedToWorkspace": {
+      "@type": "@id"
+    },
+    "rkaf:workspaceId": {
+      "@type": "xsd:string"
+    },
+    "rkaf:workspaceTrustList": {
+      "@type": "@id"
+    },
+    "rkaf:projectsTo": {
+      "@type": "@id"
+    },
+    "rkaf:llmHint": {
+      "@type": "@id"
+    },
+    "rkaf:anchoredBy": {
+      "@type": "@id"
+    },
+    "rkaf:anchorType": {
+      "@type": "@id"
+    },
     "rkaf:assertsSubject": {
       "@type": "@id"
     },
@@ -223,9 +322,6 @@
       "@type": "@id"
     },
     "rkaf:minimumUsageEligibility": {
-      "@type": "@id"
-    },
-    "rkaf:noEvidenceReason": {
       "@type": "@id"
     },
     "rkaf:noRemediationReason": {
@@ -661,7 +757,7 @@
     }
   },
   "_meta": {
-    "version": "v0.2.0-pre.2",
+    "version": "v0.2.0-pre.5",
     "supersedes": "v0.1.1",
     "relationship": "Vocabulary v0.2 — first-class Warrant/Artifact/SourceFragment/EvidenceBinding/ConfidenceRecord/AccessScope/AILineage/RetentionPolicy/MappingState/Workspace primitives; OA/PROV-O/SKOS/DCTERMS/CiTO/DCAT imports; ELI/ELI-DL/ELI-I/Akoma-Ntoso/USLM/LegalRuleML/RRMV/ECO/SEPIO/ODRL/DPV/Schema.org alignments. v0.1.x is editorial baseline only — wholesale supersession.",
     "delta_from_v0.1": [
