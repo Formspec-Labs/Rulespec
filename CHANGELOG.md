@@ -5,6 +5,69 @@ All notable changes to Rulespec are documented in this file.
 The format is loosely based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 adapted for a specification + shape + fixture project.
 
+## v0.2.0-pre.2 — Vocabulary v0.2
+
+**Vocabulary Layer 1 lands. Pre-release; CHANGELOG-driven; no compatibility with v0.1.x.**
+
+### New first-class primitives (§§4.1-4.6 of `spec/rkaf-core-v0.2.md`)
+
+- `rkaf:Artifact` with `artifactIdentifierScheme` closed enum (eli, eli-dl, eli-i, uslm, aknt-eId, doi, isbn, issn, cid, hash-sha256, urn-persistent, partner-defined).
+- `rkaf:SourceFragment` composing the W3C Web Annotation (`oa:`) selector vocabulary plus domain-specific selectors (Akoma Ntoso eId, USLM section, ELI fragment, JSONPath, DOI fragment).
+- `rkaf:EvidenceBinding` with the operational-validity invariant (≥1 source fragment OR a permitted `noEvidenceReason`).
+- `rkaf:Warrant` as the universal grounding primitive; `rkaf:Authority` preserved as the legal-family specialization. Six warrant families: legal, scientific, editorial, cryptographic, social, source-class.
+- `rkaf:ConfidenceRecord` with `calibrationStatus` + `confidenceBasis` + `generatedBy` required (rejects "score theater").
+- `rkaf:AccessScope` with seven kinds plus DPV / ODRL alignment for regulatory and rights cases.
+
+### Studio-derived promotions (§5)
+
+- `rkaf:MappingState` (closed four-value enum: `mapsToWos`, `authoringOnly`, `requiresSpecExtension`, `unmappedButApproved`).
+- `rkaf:RetentionPolicy` with `retentionTrigger` and `retentionPostExpiry` closed enums.
+- `rkaf:AILineage` with mandatory `humanApprover`.
+- `rkaf:llmHint` annotation property (carried through the JSON Schema projector as `x-rkaf-llmHint`).
+- `rkaf:Workspace` scoping with `workspaceId` + `workspaceTrustList`.
+- `rkaf:projectsTo` (generalizes Studio's `wosTarget`).
+
+### Abstract anchoring contract (§7)
+
+- `rkaf:anchoredBy` / `rkaf:anchorType` predicates; concrete bindings (Trellis, COSE, VC, Sigstore, IPFS) live outside Rulespec and depend on this contract.
+
+### Public ontology composition (§9)
+
+- Imports: PROV-O, OA, SKOS, DCTERMS, CiTO, DCAT, RDF/RDFS/XSD, SHACL.
+- Alignments: ELI / ELI-DL / ELI-I, RRMV, Akoma Ntoso, USLM, LegalRuleML, ECO / SEPIO, Nanopublications, ODRL, DPV, Schema.org / Schema.org-Legislation, DCAT / VoID.
+- Projections (carried by Layer 4 projectors, Plan 5): JSON Schema, JSON-LD, OpenAPI 3.1 (MVP).
+
+### Shape files (compiled SHACL targets — not source of truth per Layer 2 plan)
+
+- `shapes/rkaf-shapes-core-v0.2.ttl` (umbrella)
+- `shapes/rkaf-shapes-warrant-v0.2.ttl`
+- `shapes/rkaf-shapes-confidence-v0.2.ttl`
+- `shapes/rkaf-shapes-accessscope-v0.2.ttl`
+- `shapes/rkaf-shapes-studio-promotions-v0.2.ttl`
+- `shapes/rkaf-shapes-conceptregistry-v0.2.ttl`
+
+Pattern C only (per Appendix C of source spec). Zero `sh:if` / `sh:then` constructs.
+
+### Companion specs
+
+- `spec/rkaf-core-v0.2.md` (normative).
+- `spec/rkaf-concept-registry-v0.2.md` (SKOS-bound mapping predicates, workspace scoping, generalized warrant on mappings; supersedes v0.1.2).
+- `spec/rkaf-vocabulary-v0.2.md` (full term reference; mechanically consumable).
+
+### Fixtures (`fixtures/v0.2/`)
+
+20 positive + 4 negative fixtures. Coverage requirement (`tools/vocab_audit.py`): every Vocabulary class exercised by ≥1 fixture.
+
+### Tooling
+
+- `tools/vocab_audit.py` — fails build if a v0.2 term has no fixture.
+- `tools/validate_negatives.py` — asserts negative fixtures FAIL as designed.
+- `tools/ci_validate.py --mode v02` — full v0.2 positive-fixture validation.
+
+### Compatibility
+
+None with v0.1.x. v0.2 supersedes wholesale.
+
 ## v0.2.0-pre.1 — Brand rename: PKAF → Rulespec
 
 - The framework is renamed to **Rulespec** (acronym **RKAF**, "Rulespec Knowledge Assertion Framework").

@@ -89,6 +89,44 @@ MODES = {
         },
         "expected_total_triples_label": "1,186 (Batch 3 fixtures, Core+ConceptRegistry+Lifecycle conformance)",
     },
+
+    "v02": {
+        "label": "Rulespec Vocabulary v0.2 (full positive-fixture set)",
+        # v0.2 is greenfield supersession of v0.1 (spec/rkaf-core-v0.2.md §11).
+        # v0.1 shapes are NOT loaded here — they target the same classes with
+        # v0.1 property names that v0.2 has replaced (e.g., v0.1 EvidenceBindingShape).
+        "shapes": [
+            "shapes/rkaf-shapes-core-v0.2.ttl",
+            "shapes/rkaf-shapes-warrant-v0.2.ttl",
+            "shapes/rkaf-shapes-confidence-v0.2.ttl",
+            "shapes/rkaf-shapes-accessscope-v0.2.ttl",
+            "shapes/rkaf-shapes-studio-promotions-v0.2.ttl",
+            "shapes/rkaf-shapes-conceptregistry-v0.2.ttl",
+        ],
+        "expected": {
+            "v0.2/artifact-eli-positive":                       {"triples": (1, 50)},
+            "v0.2/artifact-doi-positive":                       {"triples": (1, 50)},
+            "v0.2/artifact-cid-positive":                       {"triples": (1, 50)},
+            "v0.2/sourcefragment-oa-textquote-positive":        {"triples": (1, 50)},
+            "v0.2/sourcefragment-oa-xpath-positive":            {"triples": (1, 50)},
+            "v0.2/sourcefragment-aknt-eid-positive":            {"triples": (1, 50)},
+            "v0.2/sourcefragment-uslm-section-positive":        {"triples": (1, 50)},
+            "v0.2/evidencebinding-positive":                    {"triples": (1, 50)},
+            "v0.2/evidencebinding-no-evidence-reason-positive": {"triples": (1, 50)},
+            "v0.2/warrant-legal-positive":                      {"triples": (1, 50)},
+            "v0.2/warrant-scientific-positive":                 {"triples": (1, 50)},
+            "v0.2/warrant-cross-family-transition-positive":    {"triples": (1, 50)},
+            "v0.2/confidencerecord-uncalibrated-positive":      {"triples": (1, 50)},
+            "v0.2/confidencerecord-calibrated-positive":        {"triples": (1, 50)},
+            "v0.2/accessscope-public-positive":                 {"triples": (1, 50)},
+            "v0.2/accessscope-organizationVisible-positive":    {"triples": (1, 50)},
+            "v0.2/ailineage-positive":                          {"triples": (1, 50)},
+            "v0.2/retentionpolicy-positive":                    {"triples": (1, 50)},
+            "v0.2/mappingstate-positive":                       {"triples": (1, 50)},
+            "v0.2/workspace-positive":                          {"triples": (1, 50)},
+        },
+        "expected_total_triples_label": "v0.2 positive fixtures (loose initial triple ranges)",
+    },
 }
 
 FIXTURES_DIR = "fixtures"
