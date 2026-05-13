@@ -53,16 +53,42 @@
 | rkaf:anchoredBy | https://rulespec.org/ns/v1#anchoredBy | Property | rkaf:Assertion / rkaf:Overlay | IRI | 0..* | covered by Plan 9 |
 | rkaf:anchorType | https://rulespec.org/ns/v1#anchorType | Property | anchor IRI | IRI | 1 | covered by Plan 9 |
 
-## Vocabulary backlog — specified but not yet codified (§6)
+## Codified Vocabulary — additional terms (§6)
 
-The following Rulespec terms are part of the normative Vocabulary but have not yet been authored as CUE constraints under `constraints/core/`. They were defined in the pre-rebrand spec (now archived at `archive/v0.1/spec/rkaf-core.md`) and the v0.1 SHACL shape files (`archive/v0.1/shapes/`). Codifying each as a CUE constraint + regenerating JSON Schema + adding typed primitives to `rkaf-core` is open work.
+Beyond the v0.2 normative tier in §5, the following terms are codified as CUE constraints under `constraints/core/` and generated into JSON Schema (`compiled/json-schema/core/`), Rust (`crates/rkaf-core/src/generated/`), TypeScript, and SHACL targets via `tools/constraints_compile.py`. Each carries at least one positive fixture under `fixtures/`.
 
-The 17 backlog terms:
+**Classes** (each backed by a CUE shape, a JSON Schema, and a Rust struct):
 
-`rkaf:Attestation`, `rkaf:LocalAdoption`, `rkaf:Justification`, `rkaf:Authority` (subclass of `rkaf:Warrant`), `rkaf:ApplicabilityScope`, `rkaf:EffectivePeriod`, `rkaf:LifecycleEvent`, `rkaf:supersedesAssertion` (predicate), `rkaf:usageEligibility` (lattice), `rkaf:Concept`, `rkaf:ConceptMapping`, `rkaf:ConceptResolutionResult`, `rkaf:hasTrustZone`, `rkaf:hasSafetyLabel`, `rkaf:bridgeContractVersion`, `rkaf:BridgeValidationResult`, `rkaf:derivesAuthorityFrom`.
+| Term | CUE | Fixture | Purpose |
+|---|---|---|---|
+| `rkaf:Authority` | `authority.cue` | `authority-positive.jsonld` | Legal-family specialization of Warrant (Core §2). Carries `authorityKind` (hop-local), optional applicability + effective period, chain predecessors. |
+| `rkaf:Attestation` | `attestation.cue` | `attestation-positive.jsonld` | Scoped multi-target attestation by a named attestor (Core §3.1). Closed decision + attestor-kind enums. |
+| `rkaf:LocalAdoption` | `local-adoption.cue` | `localadoption-positive.jsonld` | Workspace-scoped authorization of an Assertion (Core §3.2). Restricted `adoptionAuthorityKind` per §2.5 invariant. |
+| `rkaf:ApplicabilityScope` | `applicability-scope.cue` | `applicabilityscope-positive.jsonld` | Where/to-whom/when a Warrant applies. ELI / ISO 3166 / agency-code IRIs. |
+| `rkaf:EffectivePeriod` | `effective-period.cue` | `effectiveperiod-positive.jsonld` | Temporal window. Start required; end / sunset / retroactive optional. |
+| `rkaf:LifecycleEvent` | `lifecycle-event.cue` | `lifecycleevent-positive.jsonld` | Audit-trail event (revalidation, amendment, supersession, rescission, material revision, concept lifecycle, promotion, demotion). |
+| `rkaf:RegisteredConcept` | `concept.cue` | `concept-registered-positive.jsonld` | Federation-shared Concept minted by a `rkaf:ConceptMintingAuthority`. |
+| `rkaf:LocalConcept` | `concept.cue` | (shares fixture) | Workspace-defined Concept, candidate for federation promotion. |
+| `rkaf:ConceptMapping` | `concept-mapping.cue` | `conceptmapping-positive.jsonld` | SKOS-mapping between concepts. Closed `mappingPredicate` enum. |
+| `rkaf:MappingApplicabilityContext` | `concept-mapping.cue` | (shares fixture) | Scopes a mapping by application-domain + evidence-purpose. |
+| `rkaf:ConceptResolutionResult` | `concept-resolution-result.cue` | `conceptresolutionresult-positive.jsonld` | Output of resolving a concept reference against the federation. |
+| `rkaf:BridgeValidationResult` | `bridge-validation-result.cue` | `bridgevalidationresult-positive.jsonld` | Control-plane record per packet ingestion: verdict + effective eligibility + authority-chain status + warnings/errors. |
 
-`rkaf:Assertion` and `rkaf:ConfidenceRecord` were promoted into the v0.2 normative tier and are codified.
+**Closed enums and lattices** (referenced by the classes above):
 
-Until the backlog is codified, consumers wanting to use these terms either (a) author them as `additionalProperties` on Rulespec nodes (validated by neither gate — workspace responsibility), or (b) reference the archived v0.1 SHACL shape definitions for semantic guidance.
+- `rkaf:usageEligibility` — 7-level lattice from `notEligible` (lowest) to `officialUse` (highest). Consumers MAY narrow; only LocalAdoption MAY broaden within its declared scope.
+- `rkaf:hasTrustZone` — `rkaf:Z0` through `rkaf:Z8`. Structural property (kind of object).
+- `rkaf:hasSafetyLabel` — `D0` / `S1` / `R2` / `A3` / `P4` plus advisory + authority-critical refinements. Operational property (what the consumer may do).
+- `rkaf:authorityKind` — 8-value closed enum, hop-local. Federation refuses unsupported kinds.
+- `rkaf:lifecycleEventKind` — 10-value closed enum spanning revalidation/amendment/supersession/etc.
+- `rkaf:mappingPredicate` — SKOS-aligned (`skos:exactMatch` / `closeMatch` / `broadMatch` / `narrowMatch` / `relatedMatch`).
 
-> The `warrant-cross-family-transition-positive` fixture exercises `rkaf:derivesAuthorityFrom` — it serves as a reminder that the term is in active use but uncodified.
+**Predicates** (declared in `context/rkaf-context.jsonld` for graph traversal):
+
+- `rkaf:supersedesAssertion` — many-to-many predicate (Core §1.5).
+- `rkaf:derivesAuthorityFrom` — hop in an authority chain (Core §2.1).
+- `rkaf:hasApplicability` — Warrant → ApplicabilityScope.
+- `rkaf:hasEffectivePeriod` — Warrant / Authority → EffectivePeriod.
+- `rkaf:bridgeContractVersion` — version pin on lifecycle packets + bridge validation results.
+
+> Behavioral semantics (the `usageEligibility` reducer, the `CascadeClosureV1` algorithm, the 10 bridge contract rules) are normative prose in `archive/v0.1/spec/rkaf-core.md` and are *not* CUE-validatable. CUE + JSON Schema + SHACL validate shape; runtime correctness lives in the consuming SDK (`rkaf-validate`, future Layer 5 SDKs).

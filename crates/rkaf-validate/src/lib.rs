@@ -67,6 +67,70 @@ const EMBEDDED_SCHEMAS: &[(&str, &str, &str)] = &[
         "SourceFragment",
         include_str!("../../../compiled/json-schema/core/source-fragment.schema.json"),
     ),
+    (
+        "rkaf:Authority",
+        "Authority",
+        include_str!("../../../compiled/json-schema/core/authority.schema.json"),
+    ),
+    (
+        "rkaf:Attestation",
+        "Attestation",
+        include_str!("../../../compiled/json-schema/core/attestation.schema.json"),
+    ),
+    (
+        "rkaf:LocalAdoption",
+        "LocalAdoption",
+        include_str!("../../../compiled/json-schema/core/local-adoption.schema.json"),
+    ),
+    (
+        "rkaf:ApplicabilityScope",
+        "ApplicabilityScope",
+        include_str!("../../../compiled/json-schema/core/applicability-scope.schema.json"),
+    ),
+    (
+        "rkaf:EffectivePeriod",
+        "EffectivePeriod",
+        include_str!("../../../compiled/json-schema/core/effective-period.schema.json"),
+    ),
+    (
+        "rkaf:LifecycleEvent",
+        "LifecycleEvent",
+        include_str!("../../../compiled/json-schema/core/lifecycle-event.schema.json"),
+    ),
+    (
+        "rkaf:RegisteredConcept",
+        "RegisteredConcept",
+        include_str!("../../../compiled/json-schema/core/concept.schema.json"),
+    ),
+    (
+        "rkaf:LocalConcept",
+        "LocalConcept",
+        include_str!("../../../compiled/json-schema/core/concept.schema.json"),
+    ),
+    (
+        "rkaf:ConceptMapping",
+        "ConceptMapping",
+        include_str!("../../../compiled/json-schema/core/concept-mapping.schema.json"),
+    ),
+    (
+        "rkaf:MappingApplicabilityContext",
+        "MappingApplicabilityContext",
+        include_str!("../../../compiled/json-schema/core/concept-mapping.schema.json"),
+    ),
+    (
+        "rkaf:ConceptResolutionResult",
+        "ConceptResolutionResult",
+        include_str!(
+            "../../../compiled/json-schema/core/concept-resolution-result.schema.json"
+        ),
+    ),
+    (
+        "rkaf:BridgeValidationResult",
+        "BridgeValidationResult",
+        include_str!(
+            "../../../compiled/json-schema/core/bridge-validation-result.schema.json"
+        ),
+    ),
 ];
 
 /// A single validation error, paired with the validating class's `@type` IRI

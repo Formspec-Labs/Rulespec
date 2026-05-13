@@ -1,0 +1,6 @@
+{
+  "@context": "../context/rkaf-context.jsonld",
+  "@id": "urn:rkaf:fixture:eff:cfr-7-273",
+  "@type": "rkaf:EffectivePeriod",
+  "rkaf:effectivePeriodStart": "2024-09-01T00:00:00Z"
+}

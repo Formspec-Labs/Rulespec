@@ -58,7 +58,7 @@ def main() -> int:
     fails = 0
     total = 0
     for target, exts in TARGETS.items():
-        d = ROOT / "fixtures" / "v0.2" / "projectors" / target
+        d = ROOT / "fixtures" / "projectors" / target
         if not d.is_dir():
             continue
         files: list[Path] = []

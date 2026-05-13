@@ -5,6 +5,51 @@ All notable changes to Rulespec are documented in this file.
 The format is loosely based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 adapted for a specification + shape + fixture project.
 
+## Unreleased — Vocabulary backlog integration + CUE→Rust pipeline
+
+**Closes the 17-term vocabulary backlog. The CUE source-of-truth is now the canonical generator for the Rust SDK as well as JSON Schema, SHACL, and TypeScript. Hand-authored Rust types are gone.**
+
+### Added
+
+- **12 new CUE constraint files** under `constraints/core/`: `authority.cue`, `attestation.cue`, `local-adoption.cue`, `applicability-scope.cue`, `effective-period.cue`, `lifecycle-event.cue`, `concept.cue`, `concept-mapping.cue`, `concept-resolution-result.cue`, `bridge-validation-result.cue`, plus closed-enum lattices `usage-eligibility.cue` and `trust-and-safety.cue`.
+- **24 generated Rust modules** under `crates/rkaf-core/src/generated/` — one per CUE source file. Drives the entire `rkaf-core` type surface from CUE.
+- **10 new positive fixtures** under `fixtures/`: authority, attestation, localadoption, applicabilityscope, effectiveperiod, lifecycleevent, concept-registered, conceptmapping, conceptresolutionresult, bridgevalidationresult.
+- **12 new embedded JSON Schemas** in `rkaf-validate` covering the new classes (`rkaf:Authority`, `rkaf:Attestation`, `rkaf:LocalAdoption`, …, `rkaf:BridgeValidationResult`).
+- **`rkaf_core::OneOrMany<T>`** untagged-enum wrapper mirroring the JSON-LD wire shorthand (a property value may appear as either a single scalar or an array; the JSON Schema target emits `anyOf: [scalar, array]`, and this type accepts either).
+- **22 new term declarations** in `context/rkaf-context.jsonld` for the new class IRIs + predicates (`hasApplicability`, `hasEffectivePeriod`, `derivesAuthorityFrom`, etc.).
+
+### Changed
+
+- **`tools/constraints_compile.py` `--target rust`** rewritten. The output now matches the JSON-LD wire format: `@type` field with `default = "Class::default_type"`, `@id` as optional, properties renamed from `rkaf:foo` to idiomatic `foo` (no `rkaf_` prefix), `#[serde(flatten)] extra: BTreeMap<String, serde_json::Value>` catch-all for forward-compatibility, list types emitted as `crate::OneOrMany<T>` to handle the JSON-LD scalar-or-array shorthand. Cross-file enum references resolve to fully-qualified paths via the `_RUST_CROSS_FILE_ENUMS` registry (covers `UsageEligibility`, `AuthorityKind`, `TrustZone`, `SafetyLabel`).
+- **`crates/rkaf-core/src/lib.rs`** is now a thin module index. The 8 hand-authored modules (`assertion.rs`, `warrant.rs`, `evidence.rs`, etc.) are deleted; their types now live in `generated/`. Top-level re-exports preserve the public API surface.
+- **`spec/rkaf-vocabulary.md` §6** rewritten from "Vocabulary backlog — specified but not yet codified" to "Codified Vocabulary — additional terms," enumerating every codified class + enum + predicate with its CUE source, fixture, and purpose.
+
+### Removed
+
+- `crates/rkaf-core/src/{access_scope,ai_lineage,artifact,assertion,confidence,evidence,source_fragment,warrant}.rs` — replaced wholesale by generated equivalents. No public API drift.
+
+### Verified
+
+- `cargo test --workspace`: 20 `test result: ok` lines, zero failures.
+- `tools/ci_validate.py` (SHACL): 20/20 fixtures pass, 0 violations, 114 triples.
+- `tools/validate_negatives.py`: 4/4 FAIL-AS-EXPECTED.
+- `tools/constraints_parity.py`: 0 CORE divergences (release blockers); 2 documented adversarial findings.
+- `tools/projector_parity.py`: 7/7 round-trip fixtures pass.
+- `tools/version_sync.py --check`: clean.
+- `tools/rename_audit.py`: 0 findings.
+
+### Compatibility
+
+Pre-release. The CUE source-of-truth pipeline is now end-to-end:
+
+```
+constraints/<class>.cue
+  ↓ python3 tools/constraints_compile.py --target {json-schema, rust, typescript, shacl}
+{compiled/json-schema/, crates/rkaf-core/src/generated/, compiled/typescript/, compiled/shacl/}
+```
+
+A future schema or vocab change should land as a CUE edit; all four targets regenerate. Hand-authoring Rust to match a CUE schema is now drift.
+
 ## Unreleased — Plan 6a: Rust SDK (Vocab + Validate + CLI)
 
 **Three Rust crates land the first SDK surface: `rkaf-core` (typed Vocabulary primitives with serde round-trip), `rkaf-validate` (embedded v0.2 JSON Schema validator), and `rkaf-validate-cli` (the `rkaf-validate` binary).** This is the first time external code can pick up Rulespec without `git clone`-ing the repo or shelling out to the Python compiler.

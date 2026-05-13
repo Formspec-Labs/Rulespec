@@ -597,31 +597,72 @@ def target_rust(doc: ConstraintDoc) -> str:
                     out.append(f"    {variant},")
         out.append("}")
         out.append("")
+    if doc.shapes:
+        out.append("use std::collections::BTreeMap;")
+        out.append("")
+
+    # Local enum index — used by _rust_type to decide whether an enum reference
+    # is local (bare name) or cross-file (fully-qualified path).
+    local_enums = {e.name for e in doc.enums} | {u.name for u in doc.enum_unions}
+
     for s in doc.shapes:
-        out.append("#[derive(Debug, Clone, Serialize, Deserialize)]")
-        out.append(f"pub struct {s.name} {{")
+        # Extract @type fixed value if present
+        type_value: Optional[str] = None
         for p in s.properties:
-            ty = _rust_type(p)
-            field_name = _rust_field(p.name)
-            out.append(f'    #[serde(rename = "{p.name}")]')
+            if p.name == "@type" and p.fixed_value is not None:
+                type_value = p.fixed_value
+                break
+
+        out.append("#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]")
+        out.append(f"pub struct {s.name} {{")
+
+        # @type field — emit specially with default constructor reference
+        if type_value is not None:
+            out.append(f'    #[serde(rename = "@type", default = "{s.name}::default_type")]')
+            out.append(f"    pub type_: String,")
+
+        # @id field — always optional, always emitted (JSON-LD reserved key)
+        out.append('    #[serde(rename = "@id", skip_serializing_if = "Option::is_none", default)]')
+        out.append("    pub id: Option<String>,")
+
+        # Other properties
+        for p in s.properties:
+            if p.name in ("@type", "@id"):
+                continue
+            ty = _rust_type(p, local_enums=local_enums)
+            field_name = _rust_field_clean(p.name)
             if p.optional:
+                out.append(
+                    f'    #[serde(rename = "{p.name}", skip_serializing_if = "Option::is_none", default)]'
+                )
                 out.append(f"    pub {field_name}: Option<{ty}>,")
             else:
+                out.append(f'    #[serde(rename = "{p.name}")]')
                 out.append(f"    pub {field_name}: {ty},")
+
+        # Catch-all for unknown properties (preserves round-trip).
+        out.append("    #[serde(flatten)]")
+        out.append("    pub extra: BTreeMap<String, serde_json::Value>,")
         out.append("}")
         out.append("")
-        # Validator
-        snake = _to_snake(s.name)
-        out.append(f"pub fn validate_{snake}(v: &{s.name}) -> Result<(), Vec<String>> {{")
-        out.append("    let mut errs: Vec<String> = Vec::new();")
-        for p in s.properties:
-            field_name = _rust_field(p.name)
-            if p.type_ref == "list" and p.list_min_items > 0 and not p.optional:
-                out.append(f'    if v.{field_name}.len() < {p.list_min_items} {{ errs.push("{p.name}: < {p.list_min_items} items".into()); }}')
-        out.append("    if errs.is_empty() { Ok(()) } else { Err(errs) }")
-        out.append("}")
-        out.append("")
+
+        # Default-type constructor (if @type was fixed in CUE)
+        if type_value is not None:
+            out.append(f"impl {s.name} {{")
+            out.append(f'    fn default_type() -> String {{ "{type_value}".into() }}')
+            out.append("}")
+            out.append("")
     return "\n".join(out)
+
+
+def _rust_field_clean(name: str) -> str:
+    """Generate idiomatic Rust field names from JSON-LD property IRIs.
+    Drops the `rkaf:` / `oa:` / `skos:` namespace prefix and snake_cases the rest.
+    """
+    if ":" in name:
+        name = name.split(":", 1)[1]
+    out = name.replace("-", "_").replace("@", "")
+    return _to_snake(out)
 
 
 def _pascal_after_colon(v: str) -> str:
@@ -640,15 +681,38 @@ def _to_snake(s: str) -> str:
     return s
 
 
-def _rust_type(p: PropDef) -> str:
+# Cross-file enums defined in one CUE file but referenced from others.
+# When the Rust target encounters one of these as a type ref, it emits the
+# fully-qualified path so the consuming module compiles without local
+# redefinition.
+_RUST_CROSS_FILE_ENUMS = {
+    "UsageEligibility": "crate::generated::usage_eligibility::UsageEligibility",
+    "AuthorityKind":    "crate::generated::authority::AuthorityKind",
+    "TrustZone":        "crate::generated::trust_and_safety::TrustZone",
+    "SafetyLabel":      "crate::generated::trust_and_safety::SafetyLabel",
+}
+
+
+def _rust_type(p: PropDef, local_enums: Optional[set] = None) -> str:
     if p.fixed_value is not None:
         return "String"
     if p.type_ref == "enum":
-        return p.enum_ref or "String"
+        name = p.enum_ref or "String"
+        if local_enums is not None and name not in local_enums and name in _RUST_CROSS_FILE_ENUMS:
+            return _RUST_CROSS_FILE_ENUMS[name]
+        return name
     if p.type_ref == "list":
+        # JSON-LD wire shorthand: scalar OR array. The matching JSON Schema
+        # emits `anyOf: [scalar, array]`; mirror with `crate::OneOrMany<T>`.
         if p.list_inner_enum:
-            return f"Vec<{p.list_inner_enum}>"
-        return "Vec<String>"
+            inner = p.list_inner_enum
+            if local_enums is not None and inner not in local_enums and inner in _RUST_CROSS_FILE_ENUMS:
+                inner = _RUST_CROSS_FILE_ENUMS[inner]
+            return f"crate::OneOrMany<{inner}>"
+        if p.list_of_string:
+            return "crate::OneOrMany<String>"
+        # Bare `list.MinItems(N)` with no item-type constraint — any JSON value.
+        return "crate::OneOrMany<serde_json::Value>"
     if p.type_ref == "int":
         return "i64"
     if p.type_ref == "float":

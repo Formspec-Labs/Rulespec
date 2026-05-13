@@ -67,7 +67,7 @@ fn round_trip_access_scope_fixtures() {
 
 #[test]
 fn round_trip_ai_lineage_fixture() {
-    round_trip::<AiLineage>("ailineage-positive", "rkaf:AILineage");
+    round_trip::<AILineage>("ailineage-positive", "rkaf:AILineage");
 }
 
 #[test]
