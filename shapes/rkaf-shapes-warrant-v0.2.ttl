@@ -1,0 +1,89 @@
+# Rulespec Shapes v0.2 — Warrant + Artifact + SourceFragment + EvidenceBinding
+# Profile: Pattern C only (no sh:if / sh:then)
+# Spec anchors: spec/rkaf-core-v0.2.md §§4.1-4.4
+# Status: compiled SHACL target — source of truth lives in Layer 2 (Plan 3).
+
+@prefix sh:    <http://www.w3.org/ns/shacl#> .
+@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
+@prefix oa:    <http://www.w3.org/ns/oa#> .
+@prefix rkaf:  <https://rulespec.org/ns/v1#> .
+
+# --- Artifact (§4.1) ---
+rkaf:ArtifactShape a sh:NodeShape ;
+  sh:targetClass rkaf:Artifact ;
+  sh:property [
+    sh:path rkaf:hasArtifactIdentifier ;
+    sh:minCount 1 ;
+    sh:message "Artifact MUST carry at least one rkaf:hasArtifactIdentifier (§4.1)." ;
+  ] ;
+  sh:property [
+    sh:path rkaf:artifactIdentifierScheme ;
+    sh:minCount 1 ;
+    sh:in ( rkaf:eli rkaf:eli-dl rkaf:eli-i rkaf:uslm rkaf:aknt-eId
+            rkaf:doi rkaf:isbn rkaf:issn rkaf:cid rkaf:hash-sha256
+            rkaf:urn-persistent rkaf:partner-defined ) ;
+    sh:message "Artifact identifier scheme MUST be from the closed enum (§4.1)." ;
+  ] .
+
+# --- SourceFragment (§4.2) ---
+rkaf:SourceFragmentShape a sh:NodeShape ;
+  sh:targetClass rkaf:SourceFragment ;
+  sh:property [ sh:path rkaf:bindsArtifact ; sh:minCount 1 ; sh:maxCount 1 ;
+    sh:message "SourceFragment MUST reference exactly one parent Artifact (§4.2)." ;
+  ] ;
+  sh:property [ sh:path rkaf:hasSelector ; sh:minCount 1 ;
+    sh:message "SourceFragment MUST carry at least one selector (§4.2)." ;
+  ] ;
+  sh:property [ sh:path rkaf:selectorKind ; sh:minCount 1 ;
+    sh:in ( oa:FragmentSelector oa:TextQuoteSelector oa:TextPositionSelector
+            oa:RangeSelector oa:XPathSelector oa:CssSelector
+            rkaf:aknt-eId rkaf:uslm-section rkaf:eli-fragment
+            rkaf:jsonpath rkaf:doi-fragment rkaf:partner-defined ) ;
+    sh:message "Selector kind MUST be from the closed enum (§4.2)." ;
+  ] .
+
+# --- EvidenceBinding (§4.3 — the load-bearing operational-validity invariant) ---
+# Pattern C: every EvidenceBinding MUST either bind ≥1 SourceFragment OR carry a
+# permitted noEvidenceReason. Conditional shapes use sh:or with sh:not — never
+# sh:if / sh:then (per Appendix C of source spec).
+rkaf:EvidenceBindingShape a sh:NodeShape ;
+  sh:targetClass rkaf:EvidenceBinding ;
+  sh:property [ sh:path rkaf:bindsAssertion ; sh:minCount 1 ; sh:maxCount 1 ;
+    sh:message "EvidenceBinding MUST reference exactly one Assertion (§4.3)." ;
+  ] ;
+  sh:or (
+    [ sh:property [ sh:path rkaf:bindsSourceFragment ; sh:minCount 1 ; ] ]
+    [ sh:property [ sh:path rkaf:noEvidenceReason ; sh:minCount 1 ; sh:maxCount 1 ;
+        sh:in ( rkaf:axiomatic rkaf:inferred-from-warrant-class
+                rkaf:consensus-without-citation rkaf:permitted-by-safety-label ) ; ] ]
+  ) ;
+  sh:message "EvidenceBinding MUST either bind ≥1 SourceFragment OR carry a permitted noEvidenceReason (§4.3 — operational-validity invariant)." .
+
+# --- Warrant (§4.4) ---
+rkaf:WarrantShape a sh:NodeShape ;
+  sh:targetClass rkaf:Warrant ;
+  sh:property [ sh:path rkaf:warrantKind ; sh:minCount 1 ; sh:maxCount 1 ;
+    sh:in (
+      # Legal family
+      rkaf:legal rkaf:statutory rkaf:regulatory rkaf:delegated rkaf:organizational
+      rkaf:contractual rkaf:localOperational rkaf:publication
+      # Scientific
+      rkaf:methodological rkaf:empirical rkaf:replication rkaf:peerReview
+      # Editorial
+      rkaf:editorial rkaf:factCheck rkaf:correction
+      # Cryptographic
+      rkaf:cryptographic rkaf:commitment
+      # Social
+      rkaf:consensus rkaf:expertOpinion rkaf:communityEndorsement
+      # Source-class
+      rkaf:sourceReliability rkaf:provenanceClass
+    ) ;
+    sh:message "warrantKind MUST be from the closed v0.2 taxonomy (§4.4)." ;
+  ] ;
+  sh:property [ sh:path rkaf:warrantFamily ; sh:minCount 1 ; sh:maxCount 1 ;
+    sh:in ( rkaf:legal rkaf:scientific rkaf:editorial rkaf:cryptographic
+            rkaf:social rkaf:source-class ) ;
+    sh:message "warrantFamily MUST be from the closed enum (§4.4)." ;
+  ] .

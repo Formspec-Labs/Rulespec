@@ -1,0 +1,53 @@
+# Rulespec Shapes v0.2 — Studio-derived promotions (MappingState, RetentionPolicy, AILineage, Workspace)
+# Profile: Pattern C only (no sh:if / sh:then)
+# Spec anchor: spec/rkaf-core-v0.2.md §§5.1-5.5
+
+@prefix sh:    <http://www.w3.org/ns/shacl#> .
+@prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
+@prefix rkaf:  <https://rulespec.org/ns/v1#> .
+
+# --- MappingState (§5.1) ---
+rkaf:MappingStateShape a sh:NodeShape ;
+  sh:targetSubjectsOf rkaf:mappingState ;
+  sh:property [ sh:path rkaf:mappingState ; sh:minCount 1 ; sh:maxCount 1 ;
+    sh:in ( rkaf:mapsToWos rkaf:authoringOnly rkaf:requiresSpecExtension rkaf:unmappedButApproved ) ;
+    sh:message "mappingState MUST be from the closed four-value enum (§5.1)." ;
+  ] .
+
+# --- RetentionPolicy (§5.2) ---
+rkaf:RetentionPolicyShape a sh:NodeShape ;
+  sh:targetClass rkaf:RetentionPolicy ;
+  sh:property [ sh:path rkaf:retentionDurationDays ; sh:minCount 1 ; sh:maxCount 1 ;
+    sh:datatype xsd:int ; sh:minInclusive 0 ;
+    sh:message "RetentionPolicy MUST declare non-negative retentionDurationDays (§5.2)." ;
+  ] ;
+  sh:property [ sh:path rkaf:retentionTrigger ; sh:minCount 1 ; sh:maxCount 1 ;
+    sh:in ( rkaf:creation rkaf:lastAccess rkaf:lastModification rkaf:lifecycleEvent ) ;
+    sh:message "RetentionPolicy retentionTrigger MUST be from closed enum (§5.2)." ;
+  ] ;
+  sh:property [ sh:path rkaf:retentionPostExpiry ; sh:minCount 1 ; sh:maxCount 1 ;
+    sh:in ( rkaf:delete rkaf:anonymize rkaf:archive rkaf:legal-hold-on-trigger ) ;
+    sh:message "RetentionPolicy retentionPostExpiry MUST be from closed enum (§5.2)." ;
+  ] .
+
+# --- AILineage (§5.3) ---
+rkaf:AILineageShape a sh:NodeShape ;
+  sh:targetClass rkaf:AILineage ;
+  sh:property [ sh:path rkaf:modelId ; sh:minCount 1 ; sh:maxCount 1 ; sh:datatype xsd:string ;
+    sh:message "AILineage MUST declare modelId (§5.3)." ; ] ;
+  sh:property [ sh:path rkaf:modelVersion ; sh:minCount 1 ; sh:maxCount 1 ; sh:datatype xsd:string ;
+    sh:message "AILineage MUST declare modelVersion (§5.3)." ; ] ;
+  sh:property [ sh:path rkaf:promptTemplateRef ; sh:minCount 1 ; sh:maxCount 1 ; sh:nodeKind sh:IRI ;
+    sh:message "AILineage MUST declare promptTemplateRef IRI (§5.3)." ; ] ;
+  sh:property [ sh:path rkaf:temperature ; sh:minCount 1 ; sh:maxCount 1 ; sh:datatype xsd:float ;
+    sh:message "AILineage MUST declare temperature (§5.3)." ; ] ;
+  sh:property [ sh:path rkaf:inputContextHash ; sh:minCount 1 ; sh:maxCount 1 ; sh:datatype xsd:string ;
+    sh:message "AILineage MUST declare inputContextHash (§5.3)." ; ] ;
+  sh:property [ sh:path rkaf:humanApprover ; sh:minCount 1 ; sh:maxCount 1 ; sh:nodeKind sh:IRI ;
+    sh:message "AILineage MUST declare humanApprover IRI (§5.3)." ; ] .
+
+# --- Workspace (§5.5) ---
+rkaf:WorkspaceShape a sh:NodeShape ;
+  sh:targetClass rkaf:Workspace ;
+  sh:property [ sh:path rkaf:workspaceId ; sh:minCount 1 ; sh:maxCount 1 ; sh:datatype xsd:string ;
+    sh:message "Workspace MUST declare workspaceId (§5.5)." ; ] .
