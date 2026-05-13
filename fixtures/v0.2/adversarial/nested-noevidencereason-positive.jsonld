@@ -1,0 +1,12 @@
+{
+  "@context": "../../../context/rkaf-context-v0.2.jsonld",
+  "@id": "urn:rkaf:fixture:nner-pos:a1",
+  "@type": "rkaf:Assertion",
+  "rkaf:hasSafetyLabel": "rkaf:permits-axiomatic",
+  "rkaf:hasEvidenceBinding": [
+    {
+      "@type": "rkaf:EvidenceBinding",
+      "rkaf:noEvidenceReason": "rkaf:axiomatic"
+    }
+  ]
+}
