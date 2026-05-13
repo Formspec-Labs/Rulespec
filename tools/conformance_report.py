@@ -43,6 +43,7 @@ COMPILED_JSON_SCHEMA_DIR = ROOT / "compiled" / "json-schema" / "core"
 # Shape file set must match tools/ci_validate.py::SHAPES.
 SHACL_SHAPES = [
     "shapes/rkaf-shapes-core.ttl",
+    "shapes/rkaf-shapes-pattern-c.ttl",
     "shapes/rkaf-shapes-warrant.ttl",
     "shapes/rkaf-shapes-confidence.ttl",
     "shapes/rkaf-shapes-accessscope.ttl",
@@ -222,14 +223,33 @@ def l3_validate(fixture_path: Path) -> tuple[bool, int]:
 
 
 def classify_fixture(name: str) -> str:
-    """Infer expected verdict from filename pattern: '-negative' → negative,
-    '-edge' → edge, anything else → positive."""
+    """Infer expected verdict from filename + path pattern:
+      - `fixtures/behavior/<x>.jsonld` → behavior (L4 contract; L1+L2 only at
+        shape gates; runtime impl validates the input→expectedOutput claim)
+      - filename ends `-negative` → negative
+      - filename ends `-edge` → edge
+      - else → positive
+    """
     n = name.lower()
+    if n.startswith("behavior/"):
+        return "behavior"
     if "-negative" in n:
         return "negative"
     if "-edge" in n:
         return "edge"
     return "positive"
+
+
+# Negatives where the spec invariant is a runtime contract (L4), not a
+# shape contract (L3). These are EXPECTED to pass L2+L3 today and rely on
+# the runtime impl (Plan 7b) to catch the violation. Documented here so
+# the reporter doesn't flag them as divergences.
+L4_GAP_NEGATIVES = {
+    # §1.4 + §2.5: LocalAdoption usageEligibility broadening above its
+    # adoptionScope's authority requires graph-walk + scope analysis. Pure
+    # SHACL on the LocalAdoption node alone cannot decide it.
+    "negatives/local-adoption-officialUse-eligibility-negative.jsonld",
+}
 
 
 def walk_fixtures() -> list[Path]:
@@ -274,11 +294,29 @@ def evaluate(path: Path) -> FixtureResult:
         l3_ok, _violations = l3_validate(path)
         result.l3 = "pass" if l3_ok else "fail"
 
-    # Expectation check: positives must pass L2 + L3; negatives must fail L2 OR L3.
+    # Expectation check.
+    #   positive  → MUST pass L2 + L3.
+    #   negative  → MUST fail L2 OR L3 (unless documented L4-gap).
+    #   behavior  → MUST pass L1 + L2; L3 not gated (input @graph may contain
+    #               stubs as declarative meta-content). L4 verdict is set
+    #               separately by Plan 7b runtime impl (currently "skip").
+    #   edge      → no strict expectation; report only.
     if result.expected == "positive":
         result.diverged = not (result.l2 == "pass" and result.l3 == "pass")
     elif result.expected == "negative":
-        result.diverged = not (result.l2 == "fail" or result.l3 == "fail")
+        if result.name in L4_GAP_NEGATIVES:
+            # Documented runtime-only invariant — pass L2/L3 is expected.
+            result.l4 = "skip"
+            result.notes.append("L4-gap: invariant is a runtime contract, not shape; verified by Plan 7b runtime impl.")
+            result.diverged = False
+        else:
+            result.diverged = not (result.l2 == "fail" or result.l3 == "fail")
+    elif result.expected == "behavior":
+        # L1+L2 must pass on the wrapper; L3 may fail (stub graphs are
+        # declarative content, not validated nodes). L4 = "skip" (pending
+        # Plan 7b runtime impl).
+        result.l4 = "skip"
+        result.diverged = not (result.l1 == "pass" and result.l2 == "pass")
     # edges: no strict expectation — report only.
 
     return result

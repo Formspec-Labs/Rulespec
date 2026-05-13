@@ -1,0 +1,20 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@id": "urn:rkaf:fixture:sf-mix:f1",
+  "@type": "rkaf:SourceFragment",
+  "rkaf:bindsArtifact": "urn:rkaf:fixture:sf-mix:art1",
+  "rkaf:hasSelector": [
+    {
+      "@type": "oa:TextQuoteSelector",
+      "oa:exact": "section 4(a)"
+    },
+    {
+      "@type": "rkaf:USLMSectionSelector",
+      "rdf:value": "/us/usc/t7/s2017"
+    }
+  ],
+  "rkaf:selectorKind": [
+    "oa:TextQuoteSelector",
+    "rkaf:USLMSectionSelector"
+  ]
+}

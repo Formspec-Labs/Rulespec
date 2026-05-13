@@ -1,0 +1,33 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@id": "urn:rkaf:fixture:beh:pit:case1",
+  "@type": "rkaf:BehaviorTestCase",
+  "rkaf:behaviorContract": "rkaf:PointInTimeException",
+  "rkaf:rationale": "Stale assertion A retained under PITException with anchor rkaf:applicationSubmissionTime, which is in the consumer's BridgeConsumerRegistration. Consumer honors the exception.",
+  "rkaf:input": {
+    "@graph": [
+      {
+        "@id": "A",
+        "@type": "rkaf:Assertion",
+        "rkaf:consumerLifecycleState": "rkaf:staleForCurrentUse"
+      },
+      {
+        "@id": "pit1",
+        "@type": "rkaf:PointInTimeException",
+        "rkaf:evaluationAnchor": "rkaf:applicationSubmissionTime",
+        "rkaf:retainsAssertion": "A"
+      },
+      {
+        "@id": "reg1",
+        "@type": "rkaf:BridgeConsumerRegistration",
+        "rkaf:supportedEvaluationAnchors": [
+          "rkaf:applicationSubmissionTime"
+        ]
+      }
+    ]
+  },
+  "rkaf:expectedOutput": {
+    "A.effectiveStateForAnchor:applicationSubmissionTime": "rkaf:retainedForPointInTime",
+    "A.effectiveStateForCurrentUse": "rkaf:staleForCurrentUse"
+  }
+}

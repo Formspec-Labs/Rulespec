@@ -1,0 +1,31 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@id": "urn:rkaf:fixture:beh:ue-broad:case1",
+  "@type": "rkaf:BehaviorTestCase",
+  "rkaf:behaviorContract": "rkaf:UsageEligibilityReducer",
+  "rkaf:rationale": "Baseline publicationAllowed; LocalAdoption grants officialUse within state-TX scope. Inside scope: effective=officialUse. Outside scope: effective=publicationAllowed.",
+  "rkaf:input": {
+    "@graph": [
+      {
+        "@id": "a1",
+        "@type": "rkaf:Assertion",
+        "rkaf:assertionOrigin": "rkaf:humanAsserted",
+        "rkaf:usageEligibility": "rkaf:publicationAllowed"
+      },
+      {
+        "@id": "la1",
+        "@type": "rkaf:LocalAdoption",
+        "rkaf:targetAssertion": "a1",
+        "rkaf:usageEligibility": "rkaf:officialUse",
+        "rkaf:adoptionScope": "scope:state-tx-snap",
+        "rkaf:adoptionStatus": "rkaf:active"
+      }
+    ]
+  },
+  "rkaf:expectedOutput": {
+    "byScope": {
+      "scope:state-tx-snap": "rkaf:officialUse",
+      "scope:state-ca-snap": "rkaf:publicationAllowed"
+    }
+  }
+}

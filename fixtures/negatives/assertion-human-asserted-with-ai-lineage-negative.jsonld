@@ -1,0 +1,7 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@id": "urn:rkaf:fixture:neg-cross:a-han:a1",
+  "@type": "rkaf:Assertion",
+  "rkaf:assertionOrigin": "rkaf:humanAsserted",
+  "rkaf:hasAILineage": "urn:rkaf:fixture:neg-cross:a-han:ail1"
+}

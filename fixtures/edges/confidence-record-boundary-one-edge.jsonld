@@ -1,0 +1,10 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@id": "urn:rkaf:fixture:cr-one:c1",
+  "@type": "rkaf:ConfidenceRecord",
+  "rkaf:confidenceMethod": "rkaf:review-consensus",
+  "rkaf:calibrationStatus": "rkaf:consensus",
+  "rkaf:confidenceBasis": "urn:rkaf:fixture:cr-one:basis-1",
+  "rkaf:generatedBy": "urn:rkaf:actor:org:editorial-board",
+  "rkaf:score": 1.0
+}

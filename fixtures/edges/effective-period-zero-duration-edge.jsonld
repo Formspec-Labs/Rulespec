@@ -1,0 +1,7 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@id": "urn:rkaf:fixture:ep-zero:p1",
+  "@type": "rkaf:EffectivePeriod",
+  "rkaf:effectivePeriodStart": "2026-01-01T00:00:00Z",
+  "rkaf:effectivePeriodEnd": "2026-01-01T00:00:00Z"
+}

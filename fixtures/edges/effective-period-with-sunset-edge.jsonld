@@ -1,0 +1,8 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@id": "urn:rkaf:fixture:ep-sunset:p1",
+  "@type": "rkaf:EffectivePeriod",
+  "rkaf:effectivePeriodStart": "2024-01-01T00:00:00Z",
+  "rkaf:effectivePeriodEnd": "2026-12-31T23:59:59Z",
+  "rkaf:sunsetAt": "2027-06-30T00:00:00Z"
+}

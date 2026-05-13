@@ -1,0 +1,11 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@id": "urn:rkaf:fixture:mt-aw:n1",
+  "@type": [
+    "rkaf:Authority",
+    "rkaf:Warrant"
+  ],
+  "rkaf:authorityKind": "rkaf:statutory",
+  "rkaf:warrantKind": "rkaf:statutory",
+  "rkaf:warrantFamily": "rkaf:legal"
+}

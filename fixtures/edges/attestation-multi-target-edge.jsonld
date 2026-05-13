@@ -1,0 +1,13 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@id": "urn:rkaf:fixture:att-mt:t1",
+  "@type": "rkaf:Attestation",
+  "rkaf:attestor": "urn:rkaf:actor:user:alice",
+  "rkaf:attestorKind": "rkaf:humanUser",
+  "rkaf:decision": "rkaf:endorse",
+  "rkaf:attestationScope": "urn:rkaf:scope:state-tx-snap",
+  "rkaf:attestedAt": "2026-03-15T10:00:00Z",
+  "rkaf:targetAssertion": "urn:rkaf:fixture:att-mt:a1",
+  "rkaf:targetWorkProduct": "urn:rkaf:fixture:att-mt:wp1",
+  "rkaf:targetConcept": "urn:rkaf:fixture:att-mt:c1"
+}

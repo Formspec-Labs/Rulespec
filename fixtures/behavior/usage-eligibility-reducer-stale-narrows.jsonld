@@ -1,0 +1,22 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@id": "urn:rkaf:fixture:beh:ue-stale:case1",
+  "@type": "rkaf:BehaviorTestCase",
+  "rkaf:behaviorContract": "rkaf:UsageEligibilityReducer",
+  "rkaf:rationale": "Baseline officialUse; a SupersessionPacket has marked the assertion staleForCurrentUse; reducer must drop to notEligible per spec/rkaf-behavior.md \u00a71.",
+  "rkaf:input": {
+    "@graph": [
+      {
+        "@id": "a1",
+        "@type": "rkaf:Assertion",
+        "rkaf:assertionOrigin": "rkaf:humanAsserted",
+        "rkaf:usageEligibility": "rkaf:officialUse",
+        "rkaf:consumerLifecycleState": "rkaf:staleForCurrentUse"
+      }
+    ]
+  },
+  "rkaf:expectedOutput": {
+    "effectiveUsageEligibility": "rkaf:notEligible",
+    "rationale": "lifecycle status (staleForCurrentUse) wins over baseline (officialUse)"
+  }
+}

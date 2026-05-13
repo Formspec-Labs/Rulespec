@@ -1,0 +1,15 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@id": "urn:rkaf:fixture:la-edge:la1",
+  "@type": "rkaf:LocalAdoption",
+  "rkaf:organization": "urn:rkaf:org:state-tx-snap-office",
+  "rkaf:targetAssertion": "urn:rkaf:fixture:la-edge:a1",
+  "rkaf:adoptionStatus": "rkaf:active",
+  "rkaf:usageEligibility": "rkaf:localOperationalUse",
+  "rkaf:adoptionAuthorityKind": "rkaf:organizational",
+  "rkaf:adoptionScope": "urn:rkaf:scope:state-tx-snap",
+  "rkaf:authorizedBy": "urn:rkaf:actor:director-1",
+  "rkaf:adoptedAt": "2026-03-15T10:00:00Z",
+  "rkaf:adoptsApplicability": "urn:rkaf:fixture:la-edge:applies-1",
+  "rkaf:basedOnAttestation": "urn:rkaf:fixture:la-edge:att-1"
+}

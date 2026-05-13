@@ -1,0 +1,38 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@id": "urn:rkaf:fixture:beh:br7:case1",
+  "@type": "rkaf:BehaviorTestCase",
+  "rkaf:behaviorContract": "rkaf:BridgeContractRule",
+  "rkaf:contractRuleNumber": 7,
+  "rkaf:rationale": "Justification chain ends without hasAuthority/derivesAuthorityFrom OR LocalAdoption. Bridge MUST produce an error per spec/rkaf-behavior.md \u00a73 rule 7.",
+  "rkaf:input": {
+    "@graph": [
+      {
+        "@id": "wp1",
+        "@type": "rkaf:GeneratedWorkProduct",
+        "rkaf:justifiedByAssertion": "a1"
+      },
+      {
+        "@id": "a1",
+        "@type": "rkaf:Assertion",
+        "rkaf:hasJustification": "j1"
+      },
+      {
+        "@id": "j1",
+        "@type": "rkaf:Justification",
+        "rkaf:hasWarrant": "w1"
+      },
+      {
+        "@id": "w1",
+        "@type": "rkaf:Warrant",
+        "rkaf:warrantKind": "rkaf:editorial",
+        "rkaf:warrantFamily": "rkaf:editorial"
+      }
+    ]
+  },
+  "rkaf:expectedOutput": {
+    "bridgeValidationResult": "rkaf:rejected",
+    "errorClass": "rkaf:UntermimatedJustificationChain",
+    "rationale": "rule 7 \u2014 chain has editorial warrant but no hasAuthority or LocalAdoption terminus"
+  }
+}

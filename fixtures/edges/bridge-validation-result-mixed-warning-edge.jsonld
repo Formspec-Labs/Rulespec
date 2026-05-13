@@ -1,0 +1,17 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@id": "urn:rkaf:fixture:bvr-mix:r1",
+  "@type": "rkaf:BridgeValidationResult",
+  "rkaf:packetId": "urn:rkaf:fixture:bvr-mix:pkt-1",
+  "rkaf:consumer": "urn:rkaf:consumer:studio",
+  "rkaf:bridgeContractVersion": "rkaf-bridge/1.0",
+  "rkaf:result": "rkaf:acceptedWithWarnings",
+  "rkaf:effectiveUsageEligibility": "rkaf:reviewQueueOnly",
+  "rkaf:effectiveUsageEligibilityRationale": "Two stale dependencies surfaced; manual review required before officialUse.",
+  "rkaf:validatedAt": "2026-03-15T10:00:00Z",
+  "rkaf:warnings": [
+    "StaleConceptCache: concept C1 cached >30d",
+    "AppellateStatePending: rule R7 under appeal"
+  ],
+  "rkaf:errors": []
+}

@@ -1,0 +1,10 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@id": "urn:rkaf:fixture:neg-cross:rc-one:rc1",
+  "@type": "rkaf:RegistryConflict",
+  "rkaf:conflictingEntries": [
+    "urn:rkaf:fixture:neg-cross:rc-one:m1"
+  ],
+  "rkaf:severity": "rkaf:operationalConflict",
+  "rkaf:detectedAt": "2026-03-15T10:00:00Z"
+}

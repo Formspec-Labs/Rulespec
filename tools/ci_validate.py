@@ -27,6 +27,7 @@ SHAPES = [
     # v0.2 normative-tier primitives. CUE-compiled equivalents are weaker
     # (no sh:or / sh:not / cross-property predicates), so these stay authored.
     "shapes/rkaf-shapes-core.ttl",
+    "shapes/rkaf-shapes-pattern-c.ttl",
     "shapes/rkaf-shapes-warrant.ttl",
     "shapes/rkaf-shapes-confidence.ttl",
     "shapes/rkaf-shapes-accessscope.ttl",

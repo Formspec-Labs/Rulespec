@@ -1,0 +1,13 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@id": "urn:rkaf:fixture:neg-cross:la-off:la1",
+  "@type": "rkaf:LocalAdoption",
+  "rkaf:organization": "urn:rkaf:org:rogue-1",
+  "rkaf:targetAssertion": "urn:rkaf:fixture:neg-cross:la-off:a1",
+  "rkaf:adoptionStatus": "rkaf:active",
+  "rkaf:usageEligibility": "rkaf:officialUse",
+  "rkaf:adoptionAuthorityKind": "rkaf:organizational",
+  "rkaf:adoptionScope": "urn:rkaf:scope:rogue-1",
+  "rkaf:authorizedBy": "urn:rkaf:actor:rogue-director",
+  "rkaf:adoptedAt": "2026-03-15T10:00:00Z"
+}

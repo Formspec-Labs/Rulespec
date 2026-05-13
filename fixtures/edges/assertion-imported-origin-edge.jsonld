@@ -1,0 +1,6 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@id": "urn:rkaf:fixture:a-imp:a1",
+  "@type": "rkaf:Assertion",
+  "rkaf:assertionOrigin": "rkaf:imported"
+}

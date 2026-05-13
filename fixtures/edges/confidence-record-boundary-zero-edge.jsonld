@@ -1,0 +1,10 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@id": "urn:rkaf:fixture:cr-zero:c1",
+  "@type": "rkaf:ConfidenceRecord",
+  "rkaf:confidenceMethod": "rkaf:model-inference",
+  "rkaf:calibrationStatus": "rkaf:uncalibrated",
+  "rkaf:confidenceBasis": "urn:rkaf:fixture:cr-zero:basis-1",
+  "rkaf:generatedBy": "urn:rkaf:actor:model:zero-x",
+  "rkaf:score": 0.0
+}

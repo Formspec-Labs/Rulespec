@@ -1,0 +1,11 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@id": "urn:rkaf:fixture:le-cascade:e1",
+  "@type": "rkaf:LifecycleEvent",
+  "rkaf:lifecycleEventKind": "rkaf:supersession",
+  "rkaf:effectiveDate": "2026-06-01T00:00:00Z",
+  "rkaf:emittedBy": "urn:rkaf:actor:agency:fns-corrective",
+  "rkaf:appliesTo": "urn:rkaf:fixture:le-cascade:assertion-x",
+  "rkaf:bridgeContractVersion": "rkaf-bridge/1.0",
+  "rkaf:cascadeAlgorithm": "rkaf:CascadeClosureV1"
+}

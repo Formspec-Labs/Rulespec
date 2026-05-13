@@ -1,0 +1,38 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@id": "urn:rkaf:fixture:beh:casc-fan:case1",
+  "@type": "rkaf:BehaviorTestCase",
+  "rkaf:behaviorContract": "rkaf:CascadeClosureV1",
+  "rkaf:rationale": "Assertion A is superseded by B. Two work products W1 + W2 are justifiedByAssertion A. Cascade must transitively close to {A, W1, W2}.",
+  "rkaf:input": {
+    "@graph": [
+      {
+        "@id": "A",
+        "@type": "rkaf:Assertion"
+      },
+      {
+        "@id": "B",
+        "@type": "rkaf:Assertion",
+        "rkaf:supersedesAssertion": "A"
+      },
+      {
+        "@id": "W1",
+        "@type": "rkaf:GeneratedWorkProduct",
+        "rkaf:justifiedByAssertion": "A"
+      },
+      {
+        "@id": "W2",
+        "@type": "rkaf:GeneratedWorkProduct",
+        "rkaf:justifiedByAssertion": "A"
+      }
+    ]
+  },
+  "rkaf:expectedOutput": {
+    "affectedSet": [
+      "A",
+      "W1",
+      "W2"
+    ],
+    "algorithm": "rkaf:CascadeClosureV1"
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@id": "urn:rkaf:fixture:w-cycle:w1",
+  "@type": "rkaf:Warrant",
+  "rkaf:warrantKind": "rkaf:statutory",
+  "rkaf:warrantFamily": "rkaf:legal",
+  "rkaf:hasPredecessor": "urn:rkaf:fixture:w-cycle:w1"
+}

@@ -1,0 +1,6 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@id": "urn:rkaf:fixture:as-univ:a1",
+  "@type": "rkaf:ApplicabilityScope",
+  "rkaf:applicabilityCondition": "Applies to all SNAP-eligible cases under this workspace's interpretation; no jurisdictional narrowing."
+}

@@ -1,0 +1,9 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@id": "urn:rkaf:fixture:neg-cross:cr-cal:c1",
+  "@type": "rkaf:ConfidenceRecord",
+  "rkaf:confidenceMethod": "rkaf:model-inference",
+  "rkaf:calibrationStatus": "rkaf:calibratedAgainst",
+  "rkaf:confidenceBasis": "urn:rkaf:fixture:neg-cross:cr-cal:basis-1",
+  "rkaf:generatedBy": "urn:rkaf:actor:model:m-x"
+}
