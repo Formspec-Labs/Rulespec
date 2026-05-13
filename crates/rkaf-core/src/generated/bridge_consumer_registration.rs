@@ -28,6 +28,8 @@ pub struct BridgeConsumerRegistration {
     pub supported_authority_kinds: crate::OneOrMany<crate::generated::authority::AuthorityKind>,
     #[serde(rename = "rkaf:capabilityCap", skip_serializing_if = "Option::is_none", default)]
     pub capability_cap: Option<crate::generated::usage_eligibility::UsageEligibility>,
+    #[serde(rename = "rkaf:trustedRegistries", skip_serializing_if = "Option::is_none", default)]
+    pub trusted_registries: Option<crate::OneOrMany<String>>,
     #[serde(flatten)]
     pub extra: BTreeMap<String, serde_json::Value>,
 }

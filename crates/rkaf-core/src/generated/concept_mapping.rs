@@ -20,6 +20,20 @@ pub enum SkosMappingPredicate {
     MappingRelation,
 }
 
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub enum ConceptMappingLifecycleState {
+    #[serde(rename = "rkaf:proposed")]
+    Proposed,
+    #[serde(rename = "rkaf:underReview")]
+    UnderReview,
+    #[serde(rename = "rkaf:approved")]
+    Approved,
+    #[serde(rename = "rkaf:deprecated")]
+    Deprecated,
+    #[serde(rename = "rkaf:retired")]
+    Retired,
+}
+
 use std::collections::BTreeMap;
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -38,6 +52,10 @@ pub struct ConceptMapping {
     pub has_applicability: Option<String>,
     #[serde(rename = "rkaf:usageEligibility", skip_serializing_if = "Option::is_none", default)]
     pub usage_eligibility: Option<crate::generated::usage_eligibility::UsageEligibility>,
+    #[serde(rename = "rkaf:lifecycleState", skip_serializing_if = "Option::is_none", default)]
+    pub lifecycle_state: Option<ConceptMappingLifecycleState>,
+    #[serde(rename = "rkaf:managedByRegistry", skip_serializing_if = "Option::is_none", default)]
+    pub managed_by_registry: Option<String>,
     #[serde(flatten)]
     pub extra: BTreeMap<String, serde_json::Value>,
 }

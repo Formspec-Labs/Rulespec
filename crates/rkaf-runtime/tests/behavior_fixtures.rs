@@ -98,3 +98,9 @@ fn concept_resolution_mapping_conflict() {
 #[test] fn reducer_stale_with_honored_pit() { assert_passes("usage-eligibility-reducer-stale-with-honored-pit"); }
 #[test] fn concept_resolution_informational_severity() { assert_passes("concept-resolution-informational-severity"); }
 #[test] fn pit_unsupported_anchor_error() { assert_passes("point-in-time-exception-unsupported-anchor"); }
+
+// ─── Plan 7c — severity ladder + cascade as_of ─────────────────────────
+
+#[test] fn concept_resolution_publication_blocking() { assert_passes("concept-resolution-publication-blocking"); }
+#[test] fn concept_resolution_authority_critical() { assert_passes("concept-resolution-authority-critical"); }
+#[test] fn cascade_as_of_excludes_expired() { assert_passes("cascade-closure-as-of-excludes-expired"); }

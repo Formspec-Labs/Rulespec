@@ -168,11 +168,21 @@ The cascade seed is identified by the trigger edge that initiated the closure:
 
 Behavior fixtures carry the seed explicitly as `rkaf:cascadeSeed` on the `BehaviorTestCase`. The L4 runtime reads this field; production runtimes derive the seed from incoming `LifecycleEvent.appliesTo` or from supersession edges.
 
-### §2.4 — Termination + cycle safety
+### §2.4 — `is_active_or_adopted_at(as_of)` filter
+
+The `active_filter` referenced in §2.2 excludes nodes from visitation iff EITHER:
+
+(a) **Lifecycle-state exclusion** — `node.rkaf:consumerLifecycleState` is in the terminal/stale set: `{rkaf:staleForCurrentUse, rkaf:retired, rkaf:withdrawn}`. Nodes without a lifecycle state are active by default.
+
+(b) **Effective-period exclusion** — when the `BehaviorTestCase.rkaf:cascadeAsOf` timestamp is provided, the node's attached `rkaf:hasEffectivePeriod` resolves to an `EffectivePeriod`. The as-of timestamp MUST fall within `effectivePeriodStart..effectivePeriodEnd`. Nodes whose period ends before `as_of` (expired) or starts after `as_of` (not yet effective) are excluded. RFC-3339 lexicographic comparison is exact for Z-suffixed UTC.
+
+Production runtimes derive `as_of` from the triggering `LifecycleEvent.effectiveDate`. Behavior fixtures pass it explicitly via `BehaviorTestCase.rkaf:cascadeAsOf`.
+
+### §2.5 — Termination + cycle safety
 
 The graph is finite. The visited set prevents revisiting. **Cycles are not normatively prohibited** (a `Warrant` MAY have `hasPredecessor` pointing back at itself per the edge fixture `warrant-self-predecessor-edge.jsonld`); the algorithm tolerates them via the visited check.
 
-### §2.5 — Output
+### §2.6 — Output
 
 ```
 { affectedSet: ["<@id>", ...], algorithm: "rkaf:CascadeClosureV1" }
