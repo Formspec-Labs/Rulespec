@@ -1,0 +1,22 @@
+{
+  "native": {
+    "documentId": "policy-2026-04-warrants",
+    "version": "1.0.0"
+  },
+  "overlay": {
+    "@type": "rkaf:Assertion",
+    "rkaf:assertsSubject": "policy-2026-04-warrants",
+    "rkaf:hasWarrant": [
+      {
+        "@type": "rkaf:Warrant",
+        "rkaf:warrantKind": "rkaf:statute",
+        "rkaf:warrantFamily": "rkaf:regulatory"
+      },
+      {
+        "@type": "rkaf:Warrant",
+        "rkaf:warrantKind": "rkaf:guidance",
+        "rkaf:warrantFamily": "rkaf:advisory"
+      }
+    ]
+  }
+}

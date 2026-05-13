@@ -1,0 +1,16 @@
+{
+  "native": {
+    "@type": "snap:RedeterminationCase",
+    "caseId": "snap-2026-04-redet-0001",
+    "household": "h-001"
+  },
+  "overlay": {
+    "@type": "rkaf:Assertion",
+    "rkaf:assertsSubject": "snap-2026-04-redet-0001",
+    "rkaf:hasWarrant": {
+      "@type": "rkaf:Warrant",
+      "rkaf:warrantKind": "rkaf:statute",
+      "rkaf:warrantFamily": "rkaf:regulatory"
+    }
+  }
+}

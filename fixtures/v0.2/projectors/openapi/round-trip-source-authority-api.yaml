@@ -1,0 +1,15 @@
+native:
+  openapi: "3.1.0"
+  info:
+    title: Source Authority Registry API
+    version: "0.2.0"
+  paths:
+    /authorities:
+      get:
+        summary: List source authorities
+        responses:
+          "200":
+            description: OK
+overlay:
+  "@type": rkaf:Assertion
+  "rkaf:assertsSubject": "urn:rulespec:source-authority-registry"

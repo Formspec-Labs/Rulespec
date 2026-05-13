@@ -1,0 +1,25 @@
+[package]
+name = "projector-harness"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+rust-version.workspace = true
+description = "Rulespec Layer 4 — CLI harness for projector parity orchestrator."
+
+[[bin]]
+name = "projector-harness"
+path = "src/main.rs"
+
+[dependencies]
+rkaf-projector-core         = { path = "../rkaf-projector-core" }
+rkaf-projector-json-schema  = { path = "../rkaf-projector-json-schema" }
+rkaf-projector-json-ld      = { path = "../rkaf-projector-json-ld" }
+rkaf-projector-openapi      = { path = "../rkaf-projector-openapi" }
+serde       = { workspace = true }
+serde_json  = { workspace = true }
+serde_yaml  = { workspace = true }
+anyhow      = { workspace = true }
+async-trait = { workspace = true }
+clap        = { workspace = true }
+tokio       = { workspace = true }
