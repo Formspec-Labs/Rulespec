@@ -1,0 +1,27 @@
+[workspace]
+resolver = "2"
+members = [
+    "rkaf-projector-core",
+    "rkaf-projector-json-schema",
+    "rkaf-projector-json-ld",
+    "rkaf-projector-openapi",
+    "projector-harness",
+]
+
+[workspace.package]
+version = "0.2.0-pre.5"
+edition = "2021"
+license = "Apache-2.0"
+repository = "https://github.com/formspec/rulespec"
+rust-version = "1.79"
+
+[workspace.dependencies]
+serde      = { version = "1", features = ["derive"] }
+serde_json = "1"
+serde_yaml = "0.9"
+thiserror  = "1"
+anyhow     = "1"
+async-trait = "0.1"
+tokio      = { version = "1", features = ["macros", "rt-multi-thread"] }
+jsonschema = { version = "0.18", features = ["draft202012"] }
+clap       = { version = "4", features = ["derive"] }
