@@ -1,0 +1,38 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@id": "urn:rkaf:fixture:beh:ue-cap:case1",
+  "@type": "rkaf:BehaviorTestCase",
+  "rkaf:behaviorContract": "rkaf:UsageEligibilityReducer",
+  "rkaf:rationale": "Baseline=officialUse but consumer.capabilityCap=reviewQueueOnly; reducer narrows to reviewQueueOnly per \u00a71.2 step 5.",
+  "rkaf:input": {
+    "@graph": [
+      {
+        "@id": "a1",
+        "@type": "rkaf:Assertion",
+        "rkaf:assertionOrigin": "rkaf:humanAsserted",
+        "rkaf:usageEligibility": "rkaf:officialUse"
+      },
+      {
+        "@id": "reg1",
+        "@type": "rkaf:BridgeConsumerRegistration",
+        "rkaf:consumer": "urn:rkaf:consumer:strict-reviewer",
+        "rkaf:bridgeContractVersion": "rkaf-bridge/1.0",
+        "rkaf:registeredAt": "2026-04-15T00:00:00Z",
+        "rkaf:supportedEvaluationAnchors": [
+          "rkaf:applicationSubmissionTime"
+        ],
+        "rkaf:supportsRegistryVersionRange": [
+          "^1.0"
+        ],
+        "rkaf:supportedAutomaticMigrations": [],
+        "rkaf:supportedAuthorityKinds": [
+          "rkaf:statutory"
+        ],
+        "rkaf:capabilityCap": "rkaf:reviewQueueOnly"
+      }
+    ]
+  },
+  "rkaf:expectedOutput": {
+    "effectiveUsageEligibility": "rkaf:reviewQueueOnly"
+  }
+}

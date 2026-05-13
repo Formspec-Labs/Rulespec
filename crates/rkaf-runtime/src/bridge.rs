@@ -8,7 +8,7 @@
 use serde_json::{json, Value};
 use std::collections::HashSet;
 
-use crate::{errors::RuntimeError, graph::Graph, reducer, stale, verdict::Verdict};
+use crate::{consumer as consumer_mod, errors::RuntimeError, graph::Graph, reducer, stale, verdict::Verdict};
 
 /// Bridge rules are typed verdicts: accepted / acceptedWithWarnings /
 /// rejected. The runtime emits the §7 output shape.
@@ -34,16 +34,18 @@ pub fn evaluate(test_case: &Value, graph: &Graph) -> Result<Verdict, RuntimeErro
             )
         })?;
 
+    let consumer = consumer_mod::select_consumer(test_case, graph)?;
+
     match rule_num {
         1 => rule_1(graph),
-        2 => rule_2(graph),
+        2 => rule_2(graph, consumer),
         3 => rule_3(graph),
         4 => rule_4(graph),
-        5 => rule_5(graph),
+        5 => rule_5(graph, consumer),
         6 => rule_6(graph),
         7 => rule_7(graph),
         8 => rule_8(graph),
-        9 => rule_9(graph),
+        9 => rule_9(graph, consumer),
         10 => rule_10(graph),
         other => Err(RuntimeError::UnsupportedContract(format!(
             "BridgeContractRule rule_num={other} (must be 1..10)"
@@ -86,7 +88,7 @@ fn rule_1(graph: &Graph) -> Result<Verdict, RuntimeError> {
 // ── Rule 2 — usageEligibility narrow OK, broaden NOT ──
 // Calls the canonical `reducer::reduce_for_scope` (NOT a re-implementation)
 // so the two contracts can never silently diverge.
-fn rule_2(graph: &Graph) -> Result<Verdict, RuntimeError> {
+fn rule_2(graph: &Graph, consumer: Option<&Value>) -> Result<Verdict, RuntimeError> {
     for decl in graph.nodes_by_type("rkaf:ConsumerEffectiveDeclaration") {
         let Some(assertion_id) = decl.get("rkaf:forAssertion").and_then(Value::as_str) else {
             continue;
@@ -140,6 +142,7 @@ fn rule_2(graph: &Graph) -> Result<Verdict, RuntimeError> {
             is_stale,
             &applicability_set,
             scope,
+            consumer,
             graph,
         );
 
@@ -224,12 +227,12 @@ fn rule_4(graph: &Graph) -> Result<Verdict, RuntimeError> {
 }
 
 // ── Rule 5 — cascade staleForCurrentUse transition ──
-fn rule_5(graph: &Graph) -> Result<Verdict, RuntimeError> {
+fn rule_5(graph: &Graph, consumer: Option<&Value>) -> Result<Verdict, RuntimeError> {
     for assertion in graph.nodes_by_type("rkaf:Assertion") {
         let Some(id) = assertion.get("@id").and_then(Value::as_str) else {
             continue;
         };
-        if stale::should_be_stale(id, graph) {
+        if stale::should_be_stale(id, consumer, graph) {
             let actual_state = assertion
                 .get("rkaf:consumerLifecycleState")
                 .and_then(Value::as_str);
@@ -373,11 +376,8 @@ fn rule_8(graph: &Graph) -> Result<Verdict, RuntimeError> {
 }
 
 // ── Rule 9 — bridgeContractVersion declared; unsupported versions refused ──
-fn rule_9(graph: &Graph) -> Result<Verdict, RuntimeError> {
-    let reg = graph
-        .nodes_by_type("rkaf:BridgeConsumerRegistration")
-        .next();
-    let Some(reg) = reg else { return Ok(accepted()) };
+fn rule_9(graph: &Graph, consumer: Option<&Value>) -> Result<Verdict, RuntimeError> {
+    let Some(reg) = consumer else { return Ok(accepted()) };
     let ranges: Vec<&str> = reg
         .get("rkaf:supportsRegistryVersionRange")
         .and_then(Value::as_array)

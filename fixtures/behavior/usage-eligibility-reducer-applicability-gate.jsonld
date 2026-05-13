@@ -1,0 +1,33 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@id": "urn:rkaf:fixture:beh:ue-app:case1",
+  "@type": "rkaf:BehaviorTestCase",
+  "rkaf:behaviorContract": "rkaf:UsageEligibilityReducer",
+  "rkaf:rationale": "Assertion has hasApplicability pointing at an ApplicabilityScope with appliesInJurisdiction = ['scope:tx']. Reducer queried for scope:ca \u2014 outside applicability \u2192 notEligible per \u00a71.2 step 1.",
+  "rkaf:input": {
+    "@graph": [
+      {
+        "@id": "a1",
+        "@type": "rkaf:Assertion",
+        "rkaf:assertionOrigin": "rkaf:humanAsserted",
+        "rkaf:usageEligibility": "rkaf:officialUse",
+        "rkaf:hasApplicability": "app1"
+      },
+      {
+        "@id": "app1",
+        "@type": "rkaf:ApplicabilityScope",
+        "rkaf:appliesInJurisdiction": [
+          "scope:tx"
+        ]
+      }
+    ]
+  },
+  "rkaf:expectedOutput": {
+    "byScope": {
+      "scope:ca": "rkaf:notEligible"
+    }
+  },
+  "rkaf:evaluationScopes": [
+    "scope:ca"
+  ]
+}

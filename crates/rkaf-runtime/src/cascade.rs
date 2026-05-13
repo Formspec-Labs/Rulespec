@@ -50,6 +50,11 @@ pub fn evaluate(test_case: &Value, graph: &Graph) -> Result<Verdict, RuntimeErro
             )
         })?;
 
+    // Per spec §2.2: closure is scoped to active/adopted state. v0.2
+    // interprets "active" as `consumerLifecycleState ∉ {retired,
+    // staleForCurrentUse}`. Stale + retired nodes are EXCLUDED from
+    // visitation. `as_of` from the test case is informational today —
+    // the lifecycle state is the source of truth.
     let affected = closure(seed, graph);
 
     let mut affected_vec: Vec<Value> = affected.into_iter().map(Value::String).collect();
@@ -74,6 +79,9 @@ pub fn closure(seed: &str, graph: &Graph) -> Vec<String> {
     while let Some(current) = queue.pop_front() {
         for predicate in CASCADE_EDGES {
             for incoming in graph.incoming(&current, predicate) {
+                if !is_active(incoming) {
+                    continue;
+                }
                 if let Some(id) = incoming.get("@id").and_then(Value::as_str) {
                     if visited.insert(id.to_string()) {
                         queue.push_back(id.to_string());
@@ -84,6 +92,17 @@ pub fn closure(seed: &str, graph: &Graph) -> Vec<String> {
     }
 
     visited.into_iter().collect()
+}
+
+/// Per spec §2.2 active filter. v0.2 interpretation: a node is active if
+/// its `consumerLifecycleState` (when present) is NOT in the terminal /
+/// stale set. Nodes without lifecycle state are treated as active by
+/// default.
+fn is_active(node: &Value) -> bool {
+    match node.get("rkaf:consumerLifecycleState").and_then(Value::as_str) {
+        None => true,
+        Some(s) => !matches!(s, "rkaf:staleForCurrentUse" | "rkaf:retired" | "rkaf:withdrawn"),
+    }
 }
 
 #[cfg(test)]

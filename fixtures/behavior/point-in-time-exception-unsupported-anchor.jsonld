@@ -1,0 +1,43 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@id": "urn:rkaf:fixture:beh:pit-bad:case1",
+  "@type": "rkaf:BehaviorTestCase",
+  "rkaf:behaviorContract": "rkaf:PointInTimeException",
+  "rkaf:rationale": "PIT references anchor rkaf:eligibilityDeterminationTime; consumer's supportedEvaluationAnchors does NOT include it. Spec \u00a74: consumer MUST refuse, not silently ignore.",
+  "rkaf:input": {
+    "@graph": [
+      {
+        "@id": "A",
+        "@type": "rkaf:Assertion",
+        "rkaf:assertionOrigin": "rkaf:humanAsserted",
+        "rkaf:consumerLifecycleState": "rkaf:staleForCurrentUse"
+      },
+      {
+        "@id": "pit1",
+        "@type": "rkaf:PointInTimeException",
+        "rkaf:evaluationAnchor": "rkaf:eligibilityDeterminationTime",
+        "rkaf:retainsAssertion": "A"
+      },
+      {
+        "@id": "reg1",
+        "@type": "rkaf:BridgeConsumerRegistration",
+        "rkaf:consumer": "urn:rkaf:consumer:limited",
+        "rkaf:bridgeContractVersion": "rkaf-bridge/1.0",
+        "rkaf:registeredAt": "2026-04-15T00:00:00Z",
+        "rkaf:supportedEvaluationAnchors": [
+          "rkaf:applicationSubmissionTime"
+        ],
+        "rkaf:supportsRegistryVersionRange": [
+          "^1.0"
+        ],
+        "rkaf:supportedAutomaticMigrations": [],
+        "rkaf:supportedAuthorityKinds": [
+          "rkaf:statutory"
+        ]
+      }
+    ]
+  },
+  "rkaf:expectedOutput": {
+    "errorClass": "rkaf:UnsupportedEvaluationAnchor"
+  }
+}

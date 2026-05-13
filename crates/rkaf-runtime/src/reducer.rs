@@ -32,6 +32,7 @@ fn min_on_lattice(a: &str, b: &str) -> String {
 }
 
 pub fn evaluate(test_case: &Value, graph: &Graph) -> Result<Verdict, RuntimeError> {
+    let consumer = crate::consumer::select_consumer(test_case, graph)?;
     // Locate the Assertion under evaluation. By convention, fixtures carry it
     // as the first rkaf:Assertion node in the input @graph.
     let assertion = graph
@@ -114,7 +115,7 @@ pub fn evaluate(test_case: &Value, graph: &Graph) -> Result<Verdict, RuntimeErro
 
     // No scopes declared → workspace-wide reduction (no LocalAdoption).
     if scopes.is_empty() {
-        let level = reduce_for_scope(&assertion_id, &baseline, is_stale, &applicability_set, None, graph);
+        let level = reduce_for_scope(&assertion_id, &baseline, is_stale, &applicability_set, None, consumer, graph);
         return Ok(Verdict::new(json!({
             "effectiveUsageEligibility": level,
             "rationale": if is_stale {
@@ -127,7 +128,7 @@ pub fn evaluate(test_case: &Value, graph: &Graph) -> Result<Verdict, RuntimeErro
 
     let mut by_scope = serde_json::Map::new();
     for scope in scopes {
-        let level = reduce_for_scope(&assertion_id, &baseline, is_stale, &applicability_set, Some(&scope), graph);
+        let level = reduce_for_scope(&assertion_id, &baseline, is_stale, &applicability_set, Some(&scope), consumer, graph);
         by_scope.insert(scope, Value::String(level));
     }
     Ok(Verdict::new(json!({ "byScope": Value::Object(by_scope) })))
@@ -142,6 +143,7 @@ pub fn reduce_for_scope(
     is_stale: bool,
     applicability_set: &[&str],
     scope: Option<&str>,
+    consumer: Option<&Value>,
     graph: &Graph,
 ) -> String {
     // Step 1 — applicability gate. If eval scope is non-None AND the
@@ -155,7 +157,7 @@ pub fn reduce_for_scope(
 
     // Step 2 — baseline.
     // Step 3 — lifecycle stale check (honored PITs restore baseline).
-    let lifecycle_floor: String = if is_stale && !has_honored_pit(assertion_id, graph) {
+    let lifecycle_floor: String = if is_stale && !has_honored_pit(assertion_id, consumer, graph) {
         "rkaf:notEligible".to_string()
     } else {
         baseline.to_string()
@@ -179,9 +181,9 @@ pub fn reduce_for_scope(
         }
     }
 
-    // Step 5 — consumer capability cap. The reducer reads it from the first
-    // BridgeConsumerRegistration in the graph if present. Absent → no cap.
-    if let Some(reg) = graph.nodes_by_type("rkaf:BridgeConsumerRegistration").next() {
+    // Step 5 — consumer capability cap. Reads from the resolved consumer
+    // (passed in by the dispatcher, NOT picked via .next()).
+    if let Some(reg) = consumer {
         if let Some(cap) = reg.get("rkaf:capabilityCap").and_then(Value::as_str) {
             effective = min_on_lattice(&effective, cap);
         }
@@ -194,10 +196,8 @@ pub fn reduce_for_scope(
 /// is in the (first) BridgeConsumerRegistration's supportedEvaluationAnchors.
 /// Used by reducer step 3 (§1.2) — a stale assertion with a honored PIT
 /// keeps its baseline rather than falling to notEligible.
-fn has_honored_pit(assertion_id: &str, graph: &Graph) -> bool {
-    let supported: Vec<&str> = graph
-        .nodes_by_type("rkaf:BridgeConsumerRegistration")
-        .next()
+fn has_honored_pit(assertion_id: &str, consumer: Option<&Value>, graph: &Graph) -> bool {
+    let supported: Vec<&str> = consumer
         .and_then(|reg| reg.get("rkaf:supportedEvaluationAnchors").and_then(Value::as_array))
         .map(|arr| arr.iter().filter_map(Value::as_str).collect())
         .unwrap_or_default();

@@ -18,6 +18,7 @@
 pub mod bridge;
 pub mod cascade;
 pub mod concept;
+pub mod consumer;
 pub mod errors;
 pub mod graph;
 pub mod pit;

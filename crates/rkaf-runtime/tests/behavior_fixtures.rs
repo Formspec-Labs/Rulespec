@@ -89,3 +89,12 @@ fn concept_resolution_mapping_conflict() {
 #[test] fn bridge_rule_9_negative() { assert_passes("bridge-rule-9-version-out-of-range-negative"); }
 #[test] fn bridge_rule_10_positive() { assert_passes("bridge-rule-10-gwp-with-terminating-justification-positive"); }
 #[test] fn bridge_rule_10_negative() { assert_passes("bridge-rule-10-gwp-missing-justification-negative"); }
+
+// ─── Phase G regression fixtures (lock in Phase G remediation) ─────────
+
+#[test] fn bridge_rule_7_terminating_chain_positive() { assert_passes("bridge-rule-7-terminating-chain-positive"); }
+#[test] fn reducer_capability_cap_narrows() { assert_passes("usage-eligibility-reducer-capability-cap-narrows"); }
+#[test] fn reducer_applicability_gate() { assert_passes("usage-eligibility-reducer-applicability-gate"); }
+#[test] fn reducer_stale_with_honored_pit() { assert_passes("usage-eligibility-reducer-stale-with-honored-pit"); }
+#[test] fn concept_resolution_informational_severity() { assert_passes("concept-resolution-informational-severity"); }
+#[test] fn pit_unsupported_anchor_error() { assert_passes("point-in-time-exception-unsupported-anchor"); }
