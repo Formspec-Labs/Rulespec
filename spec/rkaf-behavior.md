@@ -348,12 +348,16 @@ fn resolve_concept(local_concept: &LocalConcept, graph: &Graph) -> ResolutionVer
     }
 ```
 
-### §6.1 — Severity assignment
+### §6.1 — Severity ladder
 
-- `rkaf:operationalConflict` — default when at least one mapping uses `skos:exactMatch` AND targets differ.
-- `rkaf:informational` — all mappings are non-exact (`closeMatch`, `broaderMatch`, etc.) AND targets differ.
-- `rkaf:publicationBlocking` — RESERVED for mappings where at least two carry `lifecycleState: approved` AND targets differ. (Plan 7c codification — not yet exercised by a fixture.)
-- `rkaf:authorityCritical` — RESERVED for the publicationBlocking condition plus at least one mapping in a registry the consumer trusts at L4 authority level. (Plan 7c.)
+Decided in order, highest first:
+
+1. **`rkaf:authorityCritical`** — fires when (a) ≥2 mappings carry `lifecycleState: approved`, AND (b) targets differ, AND (c) at least one of those approved mappings has `managedByRegistry` ∈ the consumer's `BridgeConsumerRegistration.trustedRegistries`. Trust-level escalation.
+2. **`rkaf:publicationBlocking`** — fires when ≥2 mappings carry `lifecycleState: approved` AND targets differ. (Authority-critical's first two clauses without the trusted-registry clause.) Halts publication-tier emissions.
+3. **`rkaf:operationalConflict`** — at least one mapping uses `skos:exactMatch` AND targets differ. Operational impact: bridge MAY accept but MUST surface.
+4. **`rkaf:informational`** — all mappings are non-exact (`closeMatch`, `broaderMatch`, etc.) AND targets differ. Informational only.
+
+The `ConceptMapping.lifecycleState` and `ConceptMapping.managedByRegistry` fields land in `constraints/core/concept-mapping.cue`; the consumer's `trustedRegistries` field lands in `constraints/core/bridge-consumer-registration.cue`. The severity assignment is implemented in `crates/rkaf-runtime/src/concept.rs::compute_severity` and exercised by `fixtures/behavior/concept-resolution-publication-blocking.jsonld` and `fixtures/behavior/concept-resolution-authority-critical.jsonld`.
 
 ### §6.2 — Output shape
 
