@@ -1,0 +1,49 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@id": "urn:rkaf:fixture:beh:caof:case1",
+  "@type": "rkaf:BehaviorTestCase",
+  "rkaf:behaviorContract": "rkaf:CascadeClosureV1",
+  "rkaf:cascadeSeed": "A",
+  "rkaf:cascadeAsOf": "2026-04-15T00:00:00Z",
+  "rkaf:rationale": "Seed A has two work products. W1's hasEffectivePeriod expired 2025-12-31; W2 is current. As-of 2026-04-15, W1 is filtered out by \u00a72.2 active-or-adopted filter (effectivePeriodEnd < as_of); W2 remains.",
+  "rkaf:input": {
+    "@graph": [
+      {
+        "@id": "A",
+        "@type": "rkaf:Assertion",
+        "rkaf:assertionOrigin": "rkaf:humanAsserted"
+      },
+      {
+        "@id": "W1",
+        "@type": "rkaf:GeneratedWorkProduct",
+        "rkaf:justifiedByAssertion": "A",
+        "rkaf:hasEffectivePeriod": "ep-expired"
+      },
+      {
+        "@id": "W2",
+        "@type": "rkaf:GeneratedWorkProduct",
+        "rkaf:justifiedByAssertion": "A",
+        "rkaf:hasEffectivePeriod": "ep-current"
+      },
+      {
+        "@id": "ep-expired",
+        "@type": "rkaf:EffectivePeriod",
+        "rkaf:effectivePeriodStart": "2024-01-01T00:00:00Z",
+        "rkaf:effectivePeriodEnd": "2025-12-31T23:59:59Z"
+      },
+      {
+        "@id": "ep-current",
+        "@type": "rkaf:EffectivePeriod",
+        "rkaf:effectivePeriodStart": "2026-01-01T00:00:00Z",
+        "rkaf:effectivePeriodEnd": "2027-12-31T23:59:59Z"
+      }
+    ]
+  },
+  "rkaf:expectedOutput": {
+    "affectedSet": [
+      "A",
+      "W2"
+    ],
+    "algorithm": "rkaf:CascadeClosureV1"
+  }
+}

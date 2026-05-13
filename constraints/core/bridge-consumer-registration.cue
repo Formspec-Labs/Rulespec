@@ -23,4 +23,9 @@ package rkaf
 	// output to this lattice level. If absent, reducer treats as `officialUse`
 	// (no cap).
 	"rkaf:capabilityCap"?:                  #UsageEligibility
+	// L4 concept-resolution input (rkaf-behavior.md §6.1). IRIs of
+	// ConceptRegistries this consumer trusts at L4 authority level. When a
+	// publicationBlocking conflict involves a mapping in one of these
+	// registries, severity upgrades to authorityCritical.
+	"rkaf:trustedRegistries"?:              [...string]
 }

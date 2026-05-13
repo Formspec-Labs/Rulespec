@@ -11,6 +11,9 @@ package rkaf
 #SkosMappingPredicate: "skos:closeMatch" | "skos:exactMatch" |
 	"skos:broader" | "skos:narrower" | "skos:related" | "skos:mappingRelation"
 
+#ConceptMappingLifecycleState: "rkaf:proposed" | "rkaf:underReview" |
+	"rkaf:approved" | "rkaf:deprecated" | "rkaf:retired"
+
 #ConceptMapping: {
 	"@type":                     "rkaf:ConceptMapping"
 	"rkaf:sourceConcept":        string // IRI of source Concept
@@ -18,6 +21,12 @@ package rkaf
 	"rkaf:mappingRelation":      #SkosMappingPredicate
 	"rkaf:hasApplicability"?:    string // IRI of rkaf:MappingApplicabilityContext or rkaf:ApplicabilityScope
 	"rkaf:usageEligibility"?:    #UsageEligibility
+	// L4 severity input (rkaf-behavior.md §6.1). Two `approved` mappings
+	// pointing at different targets upgrade severity from operationalConflict
+	// to publicationBlocking; a mapping in a trusted registry further
+	// upgrades to authorityCritical.
+	"rkaf:lifecycleState"?:      #ConceptMappingLifecycleState
+	"rkaf:managedByRegistry"?:   string // IRI of the ConceptRegistry that owns this mapping
 }
 
 // MappingApplicabilityContext (§4.4): scopes a mapping by application domain

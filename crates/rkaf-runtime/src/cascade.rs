@@ -50,12 +50,15 @@ pub fn evaluate(test_case: &Value, graph: &Graph) -> Result<Verdict, RuntimeErro
             )
         })?;
 
-    // Per spec §2.2: closure is scoped to active/adopted state. v0.2
-    // interprets "active" as `consumerLifecycleState ∉ {retired,
-    // staleForCurrentUse}`. Stale + retired nodes are EXCLUDED from
-    // visitation. `as_of` from the test case is informational today —
-    // the lifecycle state is the source of truth.
-    let affected = closure(seed, graph);
+    // Per spec §2.2: closure is scoped to active/adopted state. Two
+    // exclusions apply:
+    //   (a) consumerLifecycleState ∈ {staleForCurrentUse, retired,
+    //       withdrawn} excludes the node.
+    //   (b) If the fixture carries `rkaf:cascadeAsOf` (an xsd:dateTime),
+    //       nodes whose attached EffectivePeriod does not contain that
+    //       timestamp are excluded too.
+    let as_of = test_case.get("rkaf:cascadeAsOf").and_then(Value::as_str);
+    let affected = closure(seed, as_of, graph);
 
     let mut affected_vec: Vec<Value> = affected.into_iter().map(Value::String).collect();
     affected_vec.sort_by(|a, b| a.as_str().unwrap_or("").cmp(b.as_str().unwrap_or("")));
@@ -67,7 +70,7 @@ pub fn evaluate(test_case: &Value, graph: &Graph) -> Result<Verdict, RuntimeErro
 }
 
 /// The closure algorithm itself. Public for unit testing.
-pub fn closure(seed: &str, graph: &Graph) -> Vec<String> {
+pub fn closure(seed: &str, as_of: Option<&str>, graph: &Graph) -> Vec<String> {
     use std::collections::HashSet;
     use std::collections::VecDeque;
 
@@ -79,7 +82,7 @@ pub fn closure(seed: &str, graph: &Graph) -> Vec<String> {
     while let Some(current) = queue.pop_front() {
         for predicate in CASCADE_EDGES {
             for incoming in graph.incoming(&current, predicate) {
-                if !is_active(incoming) {
+                if !is_active(incoming, as_of, graph) {
                     continue;
                 }
                 if let Some(id) = incoming.get("@id").and_then(Value::as_str) {
@@ -94,15 +97,50 @@ pub fn closure(seed: &str, graph: &Graph) -> Vec<String> {
     visited.into_iter().collect()
 }
 
-/// Per spec §2.2 active filter. v0.2 interpretation: a node is active if
-/// its `consumerLifecycleState` (when present) is NOT in the terminal /
-/// stale set. Nodes without lifecycle state are treated as active by
-/// default.
-fn is_active(node: &Value) -> bool {
-    match node.get("rkaf:consumerLifecycleState").and_then(Value::as_str) {
-        None => true,
-        Some(s) => !matches!(s, "rkaf:staleForCurrentUse" | "rkaf:retired" | "rkaf:withdrawn"),
+/// Per spec §2.2 active filter. Two exclusions:
+///   (a) `consumerLifecycleState ∈ {staleForCurrentUse, retired,
+///       withdrawn}` — terminal / stale.
+///   (b) When `as_of` is provided, the node's attached EffectivePeriod
+///       (via `rkaf:hasEffectivePeriod` → EffectivePeriod with
+///       effectivePeriodStart/effectivePeriodEnd) must contain the
+///       `as_of` timestamp. Lexicographic comparison on RFC-3339
+///       strings is exact for the common case (Z-suffixed UTC).
+fn is_active(node: &Value, as_of: Option<&str>, graph: &Graph) -> bool {
+    // (a) lifecycle-state exclusion
+    if let Some(s) = node.get("rkaf:consumerLifecycleState").and_then(Value::as_str) {
+        if matches!(s, "rkaf:staleForCurrentUse" | "rkaf:retired" | "rkaf:withdrawn") {
+            return false;
+        }
     }
+    // (b) effective-period exclusion (only when as_of is set)
+    let Some(as_of_ts) = as_of else { return true };
+    let Some(period_iri) = node
+        .get("rkaf:hasEffectivePeriod")
+        .and_then(Value::as_str)
+    else {
+        // No period declared → active by default.
+        return true;
+    };
+    let Some(period) = graph.find(period_iri) else {
+        return true;
+    };
+    let start = period
+        .get("rkaf:effectivePeriodStart")
+        .and_then(Value::as_str);
+    let end = period
+        .get("rkaf:effectivePeriodEnd")
+        .and_then(Value::as_str);
+    if let Some(s) = start {
+        if as_of_ts < s {
+            return false;
+        }
+    }
+    if let Some(e) = end {
+        if as_of_ts > e {
+            return false;
+        }
+    }
+    true
 }
 
 #[cfg(test)]
@@ -121,7 +159,7 @@ mod tests {
             ]
         });
         let g = Graph::from_payload(&payload).unwrap();
-        let mut affected = closure("A", &g);
+        let mut affected = closure("A", None, &g);
         affected.sort();
         assert_eq!(affected, vec!["A", "W1", "W2"]);
     }
@@ -134,7 +172,7 @@ mod tests {
             ]
         });
         let g = Graph::from_payload(&payload).unwrap();
-        let affected = closure("X", &g);
+        let affected = closure("X", None, &g);
         assert_eq!(affected, vec!["X".to_string()]);
     }
 }
