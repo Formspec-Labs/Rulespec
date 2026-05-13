@@ -1,12 +1,12 @@
-# PKAF SHACL Shapes
+# Rulespec SHACL Shapes
 
-This directory contains the four SHACL shape files that structurally validate PKAF data. Each file anchors on specific sections of the spec; together they enforce the structural surface of PKAF v0.1.1.
+This directory contains the four SHACL shape files that structurally validate Rulespec data. Each file anchors on specific sections of the spec; together they enforce the structural surface of Rulespec v0.1.1.
 
 ## Files
 
-### `pkaf-shapes-core-v0.1.ttl` — Core assertion and bridge shapes
+### `rkaf-shapes-core-v0.1.ttl` — Core assertion and bridge shapes
 
-Anchors on PKAF Core §2 (assertions), §3 (evidence/attestation), §4 (lifecycle), §5 (bridge model).
+Anchors on Rulespec Core §2 (assertions), §3 (evidence/attestation), §4 (lifecycle), §5 (bridge model).
 
 | Shape | Purpose |
 |---|---|
@@ -19,10 +19,10 @@ Anchors on PKAF Core §2 (assertions), §3 (evidence/attestation), §4 (lifecycl
 | `AttestationScopeShape` | Attestation scope from closed enum or extension URI |
 | `LocalAdoptionShape` | Local adoption with adoptionAuthorityKind restricted to non-legal kinds |
 | `ApplicabilityContextShape` | Applicability with scopeKind |
-| `AuthorityChainHopShape` | Authority chain hop forbidding `pkaf:implements` |
+| `AuthorityChainHopShape` | Authority chain hop forbidding `rkaf:implements` |
 | `BridgeValidationResultShape` | Bridge result with conditional remediation requirement (Pattern C) |
 
-### `pkaf-shapes-conceptregistry-v0.1.ttl` — Concept registry shapes
+### `rkaf-shapes-conceptregistry-v0.1.ttl` — Concept registry shapes
 
 Anchors on ConceptRegistry spec §1-§10.
 
@@ -40,9 +40,9 @@ Anchors on ConceptRegistry spec §1-§10.
 | `MappingConflictShape` | operational/publicationBlocking → artifact reference (Pattern C) |
 | `BridgeConsumerRegistrationShape` | Consumer with supportedEvaluationAnchors |
 
-### `pkaf-shapes-lifecycle-v0.1.ttl` — Lifecycle packet and revalidation shapes
+### `rkaf-shapes-lifecycle-v0.1.ttl` — Lifecycle packet and revalidation shapes
 
-Anchors on PKAF Core §4.
+Anchors on Rulespec Core §4.
 
 | Shape | Purpose |
 |---|---|
@@ -54,20 +54,20 @@ Anchors on PKAF Core §4.
 | `RevalidationClosureEventShape` | revalidatedWithSuccessor → successor reference (Pattern C) |
 | `PointInTimeExceptionShape` | PIT exception with evaluationAnchor + retains |
 
-### `pkaf-shapes-justification-v0.1.ttl` — Consumer artifact justification overlay shapes
+### `rkaf-shapes-justification-v0.1.ttl` — Consumer artifact justification overlay shapes
 
-Anchors on PKAF Core §5 and §6.
+Anchors on Rulespec Core §5 and §6.
 
 #### Conceptual center (universal, predicate-targeted)
 
 | Shape | Targets | Purpose |
 |---|---|---|
-| `GeneratedWorkProductJustificationShape` | `pkaf:GeneratedWorkProduct` | PKAF overlay type itself |
-| `ConsumerArtifactJustificationShape` | subjects of `pkaf:justifiedByAssertion` | Universal bridgeContractVersion requirement |
-| `DataCollectionArtifactJustificationShape` | subjects of `pkaf:collectsEvidenceType` | Full overlay required on evidence-collecting artifacts |
-| `ProcessArtifactJustificationShape` | subjects of `pkaf:requiresEvidenceType` | Full overlay required on evidence-gating processes |
-| `FullBridgeValidationResultShape` | `pkaf:BridgeValidationResult` | Non-accepted results need structured indicators (Pattern C) |
-| `JustificationChainHopShape` | `pkaf:JustificationChainHop` | Allows `pkaf:implements` predicate (no fixture target; coverage gap) |
+| `GeneratedWorkProductJustificationShape` | `rkaf:GeneratedWorkProduct` | Rulespec overlay type itself |
+| `ConsumerArtifactJustificationShape` | subjects of `rkaf:justifiedByAssertion` | Universal bridgeContractVersion requirement |
+| `DataCollectionArtifactJustificationShape` | subjects of `rkaf:collectsEvidenceType` | Full overlay required on evidence-collecting artifacts |
+| `ProcessArtifactJustificationShape` | subjects of `rkaf:requiresEvidenceType` | Full overlay required on evidence-gating processes |
+| `FullBridgeValidationResultShape` | `rkaf:BridgeValidationResult` | Non-accepted results need structured indicators (Pattern C) |
+| `JustificationChainHopShape` | `rkaf:JustificationChainHop` | Allows `rkaf:implements` predicate (no fixture target; coverage gap) |
 
 #### Example specializations (illustrative, not load-bearing)
 
@@ -80,7 +80,7 @@ Removing the two example specializations would not weaken validation; the generi
 
 ## SHACL profile
 
-- Profile: **PKAF-SHACL-AF**
+- Profile: **Rulespec-SHACL-AF**
 - All conditional shapes use **Pattern C** (`sh:or` with `sh:not`) for reliable pySHACL evaluation
 - Only `qualifiedValueShape` / `qualifiedMinCount` (in `AuthorityAssertionShape`) requires SHACL Advanced Features; all other shapes are SHACL Core compatible
 - Validation requires `pyshacl >= 0.31.0` with `advanced=True` and `inference="rdfs"`

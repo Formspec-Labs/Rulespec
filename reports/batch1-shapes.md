@@ -1,12 +1,12 @@
-# PKAF Shapes Batch 1
+# Rulespec Shapes Batch 1
 
 Status: Editor's Draft, first SHACL package
-Companion to: PKAF Core (consolidation pending), ConceptRegistry v0.1.2, all four conformance fixtures
-Bridge contract: `pkaf-bridge/1.0`
+Companion to: Rulespec Core (consolidation pending), ConceptRegistry v0.1.2, all four conformance fixtures
+Bridge contract: `rkaf-bridge/1.0`
 
 ## Scope of batch 1
 
-This batch covers the core PKAF assertion model and the authority/adoption machinery that every consumer depends on:
+This batch covers the core Rulespec assertion model and the authority/adoption machinery that every consumer depends on:
 
 1. `RelationshipAssertionShape` — base shape for all assertions
 2. `AuthorityAssertionShape` — additional constraints when `hasSafetyLabel: A3AuthorityCritical`
@@ -35,23 +35,23 @@ Batch 2 should be ConceptRegistry shapes; batch 3 lifecycle packets; batch 4 gen
 @prefix skos: <http://www.w3.org/2004/02/skos/core#> .
 @prefix prov: <http://www.w3.org/ns/prov#> .
 @prefix oa: <http://www.w3.org/ns/oa#> .
-@prefix pkaf: <https://w3id.org/pkaf/ns/v1#> .
+@prefix rkaf: <https://rulespec.org/ns/v1#> .
 ```
 
 ---
 
 ## 1. RelationshipAssertionShape
 
-Every `pkaf:RelationshipAssertion` has required subject/predicate/object, declared trust zone, safety label, and usage eligibility, and at least one evidence binding (or an explicit no-evidence reason). `assertionState` is intentionally NOT validated here — it is computed per scope from attestations and adoptions (PKAF Core principle from Pass 3).
+Every `rkaf:RelationshipAssertion` has required subject/predicate/object, declared trust zone, safety label, and usage eligibility, and at least one evidence binding (or an explicit no-evidence reason). `assertionState` is intentionally NOT validated here — it is computed per scope from attestations and adoptions (Rulespec Core principle from Pass 3).
 
 ```turtle
-pkaf:RelationshipAssertionShape
+rkaf:RelationshipAssertionShape
   a sh:NodeShape ;
-  sh:targetClass pkaf:RelationshipAssertion ;
+  sh:targetClass rkaf:RelationshipAssertion ;
   rdfs:label "Relationship Assertion (base)" ;
 
   sh:property [
-    sh:path pkaf:assertsSubject ;
+    sh:path rkaf:assertsSubject ;
     sh:minCount 1 ;
     sh:maxCount 1 ;
     sh:nodeKind sh:IRI ;
@@ -59,7 +59,7 @@ pkaf:RelationshipAssertionShape
   ] ;
 
   sh:property [
-    sh:path pkaf:assertsPredicate ;
+    sh:path rkaf:assertsPredicate ;
     sh:minCount 1 ;
     sh:maxCount 1 ;
     sh:nodeKind sh:IRI ;
@@ -67,73 +67,73 @@ pkaf:RelationshipAssertionShape
   ] ;
 
   sh:property [
-    sh:path pkaf:assertsObject ;
+    sh:path rkaf:assertsObject ;
     sh:minCount 1 ;
     sh:maxCount 1 ;
     sh:message "Every assertion must have exactly one object (IRI or literal)." ;
   ] ;
 
   sh:property [
-    sh:path pkaf:hasTrustZone ;
+    sh:path rkaf:hasTrustZone ;
     sh:minCount 1 ;
     sh:maxCount 1 ;
     sh:in (
-      pkaf:Z0RawArtifact
-      pkaf:Z1ParsedFragment
-      pkaf:Z2ExtractedCandidateClaim
-      pkaf:Z3ScoredCandidateRelationship
-      pkaf:Z4AttestedAssertion
-      pkaf:Z5LocallyAdopted
-      pkaf:Z6CanonicalOperational
-      pkaf:Z7GeneratedWorkProduct
-      pkaf:Z8PublishedOutput
+      rkaf:Z0RawArtifact
+      rkaf:Z1ParsedFragment
+      rkaf:Z2ExtractedCandidateClaim
+      rkaf:Z3ScoredCandidateRelationship
+      rkaf:Z4AttestedAssertion
+      rkaf:Z5LocallyAdopted
+      rkaf:Z6CanonicalOperational
+      rkaf:Z7GeneratedWorkProduct
+      rkaf:Z8PublishedOutput
     ) ;
     sh:message "Trust zone must be one of Z0–Z8." ;
   ] ;
 
   sh:property [
-    sh:path pkaf:hasSafetyLabel ;
+    sh:path rkaf:hasSafetyLabel ;
     sh:minCount 1 ;
     sh:maxCount 1 ;
     sh:in (
-      pkaf:D0Deterministic
-      pkaf:S1SearchOnly
-      pkaf:R2ReviewedOperational
-      pkaf:A3AuthorityCritical
-      pkaf:P4Published
+      rkaf:D0Deterministic
+      rkaf:S1SearchOnly
+      rkaf:R2ReviewedOperational
+      rkaf:A3AuthorityCritical
+      rkaf:P4Published
     ) ;
     sh:message "Safety label must be one of D0, S1, R2, A3, P4." ;
   ] ;
 
   sh:property [
-    sh:path pkaf:usageEligibility ;
+    sh:path rkaf:usageEligibility ;
     sh:minCount 1 ;
     sh:maxCount 1 ;
     sh:in (
-      pkaf:notEligible
-      pkaf:searchOnly
-      pkaf:reviewQueueOnly
-      pkaf:draftGenerationAllowed
-      pkaf:localOperationalUse
-      pkaf:publicationAllowed
-      pkaf:officialUse
+      rkaf:notEligible
+      rkaf:searchOnly
+      rkaf:reviewQueueOnly
+      rkaf:draftGenerationAllowed
+      rkaf:localOperationalUse
+      rkaf:publicationAllowed
+      rkaf:officialUse
     ) ;
     sh:message "Usage eligibility must be one of the lattice values." ;
   ] ;
 
   sh:property [
-    sh:path pkaf:assertionOrigin ;
+    sh:path rkaf:assertionOrigin ;
     sh:minCount 1 ;
     sh:maxCount 1 ;
     sh:in (
-      pkaf:humanAsserted
-      pkaf:aiSuggested
-      pkaf:aiPromoted
-      pkaf:humanQualified
-      pkaf:humanRevalidation
-      pkaf:reviewClassified
-      pkaf:importedFromSource
-      pkaf:systemDerived
+      rkaf:humanAsserted
+      rkaf:aiSuggested
+      rkaf:aiPromoted
+      rkaf:humanQualified
+      rkaf:humanRevalidation
+      rkaf:reviewClassified
+      rkaf:importedFromSource
+      rkaf:systemDerived
     ) ;
     sh:message "Assertion origin must be from the closed enum or a declared extension URI." ;
   ] ;
@@ -142,19 +142,19 @@ pkaf:RelationshipAssertionShape
   sh:or (
     [
       sh:property [
-        sh:path pkaf:hasEvidence ;
+        sh:path rkaf:hasEvidence ;
         sh:minCount 1 ;
       ]
     ]
     [
       sh:property [
-        sh:path pkaf:noEvidenceReason ;
+        sh:path rkaf:noEvidenceReason ;
         sh:minCount 1 ;
         sh:datatype xsd:string ;
       ]
     ]
   ) ;
-  sh:message "Assertion must have at least one pkaf:hasEvidence binding, or an explicit pkaf:noEvidenceReason." .
+  sh:message "Assertion must have at least one rkaf:hasEvidence binding, or an explicit rkaf:noEvidenceReason." .
 ```
 
 **Conformance test references** (instances expected to validate):
@@ -177,48 +177,48 @@ pkaf:RelationshipAssertionShape
 When an assertion's `hasSafetyLabel` is `A3AuthorityCritical`, additional constraints apply: it MUST declare `authorityKind`, `hasApplicability`, and evidence MUST include at least one authority citation.
 
 ```turtle
-pkaf:AuthorityAssertionShape
+rkaf:AuthorityAssertionShape
   a sh:NodeShape ;
-  sh:targetClass pkaf:RelationshipAssertion ;
+  sh:targetClass rkaf:RelationshipAssertion ;
   rdfs:label "Authority-Critical Assertion (A3 conditional)" ;
 
   # Activate only when safety label is A3
   sh:if [
     sh:property [
-      sh:path pkaf:hasSafetyLabel ;
-      sh:hasValue pkaf:A3AuthorityCritical ;
+      sh:path rkaf:hasSafetyLabel ;
+      sh:hasValue rkaf:A3AuthorityCritical ;
     ]
   ] ;
 
   sh:then [
     sh:property [
-      sh:path pkaf:authorityKind ;
+      sh:path rkaf:authorityKind ;
       sh:minCount 1 ;
       sh:maxCount 1 ;
       sh:in (
-        pkaf:legal
-        pkaf:statutory
-        pkaf:regulatory
-        pkaf:delegated
-        pkaf:organizational
-        pkaf:contractual
-        pkaf:localOperational
-        pkaf:publication
+        rkaf:legal
+        rkaf:statutory
+        rkaf:regulatory
+        rkaf:delegated
+        rkaf:organizational
+        rkaf:contractual
+        rkaf:localOperational
+        rkaf:publication
       ) ;
       sh:message "A3 authority-critical assertions must declare authorityKind." ;
     ] ;
     sh:property [
-      sh:path pkaf:hasApplicability ;
+      sh:path rkaf:hasApplicability ;
       sh:minCount 1 ;
       sh:message "A3 authority-critical assertions must declare applicability context (jurisdiction, effective period, scope)." ;
     ] ;
     sh:property [
-      sh:path pkaf:hasEvidence ;
+      sh:path rkaf:hasEvidence ;
       sh:minCount 1 ;
       sh:qualifiedValueShape [
         sh:property [
-          sh:path pkaf:evidenceRole ;
-          sh:in ( pkaf:authorityCitation pkaf:officialSourceMetadata pkaf:reviewedAuthorityChain pkaf:formalAdoptionEvent ) ;
+          sh:path rkaf:evidenceRole ;
+          sh:in ( rkaf:authorityCitation rkaf:officialSourceMetadata rkaf:reviewedAuthorityChain rkaf:formalAdoptionEvent ) ;
         ]
       ] ;
       sh:qualifiedMinCount 1 ;
@@ -245,39 +245,39 @@ pkaf:AuthorityAssertionShape
 Evidence bindings inside assertions must declare a role and either a source fragment, a supporting quote, a supporting event, a basedOnClassification, or a rationaleText. The §15 evidence-typing decision from the v0.2 fixture is reflected.
 
 ```turtle
-pkaf:EvidenceBindingShape
+rkaf:EvidenceBindingShape
   a sh:NodeShape ;
-  sh:targetClass pkaf:EvidenceBinding ;
+  sh:targetClass rkaf:EvidenceBinding ;
   rdfs:label "Evidence Binding" ;
 
   sh:property [
-    sh:path pkaf:evidenceRole ;
+    sh:path rkaf:evidenceRole ;
     sh:minCount 1 ;
     sh:maxCount 1 ;
     sh:in (
-      pkaf:textualEvidence
-      pkaf:structuralEvidence
-      pkaf:retrievalSignal
-      pkaf:authorityCitation
-      pkaf:officialSourceMetadata
-      pkaf:reviewedAuthorityChain
-      pkaf:formalAdoptionEvent
-      pkaf:mappingRationale
-      pkaf:registrationEvent
-      pkaf:rescissionEvidence
-      pkaf:corroboratingEvidence
-      pkaf:counterEvidence
+      rkaf:textualEvidence
+      rkaf:structuralEvidence
+      rkaf:retrievalSignal
+      rkaf:authorityCitation
+      rkaf:officialSourceMetadata
+      rkaf:reviewedAuthorityChain
+      rkaf:formalAdoptionEvent
+      rkaf:mappingRationale
+      rkaf:registrationEvent
+      rkaf:rescissionEvidence
+      rkaf:corroboratingEvidence
+      rkaf:counterEvidence
     ) ;
     sh:message "Evidence role must be from the enumerated vocabulary." ;
   ] ;
 
   # Must have at least one source — fragment, quote, event, classification, or rationale
   sh:or (
-    [ sh:property [ sh:path pkaf:sourceFragment ; sh:minCount 1 ; sh:nodeKind sh:IRI ] ]
-    [ sh:property [ sh:path pkaf:supportingQuote ; sh:minCount 1 ; sh:datatype xsd:string ] ]
-    [ sh:property [ sh:path pkaf:supportingEvent ; sh:minCount 1 ; sh:nodeKind sh:IRI ] ]
-    [ sh:property [ sh:path pkaf:basedOnClassification ; sh:minCount 1 ; sh:nodeKind sh:IRI ] ]
-    [ sh:property [ sh:path pkaf:rationaleText ; sh:minCount 1 ; sh:datatype xsd:string ] ]
+    [ sh:property [ sh:path rkaf:sourceFragment ; sh:minCount 1 ; sh:nodeKind sh:IRI ] ]
+    [ sh:property [ sh:path rkaf:supportingQuote ; sh:minCount 1 ; sh:datatype xsd:string ] ]
+    [ sh:property [ sh:path rkaf:supportingEvent ; sh:minCount 1 ; sh:nodeKind sh:IRI ] ]
+    [ sh:property [ sh:path rkaf:basedOnClassification ; sh:minCount 1 ; sh:nodeKind sh:IRI ] ]
+    [ sh:property [ sh:path rkaf:rationaleText ; sh:minCount 1 ; sh:datatype xsd:string ] ]
   ) ;
   sh:message "Evidence binding must reference at least one of: sourceFragment, supportingQuote, supportingEvent, basedOnClassification, or rationaleText." .
 ```
@@ -294,13 +294,13 @@ pkaf:EvidenceBindingShape
 ## 4. AttestationShape
 
 ```turtle
-pkaf:AttestationShape
+rkaf:AttestationShape
   a sh:NodeShape ;
-  sh:targetClass pkaf:Attestation ;
+  sh:targetClass rkaf:Attestation ;
   rdfs:label "Attestation" ;
 
   sh:property [
-    sh:path pkaf:targetAssertion ;
+    sh:path rkaf:targetAssertion ;
     sh:minCount 1 ;
     sh:maxCount 1 ;
     sh:nodeKind sh:IRI ;
@@ -308,7 +308,7 @@ pkaf:AttestationShape
   ] ;
 
   sh:property [
-    sh:path pkaf:attestor ;
+    sh:path rkaf:attestor ;
     sh:minCount 1 ;
     sh:maxCount 1 ;
     sh:nodeKind sh:IRI ;
@@ -316,74 +316,74 @@ pkaf:AttestationShape
   ] ;
 
   sh:property [
-    sh:path pkaf:attestorType ;
+    sh:path rkaf:attestorType ;
     sh:minCount 1 ;
     sh:maxCount 1 ;
     sh:in (
-      pkaf:humanUser
-      pkaf:AIModel
-      pkaf:AIAgent
-      pkaf:automatedParser
-      pkaf:team
-      pkaf:organization
-      pkaf:community
-      pkaf:formalReviewer
-      pkaf:ConceptMintingAuthority
+      rkaf:humanUser
+      rkaf:AIModel
+      rkaf:AIAgent
+      rkaf:automatedParser
+      rkaf:team
+      rkaf:organization
+      rkaf:community
+      rkaf:formalReviewer
+      rkaf:ConceptMintingAuthority
     ) ;
     sh:message "Attestor type must be from the closed enum." ;
   ] ;
 
   sh:property [
-    sh:path pkaf:decision ;
+    sh:path rkaf:decision ;
     sh:minCount 1 ;
     sh:maxCount 1 ;
     sh:in (
-      pkaf:endorse
-      pkaf:endorseWithQualifier
-      pkaf:object
-      pkaf:qualify
-      pkaf:correct
-      pkaf:retract
-      pkaf:markStale
-      pkaf:markNotAuthoritative
-      pkaf:addEvidence
-      pkaf:requestLegalReview
-      pkaf:requestProgramReview
-      pkaf:adoptForSearch
-      pkaf:adoptForDrafting
-      pkaf:adoptForOperations
-      pkaf:approveForPublication
-      pkaf:rejectLocally
-      pkaf:promoteCandidate
-      pkaf:declareCanonicalMapping
+      rkaf:endorse
+      rkaf:endorseWithQualifier
+      rkaf:object
+      rkaf:qualify
+      rkaf:correct
+      rkaf:retract
+      rkaf:markStale
+      rkaf:markNotAuthoritative
+      rkaf:addEvidence
+      rkaf:requestLegalReview
+      rkaf:requestProgramReview
+      rkaf:adoptForSearch
+      rkaf:adoptForDrafting
+      rkaf:adoptForOperations
+      rkaf:approveForPublication
+      rkaf:rejectLocally
+      rkaf:promoteCandidate
+      rkaf:declareCanonicalMapping
     ) ;
     sh:message "Attestation decision must be from the closed enum." ;
   ] ;
 
   sh:property [
-    sh:path pkaf:scope ;
+    sh:path rkaf:scope ;
     sh:minCount 1 ;
     sh:maxCount 1 ;
     sh:in (
-      pkaf:personal
-      pkaf:team
-      pkaf:organization
-      pkaf:community
-      pkaf:public
-      pkaf:reviewQueue
-      pkaf:jurisdictional
+      rkaf:personal
+      rkaf:team
+      rkaf:organization
+      rkaf:community
+      rkaf:public
+      rkaf:reviewQueue
+      rkaf:jurisdictional
     ) ;
   ] ;
 
   sh:property [
-    sh:path pkaf:visibility ;
+    sh:path rkaf:visibility ;
     sh:minCount 1 ;
     sh:maxCount 1 ;
     sh:in (
-      pkaf:personalVisible
-      pkaf:teamVisible
-      pkaf:orgVisible
-      pkaf:publicVisible
+      rkaf:personalVisible
+      rkaf:teamVisible
+      rkaf:orgVisible
+      rkaf:publicVisible
     ) ;
   ] ;
 
@@ -410,78 +410,78 @@ pkaf:AttestationShape
 A LocalAdoption is the organizational authorization to operationalize an assertion within a scope. The shape ensures every adoption identifies an organization, target assertion, status, eligibility, authority kind, and authorizing actor.
 
 ```turtle
-pkaf:LocalAdoptionShape
+rkaf:LocalAdoptionShape
   a sh:NodeShape ;
-  sh:targetClass pkaf:LocalAdoption ;
+  sh:targetClass rkaf:LocalAdoption ;
   rdfs:label "Local Adoption" ;
 
   sh:property [
-    sh:path pkaf:organization ;
+    sh:path rkaf:organization ;
     sh:minCount 1 ;
     sh:maxCount 1 ;
     sh:nodeKind sh:IRI ;
   ] ;
 
   sh:property [
-    sh:path pkaf:targetAssertion ;
+    sh:path rkaf:targetAssertion ;
     sh:minCount 1 ;
     sh:maxCount 1 ;
     sh:nodeKind sh:IRI ;
   ] ;
 
   sh:property [
-    sh:path pkaf:adoptionStatus ;
+    sh:path rkaf:adoptionStatus ;
     sh:minCount 1 ;
     sh:maxCount 1 ;
     sh:in (
-      pkaf:notApplicable
-      pkaf:watchOnly
-      pkaf:searchOnly
-      pkaf:needsReview
-      pkaf:adoptedForDrafting
-      pkaf:adoptedForLocalOperations
-      pkaf:approvedForPublication
-      pkaf:rejectedLocally
+      rkaf:notApplicable
+      rkaf:watchOnly
+      rkaf:searchOnly
+      rkaf:needsReview
+      rkaf:adoptedForDrafting
+      rkaf:adoptedForLocalOperations
+      rkaf:approvedForPublication
+      rkaf:rejectedLocally
     ) ;
   ] ;
 
   sh:property [
-    sh:path pkaf:usageEligibility ;
+    sh:path rkaf:usageEligibility ;
     sh:minCount 1 ;
     sh:maxCount 1 ;
     sh:in (
-      pkaf:notEligible
-      pkaf:searchOnly
-      pkaf:reviewQueueOnly
-      pkaf:draftGenerationAllowed
-      pkaf:localOperationalUse
-      pkaf:publicationAllowed
-      pkaf:officialUse
+      rkaf:notEligible
+      rkaf:searchOnly
+      rkaf:reviewQueueOnly
+      rkaf:draftGenerationAllowed
+      rkaf:localOperationalUse
+      rkaf:publicationAllowed
+      rkaf:officialUse
     ) ;
   ] ;
 
   sh:property [
-    sh:path pkaf:adoptionAuthorityKind ;
+    sh:path rkaf:adoptionAuthorityKind ;
     sh:minCount 1 ;
     sh:maxCount 1 ;
     sh:in (
-      pkaf:organizational
-      pkaf:localOperational
-      pkaf:contractual
-      pkaf:publication
+      rkaf:organizational
+      rkaf:localOperational
+      rkaf:contractual
+      rkaf:publication
     ) ;
     sh:message "LocalAdoption authority kind must be organizational, localOperational, contractual, or publication. NOT statutory/regulatory/delegated — those flow only through hasAuthority/derivesAuthorityFrom chains." ;
   ] ;
 
   sh:property [
-    sh:path pkaf:adoptionScope ;
+    sh:path rkaf:adoptionScope ;
     sh:minCount 1 ;
     sh:datatype xsd:string ;
     sh:message "LocalAdoption must declare an explicit adoptionScope string." ;
   ] ;
 
   sh:property [
-    sh:path pkaf:authorizedBy ;
+    sh:path rkaf:authorizedBy ;
     sh:minCount 1 ;
     sh:maxCount 1 ;
     sh:nodeKind sh:IRI ;
@@ -496,7 +496,7 @@ pkaf:LocalAdoptionShape
   ] .
 ```
 
-**Normative note (PKAF Core):** A `LocalAdoption` MAY authorize local operational use of an assertion within a declared scope. It MUST NOT substitute for a broken, expired, rescinded, or missing `hasAuthority` / `derivesAuthorityFrom` chain when the adopted assertion requires external legal, regulatory, or delegated authority. This invariant is structural (enforced by the shape's restriction on `adoptionAuthorityKind` values) and behavioral (enforced by the bridge cascade closure including `LocalAdoption.targetAssertion` inverse edges, surfaced as `LocalAdoptionOrphanedWarning` in `BridgeValidationResult` per the statutory fixture's truth table).
+**Normative note (Rulespec Core):** A `LocalAdoption` MAY authorize local operational use of an assertion within a declared scope. It MUST NOT substitute for a broken, expired, rescinded, or missing `hasAuthority` / `derivesAuthorityFrom` chain when the adopted assertion requires external legal, regulatory, or delegated authority. This invariant is structural (enforced by the shape's restriction on `adoptionAuthorityKind` values) and behavioral (enforced by the bridge cascade closure including `LocalAdoption.targetAssertion` inverse edges, surfaced as `LocalAdoptionOrphanedWarning` in `BridgeValidationResult` per the statutory fixture's truth table).
 
 **Conformance test references:**
 
@@ -517,60 +517,60 @@ pkaf:LocalAdoptionShape
 An authority chain hop records one edge of a traversal: the assertion that asserts it, the predicate, subject, object, and authority kind. Used inside `BridgeValidationResult.authorityChainTraversal`.
 
 ```turtle
-pkaf:AuthorityChainHopShape
+rkaf:AuthorityChainHopShape
   a sh:NodeShape ;
-  sh:targetClass pkaf:AuthorityChainHop ;
+  sh:targetClass rkaf:AuthorityChainHop ;
   rdfs:label "Authority Chain Hop" ;
 
   sh:property [
-    sh:path pkaf:assertion ;
+    sh:path rkaf:assertion ;
     sh:minCount 1 ;
     sh:maxCount 1 ;
     sh:nodeKind sh:IRI ;
   ] ;
 
   sh:property [
-    sh:path pkaf:predicate ;
+    sh:path rkaf:predicate ;
     sh:minCount 1 ;
     sh:maxCount 1 ;
-    sh:in ( pkaf:hasAuthority pkaf:derivesAuthorityFrom pkaf:implements ) ;
+    sh:in ( rkaf:hasAuthority rkaf:derivesAuthorityFrom rkaf:implements ) ;
     sh:message "Hop predicate must be one of hasAuthority, derivesAuthorityFrom, or implements." ;
   ] ;
 
   sh:property [
-    sh:path pkaf:subject ;
+    sh:path rkaf:subject ;
     sh:minCount 1 ;
     sh:maxCount 1 ;
     sh:nodeKind sh:IRI ;
   ] ;
 
   sh:property [
-    sh:path pkaf:object ;
+    sh:path rkaf:object ;
     sh:minCount 1 ;
     sh:maxCount 1 ;
     sh:nodeKind sh:IRI ;
   ] ;
 
   sh:property [
-    sh:path pkaf:authorityKind ;
+    sh:path rkaf:authorityKind ;
     sh:minCount 1 ;
     sh:maxCount 1 ;
     sh:in (
-      pkaf:legal pkaf:statutory pkaf:regulatory pkaf:delegated
-      pkaf:organizational pkaf:contractual pkaf:localOperational pkaf:publication
+      rkaf:legal rkaf:statutory rkaf:regulatory rkaf:delegated
+      rkaf:organizational rkaf:contractual rkaf:localOperational rkaf:publication
     ) ;
   ] ;
 
   sh:property [
-    sh:path pkaf:status ;
+    sh:path rkaf:status ;
     sh:maxCount 1 ;
     sh:in (
-      pkaf:hopValid
-      pkaf:hopBroken
-      pkaf:hopRescindedObject
-      pkaf:hopSupersededObject
-      pkaf:hopOutOfJurisdiction
-      pkaf:hopOutOfEffectivePeriod
+      rkaf:hopValid
+      rkaf:hopBroken
+      rkaf:hopRescindedObject
+      rkaf:hopSupersededObject
+      rkaf:hopOutOfJurisdiction
+      rkaf:hopOutOfEffectivePeriod
     ) ;
   ] .
 ```
@@ -587,42 +587,42 @@ pkaf:AuthorityChainHopShape
 This is a partial shape covering the cross-cutting result type. Full shape comes in batch 4 alongside `BridgeConsumerRegistrationShape`.
 
 ```turtle
-pkaf:BridgeValidationResultShape
+rkaf:BridgeValidationResultShape
   a sh:NodeShape ;
-  sh:targetClass pkaf:BridgeValidationResult ;
+  sh:targetClass rkaf:BridgeValidationResult ;
   rdfs:label "Bridge Validation Result (minimal)" ;
 
   sh:property [
-    sh:path pkaf:packetId ;
+    sh:path rkaf:packetId ;
     sh:minCount 1 ;
     sh:maxCount 1 ;
     sh:nodeKind sh:IRI ;
   ] ;
 
   sh:property [
-    sh:path pkaf:consumer ;
+    sh:path rkaf:consumer ;
     sh:minCount 1 ;
     sh:maxCount 1 ;
     sh:nodeKind sh:IRI ;
   ] ;
 
   sh:property [
-    sh:path pkaf:bridgeContractVersion ;
+    sh:path rkaf:bridgeContractVersion ;
     sh:minCount 1 ;
     sh:maxCount 1 ;
     sh:datatype xsd:string ;
-    sh:pattern "^pkaf-bridge/[0-9]+\\.[0-9]+$" ;
-    sh:message "Bridge contract version must follow pattern pkaf-bridge/MAJOR.MINOR" ;
+    sh:pattern "^rkaf-bridge/[0-9]+\\.[0-9]+$" ;
+    sh:message "Bridge contract version must follow pattern rkaf-bridge/MAJOR.MINOR" ;
   ] ;
 
   sh:property [
-    sh:path pkaf:result ;
+    sh:path rkaf:result ;
     sh:minCount 1 ;
     sh:maxCount 1 ;
     sh:in (
-      pkaf:accepted
-      pkaf:acceptedWithWarnings
-      pkaf:rejected
+      rkaf:accepted
+      rkaf:acceptedWithWarnings
+      rkaf:rejected
     ) ;
   ] ;
 
@@ -635,13 +635,13 @@ pkaf:BridgeValidationResultShape
 
   # Conditional: if result is rejected, suggestedRemediation MUST be present
   sh:if [
-    sh:property [ sh:path pkaf:result ; sh:hasValue pkaf:rejected ]
+    sh:property [ sh:path rkaf:result ; sh:hasValue rkaf:rejected ]
   ] ;
   sh:then [
     sh:property [
-      sh:path pkaf:suggestedRemediation ;
+      sh:path rkaf:suggestedRemediation ;
       sh:minCount 1 ;
-      sh:message "Rejected results must include a structured pkaf:SuggestedRemediation." ;
+      sh:message "Rejected results must include a structured rkaf:SuggestedRemediation." ;
     ]
   ] .
 ```
@@ -660,26 +660,26 @@ Each shape is intended to be runnable via pySHACL or rapper against the fixture 
 Recommended initial test harness:
 
 ```
-pyshacl -s pkaf-shapes-batch-1.ttl -d fixtures/v0.2-fixture.ttl
+pyshacl -s rkaf-shapes-batch-1.ttl -d fixtures/v0.2-fixture.ttl
 ```
 
 Each shape should produce zero violations on the v0.1 conformance fixture set.
 
 ## Model issues surfaced during shape drafting
 
-1. **`assertionState` is properly absent from the shape, but consumers will look for it.** The shape correctly omits `assertionState` validation (state is computed per scope from attestations/adoptions). But every implementation will reach for it on first encounter. Recommend the PKAF Core consolidation include a normative paragraph stating that `assertionState` is a computed property, not a stored one, and pointing implementers to the reducer.
+1. **`assertionState` is properly absent from the shape, but consumers will look for it.** The shape correctly omits `assertionState` validation (state is computed per scope from attestations/adoptions). But every implementation will reach for it on first encounter. Recommend the Rulespec Core consolidation include a normative paragraph stating that `assertionState` is a computed property, not a stored one, and pointing implementers to the reducer.
 
-2. **`pkaf:hasApplicability` cardinality on A3 assertions is `1..1` but applicability shapes vary (`ApplicabilityContext` for assertions, `MappingApplicabilityContext` for mappings).** The shape requires `minCount 1` but doesn't constrain the applicability node's type. Batch 2 must include `ApplicabilityContextShape` and `MappingApplicabilityContextShape` with discrimination.
+2. **`rkaf:hasApplicability` cardinality on A3 assertions is `1..1` but applicability shapes vary (`ApplicabilityContext` for assertions, `MappingApplicabilityContext` for mappings).** The shape requires `minCount 1` but doesn't constrain the applicability node's type. Batch 2 must include `ApplicabilityContextShape` and `MappingApplicabilityContextShape` with discrimination.
 
-3. **`pkaf:evidenceRole` enumeration is open in practice.** The shape currently uses a closed `sh:in` list. As new fixtures introduce new evidence roles (e.g., `pkaf:registrationEvent` from the failure fixture), the enum grows. Recommend: leave the enum closed in the shape, version it explicitly, and require extensions to declare new role URIs in a registry document.
+3. **`rkaf:evidenceRole` enumeration is open in practice.** The shape currently uses a closed `sh:in` list. As new fixtures introduce new evidence roles (e.g., `rkaf:registrationEvent` from the failure fixture), the enum grows. Recommend: leave the enum closed in the shape, version it explicitly, and require extensions to declare new role URIs in a registry document.
 
-4. **`pkaf:supersedesAssertion` cardinality is `0..*` per the Pass 3 many-to-many decision, but not validated in batch 1.** The supersession relationship needs its own shape (batch 2 or 3) that enforces no-self-supersession, no-cycles, and lifecycle invariants. Out of scope for batch 1.
+4. **`rkaf:supersedesAssertion` cardinality is `0..*` per the Pass 3 many-to-many decision, but not validated in batch 1.** The supersession relationship needs its own shape (batch 2 or 3) that enforces no-self-supersession, no-cycles, and lifecycle invariants. Out of scope for batch 1.
 
-5. **Conditional shapes via `sh:if`/`sh:then` are SHACL-Advanced.** Two shapes here use them (AuthorityAssertionShape, BridgeValidationResultShape). Some SHACL validators support only SHACL-Core. Worth flagging conformance level: PKAF SHACL is SHACL-Advanced. If we need SHACL-Core compatibility, the conditional logic must be split into separate shapes targeted by class.
+5. **Conditional shapes via `sh:if`/`sh:then` are SHACL-Advanced.** Two shapes here use them (AuthorityAssertionShape, BridgeValidationResultShape). Some SHACL validators support only SHACL-Core. Worth flagging conformance level: Rulespec SHACL is SHACL-Advanced. If we need SHACL-Core compatibility, the conditional logic must be split into separate shapes targeted by class.
 
 6. **`prov:generatedAtTime` cardinality is `1..1` on attestations and adoptions; the spec earlier allowed it implicitly.** Making it required is a tightening. If existing instances elsewhere lack it, they'll fail validation. Worth confirming as a normative tightening.
 
-7. **`pkaf:authorityKind` on LocalAdoption is restricted to `organizational`, `localOperational`, `contractual`, `publication` — excluding `statutory`, `regulatory`, `delegated`, `legal`.** This is the structural enforcement of the truth-table principle. Worth noting in the spec text accompanying the shape: this is intentional and any LocalAdoption claiming statutory/regulatory authority is malformed.
+7. **`rkaf:authorityKind` on LocalAdoption is restricted to `organizational`, `localOperational`, `contractual`, `publication` — excluding `statutory`, `regulatory`, `delegated`, `legal`.** This is the structural enforcement of the truth-table principle. Worth noting in the spec text accompanying the shape: this is intentional and any LocalAdoption claiming statutory/regulatory authority is malformed.
 
 8. **No PROV-O linking validated.** Assertions, attestations, and adoptions reference `prov:wasGeneratedBy`, `prov:wasAttributedTo`, `prov:wasDerivedFrom`. Batch 1 doesn't validate these. PROV-O alignment shapes should be a small batch of their own or included in batch 4.
 
@@ -687,7 +687,7 @@ Each shape should produce zero violations on the v0.1 conformance fixture set.
 
 After this batch validates clean against all four fixtures:
 
-- A consumer (Formspec, WOS, or other) can syntactically validate any PKAF assertion, attestation, or adoption it receives.
+- A consumer (Formspec, WOS, or other) can syntactically validate any Rulespec assertion, attestation, or adoption it receives.
 - A bridge implementation can refuse malformed packets at ingestion rather than failing during cascade processing.
 - A registry implementation can validate user-submitted assertions before publishing.
 - The structural invariant "LocalAdoption is not legal authority" is enforced at the data level, not only behaviorally.
@@ -703,7 +703,7 @@ What's NOT enabled by batch 1 alone:
 
 1. **Test harness.** Convert the four fixture JSON-LD files to TTL and run pySHACL with these shapes. Catalog any violations and decide whether they indicate fixture errors or shape over-restriction.
 
-2. **PKAF Core consolidation pass.** Several normative statements have accumulated across fixtures and reviews but lack a single home document:
+2. **Rulespec Core consolidation pass.** Several normative statements have accumulated across fixtures and reviews but lack a single home document:
    - LocalAdoption normative statement (above)
    - `authorityKind` is hop-local, not global
    - `DelegationInstrument` as first-class typed `PolicyResourceVersion`
@@ -713,7 +713,7 @@ What's NOT enabled by batch 1 alone:
    - Outstanding statutory fixture edits (rescissionEffectiveDate removal, supportedPointInTimeAnchors location, explicit sourceAuthority on each authority resource, state adoption chain decision)
    - ConceptRegistry §5.7 resolvedFromConceptResolution addition
 
-   A short PKAF Core editorial pass would consolidate these before batch 2.
+   A short Rulespec Core editorial pass would consolidate these before batch 2.
 
 3. **Batch 2: ConceptRegistry shapes.** With the consolidation done, the next batch is mechanical.
 

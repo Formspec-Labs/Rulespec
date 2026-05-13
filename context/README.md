@@ -1,18 +1,18 @@
-# PKAF JSON-LD Contexts
+# Rulespec JSON-LD Contexts
 
-PKAF uses JSON-LD for serialization. The context files in this directory define how PKAF terms map to IRIs and how property values are typed.
+Rulespec uses JSON-LD for serialization. The context files in this directory define how Rulespec terms map to IRIs and how property values are typed.
 
 ## Files
 
-### `pkaf-context-v0.1.jsonld` (frozen historical)
+### `rkaf-context-v0.1.jsonld` (frozen historical)
 
 The original v0.1 context shipped with v0.1-rc1. Preserved unchanged as a historical record.
 
-### `pkaf-context-v0.2.jsonld` (current)
+### `rkaf-context-v0.2.jsonld` (current)
 
 The current published context for v0.1.1. A strict additive superset of v0.1 — no semantic changes, only additions:
 
-- Added `pkaf:definedInScope` as `@type: @id` (was missing in v0.1, treated as string literal)
+- Added `rkaf:definedInScope` as `@type: @id` (was missing in v0.1, treated as string literal)
 
 Documented via `_meta` block at the top of the file. JSON-LD processors ignore keys not in `@context`, so the `_meta` block has no semantic effect on data; it's documentation that travels with the file.
 
@@ -20,8 +20,8 @@ Documented via `_meta` block at the top of the file. JSON-LD processors ignore k
 
 Once published, these contexts will be hosted at stable URIs:
 
-- `https://w3id.org/pkaf/context/v1.jsonld` → `pkaf-context-v0.1.jsonld` (frozen)
-- `https://w3id.org/pkaf/context/v2.jsonld` → `pkaf-context-v0.2.jsonld` (current)
+- `https://rulespec.org/context/v1.jsonld` → `rkaf-context-v0.1.jsonld` (frozen)
+- `https://rulespec.org/context/v2.jsonld` → `rkaf-context-v0.2.jsonld` (current)
 
 Fixtures and consumer artifacts reference one of these URIs via their `@context` field. Until hosting is set up, fixtures inline the full context as a literal object in their `@context` field; the file `fixtures/context.jsonld` is the canonical source for that inlined content.
 
@@ -37,22 +37,22 @@ The v0.1 context is preserved because:
 
 Each fixture file in `fixtures/` carries its `@context` inline (a full copy of the v0.2 context content, minus the `_meta` block). This is the canonical reference state for fixture validation.
 
-The `fixtures/context.jsonld` file is the source from which the inline contexts are refreshed. It is **identical** to `context/pkaf-context-v0.2.jsonld` in content. The two files exist for distinct purposes:
+The `fixtures/context.jsonld` file is the source from which the inline contexts are refreshed. It is **identical** to `context/rkaf-context-v0.2.jsonld` in content. The two files exist for distinct purposes:
 
-- `context/pkaf-context-v0.2.jsonld` → the **published** context (the canonical artifact for hosting)
+- `context/rkaf-context-v0.2.jsonld` → the **published** context (the canonical artifact for hosting)
 - `fixtures/context.jsonld` → the **fixture-prep source** (used by tooling to refresh fixture inlined contexts)
 
 If you edit one, edit both. A future tooling improvement could collapse this duplication.
 
 ## Extension URIs
 
-Several PKAF properties accept either a closed enum value OR a declared extension URI (HTTP/HTTPS):
+Several Rulespec properties accept either a closed enum value OR a declared extension URI (HTTP/HTTPS):
 
-- `pkaf:evaluationAnchor` — closed v0.1 enum or declared extension URI
-- `pkaf:scope` (on Attestation) — closed v0.1 enum or declared extension URI
-- `pkaf:decision` (on Attestation) — closed v0.1 enum or declared extension URI
-- `pkaf:adoptionScope` (on LocalAdoption) — string or declared extension URI
+- `rkaf:evaluationAnchor` — closed v0.1 enum or declared extension URI
+- `rkaf:scope` (on Attestation) — closed v0.1 enum or declared extension URI
+- `rkaf:decision` (on Attestation) — closed v0.1 enum or declared extension URI
+- `rkaf:adoptionScope` (on LocalAdoption) — string or declared extension URI
 
-Extension URIs must be HTTP(S) IRIs and SHOULD be declared in a `pkaf:EvaluationAnchorExtensionRegistry` (per PKAF Core §4.7) so consumers can discover and validate them. The current v0.1.1 release does not include any active extension URIs in the fixtures.
+Extension URIs must be HTTP(S) IRIs and SHOULD be declared in a `rkaf:EvaluationAnchorExtensionRegistry` (per Rulespec Core §4.7) so consumers can discover and validate them. The current v0.1.1 release does not include any active extension URIs in the fixtures.
 
 The shape files validate this either/or pattern via `sh:or` with the closed enum and an IRI-with-pattern alternative.

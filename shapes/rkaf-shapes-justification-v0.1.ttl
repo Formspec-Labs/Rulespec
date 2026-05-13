@@ -1,14 +1,14 @@
-# PKAF Shapes — Consumer Artifact Justification Overlay
-# Profile: PKAF-SHACL-AF (only qualifiedValueShape requires AF)
+# Rulespec Shapes — Consumer Artifact Justification Overlay
+# Profile: Rulespec-SHACL-AF (only qualifiedValueShape requires AF)
 # Bridge contract: rkaf-bridge/1.0
-# Spec anchors: PKAF Core v0.1 §5 (Bridge model), §6 (Consumer artifact overlay)
+# Spec anchors: Rulespec Core v0.1 §5 (Bridge model), §6 (Consumer artifact overlay)
 #
-# CRITICAL BOUNDARY: These shapes validate the PKAF OVERLAY ONLY. They do NOT
-# validate consumer-system internals. PKAF is a universal evidence-backed
+# CRITICAL BOUNDARY: These shapes validate the Rulespec OVERLAY ONLY. They do NOT
+# validate consumer-system internals. Rulespec is a universal evidence-backed
 # assertion / authority / concept / lifecycle / justification ontology;
 # consumer systems may include search engines, wikis, form builders, workflow
 # engines, case systems, content management, AI assistants, publication tools,
-# auditing tools, or knowledge graphs. The PKAF overlay attaches to whatever
+# auditing tools, or knowledge graphs. The Rulespec overlay attaches to whatever
 # native types a consumer system uses.
 #
 # The CONCEPTUAL CENTER of this file is the predicate-targeted generic shapes:
@@ -22,7 +22,7 @@
 # The FormspecFieldJustificationShape and WOSStepJustificationShape at the
 # bottom of this file are EXAMPLE SPECIALIZATIONS. The fixtures include
 # formspec:Field and wos:WorkflowStep typed artifacts because they are good
-# stress tests for the overlay pattern, not because PKAF depends on them.
+# stress tests for the overlay pattern, not because Rulespec depends on them.
 
 @prefix sh:    <http://www.w3.org/ns/shacl#> .
 @prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
@@ -34,23 +34,23 @@
 @prefix wos:   <https://w3id.org/wos/ns/v1#> .
 
 # ============================================================================
-# CONCEPTUAL CENTER — Generic shapes targeting PKAF overlay predicates
+# CONCEPTUAL CENTER — Generic shapes targeting Rulespec overlay predicates
 # ============================================================================
 
-# === 1. GeneratedWorkProductJustificationShape (PKAF Core §6.1) ===
-# The PKAF overlay type itself. Validates that any artifact claiming to be
-# PKAF-generated preserves the minimum justification metadata.
+# === 1. GeneratedWorkProductJustificationShape (Rulespec Core §6.1) ===
+# The Rulespec overlay type itself. Validates that any artifact claiming to be
+# Rulespec-generated preserves the minimum justification metadata.
 
 rkaf:GeneratedWorkProductJustificationShape
   a sh:NodeShape ;
   sh:targetClass rkaf:GeneratedWorkProduct ;
-  rdfs:label "Generated Work Product Justification (PKAF overlay)" ;
+  rdfs:label "Generated Work Product Justification (Rulespec overlay)" ;
 
   sh:property [
     sh:path rkaf:justifiedByAssertion ;
     sh:minCount 1 ;
     sh:nodeKind sh:IRI ;
-    sh:message "Every rkaf:GeneratedWorkProduct must declare at least one rkaf:justifiedByAssertion. PKAF-generated artifacts without an assertion chain are not auditable." ;
+    sh:message "Every rkaf:GeneratedWorkProduct must declare at least one rkaf:justifiedByAssertion. Rulespec-generated artifacts without an assertion chain are not auditable." ;
   ] ;
 
   sh:property [
@@ -77,16 +77,16 @@ rkaf:GeneratedWorkProductJustificationShape
   ) ;
   sh:message "GeneratedWorkProduct must declare either rkaf:usageEligibility (current effective) or rkaf:proposedUsageEligibility (requested target for promotion)." .
 
-# === 2. ConsumerArtifactJustificationShape (PKAF Core §6) ===
+# === 2. ConsumerArtifactJustificationShape (Rulespec Core §6) ===
 # Predicate-targeted generic shape: ANY node carrying rkaf:justifiedByAssertion
 # (regardless of consumer-specific type) must also carry bridgeContractVersion.
-# This is the universal PKAF-overlay invariant: justification cannot float free
+# This is the universal Rulespec-overlay invariant: justification cannot float free
 # of a known bridge contract.
 
 rkaf:ConsumerArtifactJustificationShape
   a sh:NodeShape ;
   sh:targetSubjectsOf rkaf:justifiedByAssertion ;
-  rdfs:label "Consumer Artifact PKAF Overlay (universal)" ;
+  rdfs:label "Consumer Artifact Rulespec Overlay (universal)" ;
 
   sh:property [
     sh:path rkaf:bridgeContractVersion ;
@@ -96,7 +96,7 @@ rkaf:ConsumerArtifactJustificationShape
     sh:message "Any consumer artifact carrying rkaf:justifiedByAssertion MUST also declare rkaf:bridgeContractVersion. The overlay cannot exist as a partial attribution — consumers must be able to evaluate the justification against a known bridge contract version. Applies to any consumer artifact (search index entry, wiki page, form field, workflow step, document fragment, CMS asset, etc.)." ;
   ] .
 
-# === 3. DataCollectionArtifactJustificationShape (PKAF Core §6, §7) ===
+# === 3. DataCollectionArtifactJustificationShape (Rulespec Core §6, §7) ===
 # Predicate-targeted: ANY node carrying rkaf:collectsEvidenceType must declare
 # the full overlay (justifiedByAssertion + bridgeContractVersion). This
 # generalizes the pattern beyond Formspec fields to any artifact that collects
@@ -105,7 +105,7 @@ rkaf:ConsumerArtifactJustificationShape
 rkaf:DataCollectionArtifactJustificationShape
   a sh:NodeShape ;
   sh:targetSubjectsOf rkaf:collectsEvidenceType ;
-  rdfs:label "Data Collection Artifact PKAF Overlay" ;
+  rdfs:label "Data Collection Artifact Rulespec Overlay" ;
 
   sh:property [
     sh:path rkaf:justifiedByAssertion ;
@@ -121,7 +121,7 @@ rkaf:DataCollectionArtifactJustificationShape
     sh:message "Any artifact that declares rkaf:collectsEvidenceType must also declare rkaf:bridgeContractVersion." ;
   ] .
 
-# === 4. ProcessArtifactJustificationShape (PKAF Core §6, §7) ===
+# === 4. ProcessArtifactJustificationShape (Rulespec Core §6, §7) ===
 # Predicate-targeted: ANY node carrying rkaf:requiresEvidenceType (i.e., any
 # process/workflow/decision artifact requiring evidence as a precondition to
 # proceed) must declare the full overlay. Generalizes beyond WOS steps to any
@@ -130,7 +130,7 @@ rkaf:DataCollectionArtifactJustificationShape
 rkaf:ProcessArtifactJustificationShape
   a sh:NodeShape ;
   sh:targetSubjectsOf rkaf:requiresEvidenceType ;
-  rdfs:label "Process Artifact PKAF Overlay" ;
+  rdfs:label "Process Artifact Rulespec Overlay" ;
 
   sh:property [
     sh:path rkaf:justifiedByAssertion ;
@@ -146,7 +146,7 @@ rkaf:ProcessArtifactJustificationShape
     sh:message "Any artifact that declares rkaf:requiresEvidenceType must also declare rkaf:bridgeContractVersion." ;
   ] .
 
-# === 5. FullBridgeValidationResultShape (PKAF Core §5.2) ===
+# === 5. FullBridgeValidationResultShape (Rulespec Core §5.2) ===
 # Pattern C structural rule: non-accepted results must include at least one
 # structured indicator. Otherwise the result is unactionable for consumers.
 
@@ -175,7 +175,7 @@ rkaf:FullBridgeValidationResultShape
   ) ;
   sh:message "A BridgeValidationResult with result=acceptedWithWarnings or result=rejected MUST include at least one structured indicator: warnings, errors, ineligibleAssertions, unresolvedConcepts, registryUnavailable, registryVersionOutOfRange, staleDependencies, staleConceptCache, suggestedRemediation, or noRemediationReason. Otherwise the result is unactionable for consumers." .
 
-# === 6. JustificationChainHopShape (PKAF Core §2.4) ===
+# === 6. JustificationChainHopShape (Rulespec Core §2.4) ===
 # Counterpart to AuthorityChainHopShape. Where AuthorityChainHop FORBIDS
 # implements (authority predicates only), JustificationChainHop ALLOWS
 # implements alongside hasAuthority and derivesAuthorityFrom. Justification
@@ -218,7 +218,7 @@ rkaf:JustificationChainHopShape
 # ============================================================================
 # EXAMPLE SPECIALIZATIONS — Consumer-specific shapes, included for fixture
 # coverage clarity. These specialize the generic shapes above. They are NOT
-# the conceptual center of the PKAF overlay; they are illustrative examples
+# the conceptual center of the Rulespec overlay; they are illustrative examples
 # of how the universal overlay attaches to specific consumer-system types.
 # Removing them would not change which defects the package catches — the
 # generic shapes above catch the same defects on the same data.
@@ -227,17 +227,17 @@ rkaf:JustificationChainHopShape
 # === E1. FormspecFieldJustificationShape (EXAMPLE SPECIALIZATION) ===
 # Specialization of ConsumerArtifactJustificationShape and
 # DataCollectionArtifactJustificationShape for the formspec:Field consumer type.
-# Demonstrates how a form-builder system attaches the PKAF overlay to its
+# Demonstrates how a form-builder system attaches the Rulespec overlay to its
 # native artifact type. Removing this shape would not weaken validation; the
 # generic predicate-targeted shapes catch the same defects.
 
 rkaf:FormspecFieldJustificationShape
   a sh:NodeShape ;
   sh:targetClass formspec:Field ;
-  rdfs:label "Formspec Field PKAF Overlay (EXAMPLE specialization)" ;
-  rdfs:comment "Example specialization of ConsumerArtifactJustificationShape and DataCollectionArtifactJustificationShape. Formspec is one of many possible consumer systems for PKAF overlay metadata; this shape demonstrates the overlay pattern on formspec:Field. Consumer systems and their RDF types are not PKAF dependencies — the predicate-targeted generic shapes are the conceptual center." ;
+  rdfs:label "Formspec Field Rulespec Overlay (EXAMPLE specialization)" ;
+  rdfs:comment "Example specialization of ConsumerArtifactJustificationShape and DataCollectionArtifactJustificationShape. Formspec is one of many possible consumer systems for Rulespec overlay metadata; this shape demonstrates the overlay pattern on formspec:Field. Consumer systems and their RDF types are not Rulespec dependencies — the predicate-targeted generic shapes are the conceptual center." ;
 
-  # Pattern C: if a formspec:Field carries any PKAF overlay property, it must
+  # Pattern C: if a formspec:Field carries any Rulespec overlay property, it must
   # also declare bridgeContractVersion and justifiedByAssertion.
   sh:or (
     [ sh:not [
@@ -261,7 +261,7 @@ rkaf:FormspecFieldJustificationShape
         ] ]
     ) ]
   ) ;
-  sh:message "A formspec:Field carrying any PKAF overlay property MUST also declare rkaf:bridgeContractVersion and rkaf:justifiedByAssertion." .
+  sh:message "A formspec:Field carrying any Rulespec overlay property MUST also declare rkaf:bridgeContractVersion and rkaf:justifiedByAssertion." .
 
 # === E2. WOSStepJustificationShape (EXAMPLE SPECIALIZATION) ===
 # Specialization of ConsumerArtifactJustificationShape and
@@ -270,8 +270,8 @@ rkaf:FormspecFieldJustificationShape
 rkaf:WOSStepJustificationShape
   a sh:NodeShape ;
   sh:targetClass wos:WorkflowStep ;
-  rdfs:label "WOS Step PKAF Overlay (EXAMPLE specialization)" ;
-  rdfs:comment "Example specialization of ConsumerArtifactJustificationShape and ProcessArtifactJustificationShape. WOS is one of many possible workflow-engine consumers for PKAF overlay metadata; this shape demonstrates the overlay pattern on wos:WorkflowStep." ;
+  rdfs:label "WOS Step Rulespec Overlay (EXAMPLE specialization)" ;
+  rdfs:comment "Example specialization of ConsumerArtifactJustificationShape and ProcessArtifactJustificationShape. WOS is one of many possible workflow-engine consumers for Rulespec overlay metadata; this shape demonstrates the overlay pattern on wos:WorkflowStep." ;
 
   sh:or (
     [ sh:not [
@@ -295,4 +295,4 @@ rkaf:WOSStepJustificationShape
         ] ]
     ) ]
   ) ;
-  sh:message "A wos:WorkflowStep carrying any PKAF overlay property MUST also declare rkaf:bridgeContractVersion and rkaf:justifiedByAssertion." .
+  sh:message "A wos:WorkflowStep carrying any Rulespec overlay property MUST also declare rkaf:bridgeContractVersion and rkaf:justifiedByAssertion." .

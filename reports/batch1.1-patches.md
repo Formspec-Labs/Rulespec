@@ -1,9 +1,9 @@
-# PKAF Shapes Batch 1.1
+# Rulespec Shapes Batch 1.1
 
 Status: Editor's Draft patch to Shapes Batch 1
 Supersedes: Shapes Batch 1 (the eight delta sections below)
-Companion to: PKAF Core v0.1, ConceptRegistry v0.1.2, all four conformance fixtures
-Bridge contract: `pkaf-bridge/1.0`
+Companion to: Rulespec Core v0.1, ConceptRegistry v0.1.2, all four conformance fixtures
+Bridge contract: `rkaf-bridge/1.0`
 
 ## Scope
 
@@ -26,14 +26,14 @@ Eight surgical patches to Batch 1. No new shapes; no scope expansion. Each patch
 
 ## §1. SHACL Advanced profile declaration
 
-PKAF SHACL is the **PKAF-SHACL-AF profile** (Advanced Features). It uses `sh:if`/`sh:then` conditional shapes and `sh:qualifiedValueShape` constraints, which require a SHACL-Advanced-capable validator (pySHACL, TopBraid, jena-shacl-af).
+Rulespec SHACL is the **Rulespec-SHACL-AF profile** (Advanced Features). It uses `sh:if`/`sh:then` conditional shapes and `sh:qualifiedValueShape` constraints, which require a SHACL-Advanced-capable validator (pySHACL, TopBraid, jena-shacl-af).
 
 ```turtle
-pkaf:PKAFShapesBatch1.1
+rkaf:RulespecShapesBatch1.1
   a sh:Shapes ;
-  rdfs:label "PKAF Shapes Batch 1.1" ;
-  pkaf:shaclProfile "pkaf:SHACL-AF" ;
-  pkaf:bridgeContractVersion "pkaf-bridge/1.0" ;
+  rdfs:label "Rulespec Shapes Batch 1.1" ;
+  rkaf:shaclProfile "rkaf:SHACL-AF" ;
+  rkaf:bridgeContractVersion "rkaf-bridge/1.0" ;
   rdfs:comment "Requires SHACL Advanced Features. Validators supporting SHACL-Core only will not enforce conditional shapes correctly." .
 ```
 
@@ -41,29 +41,29 @@ A SHACL-Core profile is deferred. If/when needed, conditional logic splits into 
 
 ## §2. OperationalAssertionEvidenceShape
 
-The Batch 1 `RelationshipAssertionShape` allows `pkaf:hasEvidence` OR `pkaf:noEvidenceReason`. That's correct for `D0`/`S1`, but operational/authority/published assertions cannot fall back to a no-evidence reason.
+The Batch 1 `RelationshipAssertionShape` allows `rkaf:hasEvidence` OR `rkaf:noEvidenceReason`. That's correct for `D0`/`S1`, but operational/authority/published assertions cannot fall back to a no-evidence reason.
 
 ```turtle
-pkaf:OperationalAssertionEvidenceShape
+rkaf:OperationalAssertionEvidenceShape
   a sh:NodeShape ;
-  sh:targetClass pkaf:RelationshipAssertion ;
+  sh:targetClass rkaf:RelationshipAssertion ;
   rdfs:label "Operational Assertion Evidence (R2/A3/P4)" ;
 
   sh:if [
     sh:property [
-      sh:path pkaf:hasSafetyLabel ;
+      sh:path rkaf:hasSafetyLabel ;
       sh:in (
-        pkaf:R2ReviewedOperational
-        pkaf:A3AuthorityCritical
-        pkaf:P4Published
+        rkaf:R2ReviewedOperational
+        rkaf:A3AuthorityCritical
+        rkaf:P4Published
       )
     ]
   ] ;
   sh:then [
     sh:property [
-      sh:path pkaf:hasEvidence ;
+      sh:path rkaf:hasEvidence ;
       sh:minCount 1 ;
-      sh:message "R2, A3, and P4 assertions MUST have at least one pkaf:hasEvidence binding. pkaf:noEvidenceReason is NOT sufficient at these safety levels." ;
+      sh:message "R2, A3, and P4 assertions MUST have at least one rkaf:hasEvidence binding. rkaf:noEvidenceReason is NOT sufficient at these safety levels." ;
     ]
   ] .
 ```
@@ -71,7 +71,7 @@ pkaf:OperationalAssertionEvidenceShape
 **Conformance test references:**
 - v0.2 Step 13 (`req-002`, Z5/R2): has evidence → valid
 - Statutory Step 11 (A3): has authority citation evidence → valid
-- Synthetic negative: an R2 assertion with only `pkaf:noEvidenceReason` → fails this shape
+- Synthetic negative: an R2 assertion with only `rkaf:noEvidenceReason` → fails this shape
 
 ## §3. AuthorityAssertionShape evidence-role broadening
 
@@ -80,46 +80,46 @@ Batch 1's `AuthorityAssertionShape` requires evidence roles from `{authorityCita
 **Patch:** broaden the qualified-evidence enum to cover lifecycle evidence roles. (Note: Batch 3 will replace this with predicate-specific shapes — `RescindsAssertionShape`, `AmendsAssertionShape`, `SupersedesAssertionShape`, `HasAuthorityAssertionShape`, `DerivesAuthorityFromAssertionShape`, `CreatesExceptionToAssertionShape`. The broadened enum is the interim form.)
 
 ```turtle
-pkaf:AuthorityAssertionShape
+rkaf:AuthorityAssertionShape
   a sh:NodeShape ;
-  sh:targetClass pkaf:RelationshipAssertion ;
+  sh:targetClass rkaf:RelationshipAssertion ;
   rdfs:label "Authority-Critical Assertion (A3 conditional, interim)" ;
 
   sh:if [
     sh:property [
-      sh:path pkaf:hasSafetyLabel ;
-      sh:hasValue pkaf:A3AuthorityCritical ;
+      sh:path rkaf:hasSafetyLabel ;
+      sh:hasValue rkaf:A3AuthorityCritical ;
     ]
   ] ;
   sh:then [
     sh:property [
-      sh:path pkaf:authorityKind ;
+      sh:path rkaf:authorityKind ;
       sh:minCount 1 ;
       sh:maxCount 1 ;
       sh:in (
-        pkaf:legal pkaf:statutory pkaf:regulatory pkaf:delegated
-        pkaf:organizational pkaf:contractual pkaf:localOperational pkaf:publication
+        rkaf:legal rkaf:statutory rkaf:regulatory rkaf:delegated
+        rkaf:organizational rkaf:contractual rkaf:localOperational rkaf:publication
       ) ;
     ] ;
     sh:property [
-      sh:path pkaf:hasApplicability ;
+      sh:path rkaf:hasApplicability ;
       sh:minCount 1 ;
     ] ;
     sh:property [
-      sh:path pkaf:hasEvidence ;
+      sh:path rkaf:hasEvidence ;
       sh:minCount 1 ;
       sh:qualifiedValueShape [
         sh:property [
-          sh:path pkaf:evidenceRole ;
+          sh:path rkaf:evidenceRole ;
           sh:in (
-            pkaf:authorityCitation
-            pkaf:officialSourceMetadata
-            pkaf:reviewedAuthorityChain
-            pkaf:formalAdoptionEvent
-            pkaf:rescissionEvidence
-            pkaf:amendmentEvidence
-            pkaf:supersessionEvidence
-            pkaf:structuralEvidence
+            rkaf:authorityCitation
+            rkaf:officialSourceMetadata
+            rkaf:reviewedAuthorityChain
+            rkaf:formalAdoptionEvent
+            rkaf:rescissionEvidence
+            rkaf:amendmentEvidence
+            rkaf:supersessionEvidence
+            rkaf:structuralEvidence
           )
         ]
       ] ;
@@ -133,58 +133,58 @@ pkaf:AuthorityAssertionShape
 
 ## §4. AttestationShape — generalized target
 
-The Batch 1 shape required exactly one `pkaf:targetAssertion`. Fixtures use attestations targeting work products (`targetWorkProduct` in v0.2 Step 12), and Batch 1.1 must accept attestations targeting packets, concepts, mapping conflicts, registries, and bridge validation results.
+The Batch 1 shape required exactly one `rkaf:targetAssertion`. Fixtures use attestations targeting work products (`targetWorkProduct` in v0.2 Step 12), and Batch 1.1 must accept attestations targeting packets, concepts, mapping conflicts, registries, and bridge validation results.
 
 ```turtle
-pkaf:AttestationShape
+rkaf:AttestationShape
   a sh:NodeShape ;
-  sh:targetClass pkaf:Attestation ;
+  sh:targetClass rkaf:Attestation ;
   rdfs:label "Attestation (generalized target)" ;
 
   # At least one target of any supported kind
   sh:or (
-    [ sh:property [ sh:path pkaf:targetAssertion         ; sh:minCount 1 ; sh:nodeKind sh:IRI ] ]
-    [ sh:property [ sh:path pkaf:targetWorkProduct       ; sh:minCount 1 ; sh:nodeKind sh:IRI ] ]
-    [ sh:property [ sh:path pkaf:targetPacket            ; sh:minCount 1 ; sh:nodeKind sh:IRI ] ]
-    [ sh:property [ sh:path pkaf:targetConcept           ; sh:minCount 1 ; sh:nodeKind sh:IRI ] ]
-    [ sh:property [ sh:path pkaf:targetMappingConflict   ; sh:minCount 1 ; sh:nodeKind sh:IRI ] ]
-    [ sh:property [ sh:path pkaf:targetBridgeValidation  ; sh:minCount 1 ; sh:nodeKind sh:IRI ] ]
-    [ sh:property [ sh:path pkaf:targetRegistry          ; sh:minCount 1 ; sh:nodeKind sh:IRI ] ]
+    [ sh:property [ sh:path rkaf:targetAssertion         ; sh:minCount 1 ; sh:nodeKind sh:IRI ] ]
+    [ sh:property [ sh:path rkaf:targetWorkProduct       ; sh:minCount 1 ; sh:nodeKind sh:IRI ] ]
+    [ sh:property [ sh:path rkaf:targetPacket            ; sh:minCount 1 ; sh:nodeKind sh:IRI ] ]
+    [ sh:property [ sh:path rkaf:targetConcept           ; sh:minCount 1 ; sh:nodeKind sh:IRI ] ]
+    [ sh:property [ sh:path rkaf:targetMappingConflict   ; sh:minCount 1 ; sh:nodeKind sh:IRI ] ]
+    [ sh:property [ sh:path rkaf:targetBridgeValidation  ; sh:minCount 1 ; sh:nodeKind sh:IRI ] ]
+    [ sh:property [ sh:path rkaf:targetRegistry          ; sh:minCount 1 ; sh:nodeKind sh:IRI ] ]
   ) ;
   sh:message "Attestation must reference at least one target via targetAssertion, targetWorkProduct, targetPacket, targetConcept, targetMappingConflict, targetBridgeValidation, or targetRegistry." ;
 
   sh:property [
-    sh:path pkaf:attestor ;
+    sh:path rkaf:attestor ;
     sh:minCount 1 ;
     sh:maxCount 1 ;
     sh:nodeKind sh:IRI ;
   ] ;
 
   sh:property [
-    sh:path pkaf:attestorType ;
+    sh:path rkaf:attestorType ;
     sh:minCount 1 ;
     sh:maxCount 1 ;
     # Closed enum retained from Batch 1; extension URIs allowed per §5 below
     sh:in (
-      pkaf:humanUser
-      pkaf:AIModel
-      pkaf:AIAgent
-      pkaf:automatedParser
-      pkaf:team
-      pkaf:organization
-      pkaf:community
-      pkaf:formalReviewer
-      pkaf:ConceptMintingAuthority
+      rkaf:humanUser
+      rkaf:AIModel
+      rkaf:AIAgent
+      rkaf:automatedParser
+      rkaf:team
+      rkaf:organization
+      rkaf:community
+      rkaf:formalReviewer
+      rkaf:ConceptMintingAuthority
     ) ;
   ] ;
 
   # decision and scope: see §5 below for extension handling
 
   sh:property [
-    sh:path pkaf:visibility ;
+    sh:path rkaf:visibility ;
     sh:minCount 1 ;
     sh:maxCount 1 ;
-    sh:in ( pkaf:personalVisible pkaf:teamVisible pkaf:orgVisible pkaf:publicVisible ) ;
+    sh:in ( rkaf:personalVisible rkaf:teamVisible rkaf:orgVisible rkaf:publicVisible ) ;
   ] ;
 
   sh:property [
@@ -197,42 +197,42 @@ pkaf:AttestationShape
 
 ## §5. Extension URIs on attestation decision and scope
 
-Closed enums on `pkaf:decision` and `pkaf:scope` are too tight for federated use. New attestation decisions and scopes will emerge from real deployments (e.g., a registry's `declareCanonicalMapping` decision was added mid-iteration). Allow declared extension URIs; constrain to either the closed enum OR a URI in a declared `pkaf:DecisionExtensionRegistry` / `pkaf:ScopeExtensionRegistry`.
+Closed enums on `rkaf:decision` and `rkaf:scope` are too tight for federated use. New attestation decisions and scopes will emerge from real deployments (e.g., a registry's `declareCanonicalMapping` decision was added mid-iteration). Allow declared extension URIs; constrain to either the closed enum OR a URI in a declared `rkaf:DecisionExtensionRegistry` / `rkaf:ScopeExtensionRegistry`.
 
 ```turtle
-pkaf:AttestationDecisionShape
+rkaf:AttestationDecisionShape
   a sh:NodeShape ;
-  sh:targetClass pkaf:Attestation ;
+  sh:targetClass rkaf:Attestation ;
   sh:property [
-    sh:path pkaf:decision ;
+    sh:path rkaf:decision ;
     sh:minCount 1 ;
     sh:maxCount 1 ;
     sh:or (
       [ sh:in (
-          pkaf:endorse pkaf:endorseWithQualifier pkaf:object pkaf:qualify
-          pkaf:correct pkaf:retract pkaf:markStale pkaf:markNotAuthoritative
-          pkaf:addEvidence pkaf:requestLegalReview pkaf:requestProgramReview
-          pkaf:adoptForSearch pkaf:adoptForDrafting pkaf:adoptForOperations
-          pkaf:approveForPublication pkaf:rejectLocally
-          pkaf:promoteCandidate pkaf:declareCanonicalMapping
+          rkaf:endorse rkaf:endorseWithQualifier rkaf:object rkaf:qualify
+          rkaf:correct rkaf:retract rkaf:markStale rkaf:markNotAuthoritative
+          rkaf:addEvidence rkaf:requestLegalReview rkaf:requestProgramReview
+          rkaf:adoptForSearch rkaf:adoptForDrafting rkaf:adoptForOperations
+          rkaf:approveForPublication rkaf:rejectLocally
+          rkaf:promoteCandidate rkaf:declareCanonicalMapping
         ) ]
       [ sh:nodeKind sh:IRI ;
         sh:pattern "^https?://" ;
-        sh:description "Extension URIs MUST be HTTP(S) IRIs declared in a pkaf:DecisionExtensionRegistry." ]
+        sh:description "Extension URIs MUST be HTTP(S) IRIs declared in a rkaf:DecisionExtensionRegistry." ]
     ) ;
   ] .
 
-pkaf:AttestationScopeShape
+rkaf:AttestationScopeShape
   a sh:NodeShape ;
-  sh:targetClass pkaf:Attestation ;
+  sh:targetClass rkaf:Attestation ;
   sh:property [
-    sh:path pkaf:scope ;
+    sh:path rkaf:scope ;
     sh:minCount 1 ;
     sh:maxCount 1 ;
     sh:or (
       [ sh:in (
-          pkaf:personal pkaf:team pkaf:organization pkaf:community
-          pkaf:public pkaf:reviewQueue pkaf:jurisdictional
+          rkaf:personal rkaf:team rkaf:organization rkaf:community
+          rkaf:public rkaf:reviewQueue rkaf:jurisdictional
         ) ]
       [ sh:nodeKind sh:IRI ;
         sh:pattern "^https?://" ]
@@ -248,7 +248,7 @@ pkaf:AttestationScopeShape
 # Patch to LocalAdoptionShape adoptionScope property (replaces Batch 1 §5):
 
 sh:property [
-  sh:path pkaf:adoptionScope ;
+  sh:path rkaf:adoptionScope ;
   sh:minCount 1 ;
   sh:or (
     [ sh:datatype xsd:string ]
@@ -265,47 +265,47 @@ All other `LocalAdoptionShape` properties from Batch 1 are unchanged.
 `implements` is a substantive realization relationship, not an authority relationship. A chain that includes `implements` is a *justification* chain, not an *authority* chain. Reserved for `JustificationChainHopShape` in a later batch.
 
 ```turtle
-pkaf:AuthorityChainHopShape
+rkaf:AuthorityChainHopShape
   a sh:NodeShape ;
-  sh:targetClass pkaf:AuthorityChainHop ;
+  sh:targetClass rkaf:AuthorityChainHop ;
   rdfs:label "Authority Chain Hop (authority predicates only)" ;
 
   sh:property [
-    sh:path pkaf:assertion ;
+    sh:path rkaf:assertion ;
     sh:minCount 1 ;
     sh:maxCount 1 ;
     sh:nodeKind sh:IRI ;
   ] ;
 
   sh:property [
-    sh:path pkaf:predicate ;
+    sh:path rkaf:predicate ;
     sh:minCount 1 ;
     sh:maxCount 1 ;
-    sh:in ( pkaf:hasAuthority pkaf:derivesAuthorityFrom ) ;
+    sh:in ( rkaf:hasAuthority rkaf:derivesAuthorityFrom ) ;
     sh:message "Authority chain hop predicates are limited to hasAuthority and derivesAuthorityFrom. The implements predicate belongs to a justification chain, not an authority chain." ;
   ] ;
 
   sh:property [
-    sh:path pkaf:subject ; sh:minCount 1 ; sh:maxCount 1 ; sh:nodeKind sh:IRI ;
+    sh:path rkaf:subject ; sh:minCount 1 ; sh:maxCount 1 ; sh:nodeKind sh:IRI ;
   ] ;
   sh:property [
-    sh:path pkaf:object ; sh:minCount 1 ; sh:maxCount 1 ; sh:nodeKind sh:IRI ;
+    sh:path rkaf:object ; sh:minCount 1 ; sh:maxCount 1 ; sh:nodeKind sh:IRI ;
   ] ;
   sh:property [
-    sh:path pkaf:authorityKind ;
+    sh:path rkaf:authorityKind ;
     sh:minCount 1 ;
     sh:maxCount 1 ;
     sh:in (
-      pkaf:legal pkaf:statutory pkaf:regulatory pkaf:delegated
-      pkaf:organizational pkaf:contractual pkaf:localOperational pkaf:publication
+      rkaf:legal rkaf:statutory rkaf:regulatory rkaf:delegated
+      rkaf:organizational rkaf:contractual rkaf:localOperational rkaf:publication
     ) ;
   ] ;
   sh:property [
-    sh:path pkaf:status ;
+    sh:path rkaf:status ;
     sh:maxCount 1 ;
     sh:in (
-      pkaf:hopValid pkaf:hopBroken pkaf:hopRescindedObject
-      pkaf:hopSupersededObject pkaf:hopOutOfJurisdiction pkaf:hopOutOfEffectivePeriod
+      rkaf:hopValid rkaf:hopBroken rkaf:hopRescindedObject
+      rkaf:hopSupersededObject rkaf:hopOutOfJurisdiction rkaf:hopOutOfEffectivePeriod
     ) ;
   ] .
 ```
@@ -314,44 +314,44 @@ pkaf:AuthorityChainHopShape
 
 ## §8. BridgeValidationResult rejected → SuggestedRemediation OR noRemediationReason
 
-Batch 1's shape required `pkaf:suggestedRemediation` whenever `pkaf:result: pkaf:rejected`. For security-, fatal-, or restricted-evidence cases, no remediation is appropriate or shareable. Allow either remediation or a `noRemediationReason`.
+Batch 1's shape required `rkaf:suggestedRemediation` whenever `rkaf:result: rkaf:rejected`. For security-, fatal-, or restricted-evidence cases, no remediation is appropriate or shareable. Allow either remediation or a `noRemediationReason`.
 
 ```turtle
-pkaf:BridgeValidationResultShape
+rkaf:BridgeValidationResultShape
   a sh:NodeShape ;
-  sh:targetClass pkaf:BridgeValidationResult ;
+  sh:targetClass rkaf:BridgeValidationResult ;
   rdfs:label "Bridge Validation Result (minimal, patched)" ;
 
   # ... packetId, consumer, bridgeContractVersion, result, generatedAtTime as in Batch 1 ...
 
   sh:if [
-    sh:property [ sh:path pkaf:result ; sh:hasValue pkaf:rejected ]
+    sh:property [ sh:path rkaf:result ; sh:hasValue rkaf:rejected ]
   ] ;
   sh:then [
     sh:or (
       [
         sh:property [
-          sh:path pkaf:suggestedRemediation ;
+          sh:path rkaf:suggestedRemediation ;
           sh:minCount 1 ;
         ]
       ]
       [
         sh:property [
-          sh:path pkaf:noRemediationReason ;
+          sh:path rkaf:noRemediationReason ;
           sh:minCount 1 ;
           sh:maxCount 1 ;
           sh:in (
-            pkaf:restrictedEvidenceUnavailable
-            pkaf:securityBlocked
-            pkaf:unsupportedBridgeVersion
-            pkaf:malformedPacket
-            pkaf:registryAuthorityBlocked
-            pkaf:noActionableRemediation
+            rkaf:restrictedEvidenceUnavailable
+            rkaf:securityBlocked
+            rkaf:unsupportedBridgeVersion
+            rkaf:malformedPacket
+            rkaf:registryAuthorityBlocked
+            rkaf:noActionableRemediation
           ) ;
         ]
       ]
     ) ;
-    sh:message "Rejected validation results MUST include either a structured pkaf:SuggestedRemediation OR an enumerated pkaf:noRemediationReason." ;
+    sh:message "Rejected validation results MUST include either a structured rkaf:SuggestedRemediation OR an enumerated rkaf:noRemediationReason." ;
   ] .
 ```
 
@@ -361,9 +361,9 @@ pkaf:BridgeValidationResultShape
 
 Two only — kept tight per the editorial-discipline call:
 
-1. **`pkaf:DecisionExtensionRegistry` and `pkaf:ScopeExtensionRegistry`** are referenced in §5 but not modeled. These are governance objects, not core shapes. Recommend: spec them in PKAF Core consolidation as lightweight pointer registries (a URI scheme + a list of declared decision/scope URIs each registry sanctions). Out of scope for shape work.
+1. **`rkaf:DecisionExtensionRegistry` and `rkaf:ScopeExtensionRegistry`** are referenced in §5 but not modeled. These are governance objects, not core shapes. Recommend: spec them in Rulespec Core consolidation as lightweight pointer registries (a URI scheme + a list of declared decision/scope URIs each registry sanctions). Out of scope for shape work.
 
-2. **`pkaf:targetRegistry` on Attestation (§4)** is new — added to enable canonical-mapping attestations from a `ConceptMintingAuthority` to a registry-level decision. Currently no fixture uses it directly (the canonical mapping in the failure fixture targets an assertion, not the registry itself). Worth including for completeness, but verify before freezing whether a future fixture needs it; if not, drop in v0.2.
+2. **`rkaf:targetRegistry` on Attestation (§4)** is new — added to enable canonical-mapping attestations from a `ConceptMintingAuthority` to a registry-level decision. Currently no fixture uses it directly (the canonical mapping in the failure fixture targets an assertion, not the registry itself). Worth including for completeness, but verify before freezing whether a future fixture needs it; if not, drop in v0.2.
 
 ## What Batch 1.1 does NOT add
 
@@ -371,4 +371,4 @@ Per the editorial discipline rule, Batch 1.1 introduces no new shapes, no new vo
 
 ## Next step
 
-PKAF Core consolidation. After that, run all four fixtures against Batch 1 + 1.1 and resolve any actual violations before drafting Batch 2.
+Rulespec Core consolidation. After that, run all four fixtures against Batch 1 + 1.1 and resolve any actual violations before drafting Batch 2.

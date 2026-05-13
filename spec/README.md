@@ -1,43 +1,43 @@
-# PKAF Specifications
+# Rulespec Specifications
 
-This directory contains the two specification documents that define PKAF semantics. The text in these files is **semantically identical to v0.1-rc1**; the v0.1.1 release fixed shape implementations and patched fixtures but introduced no spec text changes.
+This directory contains the two specification documents that define Rulespec semantics. The text in these files is **semantically identical to v0.1-rc1**; the v0.1.1 release fixed shape implementations and patched fixtures but introduced no spec text changes.
 
 ## Documents
 
-### `pkaf-core-v0.1.md`
+### `rkaf-core-v0.1.md`
 
-The core PKAF specification. Defines:
+The core Rulespec specification. Defines:
 
-- **Assertions** (`pkaf:RelationshipAssertion`): subject-predicate-object claims with trust zone, safety label, evidence
-- **Evidence bindings** (`pkaf:EvidenceBinding`): role-typed evidence backing an assertion
-- **Attestations** (`pkaf:Attestation`): authoritative actions on assertions (endorse, object, qualify, retract, adopt, etc.)
-- **Local adoption** (`pkaf:LocalAdoption`): consumer-side authority to use an assertion in a scope
-- **Authority chains** (`pkaf:AuthorityChainHop`): traversal of `hasAuthority` and `derivesAuthorityFrom` edges
-- **Applicability context** (`pkaf:ApplicabilityContext`): where an assertion applies
-- **Bridge model** (`pkaf:BridgeValidationResult`): structured output for consumer-facing validation
-- **Generated work products** (`pkaf:GeneratedWorkProduct`): consumer artifact overlay type
+- **Assertions** (`rkaf:RelationshipAssertion`): subject-predicate-object claims with trust zone, safety label, evidence
+- **Evidence bindings** (`rkaf:EvidenceBinding`): role-typed evidence backing an assertion
+- **Attestations** (`rkaf:Attestation`): authoritative actions on assertions (endorse, object, qualify, retract, adopt, etc.)
+- **Local adoption** (`rkaf:LocalAdoption`): consumer-side authority to use an assertion in a scope
+- **Authority chains** (`rkaf:AuthorityChainHop`): traversal of `hasAuthority` and `derivesAuthorityFrom` edges
+- **Applicability context** (`rkaf:ApplicabilityContext`): where an assertion applies
+- **Bridge model** (`rkaf:BridgeValidationResult`): structured output for consumer-facing validation
+- **Generated work products** (`rkaf:GeneratedWorkProduct`): consumer artifact overlay type
 - **Lifecycle packets**: `AmendmentPacket`, `RescissionPacket`, `SupersessionPacket`, `MaterialRevisionPacket`
-- **Revalidation events** (`pkaf:RevalidationEvent`, `pkaf:RevalidationClosureEvent`)
-- **Point-in-time exceptions** (`pkaf:PointInTimeException`) with evaluation anchors
-- **Cascade closure** (`pkaf:CascadeClosureV1`): the transitive closure algorithm for affected sets
+- **Revalidation events** (`rkaf:RevalidationEvent`, `rkaf:RevalidationClosureEvent`)
+- **Point-in-time exceptions** (`rkaf:PointInTimeException`) with evaluation anchors
+- **Cascade closure** (`rkaf:CascadeClosureV1`): the transitive closure algorithm for affected sets
 
 The Core spec is the load-bearing surface. All shape files anchor on specific sections of this document.
 
-### `pkaf-concept-registry-v0.1.2.md`
+### `rkaf-concept-registry-v0.1.2.md`
 
 The concept registry specification. Defines:
 
-- **Registered concepts** (`pkaf:RegisteredConcept`): canonical concept IRIs in a registry
-- **Local concepts** (`pkaf:LocalConcept`): consumer-side concepts defined in a local scope
-- **Concept registries** (`pkaf:ConceptRegistry`): authoritative sources of concepts
-- **Concept minting authorities** (`pkaf:ConceptMintingAuthority`): who can introduce new concepts
+- **Registered concepts** (`rkaf:RegisteredConcept`): canonical concept IRIs in a registry
+- **Local concepts** (`rkaf:LocalConcept`): consumer-side concepts defined in a local scope
+- **Concept registries** (`rkaf:ConceptRegistry`): authoritative sources of concepts
+- **Concept minting authorities** (`rkaf:ConceptMintingAuthority`): who can introduce new concepts
 - **Mapping assertions**: `RelationshipAssertion` with `skos:closeMatch` / `skos:exactMatch` / `skos:broadMatch` / `skos:narrowMatch` / `skos:relatedMatch` predicate
-- **Mapping applicability contexts** (`pkaf:MappingApplicabilityContext`): where a mapping applies operationally
-- **Concept resolution results** (`pkaf:ConceptResolutionResult`): bridge-side resolution output with usage ceiling
-- **Suggested remediation** (`pkaf:SuggestedRemediation`): bridge-side remediation guidance
-- **Concept lifecycle packets** (`pkaf:ConceptLifecyclePacket`): split, merge, replacedBy, retire events
-- **Mapping conflicts** (`pkaf:MappingConflict`): conflicting mappings with severity
-- **Bridge consumer registration** (`pkaf:BridgeConsumerRegistration`): consumer capability declaration
+- **Mapping applicability contexts** (`rkaf:MappingApplicabilityContext`): where a mapping applies operationally
+- **Concept resolution results** (`rkaf:ConceptResolutionResult`): bridge-side resolution output with usage ceiling
+- **Suggested remediation** (`rkaf:SuggestedRemediation`): bridge-side remediation guidance
+- **Concept lifecycle packets** (`rkaf:ConceptLifecyclePacket`): split, merge, replacedBy, retire events
+- **Mapping conflicts** (`rkaf:MappingConflict`): conflicting mappings with severity
+- **Bridge consumer registration** (`rkaf:BridgeConsumerRegistration`): consumer capability declaration
 
 ### Three conformance levels
 

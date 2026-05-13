@@ -1,8 +1,8 @@
-# PKAF Core Shapes v0.1
+# Rulespec Core Shapes v0.1
 # Merged Shapes Batch 1 + Shapes Batch 1.1
-# Profile: PKAF-SHACL-AF (requires SHACL Advanced Features)
+# Profile: Rulespec-SHACL-AF (requires SHACL Advanced Features)
 # Bridge contract: rkaf-bridge/1.0
-# Companion to: PKAF Core v0.1, ConceptRegistry v0.1.2, four conformance fixtures
+# Companion to: Rulespec Core v0.1, ConceptRegistry v0.1.2, four conformance fixtures
 
 @prefix sh:    <http://www.w3.org/ns/shacl#> .
 @prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
@@ -15,9 +15,9 @@
 
 # === Profile declaration ===
 
-rkaf:PKAFCoreShapesV01
+rkaf:RulespecCoreShapesV01
   a sh:NodeShape ;
-  rdfs:label "PKAF Core Shapes v0.1" ;
+  rdfs:label "Rulespec Core Shapes v0.1" ;
   rdfs:comment "Requires SHACL Advanced Features. Validators supporting SHACL-Core only will not enforce conditional shapes correctly." .
 
 # === 1. RelationshipAssertionShape (Batch 1, base) ===

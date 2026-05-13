@@ -1,8 +1,8 @@
-# PKAF Statutory Authority Fixture v0.1
+# Rulespec Statutory Authority Fixture v0.1
 
 Status: Editor's Draft conformance fixture for the A3 authority layer
-Companion to: PKAF Core, PKAF Conformance Fixture v0.2, PKAF Mapping Fixture v0.1, PKAF ConceptRegistry v0.1.2
-Bridge contract: `pkaf-bridge/1.0`
+Companion to: Rulespec Core, Rulespec Conformance Fixture v0.2, Rulespec Mapping Fixture v0.1, Rulespec ConceptRegistry v0.1.2
+Bridge contract: `rkaf-bridge/1.0`
 
 ## Purpose
 
@@ -49,17 +49,17 @@ Then Congress rescinds Section 1234 (replacing the program with a different mech
 
 ```json
 {
-  "@context": "https://w3id.org/pkaf/context/v1.jsonld",
+  "@context": "https://rulespec.org/context/v1.jsonld",
   "@id": "https://example.gov/artifact/csbg-act-section-1234-codified-2024",
-  "@type": "pkaf:Artifact",
-  "pkaf:sourceType": "official-codified-statute",
-  "pkaf:contentHash": "sha256:f2c8a91b...3d7e",
-  "pkaf:mimeType": "application/xml",
-  "pkaf:capturedAt": "2024-01-15T00:00:00-05:00",
-  "pkaf:capturedBy": "https://example.gov/connector/uscode-mirror",
-  "pkaf:sourceUrl": "https://uscode.example.gov/title-42/chapter-106/section-9908",
-  "pkaf:accessScope": "public",
-  "pkaf:sourceAuthorityHint": "https://example.gov/source-authority/us-code-official"
+  "@type": "rkaf:Artifact",
+  "rkaf:sourceType": "official-codified-statute",
+  "rkaf:contentHash": "sha256:f2c8a91b...3d7e",
+  "rkaf:mimeType": "application/xml",
+  "rkaf:capturedAt": "2024-01-15T00:00:00-05:00",
+  "rkaf:capturedBy": "https://example.gov/connector/uscode-mirror",
+  "rkaf:sourceUrl": "https://uscode.example.gov/title-42/chapter-106/section-9908",
+  "rkaf:accessScope": "public",
+  "rkaf:sourceAuthorityHint": "https://example.gov/source-authority/us-code-official"
 }
 ```
 
@@ -68,15 +68,15 @@ Then Congress rescinds Section 1234 (replacing the program with a different mech
 ```json
 {
   "@id": "https://example.gov/fragment/csbg-act-section-1234/subsec-b-2",
-  "@type": "pkaf:SourceFragment",
-  "pkaf:artifactId": "https://example.gov/artifact/csbg-act-section-1234-codified-2024",
-  "pkaf:fragmentType": "section",
-  "pkaf:locator": "section[@num='1234']/subsection[@designation='b']/paragraph[@num='2']",
-  "pkaf:selector": {
+  "@type": "rkaf:SourceFragment",
+  "rkaf:artifactId": "https://example.gov/artifact/csbg-act-section-1234-codified-2024",
+  "rkaf:fragmentType": "section",
+  "rkaf:locator": "section[@num='1234']/subsection[@designation='b']/paragraph[@num='2']",
+  "rkaf:selector": {
     "@type": "oa:TextQuoteSelector",
     "oa:exact": "Each individual enrolling for benefits under this section shall provide documentation establishing identity in such form as the Secretary by regulation prescribes."
   },
-  "pkaf:accessScope": "public"
+  "rkaf:accessScope": "public"
 }
 ```
 
@@ -85,14 +85,14 @@ Then Congress rescinds Section 1234 (replacing the program with a different mech
 ```json
 {
   "@id": "https://example.gov/resource/csbg-act-section-1234/v1",
-  "@type": "pkaf:PolicyResourceVersion",
-  "pkaf:resourceLineage": "https://example.gov/resource/csbg-act-section-1234",
-  "pkaf:versionLabel": "1998-as-codified-through-2024",
-  "pkaf:effectivePeriodStart": "1998-01-01T00:00:00-05:00",
-  "pkaf:realizedByArtifact": "https://example.gov/artifact/csbg-act-section-1234-codified-2024",
-  "pkaf:resourceKind": "federalStatute",
-  "pkaf:citation": "42 U.S.C. § 9908",
-  "pkaf:accessScope": "public"
+  "@type": "rkaf:PolicyResourceVersion",
+  "rkaf:resourceLineage": "https://example.gov/resource/csbg-act-section-1234",
+  "rkaf:versionLabel": "1998-as-codified-through-2024",
+  "rkaf:effectivePeriodStart": "1998-01-01T00:00:00-05:00",
+  "rkaf:realizedByArtifact": "https://example.gov/artifact/csbg-act-section-1234-codified-2024",
+  "rkaf:resourceKind": "federalStatute",
+  "rkaf:citation": "42 U.S.C. § 9908",
+  "rkaf:accessScope": "public"
 }
 ```
 
@@ -101,13 +101,13 @@ Then Congress rescinds Section 1234 (replacing the program with a different mech
 ```json
 {
   "@id": "https://example.gov/source-authority/us-code-official",
-  "@type": "pkaf:SourceAuthority",
-  "pkaf:sourceFamily": "us-code",
-  "pkaf:officialStatus": "pkaf:officialLegalEdition",
-  "pkaf:legalValue": "pkaf:positiveLaw",
-  "pkaf:publicationStatus": "pkaf:enacted",
-  "pkaf:jurisdiction": "us-federal",
-  "pkaf:publisher": "https://example.gov/agency/office-of-law-revision-counsel"
+  "@type": "rkaf:SourceAuthority",
+  "rkaf:sourceFamily": "us-code",
+  "rkaf:officialStatus": "rkaf:officialLegalEdition",
+  "rkaf:legalValue": "rkaf:positiveLaw",
+  "rkaf:publicationStatus": "rkaf:enacted",
+  "rkaf:jurisdiction": "us-federal",
+  "rkaf:publisher": "https://example.gov/agency/office-of-law-revision-counsel"
 }
 ```
 
@@ -118,16 +118,16 @@ Then Congress rescinds Section 1234 (replacing the program with a different mech
 ```json
 {
   "@id": "https://example.gov/resource/hhs-delegation-to-ocs-csbg/v1",
-  "@type": ["pkaf:PolicyResourceVersion", "pkaf:DelegationInstrument"],
-  "pkaf:resourceLineage": "https://example.gov/resource/hhs-delegation-to-ocs-csbg",
-  "pkaf:versionLabel": "delegation-1999-rev-2018",
-  "pkaf:effectivePeriodStart": "1999-04-01T00:00:00-05:00",
-  "pkaf:resourceKind": "federalDelegationInstrument",
-  "pkaf:citation": "HHS Delegation 5-25-99 (as revised 2018)",
-  "pkaf:delegatingAuthority": "https://example.gov/agency/hhs-secretary",
-  "pkaf:delegatedTo": "https://example.gov/agency/office-of-community-services",
-  "pkaf:delegationScope": "csbg-implementing-regulations",
-  "pkaf:accessScope": "public"
+  "@type": ["rkaf:PolicyResourceVersion", "rkaf:DelegationInstrument"],
+  "rkaf:resourceLineage": "https://example.gov/resource/hhs-delegation-to-ocs-csbg",
+  "rkaf:versionLabel": "delegation-1999-rev-2018",
+  "rkaf:effectivePeriodStart": "1999-04-01T00:00:00-05:00",
+  "rkaf:resourceKind": "federalDelegationInstrument",
+  "rkaf:citation": "HHS Delegation 5-25-99 (as revised 2018)",
+  "rkaf:delegatingAuthority": "https://example.gov/agency/hhs-secretary",
+  "rkaf:delegatedTo": "https://example.gov/agency/office-of-community-services",
+  "rkaf:delegationScope": "csbg-implementing-regulations",
+  "rkaf:accessScope": "public"
 }
 ```
 
@@ -136,20 +136,20 @@ Then Congress rescinds Section 1234 (replacing the program with a different mech
 ```json
 {
   "@id": "https://example.gov/assertion/delegation-derives-from-statute",
-  "@type": "pkaf:RelationshipAssertion",
-  "pkaf:assertsSubject": "https://example.gov/resource/hhs-delegation-to-ocs-csbg/v1",
-  "pkaf:assertsPredicate": "pkaf:derivesAuthorityFrom",
-  "pkaf:assertsObject": "https://example.gov/resource/csbg-act-section-1234/v1",
-  "pkaf:assertionOrigin": "pkaf:importedFromSource",
-  "pkaf:hasTrustZone": "pkaf:Z4AttestedAssertion",
-  "pkaf:hasSafetyLabel": "pkaf:A3AuthorityCritical",
-  "pkaf:usageEligibility": "pkaf:officialUse",
-  "pkaf:authorityKind": "pkaf:delegated",
-  "pkaf:hasEvidence": [
+  "@type": "rkaf:RelationshipAssertion",
+  "rkaf:assertsSubject": "https://example.gov/resource/hhs-delegation-to-ocs-csbg/v1",
+  "rkaf:assertsPredicate": "rkaf:derivesAuthorityFrom",
+  "rkaf:assertsObject": "https://example.gov/resource/csbg-act-section-1234/v1",
+  "rkaf:assertionOrigin": "rkaf:importedFromSource",
+  "rkaf:hasTrustZone": "rkaf:Z4AttestedAssertion",
+  "rkaf:hasSafetyLabel": "rkaf:A3AuthorityCritical",
+  "rkaf:usageEligibility": "rkaf:officialUse",
+  "rkaf:authorityKind": "rkaf:delegated",
+  "rkaf:hasEvidence": [
     {
-      "@type": "pkaf:EvidenceBinding",
-      "pkaf:evidenceRole": "pkaf:authorityCitation",
-      "pkaf:supportingQuote": "Pursuant to 42 U.S.C. § 9908(b)(2), the Secretary delegates to the Office of Community Services..."
+      "@type": "rkaf:EvidenceBinding",
+      "rkaf:evidenceRole": "rkaf:authorityCitation",
+      "rkaf:supportingQuote": "Pursuant to 42 U.S.C. § 9908(b)(2), the Secretary delegates to the Office of Community Services..."
     }
   ]
 }
@@ -162,13 +162,13 @@ Then Congress rescinds Section 1234 (replacing the program with a different mech
 ```json
 {
   "@id": "https://example.gov/resource/45-cfr-96-30/v3",
-  "@type": "pkaf:PolicyResourceVersion",
-  "pkaf:resourceLineage": "https://example.gov/resource/45-cfr-96-30",
-  "pkaf:versionLabel": "2021-revision",
-  "pkaf:effectivePeriodStart": "2021-07-01T00:00:00-05:00",
-  "pkaf:resourceKind": "federalRegulation",
-  "pkaf:citation": "45 CFR § 96.30",
-  "pkaf:accessScope": "public"
+  "@type": "rkaf:PolicyResourceVersion",
+  "rkaf:resourceLineage": "https://example.gov/resource/45-cfr-96-30",
+  "rkaf:versionLabel": "2021-revision",
+  "rkaf:effectivePeriodStart": "2021-07-01T00:00:00-05:00",
+  "rkaf:resourceKind": "federalRegulation",
+  "rkaf:citation": "45 CFR § 96.30",
+  "rkaf:accessScope": "public"
 }
 ```
 
@@ -177,20 +177,20 @@ Then Congress rescinds Section 1234 (replacing the program with a different mech
 ```json
 {
   "@id": "https://example.gov/assertion/regulation-derives-from-delegation",
-  "@type": "pkaf:RelationshipAssertion",
-  "pkaf:assertsSubject": "https://example.gov/resource/45-cfr-96-30/v3",
-  "pkaf:assertsPredicate": "pkaf:derivesAuthorityFrom",
-  "pkaf:assertsObject": "https://example.gov/resource/hhs-delegation-to-ocs-csbg/v1",
-  "pkaf:assertionOrigin": "pkaf:importedFromSource",
-  "pkaf:hasTrustZone": "pkaf:Z4AttestedAssertion",
-  "pkaf:hasSafetyLabel": "pkaf:A3AuthorityCritical",
-  "pkaf:usageEligibility": "pkaf:officialUse",
-  "pkaf:authorityKind": "pkaf:regulatory",
-  "pkaf:hasEvidence": [
+  "@type": "rkaf:RelationshipAssertion",
+  "rkaf:assertsSubject": "https://example.gov/resource/45-cfr-96-30/v3",
+  "rkaf:assertsPredicate": "rkaf:derivesAuthorityFrom",
+  "rkaf:assertsObject": "https://example.gov/resource/hhs-delegation-to-ocs-csbg/v1",
+  "rkaf:assertionOrigin": "rkaf:importedFromSource",
+  "rkaf:hasTrustZone": "rkaf:Z4AttestedAssertion",
+  "rkaf:hasSafetyLabel": "rkaf:A3AuthorityCritical",
+  "rkaf:usageEligibility": "rkaf:officialUse",
+  "rkaf:authorityKind": "rkaf:regulatory",
+  "rkaf:hasEvidence": [
     {
-      "@type": "pkaf:EvidenceBinding",
-      "pkaf:evidenceRole": "pkaf:authorityCitation",
-      "pkaf:supportingQuote": "Authority: HHS Delegation 5-25-99 (as revised 2018); 42 U.S.C. § 9908"
+      "@type": "rkaf:EvidenceBinding",
+      "rkaf:evidenceRole": "rkaf:authorityCitation",
+      "rkaf:supportingQuote": "Authority: HHS Delegation 5-25-99 (as revised 2018); 42 U.S.C. § 9908"
     }
   ]
 }
@@ -203,13 +203,13 @@ Then Congress rescinds Section 1234 (replacing the program with a different mech
 ```json
 {
   "@id": "https://example.us-state.gov/resource/state-csbg-implementation/v2",
-  "@type": "pkaf:PolicyResourceVersion",
-  "pkaf:resourceLineage": "https://example.us-state.gov/resource/state-csbg-implementation",
-  "pkaf:versionLabel": "2022-revision",
-  "pkaf:effectivePeriodStart": "2022-10-01T00:00:00-05:00",
-  "pkaf:resourceKind": "stateRegulation",
-  "pkaf:citation": "State Admin Code Title 5 Chapter 92 § 12",
-  "pkaf:accessScope": "public"
+  "@type": "rkaf:PolicyResourceVersion",
+  "rkaf:resourceLineage": "https://example.us-state.gov/resource/state-csbg-implementation",
+  "rkaf:versionLabel": "2022-revision",
+  "rkaf:effectivePeriodStart": "2022-10-01T00:00:00-05:00",
+  "rkaf:resourceKind": "stateRegulation",
+  "rkaf:citation": "State Admin Code Title 5 Chapter 92 § 12",
+  "rkaf:accessScope": "public"
 }
 ```
 
@@ -218,14 +218,14 @@ Then Congress rescinds Section 1234 (replacing the program with a different mech
 ```json
 {
   "@id": "https://example.us-state.gov/assertion/state-derives-from-federal",
-  "@type": "pkaf:RelationshipAssertion",
-  "pkaf:assertsSubject": "https://example.us-state.gov/resource/state-csbg-implementation/v2",
-  "pkaf:assertsPredicate": "pkaf:derivesAuthorityFrom",
-  "pkaf:assertsObject": "https://example.gov/resource/45-cfr-96-30/v3",
-  "pkaf:hasTrustZone": "pkaf:Z4AttestedAssertion",
-  "pkaf:hasSafetyLabel": "pkaf:A3AuthorityCritical",
-  "pkaf:usageEligibility": "pkaf:officialUse",
-  "pkaf:authorityKind": "pkaf:regulatory"
+  "@type": "rkaf:RelationshipAssertion",
+  "rkaf:assertsSubject": "https://example.us-state.gov/resource/state-csbg-implementation/v2",
+  "rkaf:assertsPredicate": "rkaf:derivesAuthorityFrom",
+  "rkaf:assertsObject": "https://example.gov/resource/45-cfr-96-30/v3",
+  "rkaf:hasTrustZone": "rkaf:Z4AttestedAssertion",
+  "rkaf:hasSafetyLabel": "rkaf:A3AuthorityCritical",
+  "rkaf:usageEligibility": "rkaf:officialUse",
+  "rkaf:authorityKind": "rkaf:regulatory"
 }
 ```
 
@@ -238,27 +238,27 @@ The CAA's operational requirement claims `hasAuthority` via the federal regulati
 ```json
 {
   "@id": "https://example.org/assertion/caa-42-identity-req-001",
-  "@type": "pkaf:RelationshipAssertion",
-  "pkaf:assertsSubject": "https://example.org/concepts/caa-42/IdentityVerification",
-  "pkaf:assertsPredicate": "pkaf:hasAuthority",
-  "pkaf:assertsObject": "https://example.gov/resource/45-cfr-96-30/v3",
-  "pkaf:assertionOrigin": "pkaf:humanAsserted",
-  "pkaf:hasTrustZone": "pkaf:Z4AttestedAssertion",
-  "pkaf:hasSafetyLabel": "pkaf:A3AuthorityCritical",
-  "pkaf:usageEligibility": "pkaf:localOperationalUse",
-  "pkaf:authorityKind": "pkaf:regulatory",
-  "pkaf:hasApplicability": {
-    "@type": "pkaf:ApplicabilityContext",
-    "pkaf:programArea": "csbg",
-    "pkaf:jurisdiction": ["us-federal", "example-us-state"],
-    "pkaf:effectivePeriodStart": "2022-10-01T00:00:00-05:00"
+  "@type": "rkaf:RelationshipAssertion",
+  "rkaf:assertsSubject": "https://example.org/concepts/caa-42/IdentityVerification",
+  "rkaf:assertsPredicate": "rkaf:hasAuthority",
+  "rkaf:assertsObject": "https://example.gov/resource/45-cfr-96-30/v3",
+  "rkaf:assertionOrigin": "rkaf:humanAsserted",
+  "rkaf:hasTrustZone": "rkaf:Z4AttestedAssertion",
+  "rkaf:hasSafetyLabel": "rkaf:A3AuthorityCritical",
+  "rkaf:usageEligibility": "rkaf:localOperationalUse",
+  "rkaf:authorityKind": "rkaf:regulatory",
+  "rkaf:hasApplicability": {
+    "@type": "rkaf:ApplicabilityContext",
+    "rkaf:programArea": "csbg",
+    "rkaf:jurisdiction": ["us-federal", "example-us-state"],
+    "rkaf:effectivePeriodStart": "2022-10-01T00:00:00-05:00"
   },
-  "pkaf:hasEvidence": [
+  "rkaf:hasEvidence": [
     {
-      "@type": "pkaf:EvidenceBinding",
-      "pkaf:evidenceRole": "pkaf:authorityCitation",
-      "pkaf:sourceFragment": "https://example.gov/fragment/45-cfr-96-30/identity-evidence-paragraph",
-      "pkaf:supportingQuote": "Eligible entities shall verify each applicant's identity through documentation including but not limited to: state-issued identification, passport, or equivalent."
+      "@type": "rkaf:EvidenceBinding",
+      "rkaf:evidenceRole": "rkaf:authorityCitation",
+      "rkaf:sourceFragment": "https://example.gov/fragment/45-cfr-96-30/identity-evidence-paragraph",
+      "rkaf:supportingQuote": "Eligible entities shall verify each applicant's identity through documentation including but not limited to: state-issued identification, passport, or equivalent."
     }
   ]
 }
@@ -271,15 +271,15 @@ This is the critical distinction. The LocalAdoption authorizes CAA-42 to operati
 ```json
 {
   "@id": "https://example.org/adoption/caa-42-identity-req-001",
-  "@type": "pkaf:LocalAdoption",
-  "pkaf:organization": "https://example.org/org/caa-42",
-  "pkaf:targetAssertion": "https://example.org/assertion/caa-42-identity-req-001",
-  "pkaf:adoptionStatus": "pkaf:adoptedForLocalOperations",
-  "pkaf:usageEligibility": "pkaf:localOperationalUse",
-  "pkaf:adoptionAuthorityKind": "pkaf:localOperational",
-  "pkaf:adoptionScope": "caa-42-csbg-intake-workflow-v4",
-  "pkaf:authorizedBy": "https://example.org/user/caa-42-program-director-1",
-  "pkaf:adoptionRationale": "Organizational authorization to operationalize the federally-required identity verification in CAA-42's CSBG intake workflow. This adoption does not assert legal authority; legal authority is provided by the hasAuthority chain to 45 CFR § 96.30.",
+  "@type": "rkaf:LocalAdoption",
+  "rkaf:organization": "https://example.org/org/caa-42",
+  "rkaf:targetAssertion": "https://example.org/assertion/caa-42-identity-req-001",
+  "rkaf:adoptionStatus": "rkaf:adoptedForLocalOperations",
+  "rkaf:usageEligibility": "rkaf:localOperationalUse",
+  "rkaf:adoptionAuthorityKind": "rkaf:localOperational",
+  "rkaf:adoptionScope": "caa-42-csbg-intake-workflow-v4",
+  "rkaf:authorizedBy": "https://example.org/user/caa-42-program-director-1",
+  "rkaf:adoptionRationale": "Organizational authorization to operationalize the federally-required identity verification in CAA-42's CSBG intake workflow. This adoption does not assert legal authority; legal authority is provided by the hasAuthority chain to 45 CFR § 96.30.",
   "prov:generatedAtTime": "2022-11-15T10:00:00-05:00"
 }
 ```
@@ -291,21 +291,21 @@ This is the critical distinction. The LocalAdoption authorizes CAA-42 to operati
 ```json
 {
   "@id": "https://example.org/wos/caa-42-intake/verify-identity/v1",
-  "@type": ["pkaf:GeneratedWorkProduct", "wos:WorkflowStep"],
+  "@type": ["rkaf:GeneratedWorkProduct", "wos:WorkflowStep"],
   "wos:stepName": "verify_identity",
   "wos:stepLabel": "Verify applicant identity",
   "wos:stepType": "data-collection-and-verification",
   "wos:precedingSteps": ["wos:caa-42-intake/applicant-info-collection"],
   "wos:succeedingSteps": ["wos:caa-42-intake/eligibility-determination"],
-  "pkaf:requiresEvidenceType": "https://example.org/concepts/caa-42/IdentityVerification",
-  "pkaf:justifiedByAssertion": ["https://example.org/assertion/caa-42-identity-req-001"],
-  "pkaf:justificationBackedBy": "https://example.org/adoption/caa-42-identity-req-001",
-  "pkaf:consumerLifecycleState": "pkaf:operational",
-  "pkaf:usageEligibility": "pkaf:localOperationalUse",
-  "pkaf:bridgeContractVersion": "pkaf-bridge/1.0",
-  "pkaf:hasApplicability": {
-    "@type": "pkaf:ApplicabilityContext",
-    "pkaf:programArea": "csbg"
+  "rkaf:requiresEvidenceType": "https://example.org/concepts/caa-42/IdentityVerification",
+  "rkaf:justifiedByAssertion": ["https://example.org/assertion/caa-42-identity-req-001"],
+  "rkaf:justificationBackedBy": "https://example.org/adoption/caa-42-identity-req-001",
+  "rkaf:consumerLifecycleState": "rkaf:operational",
+  "rkaf:usageEligibility": "rkaf:localOperationalUse",
+  "rkaf:bridgeContractVersion": "rkaf-bridge/1.0",
+  "rkaf:hasApplicability": {
+    "@type": "rkaf:ApplicabilityContext",
+    "rkaf:programArea": "csbg"
   }
 }
 ```
@@ -315,18 +315,18 @@ This is the critical distinction. The LocalAdoption authorizes CAA-42 to operati
 ```json
 {
   "@id": "https://example.org/form-field/caa-42-intake/identity-document/v1",
-  "@type": ["pkaf:GeneratedWorkProduct", "formspec:Field"],
+  "@type": ["rkaf:GeneratedWorkProduct", "formspec:Field"],
   "formspec:fieldName": "identity_document",
   "formspec:label": "Identity documentation",
   "formspec:dataType": "file-upload",
   "formspec:required": true,
-  "pkaf:collectsEvidenceType": "https://example.org/concepts/caa-42/IdentityVerification",
-  "pkaf:justifiedByAssertion": ["https://example.org/assertion/caa-42-identity-req-001"],
-  "pkaf:justificationBackedBy": "https://example.org/adoption/caa-42-identity-req-001",
-  "pkaf:associatedWorkflowStep": "https://example.org/wos/caa-42-intake/verify-identity/v1",
-  "pkaf:consumerLifecycleState": "pkaf:operational",
-  "pkaf:usageEligibility": "pkaf:localOperationalUse",
-  "pkaf:bridgeContractVersion": "pkaf-bridge/1.0"
+  "rkaf:collectsEvidenceType": "https://example.org/concepts/caa-42/IdentityVerification",
+  "rkaf:justifiedByAssertion": ["https://example.org/assertion/caa-42-identity-req-001"],
+  "rkaf:justificationBackedBy": "https://example.org/adoption/caa-42-identity-req-001",
+  "rkaf:associatedWorkflowStep": "https://example.org/wos/caa-42-intake/verify-identity/v1",
+  "rkaf:consumerLifecycleState": "rkaf:operational",
+  "rkaf:usageEligibility": "rkaf:localOperationalUse",
+  "rkaf:bridgeContractVersion": "rkaf-bridge/1.0"
 }
 ```
 
@@ -335,40 +335,40 @@ This is the critical distinction. The LocalAdoption authorizes CAA-42 to operati
 ```json
 {
   "@id": "https://example.org/bridge-validation/caa-42-wos-2022-11-15-001",
-  "@type": "pkaf:BridgeValidationResult",
-  "pkaf:packetId": "https://example.org/wos/caa-42-intake/verify-identity/v1",
-  "pkaf:consumer": "https://example.org/consumer/caa-42-wos",
-  "pkaf:bridgeContractVersion": "pkaf-bridge/1.0",
-  "pkaf:result": "pkaf:accepted",
-  "pkaf:effectiveUsageEligibility": "pkaf:localOperationalUse",
-  "pkaf:effectiveUsageEligibilityRationale": "Authority chain validated: caa-42-identity-req-001 hasAuthority(regulatory) → 45 CFR § 96.30 derivesAuthorityFrom(regulatory) → HHS delegation derivesAuthorityFrom(delegated) → statute § 1234 (statutory). LocalAdoption caa-42-identity-req-001 grants localOperationalUse within scope caa-42-csbg-intake-workflow-v4.",
-  "pkaf:authorityChainTraversal": [
+  "@type": "rkaf:BridgeValidationResult",
+  "rkaf:packetId": "https://example.org/wos/caa-42-intake/verify-identity/v1",
+  "rkaf:consumer": "https://example.org/consumer/caa-42-wos",
+  "rkaf:bridgeContractVersion": "rkaf-bridge/1.0",
+  "rkaf:result": "rkaf:accepted",
+  "rkaf:effectiveUsageEligibility": "rkaf:localOperationalUse",
+  "rkaf:effectiveUsageEligibilityRationale": "Authority chain validated: caa-42-identity-req-001 hasAuthority(regulatory) → 45 CFR § 96.30 derivesAuthorityFrom(regulatory) → HHS delegation derivesAuthorityFrom(delegated) → statute § 1234 (statutory). LocalAdoption caa-42-identity-req-001 grants localOperationalUse within scope caa-42-csbg-intake-workflow-v4.",
+  "rkaf:authorityChainTraversal": [
     {
-      "@type": "pkaf:AuthorityChainHop",
-      "pkaf:assertion": "https://example.org/assertion/caa-42-identity-req-001",
-      "pkaf:predicate": "pkaf:hasAuthority",
-      "pkaf:authorityKind": "pkaf:regulatory",
-      "pkaf:object": "https://example.gov/resource/45-cfr-96-30/v3"
+      "@type": "rkaf:AuthorityChainHop",
+      "rkaf:assertion": "https://example.org/assertion/caa-42-identity-req-001",
+      "rkaf:predicate": "rkaf:hasAuthority",
+      "rkaf:authorityKind": "rkaf:regulatory",
+      "rkaf:object": "https://example.gov/resource/45-cfr-96-30/v3"
     },
     {
-      "@type": "pkaf:AuthorityChainHop",
-      "pkaf:assertion": "https://example.gov/assertion/regulation-derives-from-delegation",
-      "pkaf:predicate": "pkaf:derivesAuthorityFrom",
-      "pkaf:authorityKind": "pkaf:delegated",
-      "pkaf:object": "https://example.gov/resource/hhs-delegation-to-ocs-csbg/v1"
+      "@type": "rkaf:AuthorityChainHop",
+      "rkaf:assertion": "https://example.gov/assertion/regulation-derives-from-delegation",
+      "rkaf:predicate": "rkaf:derivesAuthorityFrom",
+      "rkaf:authorityKind": "rkaf:delegated",
+      "rkaf:object": "https://example.gov/resource/hhs-delegation-to-ocs-csbg/v1"
     },
     {
-      "@type": "pkaf:AuthorityChainHop",
-      "pkaf:assertion": "https://example.gov/assertion/delegation-derives-from-statute",
-      "pkaf:predicate": "pkaf:derivesAuthorityFrom",
-      "pkaf:authorityKind": "pkaf:statutory",
-      "pkaf:object": "https://example.gov/resource/csbg-act-section-1234/v1"
+      "@type": "rkaf:AuthorityChainHop",
+      "rkaf:assertion": "https://example.gov/assertion/delegation-derives-from-statute",
+      "rkaf:predicate": "rkaf:derivesAuthorityFrom",
+      "rkaf:authorityKind": "rkaf:statutory",
+      "rkaf:object": "https://example.gov/resource/csbg-act-section-1234/v1"
     }
   ],
-  "pkaf:chainTerminusKind": "pkaf:statutory",
-  "pkaf:errors": [],
-  "pkaf:warnings": [],
-  "pkaf:conceptResolutionResults": [],
+  "rkaf:chainTerminusKind": "rkaf:statutory",
+  "rkaf:errors": [],
+  "rkaf:warnings": [],
+  "rkaf:conceptResolutionResults": [],
   "prov:generatedAtTime": "2022-11-15T10:30:00-05:00"
 }
 ```
@@ -380,14 +380,14 @@ Same authority chain as Step 15. Abbreviated here:
 ```json
 {
   "@id": "https://example.org/bridge-validation/caa-42-formspec-2022-11-15-001",
-  "@type": "pkaf:BridgeValidationResult",
-  "pkaf:packetId": "https://example.org/form-field/caa-42-intake/identity-document/v1",
-  "pkaf:consumer": "https://example.org/consumer/caa-42-formspec",
-  "pkaf:result": "pkaf:accepted",
-  "pkaf:effectiveUsageEligibility": "pkaf:localOperationalUse",
-  "pkaf:chainTerminusKind": "pkaf:statutory",
-  "pkaf:errors": [],
-  "pkaf:warnings": [],
+  "@type": "rkaf:BridgeValidationResult",
+  "rkaf:packetId": "https://example.org/form-field/caa-42-intake/identity-document/v1",
+  "rkaf:consumer": "https://example.org/consumer/caa-42-formspec",
+  "rkaf:result": "rkaf:accepted",
+  "rkaf:effectiveUsageEligibility": "rkaf:localOperationalUse",
+  "rkaf:chainTerminusKind": "rkaf:statutory",
+  "rkaf:errors": [],
+  "rkaf:warnings": [],
   "prov:generatedAtTime": "2022-11-15T10:30:05-05:00"
 }
 ```
@@ -401,11 +401,11 @@ Years later, Congress passes legislation rescinding Section 1234, replacing the 
 ```json
 {
   "@id": "https://example.gov/artifact/csbg-restructure-act-2027",
-  "@type": "pkaf:Artifact",
-  "pkaf:sourceType": "official-codified-statute",
-  "pkaf:capturedAt": "2027-03-01T00:00:00-05:00",
-  "pkaf:sourceUrl": "https://uscode.example.gov/public-law-120-15",
-  "pkaf:accessScope": "public"
+  "@type": "rkaf:Artifact",
+  "rkaf:sourceType": "official-codified-statute",
+  "rkaf:capturedAt": "2027-03-01T00:00:00-05:00",
+  "rkaf:sourceUrl": "https://uscode.example.gov/public-law-120-15",
+  "rkaf:accessScope": "public"
 }
 ```
 
@@ -414,12 +414,12 @@ Years later, Congress passes legislation rescinding Section 1234, replacing the 
 ```json
 {
   "@id": "https://example.gov/resource/csbg-restructure-act/v1",
-  "@type": "pkaf:PolicyResourceVersion",
-  "pkaf:resourceLineage": "https://example.gov/resource/csbg-restructure-act",
-  "pkaf:versionLabel": "public-law-120-15",
-  "pkaf:effectivePeriodStart": "2027-04-01T00:00:00-05:00",
-  "pkaf:realizedByArtifact": "https://example.gov/artifact/csbg-restructure-act-2027",
-  "pkaf:resourceKind": "federalStatute"
+  "@type": "rkaf:PolicyResourceVersion",
+  "rkaf:resourceLineage": "https://example.gov/resource/csbg-restructure-act",
+  "rkaf:versionLabel": "public-law-120-15",
+  "rkaf:effectivePeriodStart": "2027-04-01T00:00:00-05:00",
+  "rkaf:realizedByArtifact": "https://example.gov/artifact/csbg-restructure-act-2027",
+  "rkaf:resourceKind": "federalStatute"
 }
 ```
 
@@ -428,22 +428,22 @@ Years later, Congress passes legislation rescinding Section 1234, replacing the 
 ```json
 {
   "@id": "https://example.gov/assertion/rescission-001",
-  "@type": "pkaf:RelationshipAssertion",
-  "pkaf:assertsSubject": "https://example.gov/resource/csbg-restructure-act/v1",
-  "pkaf:assertsPredicate": "pkaf:rescinds",
-  "pkaf:assertsObject": "https://example.gov/resource/csbg-act-section-1234/v1",
-  "pkaf:assertionOrigin": "pkaf:importedFromSource",
-  "pkaf:hasTrustZone": "pkaf:Z4AttestedAssertion",
-  "pkaf:hasSafetyLabel": "pkaf:A3AuthorityCritical",
-  "pkaf:usageEligibility": "pkaf:officialUse",
-  "pkaf:hasEvidence": [
+  "@type": "rkaf:RelationshipAssertion",
+  "rkaf:assertsSubject": "https://example.gov/resource/csbg-restructure-act/v1",
+  "rkaf:assertsPredicate": "rkaf:rescinds",
+  "rkaf:assertsObject": "https://example.gov/resource/csbg-act-section-1234/v1",
+  "rkaf:assertionOrigin": "rkaf:importedFromSource",
+  "rkaf:hasTrustZone": "rkaf:Z4AttestedAssertion",
+  "rkaf:hasSafetyLabel": "rkaf:A3AuthorityCritical",
+  "rkaf:usageEligibility": "rkaf:officialUse",
+  "rkaf:hasEvidence": [
     {
-      "@type": "pkaf:EvidenceBinding",
-      "pkaf:evidenceRole": "pkaf:rescissionEvidence",
-      "pkaf:supportingQuote": "Section 1234 of the Community Services Block Grant Act (42 U.S.C. § 9908) is repealed effective April 1, 2027."
+      "@type": "rkaf:EvidenceBinding",
+      "rkaf:evidenceRole": "rkaf:rescissionEvidence",
+      "rkaf:supportingQuote": "Section 1234 of the Community Services Block Grant Act (42 U.S.C. § 9908) is repealed effective April 1, 2027."
     }
   ],
-  "pkaf:rescissionEffectiveDate": "2027-04-01T00:00:00-05:00"
+  "rkaf:rescissionEffectiveDate": "2027-04-01T00:00:00-05:00"
 }
 ```
 
@@ -452,62 +452,62 @@ Years later, Congress passes legislation rescinding Section 1234, replacing the 
 ```json
 {
   "@id": "https://example.gov/packet/rescission-001",
-  "@type": "pkaf:RescissionPacket",
-  "pkaf:emittedBy": "https://example.gov/assertion/rescission-001",
-  "pkaf:effectiveDate": "2027-04-01T00:00:00-05:00",
-  "pkaf:bridgeContractVersion": "pkaf-bridge/1.0",
-  "pkaf:cascadeAlgorithm": "pkaf:CascadeClosureV1",
-  "pkaf:cascadeClosureDescription": "Transitive closure over inverse {derivesAuthorityFrom, hasAuthority, implements, justifiedByAssertion, derivedFromFragment} edges, scoped to active/adopted state at effectiveDate. Authority-chain edges (hasAuthority, derivesAuthorityFrom) propagate breakage downstream when the object resource is rescinded.",
-  "pkaf:affectedAuthorityAssertions": [
+  "@type": "rkaf:RescissionPacket",
+  "rkaf:emittedBy": "https://example.gov/assertion/rescission-001",
+  "rkaf:effectiveDate": "2027-04-01T00:00:00-05:00",
+  "rkaf:bridgeContractVersion": "rkaf-bridge/1.0",
+  "rkaf:cascadeAlgorithm": "rkaf:CascadeClosureV1",
+  "rkaf:cascadeClosureDescription": "Transitive closure over inverse {derivesAuthorityFrom, hasAuthority, implements, justifiedByAssertion, derivedFromFragment} edges, scoped to active/adopted state at effectiveDate. Authority-chain edges (hasAuthority, derivesAuthorityFrom) propagate breakage downstream when the object resource is rescinded.",
+  "rkaf:affectedAuthorityAssertions": [
     "https://example.gov/assertion/delegation-derives-from-statute",
     "https://example.gov/assertion/regulation-derives-from-delegation",
     "https://example.us-state.gov/assertion/state-derives-from-federal",
     "https://example.org/assertion/caa-42-identity-req-001"
   ],
-  "pkaf:affectedAssertions": [
+  "rkaf:affectedAssertions": [
     "https://example.org/assertion/caa-42-identity-req-001"
   ],
-  "pkaf:affectedAdoptions": [
+  "rkaf:affectedAdoptions": [
     "https://example.org/adoption/caa-42-identity-req-001"
   ],
-  "pkaf:affectedWorkProducts": [
+  "rkaf:affectedWorkProducts": [
     "https://example.org/wos/caa-42-intake/verify-identity/v1",
     "https://example.org/form-field/caa-42-intake/identity-document/v1"
   ],
-  "pkaf:requiredRevalidationActions": [
+  "rkaf:requiredRevalidationActions": [
     {
-      "@type": "pkaf:RevalidationAction",
-      "pkaf:targetAssertion": "https://example.org/assertion/caa-42-identity-req-001",
-      "pkaf:reason": "hasAuthority object (45 CFR § 96.30) inherits broken authority chain via derivesAuthorityFrom hop to rescinded statute. Assertion's A3 authority chain no longer terminates at a valid source.",
-      "pkaf:priority": "critical"
+      "@type": "rkaf:RevalidationAction",
+      "rkaf:targetAssertion": "https://example.org/assertion/caa-42-identity-req-001",
+      "rkaf:reason": "hasAuthority object (45 CFR § 96.30) inherits broken authority chain via derivesAuthorityFrom hop to rescinded statute. Assertion's A3 authority chain no longer terminates at a valid source.",
+      "rkaf:priority": "critical"
     },
     {
-      "@type": "pkaf:RevalidationAction",
-      "pkaf:targetWorkProduct": "https://example.org/wos/caa-42-intake/verify-identity/v1",
-      "pkaf:reason": "WOS step depends on caa-42-identity-req-001 whose authority chain is broken. Step transitions to staleForCurrentUse for new cases.",
-      "pkaf:priority": "critical"
+      "@type": "rkaf:RevalidationAction",
+      "rkaf:targetWorkProduct": "https://example.org/wos/caa-42-intake/verify-identity/v1",
+      "rkaf:reason": "WOS step depends on caa-42-identity-req-001 whose authority chain is broken. Step transitions to staleForCurrentUse for new cases.",
+      "rkaf:priority": "critical"
     },
     {
-      "@type": "pkaf:RevalidationAction",
-      "pkaf:targetWorkProduct": "https://example.org/form-field/caa-42-intake/identity-document/v1",
-      "pkaf:reason": "Formspec field depends on caa-42-identity-req-001 whose authority chain is broken. Field transitions to staleForCurrentUse for new cases.",
-      "pkaf:priority": "critical"
+      "@type": "rkaf:RevalidationAction",
+      "rkaf:targetWorkProduct": "https://example.org/form-field/caa-42-intake/identity-document/v1",
+      "rkaf:reason": "Formspec field depends on caa-42-identity-req-001 whose authority chain is broken. Field transitions to staleForCurrentUse for new cases.",
+      "rkaf:priority": "critical"
     },
     {
-      "@type": "pkaf:RevalidationAction",
-      "pkaf:targetAdoption": "https://example.org/adoption/caa-42-identity-req-001",
-      "pkaf:reason": "LocalAdoption target assertion no longer has valid authority chain. LocalAdoption does NOT grant authority; it grants operational authorization conditioned on the underlying assertion remaining valid. Adoption is effectively orphaned until either (a) a new authority chain is established, or (b) the adoption is rescinded.",
-      "pkaf:priority": "critical"
+      "@type": "rkaf:RevalidationAction",
+      "rkaf:targetAdoption": "https://example.org/adoption/caa-42-identity-req-001",
+      "rkaf:reason": "LocalAdoption target assertion no longer has valid authority chain. LocalAdoption does NOT grant authority; it grants operational authorization conditioned on the underlying assertion remaining valid. Adoption is effectively orphaned until either (a) a new authority chain is established, or (b) the adoption is rescinded.",
+      "rkaf:priority": "critical"
     }
   ],
-  "pkaf:pointInTimeExceptions": [
+  "rkaf:pointInTimeExceptions": [
     {
-      "@type": "pkaf:PointInTimeException",
-      "pkaf:scopeDescription": "Applications submitted before 2027-04-01 may continue under prior authority for in-flight processing only",
-      "pkaf:retainsAssertion": "https://example.org/assertion/caa-42-identity-req-001",
-      "pkaf:evaluationAnchor": "pkaf:applicationSubmissionTime",
-      "pkaf:exceptionEffectivePeriodEnd": "2027-04-01T00:00:00-05:00",
-      "pkaf:rationale": "Per Public Law 120-15 § 4(c), pending applications under the prior statute shall be adjudicated under prior law."
+      "@type": "rkaf:PointInTimeException",
+      "rkaf:scopeDescription": "Applications submitted before 2027-04-01 may continue under prior authority for in-flight processing only",
+      "rkaf:retainsAssertion": "https://example.org/assertion/caa-42-identity-req-001",
+      "rkaf:evaluationAnchor": "rkaf:applicationSubmissionTime",
+      "rkaf:exceptionEffectivePeriodEnd": "2027-04-01T00:00:00-05:00",
+      "rkaf:rationale": "Per Public Law 120-15 § 4(c), pending applications under the prior statute shall be adjudicated under prior law."
     }
   ],
   "prov:generatedAtTime": "2027-03-15T00:00:00-05:00"
@@ -519,33 +519,33 @@ Years later, Congress passes legislation rescinding Section 1234, replacing the 
 ```json
 {
   "@id": "https://example.org/bridge-validation/caa-42-wos-2027-03-15-001",
-  "@type": "pkaf:BridgeValidationResult",
-  "pkaf:packetId": "https://example.gov/packet/rescission-001",
-  "pkaf:consumer": "https://example.org/consumer/caa-42-wos",
-  "pkaf:bridgeContractVersion": "pkaf-bridge/1.0",
-  "pkaf:result": "pkaf:acceptedWithWarnings",
-  "pkaf:warnings": [
+  "@type": "rkaf:BridgeValidationResult",
+  "rkaf:packetId": "https://example.gov/packet/rescission-001",
+  "rkaf:consumer": "https://example.org/consumer/caa-42-wos",
+  "rkaf:bridgeContractVersion": "rkaf-bridge/1.0",
+  "rkaf:result": "rkaf:acceptedWithWarnings",
+  "rkaf:warnings": [
     {
-      "@type": "pkaf:AuthorityChainBrokenWarning",
-      "pkaf:affectedWorkProduct": "https://example.org/wos/caa-42-intake/verify-identity/v1",
-      "pkaf:transitionTo": "pkaf:staleForCurrentUse",
-      "pkaf:brokenChainHop": "https://example.gov/assertion/delegation-derives-from-statute",
-      "pkaf:rescindedObject": "https://example.gov/resource/csbg-act-section-1234/v1",
-      "pkaf:detail": "Step's authority chain terminates at statute § 1234 via derivesAuthorityFrom hops. Statute is rescinded effective 2027-04-01. Step transitions to staleForCurrentUse for new cases starting 2027-04-01. PointInTimeException applies: applications with applicationSubmissionTime before 2027-04-01 may continue under prior assertion."
+      "@type": "rkaf:AuthorityChainBrokenWarning",
+      "rkaf:affectedWorkProduct": "https://example.org/wos/caa-42-intake/verify-identity/v1",
+      "rkaf:transitionTo": "rkaf:staleForCurrentUse",
+      "rkaf:brokenChainHop": "https://example.gov/assertion/delegation-derives-from-statute",
+      "rkaf:rescindedObject": "https://example.gov/resource/csbg-act-section-1234/v1",
+      "rkaf:detail": "Step's authority chain terminates at statute § 1234 via derivesAuthorityFrom hops. Statute is rescinded effective 2027-04-01. Step transitions to staleForCurrentUse for new cases starting 2027-04-01. PointInTimeException applies: applications with applicationSubmissionTime before 2027-04-01 may continue under prior assertion."
     },
     {
-      "@type": "pkaf:LocalAdoptionOrphanedWarning",
-      "pkaf:affectedAdoption": "https://example.org/adoption/caa-42-identity-req-001",
-      "pkaf:detail": "LocalAdoption's target assertion has broken authority chain. The adoption itself is procedurally still valid as an organizational decision, but it cannot continue to grant localOperationalUse for new cases because its target assertion no longer terminates at valid authority. This is the key truth-table case: LocalAdoption does not save the artifact from a broken authority chain."
+      "@type": "rkaf:LocalAdoptionOrphanedWarning",
+      "rkaf:affectedAdoption": "https://example.org/adoption/caa-42-identity-req-001",
+      "rkaf:detail": "LocalAdoption's target assertion has broken authority chain. The adoption itself is procedurally still valid as an organizational decision, but it cannot continue to grant localOperationalUse for new cases because its target assertion no longer terminates at valid authority. This is the key truth-table case: LocalAdoption does not save the artifact from a broken authority chain."
     }
   ],
-  "pkaf:staleDependencies": [
+  "rkaf:staleDependencies": [
     "https://example.org/wos/caa-42-intake/verify-identity/v1"
   ],
-  "pkaf:supportedPointInTimeAnchors": [
-    "pkaf:applicationSubmissionTime"
+  "rkaf:supportedPointInTimeAnchors": [
+    "rkaf:applicationSubmissionTime"
   ],
-  "pkaf:pointInTimeExceptionAccepted": true,
+  "rkaf:pointInTimeExceptionAccepted": true,
   "prov:generatedAtTime": "2027-03-15T01:00:00-05:00"
 }
 ```
@@ -559,18 +559,18 @@ Mirror structure for the Formspec field. Same authority-chain-broken warning, sa
 ```json
 {
   "@id": "https://example.org/revalidation/wos-verify-identity-postrescission",
-  "@type": "pkaf:RevalidationEvent",
-  "pkaf:triggeredByPacket": "https://example.gov/packet/rescission-001",
-  "pkaf:targetAssertion": "https://example.org/assertion/caa-42-identity-req-001",
-  "pkaf:targetWorkProduct": "https://example.org/wos/caa-42-intake/verify-identity/v1",
-  "pkaf:transitionTo": "pkaf:staleForCurrentUse",
-  "pkaf:revisedUsageEligibility": "pkaf:reviewQueueOnly",
-  "pkaf:retainedPointInTimeException": {
-    "@type": "pkaf:PointInTimeException",
-    "pkaf:evaluationAnchor": "pkaf:applicationSubmissionTime",
-    "pkaf:exceptionEffectivePeriodEnd": "2027-04-01T00:00:00-05:00"
+  "@type": "rkaf:RevalidationEvent",
+  "rkaf:triggeredByPacket": "https://example.gov/packet/rescission-001",
+  "rkaf:targetAssertion": "https://example.org/assertion/caa-42-identity-req-001",
+  "rkaf:targetWorkProduct": "https://example.org/wos/caa-42-intake/verify-identity/v1",
+  "rkaf:transitionTo": "rkaf:staleForCurrentUse",
+  "rkaf:revisedUsageEligibility": "rkaf:reviewQueueOnly",
+  "rkaf:retainedPointInTimeException": {
+    "@type": "rkaf:PointInTimeException",
+    "rkaf:evaluationAnchor": "rkaf:applicationSubmissionTime",
+    "rkaf:exceptionEffectivePeriodEnd": "2027-04-01T00:00:00-05:00"
   },
-  "pkaf:queuedFor": "https://example.org/user/caa-42-program-director-1",
+  "rkaf:queuedFor": "https://example.org/user/caa-42-program-director-1",
   "prov:generatedAtTime": "2027-03-15T01:00:05-05:00"
 }
 ```
@@ -605,21 +605,21 @@ This fixture stops at the staleForCurrentUse transition; a sibling fixture could
 
 ## Model issues surfaced by this fixture
 
-1. **`pkaf:authorityKind` on assertions vs on objects.** I put `authorityKind: regulatory` on the requirement assertion's `hasAuthority` (Step 11) and on the chain hops (Steps 6, 8). It expresses the kind of authority THIS hop represents. But the federal statute itself is `statutory`; the regulation is `regulatory`; the delegation is `delegated`. The chain "is" of mixed kinds. The bridge result records each hop's kind via `AuthorityChainHop` (Step 15). Worth confirming this is the right model: `authorityKind` describes the kind of authority granted by the predicate at that hop, not a global label on the assertion.
+1. **`rkaf:authorityKind` on assertions vs on objects.** I put `authorityKind: regulatory` on the requirement assertion's `hasAuthority` (Step 11) and on the chain hops (Steps 6, 8). It expresses the kind of authority THIS hop represents. But the federal statute itself is `statutory`; the regulation is `regulatory`; the delegation is `delegated`. The chain "is" of mixed kinds. The bridge result records each hop's kind via `AuthorityChainHop` (Step 15). Worth confirming this is the right model: `authorityKind` describes the kind of authority granted by the predicate at that hop, not a global label on the assertion.
 
-2. **`pkaf:chainTerminusKind` in BridgeValidationResult.** I introduced this in Step 15 to record what kind of authority the chain ultimately rests on (`statutory` in this case). Useful for consumers querying "is this artifact backed by statute or only by regulation?" Worth formalizing in PKAF Core's BridgeValidationResult shape.
+2. **`rkaf:chainTerminusKind` in BridgeValidationResult.** I introduced this in Step 15 to record what kind of authority the chain ultimately rests on (`statutory` in this case). Useful for consumers querying "is this artifact backed by statute or only by regulation?" Worth formalizing in Rulespec Core's BridgeValidationResult shape.
 
-3. **`pkaf:DelegationInstrument` as a typed subclass of `PolicyResourceVersion`.** Step 5 declares both types. The spec has `realizedByArtifact` and `resourceKind` but not a `DelegationInstrument` first-class type. Recommend adding to PKAF Core: it's a recognizable artifact category with specific fields (`delegatingAuthority`, `delegatedTo`, `delegationScope`).
+3. **`rkaf:DelegationInstrument` as a typed subclass of `PolicyResourceVersion`.** Step 5 declares both types. The spec has `realizedByArtifact` and `resourceKind` but not a `DelegationInstrument` first-class type. Recommend adding to Rulespec Core: it's a recognizable artifact category with specific fields (`delegatingAuthority`, `delegatedTo`, `delegationScope`).
 
 4. **`AuthorityChainHop` as an explicit traversal record.** Step 15 has it as inline content. For consumers caching chain validation results, this should be a first-class type with its own URI. Worth formalizing.
 
-5. **`pkaf:LocalAdoptionOrphanedWarning` (Step 21).** I introduced this to express the truth-table case. It's a specific subtype of warning that needs to be reachable from the `BridgeValidationResult` warnings list. Worth adding to the warning vocabulary alongside `pkaf:AuthorityChainBrokenWarning` and `pkaf:StaleDependencyWarning`.
+5. **`rkaf:LocalAdoptionOrphanedWarning` (Step 21).** I introduced this to express the truth-table case. It's a specific subtype of warning that needs to be reachable from the `BridgeValidationResult` warnings list. Worth adding to the warning vocabulary alongside `rkaf:AuthorityChainBrokenWarning` and `rkaf:StaleDependencyWarning`.
 
-6. **`pkaf:supportedPointInTimeAnchors` on BridgeValidationResult (Step 21).** I had `declaredSupportedAnchors` on `BridgeConsumerRegistration` earlier (per Mike's edit). Here I needed a result-side declaration that "yes, the consumer supports the anchor referenced by this packet's PointInTimeException." Worth confirming: should this be derived from the registration (and omitted from validation results), or restated per validation? I'd keep it on registration only, and let validation results have a boolean `pointInTimeExceptionAccepted`.
+6. **`rkaf:supportedPointInTimeAnchors` on BridgeValidationResult (Step 21).** I had `declaredSupportedAnchors` on `BridgeConsumerRegistration` earlier (per Mike's edit). Here I needed a result-side declaration that "yes, the consumer supports the anchor referenced by this packet's PointInTimeException." Worth confirming: should this be derived from the registration (and omitted from validation results), or restated per validation? I'd keep it on registration only, and let validation results have a boolean `pointInTimeExceptionAccepted`.
 
-7. **`pkaf:affectedAdoptions` on RescissionPacket.** Step 20 includes affected adoptions in the cascade. The PKAF Core cascade closure algorithm needs to include `LocalAdoption.targetAssertion` inverse edges so that adoptions of broken-authority assertions are surfaced. Currently the algorithm in v0.2 fixture mentions affected assertions and work products but not adoptions explicitly. Worth updating `CascadeClosureV1` to include `LocalAdoption.targetAssertion` inverse edges.
+7. **`rkaf:affectedAdoptions` on RescissionPacket.** Step 20 includes affected adoptions in the cascade. The Rulespec Core cascade closure algorithm needs to include `LocalAdoption.targetAssertion` inverse edges so that adoptions of broken-authority assertions are surfaced. Currently the algorithm in v0.2 fixture mentions affected assertions and work products but not adoptions explicitly. Worth updating `CascadeClosureV1` to include `LocalAdoption.targetAssertion` inverse edges.
 
-8. **`pkaf:rescissionEffectiveDate` on the rescission assertion (Step 19).** The packet has `effectiveDate`; the assertion has `rescissionEffectiveDate`. Redundant — recommend keeping only on the packet, since multiple assertions of the same rescission could exist (e.g., separate state-level rescissions following federal).
+8. **`rkaf:rescissionEffectiveDate` on the rescission assertion (Step 19).** The packet has `effectiveDate`; the assertion has `rescissionEffectiveDate`. Redundant — recommend keeping only on the packet, since multiple assertions of the same rescission could exist (e.g., separate state-level rescissions following federal).
 
 ## Conformance coverage matrix (cumulative across fixtures)
 

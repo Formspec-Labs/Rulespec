@@ -1,8 +1,8 @@
-# PKAF Shapes Batch 3 — Lifecycle Packets and Revalidation
+# Rulespec Shapes Batch 3 — Lifecycle Packets and Revalidation
 # Status: draft, additive to rkaf-shapes-core-v0.1.ttl + rkaf-shapes-conceptregistry-v0.1.ttl
-# Profile: PKAF-SHACL-AF
+# Profile: Rulespec-SHACL-AF
 # Bridge contract: rkaf-bridge/1.0
-# Spec anchors: PKAF Core v0.1 §4
+# Spec anchors: Rulespec Core v0.1 §4
 #
 # IMPORTANT: These shapes validate packet STRUCTURE. They do NOT validate
 # cascade CORRECTNESS. Whether the affectedAssertions / affectedWorkProducts /
@@ -16,7 +16,7 @@
 @prefix prov:  <http://www.w3.org/ns/prov#> .
 @prefix rkaf:  <https://rulespec.org/ns/v1#> .
 
-# === 1. AmendmentPacketShape (PKAF Core §4.4) ===
+# === 1. AmendmentPacketShape (Rulespec Core §4.4) ===
 
 rkaf:AmendmentPacketShape
   a sh:NodeShape ;
@@ -49,7 +49,7 @@ rkaf:AmendmentPacketShape
     sh:message "AmendmentPacket must declare cascadeAlgorithm (e.g., rkaf:CascadeClosureV1). Structural requirement only; SHACL does not verify cascade output correctness." ;
   ] .
 
-# === 2. RescissionPacketShape (PKAF Core §4.4) ===
+# === 2. RescissionPacketShape (Rulespec Core §4.4) ===
 
 rkaf:RescissionPacketShape
   a sh:NodeShape ;
@@ -80,7 +80,7 @@ rkaf:RescissionPacketShape
     sh:nodeKind sh:IRI ;
   ] .
 
-# === 3. SupersessionPacketShape (PKAF Core §4.4) ===
+# === 3. SupersessionPacketShape (Rulespec Core §4.4) ===
 # Note: not exercised by any v0.1 fixture; shape is correct but unbound.
 
 rkaf:SupersessionPacketShape
@@ -112,7 +112,7 @@ rkaf:SupersessionPacketShape
     sh:nodeKind sh:IRI ;
   ] .
 
-# === 4. MaterialRevisionPacketShape (PKAF Core §4.4) ===
+# === 4. MaterialRevisionPacketShape (Rulespec Core §4.4) ===
 # Note: not exercised by any v0.1 fixture; shape is correct but unbound.
 
 rkaf:MaterialRevisionPacketShape
@@ -144,7 +144,7 @@ rkaf:MaterialRevisionPacketShape
     sh:nodeKind sh:IRI ;
   ] .
 
-# === 5. RevalidationEventShape (PKAF Core §4.8) ===
+# === 5. RevalidationEventShape (Rulespec Core §4.8) ===
 
 rkaf:RevalidationEventShape
   a sh:NodeShape ;
@@ -185,7 +185,7 @@ rkaf:RevalidationEventShape
     sh:datatype xsd:dateTime ;
   ] .
 
-# === 6. RevalidationClosureEventShape (PKAF Core §4.8) ===
+# === 6. RevalidationClosureEventShape (Rulespec Core §4.8) ===
 
 rkaf:RevalidationClosureEventShape
   a sh:NodeShape ;
@@ -241,7 +241,7 @@ rkaf:RevalidationClosureEventShape
   ) ;
   sh:message "RevalidationClosureEvent with closureDecision=revalidatedWithSuccessor must reference at least one successor via successorAssertion (singular), successorAssertions (plural for split cases), or successorWorkProduct." .
 
-# === 7. PointInTimeExceptionShape (PKAF Core §4.6, §4.7) ===
+# === 7. PointInTimeExceptionShape (Rulespec Core §4.6, §4.7) ===
 
 rkaf:PointInTimeExceptionShape
   a sh:NodeShape ;

@@ -1,8 +1,8 @@
-# PKAF Mapping Fixture v0.1
+# Rulespec Mapping Fixture v0.1
 
 Status: Editor's Draft conformance fixture for ConceptRegistry-Lifecycle and -Federated
-Companion to: PKAF Core, PKAF Conformance Fixture v0.2, PKAF ConceptRegistry v0.1.1
-Bridge contract: `pkaf-bridge/1.0`
+Companion to: Rulespec Core, Rulespec Conformance Fixture v0.2, Rulespec ConceptRegistry v0.1.1
+Bridge contract: `rkaf-bridge/1.0`
 
 ## Purpose
 
@@ -35,12 +35,12 @@ Plus: an `informational` `MappingConflict` between CAA-42's `closeMatch` and CAA
 ```json
 {
   "@id": "https://registry.example.gov/concepts/HouseholdIncomeEvidence",
-  "@type": ["skos:Concept", "pkaf:RegisteredConcept"],
+  "@type": ["skos:Concept", "rkaf:RegisteredConcept"],
   "skos:prefLabel": "Household income evidence",
-  "pkaf:managedByRegistry": "https://registry.example.gov/registries/public-benefits-evidence",
-  "pkaf:conceptScope": "pkaf:public",
-  "pkaf:conceptStatus": "pkaf:registered",
-  "pkaf:registeredAt": "2025-11-01T00:00:00-05:00"
+  "rkaf:managedByRegistry": "https://registry.example.gov/registries/public-benefits-evidence",
+  "rkaf:conceptScope": "rkaf:public",
+  "rkaf:conceptStatus": "rkaf:registered",
+  "rkaf:registeredAt": "2025-11-01T00:00:00-05:00"
 }
 ```
 
@@ -49,13 +49,13 @@ Plus: an `informational` `MappingConflict` between CAA-42's `closeMatch` and CAA
 ```json
 {
   "@id": "https://registry.example.gov/registries/public-benefits-evidence",
-  "@type": "pkaf:ConceptRegistry",
-  "pkaf:registryName": "Public Benefits Evidence Concept Registry",
-  "pkaf:namespacePrefix": "https://registry.example.gov/concepts/",
-  "pkaf:mintingAuthority": "https://registry.example.gov/authorities/pbe-curation-board",
-  "pkaf:governanceModel": "pkaf:federatedCuration",
-  "pkaf:resolutionEndpoint": "https://registry.example.gov/api/v1/concepts/",
-  "pkaf:registryVersion": "2026-04-01"
+  "@type": "rkaf:ConceptRegistry",
+  "rkaf:registryName": "Public Benefits Evidence Concept Registry",
+  "rkaf:namespacePrefix": "https://registry.example.gov/concepts/",
+  "rkaf:mintingAuthority": "https://registry.example.gov/authorities/pbe-curation-board",
+  "rkaf:governanceModel": "rkaf:federatedCuration",
+  "rkaf:resolutionEndpoint": "https://registry.example.gov/api/v1/concepts/",
+  "rkaf:registryVersion": "2026-04-01"
 }
 ```
 
@@ -66,12 +66,12 @@ Plus: an `informational` `MappingConflict` between CAA-42's `closeMatch` and CAA
 ```json
 {
   "@id": "https://example.org/concepts/caa-42/IncomeDocs",
-  "@type": ["skos:Concept", "pkaf:LocalConcept"],
+  "@type": ["skos:Concept", "rkaf:LocalConcept"],
   "skos:prefLabel": "Income docs",
   "skos:altLabel": ["proof of household income"],
-  "pkaf:definedInScope": "https://example.org/org/caa-42",
-  "pkaf:conceptScope": "pkaf:organization",
-  "pkaf:conceptStatus": "pkaf:localActive"
+  "rkaf:definedInScope": "https://example.org/org/caa-42",
+  "rkaf:conceptScope": "rkaf:organization",
+  "rkaf:conceptStatus": "rkaf:localActive"
 }
 ```
 
@@ -82,28 +82,28 @@ Mapping is an assertion. Baseline `usageEligibility: reviewQueueOnly`. Includes 
 ```json
 {
   "@id": "https://example.org/assertion/caa-42-mapping-001",
-  "@type": "pkaf:RelationshipAssertion",
-  "pkaf:assertsSubject": "https://example.org/concepts/caa-42/IncomeDocs",
-  "pkaf:assertsPredicate": "skos:closeMatch",
-  "pkaf:assertsObject": "https://registry.example.gov/concepts/HouseholdIncomeEvidence",
-  "pkaf:assertionOrigin": "pkaf:humanAsserted",
-  "pkaf:hasTrustZone": "pkaf:Z4AttestedAssertion",
-  "pkaf:hasSafetyLabel": "pkaf:R2ReviewedOperational",
-  "pkaf:usageEligibility": "pkaf:reviewQueueOnly",
-  "pkaf:hasApplicability": {
-    "@type": "pkaf:MappingApplicabilityContext",
-    "pkaf:operationalScope": "csbg-benefit-category-b-intake",
-    "pkaf:evidencePurpose": ["eligibility-determination"],
-    "pkaf:excludesPurposes": ["fraud-investigation", "tax-audit"]
+  "@type": "rkaf:RelationshipAssertion",
+  "rkaf:assertsSubject": "https://example.org/concepts/caa-42/IncomeDocs",
+  "rkaf:assertsPredicate": "skos:closeMatch",
+  "rkaf:assertsObject": "https://registry.example.gov/concepts/HouseholdIncomeEvidence",
+  "rkaf:assertionOrigin": "rkaf:humanAsserted",
+  "rkaf:hasTrustZone": "rkaf:Z4AttestedAssertion",
+  "rkaf:hasSafetyLabel": "rkaf:R2ReviewedOperational",
+  "rkaf:usageEligibility": "rkaf:reviewQueueOnly",
+  "rkaf:hasApplicability": {
+    "@type": "rkaf:MappingApplicabilityContext",
+    "rkaf:operationalScope": "csbg-benefit-category-b-intake",
+    "rkaf:evidencePurpose": ["eligibility-determination"],
+    "rkaf:excludesPurposes": ["fraud-investigation", "tax-audit"]
   },
-  "pkaf:hasEvidence": [
+  "rkaf:hasEvidence": [
     {
-      "@type": "pkaf:EvidenceBinding",
-      "pkaf:evidenceRole": "pkaf:mappingRationale",
-      "pkaf:rationaleText": "Local 'Income docs' is used in CAA-42 intake to mean the same evidence category as registry HouseholdIncomeEvidence within CSBG benefit category B eligibility determination."
+      "@type": "rkaf:EvidenceBinding",
+      "rkaf:evidenceRole": "rkaf:mappingRationale",
+      "rkaf:rationaleText": "Local 'Income docs' is used in CAA-42 intake to mean the same evidence category as registry HouseholdIncomeEvidence within CSBG benefit category B eligibility determination."
     }
   ],
-  "pkaf:scope": "https://example.org/org/caa-42",
+  "rkaf:scope": "https://example.org/org/caa-42",
   "prov:wasAttributedTo": "https://example.org/user/caa-42-program-analyst-1",
   "prov:generatedAtTime": "2026-07-01T10:00:00-05:00"
 }
@@ -114,19 +114,19 @@ Mapping is an assertion. Baseline `usageEligibility: reviewQueueOnly`. Includes 
 ```json
 {
   "@id": "https://example.org/form-field/caa-42-intake/income-docs/v1",
-  "@type": ["pkaf:GeneratedWorkProduct", "formspec:Field"],
+  "@type": ["rkaf:GeneratedWorkProduct", "formspec:Field"],
   "formspec:fieldName": "income_docs",
   "formspec:label": "Income docs (household)",
   "formspec:dataType": "file-upload",
-  "pkaf:collectsEvidenceType": "https://example.org/concepts/caa-42/IncomeDocs",
-  "pkaf:justifiedByAssertion": ["https://example.org/assertion/caa-42-req-002"],
-  "pkaf:consumerLifecycleState": "pkaf:draft",
-  "pkaf:usageEligibility": "pkaf:draftGenerationAllowed",
-  "pkaf:bridgeContractVersion": "pkaf-bridge/1.0",
-  "pkaf:hasApplicability": {
-    "@type": "pkaf:ApplicabilityContext",
-    "pkaf:benefitCategory": "B",
-    "pkaf:evidencePurpose": "eligibility-determination"
+  "rkaf:collectsEvidenceType": "https://example.org/concepts/caa-42/IncomeDocs",
+  "rkaf:justifiedByAssertion": ["https://example.org/assertion/caa-42-req-002"],
+  "rkaf:consumerLifecycleState": "rkaf:draft",
+  "rkaf:usageEligibility": "rkaf:draftGenerationAllowed",
+  "rkaf:bridgeContractVersion": "rkaf-bridge/1.0",
+  "rkaf:hasApplicability": {
+    "@type": "rkaf:ApplicabilityContext",
+    "rkaf:benefitCategory": "B",
+    "rkaf:evidencePurpose": "eligibility-determination"
   }
 }
 ```
@@ -136,24 +136,24 @@ Mapping is an assertion. Baseline `usageEligibility: reviewQueueOnly`. Includes 
 ```json
 {
   "@id": "https://example.org/consumer/caa-42-formspec/registration",
-  "@type": "pkaf:BridgeConsumerRegistration",
-  "pkaf:consumer": "https://example.org/consumer/caa-42-formspec",
-  "pkaf:organization": "https://example.org/org/caa-42",
-  "pkaf:bridgeContractVersion": "pkaf-bridge/1.0",
-  "pkaf:supportedEvaluationAnchors": [
-    "pkaf:applicationSubmissionTime",
-    "pkaf:eligibilityDeterminationTime",
-    "pkaf:currentTime",
-    "pkaf:effectivePeriodStart"
+  "@type": "rkaf:BridgeConsumerRegistration",
+  "rkaf:consumer": "https://example.org/consumer/caa-42-formspec",
+  "rkaf:organization": "https://example.org/org/caa-42",
+  "rkaf:bridgeContractVersion": "rkaf-bridge/1.0",
+  "rkaf:supportedEvaluationAnchors": [
+    "rkaf:applicationSubmissionTime",
+    "rkaf:eligibilityDeterminationTime",
+    "rkaf:currentTime",
+    "rkaf:effectivePeriodStart"
   ],
-  "pkaf:supportsRegistryVersionRange": [
+  "rkaf:supportsRegistryVersionRange": [
     {
-      "pkaf:registry": "https://registry.example.gov/registries/public-benefits-evidence",
-      "pkaf:minVersion": "2026-01-01",
-      "pkaf:maxVersion": "2026-12-31"
+      "rkaf:registry": "https://registry.example.gov/registries/public-benefits-evidence",
+      "rkaf:minVersion": "2026-01-01",
+      "rkaf:maxVersion": "2026-12-31"
     }
   ],
-  "pkaf:supportedAutomaticMigrations": ["pkaf:replaceInPlace"]
+  "rkaf:supportedAutomaticMigrations": ["rkaf:replaceInPlace"]
 }
 ```
 
@@ -162,35 +162,35 @@ Mapping is an assertion. Baseline `usageEligibility: reviewQueueOnly`. Includes 
 ```json
 {
   "@id": "https://example.org/bridge-validation/caa-42-2026-07-01-001",
-  "@type": "pkaf:BridgeValidationResult",
-  "pkaf:packetId": "https://example.org/form-field/caa-42-intake/income-docs/v1",
-  "pkaf:consumer": "https://example.org/consumer/caa-42-formspec",
-  "pkaf:bridgeContractVersion": "pkaf-bridge/1.0",
-  "pkaf:result": "pkaf:acceptedWithWarnings",
-  "pkaf:effectiveUsageEligibility": "pkaf:draftGenerationAllowed",
-  "pkaf:effectiveUsageEligibilityRationale": "LocalConcept resolves via closeMatch mapping, but mapping is not yet locally adopted. Ceiling held at draftGenerationAllowed per ConceptRegistry §5.2.",
-  "pkaf:conceptResolutionResults": [
+  "@type": "rkaf:BridgeValidationResult",
+  "rkaf:packetId": "https://example.org/form-field/caa-42-intake/income-docs/v1",
+  "rkaf:consumer": "https://example.org/consumer/caa-42-formspec",
+  "rkaf:bridgeContractVersion": "rkaf-bridge/1.0",
+  "rkaf:result": "rkaf:acceptedWithWarnings",
+  "rkaf:effectiveUsageEligibility": "rkaf:draftGenerationAllowed",
+  "rkaf:effectiveUsageEligibilityRationale": "LocalConcept resolves via closeMatch mapping, but mapping is not yet locally adopted. Ceiling held at draftGenerationAllowed per ConceptRegistry §5.2.",
+  "rkaf:conceptResolutionResults": [
     {
-      "@type": "pkaf:ConceptResolutionResult",
-      "pkaf:inputConcept": "https://example.org/concepts/caa-42/IncomeDocs",
-      "pkaf:resolvedConcept": "https://registry.example.gov/concepts/HouseholdIncomeEvidence",
-      "pkaf:resolutionStatus": "pkaf:resolvedViaMapping",
-      "pkaf:resolutionMethod": "pkaf:closeMatchAwaitingAdoption",
-      "pkaf:mappingAssertion": "https://example.org/assertion/caa-42-mapping-001",
-      "pkaf:registryVersion": "2026-04-01",
-      "pkaf:cacheStatus": "pkaf:fresh",
-      "pkaf:usageCeiling": "pkaf:draftGenerationAllowed",
-      "pkaf:warnings": [
+      "@type": "rkaf:ConceptResolutionResult",
+      "rkaf:inputConcept": "https://example.org/concepts/caa-42/IncomeDocs",
+      "rkaf:resolvedConcept": "https://registry.example.gov/concepts/HouseholdIncomeEvidence",
+      "rkaf:resolutionStatus": "rkaf:resolvedViaMapping",
+      "rkaf:resolutionMethod": "rkaf:closeMatchAwaitingAdoption",
+      "rkaf:mappingAssertion": "https://example.org/assertion/caa-42-mapping-001",
+      "rkaf:registryVersion": "2026-04-01",
+      "rkaf:cacheStatus": "rkaf:fresh",
+      "rkaf:usageCeiling": "rkaf:draftGenerationAllowed",
+      "rkaf:warnings": [
         {
-          "@type": "pkaf:ConceptResolutionWarning",
-          "pkaf:warningCode": "pkaf:closeMatchNotAdopted",
-          "pkaf:detail": "Mapping caa-42-mapping-001 is closeMatch but lacks LocalAdoption in CAA-42 scope. Promote to operational by adopting the mapping."
+          "@type": "rkaf:ConceptResolutionWarning",
+          "rkaf:warningCode": "rkaf:closeMatchNotAdopted",
+          "rkaf:detail": "Mapping caa-42-mapping-001 is closeMatch but lacks LocalAdoption in CAA-42 scope. Promote to operational by adopting the mapping."
         }
       ]
     }
   ],
-  "pkaf:errors": [],
-  "pkaf:staleDependencies": [],
+  "rkaf:errors": [],
+  "rkaf:staleDependencies": [],
   "prov:generatedAtTime": "2026-07-01T10:30:00-05:00"
 }
 ```
@@ -202,18 +202,18 @@ Mapping is an assertion. Baseline `usageEligibility: reviewQueueOnly`. Includes 
 ```json
 {
   "@id": "https://example.org/adoption/caa-42-mapping-001",
-  "@type": "pkaf:LocalAdoption",
-  "pkaf:organization": "https://example.org/org/caa-42",
-  "pkaf:targetAssertion": "https://example.org/assertion/caa-42-mapping-001",
-  "pkaf:adoptionStatus": "pkaf:adoptedForLocalOperations",
-  "pkaf:usageEligibility": "pkaf:localOperationalUse",
-  "pkaf:adoptionAuthorityKind": "pkaf:localOperational",
-  "pkaf:adoptionScope": "csbg-benefit-category-b-intake",
-  "pkaf:authorizedBy": "https://example.org/user/caa-42-program-director-1",
-  "pkaf:adoptsApplicability": {
-    "@type": "pkaf:MappingApplicabilityContext",
-    "pkaf:operationalScope": "csbg-benefit-category-b-intake",
-    "pkaf:evidencePurpose": ["eligibility-determination"]
+  "@type": "rkaf:LocalAdoption",
+  "rkaf:organization": "https://example.org/org/caa-42",
+  "rkaf:targetAssertion": "https://example.org/assertion/caa-42-mapping-001",
+  "rkaf:adoptionStatus": "rkaf:adoptedForLocalOperations",
+  "rkaf:usageEligibility": "rkaf:localOperationalUse",
+  "rkaf:adoptionAuthorityKind": "rkaf:localOperational",
+  "rkaf:adoptionScope": "csbg-benefit-category-b-intake",
+  "rkaf:authorizedBy": "https://example.org/user/caa-42-program-director-1",
+  "rkaf:adoptsApplicability": {
+    "@type": "rkaf:MappingApplicabilityContext",
+    "rkaf:operationalScope": "csbg-benefit-category-b-intake",
+    "rkaf:evidencePurpose": ["eligibility-determination"]
   },
   "prov:generatedAtTime": "2026-07-05T14:00:00-05:00"
 }
@@ -224,20 +224,20 @@ Mapping is an assertion. Baseline `usageEligibility: reviewQueueOnly`. Includes 
 ```json
 {
   "@id": "https://example.org/form-field/caa-42-intake/income-docs/v2",
-  "@type": ["pkaf:GeneratedWorkProduct", "formspec:Field"],
+  "@type": ["rkaf:GeneratedWorkProduct", "formspec:Field"],
   "formspec:fieldName": "income_docs",
   "formspec:label": "Income docs (household)",
   "formspec:dataType": "file-upload",
-  "pkaf:collectsEvidenceType": "https://example.org/concepts/caa-42/IncomeDocs",
-  "pkaf:justifiedByAssertion": ["https://example.org/assertion/caa-42-req-002"],
-  "pkaf:supersedesWorkProduct": "https://example.org/form-field/caa-42-intake/income-docs/v1",
-  "pkaf:consumerLifecycleState": "pkaf:operational",
-  "pkaf:usageEligibility": "pkaf:localOperationalUse",
-  "pkaf:bridgeContractVersion": "pkaf-bridge/1.0",
-  "pkaf:hasApplicability": {
-    "@type": "pkaf:ApplicabilityContext",
-    "pkaf:benefitCategory": "B",
-    "pkaf:evidencePurpose": "eligibility-determination"
+  "rkaf:collectsEvidenceType": "https://example.org/concepts/caa-42/IncomeDocs",
+  "rkaf:justifiedByAssertion": ["https://example.org/assertion/caa-42-req-002"],
+  "rkaf:supersedesWorkProduct": "https://example.org/form-field/caa-42-intake/income-docs/v1",
+  "rkaf:consumerLifecycleState": "rkaf:operational",
+  "rkaf:usageEligibility": "rkaf:localOperationalUse",
+  "rkaf:bridgeContractVersion": "rkaf-bridge/1.0",
+  "rkaf:hasApplicability": {
+    "@type": "rkaf:ApplicabilityContext",
+    "rkaf:benefitCategory": "B",
+    "rkaf:evidencePurpose": "eligibility-determination"
   }
 }
 ```
@@ -247,26 +247,26 @@ Mapping is an assertion. Baseline `usageEligibility: reviewQueueOnly`. Includes 
 ```json
 {
   "@id": "https://example.org/bridge-validation/caa-42-2026-07-05-001",
-  "@type": "pkaf:BridgeValidationResult",
-  "pkaf:packetId": "https://example.org/form-field/caa-42-intake/income-docs/v2",
-  "pkaf:consumer": "https://example.org/consumer/caa-42-formspec",
-  "pkaf:bridgeContractVersion": "pkaf-bridge/1.0",
-  "pkaf:result": "pkaf:accepted",
-  "pkaf:effectiveUsageEligibility": "pkaf:localOperationalUse",
-  "pkaf:effectiveUsageEligibilityRationale": "Mapping caa-42-mapping-001 locally adopted; field's evidence purpose ('eligibility-determination') is within mapping's MappingApplicabilityContext.evidencePurpose. Ceiling raised to localOperationalUse.",
-  "pkaf:conceptResolutionResults": [
+  "@type": "rkaf:BridgeValidationResult",
+  "rkaf:packetId": "https://example.org/form-field/caa-42-intake/income-docs/v2",
+  "rkaf:consumer": "https://example.org/consumer/caa-42-formspec",
+  "rkaf:bridgeContractVersion": "rkaf-bridge/1.0",
+  "rkaf:result": "rkaf:accepted",
+  "rkaf:effectiveUsageEligibility": "rkaf:localOperationalUse",
+  "rkaf:effectiveUsageEligibilityRationale": "Mapping caa-42-mapping-001 locally adopted; field's evidence purpose ('eligibility-determination') is within mapping's MappingApplicabilityContext.evidencePurpose. Ceiling raised to localOperationalUse.",
+  "rkaf:conceptResolutionResults": [
     {
-      "@type": "pkaf:ConceptResolutionResult",
-      "pkaf:inputConcept": "https://example.org/concepts/caa-42/IncomeDocs",
-      "pkaf:resolvedConcept": "https://registry.example.gov/concepts/HouseholdIncomeEvidence",
-      "pkaf:resolutionStatus": "pkaf:resolvedViaMapping",
-      "pkaf:resolutionMethod": "pkaf:closeMatchLocallyAdopted",
-      "pkaf:mappingAssertion": "https://example.org/assertion/caa-42-mapping-001",
-      "pkaf:registryVersion": "2026-04-01",
-      "pkaf:cacheStatus": "pkaf:fresh",
-      "pkaf:usageCeiling": "pkaf:localOperationalUse",
-      "pkaf:warnings": [],
-      "pkaf:errors": []
+      "@type": "rkaf:ConceptResolutionResult",
+      "rkaf:inputConcept": "https://example.org/concepts/caa-42/IncomeDocs",
+      "rkaf:resolvedConcept": "https://registry.example.gov/concepts/HouseholdIncomeEvidence",
+      "rkaf:resolutionStatus": "rkaf:resolvedViaMapping",
+      "rkaf:resolutionMethod": "rkaf:closeMatchLocallyAdopted",
+      "rkaf:mappingAssertion": "https://example.org/assertion/caa-42-mapping-001",
+      "rkaf:registryVersion": "2026-04-01",
+      "rkaf:cacheStatus": "rkaf:fresh",
+      "rkaf:usageCeiling": "rkaf:localOperationalUse",
+      "rkaf:warnings": [],
+      "rkaf:errors": []
     }
   ],
   "prov:generatedAtTime": "2026-07-05T14:30:00-05:00"
@@ -280,11 +280,11 @@ Mapping is an assertion. Baseline `usageEligibility: reviewQueueOnly`. Includes 
 ```json
 {
   "@id": "https://example.org/concepts/caa-77/HouseholdIncomeProof",
-  "@type": ["skos:Concept", "pkaf:LocalConcept"],
+  "@type": ["skos:Concept", "rkaf:LocalConcept"],
   "skos:prefLabel": "Household income proof",
-  "pkaf:definedInScope": "https://example.org/org/caa-77",
-  "pkaf:conceptScope": "pkaf:organization",
-  "pkaf:conceptStatus": "pkaf:localActive"
+  "rkaf:definedInScope": "https://example.org/org/caa-77",
+  "rkaf:conceptScope": "rkaf:organization",
+  "rkaf:conceptStatus": "rkaf:localActive"
 }
 ```
 
@@ -295,22 +295,22 @@ CAA-77 mapped their LocalConcept as broader than the registered concept (they ma
 ```json
 {
   "@id": "https://example.org/assertion/caa-77-mapping-001",
-  "@type": "pkaf:RelationshipAssertion",
-  "pkaf:assertsSubject": "https://example.org/concepts/caa-77/HouseholdIncomeProof",
-  "pkaf:assertsPredicate": "skos:broadMatch",
-  "pkaf:assertsObject": "https://registry.example.gov/concepts/HouseholdIncomeEvidence",
-  "pkaf:assertionOrigin": "pkaf:humanAsserted",
-  "pkaf:hasTrustZone": "pkaf:Z4AttestedAssertion",
-  "pkaf:hasSafetyLabel": "pkaf:S1SearchOnly",
-  "pkaf:usageEligibility": "pkaf:searchOnly",
-  "pkaf:hasEvidence": [
+  "@type": "rkaf:RelationshipAssertion",
+  "rkaf:assertsSubject": "https://example.org/concepts/caa-77/HouseholdIncomeProof",
+  "rkaf:assertsPredicate": "skos:broadMatch",
+  "rkaf:assertsObject": "https://registry.example.gov/concepts/HouseholdIncomeEvidence",
+  "rkaf:assertionOrigin": "rkaf:humanAsserted",
+  "rkaf:hasTrustZone": "rkaf:Z4AttestedAssertion",
+  "rkaf:hasSafetyLabel": "rkaf:S1SearchOnly",
+  "rkaf:usageEligibility": "rkaf:searchOnly",
+  "rkaf:hasEvidence": [
     {
-      "@type": "pkaf:EvidenceBinding",
-      "pkaf:evidenceRole": "pkaf:mappingRationale",
-      "pkaf:rationaleText": "CAA-77 accepts a broader set of evidence than the registry concept defines, including informal employer letters and household budget statements."
+      "@type": "rkaf:EvidenceBinding",
+      "rkaf:evidenceRole": "rkaf:mappingRationale",
+      "rkaf:rationaleText": "CAA-77 accepts a broader set of evidence than the registry concept defines, including informal employer letters and household budget statements."
     }
   ],
-  "pkaf:scope": "https://example.org/org/caa-77",
+  "rkaf:scope": "https://example.org/org/caa-77",
   "prov:generatedAtTime": "2026-07-10T09:00:00-05:00"
 }
 ```
@@ -322,15 +322,15 @@ CAA-77 tries to use the LocalConcept on an intake field with intended `usageElig
 ```json
 {
   "@id": "https://example.org/form-field/caa-77-intake/income-proof/v1",
-  "@type": ["pkaf:GeneratedWorkProduct", "formspec:Field"],
+  "@type": ["rkaf:GeneratedWorkProduct", "formspec:Field"],
   "formspec:fieldName": "income_proof",
   "formspec:label": "Household income proof",
   "formspec:dataType": "file-upload",
-  "pkaf:collectsEvidenceType": "https://example.org/concepts/caa-77/HouseholdIncomeProof",
-  "pkaf:justifiedByAssertion": ["https://example.org/assertion/caa-77-req-001"],
-  "pkaf:consumerLifecycleState": "pkaf:proposedForOperational",
-  "pkaf:proposedUsageEligibility": "pkaf:localOperationalUse",
-  "pkaf:bridgeContractVersion": "pkaf-bridge/1.0"
+  "rkaf:collectsEvidenceType": "https://example.org/concepts/caa-77/HouseholdIncomeProof",
+  "rkaf:justifiedByAssertion": ["https://example.org/assertion/caa-77-req-001"],
+  "rkaf:consumerLifecycleState": "rkaf:proposedForOperational",
+  "rkaf:proposedUsageEligibility": "rkaf:localOperationalUse",
+  "rkaf:bridgeContractVersion": "rkaf-bridge/1.0"
 }
 ```
 
@@ -339,35 +339,35 @@ CAA-77 tries to use the LocalConcept on an intake field with intended `usageElig
 ```json
 {
   "@id": "https://example.org/bridge-validation/caa-77-2026-07-10-001",
-  "@type": "pkaf:BridgeValidationResult",
-  "pkaf:packetId": "https://example.org/form-field/caa-77-intake/income-proof/v1",
-  "pkaf:consumer": "https://example.org/consumer/caa-77-formspec",
-  "pkaf:bridgeContractVersion": "pkaf-bridge/1.0",
-  "pkaf:result": "pkaf:rejected",
-  "pkaf:effectiveUsageEligibility": "pkaf:draftGenerationAllowed",
-  "pkaf:effectiveUsageEligibilityRationale": "Field requested promotion to localOperationalUse. Concept resolves only via skos:broadMatch (S1 / discovery). broadMatch cannot satisfy operational evidence-type resolution per ConceptRegistry §4.1. Field may continue at draftGenerationAllowed with explicit warning, OR consumer should obtain a closeMatch/exactMatch mapping before promotion.",
-  "pkaf:conceptResolutionResults": [
+  "@type": "rkaf:BridgeValidationResult",
+  "rkaf:packetId": "https://example.org/form-field/caa-77-intake/income-proof/v1",
+  "rkaf:consumer": "https://example.org/consumer/caa-77-formspec",
+  "rkaf:bridgeContractVersion": "rkaf-bridge/1.0",
+  "rkaf:result": "rkaf:rejected",
+  "rkaf:effectiveUsageEligibility": "rkaf:draftGenerationAllowed",
+  "rkaf:effectiveUsageEligibilityRationale": "Field requested promotion to localOperationalUse. Concept resolves only via skos:broadMatch (S1 / discovery). broadMatch cannot satisfy operational evidence-type resolution per ConceptRegistry §4.1. Field may continue at draftGenerationAllowed with explicit warning, OR consumer should obtain a closeMatch/exactMatch mapping before promotion.",
+  "rkaf:conceptResolutionResults": [
     {
-      "@type": "pkaf:ConceptResolutionResult",
-      "pkaf:inputConcept": "https://example.org/concepts/caa-77/HouseholdIncomeProof",
-      "pkaf:resolvedConcept": "https://registry.example.gov/concepts/HouseholdIncomeEvidence",
-      "pkaf:resolutionStatus": "pkaf:unresolvedForOperationalUse",
-      "pkaf:resolutionMethod": "pkaf:broadOrNarrowMatchDiscoveryOnly",
-      "pkaf:mappingAssertion": "https://example.org/assertion/caa-77-mapping-001",
-      "pkaf:registryVersion": "2026-04-01",
-      "pkaf:cacheStatus": "pkaf:fresh",
-      "pkaf:usageCeiling": "pkaf:searchOnly",
-      "pkaf:warnings": [],
-      "pkaf:errors": [
+      "@type": "rkaf:ConceptResolutionResult",
+      "rkaf:inputConcept": "https://example.org/concepts/caa-77/HouseholdIncomeProof",
+      "rkaf:resolvedConcept": "https://registry.example.gov/concepts/HouseholdIncomeEvidence",
+      "rkaf:resolutionStatus": "rkaf:unresolvedForOperationalUse",
+      "rkaf:resolutionMethod": "rkaf:broadOrNarrowMatchDiscoveryOnly",
+      "rkaf:mappingAssertion": "https://example.org/assertion/caa-77-mapping-001",
+      "rkaf:registryVersion": "2026-04-01",
+      "rkaf:cacheStatus": "rkaf:fresh",
+      "rkaf:usageCeiling": "rkaf:searchOnly",
+      "rkaf:warnings": [],
+      "rkaf:errors": [
         {
-          "@type": "pkaf:ConceptResolutionError",
-          "pkaf:errorCode": "pkaf:operationalResolutionRequiresStrongerMapping",
-          "pkaf:detail": "Only broadMatch available. Operational use requires exactMatch (trusted) or closeMatch (locally adopted with MappingApplicabilityContext)."
+          "@type": "rkaf:ConceptResolutionError",
+          "rkaf:errorCode": "rkaf:operationalResolutionRequiresStrongerMapping",
+          "rkaf:detail": "Only broadMatch available. Operational use requires exactMatch (trusted) or closeMatch (locally adopted with MappingApplicabilityContext)."
         }
       ]
     }
   ],
-  "pkaf:suggestedRemediation": "Assert a skos:closeMatch mapping from caa-77:HouseholdIncomeProof to a registered concept, or narrow the LocalConcept definition and assert skos:exactMatch.",
+  "rkaf:suggestedRemediation": "Assert a skos:closeMatch mapping from caa-77:HouseholdIncomeProof to a registered concept, or narrow the LocalConcept definition and assert skos:exactMatch.",
   "prov:generatedAtTime": "2026-07-10T09:30:00-05:00"
 }
 ```
@@ -381,16 +381,16 @@ A registry-side observer (or a federated reconciliation process) notes that CAA-
 ```json
 {
   "@id": "https://registry.example.gov/annotation/mapping-conflict-001",
-  "@type": "pkaf:MappingConflict",
-  "pkaf:conflictingMappings": [
+  "@type": "rkaf:MappingConflict",
+  "rkaf:conflictingMappings": [
     "https://example.org/assertion/caa-42-mapping-001",
     "https://example.org/assertion/caa-77-mapping-001"
   ],
-  "pkaf:relatedConcept": "https://registry.example.gov/concepts/HouseholdIncomeEvidence",
-  "pkaf:severity": "pkaf:informational",
-  "pkaf:severityRationale": "CAA-42 asserts closeMatch (scoped to eligibility-determination); CAA-77 asserts broadMatch. No shared operational artifact or publication depends on both. Recorded for federated awareness; no consumer action required.",
-  "pkaf:detectedBy": "https://registry.example.gov/agent/federation-reconciler-v1",
-  "pkaf:detectedAt": "2026-07-15T00:00:00-05:00"
+  "rkaf:relatedConcept": "https://registry.example.gov/concepts/HouseholdIncomeEvidence",
+  "rkaf:severity": "rkaf:informational",
+  "rkaf:severityRationale": "CAA-42 asserts closeMatch (scoped to eligibility-determination); CAA-77 asserts broadMatch. No shared operational artifact or publication depends on both. Recorded for federated awareness; no consumer action required.",
+  "rkaf:detectedBy": "https://registry.example.gov/agent/federation-reconciler-v1",
+  "rkaf:detectedAt": "2026-07-15T00:00:00-05:00"
 }
 ```
 
@@ -401,38 +401,38 @@ A registry-side observer (or a federated reconciliation process) notes that CAA-
 ```json
 {
   "@id": "https://registry.example.gov/packets/lifecycle-001",
-  "@type": "pkaf:ConceptLifecyclePacket",
-  "pkaf:lifecycleEvent": "pkaf:split",
-  "pkaf:subjectConcept": "https://registry.example.gov/concepts/HouseholdIncomeEvidence",
-  "pkaf:successorConcepts": [
+  "@type": "rkaf:ConceptLifecyclePacket",
+  "rkaf:lifecycleEvent": "rkaf:split",
+  "rkaf:subjectConcept": "https://registry.example.gov/concepts/HouseholdIncomeEvidence",
+  "rkaf:successorConcepts": [
     "https://registry.example.gov/concepts/HouseholdIncomeEvidence-W2Filers",
     "https://registry.example.gov/concepts/HouseholdIncomeEvidence-NonW2Filers"
   ],
-  "pkaf:effectiveDate": "2027-01-01T00:00:00-05:00",
-  "pkaf:bridgeContractVersion": "pkaf-bridge/1.0",
-  "pkaf:cascadeAlgorithm": "pkaf:CascadeClosureV1",
-  "pkaf:cascadeClosureDescription": "Transitive closure over inverse {collectsEvidenceType, requiresEvidenceType, assertsObject (where object is subjectConcept), skos:exactMatch, skos:closeMatch, skos:broadMatch, skos:narrowMatch, skos:relatedMatch} edges, scoped to active/adopted state at effectiveDate.",
-  "pkaf:safeAutomaticMigration": null,
-  "pkaf:safeAutomaticMigrationRationale": "Split requires disambiguation between W2Filers and NonW2Filers based on local context. No deterministic in-place rewrite possible.",
-  "pkaf:affectedAssertions": [
+  "rkaf:effectiveDate": "2027-01-01T00:00:00-05:00",
+  "rkaf:bridgeContractVersion": "rkaf-bridge/1.0",
+  "rkaf:cascadeAlgorithm": "rkaf:CascadeClosureV1",
+  "rkaf:cascadeClosureDescription": "Transitive closure over inverse {collectsEvidenceType, requiresEvidenceType, assertsObject (where object is subjectConcept), skos:exactMatch, skos:closeMatch, skos:broadMatch, skos:narrowMatch, skos:relatedMatch} edges, scoped to active/adopted state at effectiveDate.",
+  "rkaf:safeAutomaticMigration": null,
+  "rkaf:safeAutomaticMigrationRationale": "Split requires disambiguation between W2Filers and NonW2Filers based on local context. No deterministic in-place rewrite possible.",
+  "rkaf:affectedAssertions": [
     "https://example.org/assertion/caa-42-mapping-001",
     "https://example.org/assertion/caa-77-mapping-001"
   ],
-  "pkaf:affectedWorkProducts": [
+  "rkaf:affectedWorkProducts": [
     "https://example.org/form-field/caa-42-intake/income-docs/v2"
   ],
-  "pkaf:requiredMigrationActions": [
+  "rkaf:requiredMigrationActions": [
     {
-      "@type": "pkaf:MigrationAction",
-      "pkaf:targetAssertion": "https://example.org/assertion/caa-42-mapping-001",
-      "pkaf:reason": "Mapping points to subject concept being split. Must be replaced with a mapping to one or both successor concepts after disambiguation.",
-      "pkaf:priority": "high"
+      "@type": "rkaf:MigrationAction",
+      "rkaf:targetAssertion": "https://example.org/assertion/caa-42-mapping-001",
+      "rkaf:reason": "Mapping points to subject concept being split. Must be replaced with a mapping to one or both successor concepts after disambiguation.",
+      "rkaf:priority": "high"
     },
     {
-      "@type": "pkaf:MigrationAction",
-      "pkaf:targetWorkProduct": "https://example.org/form-field/caa-42-intake/income-docs/v2",
-      "pkaf:reason": "Field operational via caa-42-mapping-001 which is now broken. Field transitions to staleForCurrentUse per ConceptRegistry §7.5.",
-      "pkaf:priority": "high"
+      "@type": "rkaf:MigrationAction",
+      "rkaf:targetWorkProduct": "https://example.org/form-field/caa-42-intake/income-docs/v2",
+      "rkaf:reason": "Field operational via caa-42-mapping-001 which is now broken. Field transitions to staleForCurrentUse per ConceptRegistry §7.5.",
+      "rkaf:priority": "high"
     }
   ],
   "prov:generatedAtTime": "2026-12-01T00:00:00-05:00"
@@ -444,36 +444,36 @@ A registry-side observer (or a federated reconciliation process) notes that CAA-
 ```json
 {
   "@id": "https://example.org/bridge-validation/caa-42-2026-12-01-001",
-  "@type": "pkaf:BridgeValidationResult",
-  "pkaf:packetId": "https://registry.example.gov/packets/lifecycle-001",
-  "pkaf:consumer": "https://example.org/consumer/caa-42-formspec",
-  "pkaf:bridgeContractVersion": "pkaf-bridge/1.0",
-  "pkaf:result": "pkaf:acceptedWithWarnings",
-  "pkaf:warnings": [
+  "@type": "rkaf:BridgeValidationResult",
+  "rkaf:packetId": "https://registry.example.gov/packets/lifecycle-001",
+  "rkaf:consumer": "https://example.org/consumer/caa-42-formspec",
+  "rkaf:bridgeContractVersion": "rkaf-bridge/1.0",
+  "rkaf:result": "rkaf:acceptedWithWarnings",
+  "rkaf:warnings": [
     {
-      "@type": "pkaf:StaleDependencyWarning",
-      "pkaf:affectedWorkProduct": "https://example.org/form-field/caa-42-intake/income-docs/v2",
-      "pkaf:transitionTo": "pkaf:staleForCurrentUse",
-      "pkaf:detail": "Field depends on mapping caa-42-mapping-001 whose object concept is being split. No safeAutomaticMigration declared by packet AND consumer does not declare support for split-time auto-migration. Field transitions to staleForCurrentUse per ConceptRegistry §7.5."
+      "@type": "rkaf:StaleDependencyWarning",
+      "rkaf:affectedWorkProduct": "https://example.org/form-field/caa-42-intake/income-docs/v2",
+      "rkaf:transitionTo": "rkaf:staleForCurrentUse",
+      "rkaf:detail": "Field depends on mapping caa-42-mapping-001 whose object concept is being split. No safeAutomaticMigration declared by packet AND consumer does not declare support for split-time auto-migration. Field transitions to staleForCurrentUse per ConceptRegistry §7.5."
     }
   ],
-  "pkaf:staleDependencies": [
+  "rkaf:staleDependencies": [
     "https://example.org/form-field/caa-42-intake/income-docs/v2"
   ],
-  "pkaf:conceptResolutionResults": [
+  "rkaf:conceptResolutionResults": [
     {
-      "@type": "pkaf:ConceptResolutionResult",
-      "pkaf:inputConcept": "https://example.org/concepts/caa-42/IncomeDocs",
-      "pkaf:resolvedConcept": "https://registry.example.gov/concepts/HouseholdIncomeEvidence",
-      "pkaf:resolutionStatus": "pkaf:unresolvedConceptSplit",
-      "pkaf:resolutionMethod": "pkaf:closeMatchLocallyAdopted",
-      "pkaf:mappingAssertion": "https://example.org/assertion/caa-42-mapping-001",
-      "pkaf:usageCeiling": "pkaf:reviewQueueOnly",
-      "pkaf:warnings": [
+      "@type": "rkaf:ConceptResolutionResult",
+      "rkaf:inputConcept": "https://example.org/concepts/caa-42/IncomeDocs",
+      "rkaf:resolvedConcept": "https://registry.example.gov/concepts/HouseholdIncomeEvidence",
+      "rkaf:resolutionStatus": "rkaf:unresolvedConceptSplit",
+      "rkaf:resolutionMethod": "rkaf:closeMatchLocallyAdopted",
+      "rkaf:mappingAssertion": "https://example.org/assertion/caa-42-mapping-001",
+      "rkaf:usageCeiling": "rkaf:reviewQueueOnly",
+      "rkaf:warnings": [
         {
-          "@type": "pkaf:ConceptResolutionWarning",
-          "pkaf:warningCode": "pkaf:subjectConceptSplit",
-          "pkaf:detail": "Mapped registered concept is in splitInto state. Disambiguate to one or both of: HouseholdIncomeEvidence-W2Filers, HouseholdIncomeEvidence-NonW2Filers."
+          "@type": "rkaf:ConceptResolutionWarning",
+          "rkaf:warningCode": "rkaf:subjectConceptSplit",
+          "rkaf:detail": "Mapped registered concept is in splitInto state. Disambiguate to one or both of: HouseholdIncomeEvidence-W2Filers, HouseholdIncomeEvidence-NonW2Filers."
         }
       ]
     }
@@ -487,13 +487,13 @@ A registry-side observer (or a federated reconciliation process) notes that CAA-
 ```json
 {
   "@id": "https://example.org/revalidation/caa-42-income-docs-postsplit",
-  "@type": "pkaf:RevalidationEvent",
-  "pkaf:triggeredByPacket": "https://registry.example.gov/packets/lifecycle-001",
-  "pkaf:targetAssertion": "https://example.org/assertion/caa-42-mapping-001",
-  "pkaf:targetWorkProduct": "https://example.org/form-field/caa-42-intake/income-docs/v2",
-  "pkaf:transitionTo": "pkaf:staleForCurrentUse",
-  "pkaf:revisedUsageEligibility": "pkaf:reviewQueueOnly",
-  "pkaf:queuedFor": "https://example.org/user/caa-42-program-analyst-1",
+  "@type": "rkaf:RevalidationEvent",
+  "rkaf:triggeredByPacket": "https://registry.example.gov/packets/lifecycle-001",
+  "rkaf:targetAssertion": "https://example.org/assertion/caa-42-mapping-001",
+  "rkaf:targetWorkProduct": "https://example.org/form-field/caa-42-intake/income-docs/v2",
+  "rkaf:transitionTo": "rkaf:staleForCurrentUse",
+  "rkaf:revisedUsageEligibility": "rkaf:reviewQueueOnly",
+  "rkaf:queuedFor": "https://example.org/user/caa-42-program-analyst-1",
   "prov:generatedAtTime": "2026-12-01T00:10:00-05:00"
 }
 ```
@@ -507,44 +507,44 @@ CAA-42 determines that for its CSBG benefit category B intake, both filer catego
 ```json
 {
   "@id": "https://example.org/assertion/caa-42-mapping-002a",
-  "@type": "pkaf:RelationshipAssertion",
-  "pkaf:assertsSubject": "https://example.org/concepts/caa-42/IncomeDocs",
-  "pkaf:assertsPredicate": "skos:closeMatch",
-  "pkaf:assertsObject": "https://registry.example.gov/concepts/HouseholdIncomeEvidence-W2Filers",
-  "pkaf:assertionOrigin": "pkaf:humanRevalidation",
-  "pkaf:hasTrustZone": "pkaf:Z5LocallyAdopted",
-  "pkaf:hasSafetyLabel": "pkaf:R2ReviewedOperational",
-  "pkaf:usageEligibility": "pkaf:localOperationalUse",
-  "pkaf:hasApplicability": {
-    "@type": "pkaf:MappingApplicabilityContext",
-    "pkaf:operationalScope": "csbg-benefit-category-b-intake",
-    "pkaf:evidencePurpose": ["eligibility-determination"]
+  "@type": "rkaf:RelationshipAssertion",
+  "rkaf:assertsSubject": "https://example.org/concepts/caa-42/IncomeDocs",
+  "rkaf:assertsPredicate": "skos:closeMatch",
+  "rkaf:assertsObject": "https://registry.example.gov/concepts/HouseholdIncomeEvidence-W2Filers",
+  "rkaf:assertionOrigin": "rkaf:humanRevalidation",
+  "rkaf:hasTrustZone": "rkaf:Z5LocallyAdopted",
+  "rkaf:hasSafetyLabel": "rkaf:R2ReviewedOperational",
+  "rkaf:usageEligibility": "rkaf:localOperationalUse",
+  "rkaf:hasApplicability": {
+    "@type": "rkaf:MappingApplicabilityContext",
+    "rkaf:operationalScope": "csbg-benefit-category-b-intake",
+    "rkaf:evidencePurpose": ["eligibility-determination"]
   },
-  "pkaf:supersedesAssertion": "https://example.org/assertion/caa-42-mapping-001",
-  "pkaf:revalidationOf": "https://example.org/revalidation/caa-42-income-docs-postsplit",
-  "pkaf:scope": "https://example.org/org/caa-42"
+  "rkaf:supersedesAssertion": "https://example.org/assertion/caa-42-mapping-001",
+  "rkaf:revalidationOf": "https://example.org/revalidation/caa-42-income-docs-postsplit",
+  "rkaf:scope": "https://example.org/org/caa-42"
 }
 ```
 
 ```json
 {
   "@id": "https://example.org/assertion/caa-42-mapping-002b",
-  "@type": "pkaf:RelationshipAssertion",
-  "pkaf:assertsSubject": "https://example.org/concepts/caa-42/IncomeDocs",
-  "pkaf:assertsPredicate": "skos:closeMatch",
-  "pkaf:assertsObject": "https://registry.example.gov/concepts/HouseholdIncomeEvidence-NonW2Filers",
-  "pkaf:assertionOrigin": "pkaf:humanRevalidation",
-  "pkaf:hasTrustZone": "pkaf:Z5LocallyAdopted",
-  "pkaf:hasSafetyLabel": "pkaf:R2ReviewedOperational",
-  "pkaf:usageEligibility": "pkaf:localOperationalUse",
-  "pkaf:hasApplicability": {
-    "@type": "pkaf:MappingApplicabilityContext",
-    "pkaf:operationalScope": "csbg-benefit-category-b-intake",
-    "pkaf:evidencePurpose": ["eligibility-determination"]
+  "@type": "rkaf:RelationshipAssertion",
+  "rkaf:assertsSubject": "https://example.org/concepts/caa-42/IncomeDocs",
+  "rkaf:assertsPredicate": "skos:closeMatch",
+  "rkaf:assertsObject": "https://registry.example.gov/concepts/HouseholdIncomeEvidence-NonW2Filers",
+  "rkaf:assertionOrigin": "rkaf:humanRevalidation",
+  "rkaf:hasTrustZone": "rkaf:Z5LocallyAdopted",
+  "rkaf:hasSafetyLabel": "rkaf:R2ReviewedOperational",
+  "rkaf:usageEligibility": "rkaf:localOperationalUse",
+  "rkaf:hasApplicability": {
+    "@type": "rkaf:MappingApplicabilityContext",
+    "rkaf:operationalScope": "csbg-benefit-category-b-intake",
+    "rkaf:evidencePurpose": ["eligibility-determination"]
   },
-  "pkaf:supersedesAssertion": "https://example.org/assertion/caa-42-mapping-001",
-  "pkaf:revalidationOf": "https://example.org/revalidation/caa-42-income-docs-postsplit",
-  "pkaf:scope": "https://example.org/org/caa-42"
+  "rkaf:supersedesAssertion": "https://example.org/assertion/caa-42-mapping-001",
+  "rkaf:revalidationOf": "https://example.org/revalidation/caa-42-income-docs-postsplit",
+  "rkaf:scope": "https://example.org/org/caa-42"
 }
 ```
 
@@ -555,23 +555,23 @@ The field now collects evidence resolving to either successor concept. Two `coll
 ```json
 {
   "@id": "https://example.org/form-field/caa-42-intake/income-docs/v3",
-  "@type": ["pkaf:GeneratedWorkProduct", "formspec:Field"],
+  "@type": ["rkaf:GeneratedWorkProduct", "formspec:Field"],
   "formspec:fieldName": "income_docs",
   "formspec:label": "Income docs (household)",
   "formspec:dataType": "file-upload",
-  "pkaf:collectsEvidenceType": "https://example.org/concepts/caa-42/IncomeDocs",
-  "pkaf:resolvedToConcepts": [
+  "rkaf:collectsEvidenceType": "https://example.org/concepts/caa-42/IncomeDocs",
+  "rkaf:resolvedToConcepts": [
     "https://registry.example.gov/concepts/HouseholdIncomeEvidence-W2Filers",
     "https://registry.example.gov/concepts/HouseholdIncomeEvidence-NonW2Filers"
   ],
-  "pkaf:justifiedByAssertion": ["https://example.org/assertion/caa-42-req-002"],
-  "pkaf:supersedesWorkProduct": "https://example.org/form-field/caa-42-intake/income-docs/v2",
-  "pkaf:consumerLifecycleState": "pkaf:operational",
-  "pkaf:usageEligibility": "pkaf:localOperationalUse",
-  "pkaf:bridgeContractVersion": "pkaf-bridge/1.0",
-  "pkaf:hasApplicability": {
-    "@type": "pkaf:ApplicabilityContext",
-    "pkaf:benefitCategory": "B"
+  "rkaf:justifiedByAssertion": ["https://example.org/assertion/caa-42-req-002"],
+  "rkaf:supersedesWorkProduct": "https://example.org/form-field/caa-42-intake/income-docs/v2",
+  "rkaf:consumerLifecycleState": "rkaf:operational",
+  "rkaf:usageEligibility": "rkaf:localOperationalUse",
+  "rkaf:bridgeContractVersion": "rkaf-bridge/1.0",
+  "rkaf:hasApplicability": {
+    "@type": "rkaf:ApplicabilityContext",
+    "rkaf:benefitCategory": "B"
   }
 }
 ```
@@ -581,16 +581,16 @@ The field now collects evidence resolving to either successor concept. Two `coll
 ```json
 {
   "@id": "https://example.org/revalidation-closure/caa-42-income-docs-postsplit",
-  "@type": "pkaf:RevalidationClosureEvent",
-  "pkaf:triggeredByPacket": "https://registry.example.gov/packets/lifecycle-001",
-  "pkaf:closesRevalidationEvent": "https://example.org/revalidation/caa-42-income-docs-postsplit",
-  "pkaf:successorAssertions": [
+  "@type": "rkaf:RevalidationClosureEvent",
+  "rkaf:triggeredByPacket": "https://registry.example.gov/packets/lifecycle-001",
+  "rkaf:closesRevalidationEvent": "https://example.org/revalidation/caa-42-income-docs-postsplit",
+  "rkaf:successorAssertions": [
     "https://example.org/assertion/caa-42-mapping-002a",
     "https://example.org/assertion/caa-42-mapping-002b"
   ],
-  "pkaf:successorWorkProduct": "https://example.org/form-field/caa-42-intake/income-docs/v3",
-  "pkaf:closureDecision": "pkaf:revalidatedWithSuccessor",
-  "pkaf:closedBy": "https://example.org/user/caa-42-program-director-1",
+  "rkaf:successorWorkProduct": "https://example.org/form-field/caa-42-intake/income-docs/v3",
+  "rkaf:closureDecision": "rkaf:revalidatedWithSuccessor",
+  "rkaf:closedBy": "https://example.org/user/caa-42-program-director-1",
   "prov:generatedAtTime": "2026-12-15T11:00:00-05:00"
 }
 ```
@@ -610,26 +610,26 @@ The field now collects evidence resolving to either successor concept. Two `coll
 | ConceptRegistry §7.1 (status → resolution behavior) | splitInto → unresolved for operational; staleForCurrentUse transition | 17 |
 | ConceptRegistry §7.5 (lifecycle packet → staleForCurrentUse) | Field transitions because no safeAutomaticMigration declared | 17, 18 |
 | ConceptRegistry §8 (MappingConflict + severity) | Informational severity recorded; no operational impact | 15 |
-| PKAF Core (RevalidationEvent / RevalidationClosureEvent reuse) | Lifecycle event triggers RevalidationEvent; successor mappings close it | 18, 21 |
-| PKAF Bridge Rule 2 (reducer, not minimum) | LocalAdoption of mapping raises effective ceiling from baseline `reviewQueueOnly` to `localOperationalUse` within scope | 8, 10 |
+| Rulespec Core (RevalidationEvent / RevalidationClosureEvent reuse) | Lifecycle event triggers RevalidationEvent; successor mappings close it | 18, 21 |
+| Rulespec Bridge Rule 2 (reducer, not minimum) | LocalAdoption of mapping raises effective ceiling from baseline `reviewQueueOnly` to `localOperationalUse` within scope | 8, 10 |
 
 ## Model issues surfaced by this fixture
 
-1. **`pkaf:resolvedToConcepts` on a field with multiple successor mappings (Step 20).** I introduced this field to represent that v3 collects evidence resolvable to either of two registered concepts. The current spec has `collectsEvidenceType` as a single value pointing at the LocalConcept; the resolved registered concepts are downstream of the mapping graph. This works but consumers querying "what registered concept does this field collect?" would need to traverse mappings. Recommend formalizing `pkaf:resolvedToConcepts` as a denormalized cache on the field (non-authoritative, recomputable), parallel to the `consumerLifecycleState` decision.
+1. **`rkaf:resolvedToConcepts` on a field with multiple successor mappings (Step 20).** I introduced this field to represent that v3 collects evidence resolvable to either of two registered concepts. The current spec has `collectsEvidenceType` as a single value pointing at the LocalConcept; the resolved registered concepts are downstream of the mapping graph. This works but consumers querying "what registered concept does this field collect?" would need to traverse mappings. Recommend formalizing `rkaf:resolvedToConcepts` as a denormalized cache on the field (non-authoritative, recomputable), parallel to the `consumerLifecycleState` decision.
 
-2. **`pkaf:proposedUsageEligibility` (Step 13).** I needed a way to express "consumer wants to promote to localOperationalUse but the bridge is being asked to validate that intent." The current spec has `usageEligibility` as the artifact's effective ceiling. Introducing `proposedUsageEligibility` lets the consumer ask "would this be allowed?" without committing. Worth adding as an optional field on generated work products in proposal state.
+2. **`rkaf:proposedUsageEligibility` (Step 13).** I needed a way to express "consumer wants to promote to localOperationalUse but the bridge is being asked to validate that intent." The current spec has `usageEligibility` as the artifact's effective ceiling. Introducing `proposedUsageEligibility` lets the consumer ask "would this be allowed?" without committing. Worth adding as an optional field on generated work products in proposal state.
 
-3. **`pkaf:suggestedRemediation` on `BridgeValidationResult` (Step 14).** I added this as free text. For machine-actionable remediation, it should be structured: `{action: createMapping, predicate: skos:closeMatch, fromConcept, toConcept, requiredApplicability}`. Worth structuring before this becomes a UX surface.
+3. **`rkaf:suggestedRemediation` on `BridgeValidationResult` (Step 14).** I added this as free text. For machine-actionable remediation, it should be structured: `{action: createMapping, predicate: skos:closeMatch, fromConcept, toConcept, requiredApplicability}`. Worth structuring before this becomes a UX surface.
 
 4. **Multiple successor mappings from one LocalConcept (Steps 19a/19b).** Both are valid; the LocalConcept legitimately maps to both successors. The fixture treats them as sibling assertions with the same `supersedesAssertion` target. This works but raises a question: does `supersedesAssertion` need to be set-valued (one mapping replaced by two)? Currently it's a single reference; both successors point at the same old mapping. Consumers querying "what superseded mapping-001?" would get two results, which is correct but worth normatively confirming.
 
 5. **`safeAutomaticMigration: null` (Step 16).** I used `null` to indicate "no safe migration declared." JSON-LD doesn't have semantics for null vs missing. Cleaner: omit the property entirely when no migration is declared, and let the absence of the property be the signal. The `safeAutomaticMigrationRationale` should be present only when explicitly chosen to be null-by-design (rare).
 
-6. **Concept-side vs assertion-side scope on mappings.** Mapping assertions carry `pkaf:scope` (the asserting org), but mappings also have `MappingApplicabilityContext.operationalScope` (the program area). These are different things — one is about "who asserts," one is about "where the mapping applies." The naming could cause confusion; recommend renaming `MappingApplicabilityContext.operationalScope` to `programScope` or `applicationDomain` to avoid the collision.
+6. **Concept-side vs assertion-side scope on mappings.** Mapping assertions carry `rkaf:scope` (the asserting org), but mappings also have `MappingApplicabilityContext.operationalScope` (the program area). These are different things — one is about "who asserts," one is about "where the mapping applies." The naming could cause confusion; recommend renaming `MappingApplicabilityContext.operationalScope` to `programScope` or `applicationDomain` to avoid the collision.
 
 ## Conformance coverage matrix
 
-This fixture, combined with PKAF Conformance Fixture v0.2, exercises:
+This fixture, combined with Rulespec Conformance Fixture v0.2, exercises:
 
 - **ConceptRegistry-Core:** ✅ direct resolution (v0.2), LocalConcept resolution (this fixture), mapping shapes with direction/applicability (this fixture), `ConceptResolutionResult` population (this fixture), basic registry-unavailable behavior (not exercised — needs companion fixture)
 - **ConceptRegistry-Lifecycle:** ✅ split lifecycle cascade (this fixture), `staleForCurrentUse` propagation (this fixture), normative status table (split exercised; deprecation, merge, withdrawal not exercised — partial)

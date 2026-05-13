@@ -12,16 +12,16 @@ After the editorial pass, this document can be archived.
 
 ## Mapping Fixture v0.1 — 2 narrative deltas
 
-**Step 19 (Successor mappings).** Both `caa-42-mapping-002a` and `caa-42-mapping-002b` need a `pkaf:hasEvidence` field added in their JSON-LD blocks.
+**Step 19 (Successor mappings).** Both `caa-42-mapping-002a` and `caa-42-mapping-002b` need a `rkaf:hasEvidence` field added in their JSON-LD blocks.
 
 For `mapping-002a` (W2Filers successor):
 ```json
-"pkaf:hasEvidence": [
+"rkaf:hasEvidence": [
   {
-    "@type": "pkaf:EvidenceBinding",
-    "pkaf:evidenceRole": "pkaf:mappingRationale",
-    "pkaf:rationaleText": "Successor mapping created during revalidation after HouseholdIncomeEvidence split. CAA-42 determined the W2Filers successor concept remains applicable within CSBG benefit category B intake for applicants who file W-2 forms.",
-    "pkaf:supportingEvent": "https://registry.example.gov/packets/lifecycle-001"
+    "@type": "rkaf:EvidenceBinding",
+    "rkaf:evidenceRole": "rkaf:mappingRationale",
+    "rkaf:rationaleText": "Successor mapping created during revalidation after HouseholdIncomeEvidence split. CAA-42 determined the W2Filers successor concept remains applicable within CSBG benefit category B intake for applicants who file W-2 forms.",
+    "rkaf:supportingEvent": "https://registry.example.gov/packets/lifecycle-001"
   }
 ]
 ```
@@ -35,18 +35,18 @@ Narrative section to update: the prose preceding Step 19. Add one sentence notin
 **Step 10 (state regulation derives from federal).** The `state-derives-from-federal` assertion needs three fields:
 
 ```json
-"pkaf:assertionOrigin": "pkaf:importedFromSource",
-"pkaf:hasApplicability": {
-  "@type": "pkaf:ApplicabilityContext",
-  "pkaf:jurisdiction": ["example-us-state"],
-  "pkaf:programArea": "csbg",
-  "pkaf:effectivePeriodStart": "2022-10-01T00:00:00-05:00"
+"rkaf:assertionOrigin": "rkaf:importedFromSource",
+"rkaf:hasApplicability": {
+  "@type": "rkaf:ApplicabilityContext",
+  "rkaf:jurisdiction": ["example-us-state"],
+  "rkaf:programArea": "csbg",
+  "rkaf:effectivePeriodStart": "2022-10-01T00:00:00-05:00"
 },
-"pkaf:hasEvidence": [
+"rkaf:hasEvidence": [
   {
-    "@type": "pkaf:EvidenceBinding",
-    "pkaf:evidenceRole": "pkaf:authorityCitation",
-    "pkaf:supportingQuote": "Authority: 45 CFR Part 96 Subpart I. State regulation adopts and implements federal CSBG intake requirements including identity verification under 45 CFR § 96.30."
+    "@type": "rkaf:EvidenceBinding",
+    "rkaf:evidenceRole": "rkaf:authorityCitation",
+    "rkaf:supportingQuote": "Authority: 45 CFR Part 96 Subpart I. State regulation adopts and implements federal CSBG intake requirements including identity verification under 45 CFR § 96.30."
   }
 ]
 ```
@@ -56,7 +56,7 @@ Narrative section to update: Step 10. The original narrative noted state adoptio
 **Step 16 (Formspec BridgeValidationResult).** The abbreviated BridgeValidationResult block needs:
 
 ```json
-"pkaf:bridgeContractVersion": "pkaf-bridge/1.0"
+"rkaf:bridgeContractVersion": "rkaf-bridge/1.0"
 ```
 
 Narrative section to update: the "(Abbreviated for length.)" parenthetical in Step 16. Either remove the abbreviation entirely (the result is now in the canonical .jsonld) or keep the parenthetical but note that the bridgeContractVersion field is mandatory and present in the canonical fixture.
@@ -67,14 +67,14 @@ Narrative section to update: the "(Abbreviated for length.)" parenthetical in St
 
 Each needs:
 ```json
-"pkaf:bridgeContractVersion": "pkaf-bridge/1.0"
+"rkaf:bridgeContractVersion": "rkaf-bridge/1.0"
 ```
 
 Narrative section to update: There's no single section to fix. Update each case's introductory prose to acknowledge that the BridgeValidationResult carries `bridgeContractVersion` — or fold it into a general note at the top of the fixture that all BridgeValidationResults in v0.1 carry this field. The latter is cleaner.
 
 **Step 8 (canonical-mapping-001 attestation).** Needs:
 ```json
-"pkaf:visibility": "pkaf:publicVisible"
+"rkaf:visibility": "rkaf:publicVisible"
 ```
 
 Narrative section to update: Step 8's prose. The canonical-mapping attestation is by a registry's ConceptMintingAuthority with public scope; the narrative should make explicit that public visibility is the natural pairing for canonical attestations, not an oversight.

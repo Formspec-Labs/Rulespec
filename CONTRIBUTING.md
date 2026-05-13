@@ -1,10 +1,10 @@
-# Contributing to PKAF
+# Contributing to Rulespec
 
-PKAF development is structured around a disciplined iteration model that surfaced across four shape batches between v0.1-rc1 and v0.1.1. Contributors should follow the same model.
+Rulespec development is structured around a disciplined iteration model that surfaced across four shape batches between v0.1-rc1 and v0.1.1. Contributors should follow the same model.
 
 ## The shape-batch method
 
-Every change to PKAF shapes, fixtures, or specification proceeds through the same arc:
+Every change to Rulespec shapes, fixtures, or specification proceeds through the same arc:
 
 1. **Anchor on spec sections.** Each new shape or constraint cites a specific section of the spec it enforces. No constraint exists without a textual basis.
 
@@ -27,13 +27,13 @@ This method produced four clean iteration arcs (251→14→0, 7→0, 2→0, 0→
 
 ### 1. Universal ontology, not consumer-coupled
 
-PKAF is not a form spec, workflow spec, search engine spec, or policy studio spec. PKAF is a universal evidence-backed assertion, authority, concept, lifecycle, and consumer-justification data ontology.
+Rulespec is not a form spec, workflow spec, search engine spec, or policy studio spec. Rulespec is a universal evidence-backed assertion, authority, concept, lifecycle, and consumer-justification data ontology.
 
 The conceptual center of the justification overlay is the **predicate-targeted generic shapes** (`ConsumerArtifactJustificationShape`, `DataCollectionArtifactJustificationShape`, `ProcessArtifactJustificationShape`). The Formspec and WOS shapes are documented example specializations and are not load-bearing. New consumer-specific shapes (e.g., for a CMS, search index, AI assistant) follow the same pattern: predicate-targeted generic + optional named specialization.
 
 ### 2. Structural validation, not behavioral
 
-SHACL validates the structure of PKAF data: required fields, types, enum membership, conditional requirements. It does NOT validate:
+SHACL validates the structure of Rulespec data: required fields, types, enum membership, conditional requirements. It does NOT validate:
 
 - Whether `CascadeClosureV1` computed the correct transitive closure
 - Whether the `usageEligibility` reducer produced the correct lattice ceiling
@@ -43,9 +43,9 @@ SHACL validates the structure of PKAF data: required fields, types, enum members
 
 Behavioral correctness is the runtime conformance test layer (planned for v0.2). Do not add SHACL constraints that attempt to verify behavior.
 
-### 3. PKAF overlay only, not consumer internals
+### 3. Rulespec overlay only, not consumer internals
 
-When validating consumer artifacts (form fields, workflow steps, search index entries, etc.), PKAF shapes ONLY validate PKAF overlay properties (`pkaf:justifiedByAssertion`, `pkaf:bridgeContractVersion`, `pkaf:usageEligibility`, `pkaf:collectsEvidenceType`, `pkaf:requiresEvidenceType`, etc.). PKAF does NOT validate consumer-native schemas (Formspec field syntax, WOS workflow runtime, etc.).
+When validating consumer artifacts (form fields, workflow steps, search index entries, etc.), Rulespec shapes ONLY validate Rulespec overlay properties (`rkaf:justifiedByAssertion`, `rkaf:bridgeContractVersion`, `rkaf:usageEligibility`, `rkaf:collectsEvidenceType`, `rkaf:requiresEvidenceType`, etc.). Rulespec does NOT validate consumer-native schemas (Formspec field syntax, WOS workflow runtime, etc.).
 
 ## Accepted coverage gaps
 
@@ -99,7 +99,7 @@ from pyshacl import validate
 from pathlib import Path
 
 shapes = rdflib.Graph()
-for f in ["shapes/pkaf-shapes-core-v0.1.ttl", ...]:
+for f in ["shapes/rkaf-shapes-core-v0.1.ttl", ...]:
     shapes.parse(f, format="turtle")
 
 data = copy.deepcopy(json.loads(Path("fixtures/<fixture>.jsonld").read_text()))

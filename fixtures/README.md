@@ -1,10 +1,10 @@
-# PKAF Conformance Fixtures
+# Rulespec Conformance Fixtures
 
-This directory contains four conformance fixtures that exercise the PKAF structural surface across realistic policy-knowledge scenarios. Each fixture is a JSON-LD document with an inline `@context` referencing the v0.2 PKAF context.
+This directory contains four conformance fixtures that exercise the Rulespec structural surface across realistic policy-knowledge scenarios. Each fixture is a JSON-LD document with an inline `@context` referencing the v0.2 Rulespec context.
 
 ## Boundary reminder
 
-The fixtures use `formspec:Field` and `wos:WorkflowStep` typed entities as **stress tests for the consumer overlay pattern**. They are not dependencies of PKAF. The same overlay can attach to any consumer's native artifact type — search index entries, wiki pages, CMS assets, AI assistant citation cards, case-system tasks, document fragments. The fixtures use form/workflow-shaped artifacts because they are well-understood stress tests, not because PKAF couples to those systems.
+The fixtures use `formspec:Field` and `wos:WorkflowStep` typed entities as **stress tests for the consumer overlay pattern**. They are not dependencies of Rulespec. The same overlay can attach to any consumer's native artifact type — search index entries, wiki pages, CMS assets, AI assistant citation cards, case-system tasks, document fragments. The fixtures use form/workflow-shaped artifacts because they are well-understood stress tests, not because Rulespec couples to those systems.
 
 ## Files
 
@@ -17,7 +17,7 @@ A community action agency operates an intake program (CSBG Category B). The inta
 **Exercises:**
 - Assertions with `R2ReviewedOperational` safety label
 - Local adoption with `localOperational` authority kind (NOT legal authority)
-- Generated work products typed as `formspec:Field` with PKAF overlay
+- Generated work products typed as `formspec:Field` with Rulespec overlay
 - `AmendmentPacket` with structural cascade
 - `RevalidationEvent` and `RevalidationClosureEvent`
 - `PointInTimeException` with `applicationSubmissionTime` anchor
@@ -104,7 +104,7 @@ python3 tools/ci_validate.py --mode batch4    # 1,206 triples (default)
 
 ## context.jsonld
 
-The file `context.jsonld` in this directory is the **fixture-prep source** for the inline `@context` that each fixture carries. It is identical in content to `context/pkaf-context-v0.2.jsonld`. See `context/README.md` for the rationale for this duplication.
+The file `context.jsonld` in this directory is the **fixture-prep source** for the inline `@context` that each fixture carries. It is identical in content to `context/rkaf-context-v0.2.jsonld`. See `context/README.md` for the rationale for this duplication.
 
 ## Adding new fixtures
 

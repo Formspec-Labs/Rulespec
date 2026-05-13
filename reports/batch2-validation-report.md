@@ -1,8 +1,8 @@
-# PKAF Batch 2 Validation Report
+# Rulespec Batch 2 Validation Report
 
 Status: **Batch 2 complete — clean validation**
-Bridge contract: `pkaf-bridge/1.0`
-Baseline: PKAF v0.1-rc1 (frozen)
+Bridge contract: `rkaf-bridge/1.0`
+Baseline: Rulespec v0.1-rc1 (frozen)
 
 ## Executive summary
 
@@ -14,12 +14,12 @@ Batch 2 adds eleven ConceptRegistry shapes to the v0.1-rc1 Core shapes. After tw
 | After context + 5 fixture patches | **0** | **0** | **0** | **0** | **0** |
 
 ```
-PKAF CI validation gate
+Rulespec CI validation gate
 ============================================================
 [1/3] Environment check
   pyshacl 0.31.0 OK
-  shapes:  shapes/pkaf-shapes-core-v0.1.ttl
-  shapes:  shapes/pkaf-shapes-conceptregistry-v0.1.ttl
+  shapes:  shapes/rkaf-shapes-core-v0.1.ttl
+  shapes:  shapes/rkaf-shapes-conceptregistry-v0.1.ttl
 
 [2/3] Per-fixture validation
   [PASS] local-operational-v0.2: 0 violations, 349 triples
@@ -36,27 +36,27 @@ PKAF CI validation gate
 
 ## 1. Batch 2 shape additions
 
-Eleven shapes added in `pkaf-shapes-conceptregistry-v0.1.ttl`, anchored on ConceptRegistry v0.1.2:
+Eleven shapes added in `rkaf-shapes-conceptregistry-v0.1.ttl`, anchored on ConceptRegistry v0.1.2:
 
 | Shape | Spec section | Targets |
 |---|---|---|
-| `RegisteredConceptShape` | §2.1 | `pkaf:RegisteredConcept` |
-| `LocalConceptShape` | §2.2 | `pkaf:LocalConcept` |
-| `ConceptRegistryShape` | §3.1 | `pkaf:ConceptRegistry` |
-| `ConceptMintingAuthorityShape` | §3.2 | `pkaf:ConceptMintingAuthority` |
-| `MappingAssertionShape` | §4 | `pkaf:RelationshipAssertion` (SKOS-predicate-conditional) |
-| `MappingApplicabilityContextShape` | §4.4 | `pkaf:MappingApplicabilityContext` |
-| `ConceptResolutionResultShape` | §5.4 | `pkaf:ConceptResolutionResult` |
-| `SuggestedRemediationShape` | §5.9 | `pkaf:SuggestedRemediation` |
-| `ConceptLifecyclePacketShape` | §7.5 | `pkaf:ConceptLifecyclePacket` |
-| `MappingConflictShape` | §8 | `pkaf:MappingConflict` |
-| `BridgeConsumerRegistrationShape` | Core §5.1 | `pkaf:BridgeConsumerRegistration` |
+| `RegisteredConceptShape` | §2.1 | `rkaf:RegisteredConcept` |
+| `LocalConceptShape` | §2.2 | `rkaf:LocalConcept` |
+| `ConceptRegistryShape` | §3.1 | `rkaf:ConceptRegistry` |
+| `ConceptMintingAuthorityShape` | §3.2 | `rkaf:ConceptMintingAuthority` |
+| `MappingAssertionShape` | §4 | `rkaf:RelationshipAssertion` (SKOS-predicate-conditional) |
+| `MappingApplicabilityContextShape` | §4.4 | `rkaf:MappingApplicabilityContext` |
+| `ConceptResolutionResultShape` | §5.4 | `rkaf:ConceptResolutionResult` |
+| `SuggestedRemediationShape` | §5.9 | `rkaf:SuggestedRemediation` |
+| `ConceptLifecyclePacketShape` | §7.5 | `rkaf:ConceptLifecyclePacket` |
+| `MappingConflictShape` | §8 | `rkaf:MappingConflict` |
+| `BridgeConsumerRegistrationShape` | Core §5.1 | `rkaf:BridgeConsumerRegistration` |
 
 Two shapes use SHACL Advanced conditional logic (`sh:if`/`sh:then`):
 
-- **MappingAssertionShape:** activates when `pkaf:assertsPredicate` is `skos:closeMatch` AND `pkaf:usageEligibility` is at `localOperationalUse` or higher; requires `MappingApplicabilityContext`.
-- **ConceptLifecyclePacketShape:** when `pkaf:lifecycleEvent` is `split`, `merge`, or `replacedBy`, requires `pkaf:successorConcepts`.
-- **MappingConflictShape:** when `pkaf:severity` is `operationalConflict` or `publicationBlocking`, requires either `pkaf:sharedArtifact` or `pkaf:relatedPublishedArtifact`.
+- **MappingAssertionShape:** activates when `rkaf:assertsPredicate` is `skos:closeMatch` AND `rkaf:usageEligibility` is at `localOperationalUse` or higher; requires `MappingApplicabilityContext`.
+- **ConceptLifecyclePacketShape:** when `rkaf:lifecycleEvent` is `split`, `merge`, or `replacedBy`, requires `rkaf:successorConcepts`.
+- **MappingConflictShape:** when `rkaf:severity` is `operationalConflict` or `publicationBlocking`, requires either `rkaf:sharedArtifact` or `rkaf:relatedPublishedArtifact`.
 
 ## 2. Classification of initial violations
 
@@ -75,16 +75,16 @@ Zero shape over-strictness. Zero core ambiguities. Zero missing vocabulary. Zero
 Added to `fixtures/context.jsonld`:
 
 ```json
-"pkaf:definedInScope": { "@type": "@id" }
+"rkaf:definedInScope": { "@type": "@id" }
 ```
 
 This is an **additive** fix to the context that doesn't change v0.1 semantics. The property was always conceptually an IRI reference; the v0.1 context simply didn't declare it. v0.1-rc1 frozen context remains untouched; Batch 2 uses an extended working context.
 
-Recommendation: publish this extended context as `pkaf-context-v0.2.jsonld`, strict superset of v0.1 context.
+Recommendation: publish this extended context as `rkaf-context-v0.2.jsonld`, strict superset of v0.1 context.
 
 ### 3.2 Mapping fixture — terminology rename (4 patches)
 
-Renamed `pkaf:operationalScope` → `pkaf:applicationDomain` in four `MappingApplicabilityContext` instances:
+Renamed `rkaf:operationalScope` → `rkaf:applicationDomain` in four `MappingApplicabilityContext` instances:
 
 - `caa-42-mapping-001` (Step 4)
 - `caa-42-mapping-001` adoption (Step 8)
@@ -95,7 +95,7 @@ The rename was a v0.1 spec decision (ConceptRegistry v0.1.2 §4.4) that didn't p
 
 ### 3.3 Registry-failure fixture — missing field (1 patch)
 
-Added `"pkaf:usageCeiling": "pkaf:notEligible"` to the `ConceptResolutionResult` in `case-4-unreachable`. This is consistent with the equivalent field in case-3-stale-A3.
+Added `"rkaf:usageCeiling": "rkaf:notEligible"` to the `ConceptResolutionResult` in `case-4-unreachable`. This is consistent with the equivalent field in case-3-stale-A3.
 
 ## 4. Coverage status
 
@@ -117,7 +117,7 @@ The eleven Batch 2 shapes target ConceptRegistry types that appear across the fo
 
 ## 5. Coverage gap flagged
 
-**`ConceptMintingAuthorityShape` has no fixture targets.** No fixture instantiates a typed `pkaf:ConceptMintingAuthority` object — minting authorities appear only as URI references (`pkaf:mintingAuthority` on `ConceptRegistry`, `pkaf:registrationAuthority` on `ConceptRegistrationEvent`). The shape is correct but unexercised.
+**`ConceptMintingAuthorityShape` has no fixture targets.** No fixture instantiates a typed `rkaf:ConceptMintingAuthority` object — minting authorities appear only as URI references (`rkaf:mintingAuthority` on `ConceptRegistry`, `rkaf:registrationAuthority` on `ConceptRegistrationEvent`). The shape is correct but unexercised.
 
 Options:
 - (a) Accept the gap (consistent with editorial discipline; no fixture force-fits)
@@ -142,7 +142,7 @@ CI `EXPECTED` range for `registry-failure-conflict-v0.1` bumped from `[215, 235]
 
 | Path | SHA-256 |
 |---|---|
-| `shapes/pkaf-shapes-conceptregistry-v0.1.ttl` | `24b7b560f21be1f5df258cd952bc6ea4595426f48f399d03d7104b51ccc3b802` |
+| `shapes/rkaf-shapes-conceptregistry-v0.1.ttl` | `24b7b560f21be1f5df258cd952bc6ea4595426f48f399d03d7104b51ccc3b802` |
 | `fixtures/context.jsonld` (v0.2 candidate) | `e7f10de206021de12b8222532d46bc660e615e75b43b2d7d35c993e9f3fd3691` |
 | `fixtures/mapping-v0.1.jsonld` (Batch 2 patched) | `573ab5b12d4e52e6a684c072d2408bda8b513a8a64acdf82f1dfb9920fe7529f` |
 | `fixtures/registry-failure-conflict-v0.1.jsonld` (Batch 2 patched) | `e672540093d0e1891e12c41ce794221f74eb1d3aac78858223f6e63a2ff29f23` |
@@ -224,4 +224,4 @@ python3 ci_validate.py
 
 Batch 2 ConceptRegistry shapes are complete. The model held: all eleven shapes validate cleanly across all four fixtures after evidence-driven patches. No new vocabulary added. No spec changes. The same pattern continues — shapes catch real defects, fixtures need editorial alignment.
 
-This is the second proof point that PKAF's discipline works: incremental shape batches surface specific defects, get patched, and converge to clean validation without producing speculative ontology drift.
+This is the second proof point that Rulespec's discipline works: incremental shape batches surface specific defects, get patched, and converge to clean validation without producing speculative ontology drift.

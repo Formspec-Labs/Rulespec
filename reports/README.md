@@ -1,6 +1,6 @@
-# PKAF Validation Reports
+# Rulespec Validation Reports
 
-This directory archives the per-batch validation reports produced during PKAF development. Each report documents one iteration of the shape-batch method: shapes added, fixtures validated, violations classified, patches applied, final clean state.
+This directory archives the per-batch validation reports produced during Rulespec development. Each report documents one iteration of the shape-batch method: shapes added, fixtures validated, violations classified, patches applied, final clean state.
 
 ## Reading order
 

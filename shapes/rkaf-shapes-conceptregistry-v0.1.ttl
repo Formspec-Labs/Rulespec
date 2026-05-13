@@ -1,6 +1,6 @@
-# PKAF Shapes Batch 2 — ConceptRegistry
+# Rulespec Shapes Batch 2 — ConceptRegistry
 # Status: draft, additive to rkaf-shapes-core-v0.1.ttl
-# Profile: PKAF-SHACL-AF
+# Profile: Rulespec-SHACL-AF
 # Bridge contract: rkaf-bridge/1.0
 # Spec anchors: ConceptRegistry v0.1.2 sections referenced inline
 
@@ -373,7 +373,7 @@ rkaf:MappingConflictShape
   ) ;
   sh:message "operationalConflict and publicationBlocking severity MUST reference the affected artifact via sharedArtifact or relatedPublishedArtifact." .
 
-# === 11. BridgeConsumerRegistrationShape (PKAF Core §5.1) ===
+# === 11. BridgeConsumerRegistrationShape (Rulespec Core §5.1) ===
 
 rkaf:BridgeConsumerRegistrationShape
   a sh:NodeShape ;

@@ -1,8 +1,8 @@
-# PKAF Tooling
+# Rulespec Tooling
 
 ## `ci_validate.py`
 
-The PKAF CI validation gate. A multi-mode tool that loads SHACL shape files, validates fixtures against them, and reports conformance.
+The Rulespec CI validation gate. A multi-mode tool that loads SHACL shape files, validates fixtures against them, and reports conformance.
 
 ### Modes
 
@@ -46,7 +46,7 @@ The tool tracks expected triple-count ranges per fixture. If a fixture's triple 
 
 ### Working directory
 
-The tool resolves shape and fixture paths relative to the `--repo-root` flag (default: current directory). Run from the repo root, or pass `--repo-root /path/to/pkaf-repo`.
+The tool resolves shape and fixture paths relative to the `--repo-root` flag (default: current directory). Run from the repo root, or pass `--repo-root /path/to/rkaf-repo`.
 
 ### Requirements
 
@@ -79,7 +79,7 @@ The runtime conformance test layer (planned post-v0.1.1) will add:
 
 - `tools/runtime_conformance.py` — runs cascade closure, reducer, and authority chain traversal tests against an implementation under test, diffing actual output against expected output in fixture-specific JSON files
 
-- `tools/fixture_prep.py` — refreshes the inline `@context` in fixtures from `context/pkaf-context-v0.2.jsonld` (currently this is done ad-hoc; codifying it prevents drift between the canonical context and inline fixture contexts)
+- `tools/fixture_prep.py` — refreshes the inline `@context` in fixtures from `context/rkaf-context-v0.2.jsonld` (currently this is done ad-hoc; codifying it prevents drift between the canonical context and inline fixture contexts)
 
 - `tools/synthetic_defect.py` — runs the synthetic defect injection test suite (currently embedded in batch reports) as a standing CI gate
 

@@ -34,6 +34,14 @@ SKIP_DIRS = {".git", "__pycache__", ".venv", "node_modules", "target", "thoughts
 EXTS = {".md", ".py", ".rs", ".ts", ".js", ".mjs", ".json", ".jsonld",
         ".ttl", ".yaml", ".yml", ".toml", ".sh", ".cue"}
 
+SELF = Path(__file__).resolve()
+
+# Files where historical PKAF/pkaf references are intentionally preserved
+# (rename-note prose, change-history tables, file-rename mappings).
+ALLOWLIST_RELATIVE = {
+    "CHANGELOG.md",  # rename-note entry references the old names
+}
+
 def walk(root: Path):
     for p in root.rglob("*"):
         if any(part in SKIP_DIRS for part in p.parts):
@@ -41,6 +49,12 @@ def walk(root: Path):
         if not p.is_file():
             continue
         if p.suffix not in EXTS and p.name not in {"Makefile", "VERSION"}:
+            continue
+        # the audit script literally contains the patterns it's searching for
+        if p.resolve() == SELF:
+            continue
+        rel = p.relative_to(root).as_posix()
+        if rel in ALLOWLIST_RELATIVE:
             continue
         yield p
 

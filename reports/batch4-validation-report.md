@@ -1,8 +1,8 @@
-# PKAF Batch 4 Validation Report
+# Rulespec Batch 4 Validation Report
 
 Status: **Batch 4 complete — clean validation, plus discovery and fix of v0.1-era SHACL evaluation bug**
-Bridge contract: `pkaf-bridge/1.0`
-Baseline: PKAF v0.1-rc1 + Batch 2 + Batch 3 (all accepted)
+Bridge contract: `rkaf-bridge/1.0`
+Baseline: Rulespec v0.1-rc1 + Batch 2 + Batch 3 (all accepted)
 
 ## Executive summary
 
@@ -15,13 +15,13 @@ Batch 4 added five generated-artifact and bridge-justification shapes, and in th
 | After 6 fixture defect patches | **0** | **1,206** |
 
 ```
-PKAF CI validation gate — mode: batch4
-  PKAF Core + ConceptRegistry + Lifecycle + Justification (Batch 4)
+Rulespec CI validation gate — mode: batch4
+  Rulespec Core + ConceptRegistry + Lifecycle + Justification (Batch 4)
 ============================================================
-  shapes:  pkaf-shapes-core-v0.1.ttl
-  shapes:  pkaf-shapes-conceptregistry-v0.1.ttl
-  shapes:  pkaf-shapes-lifecycle-v0.1.ttl
-  shapes:  pkaf-shapes-justification-v0.1.ttl
+  shapes:  rkaf-shapes-core-v0.1.ttl
+  shapes:  rkaf-shapes-conceptregistry-v0.1.ttl
+  shapes:  rkaf-shapes-lifecycle-v0.1.ttl
+  shapes:  rkaf-shapes-justification-v0.1.ttl
 
   [PASS] local-operational-v0.2: 0 violations, 355 triples
   [PASS] mapping-v0.1: 0 violations, 320 triples
@@ -33,24 +33,24 @@ PKAF CI validation gate — mode: batch4
 
 ## 1. Batch 4 shape additions
 
-Five shapes added in `pkaf-shapes-justification-v0.1.ttl`:
+Five shapes added in `rkaf-shapes-justification-v0.1.ttl`:
 
 | Shape | Spec section | Targets |
 |---|---|---|
-| `GeneratedWorkProductJustificationShape` | PKAF Core §6.1 | `pkaf:GeneratedWorkProduct` |
-| `FormspecFieldJustificationShape` | PKAF Core §6 | `formspec:Field` (conditional on overlay) |
-| `WOSStepJustificationShape` | PKAF Core §6 | `wos:WorkflowStep` (conditional on overlay) |
-| `FullBridgeValidationResultShape` | PKAF Core §5.2 | `pkaf:BridgeValidationResult` |
-| `JustificationChainHopShape` | PKAF Core §2.4 | `pkaf:JustificationChainHop` |
+| `GeneratedWorkProductJustificationShape` | Rulespec Core §6.1 | `rkaf:GeneratedWorkProduct` |
+| `FormspecFieldJustificationShape` | Rulespec Core §6 | `formspec:Field` (conditional on overlay) |
+| `WOSStepJustificationShape` | Rulespec Core §6 | `wos:WorkflowStep` (conditional on overlay) |
+| `FullBridgeValidationResultShape` | Rulespec Core §5.2 | `rkaf:BridgeValidationResult` |
+| `JustificationChainHopShape` | Rulespec Core §2.4 | `rkaf:JustificationChainHop` |
 
-The shapes validate the PKAF overlay only. They do NOT validate Formspec internals (field syntax, validation rules, display logic) or WOS internals (workflow runtime, routing, handoffs). The hard-won boundary between PKAF and its consumers is preserved.
+The shapes validate the Rulespec overlay only. They do NOT validate Formspec internals (field syntax, validation rules, display logic) or WOS internals (workflow runtime, routing, handoffs). The hard-won boundary between Rulespec and its consumers is preserved.
 
 The key enforced rules:
 
-1. **Every `pkaf:GeneratedWorkProduct` must declare `justifiedByAssertion` + `bridgeContractVersion` + at least one of `usageEligibility` or `proposedUsageEligibility`.** PKAF-generated artifacts without justification metadata are not auditable.
-2. **A `formspec:Field` or `wos:WorkflowStep` carrying any PKAF overlay property** (`justifiedByAssertion`, `usageEligibility`, `proposedUsageEligibility`, `collectsEvidenceType`, `requiresEvidenceType`) **must also declare `bridgeContractVersion`.** Preexisting artifacts can carry PKAF justification overlay without being typed as GeneratedWorkProduct (per PKAF Core §6.1), but they must still preserve the bridge contract version so consumers can evaluate the overlay against a known contract.
+1. **Every `rkaf:GeneratedWorkProduct` must declare `justifiedByAssertion` + `bridgeContractVersion` + at least one of `usageEligibility` or `proposedUsageEligibility`.** Rulespec-generated artifacts without justification metadata are not auditable.
+2. **A `formspec:Field` or `wos:WorkflowStep` carrying any Rulespec overlay property** (`justifiedByAssertion`, `usageEligibility`, `proposedUsageEligibility`, `collectsEvidenceType`, `requiresEvidenceType`) **must also declare `bridgeContractVersion`.** Preexisting artifacts can carry Rulespec justification overlay without being typed as GeneratedWorkProduct (per Rulespec Core §6.1), but they must still preserve the bridge contract version so consumers can evaluate the overlay against a known contract.
 3. **A `BridgeValidationResult` with `result=acceptedWithWarnings` or `result=rejected` must include at least one structured indicator** (`warnings`, `errors`, `ineligibleAssertions`, `unresolvedConcepts`, `registryUnavailable`, `registryVersionOutOfRange`, `staleDependencies`, `staleConceptCache`, `suggestedRemediation`, or `noRemediationReason`). Otherwise the result is unactionable.
-4. **`JustificationChainHop.predicate` may include `pkaf:implements`** (distinct from `AuthorityChainHop` which forbids it). The implements predicate describes substantive realization, not authority transmission.
+4. **`JustificationChainHop.predicate` may include `rkaf:implements`** (distinct from `AuthorityChainHop` which forbids it). The implements predicate describes substantive realization, not authority transmission.
 
 ## 2. The pyshacl evaluation bug
 
@@ -128,15 +128,15 @@ After the Pattern C rewrite, validation produced 6 violations. All were classifi
 
 ### Defect 1: `amend-001` (local-operational) — A3 missing authorityKind and hasApplicability
 
-The local amendment authority assertion was labeled `A3AuthorityCritical` but did not declare `authorityKind` or `hasApplicability`. Per PKAF Core §3, A3 assertions must declare both.
+The local amendment authority assertion was labeled `A3AuthorityCritical` but did not declare `authorityKind` or `hasApplicability`. Per Rulespec Core §3, A3 assertions must declare both.
 
-**Patch:** added `authorityKind = pkaf:organizational` and an inline `ApplicabilityContext` with `scopeKind = organizational` and `scopeDescription = "CSBG Category B intake program at this agency; local amendment authority"`.
+**Patch:** added `authorityKind = rkaf:organizational` and an inline `ApplicabilityContext` with `scopeKind = organizational` and `scopeDescription = "CSBG Category B intake program at this agency; local amendment authority"`.
 
 ### Defect 2: `rescission-001` (statutory) — A3 missing authorityKind and hasApplicability
 
 The statutory rescission assertion was labeled `A3AuthorityCritical` and had rescissionEvidence as evidence, but lacked authorityKind and hasApplicability.
 
-**Patch:** added `authorityKind = pkaf:statutory` and an inline `ApplicabilityContext` describing the rescinded provision's scope.
+**Patch:** added `authorityKind = rkaf:statutory` and an inline `ApplicabilityContext` describing the rescinded provision's scope.
 
 ### Defect 3: `delegation-derives-from-statute` (statutory) — A3 missing hasApplicability
 
@@ -160,7 +160,7 @@ BridgeValidationResult with `result = acceptedWithWarnings` had empty `errors` a
 
 BridgeValidationResult with `result = rejected`, indicator `registryUnavailable` pointing to the unreachable registry, but no `suggestedRemediation` and no `noRemediationReason`. Per Batch 1.1 patch 8, rejected MUST have one of those two — the registryUnavailable indicator alone is informative but doesn't satisfy the remediation requirement.
 
-**Patch:** added `noRemediationReason = pkaf:noActionableRemediation`. The registry is genuinely unreachable; there is no actionable remediation the bridge can offer.
+**Patch:** added `noRemediationReason = rkaf:noActionableRemediation`. The registry is genuinely unreachable; there is no actionable remediation the bridge can offer.
 
 ## 4. Triple count drift
 
@@ -188,7 +188,7 @@ The five new Batch 4 shapes target types that appear across the fixtures:
 
 Per the editorial discipline (no fixture force-fits to satisfy coverage):
 
-- **`JustificationChainHopShape`** — no fixture target. The shape correctly allows `implements` as a hop predicate (distinct from `AuthorityChainHop` which forbids it), but no current fixture instantiates `pkaf:JustificationChainHop`. The statutory fixture's `authorityChainTraversal` uses `AuthorityChainHop` exclusively because all hops are authority-transmission edges. A future fixture exercising substantive realization (e.g., a generated work product whose justification chain traces through a `pkaf:implements` edge) will activate this shape.
+- **`JustificationChainHopShape`** — no fixture target. The shape correctly allows `implements` as a hop predicate (distinct from `AuthorityChainHop` which forbids it), but no current fixture instantiates `rkaf:JustificationChainHop`. The statutory fixture's `authorityChainTraversal` uses `AuthorityChainHop` exclusively because all hops are authority-transmission edges. A future fixture exercising substantive realization (e.g., a generated work product whose justification chain traces through a `rkaf:implements` edge) will activate this shape.
 
 This follows the same accepted pattern as `ConceptMintingAuthorityShape` (Batch 2), `SupersessionPacketShape` (Batch 3), and `MaterialRevisionPacketShape` (Batch 3): keep the shape as a written-down constraint; do not force-fit fixtures.
 
@@ -220,10 +220,10 @@ The combined shape package should be tagged **v0.1.1** when published, to signal
 
 | Path | SHA-256 |
 |---|---|
-| `shapes/pkaf-shapes-core-v0.1.ttl` (Pattern C rewrites for 3 conditional shapes) | `228fe0f496a63ba3457e459689584409f16e013303b8097116b0090f63d8d93a` |
-| `shapes/pkaf-shapes-conceptregistry-v0.1.ttl` (Pattern C rewrites for 3 conditional shapes) | `0f849e53ad6fa18b78f338cd74119bfcb57fe7f83198d2fcdf7dcc5c76ab2b33` |
-| `shapes/pkaf-shapes-lifecycle-v0.1.ttl` (Pattern C rewrite for 1 conditional shape) | `7e6bc972d467d5a409063a978c17e37e9a93ddec3061b8e396baeb6d4b7009e3` |
-| `shapes/pkaf-shapes-justification-v0.1.ttl` (Batch 4 NEW, Pattern C from drafting) | `75bf5d74b67dd31a46b975da27c748c4b8abef25623c2ae62148c92b4cdef766` |
+| `shapes/rkaf-shapes-core-v0.1.ttl` (Pattern C rewrites for 3 conditional shapes) | `228fe0f496a63ba3457e459689584409f16e013303b8097116b0090f63d8d93a` |
+| `shapes/rkaf-shapes-conceptregistry-v0.1.ttl` (Pattern C rewrites for 3 conditional shapes) | `0f849e53ad6fa18b78f338cd74119bfcb57fe7f83198d2fcdf7dcc5c76ab2b33` |
+| `shapes/rkaf-shapes-lifecycle-v0.1.ttl` (Pattern C rewrite for 1 conditional shape) | `7e6bc972d467d5a409063a978c17e37e9a93ddec3061b8e396baeb6d4b7009e3` |
+| `shapes/rkaf-shapes-justification-v0.1.ttl` (Batch 4 NEW, Pattern C from drafting) | `75bf5d74b67dd31a46b975da27c748c4b8abef25623c2ae62148c92b4cdef766` |
 | `fixtures/context.jsonld` (v0.2, unchanged from Batch 2/3) | `e29452da358440595b3104ede35b6db37c31b1bf70bbc52b16801adac8930f96` |
 | `fixtures/local-operational-v0.2.jsonld` (Batch 4 patched: amend-001) | `f76c057a0035c12220239ff29fc07db5d6748afda9dbaa4062ae2563bae99fc7` |
 | `fixtures/mapping-v0.1.jsonld` (Batch 4 patched: caa-42-2026-07-01-001) | `cf4ac0022e5a58d3c0e1baff594d083bf01894307391fba885c6beedaf689859` |
@@ -235,13 +235,13 @@ The combined shape package should be tagged **v0.1.1** when published, to signal
 
 Beyond the prior three batches, the combined four-batch shape set now structurally enforces:
 
-1. **Generated work product justification.** Every `pkaf:GeneratedWorkProduct` must declare `justifiedByAssertion` + `bridgeContractVersion` + eligibility (current or proposed). Without these, the artifact is not PKAF-auditable.
+1. **Generated work product justification.** Every `rkaf:GeneratedWorkProduct` must declare `justifiedByAssertion` + `bridgeContractVersion` + eligibility (current or proposed). Without these, the artifact is not Rulespec-auditable.
 
-2. **PKAF overlay completeness for consumer artifacts.** When a `formspec:Field` or `wos:WorkflowStep` carries ANY PKAF overlay property, it must also carry `bridgeContractVersion`. The overlay cannot exist as a partial/orphaned attribution; consumers must be able to evaluate it against a known bridge contract.
+2. **Rulespec overlay completeness for consumer artifacts.** When a `formspec:Field` or `wos:WorkflowStep` carries ANY Rulespec overlay property, it must also carry `bridgeContractVersion`. The overlay cannot exist as a partial/orphaned attribution; consumers must be able to evaluate it against a known bridge contract.
 
 3. **Bridge result actionability.** Non-accepted `BridgeValidationResult` instances must include at least one structured indicator. Prose rationales are insufficient; the consumer needs machine-readable signal.
 
-4. **Authority vs justification chain distinction.** `JustificationChainHopShape` explicitly allows `pkaf:implements` as a predicate, while `AuthorityChainHopShape` (Batch 1.1 patch 7) forbids it. This load-bearing distinction is now enforced in both directions: authority chains cannot smuggle in realization edges, and justification chains can carry them when needed.
+4. **Authority vs justification chain distinction.** `JustificationChainHopShape` explicitly allows `rkaf:implements` as a predicate, while `AuthorityChainHopShape` (Batch 1.1 patch 7) forbids it. This load-bearing distinction is now enforced in both directions: authority chains cannot smuggle in realization edges, and justification chains can carry them when needed.
 
 5. **(Foundational fix)** The eight previously-broken conditional shapes now actually evaluate their constraints, providing genuine structural enforcement of:
    - R2/A3/P4 evidence requirements
@@ -256,11 +256,11 @@ Beyond the prior three batches, the combined four-batch shape set now structural
 
 The combined Core + Batch 2 + Batch 3 + Batch 4 shape set structurally enforces:
 
-- **PKAF Core v0.1 — structurally enforced** (and now actually firing conditional constraints)
+- **Rulespec Core v0.1 — structurally enforced** (and now actually firing conditional constraints)
 - **ConceptRegistry-Core v0.1.2 — structurally enforced**
 - **ConceptRegistry-Lifecycle — structurally enforced for packet structure**; runtime cache/TTL behavior remains bridge-implementation conformance
 - **ConceptRegistry-Federated — partial**; mapping conflicts validated; cross-org sync deferred
-- **Generated Work Product overlay — structurally enforced**; PKAF justification metadata is now required on every PKAF-generated artifact
+- **Generated Work Product overlay — structurally enforced**; Rulespec justification metadata is now required on every Rulespec-generated artifact
 
 The package is structurally complete enough for **v0.1.1 release tagging** (semantics unchanged from v0.1-rc1; shape implementation fixed; fixtures defect-patched).
 
@@ -270,7 +270,7 @@ Per the established editorial discipline, deferred:
 
 - **Runtime conformance test layer.** Cascade closure correctness, reducer output correctness, registry TTL behavior, authority-chain traversal output, concept cache TTL, registry-unavailable behavior, PointInTimeException behavior, LocalAdoption orphaning, safeAutomaticMigration replaceInPlace. These need a test layer beyond SHACL — fixture-specific expected-output JSON files that consumers diff against their actual implementation output. **Mike's Batch 3 review specified the design: input fixture + lifecycle event → expected affected set + authority chain status + PIT exception acceptance.** This is now the next layer.
 
-- **Repo publication operational tasks.** Hosting `https://w3id.org/pkaf/context/v1.jsonld` and `/v2.jsonld`. Versioned fixture snapshots in the repo for strict per-mode CI counts. README updated with the post-rc1 batch narrative. Tagging v0.1.1 once external review concludes.
+- **Repo publication operational tasks.** Hosting `https://rulespec.org/context/v1.jsonld` and `/v2.jsonld`. Versioned fixture snapshots in the repo for strict per-mode CI counts. README updated with the post-rc1 batch narrative. Tagging v0.1.1 once external review concludes.
 
 - **Future fixture coverage.** A fixture that exercises `JustificationChainHop` with `implements` predicates (a generated work product whose justification chain traces through realization edges, not just authority transmission). A fixture that exercises `SupersessionPacket` (full-document supersession). A fixture that exercises `MaterialRevisionPacket` (distinct from amendment).
 
@@ -292,7 +292,7 @@ Each mode is independently runnable. The historical triple counts (1,183, 1,184,
 
 Batch 4 is the most consequential batch so far. Two parallel outcomes:
 
-1. **Five new shapes** validate the generated-artifact and bridge-justification consumer boundary, with the PKAF/Formspec/WOS overlay distinction preserved.
+1. **Five new shapes** validate the generated-artifact and bridge-justification consumer boundary, with the Rulespec/Formspec/WOS overlay distinction preserved.
 
 2. **Eight broken conditional shapes** discovered, classified, rewritten with Pattern C, and verified by synthetic defect injection. Six previously-hidden fixture defects surfaced and patched. The v0.1-rc1 era is now structurally honest: every conditional constraint in the package actually fires.
 

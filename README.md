@@ -1,27 +1,27 @@
-# PKAF — Policy Knowledge Assertion Framework
+# Rulespec — Policy Knowledge Assertion Framework
 
 **Version:** v0.1.1 — Structural validation fix and consumer-justification shapes
-**Bridge contract:** `pkaf-bridge/1.0`
-**Profile:** PKAF-SHACL-AF
+**Bridge contract:** `rkaf-bridge/1.0`
+**Profile:** Rulespec-SHACL-AF
 **Conformance:** 1,206 triples / 0 violations across 4 fixtures and 4 shape files
 
-## What PKAF is
+## What Rulespec is
 
-PKAF is a machine-validatable assertion framework for evidence-backed policy knowledge, designed to be consumed by downstream systems such as search engines, wikis, form builders, workflow engines, case systems, document generators, AI assistants, and publication tools.
+Rulespec is a machine-validatable assertion framework for evidence-backed policy knowledge, designed to be consumed by downstream systems such as search engines, wikis, form builders, workflow engines, case systems, document generators, AI assistants, and publication tools.
 
-PKAF is **not** a form spec. PKAF is **not** a workflow spec. PKAF is **not** a policy studio spec. PKAF is **not** a search engine spec.
+Rulespec is **not** a form spec. Rulespec is **not** a workflow spec. Rulespec is **not** a policy studio spec. Rulespec is **not** a search engine spec.
 
-PKAF is a universal evidence-backed assertion, authority, concept, lifecycle, and consumer-justification data ontology.
+Rulespec is a universal evidence-backed assertion, authority, concept, lifecycle, and consumer-justification data ontology.
 
 ## Strategic positioning
 
-PKAF is upstream of consumer systems.
+Rulespec is upstream of consumer systems.
 
-**PKAF owns:** evidence-backed assertions, source authority, attestations, local adoption, concept resolution, lifecycle packets, usage eligibility, consumer validation results, justification metadata.
+**Rulespec owns:** evidence-backed assertions, source authority, attestations, local adoption, concept resolution, lifecycle packets, usage eligibility, consumer validation results, justification metadata.
 
 **Consumer systems own:** their own runtime behavior, rendering, storage, workflows, forms, search UX, or publication logic.
 
-Consumers may attach a PKAF overlay to their native artifacts. PKAF validates only that overlay, not the consumer's native schema.
+Consumers may attach a Rulespec overlay to their native artifacts. Rulespec validates only that overlay, not the consumer's native schema.
 
 The fixtures in `fixtures/` include form-like and workflow-like artifacts (typed as `formspec:Field` and `wos:WorkflowStep`) to stress-test the consumer overlay pattern. **They are examples, not dependencies.** A search engine indexing policy fragments, a wiki linking to authority chains, a CMS attaching adoption metadata to a published rule, or an AI assistant providing citation-backed answers would all wear the same overlay shape.
 
@@ -64,26 +64,26 @@ python3 tools/ci_validate.py --mode batch4    # + Justification (default)
 ├── requirements.txt                   ← Python deps for tools/
 ├── .gitignore
 │
-├── spec/                              ← PKAF specification text (unchanged from v0.1-rc1)
+├── spec/                              ← Rulespec specification text (unchanged from v0.1-rc1)
 │   ├── README.md
-│   ├── pkaf-core-v0.1.md
-│   └── pkaf-concept-registry-v0.1.2.md
+│   ├── rkaf-core-v0.1.md
+│   └── rkaf-concept-registry-v0.1.2.md
 │
 ├── context/                           ← Published JSON-LD contexts
 │   ├── README.md
-│   ├── pkaf-context-v0.1.jsonld       ← Frozen historical
-│   └── pkaf-context-v0.2.jsonld       ← Current; additive superset of v0.1
+│   ├── rkaf-context-v0.1.jsonld       ← Frozen historical
+│   └── rkaf-context-v0.2.jsonld       ← Current; additive superset of v0.1
 │
 ├── shapes/                            ← SHACL shape files (Pattern C, pySHACL-evaluable)
 │   ├── README.md
-│   ├── pkaf-shapes-core-v0.1.ttl
-│   ├── pkaf-shapes-conceptregistry-v0.1.ttl
-│   ├── pkaf-shapes-lifecycle-v0.1.ttl
-│   └── pkaf-shapes-justification-v0.1.ttl
+│   ├── rkaf-shapes-core-v0.1.ttl
+│   ├── rkaf-shapes-conceptregistry-v0.1.ttl
+│   ├── rkaf-shapes-lifecycle-v0.1.ttl
+│   └── rkaf-shapes-justification-v0.1.ttl
 │
 ├── fixtures/                          ← Conformance fixtures (4)
 │   ├── README.md
-│   ├── context.jsonld                 ← Inline-context source-of-truth (== context/pkaf-context-v0.2.jsonld)
+│   ├── context.jsonld                 ← Inline-context source-of-truth (== context/rkaf-context-v0.2.jsonld)
 │   ├── local-operational-v0.2.jsonld
 │   ├── mapping-v0.1.jsonld
 │   ├── statutory-authority-v0.1.jsonld
@@ -108,24 +108,24 @@ python3 tools/ci_validate.py --mode batch4    # + Justification (default)
 Each directory has its own README explaining its contents in detail. Start with whichever directory matches your interest:
 
 - **Implementing a consumer?** Start with `spec/README.md` and `fixtures/narratives/`
-- **Validating data against PKAF?** Start with `tools/README.md` and `shapes/README.md`
+- **Validating data against Rulespec?** Start with `tools/README.md` and `shapes/README.md`
 - **Contributing?** Start with `CONTRIBUTING.md`
 - **Understanding decision history?** Start with `reports/README.md`
 
 ## v0.1.1 release summary
 
-v0.1.1 preserves PKAF v0.1 semantics but rewrites conditional SHACL constraints into pySHACL-evaluated Pattern C form, patches six fixture defects exposed by the corrected constraints, and adds generated-artifact / consumer-justification overlay shapes. The combined package validates cleanly across **1,206 triples with 0 violations**.
+v0.1.1 preserves Rulespec v0.1 semantics but rewrites conditional SHACL constraints into pySHACL-evaluated Pattern C form, patches six fixture defects exposed by the corrected constraints, and adds generated-artifact / consumer-justification overlay shapes. The combined package validates cleanly across **1,206 triples with 0 violations**.
 
 ### What changed from v0.1-rc1
 
 | Category | Change |
 |---|---|
 | Spec semantics | No change |
-| JSON-LD context | Additive only (`pkaf:definedInScope` typing added) |
+| JSON-LD context | Additive only (`rkaf:definedInScope` typing added) |
 | Shape files | Pattern C rewrite for 8 conditional shapes; 3 new generic consumer-overlay shapes |
 | Fixtures | Six latent defect patches (+20 triples) |
 | CI gate | Multi-mode (`core` / `batch2` / `batch3` / `batch4`) |
-| Public framing | README rewritten — PKAF positioned as universal ontology |
+| Public framing | README rewritten — Rulespec positioned as universal ontology |
 
 See `CHANGELOG.md` for the full change list and `reports/v0.1.1-release-manifest.md` for SHA-256 hashes.
 
@@ -142,8 +142,8 @@ This is not a semantic change. The intended constraints of every conditional sha
 Beyond the consumer-overlay shapes, the full four-shape-file package structurally enforces (with all conditional shapes actually firing):
 
 ### Assertion semantics
-- Every `pkaf:RelationshipAssertion` declares trust zone, safety label, evidence or `noEvidenceReason`, and applicability
-- R2 / A3 / P4 assertions MUST have at least one `pkaf:hasEvidence` binding (noEvidenceReason is insufficient at these safety levels)
+- Every `rkaf:RelationshipAssertion` declares trust zone, safety label, evidence or `noEvidenceReason`, and applicability
+- R2 / A3 / P4 assertions MUST have at least one `rkaf:hasEvidence` binding (noEvidenceReason is insufficient at these safety levels)
 - A3 authority-critical assertions MUST declare `authorityKind` + `hasApplicability` + at least one evidence binding with an authority or lifecycle evidence role
 
 ### Authority chain
@@ -173,10 +173,10 @@ Beyond the consumer-overlay shapes, the full four-shape-file package structurall
 - `PointInTimeException` MUST name an `EvaluationAnchor` and retained assertion or work product
 
 ### Consumer artifact overlay (new in v0.1.1)
-- Every `pkaf:GeneratedWorkProduct` MUST declare `justifiedByAssertion` + `bridgeContractVersion` + eligibility (current or proposed)
-- ANY consumer artifact carrying `pkaf:justifiedByAssertion` MUST declare `bridgeContractVersion`
-- ANY consumer artifact declaring `pkaf:collectsEvidenceType` MUST declare `justifiedByAssertion` + `bridgeContractVersion`
-- ANY consumer artifact declaring `pkaf:requiresEvidenceType` MUST declare `justifiedByAssertion` + `bridgeContractVersion`
+- Every `rkaf:GeneratedWorkProduct` MUST declare `justifiedByAssertion` + `bridgeContractVersion` + eligibility (current or proposed)
+- ANY consumer artifact carrying `rkaf:justifiedByAssertion` MUST declare `bridgeContractVersion`
+- ANY consumer artifact declaring `rkaf:collectsEvidenceType` MUST declare `justifiedByAssertion` + `bridgeContractVersion`
+- ANY consumer artifact declaring `rkaf:requiresEvidenceType` MUST declare `justifiedByAssertion` + `bridgeContractVersion`
 
 ## What v0.1.1 does NOT do
 
@@ -230,10 +230,10 @@ This work begins in the next iteration cycle after external review of v0.1.1.
 
 ## Citing
 
-If you use PKAF in your system, please cite:
+If you use Rulespec in your system, please cite:
 
 ```
-PKAF — Policy Knowledge Assertion Framework, v0.1.1
+Rulespec — Policy Knowledge Assertion Framework, v0.1.1
 [publication URL]
 ```
 

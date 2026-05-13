@@ -1,8 +1,8 @@
-# PKAF Batch 3 Validation Report
+# Rulespec Batch 3 Validation Report
 
 Status: **Batch 3 complete — clean validation**
-Bridge contract: `pkaf-bridge/1.0`
-Baseline: PKAF v0.1-rc1 + Batch 2 (both accepted)
+Bridge contract: `rkaf-bridge/1.0`
+Baseline: Rulespec v0.1-rc1 + Batch 2 (both accepted)
 
 ## Executive summary
 
@@ -14,15 +14,15 @@ Batch 3 adds seven lifecycle packet and revalidation shapes to the Core (Batch 1
 | After 2 fixture patches | **0** | **0** | **0** | **0** | **0** |
 
 ```
-PKAF CI validation gate — mode: batch3
-  PKAF Core + ConceptRegistry + Lifecycle (Batch 3)
+Rulespec CI validation gate — mode: batch3
+  Rulespec Core + ConceptRegistry + Lifecycle (Batch 3)
 ============================================================
 
 [1/3] Environment check
   pyshacl 0.31.0 OK
-  shapes:  shapes/pkaf-shapes-core-v0.1.ttl
-  shapes:  shapes/pkaf-shapes-conceptregistry-v0.1.ttl
-  shapes:  shapes/pkaf-shapes-lifecycle-v0.1.ttl
+  shapes:  shapes/rkaf-shapes-core-v0.1.ttl
+  shapes:  shapes/rkaf-shapes-conceptregistry-v0.1.ttl
+  shapes:  shapes/rkaf-shapes-lifecycle-v0.1.ttl
 
 [2/3] Per-fixture validation
   [PASS] local-operational-v0.2: 0 violations, 350 triples
@@ -39,22 +39,22 @@ PKAF CI validation gate — mode: batch3
 
 ## 1. Batch 3 shape additions
 
-Seven shapes added in `pkaf-shapes-lifecycle-v0.1.ttl`, anchored on PKAF Core v0.1 §4:
+Seven shapes added in `rkaf-shapes-lifecycle-v0.1.ttl`, anchored on Rulespec Core v0.1 §4:
 
 | Shape | Spec section | Targets |
 |---|---|---|
-| `AmendmentPacketShape` | §4.4 | `pkaf:AmendmentPacket` |
-| `RescissionPacketShape` | §4.4 | `pkaf:RescissionPacket` |
-| `SupersessionPacketShape` | §4.4 | `pkaf:SupersessionPacket` |
-| `MaterialRevisionPacketShape` | §4.4 | `pkaf:MaterialRevisionPacket` |
-| `RevalidationEventShape` | §4.8 | `pkaf:RevalidationEvent` |
-| `RevalidationClosureEventShape` | §4.8 | `pkaf:RevalidationClosureEvent` |
-| `PointInTimeExceptionShape` | §4.6, §4.7 | `pkaf:PointInTimeException` |
+| `AmendmentPacketShape` | §4.4 | `rkaf:AmendmentPacket` |
+| `RescissionPacketShape` | §4.4 | `rkaf:RescissionPacket` |
+| `SupersessionPacketShape` | §4.4 | `rkaf:SupersessionPacket` |
+| `MaterialRevisionPacketShape` | §4.4 | `rkaf:MaterialRevisionPacket` |
+| `RevalidationEventShape` | §4.8 | `rkaf:RevalidationEvent` |
+| `RevalidationClosureEventShape` | §4.8 | `rkaf:RevalidationClosureEvent` |
+| `PointInTimeExceptionShape` | §4.6, §4.7 | `rkaf:PointInTimeException` |
 
 All four packet shapes share the same minimum structural requirements (`emittedBy`, `effectiveDate`, `bridgeContractVersion`, `cascadeAlgorithm`) per the spec. Two shapes use SHACL Advanced conditional logic:
 
 - **`RevalidationClosureEventShape`:** if `closureDecision = revalidatedWithSuccessor`, must reference at least one successor (`successorAssertion` singular OR `successorAssertions` plural for split cases).
-- **`PointInTimeExceptionShape`:** `evaluationAnchor` accepts either the closed v0.1 enum OR a declared extension URI (per PKAF Core §4.7 extension governance pattern).
+- **`PointInTimeExceptionShape`:** `evaluationAnchor` accepts either the closed v0.1 enum OR a declared extension URI (per Rulespec Core §4.7 extension governance pattern).
 
 ## 2. What Batch 3 deliberately does NOT enforce
 
@@ -85,19 +85,19 @@ The same pattern continues: shapes catch real defects, fixtures need mechanical 
 
 ### Detail
 
-Both fixtures (local-operational v0.2 and statutory-authority v0.1) have a `pkaf:retainedPointInTimeException` field on their post-cascade RevalidationEvent. The packet-inline PIT exceptions (in `AmendmentPacket.pointInTimeExceptions[]` and `RescissionPacket.pointInTimeExceptions[]`) correctly carry `retainsAssertion`. The RevalidationEvent-inline PIT blocks were written more compactly and omitted `retainsAssertion`.
+Both fixtures (local-operational v0.2 and statutory-authority v0.1) have a `rkaf:retainedPointInTimeException` field on their post-cascade RevalidationEvent. The packet-inline PIT exceptions (in `AmendmentPacket.pointInTimeExceptions[]` and `RescissionPacket.pointInTimeExceptions[]`) correctly carry `retainsAssertion`. The RevalidationEvent-inline PIT blocks were written more compactly and omitted `retainsAssertion`.
 
-Per PKAF Core §4.6, every PointInTimeException must be self-describing with `retainsAssertion`/`retainsWorkProduct`. The shape correctly enforces this. The fixtures needed the field added.
+Per Rulespec Core §4.6, every PointInTimeException must be self-describing with `retainsAssertion`/`retainsWorkProduct`. The shape correctly enforces this. The fixtures needed the field added.
 
 ## 4. Patches applied
 
 ### 4.1 Local Operational Fixture v0.2
 
-Patched `RevalidationEvent` for `req-002-postamend`. Inline PIT exception now carries `pkaf:retainsAssertion: req-002` matching the RevalidationEvent's `targetAssertion`.
+Patched `RevalidationEvent` for `req-002-postamend`. Inline PIT exception now carries `rkaf:retainsAssertion: req-002` matching the RevalidationEvent's `targetAssertion`.
 
 ### 4.2 Statutory Authority Fixture v0.1
 
-Patched `RevalidationEvent` for `wos-verify-identity-postrescission`. Inline PIT exception now carries `pkaf:retainsAssertion: caa-42-identity-req-001` matching the RevalidationEvent's `targetAssertion`.
+Patched `RevalidationEvent` for `wos-verify-identity-postrescission`. Inline PIT exception now carries `rkaf:retainsAssertion: caa-42-identity-req-001` matching the RevalidationEvent's `targetAssertion`.
 
 ## 5. Coverage matrix
 
@@ -119,7 +119,7 @@ Per the editorial discipline (no fixture force-fits to satisfy coverage):
 
 - **`SupersessionPacketShape`** — no fixture target. Shape is correct but unbound. A future fixture that exercises full-document supersession (e.g., a regulation being replaced by a successor regulation) will naturally exercise it.
 
-- **`MaterialRevisionPacketShape`** — no fixture target. Shape is correct but unbound. Material revisions are distinct from amendments and supersessions per PKAF Core; no current fixture instantiates this packet type because the existing rescission and amendment paths cover the operational scenarios that matter for v0.1 conformance.
+- **`MaterialRevisionPacketShape`** — no fixture target. Shape is correct but unbound. Material revisions are distinct from amendments and supersessions per Rulespec Core; no current fixture instantiates this packet type because the existing rescission and amendment paths cover the operational scenarios that matter for v0.1 conformance.
 
 Both gaps follow the same accepted pattern as `ConceptMintingAuthorityShape` from Batch 2: keep the shape as a written-down constraint; do not force-fit fixtures to satisfy coverage vanity. The shapes will activate when any future fixture or production data instantiates the relevant packet type.
 
@@ -139,7 +139,7 @@ Both new triples are mechanical fixture patches: each PIT block gains one `retai
 
 | Path | SHA-256 |
 |---|---|
-| `shapes/pkaf-shapes-lifecycle-v0.1.ttl` | `97363100b7e66a21700a42f7f983f853608e80a2895d9d004672bec14995515c` |
+| `shapes/rkaf-shapes-lifecycle-v0.1.ttl` | `97363100b7e66a21700a42f7f983f853608e80a2895d9d004672bec14995515c` |
 | `fixtures/context.jsonld` (v0.2, unchanged) | `e29452da358440595b3104ede35b6db37c31b1bf70bbc52b16801adac8930f96` |
 | `fixtures/local-operational-v0.2.jsonld` (Batch 3 patched) | `9bd30054a1f110bcf39e2a6cb295a153d6f65116ce5d344558bedbdef13ba845` |
 | `fixtures/statutory-authority-v0.1.jsonld` (Batch 3 patched) | `d556e85b5589aa23ae0028255e18d23880e0d1df2aeb945c37f6bd9b25285cb8` |
@@ -153,7 +153,7 @@ Beyond v0.1-rc1 + Batch 2, the combined three-batch shape set now structurally e
 
 1. **Lifecycle packet completeness.** All four lifecycle packet types (Amendment, Rescission, Supersession, MaterialRevision) require `emittedBy`, `effectiveDate`, `bridgeContractVersion`, and `cascadeAlgorithm`. Without these four fields, a packet cannot be ingested by a bridge consumer.
 
-2. **Bridge contract version pattern.** All packets must match the `pkaf-bridge/X.Y` version pattern; consumers refuse packets with mismatched or absent versions.
+2. **Bridge contract version pattern.** All packets must match the `rkaf-bridge/X.Y` version pattern; consumers refuse packets with mismatched or absent versions.
 
 3. **RevalidationEvent must target something.** Every RevalidationEvent must reference at least one of `targetAssertion` or `targetWorkProduct`; an "untargeted" RevalidationEvent is structurally invalid.
 
@@ -163,13 +163,13 @@ Beyond v0.1-rc1 + Batch 2, the combined three-batch shape set now structurally e
 
 6. **PointInTimeException self-description.** Every PIT exception declares `evaluationAnchor` (closed enum or extension URI) AND at least one of `retainsAssertion` or `retainsWorkProduct`. A bare PIT exception with only a scope description and anchor is structurally invalid.
 
-7. **Cascade algorithm declaration.** Every packet declares its `cascadeAlgorithm` (typically `pkaf:CascadeClosureV1`). Consumers refuse packets emitted by unrecognized algorithms. Structurally validated; algorithm output correctness remains a runtime test.
+7. **Cascade algorithm declaration.** Every packet declares its `cascadeAlgorithm` (typically `rkaf:CascadeClosureV1`). Consumers refuse packets emitted by unrecognized algorithms. Structurally validated; algorithm output correctness remains a runtime test.
 
 ## 10. Conformance level — combined three-batch package
 
 Combined Core + Batch 2 + Batch 3 shapes structurally enforce:
 
-- **PKAF Core v0.1 — structurally enforced.** All assertion, attestation, adoption, authority, evidence, and lifecycle structures from PKAF Core §1-§5 have shape coverage.
+- **Rulespec Core v0.1 — structurally enforced.** All assertion, attestation, adoption, authority, evidence, and lifecycle structures from Rulespec Core §1-§5 have shape coverage.
 - **ConceptRegistry-Core (v0.1.2 §10) — structurally enforced.**
 - **ConceptRegistry-Lifecycle (v0.1.2 §10) — structurally enforced for packet structure** (Amendment, Rescission, ConceptLifecyclePacket from Batch 2 + Supersession/MaterialRevision shape stubs from Batch 3). Runtime cache TTL and cascade correctness remain bridge-implementation conformance.
 - **ConceptRegistry-Federated (v0.1.2 §10) — partial.** Mapping conflicts with severity-conditional artifact binding (Batch 2). Cross-org sync semantics remain out of scope per v0.1 plan.
@@ -200,6 +200,6 @@ Each mode is independently runnable. The `--mode core` invocation validates the 
 
 Batch 3 lifecycle packet shapes are complete. The model continues to hold: all seven shapes validate cleanly across all four fixtures after evidence-driven patches. No new vocabulary added. No spec changes. The cascade-correctness boundary is honored — SHACL validates packet structure only; transitive closure correctness remains a runtime test.
 
-This is the third proof point that PKAF's discipline works. The pattern is now thoroughly established: write shapes anchored on spec sections, validate against fixtures, classify violations into the standard rubric, patch evidence-driven (always fixtures or context, never speculative spec additions), converge to clean validation.
+This is the third proof point that Rulespec's discipline works. The pattern is now thoroughly established: write shapes anchored on spec sections, validate against fixtures, classify violations into the standard rubric, patch evidence-driven (always fixtures or context, never speculative spec additions), converge to clean validation.
 
 Three batches, three iteration arcs, zero spec drift.
