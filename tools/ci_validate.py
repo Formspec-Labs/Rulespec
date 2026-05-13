@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
-"""PKAF CI validation gate (multi-mode).
+"""Rulespec CI validation gate (multi-mode).
 
 Supports three conformance modes via --mode flag:
 
-  --mode core      PKAF v0.1-rc1 baseline (Core shapes only, v0.1-rc1 fixtures)
+  --mode core      Rulespec v0.1-rc1 baseline (Core shapes only, v0.1-rc1 fixtures)
                    Expected: 1,183 triples, 0 violations
-  --mode batch2    PKAF Core + ConceptRegistry (Batch 2, v0.2 fixtures)
+  --mode batch2    Rulespec Core + ConceptRegistry (Batch 2, v0.2 fixtures)
                    Expected: 1,184 triples, 0 violations
-  --mode batch3    PKAF Core + ConceptRegistry + Lifecycle (Batch 3 fixtures)
+  --mode batch3    Rulespec Core + ConceptRegistry + Lifecycle (Batch 3 fixtures)
                    Expected: 1,186 triples, 0 violations  ← DEFAULT
 
 Each mode loads a specific shape set and validates the matching fixture set.
@@ -33,8 +33,8 @@ MIN_PYSHACL = (0, 31, 0)
 
 MODES = {
     "core": {
-        "label": "PKAF v0.1-rc1 Core",
-        "shapes": ["shapes/pkaf-shapes-core-v0.1.ttl"],
+        "label": "RKAF v0.1-rc1 Core",
+        "shapes": ["shapes/rkaf-shapes-core-v0.1.ttl"],
         "expected": {
             "local-operational-v0.2":           {"triples": (340, 370)},
             "mapping-v0.1":                     {"triples": (310, 330)},
@@ -44,10 +44,10 @@ MODES = {
         "expected_total_triples_label": "1,183 (v0.1-rc1 frozen fixtures, Core-only conformance)",
     },
     "batch2": {
-        "label": "PKAF Core + ConceptRegistry (Batch 2)",
+        "label": "RKAF Core + ConceptRegistry (Batch 2)",
         "shapes": [
-            "shapes/pkaf-shapes-core-v0.1.ttl",
-            "shapes/pkaf-shapes-conceptregistry-v0.1.ttl",
+            "shapes/rkaf-shapes-core-v0.1.ttl",
+            "shapes/rkaf-shapes-conceptregistry-v0.1.ttl",
         ],
         "expected": {
             "local-operational-v0.2":           {"triples": (340, 370)},
@@ -59,12 +59,12 @@ MODES = {
     },
 
     "batch4": {
-        "label": "PKAF Core + ConceptRegistry + Lifecycle + Justification (Batch 4)",
+        "label": "RKAF Core + ConceptRegistry + Lifecycle + Justification (Batch 4)",
         "shapes": [
-            "shapes/pkaf-shapes-core-v0.1.ttl",
-            "shapes/pkaf-shapes-conceptregistry-v0.1.ttl",
-            "shapes/pkaf-shapes-lifecycle-v0.1.ttl",
-            "shapes/pkaf-shapes-justification-v0.1.ttl",
+            "shapes/rkaf-shapes-core-v0.1.ttl",
+            "shapes/rkaf-shapes-conceptregistry-v0.1.ttl",
+            "shapes/rkaf-shapes-lifecycle-v0.1.ttl",
+            "shapes/rkaf-shapes-justification-v0.1.ttl",
         ],
         "expected": {
             "local-operational-v0.2":           {"triples": (340, 370)},
@@ -75,11 +75,11 @@ MODES = {
         "expected_total_triples_label": "1,206 (Batch 4 fixtures, Core+ConceptRegistry+Lifecycle+Justification conformance, includes Pattern C shape patches and 6 fixture defect fixes)",
     },
     "batch3": {
-        "label": "PKAF Core + ConceptRegistry + Lifecycle (Batch 3)",
+        "label": "RKAF Core + ConceptRegistry + Lifecycle (Batch 3)",
         "shapes": [
-            "shapes/pkaf-shapes-core-v0.1.ttl",
-            "shapes/pkaf-shapes-conceptregistry-v0.1.ttl",
-            "shapes/pkaf-shapes-lifecycle-v0.1.ttl",
+            "shapes/rkaf-shapes-core-v0.1.ttl",
+            "shapes/rkaf-shapes-conceptregistry-v0.1.ttl",
+            "shapes/rkaf-shapes-lifecycle-v0.1.ttl",
         ],
         "expected": {
             "local-operational-v0.2":           {"triples": (340, 370)},
@@ -153,7 +153,7 @@ def validate_one(fixture_path, shapes_paths):
 
 
 def main():
-    parser = argparse.ArgumentParser(description="PKAF multi-mode CI validation gate")
+    parser = argparse.ArgumentParser(description="Rulespec multi-mode CI validation gate")
     parser.add_argument("--mode", choices=list(MODES.keys()), default="batch4",
                         help="Conformance mode (default: batch3)")
     parser.add_argument("--repo-root", default=".")
@@ -165,7 +165,7 @@ def main():
     shapes_paths = [repo_root / p for p in mode_config["shapes"]]
     fixtures_dir = repo_root / FIXTURES_DIR
 
-    print(f"PKAF CI validation gate — mode: {args.mode}")
+    print(f"Rulespec CI validation gate — mode: {args.mode}")
     print(f"  {mode_config['label']}")
     print("=" * 60)
 
