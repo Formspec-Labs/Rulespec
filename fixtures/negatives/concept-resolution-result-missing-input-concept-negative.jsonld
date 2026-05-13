@@ -1,0 +1,9 @@
+{
+  "@context": "../context/rkaf-context.jsonld",
+  "@id": "urn:rkaf:fixture:cres:income-resolved",
+  "@type": "rkaf:ConceptResolutionResult",
+  "rkaf:resolutionStatus": "rkaf:resolved",
+  "rkaf:resolvedConcept": "urn:rkaf:fixture:concept:household-income",
+  "rkaf:usageCeiling": "rkaf:localOperationalUse",
+  "rkaf:resolvedAt": "2026-04-15T10:00:00Z"
+}

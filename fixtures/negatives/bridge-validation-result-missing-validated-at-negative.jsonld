@@ -1,0 +1,13 @@
+{
+  "@context": "../context/rkaf-context.jsonld",
+  "@id": "urn:rkaf:fixture:bvr:snap-redet-accepted",
+  "@type": "rkaf:BridgeValidationResult",
+  "rkaf:packetId": "urn:rkaf:fixture:packet:snap-recert-2026q2",
+  "rkaf:consumer": "urn:rkaf:fixture:consumer:tx-snap-engine",
+  "rkaf:bridgeContractVersion": "rkaf-bridge/1.0",
+  "rkaf:result": "rkaf:accepted",
+  "rkaf:effectiveUsageEligibility": "rkaf:officialUse",
+  "rkaf:effectiveUsageEligibilityRationale": "All authority chains valid; no stale dependencies; no concept resolution failures.",
+  "rkaf:authorityChainStatus": "rkaf:valid",
+  "rkaf:chainTerminusKind": "rkaf:statutory"
+}

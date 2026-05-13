@@ -1,0 +1,21 @@
+{
+  "@context": "../context/rkaf-context.jsonld",
+  "@id": "urn:rkaf:fixture:bcr:tx-snap-engine",
+  "@type": "rkaf:BridgeConsumerRegistration",
+  "rkaf:consumer": "urn:rkaf:fixture:consumer:tx-snap-engine",
+  "rkaf:bridgeContractVersion": "rkaf-bridge/1.0",
+  "rkaf:registeredAt": "2026-03-01T00:00:00Z",
+  "rkaf:supportsRegistryVersionRange": [
+    "concept-registry: ^1.0",
+    "source-authority-registry: ^1.0"
+  ],
+  "rkaf:supportedAutomaticMigrations": [
+    "rkaf:editorialRenameMigration"
+  ],
+  "rkaf:supportedAuthorityKinds": [
+    "rkaf:statutory",
+    "rkaf:regulatory",
+    "rkaf:delegated",
+    "rkaf:organizational"
+  ]
+}

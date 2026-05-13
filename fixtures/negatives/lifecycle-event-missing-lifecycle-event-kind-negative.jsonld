@@ -1,0 +1,12 @@
+{
+  "@context": "../context/rkaf-context.jsonld",
+  "@id": "urn:rkaf:fixture:lcle:snap-redet-amendment-2026q2",
+  "@type": "rkaf:LifecycleEvent",
+  "rkaf:effectiveDate": "2026-04-15T00:00:00Z",
+  "rkaf:emittedBy": "urn:rkaf:fixture:actor:fns",
+  "rkaf:appliesTo": [
+    "urn:rkaf:fixture:assert:tx-snap-recert-method"
+  ],
+  "rkaf:bridgeContractVersion": "rkaf-bridge/1.0",
+  "rkaf:cascadeAlgorithm": "rkaf:CascadeClosureV1"
+}

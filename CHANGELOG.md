@@ -5,6 +5,80 @@ All notable changes to Rulespec are documented in this file.
 The format is loosely based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 adapted for a specification + shape + fixture project.
 
+## Unreleased — Plan 7a: shape conformance (L1–L4) + complete negative coverage
+
+Closes the §10.1 fixture-coverage target for shape conformance. Defines what "Rulespec-compliant" means as a graded contract (L1 Parse / L2 Shape / L3 Constraint / L4 Behavior). Adds a per-fixture conformance reporter, a self-certification document template + reference implementation entry, and 71 mechanically-generated negative fixtures.
+
+### Added
+
+- **`spec/rkaf-conformance.md`** — normative spec defining L1 (Parse), L2 (Shape — JSON Schema), L3 (Constraint — SHACL + Pattern-C), L4 (Behavior — runtime contracts per `spec/rkaf-behavior.md`). Includes per-level gate identifiers, self-certification requirements, the §10.1 corpus targets, the adoption-depth-gradient interaction matrix, and the rationale for consumer-declared (vs authority-certified) conformance pre-1.0.
+- **`tools/conformance_report.py`** — per-fixture L1/L2/L3 reporter. Walks `fixtures/` (excluding the cross-gate adversarial / projector envelopes), classifies each fixture as positive/negative/edge, runs all three gates, surfaces divergences. Three modes: human table (default), `--json` (machine-readable), `--self-certify` (emits a YAML self-cert doc).
+- **`tools/generate_negatives.py`** — mechanical generator. For each codified class, walks the JSON Schema's `required` list and emits one "missing-required-field" negative fixture per field, preserving the surrounding document context from the matching positive. Single source of truth: edit the positive, regenerate the negatives.
+- **`fixtures/negatives/`** — 71 generated negative fixtures across 23 classes. Every required field of every codified class now has an explicit "this field missing fails validation" gate.
+- **`conformance/self-certification.template.yaml`** — partner self-certification template; minimum fields documented.
+- **`conformance/partners/rulespec-reference.yaml`** — self-cert document for this repo's reference implementation. Declares L1+L2+L3 at D3, L4 not-claimed (pending Plan 7b).
+
+### Changed
+
+- **`fixtures/local-operational-positive.jsonld` archived.** This was the renamed v0.1 fixture preserved during the squash; it carried v0.1 Artifact / SourceFragment patterns that don't satisfy the v0.2 `hasArtifactIdentifier` / `bindsArtifact` required fields. Moved to `archive/v0.1/fixtures/local-operational-v0.2.jsonld` as the legacy reference it always was.
+- **CI workflow.** `tools/conformance_report.py` wired into `constraints-parity.yml` as the post-cargo gate. Exit-1 on any divergence between expected and actual fixture verdicts.
+
+### Verified
+
+| Gate | Result |
+|---|---|
+| `cargo test --workspace` | 39 tests, 0 failures |
+| `tools/ci_validate.py` (SHACL) | 33 fixtures × 19 shape files, 0 violations, 198 triples |
+| `tools/validate_negatives.py` | 4/4 FAIL-AS-EXPECTED |
+| `tools/conformance_report.py` | **108 fixtures (37 positive + 71 negative), 0 divergences** |
+| `tools/vocab_audit.py` | 37/39 declared in spec |
+| `tools/rename_audit.py` | CLEAN |
+| `tools/constraints_parity.py` | 0 release blockers |
+| `tools/projector_parity.py` | 7/7 round-trip OK |
+| `tools/version_sync.py --check` | clean |
+
+### Coverage shift
+
+Per spec §10.1: every codified class needs positive + negative (+ optional edge) fixtures.
+
+| Class | Positive | Negative (auto-generated) |
+|---|---|---|
+| Artifact | ✓ (3 variants: eli/doi/cid) | 2 (hasArtifactIdentifier, artifactIdentifierScheme) |
+| SourceFragment | ✓ (4 variants) | 3 (bindsArtifact, hasSelector, selectorKind) |
+| EvidenceBinding | ✓ (2 variants) | 1 (bindsAssertion) |
+| Warrant | ✓ (3 variants) | 2 (warrantKind, warrantFamily) |
+| ConfidenceRecord | ✓ (2 variants) | 4 (confidenceMethod/calibrationStatus/basis/generatedBy) |
+| AccessScope | ✓ (2 variants) | 1 (accessScopeKind) |
+| AILineage | ✓ | 7 (modelId/modelVersion/promptTemplateRef/temperature/inputContextHash/humanApprover) |
+| Assertion | — (in @graph elsewhere) | covered via EvidenceBinding/Warrant edges |
+| Authority | ✓ | 1 (authorityKind) |
+| Attestation | ✓ | 5 (attestor/attestorKind/targets/decision/attestationScope/attestedAt) |
+| LocalAdoption | ✓ | 8 (organization/targetAssertion/adoptionStatus/usageEligibility/adoptionAuthorityKind/adoptionScope/authorizedBy/adoptedAt) |
+| ApplicabilityScope | ✓ | 1 (appliesInJurisdiction) |
+| EffectivePeriod | ✓ | 1 (effectivePeriodStart) |
+| LifecycleEvent | ✓ | 4 (lifecycleEventKind/effectiveDate/emittedBy/appliesTo) |
+| RegisteredConcept | ✓ | 3 (managedByRegistry/conceptScope/conceptStatus) |
+| ConceptMapping | ✓ | 3 (sourceConcept/targetConcept/mappingRelation) |
+| ConceptResolutionResult | ✓ | 3 (inputConcept/resolutionStatus/resolvedAt) |
+| BridgeValidationResult | ✓ | 6 (packetId/consumer/bridgeContractVersion/result/effectiveUsageEligibility/effectiveUsageEligibilityRationale/validatedAt) |
+| BridgeConsumerRegistration | ✓ | 7 (consumer/bridgeContractVersion/registeredAt/supportedEvaluationAnchors/supportsRegistryVersionRange/supportedAutomaticMigrations/supportedAuthorityKinds) |
+| RegistryConflict | ✓ | 3 (conflictingEntries/severity/detectedAt) |
+| Justification | ✓ | 1 (hasWarrant) |
+| MappingState | ✓ | (enum-only; no class-level required fields beyond @type) |
+| RetentionPolicy | ✓ | (closed enum, schema doesn't enumerate required @type-only) |
+| Workspace | ✓ | 1 (workspaceId) |
+
+L1: every fixture parses (108/108).
+L2: every positive validates clean against compiled JSON Schema; every negative surfaces ≥1 JSON Schema violation.
+L3: same at the SHACL gate.
+L4: framework defined (spec/rkaf-conformance.md §4); fixtures deferred to Plan 7b.
+
+### Deferred to Plan 7b
+
+- **Edge fixtures.** §10.1 wants positive + negative + **edge** per class. Edge fixtures need domain judgment (boundary dates, multi-typed nodes, empty-but-valid arrays, etc.) — authoring deferred until a class's edge cases surface from real adoption.
+- **L4 behavior conformance fixtures.** Per `spec/rkaf-behavior.md` §7 roadmap: reducer-correctness, cascade-closure, bridge-rule, point-in-time-exception, stale-transition fixtures. Need a runtime impl to validate against — paired with whoever ships Plan 5.5 or Plan 7b.
+- **Cross-property invariant fixtures** beyond what's already in `archive/v0.1/shapes/`. The 5 adversarial + 3 AI-extraction fixtures cover the documented JSON-Schema/SHACL divergence corpus; deeper Pattern-C coverage is post-Plan-7a.
+
 ## Unreleased — Second-pass spec re-scan: 3 more codifications + SHACL emitter bug
 
 A second careful re-read of `thoughts/specs/2026-05-12-pkaf-as-public-schema-interop-framework.md` surfaced three primitives the spec names but we hadn't codified.

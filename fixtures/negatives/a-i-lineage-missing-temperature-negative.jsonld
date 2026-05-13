@@ -1,0 +1,12 @@
+{
+  "@context": "../context/rkaf-context.jsonld",
+  "@id": "urn:rkaf:fixture:ail-pos:l1",
+  "@type": "rkaf:AILineage",
+  "rkaf:modelId": "gpt-x-2026",
+  "rkaf:modelVersion": "2026.05.01",
+  "rkaf:promptTemplateRef": "urn:rkaf:prompt-template:extract-warrant-chain/v3",
+  "rkaf:seed": 42,
+  "rkaf:inputContextHash": "sha256:9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08",
+  "rkaf:humanApprover": "urn:rkaf:actor:reviewer:alice-r",
+  "rkaf:humanRationale": "Manual review of extracted statutory chain; all hops verified against ELI source."
+}

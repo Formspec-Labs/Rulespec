@@ -1,0 +1,7 @@
+{
+  "@context": "../context/rkaf-context.jsonld",
+  "@id": "urn:rkaf:fixture:concept:household-income",
+  "@type": "rkaf:RegisteredConcept",
+  "rkaf:managedByRegistry": "urn:rkaf:fixture:registry:fns-snap-canonical",
+  "rkaf:conceptStatus": "rkaf:active"
+}

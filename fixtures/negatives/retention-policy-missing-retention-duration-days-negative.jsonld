@@ -1,0 +1,7 @@
+{
+  "@context": "../context/rkaf-context.jsonld",
+  "@id": "urn:rkaf:fixture:rp-pos:r1",
+  "@type": "rkaf:RetentionPolicy",
+  "rkaf:retentionTrigger": "rkaf:creation",
+  "rkaf:retentionPostExpiry": "rkaf:archive"
+}

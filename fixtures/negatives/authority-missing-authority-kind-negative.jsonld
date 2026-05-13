@@ -1,0 +1,7 @@
+{
+  "@context": "../context/rkaf-context.jsonld",
+  "@id": "urn:rkaf:fixture:auth:cfr-7-273",
+  "@type": "rkaf:Authority",
+  "rkaf:hasApplicability": "urn:rkaf:fixture:applic:fed-snap",
+  "rkaf:hasEffectivePeriod": "urn:rkaf:fixture:eff:cfr-7-273"
+}

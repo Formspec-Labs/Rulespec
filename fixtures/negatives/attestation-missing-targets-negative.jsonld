@@ -1,0 +1,10 @@
+{
+  "@context": "../context/rkaf-context.jsonld",
+  "@id": "urn:rkaf:fixture:atst:reviewer-approved",
+  "@type": "rkaf:Attestation",
+  "rkaf:attestor": "urn:rkaf:fixture:actor:reviewer-1",
+  "rkaf:attestorKind": "rkaf:formalReviewer",
+  "rkaf:decision": "rkaf:approved",
+  "rkaf:attestationScope": "urn:rkaf:fixture:scope:tx-snap-redetermination-2026",
+  "rkaf:attestedAt": "2026-04-15T10:00:00Z"
+}

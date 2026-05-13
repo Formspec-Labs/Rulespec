@@ -1,0 +1,12 @@
+{
+  "@context": "../context/rkaf-context.jsonld",
+  "@id": "urn:rkaf:fixture:adopt:tx-snap-recert-workflow",
+  "@type": "rkaf:LocalAdoption",
+  "rkaf:targetAssertion": "urn:rkaf:fixture:assert:tx-snap-recert-method",
+  "rkaf:adoptionStatus": "rkaf:active",
+  "rkaf:usageEligibility": "rkaf:localOperationalUse",
+  "rkaf:adoptionAuthorityKind": "rkaf:organizational",
+  "rkaf:adoptionScope": "tx-hhsc/snap-redetermination/2026-q2",
+  "rkaf:authorizedBy": "urn:rkaf:fixture:actor:hhsc-policy-board",
+  "rkaf:adoptedAt": "2026-04-01T00:00:00Z"
+}

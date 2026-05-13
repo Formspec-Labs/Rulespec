@@ -1,0 +1,45 @@
+# Rulespec Self-Certification Document — Template
+#
+# Copy this template to conformance/partners/<implementation>.yaml and fill in
+# the fields. A populated document can be generated automatically via:
+#   python3 tools/conformance_report.py --self-certify
+#
+# Conformance levels are defined in spec/rkaf-conformance.md.
+
+partner:        "<organization or maintainer name>"
+implementation: "<package@version>"
+
+# The Rulespec commit / tag this self-certification was tested against.
+rulespec_version: "<commit hash or pre-release tag (e.g. 0.2.0-pre.5)>"
+
+# Which levels this implementation claims to satisfy. Subset of [L1, L2, L3, L4].
+# Levels are cumulative — declaring L3 implies L1 + L2.
+declared_levels:
+  - L1
+  - L2
+  - L3
+
+# Operational adoption depth — D0 cite / D1 overlay / D2 align / D3 derive /
+# D4 substrate / D5 sole. See source spec Appendix D.
+adoption_depth: D1
+
+# Test corpus identification.
+test_corpus_run_at: "<ISO 8601 datetime>"
+test_corpus_commit: "<rulespec commit SHA against which the fixture set was run>"
+
+# Per-level results from the conformance reporter run. `pass` means every
+# positive fixture passed and every negative fixture failed as expected at
+# this level. `partial` means some failures or unclaimed coverage. `fail`
+# means the level cannot be declared at this commit.
+results:
+  L1: pass
+  L2: pass
+  L3: pass
+  L4: not-claimed
+
+# Free-form notes. Document what the implementation does and does not
+# enforce, any documented divergences, and the implementation's plan for
+# unenforced levels.
+notes: |
+  <Document the implementation's conformance posture, intentional gaps,
+   and remediation plans for not-yet-enforced contracts.>

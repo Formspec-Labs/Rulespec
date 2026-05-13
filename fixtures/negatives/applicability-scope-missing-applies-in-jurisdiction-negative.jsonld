@@ -1,0 +1,9 @@
+{
+  "@context": "../context/rkaf-context.jsonld",
+  "@id": "urn:rkaf:fixture:applic:fed-snap",
+  "@type": "rkaf:ApplicabilityScope",
+  "rkaf:appliesToSubject": [
+    "urn:rkaf:type:HouseholdCase"
+  ],
+  "rkaf:hasEffectivePeriod": "urn:rkaf:fixture:eff:cfr-7-273"
+}

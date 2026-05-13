@@ -1,0 +1,8 @@
+{
+  "@context": "../context/rkaf-context.jsonld",
+  "@id": "urn:rkaf:fixture:cmap:income-closematch",
+  "@type": "rkaf:ConceptMapping",
+  "rkaf:targetConcept": "urn:rkaf:fixture:concept:household-income",
+  "rkaf:mappingRelation": "skos:closeMatch",
+  "rkaf:usageEligibility": "rkaf:localOperationalUse"
+}

@@ -81,3 +81,6 @@ jobs:
 
       - name: Layer 4 projector parity (round-trip fixtures across all targets)
         run: python3 tools/projector_parity.py
+
+      - name: Conformance report (L1/L2/L3 per fixture, exits 1 on divergence)
+        run: python3 tools/conformance_report.py

@@ -1,0 +1,9 @@
+{
+  "@context": "../context/rkaf-context.jsonld",
+  "@id": "urn:rkaf:workspace:org-acme",
+  "@type": "rkaf:Workspace",
+  "rkaf:workspaceTrustList": [
+    "urn:rkaf:workspace:org-globex",
+    "urn:rkaf:workspace:org-initech"
+  ]
+}
