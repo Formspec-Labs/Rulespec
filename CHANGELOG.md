@@ -5,6 +5,34 @@ All notable changes to Rulespec are documented in this file.
 The format is loosely based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 adapted for a specification + shape + fixture project.
 
+## Unreleased — Plan 6a: Rust SDK (Vocab + Validate + CLI)
+
+**Three Rust crates land the first SDK surface: `rkaf-core` (typed Vocabulary primitives with serde round-trip), `rkaf-validate` (embedded v0.2 JSON Schema validator), and `rkaf-validate-cli` (the `rkaf-validate` binary).** This is the first time external code can pick up Rulespec without `git clone`-ing the repo or shelling out to the Python compiler.
+
+### Added
+
+- `crates/rkaf-core/` — 8 typed primitives (Assertion, Warrant, EvidenceBinding, ConfidenceRecord, AccessScope, AILineage, Artifact, SourceFragment) with closed enums and JSON-LD-compatible serde derive. Each primitive carries a `#[serde(flatten)] extra` map preserving unknown properties through round-trip.
+- `crates/rkaf-validate/` — `Validator` with all 8 v0.2 class schemas embedded via `include_str!` (no filesystem dependency at runtime). Exposes `validate(&node)` (single node) and `validate_document(&doc)` (walks `@graph` arrays). Unknown `@type` IRIs pass silently — outside our contract.
+- `crates/rkaf-validate-cli/` — `rkaf-validate <file>` binary. Exit 0 on PASS, 1 on FAIL, 2 on setup error. `--json` emits a structured report.
+
+### Verified
+
+- 16 v0.2 positive fixtures round-trip through their matching `rkaf-core` types byte-identically.
+- 11 of 17 positive fixtures validate cleanly via `rkaf-validate` (the JSON-Schema target). 6 fixtures live in `SHACL_ONLY_POSITIVE` — documented Appendix-C divergences where SHACL is the stronger gate. The split is honestly named in the test source.
+- CLI integration tests cover PASS/FAIL/--json across positive and negative fixtures.
+- All 23 unit/integration tests across the new crates pass; full workspace `cargo test --workspace` passes.
+
+### Documented Appendix-C divergences (JSON Schema < SHACL)
+
+- **SourceFragment `rkaf:hasSelector`**: CUE → JSON Schema compiler emits `string | array[string]`, but real fixtures use structured OA selector objects (`oa:TextQuoteSelector`, `oa:XPathSelector`, `rkaf:AktnEIdSelector`, `rkaf:USLMSectionSelector`). A future compiler iteration should emit the structured shape.
+- **EvidenceBinding cross-ref placeholders**: fixtures contain sparse `{"@type": "rkaf:Assertion"}` nodes for cross-reference. SHACL targetClass validation does not trip on sparse nodes; JSON Schema `required` does.
+
+Neither divergence affects user code that authors well-formed v0.2 nodes for validation; the divergence is in *which gate catches what*. Full v0.2 conformance requires both `rkaf-validate` (JSON Schema) and `tools/ci_validate.py` (SHACL).
+
+### Compatibility
+
+Pre-release. The three new crates are versioned at workspace level (`0.2.0-pre.5`); their public API is small and stable enough for Plan 11 publication once the GitHub extraction lands.
+
 ## v0.2.0-pre.5 — Layer 4 Projectors (MVP triangle)
 
 **Three bidirectional projectors landed: JSON Schema 2020-12, JSON-LD 1.1, OpenAPI 3.1. Each implements the source spec §8.1 contract (Attach, Extract, Validate, RoundTrip, Derive). Round-trip parity is the release gate.**
