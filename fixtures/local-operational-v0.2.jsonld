@@ -1,528 +1,528 @@
 {
   "@context": {
-    "pkaf": "https://w3id.org/pkaf/ns/v1#",
+    "rkaf": "https://rulespec.org/ns/v1#",
     "prov": "http://www.w3.org/ns/prov#",
     "oa": "http://www.w3.org/ns/oa#",
     "skos": "http://www.w3.org/2004/02/skos/core#",
     "wos": "https://w3id.org/wos/ns/v1#",
     "formspec": "https://w3id.org/formspec/ns/v1#",
     "xsd": "http://www.w3.org/2001/XMLSchema#",
-    "pkaf:assertsSubject": {
+    "rkaf:assertsSubject": {
       "@type": "@id"
     },
-    "pkaf:assertsPredicate": {
+    "rkaf:assertsPredicate": {
       "@type": "@id"
     },
-    "pkaf:assertsObject": {
+    "rkaf:assertsObject": {
       "@type": "@id"
     },
-    "pkaf:hasTrustZone": {
+    "rkaf:hasTrustZone": {
       "@type": "@id"
     },
-    "pkaf:hasSafetyLabel": {
+    "rkaf:hasSafetyLabel": {
       "@type": "@id"
     },
-    "pkaf:usageEligibility": {
+    "rkaf:usageEligibility": {
       "@type": "@id"
     },
-    "pkaf:assertionOrigin": {
+    "rkaf:assertionOrigin": {
       "@type": "@id"
     },
-    "pkaf:authorityKind": {
+    "rkaf:authorityKind": {
       "@type": "@id"
     },
-    "pkaf:adoptionAuthorityKind": {
+    "rkaf:adoptionAuthorityKind": {
       "@type": "@id"
     },
-    "pkaf:adoptionStatus": {
+    "rkaf:adoptionStatus": {
       "@type": "@id"
     },
-    "pkaf:result": {
+    "rkaf:result": {
       "@type": "@id"
     },
-    "pkaf:resolutionStatus": {
+    "rkaf:resolutionStatus": {
       "@type": "@id"
     },
-    "pkaf:resolutionMethod": {
+    "rkaf:resolutionMethod": {
       "@type": "@id"
     },
-    "pkaf:cacheStatus": {
+    "rkaf:cacheStatus": {
       "@type": "@id"
     },
-    "pkaf:usageCeiling": {
+    "rkaf:usageCeiling": {
       "@type": "@id"
     },
-    "pkaf:lifecycleEvent": {
+    "rkaf:lifecycleEvent": {
       "@type": "@id"
     },
-    "pkaf:cascadeAlgorithm": {
+    "rkaf:cascadeAlgorithm": {
       "@type": "@id"
     },
-    "pkaf:evidenceRole": {
+    "rkaf:evidenceRole": {
       "@type": "@id"
     },
-    "pkaf:warningCode": {
+    "rkaf:warningCode": {
       "@type": "@id"
     },
-    "pkaf:errorCode": {
+    "rkaf:errorCode": {
       "@type": "@id"
     },
-    "pkaf:severity": {
+    "rkaf:severity": {
       "@type": "@id"
     },
-    "pkaf:decision": {
+    "rkaf:decision": {
       "@type": "@id"
     },
-    "pkaf:scope": {
+    "rkaf:scope": {
       "@type": "@id"
     },
-    "pkaf:visibility": {
+    "rkaf:visibility": {
       "@type": "@id"
     },
-    "pkaf:attestorType": {
+    "rkaf:attestorType": {
       "@type": "@id"
     },
-    "pkaf:role": {
+    "rkaf:role": {
       "@type": "@id"
     },
-    "pkaf:transitionTo": {
+    "rkaf:transitionTo": {
       "@type": "@id"
     },
-    "pkaf:closureDecision": {
+    "rkaf:closureDecision": {
       "@type": "@id"
     },
-    "pkaf:status": {
+    "rkaf:status": {
       "@type": "@id"
     },
-    "pkaf:predicate": {
+    "rkaf:predicate": {
       "@type": "@id"
     },
-    "pkaf:conceptStatus": {
+    "rkaf:conceptStatus": {
       "@type": "@id"
     },
-    "pkaf:conceptScope": {
+    "rkaf:conceptScope": {
       "@type": "@id"
     },
-    "pkaf:governanceModel": {
+    "rkaf:governanceModel": {
       "@type": "@id"
     },
-    "pkaf:revisedUsageEligibility": {
+    "rkaf:revisedUsageEligibility": {
       "@type": "@id"
     },
-    "pkaf:effectiveUsageEligibility": {
+    "rkaf:effectiveUsageEligibility": {
       "@type": "@id"
     },
-    "pkaf:proposedUsageEligibility": {
+    "rkaf:proposedUsageEligibility": {
       "@type": "@id"
     },
-    "pkaf:safeAutomaticMigration": {
+    "rkaf:safeAutomaticMigration": {
       "@type": "@id"
     },
-    "pkaf:resourceKind": {
+    "rkaf:resourceKind": {
       "@type": "@id"
     },
-    "pkaf:officialStatus": {
+    "rkaf:officialStatus": {
       "@type": "@id"
     },
-    "pkaf:legalValue": {
+    "rkaf:legalValue": {
       "@type": "@id"
     },
-    "pkaf:publicationStatus": {
+    "rkaf:publicationStatus": {
       "@type": "@id"
     },
-    "pkaf:remediationAction": {
+    "rkaf:remediationAction": {
       "@type": "@id"
     },
-    "pkaf:requiredPredicate": {
+    "rkaf:requiredPredicate": {
       "@type": "@id"
     },
-    "pkaf:minimumUsageEligibility": {
+    "rkaf:minimumUsageEligibility": {
       "@type": "@id"
     },
-    "pkaf:noEvidenceReason": {
+    "rkaf:noEvidenceReason": {
       "@type": "@id"
     },
-    "pkaf:noRemediationReason": {
+    "rkaf:noRemediationReason": {
       "@type": "@id"
     },
-    "pkaf:authorityChainStatus": {
+    "rkaf:authorityChainStatus": {
       "@type": "@id"
     },
-    "pkaf:chainTerminusKind": {
+    "rkaf:chainTerminusKind": {
       "@type": "@id"
     },
-    "pkaf:fragmentType": {
+    "rkaf:fragmentType": {
       "@type": "@id"
     },
-    "pkaf:reviewStatus": {
+    "rkaf:reviewStatus": {
       "@type": "@id"
     },
-    "pkaf:consumerLifecycleState": {
+    "rkaf:consumerLifecycleState": {
       "@type": "@id"
     },
-    "pkaf:newWorkProductStatus": {
+    "rkaf:newWorkProductStatus": {
       "@type": "@id"
     },
-    "pkaf:newUsageEligibility": {
+    "rkaf:newUsageEligibility": {
       "@type": "@id"
     },
-    "pkaf:newAssertionState": {
+    "rkaf:newAssertionState": {
       "@type": "@id"
     },
-    "pkaf:resourceFamily": {
+    "rkaf:resourceFamily": {
       "@type": "@id"
     },
-    "pkaf:assertedBy": {
+    "rkaf:assertedBy": {
       "@type": "@id"
     },
-    "pkaf:attestor": {
+    "rkaf:attestor": {
       "@type": "@id"
     },
-    "pkaf:targetAssertion": {
+    "rkaf:targetAssertion": {
       "@type": "@id"
     },
-    "pkaf:targetWorkProduct": {
+    "rkaf:targetWorkProduct": {
       "@type": "@id"
     },
-    "pkaf:targetPacket": {
+    "rkaf:targetPacket": {
       "@type": "@id"
     },
-    "pkaf:targetConcept": {
+    "rkaf:targetConcept": {
       "@type": "@id"
     },
-    "pkaf:targetMappingConflict": {
+    "rkaf:targetMappingConflict": {
       "@type": "@id"
     },
-    "pkaf:targetBridgeValidation": {
+    "rkaf:targetBridgeValidation": {
       "@type": "@id"
     },
-    "pkaf:targetRegistry": {
+    "rkaf:targetRegistry": {
       "@type": "@id"
     },
-    "pkaf:targetAdoption": {
+    "rkaf:targetAdoption": {
       "@type": "@id"
     },
-    "pkaf:authorizedBy": {
+    "rkaf:authorizedBy": {
       "@type": "@id"
     },
-    "pkaf:organization": {
+    "rkaf:organization": {
       "@type": "@id"
     },
-    "pkaf:packetId": {
+    "rkaf:packetId": {
       "@type": "@id"
     },
-    "pkaf:consumer": {
+    "rkaf:consumer": {
       "@type": "@id"
     },
-    "pkaf:emittedBy": {
+    "rkaf:emittedBy": {
       "@type": "@id"
     },
-    "pkaf:triggeredByPacket": {
+    "rkaf:triggeredByPacket": {
       "@type": "@id"
     },
-    "pkaf:closesRevalidationEvent": {
+    "rkaf:closesRevalidationEvent": {
       "@type": "@id"
     },
-    "pkaf:successorAssertion": {
+    "rkaf:successorAssertion": {
       "@type": "@id"
     },
-    "pkaf:successorAssertions": {
+    "rkaf:successorAssertions": {
       "@type": "@id",
       "@container": "@set"
     },
-    "pkaf:successorWorkProduct": {
+    "rkaf:successorWorkProduct": {
       "@type": "@id"
     },
-    "pkaf:closedBy": {
+    "rkaf:closedBy": {
       "@type": "@id"
     },
-    "pkaf:queuedFor": {
+    "rkaf:queuedFor": {
       "@type": "@id"
     },
-    "pkaf:supersedesAssertion": {
+    "rkaf:supersedesAssertion": {
       "@type": "@id"
     },
-    "pkaf:supersedesWorkProduct": {
+    "rkaf:supersedesWorkProduct": {
       "@type": "@id"
     },
-    "pkaf:revalidationOf": {
+    "rkaf:revalidationOf": {
       "@type": "@id"
     },
-    "pkaf:precedingArtifact": {
+    "rkaf:precedingArtifact": {
       "@type": "@id"
     },
-    "pkaf:precedingVersion": {
+    "rkaf:precedingVersion": {
       "@type": "@id"
     },
-    "pkaf:sourceFragment": {
+    "rkaf:sourceFragment": {
       "@type": "@id"
     },
-    "pkaf:supportingEvent": {
+    "rkaf:supportingEvent": {
       "@type": "@id"
     },
-    "pkaf:basedOnClassification": {
+    "rkaf:basedOnClassification": {
       "@type": "@id"
     },
-    "pkaf:basedOnEvent": {
+    "rkaf:basedOnEvent": {
       "@type": "@id"
     },
-    "pkaf:basedOnAttestation": {
+    "rkaf:basedOnAttestation": {
       "@type": "@id",
       "@container": "@set"
     },
-    "pkaf:basedOnAttestations": {
+    "rkaf:basedOnAttestations": {
       "@type": "@id",
       "@container": "@set"
     },
-    "pkaf:artifactId": {
+    "rkaf:artifactId": {
       "@type": "@id"
     },
-    "pkaf:realizedByArtifact": {
+    "rkaf:realizedByArtifact": {
       "@type": "@id"
     },
-    "pkaf:resourceLineage": {
+    "rkaf:resourceLineage": {
       "@type": "@id"
     },
-    "pkaf:sourceAuthorityHint": {
+    "rkaf:sourceAuthorityHint": {
       "@type": "@id"
     },
-    "pkaf:capturedBy": {
+    "rkaf:capturedBy": {
       "@type": "@id"
     },
-    "pkaf:subjectArtifact": {
+    "rkaf:subjectArtifact": {
       "@type": "@id"
     },
-    "pkaf:priorArtifact": {
+    "rkaf:priorArtifact": {
       "@type": "@id"
     },
-    "pkaf:classifiedBy": {
+    "rkaf:classifiedBy": {
       "@type": "@id"
     },
-    "pkaf:classification": {
+    "rkaf:classification": {
       "@type": "@id"
     },
-    "pkaf:managedByRegistry": {
+    "rkaf:managedByRegistry": {
       "@type": "@id"
     },
-    "pkaf:hostedByRegistry": {
+    "rkaf:hostedByRegistry": {
       "@type": "@id"
     },
-    "pkaf:mintingAuthority": {
+    "rkaf:mintingAuthority": {
       "@type": "@id"
     },
-    "pkaf:resolutionEndpoint": {
+    "rkaf:resolutionEndpoint": {
       "@type": "@id"
     },
-    "pkaf:registeredVia": {
+    "rkaf:registeredVia": {
       "@type": "@id"
     },
-    "pkaf:replacedBy": {
+    "rkaf:replacedBy": {
       "@type": "@id",
       "@container": "@set"
     },
-    "pkaf:absorbedConcepts": {
+    "rkaf:absorbedConcepts": {
       "@type": "@id",
       "@container": "@set"
     },
-    "pkaf:splitInto": {
+    "rkaf:splitInto": {
       "@type": "@id",
       "@container": "@set"
     },
-    "pkaf:successorConcepts": {
+    "rkaf:successorConcepts": {
       "@type": "@id",
       "@container": "@set"
     },
-    "pkaf:subjectConcept": {
+    "rkaf:subjectConcept": {
       "@type": "@id"
     },
-    "pkaf:relatedConcept": {
+    "rkaf:relatedConcept": {
       "@type": "@id"
     },
-    "pkaf:sharedArtifact": {
+    "rkaf:sharedArtifact": {
       "@type": "@id"
     },
-    "pkaf:relatedPublishedArtifact": {
+    "rkaf:relatedPublishedArtifact": {
       "@type": "@id"
     },
-    "pkaf:conflictingMappings": {
+    "rkaf:conflictingMappings": {
       "@type": "@id",
       "@container": "@set"
     },
-    "pkaf:concept": {
+    "rkaf:concept": {
       "@type": "@id"
     },
-    "pkaf:inputConcept": {
+    "rkaf:inputConcept": {
       "@type": "@id"
     },
-    "pkaf:resolvedConcept": {
+    "rkaf:resolvedConcept": {
       "@type": "@id"
     },
-    "pkaf:mappingAssertion": {
+    "rkaf:mappingAssertion": {
       "@type": "@id"
     },
-    "pkaf:resolutionTrustedVia": {
+    "rkaf:resolutionTrustedVia": {
       "@type": "@id"
     },
-    "pkaf:registry": {
+    "rkaf:registry": {
       "@type": "@id"
     },
-    "pkaf:resolvedToConcepts": {
+    "rkaf:resolvedToConcepts": {
       "@type": "@id",
       "@container": "@set"
     },
-    "pkaf:assertion": {
+    "rkaf:assertion": {
       "@type": "@id"
     },
-    "pkaf:subject": {
+    "rkaf:subject": {
       "@type": "@id"
     },
-    "pkaf:object": {
+    "rkaf:object": {
       "@type": "@id"
     },
-    "pkaf:dataConcept": {
+    "rkaf:dataConcept": {
       "@type": "@id"
     },
-    "pkaf:proposedFromLocalConcept": {
+    "rkaf:proposedFromLocalConcept": {
       "@type": "@id"
     },
-    "pkaf:registeredConcept": {
+    "rkaf:registeredConcept": {
       "@type": "@id"
     },
-    "pkaf:registrationAuthority": {
+    "rkaf:registrationAuthority": {
       "@type": "@id"
     },
-    "pkaf:proposedBy": {
+    "rkaf:proposedBy": {
       "@type": "@id"
     },
-    "pkaf:delegatingAuthority": {
+    "rkaf:delegatingAuthority": {
       "@type": "@id"
     },
-    "pkaf:delegatedTo": {
+    "rkaf:delegatedTo": {
       "@type": "@id"
     },
-    "pkaf:publisher": {
+    "rkaf:publisher": {
       "@type": "@id"
     },
-    "pkaf:retainsAssertion": {
+    "rkaf:retainsAssertion": {
       "@type": "@id"
     },
-    "pkaf:retainsWorkProduct": {
+    "rkaf:retainsWorkProduct": {
       "@type": "@id"
     },
-    "pkaf:evaluationAnchor": {
+    "rkaf:evaluationAnchor": {
       "@type": "@id"
     },
-    "pkaf:appliesTo": {
+    "rkaf:appliesTo": {
       "@type": "@id"
     },
-    "pkaf:affectedAssertions": {
+    "rkaf:affectedAssertions": {
       "@type": "@id",
       "@container": "@set"
     },
-    "pkaf:affectedAuthorityAssertions": {
+    "rkaf:affectedAuthorityAssertions": {
       "@type": "@id",
       "@container": "@set"
     },
-    "pkaf:affectedImplementationAssertions": {
+    "rkaf:affectedImplementationAssertions": {
       "@type": "@id",
       "@container": "@set"
     },
-    "pkaf:affectedWorkProducts": {
+    "rkaf:affectedWorkProducts": {
       "@type": "@id",
       "@container": "@set"
     },
-    "pkaf:affectedAdoptions": {
+    "rkaf:affectedAdoptions": {
       "@type": "@id",
       "@container": "@set"
     },
-    "pkaf:affectedFragments": {
+    "rkaf:affectedFragments": {
       "@type": "@id",
       "@container": "@set"
     },
-    "pkaf:affectedWorkProduct": {
+    "rkaf:affectedWorkProduct": {
       "@type": "@id"
     },
-    "pkaf:affectedAdoption": {
+    "rkaf:affectedAdoption": {
       "@type": "@id"
     },
-    "pkaf:affectedConcepts": {
+    "rkaf:affectedConcepts": {
       "@type": "@id",
       "@container": "@set"
     },
-    "pkaf:staleDependencies": {
+    "rkaf:staleDependencies": {
       "@type": "@id",
       "@container": "@set"
     },
-    "pkaf:unresolvedConcepts": {
+    "rkaf:unresolvedConcepts": {
       "@type": "@id",
       "@container": "@set"
     },
-    "pkaf:registryUnavailable": {
+    "rkaf:registryUnavailable": {
       "@type": "@id",
       "@container": "@set"
     },
-    "pkaf:staleConceptCache": {
+    "rkaf:staleConceptCache": {
       "@type": "@id",
       "@container": "@set"
     },
-    "pkaf:supportedEvaluationAnchors": {
+    "rkaf:supportedEvaluationAnchors": {
       "@type": "@id",
       "@container": "@set"
     },
-    "pkaf:supportedAutomaticMigrations": {
+    "rkaf:supportedAutomaticMigrations": {
       "@type": "@id",
       "@container": "@set"
     },
-    "pkaf:supportedAuthorityKinds": {
+    "rkaf:supportedAuthorityKinds": {
       "@type": "@id",
       "@container": "@set"
     },
-    "pkaf:justifiedByAssertion": {
+    "rkaf:justifiedByAssertion": {
       "@type": "@id",
       "@container": "@set"
     },
-    "pkaf:justificationBackedBy": {
+    "rkaf:justificationBackedBy": {
       "@type": "@id"
     },
-    "pkaf:derivedFromFragment": {
+    "rkaf:derivedFromFragment": {
       "@type": "@id",
       "@container": "@set"
     },
-    "pkaf:associatedWorkflowStep": {
+    "rkaf:associatedWorkflowStep": {
       "@type": "@id"
     },
-    "pkaf:generationRun": {
+    "rkaf:generationRun": {
       "@type": "@id"
     },
-    "pkaf:fromConcept": {
+    "rkaf:fromConcept": {
       "@type": "@id"
     },
-    "pkaf:toConcept": {
+    "rkaf:toConcept": {
       "@type": "@id"
     },
-    "pkaf:requiredAdoptionScope": {
+    "rkaf:requiredAdoptionScope": {
       "@type": "@id"
     },
-    "pkaf:collectsEvidenceType": {
+    "rkaf:collectsEvidenceType": {
       "@type": "@id"
     },
-    "pkaf:requiresEvidenceType": {
+    "rkaf:requiresEvidenceType": {
       "@type": "@id"
     },
-    "pkaf:acceptedDocumentTypes": {
+    "rkaf:acceptedDocumentTypes": {
       "@type": "@id",
       "@container": "@set"
     },
-    "pkaf:excludesCategory": {
+    "rkaf:excludesCategory": {
       "@container": "@set"
     },
-    "pkaf:evidencePurpose": {
+    "rkaf:evidencePurpose": {
       "@container": "@set"
     },
-    "pkaf:excludesPurposes": {
+    "rkaf:excludesPurposes": {
       "@container": "@set"
     },
-    "pkaf:jurisdiction": {
+    "rkaf:jurisdiction": {
       "@container": "@set"
     },
     "prov:wasGeneratedBy": {
@@ -537,86 +537,86 @@
     "prov:generatedAtTime": {
       "@type": "xsd:dateTime"
     },
-    "pkaf:capturedAt": {
+    "rkaf:capturedAt": {
       "@type": "xsd:dateTime"
     },
-    "pkaf:registeredAt": {
+    "rkaf:registeredAt": {
       "@type": "xsd:dateTime"
     },
-    "pkaf:effectiveDate": {
+    "rkaf:effectiveDate": {
       "@type": "xsd:dateTime"
     },
-    "pkaf:effectivePeriodStart": {
+    "rkaf:effectivePeriodStart": {
       "@type": "xsd:dateTime"
     },
-    "pkaf:effectivePeriodEnd": {
+    "rkaf:effectivePeriodEnd": {
       "@type": "xsd:dateTime"
     },
-    "pkaf:exceptionEffectivePeriodEnd": {
+    "rkaf:exceptionEffectivePeriodEnd": {
       "@type": "xsd:dateTime"
     },
-    "pkaf:exceptionEffectivePeriodStart": {
+    "rkaf:exceptionEffectivePeriodStart": {
       "@type": "xsd:dateTime"
     },
-    "pkaf:cachedAt": {
+    "rkaf:cachedAt": {
       "@type": "xsd:dateTime"
     },
-    "pkaf:deprecatedAt": {
+    "rkaf:deprecatedAt": {
       "@type": "xsd:dateTime"
     },
-    "pkaf:rescissionEffectiveDate": {
+    "rkaf:rescissionEffectiveDate": {
       "@type": "xsd:dateTime"
     },
-    "pkaf:detectedAt": {
+    "rkaf:detectedAt": {
       "@type": "xsd:dateTime"
     },
-    "pkaf:definedInScope": {
+    "rkaf:definedInScope": {
       "@type": "@id"
     }
   },
   "@graph": [
     {
       "@id": "https://example.org/artifact/wiki-csbg-eligibility-rev-1247",
-      "@type": "pkaf:Artifact",
-      "pkaf:sourceType": "mediawiki-page-revision",
-      "pkaf:contentHash": "sha256:7a3f4b9e...c91d",
-      "pkaf:mimeType": "text/x-wiki",
-      "pkaf:capturedAt": "2026-05-10T14:00:00-05:00",
-      "pkaf:capturedBy": "https://example.org/connector/mediawiki-v2",
-      "pkaf:sourceUrl": "https://wiki.example.org/csbg-policy/Eligibility?oldid=1247",
-      "pkaf:accessScope": "internal",
-      "pkaf:sourceAuthorityHint": "https://example.org/source-authority/caa-42-internal-wiki"
+      "@type": "rkaf:Artifact",
+      "rkaf:sourceType": "mediawiki-page-revision",
+      "rkaf:contentHash": "sha256:7a3f4b9e...c91d",
+      "rkaf:mimeType": "text/x-wiki",
+      "rkaf:capturedAt": "2026-05-10T14:00:00-05:00",
+      "rkaf:capturedBy": "https://example.org/connector/mediawiki-v2",
+      "rkaf:sourceUrl": "https://wiki.example.org/csbg-policy/Eligibility?oldid=1247",
+      "rkaf:accessScope": "internal",
+      "rkaf:sourceAuthorityHint": "https://example.org/source-authority/caa-42-internal-wiki"
     },
     {
       "@id": "https://example.org/fragment/wiki-csbg-eligibility-rev-1247/sec-3-p2",
-      "@type": "pkaf:SourceFragment",
-      "pkaf:artifactId": "https://example.org/artifact/wiki-csbg-eligibility-rev-1247",
-      "pkaf:fragmentType": "paragraph",
-      "pkaf:locator": "section[@id='income-verification']/p[2]",
-      "pkaf:selector": {
+      "@type": "rkaf:SourceFragment",
+      "rkaf:artifactId": "https://example.org/artifact/wiki-csbg-eligibility-rev-1247",
+      "rkaf:fragmentType": "paragraph",
+      "rkaf:locator": "section[@id='income-verification']/p[2]",
+      "rkaf:selector": {
         "@type": "oa:TextQuoteSelector",
         "oa:exact": "Applicants for benefit category B must provide documentation establishing household income for the prior twelve months.",
         "oa:prefix": "Income verification requirements.",
         "oa:suffix": "Acceptable documentation includes..."
       },
-      "pkaf:sourceVersion": "rev-1247",
-      "pkaf:accessScope": "internal"
+      "rkaf:sourceVersion": "rev-1247",
+      "rkaf:accessScope": "internal"
     },
     {
       "@id": "https://example.org/resource/csbg-eligibility-policy/rev-1247",
-      "@type": "pkaf:PolicyResourceVersion",
-      "pkaf:resourceLineage": "https://example.org/resource/csbg-eligibility-policy",
-      "pkaf:versionLabel": "rev-1247",
-      "pkaf:effectivePeriodStart": "2025-11-01T00:00:00-05:00",
-      "pkaf:realizedByArtifact": "https://example.org/artifact/wiki-csbg-eligibility-rev-1247",
-      "pkaf:resourceKind": "internalOrganizationalPolicy",
-      "pkaf:accessScope": "internal"
+      "@type": "rkaf:PolicyResourceVersion",
+      "rkaf:resourceLineage": "https://example.org/resource/csbg-eligibility-policy",
+      "rkaf:versionLabel": "rev-1247",
+      "rkaf:effectivePeriodStart": "2025-11-01T00:00:00-05:00",
+      "rkaf:realizedByArtifact": "https://example.org/artifact/wiki-csbg-eligibility-rev-1247",
+      "rkaf:resourceKind": "internalOrganizationalPolicy",
+      "rkaf:accessScope": "internal"
     },
     {
       "@id": "https://registry.example.gov/concepts/HouseholdIncomeEvidence",
       "@type": [
         "skos:Concept",
-        "pkaf:RegisteredConcept"
+        "rkaf:RegisteredConcept"
       ],
       "skos:prefLabel": "Household income evidence",
       "skos:altLabel": [
@@ -629,53 +629,53 @@
         "https://registry.example.gov/concepts/FederalTaxReturnEvidence",
         "https://registry.example.gov/concepts/StateTaxReturnEvidence"
       ],
-      "pkaf:managedByRegistry": "https://registry.example.gov/registries/public-benefits-evidence",
-      "pkaf:conceptScope": "pkaf:public",
-      "pkaf:conceptStatus": "pkaf:registered"
+      "rkaf:managedByRegistry": "https://registry.example.gov/registries/public-benefits-evidence",
+      "rkaf:conceptScope": "rkaf:public",
+      "rkaf:conceptStatus": "rkaf:registered"
     },
     {
       "@id": "https://example.org/assertion/cand-001",
-      "@type": "pkaf:RelationshipAssertion",
-      "pkaf:assertsSubject": "https://example.org/fragment/wiki-csbg-eligibility-rev-1247/sec-3-p2",
-      "pkaf:assertsPredicate": "pkaf:candidateRelatedTo",
-      "pkaf:assertsObject": "https://registry.example.gov/concepts/HouseholdIncomeEvidence",
-      "pkaf:assertionOrigin": "pkaf:aiSuggested",
-      "pkaf:hasTrustZone": "pkaf:Z3ScoredCandidateRelationship",
-      "pkaf:hasSafetyLabel": "pkaf:S1SearchOnly",
-      "pkaf:usageEligibility": "pkaf:searchOnly",
-      "pkaf:hasEvidence": [
+      "@type": "rkaf:RelationshipAssertion",
+      "rkaf:assertsSubject": "https://example.org/fragment/wiki-csbg-eligibility-rev-1247/sec-3-p2",
+      "rkaf:assertsPredicate": "rkaf:candidateRelatedTo",
+      "rkaf:assertsObject": "https://registry.example.gov/concepts/HouseholdIncomeEvidence",
+      "rkaf:assertionOrigin": "rkaf:aiSuggested",
+      "rkaf:hasTrustZone": "rkaf:Z3ScoredCandidateRelationship",
+      "rkaf:hasSafetyLabel": "rkaf:S1SearchOnly",
+      "rkaf:usageEligibility": "rkaf:searchOnly",
+      "rkaf:hasEvidence": [
         {
-          "@type": "pkaf:EvidenceBinding",
-          "pkaf:evidenceRole": "pkaf:retrievalSignal",
-          "pkaf:sourceFragment": "https://example.org/fragment/wiki-csbg-eligibility-rev-1247/sec-3-p2"
+          "@type": "rkaf:EvidenceBinding",
+          "rkaf:evidenceRole": "rkaf:retrievalSignal",
+          "rkaf:sourceFragment": "https://example.org/fragment/wiki-csbg-eligibility-rev-1247/sec-3-p2"
         }
       ],
-      "pkaf:hasConfidence": {
-        "@type": "pkaf:ConfidenceVector",
-        "pkaf:semanticSimilarity": 0.84,
-        "pkaf:evidenceStrength": 0.55,
-        "pkaf:sourceAuthorityWeight": 0.4,
-        "pkaf:overallCandidateScore": 0.68
+      "rkaf:hasConfidence": {
+        "@type": "rkaf:ConfidenceVector",
+        "rkaf:semanticSimilarity": 0.84,
+        "rkaf:evidenceStrength": 0.55,
+        "rkaf:sourceAuthorityWeight": 0.4,
+        "rkaf:overallCandidateScore": 0.68
       },
       "prov:wasGeneratedBy": "https://example.org/methodrun/policy-mapper-2026-05-10-001",
       "prov:wasAttributedTo": "https://example.org/agent/policy-mapper-v1"
     },
     {
       "@id": "https://example.org/assertion/req-001",
-      "@type": "pkaf:RelationshipAssertion",
-      "pkaf:assertsSubject": "https://example.org/fragment/wiki-csbg-eligibility-rev-1247/sec-3-p2",
-      "pkaf:assertsPredicate": "pkaf:requiresEvidenceType",
-      "pkaf:assertsObject": "https://registry.example.gov/concepts/HouseholdIncomeEvidence",
-      "pkaf:assertionOrigin": "pkaf:aiPromoted",
-      "pkaf:hasTrustZone": "pkaf:Z2ExtractedCandidateClaim",
-      "pkaf:hasSafetyLabel": "pkaf:R2ReviewedOperational",
-      "pkaf:usageEligibility": "pkaf:reviewQueueOnly",
-      "pkaf:hasEvidence": [
+      "@type": "rkaf:RelationshipAssertion",
+      "rkaf:assertsSubject": "https://example.org/fragment/wiki-csbg-eligibility-rev-1247/sec-3-p2",
+      "rkaf:assertsPredicate": "rkaf:requiresEvidenceType",
+      "rkaf:assertsObject": "https://registry.example.gov/concepts/HouseholdIncomeEvidence",
+      "rkaf:assertionOrigin": "rkaf:aiPromoted",
+      "rkaf:hasTrustZone": "rkaf:Z2ExtractedCandidateClaim",
+      "rkaf:hasSafetyLabel": "rkaf:R2ReviewedOperational",
+      "rkaf:usageEligibility": "rkaf:reviewQueueOnly",
+      "rkaf:hasEvidence": [
         {
-          "@type": "pkaf:EvidenceBinding",
-          "pkaf:evidenceRole": "pkaf:textualEvidence",
-          "pkaf:sourceFragment": "https://example.org/fragment/wiki-csbg-eligibility-rev-1247/sec-3-p2",
-          "pkaf:supportingQuote": "must provide documentation establishing household income for the prior twelve months"
+          "@type": "rkaf:EvidenceBinding",
+          "rkaf:evidenceRole": "rkaf:textualEvidence",
+          "rkaf:sourceFragment": "https://example.org/fragment/wiki-csbg-eligibility-rev-1247/sec-3-p2",
+          "rkaf:supportingQuote": "must provide documentation establishing household income for the prior twelve months"
         }
       ],
       "prov:wasDerivedFrom": "https://example.org/assertion/cand-001",
@@ -684,32 +684,32 @@
     },
     {
       "@id": "https://example.org/attestation/promo-001",
-      "@type": "pkaf:Attestation",
-      "pkaf:targetAssertion": "https://example.org/assertion/req-001",
-      "pkaf:attestor": "https://example.org/agent/policy-mapper-v1",
-      "pkaf:attestorType": "pkaf:AIAgent",
-      "pkaf:decision": "pkaf:promoteCandidate",
-      "pkaf:scope": "pkaf:reviewQueue",
-      "pkaf:visibility": "pkaf:orgVisible",
-      "pkaf:rationale": "Subject text contains explicit requirement language identifying an evidence type. Promoting from candidateRelatedTo to typed requiresEvidenceType for human review.",
+      "@type": "rkaf:Attestation",
+      "rkaf:targetAssertion": "https://example.org/assertion/req-001",
+      "rkaf:attestor": "https://example.org/agent/policy-mapper-v1",
+      "rkaf:attestorType": "rkaf:AIAgent",
+      "rkaf:decision": "rkaf:promoteCandidate",
+      "rkaf:scope": "rkaf:reviewQueue",
+      "rkaf:visibility": "rkaf:orgVisible",
+      "rkaf:rationale": "Subject text contains explicit requirement language identifying an evidence type. Promoting from candidateRelatedTo to typed requiresEvidenceType for human review.",
       "prov:wasDerivedFrom": "https://example.org/assertion/cand-001",
       "prov:generatedAtTime": "2026-05-10T14:05:00-05:00"
     },
     {
       "@id": "https://example.org/attestation/att-001",
-      "@type": "pkaf:Attestation",
-      "pkaf:targetAssertion": "https://example.org/assertion/req-001",
-      "pkaf:attestor": "https://example.org/user/program-analyst-1",
-      "pkaf:attestorType": "pkaf:humanUser",
-      "pkaf:role": "pkaf:programAnalyst",
-      "pkaf:decision": "pkaf:endorseWithQualifier",
-      "pkaf:scope": "pkaf:organization",
-      "pkaf:visibility": "pkaf:orgVisible",
-      "pkaf:rationale": "Requirement applies only to benefit category B applications. Category A uses self-attestation under separate policy.",
-      "pkaf:proposesApplicability": {
-        "@type": "pkaf:ApplicabilityContext",
-        "pkaf:benefitCategory": "B",
-        "pkaf:excludesCategory": [
+      "@type": "rkaf:Attestation",
+      "rkaf:targetAssertion": "https://example.org/assertion/req-001",
+      "rkaf:attestor": "https://example.org/user/program-analyst-1",
+      "rkaf:attestorType": "rkaf:humanUser",
+      "rkaf:role": "rkaf:programAnalyst",
+      "rkaf:decision": "rkaf:endorseWithQualifier",
+      "rkaf:scope": "rkaf:organization",
+      "rkaf:visibility": "rkaf:orgVisible",
+      "rkaf:rationale": "Requirement applies only to benefit category B applications. Category A uses self-attestation under separate policy.",
+      "rkaf:proposesApplicability": {
+        "@type": "rkaf:ApplicabilityContext",
+        "rkaf:benefitCategory": "B",
+        "rkaf:excludesCategory": [
           "A"
         ]
       },
@@ -717,82 +717,82 @@
     },
     {
       "@id": "https://example.org/adoption/caa-42-req-001",
-      "@type": "pkaf:LocalAdoption",
-      "pkaf:organization": "https://example.org/org/caa-42",
-      "pkaf:targetAssertion": "https://example.org/assertion/req-001",
-      "pkaf:adoptionStatus": "pkaf:adoptedForDrafting",
-      "pkaf:usageEligibility": "pkaf:draftGenerationAllowed",
-      "pkaf:adoptionAuthorityKind": "pkaf:localOperational",
-      "pkaf:adoptionScope": "csbg-benefit-category-b-intake-v3",
-      "pkaf:authorizedBy": "https://example.org/user/program-director-1",
-      "pkaf:basedOnAttestation": [
+      "@type": "rkaf:LocalAdoption",
+      "rkaf:organization": "https://example.org/org/caa-42",
+      "rkaf:targetAssertion": "https://example.org/assertion/req-001",
+      "rkaf:adoptionStatus": "rkaf:adoptedForDrafting",
+      "rkaf:usageEligibility": "rkaf:draftGenerationAllowed",
+      "rkaf:adoptionAuthorityKind": "rkaf:localOperational",
+      "rkaf:adoptionScope": "csbg-benefit-category-b-intake-v3",
+      "rkaf:authorizedBy": "https://example.org/user/program-director-1",
+      "rkaf:basedOnAttestation": [
         "https://example.org/attestation/att-001"
       ],
-      "pkaf:adoptsApplicability": {
-        "@type": "pkaf:ApplicabilityContext",
-        "pkaf:benefitCategory": "B"
+      "rkaf:adoptsApplicability": {
+        "@type": "rkaf:ApplicabilityContext",
+        "rkaf:benefitCategory": "B"
       },
       "prov:generatedAtTime": "2026-05-10T15:45:00-05:00"
     },
     {
       "@id": "https://example.org/form-field/csbg-cat-b-intake/income-documentation",
       "@type": [
-        "pkaf:GeneratedWorkProduct",
+        "rkaf:GeneratedWorkProduct",
         "formspec:Field"
       ],
       "formspec:fieldName": "income_documentation",
       "formspec:label": "Household income documentation (prior 12 months)",
       "formspec:dataType": "file-upload",
       "formspec:required": true,
-      "pkaf:collectsEvidenceType": "https://registry.example.gov/concepts/HouseholdIncomeEvidence",
-      "pkaf:justifiedByAssertion": [
+      "rkaf:collectsEvidenceType": "https://registry.example.gov/concepts/HouseholdIncomeEvidence",
+      "rkaf:justifiedByAssertion": [
         "https://example.org/assertion/req-001"
       ],
-      "pkaf:justificationBackedBy": "https://example.org/adoption/caa-42-req-001",
-      "pkaf:derivedFromFragment": [
+      "rkaf:justificationBackedBy": "https://example.org/adoption/caa-42-req-001",
+      "rkaf:derivedFromFragment": [
         "https://example.org/fragment/wiki-csbg-eligibility-rev-1247/sec-3-p2"
       ],
-      "pkaf:reviewStatus": "pkaf:draft",
-      "pkaf:usageEligibility": "pkaf:draftGenerationAllowed",
-      "pkaf:bridgeContractVersion": "pkaf-bridge/1.0",
-      "pkaf:generationRun": "https://example.org/methodrun/formspec-gen-2026-05-10-001",
-      "pkaf:hasApplicability": {
-        "@type": "pkaf:ApplicabilityContext",
-        "pkaf:benefitCategory": "B"
+      "rkaf:reviewStatus": "rkaf:draft",
+      "rkaf:usageEligibility": "rkaf:draftGenerationAllowed",
+      "rkaf:bridgeContractVersion": "rkaf-bridge/1.0",
+      "rkaf:generationRun": "https://example.org/methodrun/formspec-gen-2026-05-10-001",
+      "rkaf:hasApplicability": {
+        "@type": "rkaf:ApplicabilityContext",
+        "rkaf:benefitCategory": "B"
       }
     },
     {
       "@id": "https://example.org/bridge-validation/formspec-2026-05-10-001",
-      "@type": "pkaf:BridgeValidationResult",
-      "pkaf:packetId": "https://example.org/adoption/caa-42-req-001",
-      "pkaf:consumer": "https://example.org/consumer/formspec-studio",
-      "pkaf:bridgeContractVersion": "pkaf-bridge/1.0",
-      "pkaf:result": "pkaf:accepted",
-      "pkaf:effectiveUsageEligibility": "pkaf:draftGenerationAllowed",
-      "pkaf:effectiveUsageEligibilityRationale": "Minimum eligibility across justification chain: req-001 (reviewQueueOnly) narrowed by LocalAdoption (draftGenerationAllowed). LocalAdoption authority kind localOperational, sufficient for draft scope.",
-      "pkaf:errors": [],
-      "pkaf:warnings": [],
-      "pkaf:unsupportedAnchors": [],
-      "pkaf:unresolvedConcepts": [],
-      "pkaf:ineligibleAssertions": [],
-      "pkaf:staleDependencies": [],
+      "@type": "rkaf:BridgeValidationResult",
+      "rkaf:packetId": "https://example.org/adoption/caa-42-req-001",
+      "rkaf:consumer": "https://example.org/consumer/formspec-studio",
+      "rkaf:bridgeContractVersion": "rkaf-bridge/1.0",
+      "rkaf:result": "rkaf:accepted",
+      "rkaf:effectiveUsageEligibility": "rkaf:draftGenerationAllowed",
+      "rkaf:effectiveUsageEligibilityRationale": "Minimum eligibility across justification chain: req-001 (reviewQueueOnly) narrowed by LocalAdoption (draftGenerationAllowed). LocalAdoption authority kind localOperational, sufficient for draft scope.",
+      "rkaf:errors": [],
+      "rkaf:warnings": [],
+      "rkaf:unsupportedAnchors": [],
+      "rkaf:unresolvedConcepts": [],
+      "rkaf:ineligibleAssertions": [],
+      "rkaf:staleDependencies": [],
       "prov:generatedAtTime": "2026-05-10T15:50:00-05:00"
     },
     {
       "@id": "https://example.org/attestation/att-002",
-      "@type": "pkaf:Attestation",
-      "pkaf:targetAssertion": "https://example.org/assertion/req-001",
-      "pkaf:targetWorkProduct": "https://example.org/form-field/csbg-cat-b-intake/income-documentation",
-      "pkaf:attestor": "https://example.org/user/legal-counsel-1",
-      "pkaf:attestorType": "pkaf:humanUser",
-      "pkaf:role": "pkaf:legalReviewer",
-      "pkaf:decision": "pkaf:object",
-      "pkaf:scope": "pkaf:organization",
-      "pkaf:visibility": "pkaf:orgVisible",
-      "pkaf:rationale": "Source text says 'documentation establishing household income for the prior twelve months' \u2014 generated field accepts any file. Per audit guidance, requirement should be qualified to pay stubs or federal/state tax filings.",
-      "pkaf:proposesApplicability": {
-        "@type": "pkaf:ApplicabilityContext",
-        "pkaf:acceptedDocumentTypes": [
+      "@type": "rkaf:Attestation",
+      "rkaf:targetAssertion": "https://example.org/assertion/req-001",
+      "rkaf:targetWorkProduct": "https://example.org/form-field/csbg-cat-b-intake/income-documentation",
+      "rkaf:attestor": "https://example.org/user/legal-counsel-1",
+      "rkaf:attestorType": "rkaf:humanUser",
+      "rkaf:role": "rkaf:legalReviewer",
+      "rkaf:decision": "rkaf:object",
+      "rkaf:scope": "rkaf:organization",
+      "rkaf:visibility": "rkaf:orgVisible",
+      "rkaf:rationale": "Source text says 'documentation establishing household income for the prior twelve months' \u2014 generated field accepts any file. Per audit guidance, requirement should be qualified to pay stubs or federal/state tax filings.",
+      "rkaf:proposesApplicability": {
+        "@type": "rkaf:ApplicabilityContext",
+        "rkaf:acceptedDocumentTypes": [
           "https://registry.example.gov/concepts/PayStubEvidence",
           "https://registry.example.gov/concepts/FederalTaxReturnEvidence",
           "https://registry.example.gov/concepts/StateTaxReturnEvidence"
@@ -802,61 +802,61 @@
     },
     {
       "@id": "https://example.org/assertion/req-002",
-      "@type": "pkaf:RelationshipAssertion",
-      "pkaf:assertsSubject": "https://example.org/fragment/wiki-csbg-eligibility-rev-1247/sec-3-p2",
-      "pkaf:assertsPredicate": "pkaf:requiresEvidenceType",
-      "pkaf:assertsObject": "https://registry.example.gov/concepts/HouseholdIncomeEvidence",
-      "pkaf:assertionOrigin": "pkaf:humanQualified",
-      "pkaf:hasTrustZone": "pkaf:Z5LocallyAdopted",
-      "pkaf:hasSafetyLabel": "pkaf:R2ReviewedOperational",
-      "pkaf:usageEligibility": "pkaf:localOperationalUse",
-      "pkaf:hasEvidence": [
+      "@type": "rkaf:RelationshipAssertion",
+      "rkaf:assertsSubject": "https://example.org/fragment/wiki-csbg-eligibility-rev-1247/sec-3-p2",
+      "rkaf:assertsPredicate": "rkaf:requiresEvidenceType",
+      "rkaf:assertsObject": "https://registry.example.gov/concepts/HouseholdIncomeEvidence",
+      "rkaf:assertionOrigin": "rkaf:humanQualified",
+      "rkaf:hasTrustZone": "rkaf:Z5LocallyAdopted",
+      "rkaf:hasSafetyLabel": "rkaf:R2ReviewedOperational",
+      "rkaf:usageEligibility": "rkaf:localOperationalUse",
+      "rkaf:hasEvidence": [
         {
-          "@type": "pkaf:EvidenceBinding",
-          "pkaf:evidenceRole": "pkaf:textualEvidence",
-          "pkaf:sourceFragment": "https://example.org/fragment/wiki-csbg-eligibility-rev-1247/sec-3-p2"
+          "@type": "rkaf:EvidenceBinding",
+          "rkaf:evidenceRole": "rkaf:textualEvidence",
+          "rkaf:sourceFragment": "https://example.org/fragment/wiki-csbg-eligibility-rev-1247/sec-3-p2"
         }
       ],
-      "pkaf:hasApplicability": {
-        "@type": "pkaf:ApplicabilityContext",
-        "pkaf:benefitCategory": "B",
-        "pkaf:acceptedDocumentTypes": [
+      "rkaf:hasApplicability": {
+        "@type": "rkaf:ApplicabilityContext",
+        "rkaf:benefitCategory": "B",
+        "rkaf:acceptedDocumentTypes": [
           "https://registry.example.gov/concepts/PayStubEvidence",
           "https://registry.example.gov/concepts/FederalTaxReturnEvidence",
           "https://registry.example.gov/concepts/StateTaxReturnEvidence"
         ],
-        "pkaf:timeWindow": "P12M"
+        "rkaf:timeWindow": "P12M"
       },
-      "pkaf:supersedesAssertion": "https://example.org/assertion/req-001",
-      "pkaf:basedOnAttestations": [
+      "rkaf:supersedesAssertion": "https://example.org/assertion/req-001",
+      "rkaf:basedOnAttestations": [
         "https://example.org/attestation/att-001",
         "https://example.org/attestation/att-002"
       ]
     },
     {
       "@id": "https://example.org/adoption/caa-42-req-002",
-      "@type": "pkaf:LocalAdoption",
-      "pkaf:organization": "https://example.org/org/caa-42",
-      "pkaf:targetAssertion": "https://example.org/assertion/req-002",
-      "pkaf:adoptionStatus": "pkaf:adoptedForLocalOperations",
-      "pkaf:usageEligibility": "pkaf:localOperationalUse",
-      "pkaf:adoptionAuthorityKind": "pkaf:localOperational",
-      "pkaf:adoptionScope": "csbg-benefit-category-b-intake-v3",
-      "pkaf:authorizedBy": "https://example.org/user/program-director-1",
-      "pkaf:basedOnAttestation": [
+      "@type": "rkaf:LocalAdoption",
+      "rkaf:organization": "https://example.org/org/caa-42",
+      "rkaf:targetAssertion": "https://example.org/assertion/req-002",
+      "rkaf:adoptionStatus": "rkaf:adoptedForLocalOperations",
+      "rkaf:usageEligibility": "rkaf:localOperationalUse",
+      "rkaf:adoptionAuthorityKind": "rkaf:localOperational",
+      "rkaf:adoptionScope": "csbg-benefit-category-b-intake-v3",
+      "rkaf:authorizedBy": "https://example.org/user/program-director-1",
+      "rkaf:basedOnAttestation": [
         "https://example.org/attestation/att-001",
         "https://example.org/attestation/att-002"
       ],
-      "pkaf:adoptsApplicability": {
-        "@type": "pkaf:ApplicabilityContext",
-        "pkaf:benefitCategory": "B"
+      "rkaf:adoptsApplicability": {
+        "@type": "rkaf:ApplicabilityContext",
+        "rkaf:benefitCategory": "B"
       },
       "prov:generatedAtTime": "2026-05-11T10:30:00-05:00"
     },
     {
       "@id": "https://example.org/form-field/csbg-cat-b-intake/income-documentation/v2",
       "@type": [
-        "pkaf:GeneratedWorkProduct",
+        "rkaf:GeneratedWorkProduct",
         "formspec:Field"
       ],
       "formspec:fieldName": "income_documentation",
@@ -868,206 +868,206 @@
         "federal-tax-return",
         "state-tax-return"
       ],
-      "pkaf:collectsEvidenceType": "https://registry.example.gov/concepts/HouseholdIncomeEvidence",
-      "pkaf:justifiedByAssertion": [
+      "rkaf:collectsEvidenceType": "https://registry.example.gov/concepts/HouseholdIncomeEvidence",
+      "rkaf:justifiedByAssertion": [
         "https://example.org/assertion/req-002"
       ],
-      "pkaf:justificationBackedBy": "https://example.org/adoption/caa-42-req-002",
-      "pkaf:supersedesWorkProduct": "https://example.org/form-field/csbg-cat-b-intake/income-documentation",
-      "pkaf:reviewStatus": "pkaf:operational",
-      "pkaf:usageEligibility": "pkaf:localOperationalUse",
-      "pkaf:bridgeContractVersion": "pkaf-bridge/1.0",
-      "pkaf:hasApplicability": {
-        "@type": "pkaf:ApplicabilityContext",
-        "pkaf:benefitCategory": "B"
+      "rkaf:justificationBackedBy": "https://example.org/adoption/caa-42-req-002",
+      "rkaf:supersedesWorkProduct": "https://example.org/form-field/csbg-cat-b-intake/income-documentation",
+      "rkaf:reviewStatus": "rkaf:operational",
+      "rkaf:usageEligibility": "rkaf:localOperationalUse",
+      "rkaf:bridgeContractVersion": "rkaf-bridge/1.0",
+      "rkaf:hasApplicability": {
+        "@type": "rkaf:ApplicabilityContext",
+        "rkaf:benefitCategory": "B"
       }
     },
     {
       "@id": "https://example.org/artifact/wiki-csbg-eligibility-rev-1302",
-      "@type": "pkaf:Artifact",
-      "pkaf:sourceType": "mediawiki-page-revision",
-      "pkaf:contentHash": "sha256:9b2c1e7a...e84f",
-      "pkaf:capturedAt": "2026-06-15T11:00:00-05:00",
-      "pkaf:capturedBy": "https://example.org/connector/mediawiki-v2",
-      "pkaf:sourceUrl": "https://wiki.example.org/csbg-policy/Eligibility?oldid=1302",
-      "pkaf:precedingArtifact": "https://example.org/artifact/wiki-csbg-eligibility-rev-1247",
-      "pkaf:accessScope": "internal"
+      "@type": "rkaf:Artifact",
+      "rkaf:sourceType": "mediawiki-page-revision",
+      "rkaf:contentHash": "sha256:9b2c1e7a...e84f",
+      "rkaf:capturedAt": "2026-06-15T11:00:00-05:00",
+      "rkaf:capturedBy": "https://example.org/connector/mediawiki-v2",
+      "rkaf:sourceUrl": "https://wiki.example.org/csbg-policy/Eligibility?oldid=1302",
+      "rkaf:precedingArtifact": "https://example.org/artifact/wiki-csbg-eligibility-rev-1247",
+      "rkaf:accessScope": "internal"
     },
     {
       "@id": "https://example.org/classification/rev-1302",
-      "@type": "pkaf:RevisionClassification",
-      "pkaf:subjectArtifact": "https://example.org/artifact/wiki-csbg-eligibility-rev-1302",
-      "pkaf:priorArtifact": "https://example.org/artifact/wiki-csbg-eligibility-rev-1247",
-      "pkaf:classification": "pkaf:materiallyRevises",
-      "pkaf:rationale": "Diff changes 'prior twelve months' to 'prior ninety days' \u2014 alters evidence time-window scope for an active operational requirement. Material change, not editorial.",
-      "pkaf:classifiedBy": "https://example.org/user/program-analyst-1",
-      "pkaf:diffSummary": "Section 3, paragraph 2: '12 months' \u2192 '90 days'; effective date '2026-06-15'.",
+      "@type": "rkaf:RevisionClassification",
+      "rkaf:subjectArtifact": "https://example.org/artifact/wiki-csbg-eligibility-rev-1302",
+      "rkaf:priorArtifact": "https://example.org/artifact/wiki-csbg-eligibility-rev-1247",
+      "rkaf:classification": "rkaf:materiallyRevises",
+      "rkaf:rationale": "Diff changes 'prior twelve months' to 'prior ninety days' \u2014 alters evidence time-window scope for an active operational requirement. Material change, not editorial.",
+      "rkaf:classifiedBy": "https://example.org/user/program-analyst-1",
+      "rkaf:diffSummary": "Section 3, paragraph 2: '12 months' \u2192 '90 days'; effective date '2026-06-15'.",
       "prov:generatedAtTime": "2026-06-15T11:05:00-05:00"
     },
     {
       "@id": "https://example.org/resource/csbg-eligibility-policy/rev-1302",
-      "@type": "pkaf:PolicyResourceVersion",
-      "pkaf:resourceLineage": "https://example.org/resource/csbg-eligibility-policy",
-      "pkaf:versionLabel": "rev-1302",
-      "pkaf:effectivePeriodStart": "2026-06-15T00:00:00-05:00",
-      "pkaf:realizedByArtifact": "https://example.org/artifact/wiki-csbg-eligibility-rev-1302",
-      "pkaf:precedingVersion": "https://example.org/resource/csbg-eligibility-policy/rev-1247",
-      "pkaf:resourceKind": "internalOrganizationalPolicy",
-      "pkaf:accessScope": "internal"
+      "@type": "rkaf:PolicyResourceVersion",
+      "rkaf:resourceLineage": "https://example.org/resource/csbg-eligibility-policy",
+      "rkaf:versionLabel": "rev-1302",
+      "rkaf:effectivePeriodStart": "2026-06-15T00:00:00-05:00",
+      "rkaf:realizedByArtifact": "https://example.org/artifact/wiki-csbg-eligibility-rev-1302",
+      "rkaf:precedingVersion": "https://example.org/resource/csbg-eligibility-policy/rev-1247",
+      "rkaf:resourceKind": "internalOrganizationalPolicy",
+      "rkaf:accessScope": "internal"
     },
     {
       "@id": "https://example.org/assertion/amend-001",
-      "@type": "pkaf:RelationshipAssertion",
-      "pkaf:assertsSubject": "https://example.org/resource/csbg-eligibility-policy/rev-1302",
-      "pkaf:assertsPredicate": "pkaf:amends",
-      "pkaf:assertsObject": "https://example.org/resource/csbg-eligibility-policy/rev-1247",
-      "pkaf:assertionOrigin": "pkaf:reviewClassified",
-      "pkaf:hasTrustZone": "pkaf:Z4AttestedAssertion",
-      "pkaf:hasSafetyLabel": "pkaf:A3AuthorityCritical",
-      "pkaf:usageEligibility": "pkaf:localOperationalUse",
-      "pkaf:hasEvidence": [
+      "@type": "rkaf:RelationshipAssertion",
+      "rkaf:assertsSubject": "https://example.org/resource/csbg-eligibility-policy/rev-1302",
+      "rkaf:assertsPredicate": "rkaf:amends",
+      "rkaf:assertsObject": "https://example.org/resource/csbg-eligibility-policy/rev-1247",
+      "rkaf:assertionOrigin": "rkaf:reviewClassified",
+      "rkaf:hasTrustZone": "rkaf:Z4AttestedAssertion",
+      "rkaf:hasSafetyLabel": "rkaf:A3AuthorityCritical",
+      "rkaf:usageEligibility": "rkaf:localOperationalUse",
+      "rkaf:hasEvidence": [
         {
-          "@type": "pkaf:EvidenceBinding",
-          "pkaf:evidenceRole": "pkaf:structuralEvidence",
-          "pkaf:basedOnClassification": "https://example.org/classification/rev-1302",
-          "pkaf:supportingQuote": "Amended income verification window from prior twelve months to prior ninety days, effective 2026-06-15."
+          "@type": "rkaf:EvidenceBinding",
+          "rkaf:evidenceRole": "rkaf:structuralEvidence",
+          "rkaf:basedOnClassification": "https://example.org/classification/rev-1302",
+          "rkaf:supportingQuote": "Amended income verification window from prior twelve months to prior ninety days, effective 2026-06-15."
         }
       ],
-      "pkaf:amendmentScope": {
-        "@type": "pkaf:ProvisionScope",
-        "pkaf:affectedFragments": [
+      "rkaf:amendmentScope": {
+        "@type": "rkaf:ProvisionScope",
+        "rkaf:affectedFragments": [
           "https://example.org/fragment/wiki-csbg-eligibility-rev-1247/sec-3-p2"
         ]
       },
-      "pkaf:authorityKind": "pkaf:organizational",
-      "pkaf:hasApplicability": {
-        "@type": "pkaf:ApplicabilityContext",
-        "pkaf:scopeKind": "organizational",
-        "pkaf:scopeDescription": "CSBG Category B intake program at this agency; local amendment authority"
+      "rkaf:authorityKind": "rkaf:organizational",
+      "rkaf:hasApplicability": {
+        "@type": "rkaf:ApplicabilityContext",
+        "rkaf:scopeKind": "organizational",
+        "rkaf:scopeDescription": "CSBG Category B intake program at this agency; local amendment authority"
       }
     },
     {
       "@id": "https://example.org/packet/amendment-001",
-      "@type": "pkaf:AmendmentPacket",
-      "pkaf:emittedBy": "https://example.org/assertion/amend-001",
-      "pkaf:effectiveDate": "2026-06-15T00:00:00-05:00",
-      "pkaf:bridgeContractVersion": "pkaf-bridge/1.0",
-      "pkaf:cascadeAlgorithm": "pkaf:CascadeClosureV1",
-      "pkaf:cascadeClosureDescription": "Transitive closure over inverse {justifiedByAssertion, derivedFromFragment, hasAuthority, derivesAuthorityFrom, implements, requiresEvidenceType, collectsEvidenceType, operationallyDependsOn, supersedesAssertion, supersedesWorkProduct}, scoped to active/adopted state at effectiveDate.",
-      "pkaf:affectedAssertions": [
+      "@type": "rkaf:AmendmentPacket",
+      "rkaf:emittedBy": "https://example.org/assertion/amend-001",
+      "rkaf:effectiveDate": "2026-06-15T00:00:00-05:00",
+      "rkaf:bridgeContractVersion": "rkaf-bridge/1.0",
+      "rkaf:cascadeAlgorithm": "rkaf:CascadeClosureV1",
+      "rkaf:cascadeClosureDescription": "Transitive closure over inverse {justifiedByAssertion, derivedFromFragment, hasAuthority, derivesAuthorityFrom, implements, requiresEvidenceType, collectsEvidenceType, operationallyDependsOn, supersedesAssertion, supersedesWorkProduct}, scoped to active/adopted state at effectiveDate.",
+      "rkaf:affectedAssertions": [
         "https://example.org/assertion/req-002"
       ],
-      "pkaf:affectedAuthorityAssertions": [],
-      "pkaf:affectedImplementationAssertions": [],
-      "pkaf:affectedWorkProducts": [
+      "rkaf:affectedAuthorityAssertions": [],
+      "rkaf:affectedImplementationAssertions": [],
+      "rkaf:affectedWorkProducts": [
         "https://example.org/form-field/csbg-cat-b-intake/income-documentation/v2"
       ],
-      "pkaf:requiredRevalidationActions": [
+      "rkaf:requiredRevalidationActions": [
         {
-          "@type": "pkaf:RevalidationAction",
-          "pkaf:targetAssertion": "https://example.org/assertion/req-002",
-          "pkaf:reason": "Source fragment materially revised; window changed from P12M to P90D. Reviewer must confirm requiresEvidenceType still applies and update hasApplicability.timeWindow.",
-          "pkaf:priority": "high"
+          "@type": "rkaf:RevalidationAction",
+          "rkaf:targetAssertion": "https://example.org/assertion/req-002",
+          "rkaf:reason": "Source fragment materially revised; window changed from P12M to P90D. Reviewer must confirm requiresEvidenceType still applies and update hasApplicability.timeWindow.",
+          "rkaf:priority": "high"
         },
         {
-          "@type": "pkaf:RevalidationAction",
-          "pkaf:targetWorkProduct": "https://example.org/form-field/csbg-cat-b-intake/income-documentation/v2",
-          "pkaf:reason": "Field label and timeWindow reference 'prior 12 months'; source now 'prior 90 days'. Revise before continued operational use.",
-          "pkaf:priority": "high"
+          "@type": "rkaf:RevalidationAction",
+          "rkaf:targetWorkProduct": "https://example.org/form-field/csbg-cat-b-intake/income-documentation/v2",
+          "rkaf:reason": "Field label and timeWindow reference 'prior 12 months'; source now 'prior 90 days'. Revise before continued operational use.",
+          "rkaf:priority": "high"
         }
       ],
-      "pkaf:pointInTimeExceptions": [
+      "rkaf:pointInTimeExceptions": [
         {
-          "@type": "pkaf:PointInTimeException",
-          "pkaf:scopeDescription": "applications submitted before 2026-06-15 retain prior assertion",
-          "pkaf:retainsAssertion": "https://example.org/assertion/req-002",
-          "pkaf:evaluationAnchor": "pkaf:applicationSubmissionTime",
-          "pkaf:exceptionEffectivePeriodEnd": "2026-06-15T00:00:00-05:00"
+          "@type": "rkaf:PointInTimeException",
+          "rkaf:scopeDescription": "applications submitted before 2026-06-15 retain prior assertion",
+          "rkaf:retainsAssertion": "https://example.org/assertion/req-002",
+          "rkaf:evaluationAnchor": "rkaf:applicationSubmissionTime",
+          "rkaf:exceptionEffectivePeriodEnd": "2026-06-15T00:00:00-05:00"
         }
       ],
       "prov:generatedAtTime": "2026-06-15T11:15:00-05:00"
     },
     {
       "@id": "https://example.org/bridge-validation/formspec-2026-06-15-001",
-      "@type": "pkaf:BridgeValidationResult",
-      "pkaf:packetId": "https://example.org/packet/amendment-001",
-      "pkaf:consumer": "https://example.org/consumer/formspec-studio",
-      "pkaf:bridgeContractVersion": "pkaf-bridge/1.0",
-      "pkaf:result": "pkaf:acceptedWithWarnings",
-      "pkaf:errors": [],
-      "pkaf:warnings": [
+      "@type": "rkaf:BridgeValidationResult",
+      "rkaf:packetId": "https://example.org/packet/amendment-001",
+      "rkaf:consumer": "https://example.org/consumer/formspec-studio",
+      "rkaf:bridgeContractVersion": "rkaf-bridge/1.0",
+      "rkaf:result": "rkaf:acceptedWithWarnings",
+      "rkaf:errors": [],
+      "rkaf:warnings": [
         {
-          "@type": "pkaf:StaleDependencyWarning",
-          "pkaf:affectedWorkProduct": "https://example.org/form-field/csbg-cat-b-intake/income-documentation/v2",
-          "pkaf:transitionTo": "pkaf:staleForCurrentUse",
-          "pkaf:detail": "Field justification chain (req-002) affected by materiallyRevises on source fragment. Field transitions to staleForCurrentUse pending RevalidationClosureEvent."
+          "@type": "rkaf:StaleDependencyWarning",
+          "rkaf:affectedWorkProduct": "https://example.org/form-field/csbg-cat-b-intake/income-documentation/v2",
+          "rkaf:transitionTo": "rkaf:staleForCurrentUse",
+          "rkaf:detail": "Field justification chain (req-002) affected by materiallyRevises on source fragment. Field transitions to staleForCurrentUse pending RevalidationClosureEvent."
         }
       ],
-      "pkaf:unsupportedAnchors": [],
-      "pkaf:unresolvedConcepts": [],
-      "pkaf:ineligibleAssertions": [],
-      "pkaf:staleDependencies": [
+      "rkaf:unsupportedAnchors": [],
+      "rkaf:unresolvedConcepts": [],
+      "rkaf:ineligibleAssertions": [],
+      "rkaf:staleDependencies": [
         "https://example.org/form-field/csbg-cat-b-intake/income-documentation/v2"
       ],
-      "pkaf:declaredSupportedAnchors": [
-        "pkaf:applicationSubmissionTime",
-        "pkaf:eligibilityDeterminationTime",
-        "pkaf:currentTime",
-        "pkaf:effectivePeriodStart"
+      "rkaf:declaredSupportedAnchors": [
+        "rkaf:applicationSubmissionTime",
+        "rkaf:eligibilityDeterminationTime",
+        "rkaf:currentTime",
+        "rkaf:effectivePeriodStart"
       ],
       "prov:generatedAtTime": "2026-06-15T11:20:00-05:00"
     },
     {
       "@id": "https://example.org/revalidation/req-002-postamend",
-      "@type": "pkaf:RevalidationEvent",
-      "pkaf:triggeredByPacket": "https://example.org/packet/amendment-001",
-      "pkaf:targetAssertion": "https://example.org/assertion/req-002",
-      "pkaf:targetWorkProduct": "https://example.org/form-field/csbg-cat-b-intake/income-documentation/v2",
-      "pkaf:transitionTo": "pkaf:staleForCurrentUse",
-      "pkaf:revisedUsageEligibility": "pkaf:reviewQueueOnly",
-      "pkaf:retainedPointInTimeException": {
-        "@type": "pkaf:PointInTimeException",
-        "pkaf:scopeDescription": "applications submitted before 2026-06-15 retain prior assertion",
-        "pkaf:evaluationAnchor": "pkaf:applicationSubmissionTime",
-        "pkaf:retainsAssertion": "https://example.org/assertion/req-002"
+      "@type": "rkaf:RevalidationEvent",
+      "rkaf:triggeredByPacket": "https://example.org/packet/amendment-001",
+      "rkaf:targetAssertion": "https://example.org/assertion/req-002",
+      "rkaf:targetWorkProduct": "https://example.org/form-field/csbg-cat-b-intake/income-documentation/v2",
+      "rkaf:transitionTo": "rkaf:staleForCurrentUse",
+      "rkaf:revisedUsageEligibility": "rkaf:reviewQueueOnly",
+      "rkaf:retainedPointInTimeException": {
+        "@type": "rkaf:PointInTimeException",
+        "rkaf:scopeDescription": "applications submitted before 2026-06-15 retain prior assertion",
+        "rkaf:evaluationAnchor": "rkaf:applicationSubmissionTime",
+        "rkaf:retainsAssertion": "https://example.org/assertion/req-002"
       },
-      "pkaf:queuedFor": "https://example.org/user/program-analyst-1",
+      "rkaf:queuedFor": "https://example.org/user/program-analyst-1",
       "prov:generatedAtTime": "2026-06-15T11:20:00-05:00"
     },
     {
       "@id": "https://example.org/assertion/req-003",
-      "@type": "pkaf:RelationshipAssertion",
-      "pkaf:assertsSubject": "https://example.org/fragment/wiki-csbg-eligibility-rev-1302/sec-3-p2",
-      "pkaf:assertsPredicate": "pkaf:requiresEvidenceType",
-      "pkaf:assertsObject": "https://registry.example.gov/concepts/HouseholdIncomeEvidence",
-      "pkaf:assertionOrigin": "pkaf:humanRevalidation",
-      "pkaf:hasTrustZone": "pkaf:Z5LocallyAdopted",
-      "pkaf:hasSafetyLabel": "pkaf:R2ReviewedOperational",
-      "pkaf:usageEligibility": "pkaf:localOperationalUse",
-      "pkaf:hasEvidence": [
+      "@type": "rkaf:RelationshipAssertion",
+      "rkaf:assertsSubject": "https://example.org/fragment/wiki-csbg-eligibility-rev-1302/sec-3-p2",
+      "rkaf:assertsPredicate": "rkaf:requiresEvidenceType",
+      "rkaf:assertsObject": "https://registry.example.gov/concepts/HouseholdIncomeEvidence",
+      "rkaf:assertionOrigin": "rkaf:humanRevalidation",
+      "rkaf:hasTrustZone": "rkaf:Z5LocallyAdopted",
+      "rkaf:hasSafetyLabel": "rkaf:R2ReviewedOperational",
+      "rkaf:usageEligibility": "rkaf:localOperationalUse",
+      "rkaf:hasEvidence": [
         {
-          "@type": "pkaf:EvidenceBinding",
-          "pkaf:evidenceRole": "pkaf:textualEvidence",
-          "pkaf:sourceFragment": "https://example.org/fragment/wiki-csbg-eligibility-rev-1302/sec-3-p2"
+          "@type": "rkaf:EvidenceBinding",
+          "rkaf:evidenceRole": "rkaf:textualEvidence",
+          "rkaf:sourceFragment": "https://example.org/fragment/wiki-csbg-eligibility-rev-1302/sec-3-p2"
         }
       ],
-      "pkaf:hasApplicability": {
-        "@type": "pkaf:ApplicabilityContext",
-        "pkaf:benefitCategory": "B",
-        "pkaf:acceptedDocumentTypes": [
+      "rkaf:hasApplicability": {
+        "@type": "rkaf:ApplicabilityContext",
+        "rkaf:benefitCategory": "B",
+        "rkaf:acceptedDocumentTypes": [
           "https://registry.example.gov/concepts/PayStubEvidence",
           "https://registry.example.gov/concepts/FederalTaxReturnEvidence",
           "https://registry.example.gov/concepts/StateTaxReturnEvidence"
         ],
-        "pkaf:timeWindow": "P90D"
+        "rkaf:timeWindow": "P90D"
       },
-      "pkaf:supersedesAssertion": "https://example.org/assertion/req-002",
-      "pkaf:revalidationOf": "https://example.org/revalidation/req-002-postamend"
+      "rkaf:supersedesAssertion": "https://example.org/assertion/req-002",
+      "rkaf:revalidationOf": "https://example.org/revalidation/req-002-postamend"
     },
     {
       "@id": "https://example.org/form-field/csbg-cat-b-intake/income-documentation/v3",
       "@type": [
-        "pkaf:GeneratedWorkProduct",
+        "rkaf:GeneratedWorkProduct",
         "formspec:Field"
       ],
       "formspec:fieldName": "income_documentation",
@@ -1079,29 +1079,29 @@
         "federal-tax-return",
         "state-tax-return"
       ],
-      "pkaf:collectsEvidenceType": "https://registry.example.gov/concepts/HouseholdIncomeEvidence",
-      "pkaf:justifiedByAssertion": [
+      "rkaf:collectsEvidenceType": "https://registry.example.gov/concepts/HouseholdIncomeEvidence",
+      "rkaf:justifiedByAssertion": [
         "https://example.org/assertion/req-003"
       ],
-      "pkaf:supersedesWorkProduct": "https://example.org/form-field/csbg-cat-b-intake/income-documentation/v2",
-      "pkaf:reviewStatus": "pkaf:operational",
-      "pkaf:usageEligibility": "pkaf:localOperationalUse",
-      "pkaf:bridgeContractVersion": "pkaf-bridge/1.0",
-      "pkaf:hasApplicability": {
-        "@type": "pkaf:ApplicabilityContext",
-        "pkaf:benefitCategory": "B",
-        "pkaf:timeWindow": "P90D"
+      "rkaf:supersedesWorkProduct": "https://example.org/form-field/csbg-cat-b-intake/income-documentation/v2",
+      "rkaf:reviewStatus": "rkaf:operational",
+      "rkaf:usageEligibility": "rkaf:localOperationalUse",
+      "rkaf:bridgeContractVersion": "rkaf-bridge/1.0",
+      "rkaf:hasApplicability": {
+        "@type": "rkaf:ApplicabilityContext",
+        "rkaf:benefitCategory": "B",
+        "rkaf:timeWindow": "P90D"
       }
     },
     {
       "@id": "https://example.org/revalidation-closure/req-002-postamend",
-      "@type": "pkaf:RevalidationClosureEvent",
-      "pkaf:triggeredByPacket": "https://example.org/packet/amendment-001",
-      "pkaf:closesRevalidationEvent": "https://example.org/revalidation/req-002-postamend",
-      "pkaf:successorAssertion": "https://example.org/assertion/req-003",
-      "pkaf:successorWorkProduct": "https://example.org/form-field/csbg-cat-b-intake/income-documentation/v3",
-      "pkaf:closureDecision": "pkaf:revalidatedWithSuccessor",
-      "pkaf:closedBy": "https://example.org/user/program-director-1",
+      "@type": "rkaf:RevalidationClosureEvent",
+      "rkaf:triggeredByPacket": "https://example.org/packet/amendment-001",
+      "rkaf:closesRevalidationEvent": "https://example.org/revalidation/req-002-postamend",
+      "rkaf:successorAssertion": "https://example.org/assertion/req-003",
+      "rkaf:successorWorkProduct": "https://example.org/form-field/csbg-cat-b-intake/income-documentation/v3",
+      "rkaf:closureDecision": "rkaf:revalidatedWithSuccessor",
+      "rkaf:closedBy": "https://example.org/user/program-director-1",
       "prov:generatedAtTime": "2026-06-16T10:30:00-05:00"
     }
   ]

@@ -1,528 +1,528 @@
 {
   "@context": {
-    "pkaf": "https://w3id.org/pkaf/ns/v1#",
+    "rkaf": "https://rulespec.org/ns/v1#",
     "prov": "http://www.w3.org/ns/prov#",
     "oa": "http://www.w3.org/ns/oa#",
     "skos": "http://www.w3.org/2004/02/skos/core#",
     "wos": "https://w3id.org/wos/ns/v1#",
     "formspec": "https://w3id.org/formspec/ns/v1#",
     "xsd": "http://www.w3.org/2001/XMLSchema#",
-    "pkaf:assertsSubject": {
+    "rkaf:assertsSubject": {
       "@type": "@id"
     },
-    "pkaf:assertsPredicate": {
+    "rkaf:assertsPredicate": {
       "@type": "@id"
     },
-    "pkaf:assertsObject": {
+    "rkaf:assertsObject": {
       "@type": "@id"
     },
-    "pkaf:hasTrustZone": {
+    "rkaf:hasTrustZone": {
       "@type": "@id"
     },
-    "pkaf:hasSafetyLabel": {
+    "rkaf:hasSafetyLabel": {
       "@type": "@id"
     },
-    "pkaf:usageEligibility": {
+    "rkaf:usageEligibility": {
       "@type": "@id"
     },
-    "pkaf:assertionOrigin": {
+    "rkaf:assertionOrigin": {
       "@type": "@id"
     },
-    "pkaf:authorityKind": {
+    "rkaf:authorityKind": {
       "@type": "@id"
     },
-    "pkaf:adoptionAuthorityKind": {
+    "rkaf:adoptionAuthorityKind": {
       "@type": "@id"
     },
-    "pkaf:adoptionStatus": {
+    "rkaf:adoptionStatus": {
       "@type": "@id"
     },
-    "pkaf:result": {
+    "rkaf:result": {
       "@type": "@id"
     },
-    "pkaf:resolutionStatus": {
+    "rkaf:resolutionStatus": {
       "@type": "@id"
     },
-    "pkaf:resolutionMethod": {
+    "rkaf:resolutionMethod": {
       "@type": "@id"
     },
-    "pkaf:cacheStatus": {
+    "rkaf:cacheStatus": {
       "@type": "@id"
     },
-    "pkaf:usageCeiling": {
+    "rkaf:usageCeiling": {
       "@type": "@id"
     },
-    "pkaf:lifecycleEvent": {
+    "rkaf:lifecycleEvent": {
       "@type": "@id"
     },
-    "pkaf:cascadeAlgorithm": {
+    "rkaf:cascadeAlgorithm": {
       "@type": "@id"
     },
-    "pkaf:evidenceRole": {
+    "rkaf:evidenceRole": {
       "@type": "@id"
     },
-    "pkaf:warningCode": {
+    "rkaf:warningCode": {
       "@type": "@id"
     },
-    "pkaf:errorCode": {
+    "rkaf:errorCode": {
       "@type": "@id"
     },
-    "pkaf:severity": {
+    "rkaf:severity": {
       "@type": "@id"
     },
-    "pkaf:decision": {
+    "rkaf:decision": {
       "@type": "@id"
     },
-    "pkaf:scope": {
+    "rkaf:scope": {
       "@type": "@id"
     },
-    "pkaf:visibility": {
+    "rkaf:visibility": {
       "@type": "@id"
     },
-    "pkaf:attestorType": {
+    "rkaf:attestorType": {
       "@type": "@id"
     },
-    "pkaf:role": {
+    "rkaf:role": {
       "@type": "@id"
     },
-    "pkaf:transitionTo": {
+    "rkaf:transitionTo": {
       "@type": "@id"
     },
-    "pkaf:closureDecision": {
+    "rkaf:closureDecision": {
       "@type": "@id"
     },
-    "pkaf:status": {
+    "rkaf:status": {
       "@type": "@id"
     },
-    "pkaf:predicate": {
+    "rkaf:predicate": {
       "@type": "@id"
     },
-    "pkaf:conceptStatus": {
+    "rkaf:conceptStatus": {
       "@type": "@id"
     },
-    "pkaf:conceptScope": {
+    "rkaf:conceptScope": {
       "@type": "@id"
     },
-    "pkaf:governanceModel": {
+    "rkaf:governanceModel": {
       "@type": "@id"
     },
-    "pkaf:revisedUsageEligibility": {
+    "rkaf:revisedUsageEligibility": {
       "@type": "@id"
     },
-    "pkaf:effectiveUsageEligibility": {
+    "rkaf:effectiveUsageEligibility": {
       "@type": "@id"
     },
-    "pkaf:proposedUsageEligibility": {
+    "rkaf:proposedUsageEligibility": {
       "@type": "@id"
     },
-    "pkaf:safeAutomaticMigration": {
+    "rkaf:safeAutomaticMigration": {
       "@type": "@id"
     },
-    "pkaf:resourceKind": {
+    "rkaf:resourceKind": {
       "@type": "@id"
     },
-    "pkaf:officialStatus": {
+    "rkaf:officialStatus": {
       "@type": "@id"
     },
-    "pkaf:legalValue": {
+    "rkaf:legalValue": {
       "@type": "@id"
     },
-    "pkaf:publicationStatus": {
+    "rkaf:publicationStatus": {
       "@type": "@id"
     },
-    "pkaf:remediationAction": {
+    "rkaf:remediationAction": {
       "@type": "@id"
     },
-    "pkaf:requiredPredicate": {
+    "rkaf:requiredPredicate": {
       "@type": "@id"
     },
-    "pkaf:minimumUsageEligibility": {
+    "rkaf:minimumUsageEligibility": {
       "@type": "@id"
     },
-    "pkaf:noEvidenceReason": {
+    "rkaf:noEvidenceReason": {
       "@type": "@id"
     },
-    "pkaf:noRemediationReason": {
+    "rkaf:noRemediationReason": {
       "@type": "@id"
     },
-    "pkaf:authorityChainStatus": {
+    "rkaf:authorityChainStatus": {
       "@type": "@id"
     },
-    "pkaf:chainTerminusKind": {
+    "rkaf:chainTerminusKind": {
       "@type": "@id"
     },
-    "pkaf:fragmentType": {
+    "rkaf:fragmentType": {
       "@type": "@id"
     },
-    "pkaf:reviewStatus": {
+    "rkaf:reviewStatus": {
       "@type": "@id"
     },
-    "pkaf:consumerLifecycleState": {
+    "rkaf:consumerLifecycleState": {
       "@type": "@id"
     },
-    "pkaf:newWorkProductStatus": {
+    "rkaf:newWorkProductStatus": {
       "@type": "@id"
     },
-    "pkaf:newUsageEligibility": {
+    "rkaf:newUsageEligibility": {
       "@type": "@id"
     },
-    "pkaf:newAssertionState": {
+    "rkaf:newAssertionState": {
       "@type": "@id"
     },
-    "pkaf:resourceFamily": {
+    "rkaf:resourceFamily": {
       "@type": "@id"
     },
-    "pkaf:assertedBy": {
+    "rkaf:assertedBy": {
       "@type": "@id"
     },
-    "pkaf:attestor": {
+    "rkaf:attestor": {
       "@type": "@id"
     },
-    "pkaf:targetAssertion": {
+    "rkaf:targetAssertion": {
       "@type": "@id"
     },
-    "pkaf:targetWorkProduct": {
+    "rkaf:targetWorkProduct": {
       "@type": "@id"
     },
-    "pkaf:targetPacket": {
+    "rkaf:targetPacket": {
       "@type": "@id"
     },
-    "pkaf:targetConcept": {
+    "rkaf:targetConcept": {
       "@type": "@id"
     },
-    "pkaf:targetMappingConflict": {
+    "rkaf:targetMappingConflict": {
       "@type": "@id"
     },
-    "pkaf:targetBridgeValidation": {
+    "rkaf:targetBridgeValidation": {
       "@type": "@id"
     },
-    "pkaf:targetRegistry": {
+    "rkaf:targetRegistry": {
       "@type": "@id"
     },
-    "pkaf:targetAdoption": {
+    "rkaf:targetAdoption": {
       "@type": "@id"
     },
-    "pkaf:authorizedBy": {
+    "rkaf:authorizedBy": {
       "@type": "@id"
     },
-    "pkaf:organization": {
+    "rkaf:organization": {
       "@type": "@id"
     },
-    "pkaf:packetId": {
+    "rkaf:packetId": {
       "@type": "@id"
     },
-    "pkaf:consumer": {
+    "rkaf:consumer": {
       "@type": "@id"
     },
-    "pkaf:emittedBy": {
+    "rkaf:emittedBy": {
       "@type": "@id"
     },
-    "pkaf:triggeredByPacket": {
+    "rkaf:triggeredByPacket": {
       "@type": "@id"
     },
-    "pkaf:closesRevalidationEvent": {
+    "rkaf:closesRevalidationEvent": {
       "@type": "@id"
     },
-    "pkaf:successorAssertion": {
+    "rkaf:successorAssertion": {
       "@type": "@id"
     },
-    "pkaf:successorAssertions": {
+    "rkaf:successorAssertions": {
       "@type": "@id",
       "@container": "@set"
     },
-    "pkaf:successorWorkProduct": {
+    "rkaf:successorWorkProduct": {
       "@type": "@id"
     },
-    "pkaf:closedBy": {
+    "rkaf:closedBy": {
       "@type": "@id"
     },
-    "pkaf:queuedFor": {
+    "rkaf:queuedFor": {
       "@type": "@id"
     },
-    "pkaf:supersedesAssertion": {
+    "rkaf:supersedesAssertion": {
       "@type": "@id"
     },
-    "pkaf:supersedesWorkProduct": {
+    "rkaf:supersedesWorkProduct": {
       "@type": "@id"
     },
-    "pkaf:revalidationOf": {
+    "rkaf:revalidationOf": {
       "@type": "@id"
     },
-    "pkaf:precedingArtifact": {
+    "rkaf:precedingArtifact": {
       "@type": "@id"
     },
-    "pkaf:precedingVersion": {
+    "rkaf:precedingVersion": {
       "@type": "@id"
     },
-    "pkaf:sourceFragment": {
+    "rkaf:sourceFragment": {
       "@type": "@id"
     },
-    "pkaf:supportingEvent": {
+    "rkaf:supportingEvent": {
       "@type": "@id"
     },
-    "pkaf:basedOnClassification": {
+    "rkaf:basedOnClassification": {
       "@type": "@id"
     },
-    "pkaf:basedOnEvent": {
+    "rkaf:basedOnEvent": {
       "@type": "@id"
     },
-    "pkaf:basedOnAttestation": {
+    "rkaf:basedOnAttestation": {
       "@type": "@id",
       "@container": "@set"
     },
-    "pkaf:basedOnAttestations": {
+    "rkaf:basedOnAttestations": {
       "@type": "@id",
       "@container": "@set"
     },
-    "pkaf:artifactId": {
+    "rkaf:artifactId": {
       "@type": "@id"
     },
-    "pkaf:realizedByArtifact": {
+    "rkaf:realizedByArtifact": {
       "@type": "@id"
     },
-    "pkaf:resourceLineage": {
+    "rkaf:resourceLineage": {
       "@type": "@id"
     },
-    "pkaf:sourceAuthorityHint": {
+    "rkaf:sourceAuthorityHint": {
       "@type": "@id"
     },
-    "pkaf:capturedBy": {
+    "rkaf:capturedBy": {
       "@type": "@id"
     },
-    "pkaf:subjectArtifact": {
+    "rkaf:subjectArtifact": {
       "@type": "@id"
     },
-    "pkaf:priorArtifact": {
+    "rkaf:priorArtifact": {
       "@type": "@id"
     },
-    "pkaf:classifiedBy": {
+    "rkaf:classifiedBy": {
       "@type": "@id"
     },
-    "pkaf:classification": {
+    "rkaf:classification": {
       "@type": "@id"
     },
-    "pkaf:managedByRegistry": {
+    "rkaf:managedByRegistry": {
       "@type": "@id"
     },
-    "pkaf:hostedByRegistry": {
+    "rkaf:hostedByRegistry": {
       "@type": "@id"
     },
-    "pkaf:mintingAuthority": {
+    "rkaf:mintingAuthority": {
       "@type": "@id"
     },
-    "pkaf:resolutionEndpoint": {
+    "rkaf:resolutionEndpoint": {
       "@type": "@id"
     },
-    "pkaf:registeredVia": {
+    "rkaf:registeredVia": {
       "@type": "@id"
     },
-    "pkaf:replacedBy": {
+    "rkaf:replacedBy": {
       "@type": "@id",
       "@container": "@set"
     },
-    "pkaf:absorbedConcepts": {
+    "rkaf:absorbedConcepts": {
       "@type": "@id",
       "@container": "@set"
     },
-    "pkaf:splitInto": {
+    "rkaf:splitInto": {
       "@type": "@id",
       "@container": "@set"
     },
-    "pkaf:successorConcepts": {
+    "rkaf:successorConcepts": {
       "@type": "@id",
       "@container": "@set"
     },
-    "pkaf:subjectConcept": {
+    "rkaf:subjectConcept": {
       "@type": "@id"
     },
-    "pkaf:relatedConcept": {
+    "rkaf:relatedConcept": {
       "@type": "@id"
     },
-    "pkaf:sharedArtifact": {
+    "rkaf:sharedArtifact": {
       "@type": "@id"
     },
-    "pkaf:relatedPublishedArtifact": {
+    "rkaf:relatedPublishedArtifact": {
       "@type": "@id"
     },
-    "pkaf:conflictingMappings": {
+    "rkaf:conflictingMappings": {
       "@type": "@id",
       "@container": "@set"
     },
-    "pkaf:concept": {
+    "rkaf:concept": {
       "@type": "@id"
     },
-    "pkaf:inputConcept": {
+    "rkaf:inputConcept": {
       "@type": "@id"
     },
-    "pkaf:resolvedConcept": {
+    "rkaf:resolvedConcept": {
       "@type": "@id"
     },
-    "pkaf:mappingAssertion": {
+    "rkaf:mappingAssertion": {
       "@type": "@id"
     },
-    "pkaf:resolutionTrustedVia": {
+    "rkaf:resolutionTrustedVia": {
       "@type": "@id"
     },
-    "pkaf:registry": {
+    "rkaf:registry": {
       "@type": "@id"
     },
-    "pkaf:resolvedToConcepts": {
+    "rkaf:resolvedToConcepts": {
       "@type": "@id",
       "@container": "@set"
     },
-    "pkaf:assertion": {
+    "rkaf:assertion": {
       "@type": "@id"
     },
-    "pkaf:subject": {
+    "rkaf:subject": {
       "@type": "@id"
     },
-    "pkaf:object": {
+    "rkaf:object": {
       "@type": "@id"
     },
-    "pkaf:dataConcept": {
+    "rkaf:dataConcept": {
       "@type": "@id"
     },
-    "pkaf:proposedFromLocalConcept": {
+    "rkaf:proposedFromLocalConcept": {
       "@type": "@id"
     },
-    "pkaf:registeredConcept": {
+    "rkaf:registeredConcept": {
       "@type": "@id"
     },
-    "pkaf:registrationAuthority": {
+    "rkaf:registrationAuthority": {
       "@type": "@id"
     },
-    "pkaf:proposedBy": {
+    "rkaf:proposedBy": {
       "@type": "@id"
     },
-    "pkaf:delegatingAuthority": {
+    "rkaf:delegatingAuthority": {
       "@type": "@id"
     },
-    "pkaf:delegatedTo": {
+    "rkaf:delegatedTo": {
       "@type": "@id"
     },
-    "pkaf:publisher": {
+    "rkaf:publisher": {
       "@type": "@id"
     },
-    "pkaf:retainsAssertion": {
+    "rkaf:retainsAssertion": {
       "@type": "@id"
     },
-    "pkaf:retainsWorkProduct": {
+    "rkaf:retainsWorkProduct": {
       "@type": "@id"
     },
-    "pkaf:evaluationAnchor": {
+    "rkaf:evaluationAnchor": {
       "@type": "@id"
     },
-    "pkaf:appliesTo": {
+    "rkaf:appliesTo": {
       "@type": "@id"
     },
-    "pkaf:affectedAssertions": {
+    "rkaf:affectedAssertions": {
       "@type": "@id",
       "@container": "@set"
     },
-    "pkaf:affectedAuthorityAssertions": {
+    "rkaf:affectedAuthorityAssertions": {
       "@type": "@id",
       "@container": "@set"
     },
-    "pkaf:affectedImplementationAssertions": {
+    "rkaf:affectedImplementationAssertions": {
       "@type": "@id",
       "@container": "@set"
     },
-    "pkaf:affectedWorkProducts": {
+    "rkaf:affectedWorkProducts": {
       "@type": "@id",
       "@container": "@set"
     },
-    "pkaf:affectedAdoptions": {
+    "rkaf:affectedAdoptions": {
       "@type": "@id",
       "@container": "@set"
     },
-    "pkaf:affectedFragments": {
+    "rkaf:affectedFragments": {
       "@type": "@id",
       "@container": "@set"
     },
-    "pkaf:affectedWorkProduct": {
+    "rkaf:affectedWorkProduct": {
       "@type": "@id"
     },
-    "pkaf:affectedAdoption": {
+    "rkaf:affectedAdoption": {
       "@type": "@id"
     },
-    "pkaf:affectedConcepts": {
+    "rkaf:affectedConcepts": {
       "@type": "@id",
       "@container": "@set"
     },
-    "pkaf:staleDependencies": {
+    "rkaf:staleDependencies": {
       "@type": "@id",
       "@container": "@set"
     },
-    "pkaf:unresolvedConcepts": {
+    "rkaf:unresolvedConcepts": {
       "@type": "@id",
       "@container": "@set"
     },
-    "pkaf:registryUnavailable": {
+    "rkaf:registryUnavailable": {
       "@type": "@id",
       "@container": "@set"
     },
-    "pkaf:staleConceptCache": {
+    "rkaf:staleConceptCache": {
       "@type": "@id",
       "@container": "@set"
     },
-    "pkaf:supportedEvaluationAnchors": {
+    "rkaf:supportedEvaluationAnchors": {
       "@type": "@id",
       "@container": "@set"
     },
-    "pkaf:supportedAutomaticMigrations": {
+    "rkaf:supportedAutomaticMigrations": {
       "@type": "@id",
       "@container": "@set"
     },
-    "pkaf:supportedAuthorityKinds": {
+    "rkaf:supportedAuthorityKinds": {
       "@type": "@id",
       "@container": "@set"
     },
-    "pkaf:justifiedByAssertion": {
+    "rkaf:justifiedByAssertion": {
       "@type": "@id",
       "@container": "@set"
     },
-    "pkaf:justificationBackedBy": {
+    "rkaf:justificationBackedBy": {
       "@type": "@id"
     },
-    "pkaf:derivedFromFragment": {
+    "rkaf:derivedFromFragment": {
       "@type": "@id",
       "@container": "@set"
     },
-    "pkaf:associatedWorkflowStep": {
+    "rkaf:associatedWorkflowStep": {
       "@type": "@id"
     },
-    "pkaf:generationRun": {
+    "rkaf:generationRun": {
       "@type": "@id"
     },
-    "pkaf:fromConcept": {
+    "rkaf:fromConcept": {
       "@type": "@id"
     },
-    "pkaf:toConcept": {
+    "rkaf:toConcept": {
       "@type": "@id"
     },
-    "pkaf:requiredAdoptionScope": {
+    "rkaf:requiredAdoptionScope": {
       "@type": "@id"
     },
-    "pkaf:collectsEvidenceType": {
+    "rkaf:collectsEvidenceType": {
       "@type": "@id"
     },
-    "pkaf:requiresEvidenceType": {
+    "rkaf:requiresEvidenceType": {
       "@type": "@id"
     },
-    "pkaf:acceptedDocumentTypes": {
+    "rkaf:acceptedDocumentTypes": {
       "@type": "@id",
       "@container": "@set"
     },
-    "pkaf:excludesCategory": {
+    "rkaf:excludesCategory": {
       "@container": "@set"
     },
-    "pkaf:evidencePurpose": {
+    "rkaf:evidencePurpose": {
       "@container": "@set"
     },
-    "pkaf:excludesPurposes": {
+    "rkaf:excludesPurposes": {
       "@container": "@set"
     },
-    "pkaf:jurisdiction": {
+    "rkaf:jurisdiction": {
       "@container": "@set"
     },
     "prov:wasGeneratedBy": {
@@ -537,40 +537,40 @@
     "prov:generatedAtTime": {
       "@type": "xsd:dateTime"
     },
-    "pkaf:capturedAt": {
+    "rkaf:capturedAt": {
       "@type": "xsd:dateTime"
     },
-    "pkaf:registeredAt": {
+    "rkaf:registeredAt": {
       "@type": "xsd:dateTime"
     },
-    "pkaf:effectiveDate": {
+    "rkaf:effectiveDate": {
       "@type": "xsd:dateTime"
     },
-    "pkaf:effectivePeriodStart": {
+    "rkaf:effectivePeriodStart": {
       "@type": "xsd:dateTime"
     },
-    "pkaf:effectivePeriodEnd": {
+    "rkaf:effectivePeriodEnd": {
       "@type": "xsd:dateTime"
     },
-    "pkaf:exceptionEffectivePeriodEnd": {
+    "rkaf:exceptionEffectivePeriodEnd": {
       "@type": "xsd:dateTime"
     },
-    "pkaf:exceptionEffectivePeriodStart": {
+    "rkaf:exceptionEffectivePeriodStart": {
       "@type": "xsd:dateTime"
     },
-    "pkaf:cachedAt": {
+    "rkaf:cachedAt": {
       "@type": "xsd:dateTime"
     },
-    "pkaf:deprecatedAt": {
+    "rkaf:deprecatedAt": {
       "@type": "xsd:dateTime"
     },
-    "pkaf:rescissionEffectiveDate": {
+    "rkaf:rescissionEffectiveDate": {
       "@type": "xsd:dateTime"
     },
-    "pkaf:detectedAt": {
+    "rkaf:detectedAt": {
       "@type": "xsd:dateTime"
     },
-    "pkaf:definedInScope": {
+    "rkaf:definedInScope": {
       "@type": "@id"
     }
   },
@@ -579,215 +579,215 @@
       "@id": "https://registry.example.gov/concepts/HouseholdIncomeEvidence",
       "@type": [
         "skos:Concept",
-        "pkaf:RegisteredConcept"
+        "rkaf:RegisteredConcept"
       ],
       "skos:prefLabel": "Household income evidence",
-      "pkaf:managedByRegistry": "https://registry.example.gov/registries/public-benefits-evidence",
-      "pkaf:conceptScope": "pkaf:public",
-      "pkaf:conceptStatus": "pkaf:registered",
-      "pkaf:registeredAt": "2025-11-01T00:00:00-05:00"
+      "rkaf:managedByRegistry": "https://registry.example.gov/registries/public-benefits-evidence",
+      "rkaf:conceptScope": "rkaf:public",
+      "rkaf:conceptStatus": "rkaf:registered",
+      "rkaf:registeredAt": "2025-11-01T00:00:00-05:00"
     },
     {
       "@id": "https://registry.example.gov/registries/public-benefits-evidence",
-      "@type": "pkaf:ConceptRegistry",
-      "pkaf:registryName": "Public Benefits Evidence Concept Registry",
-      "pkaf:namespacePrefix": "https://registry.example.gov/concepts/",
-      "pkaf:mintingAuthority": "https://registry.example.gov/authorities/pbe-curation-board",
-      "pkaf:governanceModel": "pkaf:federatedCuration",
-      "pkaf:resolutionEndpoint": "https://registry.example.gov/api/v1/concepts/",
-      "pkaf:registryVersion": "2026-04-01"
+      "@type": "rkaf:ConceptRegistry",
+      "rkaf:registryName": "Public Benefits Evidence Concept Registry",
+      "rkaf:namespacePrefix": "https://registry.example.gov/concepts/",
+      "rkaf:mintingAuthority": "https://registry.example.gov/authorities/pbe-curation-board",
+      "rkaf:governanceModel": "rkaf:federatedCuration",
+      "rkaf:resolutionEndpoint": "https://registry.example.gov/api/v1/concepts/",
+      "rkaf:registryVersion": "2026-04-01"
     },
     {
       "@id": "https://example.org/concepts/caa-42/IncomeDocs",
       "@type": [
         "skos:Concept",
-        "pkaf:LocalConcept"
+        "rkaf:LocalConcept"
       ],
       "skos:prefLabel": "Income docs",
       "skos:altLabel": [
         "proof of household income"
       ],
-      "pkaf:definedInScope": "https://example.org/org/caa-42",
-      "pkaf:conceptScope": "pkaf:organization",
-      "pkaf:conceptStatus": "pkaf:localActive"
+      "rkaf:definedInScope": "https://example.org/org/caa-42",
+      "rkaf:conceptScope": "rkaf:organization",
+      "rkaf:conceptStatus": "rkaf:localActive"
     },
     {
       "@id": "https://example.org/assertion/caa-42-mapping-001",
-      "@type": "pkaf:RelationshipAssertion",
-      "pkaf:assertsSubject": "https://example.org/concepts/caa-42/IncomeDocs",
-      "pkaf:assertsPredicate": "skos:closeMatch",
-      "pkaf:assertsObject": "https://registry.example.gov/concepts/HouseholdIncomeEvidence",
-      "pkaf:assertionOrigin": "pkaf:humanAsserted",
-      "pkaf:hasTrustZone": "pkaf:Z4AttestedAssertion",
-      "pkaf:hasSafetyLabel": "pkaf:R2ReviewedOperational",
-      "pkaf:usageEligibility": "pkaf:reviewQueueOnly",
-      "pkaf:hasApplicability": {
-        "@type": "pkaf:MappingApplicabilityContext",
-        "pkaf:evidencePurpose": [
+      "@type": "rkaf:RelationshipAssertion",
+      "rkaf:assertsSubject": "https://example.org/concepts/caa-42/IncomeDocs",
+      "rkaf:assertsPredicate": "skos:closeMatch",
+      "rkaf:assertsObject": "https://registry.example.gov/concepts/HouseholdIncomeEvidence",
+      "rkaf:assertionOrigin": "rkaf:humanAsserted",
+      "rkaf:hasTrustZone": "rkaf:Z4AttestedAssertion",
+      "rkaf:hasSafetyLabel": "rkaf:R2ReviewedOperational",
+      "rkaf:usageEligibility": "rkaf:reviewQueueOnly",
+      "rkaf:hasApplicability": {
+        "@type": "rkaf:MappingApplicabilityContext",
+        "rkaf:evidencePurpose": [
           "eligibility-determination"
         ],
-        "pkaf:excludesPurposes": [
+        "rkaf:excludesPurposes": [
           "fraud-investigation",
           "tax-audit"
         ],
-        "pkaf:applicationDomain": "csbg-benefit-category-b-intake"
+        "rkaf:applicationDomain": "csbg-benefit-category-b-intake"
       },
-      "pkaf:hasEvidence": [
+      "rkaf:hasEvidence": [
         {
-          "@type": "pkaf:EvidenceBinding",
-          "pkaf:evidenceRole": "pkaf:mappingRationale",
-          "pkaf:rationaleText": "Local 'Income docs' is used in CAA-42 intake to mean the same evidence category as registry HouseholdIncomeEvidence within CSBG benefit category B eligibility determination."
+          "@type": "rkaf:EvidenceBinding",
+          "rkaf:evidenceRole": "rkaf:mappingRationale",
+          "rkaf:rationaleText": "Local 'Income docs' is used in CAA-42 intake to mean the same evidence category as registry HouseholdIncomeEvidence within CSBG benefit category B eligibility determination."
         }
       ],
-      "pkaf:scope": "https://example.org/org/caa-42",
+      "rkaf:scope": "https://example.org/org/caa-42",
       "prov:wasAttributedTo": "https://example.org/user/caa-42-program-analyst-1",
       "prov:generatedAtTime": "2026-07-01T10:00:00-05:00"
     },
     {
       "@id": "https://example.org/form-field/caa-42-intake/income-docs/v1",
       "@type": [
-        "pkaf:GeneratedWorkProduct",
+        "rkaf:GeneratedWorkProduct",
         "formspec:Field"
       ],
       "formspec:fieldName": "income_docs",
       "formspec:label": "Income docs (household)",
       "formspec:dataType": "file-upload",
-      "pkaf:collectsEvidenceType": "https://example.org/concepts/caa-42/IncomeDocs",
-      "pkaf:justifiedByAssertion": [
+      "rkaf:collectsEvidenceType": "https://example.org/concepts/caa-42/IncomeDocs",
+      "rkaf:justifiedByAssertion": [
         "https://example.org/assertion/caa-42-req-002"
       ],
-      "pkaf:consumerLifecycleState": "pkaf:draft",
-      "pkaf:usageEligibility": "pkaf:draftGenerationAllowed",
-      "pkaf:bridgeContractVersion": "pkaf-bridge/1.0",
-      "pkaf:hasApplicability": {
-        "@type": "pkaf:ApplicabilityContext",
-        "pkaf:benefitCategory": "B",
-        "pkaf:evidencePurpose": "eligibility-determination"
+      "rkaf:consumerLifecycleState": "rkaf:draft",
+      "rkaf:usageEligibility": "rkaf:draftGenerationAllowed",
+      "rkaf:bridgeContractVersion": "rkaf-bridge/1.0",
+      "rkaf:hasApplicability": {
+        "@type": "rkaf:ApplicabilityContext",
+        "rkaf:benefitCategory": "B",
+        "rkaf:evidencePurpose": "eligibility-determination"
       }
     },
     {
       "@id": "https://example.org/consumer/caa-42-formspec/registration",
-      "@type": "pkaf:BridgeConsumerRegistration",
-      "pkaf:consumer": "https://example.org/consumer/caa-42-formspec",
-      "pkaf:organization": "https://example.org/org/caa-42",
-      "pkaf:bridgeContractVersion": "pkaf-bridge/1.0",
-      "pkaf:supportedEvaluationAnchors": [
-        "pkaf:applicationSubmissionTime",
-        "pkaf:eligibilityDeterminationTime",
-        "pkaf:currentTime",
-        "pkaf:effectivePeriodStart"
+      "@type": "rkaf:BridgeConsumerRegistration",
+      "rkaf:consumer": "https://example.org/consumer/caa-42-formspec",
+      "rkaf:organization": "https://example.org/org/caa-42",
+      "rkaf:bridgeContractVersion": "rkaf-bridge/1.0",
+      "rkaf:supportedEvaluationAnchors": [
+        "rkaf:applicationSubmissionTime",
+        "rkaf:eligibilityDeterminationTime",
+        "rkaf:currentTime",
+        "rkaf:effectivePeriodStart"
       ],
-      "pkaf:supportsRegistryVersionRange": [
+      "rkaf:supportsRegistryVersionRange": [
         {
-          "pkaf:registry": "https://registry.example.gov/registries/public-benefits-evidence",
-          "pkaf:minVersion": "2026-01-01",
-          "pkaf:maxVersion": "2026-12-31"
+          "rkaf:registry": "https://registry.example.gov/registries/public-benefits-evidence",
+          "rkaf:minVersion": "2026-01-01",
+          "rkaf:maxVersion": "2026-12-31"
         }
       ],
-      "pkaf:supportedAutomaticMigrations": [
-        "pkaf:replaceInPlace"
+      "rkaf:supportedAutomaticMigrations": [
+        "rkaf:replaceInPlace"
       ]
     },
     {
       "@id": "https://example.org/bridge-validation/caa-42-2026-07-01-001",
-      "@type": "pkaf:BridgeValidationResult",
-      "pkaf:packetId": "https://example.org/form-field/caa-42-intake/income-docs/v1",
-      "pkaf:consumer": "https://example.org/consumer/caa-42-formspec",
-      "pkaf:bridgeContractVersion": "pkaf-bridge/1.0",
-      "pkaf:result": "pkaf:acceptedWithWarnings",
-      "pkaf:effectiveUsageEligibility": "pkaf:draftGenerationAllowed",
-      "pkaf:effectiveUsageEligibilityRationale": "LocalConcept resolves via closeMatch mapping, but mapping is not yet locally adopted. Ceiling held at draftGenerationAllowed per ConceptRegistry \u00a75.2.",
-      "pkaf:conceptResolutionResults": [
+      "@type": "rkaf:BridgeValidationResult",
+      "rkaf:packetId": "https://example.org/form-field/caa-42-intake/income-docs/v1",
+      "rkaf:consumer": "https://example.org/consumer/caa-42-formspec",
+      "rkaf:bridgeContractVersion": "rkaf-bridge/1.0",
+      "rkaf:result": "rkaf:acceptedWithWarnings",
+      "rkaf:effectiveUsageEligibility": "rkaf:draftGenerationAllowed",
+      "rkaf:effectiveUsageEligibilityRationale": "LocalConcept resolves via closeMatch mapping, but mapping is not yet locally adopted. Ceiling held at draftGenerationAllowed per ConceptRegistry \u00a75.2.",
+      "rkaf:conceptResolutionResults": [
         {
-          "@type": "pkaf:ConceptResolutionResult",
-          "pkaf:inputConcept": "https://example.org/concepts/caa-42/IncomeDocs",
-          "pkaf:resolvedConcept": "https://registry.example.gov/concepts/HouseholdIncomeEvidence",
-          "pkaf:resolutionStatus": "pkaf:resolvedViaMapping",
-          "pkaf:resolutionMethod": "pkaf:closeMatchAwaitingAdoption",
-          "pkaf:mappingAssertion": "https://example.org/assertion/caa-42-mapping-001",
-          "pkaf:registryVersion": "2026-04-01",
-          "pkaf:cacheStatus": "pkaf:fresh",
-          "pkaf:usageCeiling": "pkaf:draftGenerationAllowed",
-          "pkaf:warnings": [
+          "@type": "rkaf:ConceptResolutionResult",
+          "rkaf:inputConcept": "https://example.org/concepts/caa-42/IncomeDocs",
+          "rkaf:resolvedConcept": "https://registry.example.gov/concepts/HouseholdIncomeEvidence",
+          "rkaf:resolutionStatus": "rkaf:resolvedViaMapping",
+          "rkaf:resolutionMethod": "rkaf:closeMatchAwaitingAdoption",
+          "rkaf:mappingAssertion": "https://example.org/assertion/caa-42-mapping-001",
+          "rkaf:registryVersion": "2026-04-01",
+          "rkaf:cacheStatus": "rkaf:fresh",
+          "rkaf:usageCeiling": "rkaf:draftGenerationAllowed",
+          "rkaf:warnings": [
             {
-              "@type": "pkaf:ConceptResolutionWarning",
-              "pkaf:warningCode": "pkaf:closeMatchNotAdopted",
-              "pkaf:detail": "Mapping caa-42-mapping-001 is closeMatch but lacks LocalAdoption in CAA-42 scope. Promote to operational by adopting the mapping."
+              "@type": "rkaf:ConceptResolutionWarning",
+              "rkaf:warningCode": "rkaf:closeMatchNotAdopted",
+              "rkaf:detail": "Mapping caa-42-mapping-001 is closeMatch but lacks LocalAdoption in CAA-42 scope. Promote to operational by adopting the mapping."
             }
           ]
         }
       ],
-      "pkaf:errors": [],
-      "pkaf:staleDependencies": [],
+      "rkaf:errors": [],
+      "rkaf:staleDependencies": [],
       "prov:generatedAtTime": "2026-07-01T10:30:00-05:00",
-      "pkaf:warnings": [
+      "rkaf:warnings": [
         "LocalConcept resolves via closeMatch mapping that is not yet locally adopted; effective usageEligibility ceiling held at draftGenerationAllowed until adoption"
       ]
     },
     {
       "@id": "https://example.org/adoption/caa-42-mapping-001",
-      "@type": "pkaf:LocalAdoption",
-      "pkaf:organization": "https://example.org/org/caa-42",
-      "pkaf:targetAssertion": "https://example.org/assertion/caa-42-mapping-001",
-      "pkaf:adoptionStatus": "pkaf:adoptedForLocalOperations",
-      "pkaf:usageEligibility": "pkaf:localOperationalUse",
-      "pkaf:adoptionAuthorityKind": "pkaf:localOperational",
-      "pkaf:adoptionScope": "csbg-benefit-category-b-intake",
-      "pkaf:authorizedBy": "https://example.org/user/caa-42-program-director-1",
-      "pkaf:adoptsApplicability": {
-        "@type": "pkaf:MappingApplicabilityContext",
-        "pkaf:evidencePurpose": [
+      "@type": "rkaf:LocalAdoption",
+      "rkaf:organization": "https://example.org/org/caa-42",
+      "rkaf:targetAssertion": "https://example.org/assertion/caa-42-mapping-001",
+      "rkaf:adoptionStatus": "rkaf:adoptedForLocalOperations",
+      "rkaf:usageEligibility": "rkaf:localOperationalUse",
+      "rkaf:adoptionAuthorityKind": "rkaf:localOperational",
+      "rkaf:adoptionScope": "csbg-benefit-category-b-intake",
+      "rkaf:authorizedBy": "https://example.org/user/caa-42-program-director-1",
+      "rkaf:adoptsApplicability": {
+        "@type": "rkaf:MappingApplicabilityContext",
+        "rkaf:evidencePurpose": [
           "eligibility-determination"
         ],
-        "pkaf:applicationDomain": "csbg-benefit-category-b-intake"
+        "rkaf:applicationDomain": "csbg-benefit-category-b-intake"
       },
       "prov:generatedAtTime": "2026-07-05T14:00:00-05:00"
     },
     {
       "@id": "https://example.org/form-field/caa-42-intake/income-docs/v2",
       "@type": [
-        "pkaf:GeneratedWorkProduct",
+        "rkaf:GeneratedWorkProduct",
         "formspec:Field"
       ],
       "formspec:fieldName": "income_docs",
       "formspec:label": "Income docs (household)",
       "formspec:dataType": "file-upload",
-      "pkaf:collectsEvidenceType": "https://example.org/concepts/caa-42/IncomeDocs",
-      "pkaf:justifiedByAssertion": [
+      "rkaf:collectsEvidenceType": "https://example.org/concepts/caa-42/IncomeDocs",
+      "rkaf:justifiedByAssertion": [
         "https://example.org/assertion/caa-42-req-002"
       ],
-      "pkaf:supersedesWorkProduct": "https://example.org/form-field/caa-42-intake/income-docs/v1",
-      "pkaf:consumerLifecycleState": "pkaf:operational",
-      "pkaf:usageEligibility": "pkaf:localOperationalUse",
-      "pkaf:bridgeContractVersion": "pkaf-bridge/1.0",
-      "pkaf:hasApplicability": {
-        "@type": "pkaf:ApplicabilityContext",
-        "pkaf:benefitCategory": "B",
-        "pkaf:evidencePurpose": "eligibility-determination"
+      "rkaf:supersedesWorkProduct": "https://example.org/form-field/caa-42-intake/income-docs/v1",
+      "rkaf:consumerLifecycleState": "rkaf:operational",
+      "rkaf:usageEligibility": "rkaf:localOperationalUse",
+      "rkaf:bridgeContractVersion": "rkaf-bridge/1.0",
+      "rkaf:hasApplicability": {
+        "@type": "rkaf:ApplicabilityContext",
+        "rkaf:benefitCategory": "B",
+        "rkaf:evidencePurpose": "eligibility-determination"
       }
     },
     {
       "@id": "https://example.org/bridge-validation/caa-42-2026-07-05-001",
-      "@type": "pkaf:BridgeValidationResult",
-      "pkaf:packetId": "https://example.org/form-field/caa-42-intake/income-docs/v2",
-      "pkaf:consumer": "https://example.org/consumer/caa-42-formspec",
-      "pkaf:bridgeContractVersion": "pkaf-bridge/1.0",
-      "pkaf:result": "pkaf:accepted",
-      "pkaf:effectiveUsageEligibility": "pkaf:localOperationalUse",
-      "pkaf:effectiveUsageEligibilityRationale": "Mapping caa-42-mapping-001 locally adopted; field's evidence purpose ('eligibility-determination') is within mapping's MappingApplicabilityContext.evidencePurpose. Ceiling raised to localOperationalUse.",
-      "pkaf:conceptResolutionResults": [
+      "@type": "rkaf:BridgeValidationResult",
+      "rkaf:packetId": "https://example.org/form-field/caa-42-intake/income-docs/v2",
+      "rkaf:consumer": "https://example.org/consumer/caa-42-formspec",
+      "rkaf:bridgeContractVersion": "rkaf-bridge/1.0",
+      "rkaf:result": "rkaf:accepted",
+      "rkaf:effectiveUsageEligibility": "rkaf:localOperationalUse",
+      "rkaf:effectiveUsageEligibilityRationale": "Mapping caa-42-mapping-001 locally adopted; field's evidence purpose ('eligibility-determination') is within mapping's MappingApplicabilityContext.evidencePurpose. Ceiling raised to localOperationalUse.",
+      "rkaf:conceptResolutionResults": [
         {
-          "@type": "pkaf:ConceptResolutionResult",
-          "pkaf:inputConcept": "https://example.org/concepts/caa-42/IncomeDocs",
-          "pkaf:resolvedConcept": "https://registry.example.gov/concepts/HouseholdIncomeEvidence",
-          "pkaf:resolutionStatus": "pkaf:resolvedViaMapping",
-          "pkaf:resolutionMethod": "pkaf:closeMatchLocallyAdopted",
-          "pkaf:mappingAssertion": "https://example.org/assertion/caa-42-mapping-001",
-          "pkaf:registryVersion": "2026-04-01",
-          "pkaf:cacheStatus": "pkaf:fresh",
-          "pkaf:usageCeiling": "pkaf:localOperationalUse",
-          "pkaf:warnings": [],
-          "pkaf:errors": []
+          "@type": "rkaf:ConceptResolutionResult",
+          "rkaf:inputConcept": "https://example.org/concepts/caa-42/IncomeDocs",
+          "rkaf:resolvedConcept": "https://registry.example.gov/concepts/HouseholdIncomeEvidence",
+          "rkaf:resolutionStatus": "rkaf:resolvedViaMapping",
+          "rkaf:resolutionMethod": "rkaf:closeMatchLocallyAdopted",
+          "rkaf:mappingAssertion": "https://example.org/assertion/caa-42-mapping-001",
+          "rkaf:registryVersion": "2026-04-01",
+          "rkaf:cacheStatus": "rkaf:fresh",
+          "rkaf:usageCeiling": "rkaf:localOperationalUse",
+          "rkaf:warnings": [],
+          "rkaf:errors": []
         }
       ],
       "prov:generatedAtTime": "2026-07-05T14:30:00-05:00"
@@ -796,166 +796,166 @@
       "@id": "https://example.org/concepts/caa-77/HouseholdIncomeProof",
       "@type": [
         "skos:Concept",
-        "pkaf:LocalConcept"
+        "rkaf:LocalConcept"
       ],
       "skos:prefLabel": "Household income proof",
-      "pkaf:definedInScope": "https://example.org/org/caa-77",
-      "pkaf:conceptScope": "pkaf:organization",
-      "pkaf:conceptStatus": "pkaf:localActive"
+      "rkaf:definedInScope": "https://example.org/org/caa-77",
+      "rkaf:conceptScope": "rkaf:organization",
+      "rkaf:conceptStatus": "rkaf:localActive"
     },
     {
       "@id": "https://example.org/assertion/caa-77-mapping-001",
-      "@type": "pkaf:RelationshipAssertion",
-      "pkaf:assertsSubject": "https://example.org/concepts/caa-77/HouseholdIncomeProof",
-      "pkaf:assertsPredicate": "skos:broadMatch",
-      "pkaf:assertsObject": "https://registry.example.gov/concepts/HouseholdIncomeEvidence",
-      "pkaf:assertionOrigin": "pkaf:humanAsserted",
-      "pkaf:hasTrustZone": "pkaf:Z4AttestedAssertion",
-      "pkaf:hasSafetyLabel": "pkaf:S1SearchOnly",
-      "pkaf:usageEligibility": "pkaf:searchOnly",
-      "pkaf:hasEvidence": [
+      "@type": "rkaf:RelationshipAssertion",
+      "rkaf:assertsSubject": "https://example.org/concepts/caa-77/HouseholdIncomeProof",
+      "rkaf:assertsPredicate": "skos:broadMatch",
+      "rkaf:assertsObject": "https://registry.example.gov/concepts/HouseholdIncomeEvidence",
+      "rkaf:assertionOrigin": "rkaf:humanAsserted",
+      "rkaf:hasTrustZone": "rkaf:Z4AttestedAssertion",
+      "rkaf:hasSafetyLabel": "rkaf:S1SearchOnly",
+      "rkaf:usageEligibility": "rkaf:searchOnly",
+      "rkaf:hasEvidence": [
         {
-          "@type": "pkaf:EvidenceBinding",
-          "pkaf:evidenceRole": "pkaf:mappingRationale",
-          "pkaf:rationaleText": "CAA-77 accepts a broader set of evidence than the registry concept defines, including informal employer letters and household budget statements."
+          "@type": "rkaf:EvidenceBinding",
+          "rkaf:evidenceRole": "rkaf:mappingRationale",
+          "rkaf:rationaleText": "CAA-77 accepts a broader set of evidence than the registry concept defines, including informal employer letters and household budget statements."
         }
       ],
-      "pkaf:scope": "https://example.org/org/caa-77",
+      "rkaf:scope": "https://example.org/org/caa-77",
       "prov:generatedAtTime": "2026-07-10T09:00:00-05:00"
     },
     {
       "@id": "https://example.org/form-field/caa-77-intake/income-proof/v1",
       "@type": [
-        "pkaf:GeneratedWorkProduct",
+        "rkaf:GeneratedWorkProduct",
         "formspec:Field"
       ],
       "formspec:fieldName": "income_proof",
       "formspec:label": "Household income proof",
       "formspec:dataType": "file-upload",
-      "pkaf:collectsEvidenceType": "https://example.org/concepts/caa-77/HouseholdIncomeProof",
-      "pkaf:justifiedByAssertion": [
+      "rkaf:collectsEvidenceType": "https://example.org/concepts/caa-77/HouseholdIncomeProof",
+      "rkaf:justifiedByAssertion": [
         "https://example.org/assertion/caa-77-req-001"
       ],
-      "pkaf:consumerLifecycleState": "pkaf:proposedForOperational",
-      "pkaf:proposedUsageEligibility": "pkaf:localOperationalUse",
-      "pkaf:bridgeContractVersion": "pkaf-bridge/1.0"
+      "rkaf:consumerLifecycleState": "rkaf:proposedForOperational",
+      "rkaf:proposedUsageEligibility": "rkaf:localOperationalUse",
+      "rkaf:bridgeContractVersion": "rkaf-bridge/1.0"
     },
     {
       "@id": "https://example.org/bridge-validation/caa-77-2026-07-10-001",
-      "@type": "pkaf:BridgeValidationResult",
-      "pkaf:packetId": "https://example.org/form-field/caa-77-intake/income-proof/v1",
-      "pkaf:consumer": "https://example.org/consumer/caa-77-formspec",
-      "pkaf:bridgeContractVersion": "pkaf-bridge/1.0",
-      "pkaf:result": "pkaf:rejected",
-      "pkaf:effectiveUsageEligibility": "pkaf:draftGenerationAllowed",
-      "pkaf:effectiveUsageEligibilityRationale": "Field requested promotion to localOperationalUse. Concept resolves only via skos:broadMatch (S1 / discovery). broadMatch cannot satisfy operational evidence-type resolution per ConceptRegistry \u00a74.1. Field may continue at draftGenerationAllowed with explicit warning, OR consumer should obtain a closeMatch/exactMatch mapping before promotion.",
-      "pkaf:conceptResolutionResults": [
+      "@type": "rkaf:BridgeValidationResult",
+      "rkaf:packetId": "https://example.org/form-field/caa-77-intake/income-proof/v1",
+      "rkaf:consumer": "https://example.org/consumer/caa-77-formspec",
+      "rkaf:bridgeContractVersion": "rkaf-bridge/1.0",
+      "rkaf:result": "rkaf:rejected",
+      "rkaf:effectiveUsageEligibility": "rkaf:draftGenerationAllowed",
+      "rkaf:effectiveUsageEligibilityRationale": "Field requested promotion to localOperationalUse. Concept resolves only via skos:broadMatch (S1 / discovery). broadMatch cannot satisfy operational evidence-type resolution per ConceptRegistry \u00a74.1. Field may continue at draftGenerationAllowed with explicit warning, OR consumer should obtain a closeMatch/exactMatch mapping before promotion.",
+      "rkaf:conceptResolutionResults": [
         {
-          "@type": "pkaf:ConceptResolutionResult",
-          "pkaf:inputConcept": "https://example.org/concepts/caa-77/HouseholdIncomeProof",
-          "pkaf:resolvedConcept": "https://registry.example.gov/concepts/HouseholdIncomeEvidence",
-          "pkaf:resolutionStatus": "pkaf:unresolvedForOperationalUse",
-          "pkaf:resolutionMethod": "pkaf:broadOrNarrowMatchDiscoveryOnly",
-          "pkaf:mappingAssertion": "https://example.org/assertion/caa-77-mapping-001",
-          "pkaf:registryVersion": "2026-04-01",
-          "pkaf:cacheStatus": "pkaf:fresh",
-          "pkaf:usageCeiling": "pkaf:searchOnly",
-          "pkaf:warnings": [],
-          "pkaf:errors": [
+          "@type": "rkaf:ConceptResolutionResult",
+          "rkaf:inputConcept": "https://example.org/concepts/caa-77/HouseholdIncomeProof",
+          "rkaf:resolvedConcept": "https://registry.example.gov/concepts/HouseholdIncomeEvidence",
+          "rkaf:resolutionStatus": "rkaf:unresolvedForOperationalUse",
+          "rkaf:resolutionMethod": "rkaf:broadOrNarrowMatchDiscoveryOnly",
+          "rkaf:mappingAssertion": "https://example.org/assertion/caa-77-mapping-001",
+          "rkaf:registryVersion": "2026-04-01",
+          "rkaf:cacheStatus": "rkaf:fresh",
+          "rkaf:usageCeiling": "rkaf:searchOnly",
+          "rkaf:warnings": [],
+          "rkaf:errors": [
             {
-              "@type": "pkaf:ConceptResolutionError",
-              "pkaf:errorCode": "pkaf:operationalResolutionRequiresStrongerMapping",
-              "pkaf:detail": "Only broadMatch available. Operational use requires exactMatch (trusted) or closeMatch (locally adopted with MappingApplicabilityContext)."
+              "@type": "rkaf:ConceptResolutionError",
+              "rkaf:errorCode": "rkaf:operationalResolutionRequiresStrongerMapping",
+              "rkaf:detail": "Only broadMatch available. Operational use requires exactMatch (trusted) or closeMatch (locally adopted with MappingApplicabilityContext)."
             }
           ]
         }
       ],
-      "pkaf:suggestedRemediation": "Assert a skos:closeMatch mapping from caa-77:HouseholdIncomeProof to a registered concept, or narrow the LocalConcept definition and assert skos:exactMatch.",
+      "rkaf:suggestedRemediation": "Assert a skos:closeMatch mapping from caa-77:HouseholdIncomeProof to a registered concept, or narrow the LocalConcept definition and assert skos:exactMatch.",
       "prov:generatedAtTime": "2026-07-10T09:30:00-05:00"
     },
     {
       "@id": "https://registry.example.gov/annotation/mapping-conflict-001",
-      "@type": "pkaf:MappingConflict",
-      "pkaf:conflictingMappings": [
+      "@type": "rkaf:MappingConflict",
+      "rkaf:conflictingMappings": [
         "https://example.org/assertion/caa-42-mapping-001",
         "https://example.org/assertion/caa-77-mapping-001"
       ],
-      "pkaf:relatedConcept": "https://registry.example.gov/concepts/HouseholdIncomeEvidence",
-      "pkaf:severity": "pkaf:informational",
-      "pkaf:severityRationale": "CAA-42 asserts closeMatch (scoped to eligibility-determination); CAA-77 asserts broadMatch. No shared operational artifact or publication depends on both. Recorded for federated awareness; no consumer action required.",
-      "pkaf:detectedBy": "https://registry.example.gov/agent/federation-reconciler-v1",
-      "pkaf:detectedAt": "2026-07-15T00:00:00-05:00"
+      "rkaf:relatedConcept": "https://registry.example.gov/concepts/HouseholdIncomeEvidence",
+      "rkaf:severity": "rkaf:informational",
+      "rkaf:severityRationale": "CAA-42 asserts closeMatch (scoped to eligibility-determination); CAA-77 asserts broadMatch. No shared operational artifact or publication depends on both. Recorded for federated awareness; no consumer action required.",
+      "rkaf:detectedBy": "https://registry.example.gov/agent/federation-reconciler-v1",
+      "rkaf:detectedAt": "2026-07-15T00:00:00-05:00"
     },
     {
       "@id": "https://registry.example.gov/packets/lifecycle-001",
-      "@type": "pkaf:ConceptLifecyclePacket",
-      "pkaf:lifecycleEvent": "pkaf:split",
-      "pkaf:subjectConcept": "https://registry.example.gov/concepts/HouseholdIncomeEvidence",
-      "pkaf:successorConcepts": [
+      "@type": "rkaf:ConceptLifecyclePacket",
+      "rkaf:lifecycleEvent": "rkaf:split",
+      "rkaf:subjectConcept": "https://registry.example.gov/concepts/HouseholdIncomeEvidence",
+      "rkaf:successorConcepts": [
         "https://registry.example.gov/concepts/HouseholdIncomeEvidence-W2Filers",
         "https://registry.example.gov/concepts/HouseholdIncomeEvidence-NonW2Filers"
       ],
-      "pkaf:effectiveDate": "2027-01-01T00:00:00-05:00",
-      "pkaf:bridgeContractVersion": "pkaf-bridge/1.0",
-      "pkaf:cascadeAlgorithm": "pkaf:CascadeClosureV1",
-      "pkaf:cascadeClosureDescription": "Transitive closure over inverse {collectsEvidenceType, requiresEvidenceType, assertsObject (where object is subjectConcept), skos:exactMatch, skos:closeMatch, skos:broadMatch, skos:narrowMatch, skos:relatedMatch} edges, scoped to active/adopted state at effectiveDate.",
-      "pkaf:safeAutomaticMigration": null,
-      "pkaf:safeAutomaticMigrationRationale": "Split requires disambiguation between W2Filers and NonW2Filers based on local context. No deterministic in-place rewrite possible.",
-      "pkaf:affectedAssertions": [
+      "rkaf:effectiveDate": "2027-01-01T00:00:00-05:00",
+      "rkaf:bridgeContractVersion": "rkaf-bridge/1.0",
+      "rkaf:cascadeAlgorithm": "rkaf:CascadeClosureV1",
+      "rkaf:cascadeClosureDescription": "Transitive closure over inverse {collectsEvidenceType, requiresEvidenceType, assertsObject (where object is subjectConcept), skos:exactMatch, skos:closeMatch, skos:broadMatch, skos:narrowMatch, skos:relatedMatch} edges, scoped to active/adopted state at effectiveDate.",
+      "rkaf:safeAutomaticMigration": null,
+      "rkaf:safeAutomaticMigrationRationale": "Split requires disambiguation between W2Filers and NonW2Filers based on local context. No deterministic in-place rewrite possible.",
+      "rkaf:affectedAssertions": [
         "https://example.org/assertion/caa-42-mapping-001",
         "https://example.org/assertion/caa-77-mapping-001"
       ],
-      "pkaf:affectedWorkProducts": [
+      "rkaf:affectedWorkProducts": [
         "https://example.org/form-field/caa-42-intake/income-docs/v2"
       ],
-      "pkaf:requiredMigrationActions": [
+      "rkaf:requiredMigrationActions": [
         {
-          "@type": "pkaf:MigrationAction",
-          "pkaf:targetAssertion": "https://example.org/assertion/caa-42-mapping-001",
-          "pkaf:reason": "Mapping points to subject concept being split. Must be replaced with a mapping to one or both successor concepts after disambiguation.",
-          "pkaf:priority": "high"
+          "@type": "rkaf:MigrationAction",
+          "rkaf:targetAssertion": "https://example.org/assertion/caa-42-mapping-001",
+          "rkaf:reason": "Mapping points to subject concept being split. Must be replaced with a mapping to one or both successor concepts after disambiguation.",
+          "rkaf:priority": "high"
         },
         {
-          "@type": "pkaf:MigrationAction",
-          "pkaf:targetWorkProduct": "https://example.org/form-field/caa-42-intake/income-docs/v2",
-          "pkaf:reason": "Field operational via caa-42-mapping-001 which is now broken. Field transitions to staleForCurrentUse per ConceptRegistry \u00a77.5.",
-          "pkaf:priority": "high"
+          "@type": "rkaf:MigrationAction",
+          "rkaf:targetWorkProduct": "https://example.org/form-field/caa-42-intake/income-docs/v2",
+          "rkaf:reason": "Field operational via caa-42-mapping-001 which is now broken. Field transitions to staleForCurrentUse per ConceptRegistry \u00a77.5.",
+          "rkaf:priority": "high"
         }
       ],
       "prov:generatedAtTime": "2026-12-01T00:00:00-05:00"
     },
     {
       "@id": "https://example.org/bridge-validation/caa-42-2026-12-01-001",
-      "@type": "pkaf:BridgeValidationResult",
-      "pkaf:packetId": "https://registry.example.gov/packets/lifecycle-001",
-      "pkaf:consumer": "https://example.org/consumer/caa-42-formspec",
-      "pkaf:bridgeContractVersion": "pkaf-bridge/1.0",
-      "pkaf:result": "pkaf:acceptedWithWarnings",
-      "pkaf:warnings": [
+      "@type": "rkaf:BridgeValidationResult",
+      "rkaf:packetId": "https://registry.example.gov/packets/lifecycle-001",
+      "rkaf:consumer": "https://example.org/consumer/caa-42-formspec",
+      "rkaf:bridgeContractVersion": "rkaf-bridge/1.0",
+      "rkaf:result": "rkaf:acceptedWithWarnings",
+      "rkaf:warnings": [
         {
-          "@type": "pkaf:StaleDependencyWarning",
-          "pkaf:affectedWorkProduct": "https://example.org/form-field/caa-42-intake/income-docs/v2",
-          "pkaf:transitionTo": "pkaf:staleForCurrentUse",
-          "pkaf:detail": "Field depends on mapping caa-42-mapping-001 whose object concept is being split. No safeAutomaticMigration declared by packet AND consumer does not declare support for split-time auto-migration. Field transitions to staleForCurrentUse per ConceptRegistry \u00a77.5."
+          "@type": "rkaf:StaleDependencyWarning",
+          "rkaf:affectedWorkProduct": "https://example.org/form-field/caa-42-intake/income-docs/v2",
+          "rkaf:transitionTo": "rkaf:staleForCurrentUse",
+          "rkaf:detail": "Field depends on mapping caa-42-mapping-001 whose object concept is being split. No safeAutomaticMigration declared by packet AND consumer does not declare support for split-time auto-migration. Field transitions to staleForCurrentUse per ConceptRegistry \u00a77.5."
         }
       ],
-      "pkaf:staleDependencies": [
+      "rkaf:staleDependencies": [
         "https://example.org/form-field/caa-42-intake/income-docs/v2"
       ],
-      "pkaf:conceptResolutionResults": [
+      "rkaf:conceptResolutionResults": [
         {
-          "@type": "pkaf:ConceptResolutionResult",
-          "pkaf:inputConcept": "https://example.org/concepts/caa-42/IncomeDocs",
-          "pkaf:resolvedConcept": "https://registry.example.gov/concepts/HouseholdIncomeEvidence",
-          "pkaf:resolutionStatus": "pkaf:unresolvedConceptSplit",
-          "pkaf:resolutionMethod": "pkaf:closeMatchLocallyAdopted",
-          "pkaf:mappingAssertion": "https://example.org/assertion/caa-42-mapping-001",
-          "pkaf:usageCeiling": "pkaf:reviewQueueOnly",
-          "pkaf:warnings": [
+          "@type": "rkaf:ConceptResolutionResult",
+          "rkaf:inputConcept": "https://example.org/concepts/caa-42/IncomeDocs",
+          "rkaf:resolvedConcept": "https://registry.example.gov/concepts/HouseholdIncomeEvidence",
+          "rkaf:resolutionStatus": "rkaf:unresolvedConceptSplit",
+          "rkaf:resolutionMethod": "rkaf:closeMatchLocallyAdopted",
+          "rkaf:mappingAssertion": "https://example.org/assertion/caa-42-mapping-001",
+          "rkaf:usageCeiling": "rkaf:reviewQueueOnly",
+          "rkaf:warnings": [
             {
-              "@type": "pkaf:ConceptResolutionWarning",
-              "pkaf:warningCode": "pkaf:subjectConceptSplit",
-              "pkaf:detail": "Mapped registered concept is in splitInto state. Disambiguate to one or both of: HouseholdIncomeEvidence-W2Filers, HouseholdIncomeEvidence-NonW2Filers."
+              "@type": "rkaf:ConceptResolutionWarning",
+              "rkaf:warningCode": "rkaf:subjectConceptSplit",
+              "rkaf:detail": "Mapped registered concept is in splitInto state. Disambiguate to one or both of: HouseholdIncomeEvidence-W2Filers, HouseholdIncomeEvidence-NonW2Filers."
             }
           ]
         }
@@ -964,111 +964,111 @@
     },
     {
       "@id": "https://example.org/revalidation/caa-42-income-docs-postsplit",
-      "@type": "pkaf:RevalidationEvent",
-      "pkaf:triggeredByPacket": "https://registry.example.gov/packets/lifecycle-001",
-      "pkaf:targetAssertion": "https://example.org/assertion/caa-42-mapping-001",
-      "pkaf:targetWorkProduct": "https://example.org/form-field/caa-42-intake/income-docs/v2",
-      "pkaf:transitionTo": "pkaf:staleForCurrentUse",
-      "pkaf:revisedUsageEligibility": "pkaf:reviewQueueOnly",
-      "pkaf:queuedFor": "https://example.org/user/caa-42-program-analyst-1",
+      "@type": "rkaf:RevalidationEvent",
+      "rkaf:triggeredByPacket": "https://registry.example.gov/packets/lifecycle-001",
+      "rkaf:targetAssertion": "https://example.org/assertion/caa-42-mapping-001",
+      "rkaf:targetWorkProduct": "https://example.org/form-field/caa-42-intake/income-docs/v2",
+      "rkaf:transitionTo": "rkaf:staleForCurrentUse",
+      "rkaf:revisedUsageEligibility": "rkaf:reviewQueueOnly",
+      "rkaf:queuedFor": "https://example.org/user/caa-42-program-analyst-1",
       "prov:generatedAtTime": "2026-12-01T00:10:00-05:00"
     },
     {
       "@id": "https://example.org/assertion/caa-42-mapping-002a",
-      "@type": "pkaf:RelationshipAssertion",
-      "pkaf:assertsSubject": "https://example.org/concepts/caa-42/IncomeDocs",
-      "pkaf:assertsPredicate": "skos:closeMatch",
-      "pkaf:assertsObject": "https://registry.example.gov/concepts/HouseholdIncomeEvidence-W2Filers",
-      "pkaf:assertionOrigin": "pkaf:humanRevalidation",
-      "pkaf:hasTrustZone": "pkaf:Z5LocallyAdopted",
-      "pkaf:hasSafetyLabel": "pkaf:R2ReviewedOperational",
-      "pkaf:usageEligibility": "pkaf:localOperationalUse",
-      "pkaf:hasApplicability": {
-        "@type": "pkaf:MappingApplicabilityContext",
-        "pkaf:evidencePurpose": [
+      "@type": "rkaf:RelationshipAssertion",
+      "rkaf:assertsSubject": "https://example.org/concepts/caa-42/IncomeDocs",
+      "rkaf:assertsPredicate": "skos:closeMatch",
+      "rkaf:assertsObject": "https://registry.example.gov/concepts/HouseholdIncomeEvidence-W2Filers",
+      "rkaf:assertionOrigin": "rkaf:humanRevalidation",
+      "rkaf:hasTrustZone": "rkaf:Z5LocallyAdopted",
+      "rkaf:hasSafetyLabel": "rkaf:R2ReviewedOperational",
+      "rkaf:usageEligibility": "rkaf:localOperationalUse",
+      "rkaf:hasApplicability": {
+        "@type": "rkaf:MappingApplicabilityContext",
+        "rkaf:evidencePurpose": [
           "eligibility-determination"
         ],
-        "pkaf:applicationDomain": "csbg-benefit-category-b-intake"
+        "rkaf:applicationDomain": "csbg-benefit-category-b-intake"
       },
-      "pkaf:supersedesAssertion": "https://example.org/assertion/caa-42-mapping-001",
-      "pkaf:revalidationOf": "https://example.org/revalidation/caa-42-income-docs-postsplit",
-      "pkaf:scope": "https://example.org/org/caa-42",
-      "pkaf:hasEvidence": [
+      "rkaf:supersedesAssertion": "https://example.org/assertion/caa-42-mapping-001",
+      "rkaf:revalidationOf": "https://example.org/revalidation/caa-42-income-docs-postsplit",
+      "rkaf:scope": "https://example.org/org/caa-42",
+      "rkaf:hasEvidence": [
         {
-          "@type": "pkaf:EvidenceBinding",
-          "pkaf:evidenceRole": "pkaf:mappingRationale",
-          "pkaf:rationaleText": "Successor mapping created during revalidation after HouseholdIncomeEvidence split. CAA-42 determined the W2Filers successor concept remains applicable within CSBG benefit category B intake for applicants who file W-2 forms.",
-          "pkaf:supportingEvent": "https://registry.example.gov/packets/lifecycle-001"
+          "@type": "rkaf:EvidenceBinding",
+          "rkaf:evidenceRole": "rkaf:mappingRationale",
+          "rkaf:rationaleText": "Successor mapping created during revalidation after HouseholdIncomeEvidence split. CAA-42 determined the W2Filers successor concept remains applicable within CSBG benefit category B intake for applicants who file W-2 forms.",
+          "rkaf:supportingEvent": "https://registry.example.gov/packets/lifecycle-001"
         }
       ]
     },
     {
       "@id": "https://example.org/assertion/caa-42-mapping-002b",
-      "@type": "pkaf:RelationshipAssertion",
-      "pkaf:assertsSubject": "https://example.org/concepts/caa-42/IncomeDocs",
-      "pkaf:assertsPredicate": "skos:closeMatch",
-      "pkaf:assertsObject": "https://registry.example.gov/concepts/HouseholdIncomeEvidence-NonW2Filers",
-      "pkaf:assertionOrigin": "pkaf:humanRevalidation",
-      "pkaf:hasTrustZone": "pkaf:Z5LocallyAdopted",
-      "pkaf:hasSafetyLabel": "pkaf:R2ReviewedOperational",
-      "pkaf:usageEligibility": "pkaf:localOperationalUse",
-      "pkaf:hasApplicability": {
-        "@type": "pkaf:MappingApplicabilityContext",
-        "pkaf:evidencePurpose": [
+      "@type": "rkaf:RelationshipAssertion",
+      "rkaf:assertsSubject": "https://example.org/concepts/caa-42/IncomeDocs",
+      "rkaf:assertsPredicate": "skos:closeMatch",
+      "rkaf:assertsObject": "https://registry.example.gov/concepts/HouseholdIncomeEvidence-NonW2Filers",
+      "rkaf:assertionOrigin": "rkaf:humanRevalidation",
+      "rkaf:hasTrustZone": "rkaf:Z5LocallyAdopted",
+      "rkaf:hasSafetyLabel": "rkaf:R2ReviewedOperational",
+      "rkaf:usageEligibility": "rkaf:localOperationalUse",
+      "rkaf:hasApplicability": {
+        "@type": "rkaf:MappingApplicabilityContext",
+        "rkaf:evidencePurpose": [
           "eligibility-determination"
         ],
-        "pkaf:applicationDomain": "csbg-benefit-category-b-intake"
+        "rkaf:applicationDomain": "csbg-benefit-category-b-intake"
       },
-      "pkaf:supersedesAssertion": "https://example.org/assertion/caa-42-mapping-001",
-      "pkaf:revalidationOf": "https://example.org/revalidation/caa-42-income-docs-postsplit",
-      "pkaf:scope": "https://example.org/org/caa-42",
-      "pkaf:hasEvidence": [
+      "rkaf:supersedesAssertion": "https://example.org/assertion/caa-42-mapping-001",
+      "rkaf:revalidationOf": "https://example.org/revalidation/caa-42-income-docs-postsplit",
+      "rkaf:scope": "https://example.org/org/caa-42",
+      "rkaf:hasEvidence": [
         {
-          "@type": "pkaf:EvidenceBinding",
-          "pkaf:evidenceRole": "pkaf:mappingRationale",
-          "pkaf:rationaleText": "Successor mapping created during revalidation after HouseholdIncomeEvidence split. CAA-42 determined the NonW2Filers successor concept remains applicable within CSBG benefit category B intake for applicants who do not file W-2 forms.",
-          "pkaf:supportingEvent": "https://registry.example.gov/packets/lifecycle-001"
+          "@type": "rkaf:EvidenceBinding",
+          "rkaf:evidenceRole": "rkaf:mappingRationale",
+          "rkaf:rationaleText": "Successor mapping created during revalidation after HouseholdIncomeEvidence split. CAA-42 determined the NonW2Filers successor concept remains applicable within CSBG benefit category B intake for applicants who do not file W-2 forms.",
+          "rkaf:supportingEvent": "https://registry.example.gov/packets/lifecycle-001"
         }
       ]
     },
     {
       "@id": "https://example.org/form-field/caa-42-intake/income-docs/v3",
       "@type": [
-        "pkaf:GeneratedWorkProduct",
+        "rkaf:GeneratedWorkProduct",
         "formspec:Field"
       ],
       "formspec:fieldName": "income_docs",
       "formspec:label": "Income docs (household)",
       "formspec:dataType": "file-upload",
-      "pkaf:collectsEvidenceType": "https://example.org/concepts/caa-42/IncomeDocs",
-      "pkaf:resolvedToConcepts": [
+      "rkaf:collectsEvidenceType": "https://example.org/concepts/caa-42/IncomeDocs",
+      "rkaf:resolvedToConcepts": [
         "https://registry.example.gov/concepts/HouseholdIncomeEvidence-W2Filers",
         "https://registry.example.gov/concepts/HouseholdIncomeEvidence-NonW2Filers"
       ],
-      "pkaf:justifiedByAssertion": [
+      "rkaf:justifiedByAssertion": [
         "https://example.org/assertion/caa-42-req-002"
       ],
-      "pkaf:supersedesWorkProduct": "https://example.org/form-field/caa-42-intake/income-docs/v2",
-      "pkaf:consumerLifecycleState": "pkaf:operational",
-      "pkaf:usageEligibility": "pkaf:localOperationalUse",
-      "pkaf:bridgeContractVersion": "pkaf-bridge/1.0",
-      "pkaf:hasApplicability": {
-        "@type": "pkaf:ApplicabilityContext",
-        "pkaf:benefitCategory": "B"
+      "rkaf:supersedesWorkProduct": "https://example.org/form-field/caa-42-intake/income-docs/v2",
+      "rkaf:consumerLifecycleState": "rkaf:operational",
+      "rkaf:usageEligibility": "rkaf:localOperationalUse",
+      "rkaf:bridgeContractVersion": "rkaf-bridge/1.0",
+      "rkaf:hasApplicability": {
+        "@type": "rkaf:ApplicabilityContext",
+        "rkaf:benefitCategory": "B"
       }
     },
     {
       "@id": "https://example.org/revalidation-closure/caa-42-income-docs-postsplit",
-      "@type": "pkaf:RevalidationClosureEvent",
-      "pkaf:triggeredByPacket": "https://registry.example.gov/packets/lifecycle-001",
-      "pkaf:closesRevalidationEvent": "https://example.org/revalidation/caa-42-income-docs-postsplit",
-      "pkaf:successorAssertions": [
+      "@type": "rkaf:RevalidationClosureEvent",
+      "rkaf:triggeredByPacket": "https://registry.example.gov/packets/lifecycle-001",
+      "rkaf:closesRevalidationEvent": "https://example.org/revalidation/caa-42-income-docs-postsplit",
+      "rkaf:successorAssertions": [
         "https://example.org/assertion/caa-42-mapping-002a",
         "https://example.org/assertion/caa-42-mapping-002b"
       ],
-      "pkaf:successorWorkProduct": "https://example.org/form-field/caa-42-intake/income-docs/v3",
-      "pkaf:closureDecision": "pkaf:revalidatedWithSuccessor",
-      "pkaf:closedBy": "https://example.org/user/caa-42-program-director-1",
+      "rkaf:successorWorkProduct": "https://example.org/form-field/caa-42-intake/income-docs/v3",
+      "rkaf:closureDecision": "rkaf:revalidatedWithSuccessor",
+      "rkaf:closedBy": "https://example.org/user/caa-42-program-director-1",
       "prov:generatedAtTime": "2026-12-15T11:00:00-05:00"
     }
   ]

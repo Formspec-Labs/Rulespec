@@ -1,528 +1,528 @@
 {
   "@context": {
-    "pkaf": "https://w3id.org/pkaf/ns/v1#",
+    "rkaf": "https://rulespec.org/ns/v1#",
     "prov": "http://www.w3.org/ns/prov#",
     "oa": "http://www.w3.org/ns/oa#",
     "skos": "http://www.w3.org/2004/02/skos/core#",
     "wos": "https://w3id.org/wos/ns/v1#",
     "formspec": "https://w3id.org/formspec/ns/v1#",
     "xsd": "http://www.w3.org/2001/XMLSchema#",
-    "pkaf:assertsSubject": {
+    "rkaf:assertsSubject": {
       "@type": "@id"
     },
-    "pkaf:assertsPredicate": {
+    "rkaf:assertsPredicate": {
       "@type": "@id"
     },
-    "pkaf:assertsObject": {
+    "rkaf:assertsObject": {
       "@type": "@id"
     },
-    "pkaf:hasTrustZone": {
+    "rkaf:hasTrustZone": {
       "@type": "@id"
     },
-    "pkaf:hasSafetyLabel": {
+    "rkaf:hasSafetyLabel": {
       "@type": "@id"
     },
-    "pkaf:usageEligibility": {
+    "rkaf:usageEligibility": {
       "@type": "@id"
     },
-    "pkaf:assertionOrigin": {
+    "rkaf:assertionOrigin": {
       "@type": "@id"
     },
-    "pkaf:authorityKind": {
+    "rkaf:authorityKind": {
       "@type": "@id"
     },
-    "pkaf:adoptionAuthorityKind": {
+    "rkaf:adoptionAuthorityKind": {
       "@type": "@id"
     },
-    "pkaf:adoptionStatus": {
+    "rkaf:adoptionStatus": {
       "@type": "@id"
     },
-    "pkaf:result": {
+    "rkaf:result": {
       "@type": "@id"
     },
-    "pkaf:resolutionStatus": {
+    "rkaf:resolutionStatus": {
       "@type": "@id"
     },
-    "pkaf:resolutionMethod": {
+    "rkaf:resolutionMethod": {
       "@type": "@id"
     },
-    "pkaf:cacheStatus": {
+    "rkaf:cacheStatus": {
       "@type": "@id"
     },
-    "pkaf:usageCeiling": {
+    "rkaf:usageCeiling": {
       "@type": "@id"
     },
-    "pkaf:lifecycleEvent": {
+    "rkaf:lifecycleEvent": {
       "@type": "@id"
     },
-    "pkaf:cascadeAlgorithm": {
+    "rkaf:cascadeAlgorithm": {
       "@type": "@id"
     },
-    "pkaf:evidenceRole": {
+    "rkaf:evidenceRole": {
       "@type": "@id"
     },
-    "pkaf:warningCode": {
+    "rkaf:warningCode": {
       "@type": "@id"
     },
-    "pkaf:errorCode": {
+    "rkaf:errorCode": {
       "@type": "@id"
     },
-    "pkaf:severity": {
+    "rkaf:severity": {
       "@type": "@id"
     },
-    "pkaf:decision": {
+    "rkaf:decision": {
       "@type": "@id"
     },
-    "pkaf:scope": {
+    "rkaf:scope": {
       "@type": "@id"
     },
-    "pkaf:visibility": {
+    "rkaf:visibility": {
       "@type": "@id"
     },
-    "pkaf:attestorType": {
+    "rkaf:attestorType": {
       "@type": "@id"
     },
-    "pkaf:role": {
+    "rkaf:role": {
       "@type": "@id"
     },
-    "pkaf:transitionTo": {
+    "rkaf:transitionTo": {
       "@type": "@id"
     },
-    "pkaf:closureDecision": {
+    "rkaf:closureDecision": {
       "@type": "@id"
     },
-    "pkaf:status": {
+    "rkaf:status": {
       "@type": "@id"
     },
-    "pkaf:predicate": {
+    "rkaf:predicate": {
       "@type": "@id"
     },
-    "pkaf:conceptStatus": {
+    "rkaf:conceptStatus": {
       "@type": "@id"
     },
-    "pkaf:conceptScope": {
+    "rkaf:conceptScope": {
       "@type": "@id"
     },
-    "pkaf:governanceModel": {
+    "rkaf:governanceModel": {
       "@type": "@id"
     },
-    "pkaf:revisedUsageEligibility": {
+    "rkaf:revisedUsageEligibility": {
       "@type": "@id"
     },
-    "pkaf:effectiveUsageEligibility": {
+    "rkaf:effectiveUsageEligibility": {
       "@type": "@id"
     },
-    "pkaf:proposedUsageEligibility": {
+    "rkaf:proposedUsageEligibility": {
       "@type": "@id"
     },
-    "pkaf:safeAutomaticMigration": {
+    "rkaf:safeAutomaticMigration": {
       "@type": "@id"
     },
-    "pkaf:resourceKind": {
+    "rkaf:resourceKind": {
       "@type": "@id"
     },
-    "pkaf:officialStatus": {
+    "rkaf:officialStatus": {
       "@type": "@id"
     },
-    "pkaf:legalValue": {
+    "rkaf:legalValue": {
       "@type": "@id"
     },
-    "pkaf:publicationStatus": {
+    "rkaf:publicationStatus": {
       "@type": "@id"
     },
-    "pkaf:remediationAction": {
+    "rkaf:remediationAction": {
       "@type": "@id"
     },
-    "pkaf:requiredPredicate": {
+    "rkaf:requiredPredicate": {
       "@type": "@id"
     },
-    "pkaf:minimumUsageEligibility": {
+    "rkaf:minimumUsageEligibility": {
       "@type": "@id"
     },
-    "pkaf:noEvidenceReason": {
+    "rkaf:noEvidenceReason": {
       "@type": "@id"
     },
-    "pkaf:noRemediationReason": {
+    "rkaf:noRemediationReason": {
       "@type": "@id"
     },
-    "pkaf:authorityChainStatus": {
+    "rkaf:authorityChainStatus": {
       "@type": "@id"
     },
-    "pkaf:chainTerminusKind": {
+    "rkaf:chainTerminusKind": {
       "@type": "@id"
     },
-    "pkaf:fragmentType": {
+    "rkaf:fragmentType": {
       "@type": "@id"
     },
-    "pkaf:reviewStatus": {
+    "rkaf:reviewStatus": {
       "@type": "@id"
     },
-    "pkaf:consumerLifecycleState": {
+    "rkaf:consumerLifecycleState": {
       "@type": "@id"
     },
-    "pkaf:newWorkProductStatus": {
+    "rkaf:newWorkProductStatus": {
       "@type": "@id"
     },
-    "pkaf:newUsageEligibility": {
+    "rkaf:newUsageEligibility": {
       "@type": "@id"
     },
-    "pkaf:newAssertionState": {
+    "rkaf:newAssertionState": {
       "@type": "@id"
     },
-    "pkaf:resourceFamily": {
+    "rkaf:resourceFamily": {
       "@type": "@id"
     },
-    "pkaf:assertedBy": {
+    "rkaf:assertedBy": {
       "@type": "@id"
     },
-    "pkaf:attestor": {
+    "rkaf:attestor": {
       "@type": "@id"
     },
-    "pkaf:targetAssertion": {
+    "rkaf:targetAssertion": {
       "@type": "@id"
     },
-    "pkaf:targetWorkProduct": {
+    "rkaf:targetWorkProduct": {
       "@type": "@id"
     },
-    "pkaf:targetPacket": {
+    "rkaf:targetPacket": {
       "@type": "@id"
     },
-    "pkaf:targetConcept": {
+    "rkaf:targetConcept": {
       "@type": "@id"
     },
-    "pkaf:targetMappingConflict": {
+    "rkaf:targetMappingConflict": {
       "@type": "@id"
     },
-    "pkaf:targetBridgeValidation": {
+    "rkaf:targetBridgeValidation": {
       "@type": "@id"
     },
-    "pkaf:targetRegistry": {
+    "rkaf:targetRegistry": {
       "@type": "@id"
     },
-    "pkaf:targetAdoption": {
+    "rkaf:targetAdoption": {
       "@type": "@id"
     },
-    "pkaf:authorizedBy": {
+    "rkaf:authorizedBy": {
       "@type": "@id"
     },
-    "pkaf:organization": {
+    "rkaf:organization": {
       "@type": "@id"
     },
-    "pkaf:packetId": {
+    "rkaf:packetId": {
       "@type": "@id"
     },
-    "pkaf:consumer": {
+    "rkaf:consumer": {
       "@type": "@id"
     },
-    "pkaf:emittedBy": {
+    "rkaf:emittedBy": {
       "@type": "@id"
     },
-    "pkaf:triggeredByPacket": {
+    "rkaf:triggeredByPacket": {
       "@type": "@id"
     },
-    "pkaf:closesRevalidationEvent": {
+    "rkaf:closesRevalidationEvent": {
       "@type": "@id"
     },
-    "pkaf:successorAssertion": {
+    "rkaf:successorAssertion": {
       "@type": "@id"
     },
-    "pkaf:successorAssertions": {
+    "rkaf:successorAssertions": {
       "@type": "@id",
       "@container": "@set"
     },
-    "pkaf:successorWorkProduct": {
+    "rkaf:successorWorkProduct": {
       "@type": "@id"
     },
-    "pkaf:closedBy": {
+    "rkaf:closedBy": {
       "@type": "@id"
     },
-    "pkaf:queuedFor": {
+    "rkaf:queuedFor": {
       "@type": "@id"
     },
-    "pkaf:supersedesAssertion": {
+    "rkaf:supersedesAssertion": {
       "@type": "@id"
     },
-    "pkaf:supersedesWorkProduct": {
+    "rkaf:supersedesWorkProduct": {
       "@type": "@id"
     },
-    "pkaf:revalidationOf": {
+    "rkaf:revalidationOf": {
       "@type": "@id"
     },
-    "pkaf:precedingArtifact": {
+    "rkaf:precedingArtifact": {
       "@type": "@id"
     },
-    "pkaf:precedingVersion": {
+    "rkaf:precedingVersion": {
       "@type": "@id"
     },
-    "pkaf:sourceFragment": {
+    "rkaf:sourceFragment": {
       "@type": "@id"
     },
-    "pkaf:supportingEvent": {
+    "rkaf:supportingEvent": {
       "@type": "@id"
     },
-    "pkaf:basedOnClassification": {
+    "rkaf:basedOnClassification": {
       "@type": "@id"
     },
-    "pkaf:basedOnEvent": {
+    "rkaf:basedOnEvent": {
       "@type": "@id"
     },
-    "pkaf:basedOnAttestation": {
+    "rkaf:basedOnAttestation": {
       "@type": "@id",
       "@container": "@set"
     },
-    "pkaf:basedOnAttestations": {
+    "rkaf:basedOnAttestations": {
       "@type": "@id",
       "@container": "@set"
     },
-    "pkaf:artifactId": {
+    "rkaf:artifactId": {
       "@type": "@id"
     },
-    "pkaf:realizedByArtifact": {
+    "rkaf:realizedByArtifact": {
       "@type": "@id"
     },
-    "pkaf:resourceLineage": {
+    "rkaf:resourceLineage": {
       "@type": "@id"
     },
-    "pkaf:sourceAuthorityHint": {
+    "rkaf:sourceAuthorityHint": {
       "@type": "@id"
     },
-    "pkaf:capturedBy": {
+    "rkaf:capturedBy": {
       "@type": "@id"
     },
-    "pkaf:subjectArtifact": {
+    "rkaf:subjectArtifact": {
       "@type": "@id"
     },
-    "pkaf:priorArtifact": {
+    "rkaf:priorArtifact": {
       "@type": "@id"
     },
-    "pkaf:classifiedBy": {
+    "rkaf:classifiedBy": {
       "@type": "@id"
     },
-    "pkaf:classification": {
+    "rkaf:classification": {
       "@type": "@id"
     },
-    "pkaf:managedByRegistry": {
+    "rkaf:managedByRegistry": {
       "@type": "@id"
     },
-    "pkaf:hostedByRegistry": {
+    "rkaf:hostedByRegistry": {
       "@type": "@id"
     },
-    "pkaf:mintingAuthority": {
+    "rkaf:mintingAuthority": {
       "@type": "@id"
     },
-    "pkaf:resolutionEndpoint": {
+    "rkaf:resolutionEndpoint": {
       "@type": "@id"
     },
-    "pkaf:registeredVia": {
+    "rkaf:registeredVia": {
       "@type": "@id"
     },
-    "pkaf:replacedBy": {
+    "rkaf:replacedBy": {
       "@type": "@id",
       "@container": "@set"
     },
-    "pkaf:absorbedConcepts": {
+    "rkaf:absorbedConcepts": {
       "@type": "@id",
       "@container": "@set"
     },
-    "pkaf:splitInto": {
+    "rkaf:splitInto": {
       "@type": "@id",
       "@container": "@set"
     },
-    "pkaf:successorConcepts": {
+    "rkaf:successorConcepts": {
       "@type": "@id",
       "@container": "@set"
     },
-    "pkaf:subjectConcept": {
+    "rkaf:subjectConcept": {
       "@type": "@id"
     },
-    "pkaf:relatedConcept": {
+    "rkaf:relatedConcept": {
       "@type": "@id"
     },
-    "pkaf:sharedArtifact": {
+    "rkaf:sharedArtifact": {
       "@type": "@id"
     },
-    "pkaf:relatedPublishedArtifact": {
+    "rkaf:relatedPublishedArtifact": {
       "@type": "@id"
     },
-    "pkaf:conflictingMappings": {
+    "rkaf:conflictingMappings": {
       "@type": "@id",
       "@container": "@set"
     },
-    "pkaf:concept": {
+    "rkaf:concept": {
       "@type": "@id"
     },
-    "pkaf:inputConcept": {
+    "rkaf:inputConcept": {
       "@type": "@id"
     },
-    "pkaf:resolvedConcept": {
+    "rkaf:resolvedConcept": {
       "@type": "@id"
     },
-    "pkaf:mappingAssertion": {
+    "rkaf:mappingAssertion": {
       "@type": "@id"
     },
-    "pkaf:resolutionTrustedVia": {
+    "rkaf:resolutionTrustedVia": {
       "@type": "@id"
     },
-    "pkaf:registry": {
+    "rkaf:registry": {
       "@type": "@id"
     },
-    "pkaf:resolvedToConcepts": {
+    "rkaf:resolvedToConcepts": {
       "@type": "@id",
       "@container": "@set"
     },
-    "pkaf:assertion": {
+    "rkaf:assertion": {
       "@type": "@id"
     },
-    "pkaf:subject": {
+    "rkaf:subject": {
       "@type": "@id"
     },
-    "pkaf:object": {
+    "rkaf:object": {
       "@type": "@id"
     },
-    "pkaf:dataConcept": {
+    "rkaf:dataConcept": {
       "@type": "@id"
     },
-    "pkaf:proposedFromLocalConcept": {
+    "rkaf:proposedFromLocalConcept": {
       "@type": "@id"
     },
-    "pkaf:registeredConcept": {
+    "rkaf:registeredConcept": {
       "@type": "@id"
     },
-    "pkaf:registrationAuthority": {
+    "rkaf:registrationAuthority": {
       "@type": "@id"
     },
-    "pkaf:proposedBy": {
+    "rkaf:proposedBy": {
       "@type": "@id"
     },
-    "pkaf:delegatingAuthority": {
+    "rkaf:delegatingAuthority": {
       "@type": "@id"
     },
-    "pkaf:delegatedTo": {
+    "rkaf:delegatedTo": {
       "@type": "@id"
     },
-    "pkaf:publisher": {
+    "rkaf:publisher": {
       "@type": "@id"
     },
-    "pkaf:retainsAssertion": {
+    "rkaf:retainsAssertion": {
       "@type": "@id"
     },
-    "pkaf:retainsWorkProduct": {
+    "rkaf:retainsWorkProduct": {
       "@type": "@id"
     },
-    "pkaf:evaluationAnchor": {
+    "rkaf:evaluationAnchor": {
       "@type": "@id"
     },
-    "pkaf:appliesTo": {
+    "rkaf:appliesTo": {
       "@type": "@id"
     },
-    "pkaf:affectedAssertions": {
+    "rkaf:affectedAssertions": {
       "@type": "@id",
       "@container": "@set"
     },
-    "pkaf:affectedAuthorityAssertions": {
+    "rkaf:affectedAuthorityAssertions": {
       "@type": "@id",
       "@container": "@set"
     },
-    "pkaf:affectedImplementationAssertions": {
+    "rkaf:affectedImplementationAssertions": {
       "@type": "@id",
       "@container": "@set"
     },
-    "pkaf:affectedWorkProducts": {
+    "rkaf:affectedWorkProducts": {
       "@type": "@id",
       "@container": "@set"
     },
-    "pkaf:affectedAdoptions": {
+    "rkaf:affectedAdoptions": {
       "@type": "@id",
       "@container": "@set"
     },
-    "pkaf:affectedFragments": {
+    "rkaf:affectedFragments": {
       "@type": "@id",
       "@container": "@set"
     },
-    "pkaf:affectedWorkProduct": {
+    "rkaf:affectedWorkProduct": {
       "@type": "@id"
     },
-    "pkaf:affectedAdoption": {
+    "rkaf:affectedAdoption": {
       "@type": "@id"
     },
-    "pkaf:affectedConcepts": {
+    "rkaf:affectedConcepts": {
       "@type": "@id",
       "@container": "@set"
     },
-    "pkaf:staleDependencies": {
+    "rkaf:staleDependencies": {
       "@type": "@id",
       "@container": "@set"
     },
-    "pkaf:unresolvedConcepts": {
+    "rkaf:unresolvedConcepts": {
       "@type": "@id",
       "@container": "@set"
     },
-    "pkaf:registryUnavailable": {
+    "rkaf:registryUnavailable": {
       "@type": "@id",
       "@container": "@set"
     },
-    "pkaf:staleConceptCache": {
+    "rkaf:staleConceptCache": {
       "@type": "@id",
       "@container": "@set"
     },
-    "pkaf:supportedEvaluationAnchors": {
+    "rkaf:supportedEvaluationAnchors": {
       "@type": "@id",
       "@container": "@set"
     },
-    "pkaf:supportedAutomaticMigrations": {
+    "rkaf:supportedAutomaticMigrations": {
       "@type": "@id",
       "@container": "@set"
     },
-    "pkaf:supportedAuthorityKinds": {
+    "rkaf:supportedAuthorityKinds": {
       "@type": "@id",
       "@container": "@set"
     },
-    "pkaf:justifiedByAssertion": {
+    "rkaf:justifiedByAssertion": {
       "@type": "@id",
       "@container": "@set"
     },
-    "pkaf:justificationBackedBy": {
+    "rkaf:justificationBackedBy": {
       "@type": "@id"
     },
-    "pkaf:derivedFromFragment": {
+    "rkaf:derivedFromFragment": {
       "@type": "@id",
       "@container": "@set"
     },
-    "pkaf:associatedWorkflowStep": {
+    "rkaf:associatedWorkflowStep": {
       "@type": "@id"
     },
-    "pkaf:generationRun": {
+    "rkaf:generationRun": {
       "@type": "@id"
     },
-    "pkaf:fromConcept": {
+    "rkaf:fromConcept": {
       "@type": "@id"
     },
-    "pkaf:toConcept": {
+    "rkaf:toConcept": {
       "@type": "@id"
     },
-    "pkaf:requiredAdoptionScope": {
+    "rkaf:requiredAdoptionScope": {
       "@type": "@id"
     },
-    "pkaf:collectsEvidenceType": {
+    "rkaf:collectsEvidenceType": {
       "@type": "@id"
     },
-    "pkaf:requiresEvidenceType": {
+    "rkaf:requiresEvidenceType": {
       "@type": "@id"
     },
-    "pkaf:acceptedDocumentTypes": {
+    "rkaf:acceptedDocumentTypes": {
       "@type": "@id",
       "@container": "@set"
     },
-    "pkaf:excludesCategory": {
+    "rkaf:excludesCategory": {
       "@container": "@set"
     },
-    "pkaf:evidencePurpose": {
+    "rkaf:evidencePurpose": {
       "@container": "@set"
     },
-    "pkaf:excludesPurposes": {
+    "rkaf:excludesPurposes": {
       "@container": "@set"
     },
-    "pkaf:jurisdiction": {
+    "rkaf:jurisdiction": {
       "@container": "@set"
     },
     "prov:wasGeneratedBy": {
@@ -537,246 +537,246 @@
     "prov:generatedAtTime": {
       "@type": "xsd:dateTime"
     },
-    "pkaf:capturedAt": {
+    "rkaf:capturedAt": {
       "@type": "xsd:dateTime"
     },
-    "pkaf:registeredAt": {
+    "rkaf:registeredAt": {
       "@type": "xsd:dateTime"
     },
-    "pkaf:effectiveDate": {
+    "rkaf:effectiveDate": {
       "@type": "xsd:dateTime"
     },
-    "pkaf:effectivePeriodStart": {
+    "rkaf:effectivePeriodStart": {
       "@type": "xsd:dateTime"
     },
-    "pkaf:effectivePeriodEnd": {
+    "rkaf:effectivePeriodEnd": {
       "@type": "xsd:dateTime"
     },
-    "pkaf:exceptionEffectivePeriodEnd": {
+    "rkaf:exceptionEffectivePeriodEnd": {
       "@type": "xsd:dateTime"
     },
-    "pkaf:exceptionEffectivePeriodStart": {
+    "rkaf:exceptionEffectivePeriodStart": {
       "@type": "xsd:dateTime"
     },
-    "pkaf:cachedAt": {
+    "rkaf:cachedAt": {
       "@type": "xsd:dateTime"
     },
-    "pkaf:deprecatedAt": {
+    "rkaf:deprecatedAt": {
       "@type": "xsd:dateTime"
     },
-    "pkaf:rescissionEffectiveDate": {
+    "rkaf:rescissionEffectiveDate": {
       "@type": "xsd:dateTime"
     },
-    "pkaf:detectedAt": {
+    "rkaf:detectedAt": {
       "@type": "xsd:dateTime"
     },
-    "pkaf:definedInScope": {
+    "rkaf:definedInScope": {
       "@type": "@id"
     }
   },
   "@graph": [
     {
       "@id": "https://example.gov/artifact/csbg-act-section-1234-codified-2024",
-      "@type": "pkaf:Artifact",
-      "pkaf:sourceType": "official-codified-statute",
-      "pkaf:contentHash": "sha256:f2c8a91b...3d7e",
-      "pkaf:mimeType": "application/xml",
-      "pkaf:capturedAt": "2024-01-15T00:00:00-05:00",
-      "pkaf:capturedBy": "https://example.gov/connector/uscode-mirror",
-      "pkaf:sourceUrl": "https://uscode.example.gov/title-42/chapter-106/section-9908",
-      "pkaf:accessScope": "public",
-      "pkaf:sourceAuthorityHint": "https://example.gov/source-authority/us-code-official"
+      "@type": "rkaf:Artifact",
+      "rkaf:sourceType": "official-codified-statute",
+      "rkaf:contentHash": "sha256:f2c8a91b...3d7e",
+      "rkaf:mimeType": "application/xml",
+      "rkaf:capturedAt": "2024-01-15T00:00:00-05:00",
+      "rkaf:capturedBy": "https://example.gov/connector/uscode-mirror",
+      "rkaf:sourceUrl": "https://uscode.example.gov/title-42/chapter-106/section-9908",
+      "rkaf:accessScope": "public",
+      "rkaf:sourceAuthorityHint": "https://example.gov/source-authority/us-code-official"
     },
     {
       "@id": "https://example.gov/fragment/csbg-act-section-1234/subsec-b-2",
-      "@type": "pkaf:SourceFragment",
-      "pkaf:artifactId": "https://example.gov/artifact/csbg-act-section-1234-codified-2024",
-      "pkaf:fragmentType": "section",
-      "pkaf:locator": "section[@num='1234']/subsection[@designation='b']/paragraph[@num='2']",
-      "pkaf:selector": {
+      "@type": "rkaf:SourceFragment",
+      "rkaf:artifactId": "https://example.gov/artifact/csbg-act-section-1234-codified-2024",
+      "rkaf:fragmentType": "section",
+      "rkaf:locator": "section[@num='1234']/subsection[@designation='b']/paragraph[@num='2']",
+      "rkaf:selector": {
         "@type": "oa:TextQuoteSelector",
         "oa:exact": "Each individual enrolling for benefits under this section shall provide documentation establishing identity in such form as the Secretary by regulation prescribes."
       },
-      "pkaf:accessScope": "public"
+      "rkaf:accessScope": "public"
     },
     {
       "@id": "https://example.gov/resource/csbg-act-section-1234/v1",
-      "@type": "pkaf:PolicyResourceVersion",
-      "pkaf:resourceLineage": "https://example.gov/resource/csbg-act-section-1234",
-      "pkaf:versionLabel": "1998-as-codified-through-2024",
-      "pkaf:effectivePeriodStart": "1998-01-01T00:00:00-05:00",
-      "pkaf:realizedByArtifact": "https://example.gov/artifact/csbg-act-section-1234-codified-2024",
-      "pkaf:resourceKind": "federalStatute",
-      "pkaf:citation": "42 U.S.C. \u00a7 9908",
-      "pkaf:accessScope": "public"
+      "@type": "rkaf:PolicyResourceVersion",
+      "rkaf:resourceLineage": "https://example.gov/resource/csbg-act-section-1234",
+      "rkaf:versionLabel": "1998-as-codified-through-2024",
+      "rkaf:effectivePeriodStart": "1998-01-01T00:00:00-05:00",
+      "rkaf:realizedByArtifact": "https://example.gov/artifact/csbg-act-section-1234-codified-2024",
+      "rkaf:resourceKind": "federalStatute",
+      "rkaf:citation": "42 U.S.C. \u00a7 9908",
+      "rkaf:accessScope": "public"
     },
     {
       "@id": "https://example.gov/source-authority/us-code-official",
-      "@type": "pkaf:SourceAuthority",
-      "pkaf:sourceFamily": "us-code",
-      "pkaf:officialStatus": "pkaf:officialLegalEdition",
-      "pkaf:legalValue": "pkaf:positiveLaw",
-      "pkaf:publicationStatus": "pkaf:enacted",
-      "pkaf:jurisdiction": "us-federal",
-      "pkaf:publisher": "https://example.gov/agency/office-of-law-revision-counsel"
+      "@type": "rkaf:SourceAuthority",
+      "rkaf:sourceFamily": "us-code",
+      "rkaf:officialStatus": "rkaf:officialLegalEdition",
+      "rkaf:legalValue": "rkaf:positiveLaw",
+      "rkaf:publicationStatus": "rkaf:enacted",
+      "rkaf:jurisdiction": "us-federal",
+      "rkaf:publisher": "https://example.gov/agency/office-of-law-revision-counsel"
     },
     {
       "@id": "https://example.gov/resource/hhs-delegation-to-ocs-csbg/v1",
       "@type": [
-        "pkaf:PolicyResourceVersion",
-        "pkaf:DelegationInstrument"
+        "rkaf:PolicyResourceVersion",
+        "rkaf:DelegationInstrument"
       ],
-      "pkaf:resourceLineage": "https://example.gov/resource/hhs-delegation-to-ocs-csbg",
-      "pkaf:versionLabel": "delegation-1999-rev-2018",
-      "pkaf:effectivePeriodStart": "1999-04-01T00:00:00-05:00",
-      "pkaf:resourceKind": "federalDelegationInstrument",
-      "pkaf:citation": "HHS Delegation 5-25-99 (as revised 2018)",
-      "pkaf:delegatingAuthority": "https://example.gov/agency/hhs-secretary",
-      "pkaf:delegatedTo": "https://example.gov/agency/office-of-community-services",
-      "pkaf:delegationScope": "csbg-implementing-regulations",
-      "pkaf:accessScope": "public"
+      "rkaf:resourceLineage": "https://example.gov/resource/hhs-delegation-to-ocs-csbg",
+      "rkaf:versionLabel": "delegation-1999-rev-2018",
+      "rkaf:effectivePeriodStart": "1999-04-01T00:00:00-05:00",
+      "rkaf:resourceKind": "federalDelegationInstrument",
+      "rkaf:citation": "HHS Delegation 5-25-99 (as revised 2018)",
+      "rkaf:delegatingAuthority": "https://example.gov/agency/hhs-secretary",
+      "rkaf:delegatedTo": "https://example.gov/agency/office-of-community-services",
+      "rkaf:delegationScope": "csbg-implementing-regulations",
+      "rkaf:accessScope": "public"
     },
     {
       "@id": "https://example.gov/assertion/delegation-derives-from-statute",
-      "@type": "pkaf:RelationshipAssertion",
-      "pkaf:assertsSubject": "https://example.gov/resource/hhs-delegation-to-ocs-csbg/v1",
-      "pkaf:assertsPredicate": "pkaf:derivesAuthorityFrom",
-      "pkaf:assertsObject": "https://example.gov/resource/csbg-act-section-1234/v1",
-      "pkaf:assertionOrigin": "pkaf:importedFromSource",
-      "pkaf:hasTrustZone": "pkaf:Z4AttestedAssertion",
-      "pkaf:hasSafetyLabel": "pkaf:A3AuthorityCritical",
-      "pkaf:usageEligibility": "pkaf:officialUse",
-      "pkaf:authorityKind": "pkaf:delegated",
-      "pkaf:hasEvidence": [
+      "@type": "rkaf:RelationshipAssertion",
+      "rkaf:assertsSubject": "https://example.gov/resource/hhs-delegation-to-ocs-csbg/v1",
+      "rkaf:assertsPredicate": "rkaf:derivesAuthorityFrom",
+      "rkaf:assertsObject": "https://example.gov/resource/csbg-act-section-1234/v1",
+      "rkaf:assertionOrigin": "rkaf:importedFromSource",
+      "rkaf:hasTrustZone": "rkaf:Z4AttestedAssertion",
+      "rkaf:hasSafetyLabel": "rkaf:A3AuthorityCritical",
+      "rkaf:usageEligibility": "rkaf:officialUse",
+      "rkaf:authorityKind": "rkaf:delegated",
+      "rkaf:hasEvidence": [
         {
-          "@type": "pkaf:EvidenceBinding",
-          "pkaf:evidenceRole": "pkaf:authorityCitation",
-          "pkaf:supportingQuote": "Pursuant to 42 U.S.C. \u00a7 9908(b)(2), the Secretary delegates to the Office of Community Services..."
+          "@type": "rkaf:EvidenceBinding",
+          "rkaf:evidenceRole": "rkaf:authorityCitation",
+          "rkaf:supportingQuote": "Pursuant to 42 U.S.C. \u00a7 9908(b)(2), the Secretary delegates to the Office of Community Services..."
         }
       ],
-      "pkaf:hasApplicability": {
-        "@type": "pkaf:ApplicabilityContext",
-        "pkaf:scopeKind": "delegation",
-        "pkaf:scopeDescription": "HHS Secretary delegation to ACF/OCS for CSBG program administration"
+      "rkaf:hasApplicability": {
+        "@type": "rkaf:ApplicabilityContext",
+        "rkaf:scopeKind": "delegation",
+        "rkaf:scopeDescription": "HHS Secretary delegation to ACF/OCS for CSBG program administration"
       }
     },
     {
       "@id": "https://example.gov/resource/45-cfr-96-30/v3",
-      "@type": "pkaf:PolicyResourceVersion",
-      "pkaf:resourceLineage": "https://example.gov/resource/45-cfr-96-30",
-      "pkaf:versionLabel": "2021-revision",
-      "pkaf:effectivePeriodStart": "2021-07-01T00:00:00-05:00",
-      "pkaf:resourceKind": "federalRegulation",
-      "pkaf:citation": "45 CFR \u00a7 96.30",
-      "pkaf:accessScope": "public"
+      "@type": "rkaf:PolicyResourceVersion",
+      "rkaf:resourceLineage": "https://example.gov/resource/45-cfr-96-30",
+      "rkaf:versionLabel": "2021-revision",
+      "rkaf:effectivePeriodStart": "2021-07-01T00:00:00-05:00",
+      "rkaf:resourceKind": "federalRegulation",
+      "rkaf:citation": "45 CFR \u00a7 96.30",
+      "rkaf:accessScope": "public"
     },
     {
       "@id": "https://example.gov/assertion/regulation-derives-from-delegation",
-      "@type": "pkaf:RelationshipAssertion",
-      "pkaf:assertsSubject": "https://example.gov/resource/45-cfr-96-30/v3",
-      "pkaf:assertsPredicate": "pkaf:derivesAuthorityFrom",
-      "pkaf:assertsObject": "https://example.gov/resource/hhs-delegation-to-ocs-csbg/v1",
-      "pkaf:assertionOrigin": "pkaf:importedFromSource",
-      "pkaf:hasTrustZone": "pkaf:Z4AttestedAssertion",
-      "pkaf:hasSafetyLabel": "pkaf:A3AuthorityCritical",
-      "pkaf:usageEligibility": "pkaf:officialUse",
-      "pkaf:authorityKind": "pkaf:regulatory",
-      "pkaf:hasEvidence": [
+      "@type": "rkaf:RelationshipAssertion",
+      "rkaf:assertsSubject": "https://example.gov/resource/45-cfr-96-30/v3",
+      "rkaf:assertsPredicate": "rkaf:derivesAuthorityFrom",
+      "rkaf:assertsObject": "https://example.gov/resource/hhs-delegation-to-ocs-csbg/v1",
+      "rkaf:assertionOrigin": "rkaf:importedFromSource",
+      "rkaf:hasTrustZone": "rkaf:Z4AttestedAssertion",
+      "rkaf:hasSafetyLabel": "rkaf:A3AuthorityCritical",
+      "rkaf:usageEligibility": "rkaf:officialUse",
+      "rkaf:authorityKind": "rkaf:regulatory",
+      "rkaf:hasEvidence": [
         {
-          "@type": "pkaf:EvidenceBinding",
-          "pkaf:evidenceRole": "pkaf:authorityCitation",
-          "pkaf:supportingQuote": "Authority: HHS Delegation 5-25-99 (as revised 2018); 42 U.S.C. \u00a7 9908"
+          "@type": "rkaf:EvidenceBinding",
+          "rkaf:evidenceRole": "rkaf:authorityCitation",
+          "rkaf:supportingQuote": "Authority: HHS Delegation 5-25-99 (as revised 2018); 42 U.S.C. \u00a7 9908"
         }
       ],
-      "pkaf:hasApplicability": {
-        "@type": "pkaf:ApplicabilityContext",
-        "pkaf:scopeKind": "regulatoryProvision",
-        "pkaf:scopeDescription": "45 CFR 96.30 nationwide regulatory authority over CSBG identity verification"
+      "rkaf:hasApplicability": {
+        "@type": "rkaf:ApplicabilityContext",
+        "rkaf:scopeKind": "regulatoryProvision",
+        "rkaf:scopeDescription": "45 CFR 96.30 nationwide regulatory authority over CSBG identity verification"
       }
     },
     {
       "@id": "https://example.us-state.gov/resource/state-csbg-implementation/v2",
-      "@type": "pkaf:PolicyResourceVersion",
-      "pkaf:resourceLineage": "https://example.us-state.gov/resource/state-csbg-implementation",
-      "pkaf:versionLabel": "2022-revision",
-      "pkaf:effectivePeriodStart": "2022-10-01T00:00:00-05:00",
-      "pkaf:resourceKind": "stateRegulation",
-      "pkaf:citation": "State Admin Code Title 5 Chapter 92 \u00a7 12",
-      "pkaf:accessScope": "public"
+      "@type": "rkaf:PolicyResourceVersion",
+      "rkaf:resourceLineage": "https://example.us-state.gov/resource/state-csbg-implementation",
+      "rkaf:versionLabel": "2022-revision",
+      "rkaf:effectivePeriodStart": "2022-10-01T00:00:00-05:00",
+      "rkaf:resourceKind": "stateRegulation",
+      "rkaf:citation": "State Admin Code Title 5 Chapter 92 \u00a7 12",
+      "rkaf:accessScope": "public"
     },
     {
       "@id": "https://example.us-state.gov/assertion/state-derives-from-federal",
-      "@type": "pkaf:RelationshipAssertion",
-      "pkaf:assertsSubject": "https://example.us-state.gov/resource/state-csbg-implementation/v2",
-      "pkaf:assertsPredicate": "pkaf:derivesAuthorityFrom",
-      "pkaf:assertsObject": "https://example.gov/resource/45-cfr-96-30/v3",
-      "pkaf:hasTrustZone": "pkaf:Z4AttestedAssertion",
-      "pkaf:hasSafetyLabel": "pkaf:A3AuthorityCritical",
-      "pkaf:usageEligibility": "pkaf:officialUse",
-      "pkaf:authorityKind": "pkaf:regulatory",
-      "pkaf:assertionOrigin": "pkaf:importedFromSource",
-      "pkaf:hasApplicability": {
-        "@type": "pkaf:ApplicabilityContext",
-        "pkaf:jurisdiction": [
+      "@type": "rkaf:RelationshipAssertion",
+      "rkaf:assertsSubject": "https://example.us-state.gov/resource/state-csbg-implementation/v2",
+      "rkaf:assertsPredicate": "rkaf:derivesAuthorityFrom",
+      "rkaf:assertsObject": "https://example.gov/resource/45-cfr-96-30/v3",
+      "rkaf:hasTrustZone": "rkaf:Z4AttestedAssertion",
+      "rkaf:hasSafetyLabel": "rkaf:A3AuthorityCritical",
+      "rkaf:usageEligibility": "rkaf:officialUse",
+      "rkaf:authorityKind": "rkaf:regulatory",
+      "rkaf:assertionOrigin": "rkaf:importedFromSource",
+      "rkaf:hasApplicability": {
+        "@type": "rkaf:ApplicabilityContext",
+        "rkaf:jurisdiction": [
           "example-us-state"
         ],
-        "pkaf:programArea": "csbg",
-        "pkaf:effectivePeriodStart": "2022-10-01T00:00:00-05:00"
+        "rkaf:programArea": "csbg",
+        "rkaf:effectivePeriodStart": "2022-10-01T00:00:00-05:00"
       },
-      "pkaf:hasEvidence": [
+      "rkaf:hasEvidence": [
         {
-          "@type": "pkaf:EvidenceBinding",
-          "pkaf:evidenceRole": "pkaf:authorityCitation",
-          "pkaf:supportingQuote": "Authority: 45 CFR Part 96 Subpart I. State regulation adopts and implements federal CSBG intake requirements including identity verification under 45 CFR \u00a7 96.30."
+          "@type": "rkaf:EvidenceBinding",
+          "rkaf:evidenceRole": "rkaf:authorityCitation",
+          "rkaf:supportingQuote": "Authority: 45 CFR Part 96 Subpart I. State regulation adopts and implements federal CSBG intake requirements including identity verification under 45 CFR \u00a7 96.30."
         }
       ]
     },
     {
       "@id": "https://example.org/assertion/caa-42-identity-req-001",
-      "@type": "pkaf:RelationshipAssertion",
-      "pkaf:assertsSubject": "https://example.org/concepts/caa-42/IdentityVerification",
-      "pkaf:assertsPredicate": "pkaf:hasAuthority",
-      "pkaf:assertsObject": "https://example.gov/resource/45-cfr-96-30/v3",
-      "pkaf:assertionOrigin": "pkaf:humanAsserted",
-      "pkaf:hasTrustZone": "pkaf:Z4AttestedAssertion",
-      "pkaf:hasSafetyLabel": "pkaf:A3AuthorityCritical",
-      "pkaf:usageEligibility": "pkaf:localOperationalUse",
-      "pkaf:authorityKind": "pkaf:regulatory",
-      "pkaf:hasApplicability": {
-        "@type": "pkaf:ApplicabilityContext",
-        "pkaf:programArea": "csbg",
-        "pkaf:jurisdiction": [
+      "@type": "rkaf:RelationshipAssertion",
+      "rkaf:assertsSubject": "https://example.org/concepts/caa-42/IdentityVerification",
+      "rkaf:assertsPredicate": "rkaf:hasAuthority",
+      "rkaf:assertsObject": "https://example.gov/resource/45-cfr-96-30/v3",
+      "rkaf:assertionOrigin": "rkaf:humanAsserted",
+      "rkaf:hasTrustZone": "rkaf:Z4AttestedAssertion",
+      "rkaf:hasSafetyLabel": "rkaf:A3AuthorityCritical",
+      "rkaf:usageEligibility": "rkaf:localOperationalUse",
+      "rkaf:authorityKind": "rkaf:regulatory",
+      "rkaf:hasApplicability": {
+        "@type": "rkaf:ApplicabilityContext",
+        "rkaf:programArea": "csbg",
+        "rkaf:jurisdiction": [
           "us-federal",
           "example-us-state"
         ],
-        "pkaf:effectivePeriodStart": "2022-10-01T00:00:00-05:00"
+        "rkaf:effectivePeriodStart": "2022-10-01T00:00:00-05:00"
       },
-      "pkaf:hasEvidence": [
+      "rkaf:hasEvidence": [
         {
-          "@type": "pkaf:EvidenceBinding",
-          "pkaf:evidenceRole": "pkaf:authorityCitation",
-          "pkaf:sourceFragment": "https://example.gov/fragment/45-cfr-96-30/identity-evidence-paragraph",
-          "pkaf:supportingQuote": "Eligible entities shall verify each applicant's identity through documentation including but not limited to: state-issued identification, passport, or equivalent."
+          "@type": "rkaf:EvidenceBinding",
+          "rkaf:evidenceRole": "rkaf:authorityCitation",
+          "rkaf:sourceFragment": "https://example.gov/fragment/45-cfr-96-30/identity-evidence-paragraph",
+          "rkaf:supportingQuote": "Eligible entities shall verify each applicant's identity through documentation including but not limited to: state-issued identification, passport, or equivalent."
         }
       ]
     },
     {
       "@id": "https://example.org/adoption/caa-42-identity-req-001",
-      "@type": "pkaf:LocalAdoption",
-      "pkaf:organization": "https://example.org/org/caa-42",
-      "pkaf:targetAssertion": "https://example.org/assertion/caa-42-identity-req-001",
-      "pkaf:adoptionStatus": "pkaf:adoptedForLocalOperations",
-      "pkaf:usageEligibility": "pkaf:localOperationalUse",
-      "pkaf:adoptionAuthorityKind": "pkaf:localOperational",
-      "pkaf:adoptionScope": "caa-42-csbg-intake-workflow-v4",
-      "pkaf:authorizedBy": "https://example.org/user/caa-42-program-director-1",
-      "pkaf:adoptionRationale": "Organizational authorization to operationalize the federally-required identity verification in CAA-42's CSBG intake workflow. This adoption does not assert legal authority; legal authority is provided by the hasAuthority chain to 45 CFR \u00a7 96.30.",
+      "@type": "rkaf:LocalAdoption",
+      "rkaf:organization": "https://example.org/org/caa-42",
+      "rkaf:targetAssertion": "https://example.org/assertion/caa-42-identity-req-001",
+      "rkaf:adoptionStatus": "rkaf:adoptedForLocalOperations",
+      "rkaf:usageEligibility": "rkaf:localOperationalUse",
+      "rkaf:adoptionAuthorityKind": "rkaf:localOperational",
+      "rkaf:adoptionScope": "caa-42-csbg-intake-workflow-v4",
+      "rkaf:authorizedBy": "https://example.org/user/caa-42-program-director-1",
+      "rkaf:adoptionRationale": "Organizational authorization to operationalize the federally-required identity verification in CAA-42's CSBG intake workflow. This adoption does not assert legal authority; legal authority is provided by the hasAuthority chain to 45 CFR \u00a7 96.30.",
       "prov:generatedAtTime": "2022-11-15T10:00:00-05:00"
     },
     {
       "@id": "https://example.org/wos/caa-42-intake/verify-identity/v1",
       "@type": [
-        "pkaf:GeneratedWorkProduct",
+        "rkaf:GeneratedWorkProduct",
         "wos:WorkflowStep"
       ],
       "wos:stepName": "verify_identity",
@@ -788,240 +788,240 @@
       "wos:succeedingSteps": [
         "wos:caa-42-intake/eligibility-determination"
       ],
-      "pkaf:requiresEvidenceType": "https://example.org/concepts/caa-42/IdentityVerification",
-      "pkaf:justifiedByAssertion": [
+      "rkaf:requiresEvidenceType": "https://example.org/concepts/caa-42/IdentityVerification",
+      "rkaf:justifiedByAssertion": [
         "https://example.org/assertion/caa-42-identity-req-001"
       ],
-      "pkaf:justificationBackedBy": "https://example.org/adoption/caa-42-identity-req-001",
-      "pkaf:consumerLifecycleState": "pkaf:operational",
-      "pkaf:usageEligibility": "pkaf:localOperationalUse",
-      "pkaf:bridgeContractVersion": "pkaf-bridge/1.0",
-      "pkaf:hasApplicability": {
-        "@type": "pkaf:ApplicabilityContext",
-        "pkaf:programArea": "csbg"
+      "rkaf:justificationBackedBy": "https://example.org/adoption/caa-42-identity-req-001",
+      "rkaf:consumerLifecycleState": "rkaf:operational",
+      "rkaf:usageEligibility": "rkaf:localOperationalUse",
+      "rkaf:bridgeContractVersion": "rkaf-bridge/1.0",
+      "rkaf:hasApplicability": {
+        "@type": "rkaf:ApplicabilityContext",
+        "rkaf:programArea": "csbg"
       }
     },
     {
       "@id": "https://example.org/form-field/caa-42-intake/identity-document/v1",
       "@type": [
-        "pkaf:GeneratedWorkProduct",
+        "rkaf:GeneratedWorkProduct",
         "formspec:Field"
       ],
       "formspec:fieldName": "identity_document",
       "formspec:label": "Identity documentation",
       "formspec:dataType": "file-upload",
       "formspec:required": true,
-      "pkaf:collectsEvidenceType": "https://example.org/concepts/caa-42/IdentityVerification",
-      "pkaf:justifiedByAssertion": [
+      "rkaf:collectsEvidenceType": "https://example.org/concepts/caa-42/IdentityVerification",
+      "rkaf:justifiedByAssertion": [
         "https://example.org/assertion/caa-42-identity-req-001"
       ],
-      "pkaf:justificationBackedBy": "https://example.org/adoption/caa-42-identity-req-001",
-      "pkaf:associatedWorkflowStep": "https://example.org/wos/caa-42-intake/verify-identity/v1",
-      "pkaf:consumerLifecycleState": "pkaf:operational",
-      "pkaf:usageEligibility": "pkaf:localOperationalUse",
-      "pkaf:bridgeContractVersion": "pkaf-bridge/1.0"
+      "rkaf:justificationBackedBy": "https://example.org/adoption/caa-42-identity-req-001",
+      "rkaf:associatedWorkflowStep": "https://example.org/wos/caa-42-intake/verify-identity/v1",
+      "rkaf:consumerLifecycleState": "rkaf:operational",
+      "rkaf:usageEligibility": "rkaf:localOperationalUse",
+      "rkaf:bridgeContractVersion": "rkaf-bridge/1.0"
     },
     {
       "@id": "https://example.org/bridge-validation/caa-42-wos-2022-11-15-001",
-      "@type": "pkaf:BridgeValidationResult",
-      "pkaf:packetId": "https://example.org/wos/caa-42-intake/verify-identity/v1",
-      "pkaf:consumer": "https://example.org/consumer/caa-42-wos",
-      "pkaf:bridgeContractVersion": "pkaf-bridge/1.0",
-      "pkaf:result": "pkaf:accepted",
-      "pkaf:effectiveUsageEligibility": "pkaf:localOperationalUse",
-      "pkaf:effectiveUsageEligibilityRationale": "Authority chain validated: caa-42-identity-req-001 hasAuthority(regulatory) \u2192 45 CFR \u00a7 96.30 derivesAuthorityFrom(regulatory) \u2192 HHS delegation derivesAuthorityFrom(delegated) \u2192 statute \u00a7 1234 (statutory). LocalAdoption caa-42-identity-req-001 grants localOperationalUse within scope caa-42-csbg-intake-workflow-v4.",
-      "pkaf:authorityChainTraversal": [
+      "@type": "rkaf:BridgeValidationResult",
+      "rkaf:packetId": "https://example.org/wos/caa-42-intake/verify-identity/v1",
+      "rkaf:consumer": "https://example.org/consumer/caa-42-wos",
+      "rkaf:bridgeContractVersion": "rkaf-bridge/1.0",
+      "rkaf:result": "rkaf:accepted",
+      "rkaf:effectiveUsageEligibility": "rkaf:localOperationalUse",
+      "rkaf:effectiveUsageEligibilityRationale": "Authority chain validated: caa-42-identity-req-001 hasAuthority(regulatory) \u2192 45 CFR \u00a7 96.30 derivesAuthorityFrom(regulatory) \u2192 HHS delegation derivesAuthorityFrom(delegated) \u2192 statute \u00a7 1234 (statutory). LocalAdoption caa-42-identity-req-001 grants localOperationalUse within scope caa-42-csbg-intake-workflow-v4.",
+      "rkaf:authorityChainTraversal": [
         {
-          "@type": "pkaf:AuthorityChainHop",
-          "pkaf:assertion": "https://example.org/assertion/caa-42-identity-req-001",
-          "pkaf:predicate": "pkaf:hasAuthority",
-          "pkaf:authorityKind": "pkaf:regulatory",
-          "pkaf:object": "https://example.gov/resource/45-cfr-96-30/v3"
+          "@type": "rkaf:AuthorityChainHop",
+          "rkaf:assertion": "https://example.org/assertion/caa-42-identity-req-001",
+          "rkaf:predicate": "rkaf:hasAuthority",
+          "rkaf:authorityKind": "rkaf:regulatory",
+          "rkaf:object": "https://example.gov/resource/45-cfr-96-30/v3"
         },
         {
-          "@type": "pkaf:AuthorityChainHop",
-          "pkaf:assertion": "https://example.gov/assertion/regulation-derives-from-delegation",
-          "pkaf:predicate": "pkaf:derivesAuthorityFrom",
-          "pkaf:authorityKind": "pkaf:delegated",
-          "pkaf:object": "https://example.gov/resource/hhs-delegation-to-ocs-csbg/v1"
+          "@type": "rkaf:AuthorityChainHop",
+          "rkaf:assertion": "https://example.gov/assertion/regulation-derives-from-delegation",
+          "rkaf:predicate": "rkaf:derivesAuthorityFrom",
+          "rkaf:authorityKind": "rkaf:delegated",
+          "rkaf:object": "https://example.gov/resource/hhs-delegation-to-ocs-csbg/v1"
         },
         {
-          "@type": "pkaf:AuthorityChainHop",
-          "pkaf:assertion": "https://example.gov/assertion/delegation-derives-from-statute",
-          "pkaf:predicate": "pkaf:derivesAuthorityFrom",
-          "pkaf:authorityKind": "pkaf:statutory",
-          "pkaf:object": "https://example.gov/resource/csbg-act-section-1234/v1"
+          "@type": "rkaf:AuthorityChainHop",
+          "rkaf:assertion": "https://example.gov/assertion/delegation-derives-from-statute",
+          "rkaf:predicate": "rkaf:derivesAuthorityFrom",
+          "rkaf:authorityKind": "rkaf:statutory",
+          "rkaf:object": "https://example.gov/resource/csbg-act-section-1234/v1"
         }
       ],
-      "pkaf:chainTerminusKind": "pkaf:statutory",
-      "pkaf:errors": [],
-      "pkaf:warnings": [],
-      "pkaf:conceptResolutionResults": [],
+      "rkaf:chainTerminusKind": "rkaf:statutory",
+      "rkaf:errors": [],
+      "rkaf:warnings": [],
+      "rkaf:conceptResolutionResults": [],
       "prov:generatedAtTime": "2022-11-15T10:30:00-05:00"
     },
     {
       "@id": "https://example.org/bridge-validation/caa-42-formspec-2022-11-15-001",
-      "@type": "pkaf:BridgeValidationResult",
-      "pkaf:packetId": "https://example.org/form-field/caa-42-intake/identity-document/v1",
-      "pkaf:consumer": "https://example.org/consumer/caa-42-formspec",
-      "pkaf:result": "pkaf:accepted",
-      "pkaf:effectiveUsageEligibility": "pkaf:localOperationalUse",
-      "pkaf:chainTerminusKind": "pkaf:statutory",
-      "pkaf:errors": [],
-      "pkaf:warnings": [],
+      "@type": "rkaf:BridgeValidationResult",
+      "rkaf:packetId": "https://example.org/form-field/caa-42-intake/identity-document/v1",
+      "rkaf:consumer": "https://example.org/consumer/caa-42-formspec",
+      "rkaf:result": "rkaf:accepted",
+      "rkaf:effectiveUsageEligibility": "rkaf:localOperationalUse",
+      "rkaf:chainTerminusKind": "rkaf:statutory",
+      "rkaf:errors": [],
+      "rkaf:warnings": [],
       "prov:generatedAtTime": "2022-11-15T10:30:05-05:00",
-      "pkaf:bridgeContractVersion": "pkaf-bridge/1.0"
+      "rkaf:bridgeContractVersion": "rkaf-bridge/1.0"
     },
     {
       "@id": "https://example.gov/artifact/csbg-restructure-act-2027",
-      "@type": "pkaf:Artifact",
-      "pkaf:sourceType": "official-codified-statute",
-      "pkaf:capturedAt": "2027-03-01T00:00:00-05:00",
-      "pkaf:sourceUrl": "https://uscode.example.gov/public-law-120-15",
-      "pkaf:accessScope": "public"
+      "@type": "rkaf:Artifact",
+      "rkaf:sourceType": "official-codified-statute",
+      "rkaf:capturedAt": "2027-03-01T00:00:00-05:00",
+      "rkaf:sourceUrl": "https://uscode.example.gov/public-law-120-15",
+      "rkaf:accessScope": "public"
     },
     {
       "@id": "https://example.gov/resource/csbg-restructure-act/v1",
-      "@type": "pkaf:PolicyResourceVersion",
-      "pkaf:resourceLineage": "https://example.gov/resource/csbg-restructure-act",
-      "pkaf:versionLabel": "public-law-120-15",
-      "pkaf:effectivePeriodStart": "2027-04-01T00:00:00-05:00",
-      "pkaf:realizedByArtifact": "https://example.gov/artifact/csbg-restructure-act-2027",
-      "pkaf:resourceKind": "federalStatute"
+      "@type": "rkaf:PolicyResourceVersion",
+      "rkaf:resourceLineage": "https://example.gov/resource/csbg-restructure-act",
+      "rkaf:versionLabel": "public-law-120-15",
+      "rkaf:effectivePeriodStart": "2027-04-01T00:00:00-05:00",
+      "rkaf:realizedByArtifact": "https://example.gov/artifact/csbg-restructure-act-2027",
+      "rkaf:resourceKind": "federalStatute"
     },
     {
       "@id": "https://example.gov/assertion/rescission-001",
-      "@type": "pkaf:RelationshipAssertion",
-      "pkaf:assertsSubject": "https://example.gov/resource/csbg-restructure-act/v1",
-      "pkaf:assertsPredicate": "pkaf:rescinds",
-      "pkaf:assertsObject": "https://example.gov/resource/csbg-act-section-1234/v1",
-      "pkaf:assertionOrigin": "pkaf:importedFromSource",
-      "pkaf:hasTrustZone": "pkaf:Z4AttestedAssertion",
-      "pkaf:hasSafetyLabel": "pkaf:A3AuthorityCritical",
-      "pkaf:usageEligibility": "pkaf:officialUse",
-      "pkaf:hasEvidence": [
+      "@type": "rkaf:RelationshipAssertion",
+      "rkaf:assertsSubject": "https://example.gov/resource/csbg-restructure-act/v1",
+      "rkaf:assertsPredicate": "rkaf:rescinds",
+      "rkaf:assertsObject": "https://example.gov/resource/csbg-act-section-1234/v1",
+      "rkaf:assertionOrigin": "rkaf:importedFromSource",
+      "rkaf:hasTrustZone": "rkaf:Z4AttestedAssertion",
+      "rkaf:hasSafetyLabel": "rkaf:A3AuthorityCritical",
+      "rkaf:usageEligibility": "rkaf:officialUse",
+      "rkaf:hasEvidence": [
         {
-          "@type": "pkaf:EvidenceBinding",
-          "pkaf:evidenceRole": "pkaf:rescissionEvidence",
-          "pkaf:supportingQuote": "Section 1234 of the Community Services Block Grant Act (42 U.S.C. \u00a7 9908) is repealed effective April 1, 2027."
+          "@type": "rkaf:EvidenceBinding",
+          "rkaf:evidenceRole": "rkaf:rescissionEvidence",
+          "rkaf:supportingQuote": "Section 1234 of the Community Services Block Grant Act (42 U.S.C. \u00a7 9908) is repealed effective April 1, 2027."
         }
       ],
-      "pkaf:rescissionEffectiveDate": "2027-04-01T00:00:00-05:00",
-      "pkaf:authorityKind": "pkaf:statutory",
-      "pkaf:hasApplicability": {
-        "@type": "pkaf:ApplicabilityContext",
-        "pkaf:scopeKind": "statutoryProvision",
-        "pkaf:scopeDescription": "CSBG Act \u00a71234 nationwide; rescission of identity-verification provision via subsequent statute"
+      "rkaf:rescissionEffectiveDate": "2027-04-01T00:00:00-05:00",
+      "rkaf:authorityKind": "rkaf:statutory",
+      "rkaf:hasApplicability": {
+        "@type": "rkaf:ApplicabilityContext",
+        "rkaf:scopeKind": "statutoryProvision",
+        "rkaf:scopeDescription": "CSBG Act \u00a71234 nationwide; rescission of identity-verification provision via subsequent statute"
       }
     },
     {
       "@id": "https://example.gov/packet/rescission-001",
-      "@type": "pkaf:RescissionPacket",
-      "pkaf:emittedBy": "https://example.gov/assertion/rescission-001",
-      "pkaf:effectiveDate": "2027-04-01T00:00:00-05:00",
-      "pkaf:bridgeContractVersion": "pkaf-bridge/1.0",
-      "pkaf:cascadeAlgorithm": "pkaf:CascadeClosureV1",
-      "pkaf:cascadeClosureDescription": "Transitive closure over inverse {derivesAuthorityFrom, hasAuthority, implements, justifiedByAssertion, derivedFromFragment} edges, scoped to active/adopted state at effectiveDate. Authority-chain edges (hasAuthority, derivesAuthorityFrom) propagate breakage downstream when the object resource is rescinded.",
-      "pkaf:affectedAuthorityAssertions": [
+      "@type": "rkaf:RescissionPacket",
+      "rkaf:emittedBy": "https://example.gov/assertion/rescission-001",
+      "rkaf:effectiveDate": "2027-04-01T00:00:00-05:00",
+      "rkaf:bridgeContractVersion": "rkaf-bridge/1.0",
+      "rkaf:cascadeAlgorithm": "rkaf:CascadeClosureV1",
+      "rkaf:cascadeClosureDescription": "Transitive closure over inverse {derivesAuthorityFrom, hasAuthority, implements, justifiedByAssertion, derivedFromFragment} edges, scoped to active/adopted state at effectiveDate. Authority-chain edges (hasAuthority, derivesAuthorityFrom) propagate breakage downstream when the object resource is rescinded.",
+      "rkaf:affectedAuthorityAssertions": [
         "https://example.gov/assertion/delegation-derives-from-statute",
         "https://example.gov/assertion/regulation-derives-from-delegation",
         "https://example.us-state.gov/assertion/state-derives-from-federal",
         "https://example.org/assertion/caa-42-identity-req-001"
       ],
-      "pkaf:affectedAssertions": [
+      "rkaf:affectedAssertions": [
         "https://example.org/assertion/caa-42-identity-req-001"
       ],
-      "pkaf:affectedAdoptions": [
+      "rkaf:affectedAdoptions": [
         "https://example.org/adoption/caa-42-identity-req-001"
       ],
-      "pkaf:affectedWorkProducts": [
+      "rkaf:affectedWorkProducts": [
         "https://example.org/wos/caa-42-intake/verify-identity/v1",
         "https://example.org/form-field/caa-42-intake/identity-document/v1"
       ],
-      "pkaf:requiredRevalidationActions": [
+      "rkaf:requiredRevalidationActions": [
         {
-          "@type": "pkaf:RevalidationAction",
-          "pkaf:targetAssertion": "https://example.org/assertion/caa-42-identity-req-001",
-          "pkaf:reason": "hasAuthority object (45 CFR \u00a7 96.30) inherits broken authority chain via derivesAuthorityFrom hop to rescinded statute. Assertion's A3 authority chain no longer terminates at a valid source.",
-          "pkaf:priority": "critical"
+          "@type": "rkaf:RevalidationAction",
+          "rkaf:targetAssertion": "https://example.org/assertion/caa-42-identity-req-001",
+          "rkaf:reason": "hasAuthority object (45 CFR \u00a7 96.30) inherits broken authority chain via derivesAuthorityFrom hop to rescinded statute. Assertion's A3 authority chain no longer terminates at a valid source.",
+          "rkaf:priority": "critical"
         },
         {
-          "@type": "pkaf:RevalidationAction",
-          "pkaf:targetWorkProduct": "https://example.org/wos/caa-42-intake/verify-identity/v1",
-          "pkaf:reason": "WOS step depends on caa-42-identity-req-001 whose authority chain is broken. Step transitions to staleForCurrentUse for new cases.",
-          "pkaf:priority": "critical"
+          "@type": "rkaf:RevalidationAction",
+          "rkaf:targetWorkProduct": "https://example.org/wos/caa-42-intake/verify-identity/v1",
+          "rkaf:reason": "WOS step depends on caa-42-identity-req-001 whose authority chain is broken. Step transitions to staleForCurrentUse for new cases.",
+          "rkaf:priority": "critical"
         },
         {
-          "@type": "pkaf:RevalidationAction",
-          "pkaf:targetWorkProduct": "https://example.org/form-field/caa-42-intake/identity-document/v1",
-          "pkaf:reason": "Formspec field depends on caa-42-identity-req-001 whose authority chain is broken. Field transitions to staleForCurrentUse for new cases.",
-          "pkaf:priority": "critical"
+          "@type": "rkaf:RevalidationAction",
+          "rkaf:targetWorkProduct": "https://example.org/form-field/caa-42-intake/identity-document/v1",
+          "rkaf:reason": "Formspec field depends on caa-42-identity-req-001 whose authority chain is broken. Field transitions to staleForCurrentUse for new cases.",
+          "rkaf:priority": "critical"
         },
         {
-          "@type": "pkaf:RevalidationAction",
-          "pkaf:targetAdoption": "https://example.org/adoption/caa-42-identity-req-001",
-          "pkaf:reason": "LocalAdoption target assertion no longer has valid authority chain. LocalAdoption does NOT grant authority; it grants operational authorization conditioned on the underlying assertion remaining valid. Adoption is effectively orphaned until either (a) a new authority chain is established, or (b) the adoption is rescinded.",
-          "pkaf:priority": "critical"
+          "@type": "rkaf:RevalidationAction",
+          "rkaf:targetAdoption": "https://example.org/adoption/caa-42-identity-req-001",
+          "rkaf:reason": "LocalAdoption target assertion no longer has valid authority chain. LocalAdoption does NOT grant authority; it grants operational authorization conditioned on the underlying assertion remaining valid. Adoption is effectively orphaned until either (a) a new authority chain is established, or (b) the adoption is rescinded.",
+          "rkaf:priority": "critical"
         }
       ],
-      "pkaf:pointInTimeExceptions": [
+      "rkaf:pointInTimeExceptions": [
         {
-          "@type": "pkaf:PointInTimeException",
-          "pkaf:scopeDescription": "Applications submitted before 2027-04-01 may continue under prior authority for in-flight processing only",
-          "pkaf:retainsAssertion": "https://example.org/assertion/caa-42-identity-req-001",
-          "pkaf:evaluationAnchor": "pkaf:applicationSubmissionTime",
-          "pkaf:exceptionEffectivePeriodEnd": "2027-04-01T00:00:00-05:00",
-          "pkaf:rationale": "Per Public Law 120-15 \u00a7 4(c), pending applications under the prior statute shall be adjudicated under prior law."
+          "@type": "rkaf:PointInTimeException",
+          "rkaf:scopeDescription": "Applications submitted before 2027-04-01 may continue under prior authority for in-flight processing only",
+          "rkaf:retainsAssertion": "https://example.org/assertion/caa-42-identity-req-001",
+          "rkaf:evaluationAnchor": "rkaf:applicationSubmissionTime",
+          "rkaf:exceptionEffectivePeriodEnd": "2027-04-01T00:00:00-05:00",
+          "rkaf:rationale": "Per Public Law 120-15 \u00a7 4(c), pending applications under the prior statute shall be adjudicated under prior law."
         }
       ],
       "prov:generatedAtTime": "2027-03-15T00:00:00-05:00"
     },
     {
       "@id": "https://example.org/bridge-validation/caa-42-wos-2027-03-15-001",
-      "@type": "pkaf:BridgeValidationResult",
-      "pkaf:packetId": "https://example.gov/packet/rescission-001",
-      "pkaf:consumer": "https://example.org/consumer/caa-42-wos",
-      "pkaf:bridgeContractVersion": "pkaf-bridge/1.0",
-      "pkaf:result": "pkaf:acceptedWithWarnings",
-      "pkaf:warnings": [
+      "@type": "rkaf:BridgeValidationResult",
+      "rkaf:packetId": "https://example.gov/packet/rescission-001",
+      "rkaf:consumer": "https://example.org/consumer/caa-42-wos",
+      "rkaf:bridgeContractVersion": "rkaf-bridge/1.0",
+      "rkaf:result": "rkaf:acceptedWithWarnings",
+      "rkaf:warnings": [
         {
-          "@type": "pkaf:AuthorityChainBrokenWarning",
-          "pkaf:affectedWorkProduct": "https://example.org/wos/caa-42-intake/verify-identity/v1",
-          "pkaf:transitionTo": "pkaf:staleForCurrentUse",
-          "pkaf:brokenChainHop": "https://example.gov/assertion/delegation-derives-from-statute",
-          "pkaf:rescindedObject": "https://example.gov/resource/csbg-act-section-1234/v1",
-          "pkaf:detail": "Step's authority chain terminates at statute \u00a7 1234 via derivesAuthorityFrom hops. Statute is rescinded effective 2027-04-01. Step transitions to staleForCurrentUse for new cases starting 2027-04-01. PointInTimeException applies: applications with applicationSubmissionTime before 2027-04-01 may continue under prior assertion."
+          "@type": "rkaf:AuthorityChainBrokenWarning",
+          "rkaf:affectedWorkProduct": "https://example.org/wos/caa-42-intake/verify-identity/v1",
+          "rkaf:transitionTo": "rkaf:staleForCurrentUse",
+          "rkaf:brokenChainHop": "https://example.gov/assertion/delegation-derives-from-statute",
+          "rkaf:rescindedObject": "https://example.gov/resource/csbg-act-section-1234/v1",
+          "rkaf:detail": "Step's authority chain terminates at statute \u00a7 1234 via derivesAuthorityFrom hops. Statute is rescinded effective 2027-04-01. Step transitions to staleForCurrentUse for new cases starting 2027-04-01. PointInTimeException applies: applications with applicationSubmissionTime before 2027-04-01 may continue under prior assertion."
         },
         {
-          "@type": "pkaf:LocalAdoptionOrphanedWarning",
-          "pkaf:affectedAdoption": "https://example.org/adoption/caa-42-identity-req-001",
-          "pkaf:detail": "LocalAdoption's target assertion has broken authority chain. The adoption itself is procedurally still valid as an organizational decision, but it cannot continue to grant localOperationalUse for new cases because its target assertion no longer terminates at valid authority. This is the key truth-table case: LocalAdoption does not save the artifact from a broken authority chain."
+          "@type": "rkaf:LocalAdoptionOrphanedWarning",
+          "rkaf:affectedAdoption": "https://example.org/adoption/caa-42-identity-req-001",
+          "rkaf:detail": "LocalAdoption's target assertion has broken authority chain. The adoption itself is procedurally still valid as an organizational decision, but it cannot continue to grant localOperationalUse for new cases because its target assertion no longer terminates at valid authority. This is the key truth-table case: LocalAdoption does not save the artifact from a broken authority chain."
         }
       ],
-      "pkaf:staleDependencies": [
+      "rkaf:staleDependencies": [
         "https://example.org/wos/caa-42-intake/verify-identity/v1"
       ],
-      "pkaf:supportedPointInTimeAnchors": [
-        "pkaf:applicationSubmissionTime"
+      "rkaf:supportedPointInTimeAnchors": [
+        "rkaf:applicationSubmissionTime"
       ],
-      "pkaf:pointInTimeExceptionAccepted": true,
+      "rkaf:pointInTimeExceptionAccepted": true,
       "prov:generatedAtTime": "2027-03-15T01:00:00-05:00"
     },
     {
       "@id": "https://example.org/revalidation/wos-verify-identity-postrescission",
-      "@type": "pkaf:RevalidationEvent",
-      "pkaf:triggeredByPacket": "https://example.gov/packet/rescission-001",
-      "pkaf:targetAssertion": "https://example.org/assertion/caa-42-identity-req-001",
-      "pkaf:targetWorkProduct": "https://example.org/wos/caa-42-intake/verify-identity/v1",
-      "pkaf:transitionTo": "pkaf:staleForCurrentUse",
-      "pkaf:revisedUsageEligibility": "pkaf:reviewQueueOnly",
-      "pkaf:retainedPointInTimeException": {
-        "@type": "pkaf:PointInTimeException",
-        "pkaf:evaluationAnchor": "pkaf:applicationSubmissionTime",
-        "pkaf:exceptionEffectivePeriodEnd": "2027-04-01T00:00:00-05:00",
-        "pkaf:retainsAssertion": "https://example.org/assertion/caa-42-identity-req-001"
+      "@type": "rkaf:RevalidationEvent",
+      "rkaf:triggeredByPacket": "https://example.gov/packet/rescission-001",
+      "rkaf:targetAssertion": "https://example.org/assertion/caa-42-identity-req-001",
+      "rkaf:targetWorkProduct": "https://example.org/wos/caa-42-intake/verify-identity/v1",
+      "rkaf:transitionTo": "rkaf:staleForCurrentUse",
+      "rkaf:revisedUsageEligibility": "rkaf:reviewQueueOnly",
+      "rkaf:retainedPointInTimeException": {
+        "@type": "rkaf:PointInTimeException",
+        "rkaf:evaluationAnchor": "rkaf:applicationSubmissionTime",
+        "rkaf:exceptionEffectivePeriodEnd": "2027-04-01T00:00:00-05:00",
+        "rkaf:retainsAssertion": "https://example.org/assertion/caa-42-identity-req-001"
       },
-      "pkaf:queuedFor": "https://example.org/user/caa-42-program-director-1",
+      "rkaf:queuedFor": "https://example.org/user/caa-42-program-director-1",
       "prov:generatedAtTime": "2027-03-15T01:00:05-05:00"
     }
   ]
