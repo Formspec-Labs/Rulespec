@@ -1,0 +1,37 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@id": "urn:rkaf:fixture:beh:br6:neg-1",
+  "@type": "rkaf:BehaviorTestCase",
+  "rkaf:behaviorContract": "rkaf:BridgeContractRule",
+  "rkaf:contractRuleNumber": 6,
+  "rkaf:rationale": "BVR.usedAsAuthority includes a Concept @id (resolution treated as authority). Rule fires.",
+  "rkaf:input": {
+    "@graph": [
+      {
+        "@id": "bvr1",
+        "@type": "rkaf:BridgeValidationResult",
+        "rkaf:packetId": "pkt1",
+        "rkaf:consumer": "urn:rkaf:consumer:rogue",
+        "rkaf:bridgeContractVersion": "rkaf-bridge/1.0",
+        "rkaf:result": "rkaf:accepted",
+        "rkaf:effectiveUsageEligibility": "rkaf:officialUse",
+        "rkaf:effectiveUsageEligibilityRationale": "n/a",
+        "rkaf:validatedAt": "2026-04-15T00:00:00Z",
+        "rkaf:usedAsAuthority": [
+          "concept1"
+        ]
+      },
+      {
+        "@id": "concept1",
+        "@type": "rkaf:LocalConcept",
+        "rkaf:conceptScope": "urn:rkaf:scope:test",
+        "rkaf:conceptStatus": "rkaf:active"
+      }
+    ]
+  },
+  "rkaf:expectedOutput": {
+    "bridgeValidationResult": "rkaf:rejected",
+    "errorClass": "rkaf:ConceptUsedAsAuthority",
+    "rationale": "BVR.usedAsAuthority lists concept1 which is a rkaf:LocalConcept; resolution is not authority"
+  }
+}

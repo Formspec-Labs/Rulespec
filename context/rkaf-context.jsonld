@@ -234,6 +234,78 @@
     "rkaf:hasJustification": {
       "@type": "@id"
     },
+    "rkaf:PointInTimeException": {
+      "@type": "@id"
+    },
+    "rkaf:evaluationAnchor": {
+      "@type": "@vocab"
+    },
+    "rkaf:retainsAssertion": {
+      "@type": "@id"
+    },
+    "rkaf:retainsWorkProduct": {
+      "@type": "@id"
+    },
+    "rkaf:GeneratedWorkProduct": {
+      "@type": "@id"
+    },
+    "rkaf:justifiedByAssertion": {
+      "@type": "@id"
+    },
+    "rkaf:consumerLifecycleState": {
+      "@type": "@vocab"
+    },
+    "rkaf:proposedUsageEligibility": {
+      "@type": "@vocab"
+    },
+    "rkaf:RevalidationEvent": {
+      "@type": "@id"
+    },
+    "rkaf:RevalidationClosureEvent": {
+      "@type": "@id"
+    },
+    "rkaf:revalidationFor": {
+      "@type": "@id"
+    },
+    "rkaf:triggeredBy": {
+      "@type": "@id"
+    },
+    "rkaf:closesRevalidation": {
+      "@type": "@id"
+    },
+    "rkaf:closureDecision": {
+      "@type": "@vocab"
+    },
+    "rkaf:successorAssertion": {
+      "@type": "@id"
+    },
+    "rkaf:successorWorkProduct": {
+      "@type": "@id"
+    },
+    "rkaf:ConsumerEffectiveDeclaration": {
+      "@type": "@id"
+    },
+    "rkaf:forAssertion": {
+      "@type": "@id"
+    },
+    "rkaf:declaredEffective": {
+      "@type": "@vocab"
+    },
+    "rkaf:declaredScope": {
+      "@type": "@id"
+    },
+    "rkaf:BridgeIssueAttestationContract": {
+      "@type": "@id"
+    },
+    "rkaf:attestedIssueKinds": {
+      "@type": "@vocab"
+    },
+    "rkaf:usedAsAuthority": {
+      "@type": "@id"
+    },
+    "rkaf:detectedIssues": {
+      "@type": "@id"
+    },
     "rkaf:derivesAuthorityFrom": {
       "@type": "@id"
     },

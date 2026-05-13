@@ -1,0 +1,6 @@
+{
+  "@context": "../context/rkaf-context.jsonld",
+  "@id": "urn:rkaf:fixture:ea-pos:anchor1",
+  "rkaf:evaluationAnchor": "rkaf:applicationSubmissionTime",
+  "rkaf:exampleNote": "EvaluationAnchor is a closed enum; this fixture wraps a single value as a property of an opaque carrier node, since the enum itself isn't an addressable class."
+}

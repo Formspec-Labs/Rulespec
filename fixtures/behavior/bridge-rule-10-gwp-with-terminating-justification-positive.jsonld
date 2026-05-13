@@ -1,0 +1,32 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@id": "urn:rkaf:fixture:beh:br10:pos-1",
+  "@type": "rkaf:BehaviorTestCase",
+  "rkaf:behaviorContract": "rkaf:BridgeContractRule",
+  "rkaf:contractRuleNumber": 10,
+  "rkaf:rationale": "GeneratedWorkProduct has justifiedByAssertion AND assertion's justification chain terminates at hasAuthority. Rule passes.",
+  "rkaf:input": {
+    "@graph": [
+      {
+        "@id": "wp1",
+        "@type": "rkaf:GeneratedWorkProduct",
+        "rkaf:justifiedByAssertion": "a1",
+        "rkaf:consumerLifecycleState": "rkaf:operational"
+      },
+      {
+        "@id": "a1",
+        "@type": "rkaf:Assertion",
+        "rkaf:assertionOrigin": "rkaf:humanAsserted",
+        "rkaf:hasAuthority": "auth1"
+      },
+      {
+        "@id": "auth1",
+        "@type": "rkaf:Authority",
+        "rkaf:authorityKind": "rkaf:statutory"
+      }
+    ]
+  },
+  "rkaf:expectedOutput": {
+    "bridgeValidationResult": "rkaf:accepted"
+  }
+}

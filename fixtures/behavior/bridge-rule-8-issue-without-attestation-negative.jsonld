@@ -1,0 +1,41 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@id": "urn:rkaf:fixture:beh:br8:neg-1",
+  "@type": "rkaf:BehaviorTestCase",
+  "rkaf:behaviorContract": "rkaf:BridgeContractRule",
+  "rkaf:contractRuleNumber": 8,
+  "rkaf:rationale": "BVR surfaces a staleDep issue but no Attestation references the BVR. Rule fires.",
+  "rkaf:input": {
+    "@graph": [
+      {
+        "@id": "biac1",
+        "@type": "rkaf:BridgeIssueAttestationContract",
+        "rkaf:consumer": "urn:rkaf:consumer:test",
+        "rkaf:attestedIssueKinds": [
+          "rkaf:staleDep",
+          "rkaf:unresolvedConcept"
+        ],
+        "rkaf:contractVersion": "1.0.0"
+      },
+      {
+        "@id": "bvr1",
+        "@type": "rkaf:BridgeValidationResult",
+        "rkaf:packetId": "pkt1",
+        "rkaf:consumer": "urn:rkaf:consumer:test",
+        "rkaf:bridgeContractVersion": "rkaf-bridge/1.0",
+        "rkaf:result": "rkaf:acceptedWithWarnings",
+        "rkaf:effectiveUsageEligibility": "rkaf:reviewQueueOnly",
+        "rkaf:effectiveUsageEligibilityRationale": "stale dependency",
+        "rkaf:validatedAt": "2026-04-15T00:00:00Z",
+        "rkaf:detectedIssues": [
+          "rkaf:staleDep"
+        ]
+      }
+    ]
+  },
+  "rkaf:expectedOutput": {
+    "bridgeValidationResult": "rkaf:rejected",
+    "errorClass": "rkaf:UnattestedConsumerIssue",
+    "rationale": "BVR.detectedIssues contains rkaf:staleDep (in contract.attestedIssueKinds) but no Attestation references bvr1"
+  }
+}

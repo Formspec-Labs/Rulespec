@@ -1,0 +1,40 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@id": "urn:rkaf:fixture:beh:br6:pos-1",
+  "@type": "rkaf:BehaviorTestCase",
+  "rkaf:behaviorContract": "rkaf:BridgeContractRule",
+  "rkaf:contractRuleNumber": 6,
+  "rkaf:rationale": "BVR.usedAsAuthority contains no Concept @ids. Rule passes.",
+  "rkaf:input": {
+    "@graph": [
+      {
+        "@id": "bvr1",
+        "@type": "rkaf:BridgeValidationResult",
+        "rkaf:packetId": "pkt1",
+        "rkaf:consumer": "urn:rkaf:consumer:test",
+        "rkaf:bridgeContractVersion": "rkaf-bridge/1.0",
+        "rkaf:result": "rkaf:accepted",
+        "rkaf:effectiveUsageEligibility": "rkaf:officialUse",
+        "rkaf:effectiveUsageEligibilityRationale": "n/a",
+        "rkaf:validatedAt": "2026-04-15T00:00:00Z",
+        "rkaf:usedAsAuthority": [
+          "auth1"
+        ]
+      },
+      {
+        "@id": "auth1",
+        "@type": "rkaf:Authority",
+        "rkaf:authorityKind": "rkaf:statutory"
+      },
+      {
+        "@id": "concept1",
+        "@type": "rkaf:LocalConcept",
+        "rkaf:conceptScope": "urn:rkaf:scope:test",
+        "rkaf:conceptStatus": "rkaf:active"
+      }
+    ]
+  },
+  "rkaf:expectedOutput": {
+    "bridgeValidationResult": "rkaf:accepted"
+  }
+}

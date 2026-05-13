@@ -1,0 +1,10 @@
+{
+  "@context": "../context/rkaf-context.jsonld",
+  "@id": "urn:rkaf:fixture:ced-pos:c1",
+  "@type": "rkaf:ConsumerEffectiveDeclaration",
+  "rkaf:consumer": "urn:rkaf:consumer:state-tx-snap-engine",
+  "rkaf:forAssertion": "urn:rkaf:fixture:ced-pos:a1",
+  "rkaf:declaredEffective": "rkaf:officialUse",
+  "rkaf:declaredScope": "urn:rkaf:scope:state-tx-snap",
+  "rkaf:declaredAt": "2026-04-15T09:00:00Z"
+}

@@ -49,6 +49,12 @@ SHAPES = [
     "compiled/shacl/core/bridge-consumer-registration.ttl",
     "compiled/shacl/core/registry-conflict.ttl",
     "compiled/shacl/core/justification.ttl",
+    "compiled/shacl/core/point-in-time-exception.ttl",
+    "compiled/shacl/core/generated-work-product.ttl",
+    "compiled/shacl/core/revalidation-event.ttl",
+    "compiled/shacl/core/consumer-effective-declaration.ttl",
+    "compiled/shacl/core/bridge-issue-attestation-contract.ttl",
+    # evaluation-anchor is a closed enum (no class shape); skipped.
 ]
 EXPECTED = {
     "artifact-eli-positive":                       {"triples": (1, 50)},
@@ -86,6 +92,12 @@ EXPECTED = {
     "bridgeconsumerregistration-positive":         {"triples": (1, 50)},
     "registryconflict-positive":                   {"triples": (1, 50)},
     "justification-positive":                      {"triples": (1, 50)},
+    # Plan 7b — primitives the behavior contracts depend on.
+    "pointintimeexception-positive":               {"triples": (1, 50)},
+    "generatedworkproduct-positive":               {"triples": (1, 50)},
+    "revalidationevent-positive":                  {"triples": (1, 50)},
+    "consumereffectivedeclaration-positive":       {"triples": (1, 50)},
+    "bridgeissueattestationcontract-positive":     {"triples": (1, 50)},
 }
 
 FIXTURES_DIR = "fixtures"

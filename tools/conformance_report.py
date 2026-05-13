@@ -62,6 +62,11 @@ SHACL_SHAPES = [
     "compiled/shacl/core/bridge-consumer-registration.ttl",
     "compiled/shacl/core/registry-conflict.ttl",
     "compiled/shacl/core/justification.ttl",
+    "compiled/shacl/core/point-in-time-exception.ttl",
+    "compiled/shacl/core/generated-work-product.ttl",
+    "compiled/shacl/core/revalidation-event.ttl",
+    "compiled/shacl/core/consumer-effective-declaration.ttl",
+    "compiled/shacl/core/bridge-issue-attestation-contract.ttl",
 ]
 
 

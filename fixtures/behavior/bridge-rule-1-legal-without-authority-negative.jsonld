@@ -1,0 +1,29 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@id": "urn:rkaf:fixture:beh:br1:neg-1",
+  "@type": "rkaf:BehaviorTestCase",
+  "rkaf:behaviorContract": "rkaf:BridgeContractRule",
+  "rkaf:contractRuleNumber": 1,
+  "rkaf:rationale": "Assertion carries a legal-family Warrant but no hasAuthority/derivesAuthorityFrom/LocalAdoption chain. Rule fires.",
+  "rkaf:input": {
+    "@graph": [
+      {
+        "@id": "a1",
+        "@type": "rkaf:Assertion",
+        "rkaf:assertionOrigin": "rkaf:humanAsserted",
+        "rkaf:hasWarrant": "w1"
+      },
+      {
+        "@id": "w1",
+        "@type": "rkaf:Warrant",
+        "rkaf:warrantKind": "rkaf:statutory",
+        "rkaf:warrantFamily": "rkaf:legal"
+      }
+    ]
+  },
+  "rkaf:expectedOutput": {
+    "bridgeValidationResult": "rkaf:rejected",
+    "errorClass": "rkaf:UnauthorizedLegalInference",
+    "rationale": "Legal-family warrant requires hasAuthority / derivesAuthorityFrom / LocalAdoption chain"
+  }
+}

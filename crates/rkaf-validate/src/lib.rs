@@ -148,6 +148,37 @@ const EMBEDDED_SCHEMAS: &[(&str, &str, &str)] = &[
         "Justification",
         include_str!("../../../compiled/json-schema/core/justification.schema.json"),
     ),
+    // Plan 7b — primitives the behavior contracts depend on.
+    (
+        "rkaf:PointInTimeException",
+        "PointInTimeException",
+        include_str!("../../../compiled/json-schema/core/point-in-time-exception.schema.json"),
+    ),
+    (
+        "rkaf:GeneratedWorkProduct",
+        "GeneratedWorkProduct",
+        include_str!("../../../compiled/json-schema/core/generated-work-product.schema.json"),
+    ),
+    (
+        "rkaf:RevalidationEvent",
+        "RevalidationEvent",
+        include_str!("../../../compiled/json-schema/core/revalidation-event.schema.json"),
+    ),
+    (
+        "rkaf:RevalidationClosureEvent",
+        "RevalidationClosureEvent",
+        include_str!("../../../compiled/json-schema/core/revalidation-event.schema.json"),
+    ),
+    (
+        "rkaf:ConsumerEffectiveDeclaration",
+        "ConsumerEffectiveDeclaration",
+        include_str!("../../../compiled/json-schema/core/consumer-effective-declaration.schema.json"),
+    ),
+    (
+        "rkaf:BridgeIssueAttestationContract",
+        "BridgeIssueAttestationContract",
+        include_str!("../../../compiled/json-schema/core/bridge-issue-attestation-contract.schema.json"),
+    ),
 ];
 
 /// A single validation error, paired with the validating class's `@type` IRI

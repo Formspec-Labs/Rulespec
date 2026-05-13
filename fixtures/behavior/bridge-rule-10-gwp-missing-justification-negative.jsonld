@@ -1,0 +1,22 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@id": "urn:rkaf:fixture:beh:br10:neg-1",
+  "@type": "rkaf:BehaviorTestCase",
+  "rkaf:behaviorContract": "rkaf:BridgeContractRule",
+  "rkaf:contractRuleNumber": 10,
+  "rkaf:rationale": "GeneratedWorkProduct lacks justifiedByAssertion. Rule fires.",
+  "rkaf:input": {
+    "@graph": [
+      {
+        "@id": "wp1",
+        "@type": "rkaf:GeneratedWorkProduct",
+        "rkaf:consumerLifecycleState": "rkaf:operational"
+      }
+    ]
+  },
+  "rkaf:expectedOutput": {
+    "bridgeValidationResult": "rkaf:rejected",
+    "errorClass": "rkaf:MissingJustificationMetadata",
+    "rationale": "GeneratedWorkProduct wp1 has no justifiedByAssertion"
+  }
+}

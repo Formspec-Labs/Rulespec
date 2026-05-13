@@ -1,0 +1,35 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@id": "urn:rkaf:fixture:beh:br3:neg-1",
+  "@type": "rkaf:BehaviorTestCase",
+  "rkaf:behaviorContract": "rkaf:BridgeContractRule",
+  "rkaf:contractRuleNumber": 3,
+  "rkaf:rationale": "BVR declares chainTerminusKind=regulatory but the actual terminus Authority has authorityKind=statutory. Rule fires.",
+  "rkaf:input": {
+    "@graph": [
+      {
+        "@id": "bvr1",
+        "@type": "rkaf:BridgeValidationResult",
+        "rkaf:packetId": "pkt1",
+        "rkaf:consumer": "urn:rkaf:consumer:test",
+        "rkaf:bridgeContractVersion": "rkaf-bridge/1.0",
+        "rkaf:result": "rkaf:accepted",
+        "rkaf:effectiveUsageEligibility": "rkaf:officialUse",
+        "rkaf:effectiveUsageEligibilityRationale": "n/a",
+        "rkaf:validatedAt": "2026-04-15T00:00:00Z",
+        "rkaf:chainTerminus": "auth1",
+        "rkaf:chainTerminusKind": "rkaf:regulatory"
+      },
+      {
+        "@id": "auth1",
+        "@type": "rkaf:Authority",
+        "rkaf:authorityKind": "rkaf:statutory"
+      }
+    ]
+  },
+  "rkaf:expectedOutput": {
+    "bridgeValidationResult": "rkaf:rejected",
+    "errorClass": "rkaf:AuthorityKindSubstitution",
+    "rationale": "BVR.chainTerminusKind=regulatory mismatches terminus authority's authorityKind=statutory"
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@id": "urn:rkaf:fixture:beh:br5:pos-1",
+  "@type": "rkaf:BehaviorTestCase",
+  "rkaf:behaviorContract": "rkaf:BridgeContractRule",
+  "rkaf:contractRuleNumber": 5,
+  "rkaf:rationale": "LifecycleEvent affects assertion AND assertion's consumerLifecycleState is staleForCurrentUse. Rule passes.",
+  "rkaf:input": {
+    "@graph": [
+      {
+        "@id": "a1",
+        "@type": "rkaf:Assertion",
+        "rkaf:assertionOrigin": "rkaf:humanAsserted",
+        "rkaf:consumerLifecycleState": "rkaf:staleForCurrentUse"
+      },
+      {
+        "@id": "le1",
+        "@type": "rkaf:LifecycleEvent",
+        "rkaf:lifecycleEventKind": "rkaf:supersession",
+        "rkaf:effectiveDate": "2026-04-15T00:00:00Z",
+        "rkaf:emittedBy": "urn:rkaf:actor:agency",
+        "rkaf:appliesTo": "a1",
+        "rkaf:cascadeAlgorithm": "rkaf:CascadeClosureV1"
+      }
+    ]
+  },
+  "rkaf:expectedOutput": {
+    "bridgeValidationResult": "rkaf:accepted"
+  }
+}

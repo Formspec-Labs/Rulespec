@@ -1,0 +1,39 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@id": "urn:rkaf:fixture:beh:br4:neg-1",
+  "@type": "rkaf:BehaviorTestCase",
+  "rkaf:behaviorContract": "rkaf:BridgeContractRule",
+  "rkaf:contractRuleNumber": 4,
+  "rkaf:rationale": "PIT exception's anchor is NOT in consumer's supportedEvaluationAnchors. Rule fires.",
+  "rkaf:input": {
+    "@graph": [
+      {
+        "@id": "a1",
+        "@type": "rkaf:Assertion",
+        "rkaf:assertionOrigin": "rkaf:humanAsserted",
+        "rkaf:consumerLifecycleState": "rkaf:staleForCurrentUse"
+      },
+      {
+        "@id": "pit1",
+        "@type": "rkaf:PointInTimeException",
+        "rkaf:evaluationAnchor": "rkaf:eligibilityDeterminationTime",
+        "rkaf:retainsAssertion": "a1"
+      },
+      {
+        "@id": "reg1",
+        "@type": "rkaf:BridgeConsumerRegistration",
+        "rkaf:consumer": "urn:rkaf:consumer:test",
+        "rkaf:bridgeContractVersion": "rkaf-bridge/1.0",
+        "rkaf:registeredAt": "2026-04-15T00:00:00Z",
+        "rkaf:supportedEvaluationAnchors": [
+          "rkaf:applicationSubmissionTime"
+        ]
+      }
+    ]
+  },
+  "rkaf:expectedOutput": {
+    "bridgeValidationResult": "rkaf:rejected",
+    "errorClass": "rkaf:UnsupportedEvaluationAnchor",
+    "rationale": "Anchor rkaf:eligibilityDeterminationTime not in consumer's supportedEvaluationAnchors"
+  }
+}

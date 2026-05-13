@@ -1,0 +1,33 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@id": "urn:rkaf:fixture:beh:br1:pos-1",
+  "@type": "rkaf:BehaviorTestCase",
+  "rkaf:behaviorContract": "rkaf:BridgeContractRule",
+  "rkaf:contractRuleNumber": 1,
+  "rkaf:rationale": "Assertion has legal-family Warrant AND a hasAuthority chain terminating in a Warrant. Rule passes.",
+  "rkaf:input": {
+    "@graph": [
+      {
+        "@id": "a1",
+        "@type": "rkaf:Assertion",
+        "rkaf:assertionOrigin": "rkaf:humanAsserted",
+        "rkaf:hasWarrant": "w1",
+        "rkaf:hasAuthority": "auth1"
+      },
+      {
+        "@id": "w1",
+        "@type": "rkaf:Warrant",
+        "rkaf:warrantKind": "rkaf:statutory",
+        "rkaf:warrantFamily": "rkaf:legal"
+      },
+      {
+        "@id": "auth1",
+        "@type": "rkaf:Authority",
+        "rkaf:authorityKind": "rkaf:statutory"
+      }
+    ]
+  },
+  "rkaf:expectedOutput": {
+    "bridgeValidationResult": "rkaf:accepted"
+  }
+}

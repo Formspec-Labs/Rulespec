@@ -1,0 +1,36 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@id": "urn:rkaf:fixture:beh:br9:pos-1",
+  "@type": "rkaf:BehaviorTestCase",
+  "rkaf:behaviorContract": "rkaf:BridgeContractRule",
+  "rkaf:contractRuleNumber": 9,
+  "rkaf:rationale": "BVR.bridgeContractVersion (rkaf-bridge/1.0) matches consumer's supportsRegistryVersionRange (^1.0). Rule passes.",
+  "rkaf:input": {
+    "@graph": [
+      {
+        "@id": "reg1",
+        "@type": "rkaf:BridgeConsumerRegistration",
+        "rkaf:consumer": "urn:rkaf:consumer:test",
+        "rkaf:bridgeContractVersion": "rkaf-bridge/1.0",
+        "rkaf:registeredAt": "2026-04-15T00:00:00Z",
+        "rkaf:supportsRegistryVersionRange": [
+          "^1.0"
+        ]
+      },
+      {
+        "@id": "bvr1",
+        "@type": "rkaf:BridgeValidationResult",
+        "rkaf:packetId": "pkt1",
+        "rkaf:consumer": "urn:rkaf:consumer:test",
+        "rkaf:bridgeContractVersion": "1.0.5",
+        "rkaf:result": "rkaf:accepted",
+        "rkaf:effectiveUsageEligibility": "rkaf:officialUse",
+        "rkaf:effectiveUsageEligibilityRationale": "n/a",
+        "rkaf:validatedAt": "2026-04-15T00:00:00Z"
+      }
+    ]
+  },
+  "rkaf:expectedOutput": {
+    "bridgeValidationResult": "rkaf:accepted"
+  }
+}

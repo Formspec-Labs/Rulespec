@@ -78,6 +78,10 @@ pub struct BridgeValidationResult {
     pub suggested_remediation: Option<String>,
     #[serde(rename = "rkaf:noRemediationReason", skip_serializing_if = "Option::is_none", default)]
     pub no_remediation_reason: Option<String>,
+    #[serde(rename = "rkaf:usedAsAuthority", skip_serializing_if = "Option::is_none", default)]
+    pub used_as_authority: Option<crate::OneOrMany<String>>,
+    #[serde(rename = "rkaf:detectedIssues", skip_serializing_if = "Option::is_none", default)]
+    pub detected_issues: Option<crate::OneOrMany<String>>,
     #[serde(flatten)]
     pub extra: BTreeMap<String, serde_json::Value>,
 }

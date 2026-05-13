@@ -1,0 +1,31 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@id": "urn:rkaf:fixture:beh:br2:neg-1",
+  "@type": "rkaf:BehaviorTestCase",
+  "rkaf:behaviorContract": "rkaf:BridgeContractRule",
+  "rkaf:contractRuleNumber": 2,
+  "rkaf:rationale": "Consumer declares officialUse but reducer output is publicationAllowed (no LocalAdoption). Rule fires.",
+  "rkaf:input": {
+    "@graph": [
+      {
+        "@id": "a1",
+        "@type": "rkaf:Assertion",
+        "rkaf:assertionOrigin": "rkaf:humanAsserted",
+        "rkaf:usageEligibility": "rkaf:publicationAllowed"
+      },
+      {
+        "@id": "decl1",
+        "@type": "rkaf:ConsumerEffectiveDeclaration",
+        "rkaf:consumer": "urn:rkaf:consumer:rogue",
+        "rkaf:forAssertion": "a1",
+        "rkaf:declaredEffective": "rkaf:officialUse",
+        "rkaf:declaredAt": "2026-04-15T00:00:00Z"
+      }
+    ]
+  },
+  "rkaf:expectedOutput": {
+    "bridgeValidationResult": "rkaf:rejected",
+    "errorClass": "rkaf:UnauthorizedBroadening",
+    "rationale": "Declared officialUse > reducer output (publicationAllowed); only LocalAdoption may broaden"
+  }
+}

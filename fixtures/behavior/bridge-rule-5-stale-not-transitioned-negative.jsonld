@@ -1,0 +1,32 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@id": "urn:rkaf:fixture:beh:br5:neg-1",
+  "@type": "rkaf:BehaviorTestCase",
+  "rkaf:behaviorContract": "rkaf:BridgeContractRule",
+  "rkaf:contractRuleNumber": 5,
+  "rkaf:rationale": "LifecycleEvent affects assertion but consumerLifecycleState is still active (no safeAutomaticMigration declared). Rule fires.",
+  "rkaf:input": {
+    "@graph": [
+      {
+        "@id": "a1",
+        "@type": "rkaf:Assertion",
+        "rkaf:assertionOrigin": "rkaf:humanAsserted",
+        "rkaf:consumerLifecycleState": "rkaf:operational"
+      },
+      {
+        "@id": "le1",
+        "@type": "rkaf:LifecycleEvent",
+        "rkaf:lifecycleEventKind": "rkaf:rescission",
+        "rkaf:effectiveDate": "2026-04-15T00:00:00Z",
+        "rkaf:emittedBy": "urn:rkaf:actor:agency",
+        "rkaf:appliesTo": "a1",
+        "rkaf:cascadeAlgorithm": "rkaf:CascadeClosureV1"
+      }
+    ]
+  },
+  "rkaf:expectedOutput": {
+    "bridgeValidationResult": "rkaf:rejected",
+    "errorClass": "rkaf:MissingStaleTransition",
+    "rationale": "Assertion affected by rescission event but consumerLifecycleState is still operational (no safeAutomaticMigration)"
+  }
+}

@@ -1,0 +1,33 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@id": "urn:rkaf:fixture:beh:br3:pos-1",
+  "@type": "rkaf:BehaviorTestCase",
+  "rkaf:behaviorContract": "rkaf:BridgeContractRule",
+  "rkaf:contractRuleNumber": 3,
+  "rkaf:rationale": "BVR.chainTerminusKind matches the actual terminus Authority's authorityKind. Rule passes.",
+  "rkaf:input": {
+    "@graph": [
+      {
+        "@id": "bvr1",
+        "@type": "rkaf:BridgeValidationResult",
+        "rkaf:packetId": "pkt1",
+        "rkaf:consumer": "urn:rkaf:consumer:test",
+        "rkaf:bridgeContractVersion": "rkaf-bridge/1.0",
+        "rkaf:result": "rkaf:accepted",
+        "rkaf:effectiveUsageEligibility": "rkaf:officialUse",
+        "rkaf:effectiveUsageEligibilityRationale": "n/a",
+        "rkaf:validatedAt": "2026-04-15T00:00:00Z",
+        "rkaf:chainTerminus": "auth1",
+        "rkaf:chainTerminusKind": "rkaf:statutory"
+      },
+      {
+        "@id": "auth1",
+        "@type": "rkaf:Authority",
+        "rkaf:authorityKind": "rkaf:statutory"
+      }
+    ]
+  },
+  "rkaf:expectedOutput": {
+    "bridgeValidationResult": "rkaf:accepted"
+  }
+}

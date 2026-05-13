@@ -57,29 +57,35 @@ pub mod generated {
     pub mod ai_lineage                   { include!("generated/ai_lineage.rs"); }
     pub mod applicability_scope          { include!("generated/applicability_scope.rs"); }
     pub mod artifact                     { include!("generated/artifact.rs"); }
-    pub mod assertion                    { include!("generated/assertion.rs"); }
-    pub mod attestation                  { include!("generated/attestation.rs"); }
-    pub mod authority                    { include!("generated/authority.rs"); }
-    pub mod bridge_consumer_registration { include!("generated/bridge_consumer_registration.rs"); }
-    pub mod bridge_validation_result     { include!("generated/bridge_validation_result.rs"); }
-    pub mod concept                      { include!("generated/concept.rs"); }
-    pub mod concept_mapping              { include!("generated/concept_mapping.rs"); }
-    pub mod concept_registry             { include!("generated/concept_registry.rs"); }
-    pub mod concept_resolution_result    { include!("generated/concept_resolution_result.rs"); }
-    pub mod confidence_record            { include!("generated/confidence_record.rs"); }
-    pub mod effective_period             { include!("generated/effective_period.rs"); }
-    pub mod evidence_binding             { include!("generated/evidence_binding.rs"); }
-    pub mod justification                { include!("generated/justification.rs"); }
-    pub mod lifecycle_event              { include!("generated/lifecycle_event.rs"); }
-    pub mod local_adoption               { include!("generated/local_adoption.rs"); }
-    pub mod registry_conflict            { include!("generated/registry_conflict.rs"); }
-    pub mod mapping_state                { include!("generated/mapping_state.rs"); }
-    pub mod retention_policy             { include!("generated/retention_policy.rs"); }
-    pub mod source_fragment              { include!("generated/source_fragment.rs"); }
-    pub mod trust_and_safety             { include!("generated/trust_and_safety.rs"); }
-    pub mod usage_eligibility            { include!("generated/usage_eligibility.rs"); }
-    pub mod warrant                      { include!("generated/warrant.rs"); }
-    pub mod workspace                    { include!("generated/workspace.rs"); }
+    pub mod assertion                          { include!("generated/assertion.rs"); }
+    pub mod attestation                        { include!("generated/attestation.rs"); }
+    pub mod authority                          { include!("generated/authority.rs"); }
+    pub mod bridge_consumer_registration       { include!("generated/bridge_consumer_registration.rs"); }
+    pub mod bridge_issue_attestation_contract  { include!("generated/bridge_issue_attestation_contract.rs"); }
+    pub mod bridge_validation_result           { include!("generated/bridge_validation_result.rs"); }
+    pub mod concept                            { include!("generated/concept.rs"); }
+    pub mod concept_mapping                    { include!("generated/concept_mapping.rs"); }
+    pub mod concept_registry                   { include!("generated/concept_registry.rs"); }
+    pub mod concept_resolution_result          { include!("generated/concept_resolution_result.rs"); }
+    pub mod confidence_record                  { include!("generated/confidence_record.rs"); }
+    pub mod consumer_effective_declaration     { include!("generated/consumer_effective_declaration.rs"); }
+    pub mod effective_period                   { include!("generated/effective_period.rs"); }
+    pub mod evaluation_anchor                  { include!("generated/evaluation_anchor.rs"); }
+    pub mod evidence_binding                   { include!("generated/evidence_binding.rs"); }
+    pub mod generated_work_product             { include!("generated/generated_work_product.rs"); }
+    pub mod justification                      { include!("generated/justification.rs"); }
+    pub mod lifecycle_event                    { include!("generated/lifecycle_event.rs"); }
+    pub mod local_adoption                     { include!("generated/local_adoption.rs"); }
+    pub mod registry_conflict                  { include!("generated/registry_conflict.rs"); }
+    pub mod mapping_state                      { include!("generated/mapping_state.rs"); }
+    pub mod point_in_time_exception            { include!("generated/point_in_time_exception.rs"); }
+    pub mod retention_policy                   { include!("generated/retention_policy.rs"); }
+    pub mod revalidation_event                 { include!("generated/revalidation_event.rs"); }
+    pub mod source_fragment                    { include!("generated/source_fragment.rs"); }
+    pub mod trust_and_safety                   { include!("generated/trust_and_safety.rs"); }
+    pub mod usage_eligibility                  { include!("generated/usage_eligibility.rs"); }
+    pub mod warrant                            { include!("generated/warrant.rs"); }
+    pub mod workspace                          { include!("generated/workspace.rs"); }
 }
 
 // Top-level re-exports — every primitive class. Use the `generated::<module>::`
@@ -92,16 +98,21 @@ pub use generated::assertion::Assertion;
 pub use generated::attestation::Attestation;
 pub use generated::authority::Authority;
 pub use generated::bridge_consumer_registration::BridgeConsumerRegistration;
+pub use generated::bridge_issue_attestation_contract::BridgeIssueAttestationContract;
 pub use generated::bridge_validation_result::BridgeValidationResult;
 pub use generated::concept_mapping::ConceptMapping;
 pub use generated::concept_resolution_result::ConceptResolutionResult;
 pub use generated::confidence_record::ConfidenceRecord;
+pub use generated::consumer_effective_declaration::ConsumerEffectiveDeclaration;
 pub use generated::effective_period::EffectivePeriod;
 pub use generated::evidence_binding::EvidenceBinding;
+pub use generated::generated_work_product::GeneratedWorkProduct;
 pub use generated::justification::Justification;
 pub use generated::lifecycle_event::LifecycleEvent;
 pub use generated::local_adoption::LocalAdoption;
+pub use generated::point_in_time_exception::PointInTimeException;
 pub use generated::registry_conflict::RegistryConflict;
+pub use generated::revalidation_event::{RevalidationClosureEvent, RevalidationEvent};
 pub use generated::source_fragment::SourceFragment;
 pub use generated::warrant::Warrant;
 pub use generated::workspace::Workspace;
