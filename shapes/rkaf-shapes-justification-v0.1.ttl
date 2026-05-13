@@ -1,6 +1,6 @@
 # PKAF Shapes — Consumer Artifact Justification Overlay
 # Profile: PKAF-SHACL-AF (only qualifiedValueShape requires AF)
-# Bridge contract: pkaf-bridge/1.0
+# Bridge contract: rkaf-bridge/1.0
 # Spec anchors: PKAF Core v0.1 §5 (Bridge model), §6 (Consumer artifact overlay)
 #
 # CRITICAL BOUNDARY: These shapes validate the PKAF OVERLAY ONLY. They do NOT
@@ -29,7 +29,7 @@
 @prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
 @prefix prov:  <http://www.w3.org/ns/prov#> .
-@prefix pkaf:  <https://w3id.org/pkaf/ns/v1#> .
+@prefix rkaf:  <https://rulespec.org/ns/v1#> .
 @prefix formspec: <https://w3id.org/formspec/ns/v1#> .
 @prefix wos:   <https://w3id.org/wos/ns/v1#> .
 
@@ -41,137 +41,137 @@
 # The PKAF overlay type itself. Validates that any artifact claiming to be
 # PKAF-generated preserves the minimum justification metadata.
 
-pkaf:GeneratedWorkProductJustificationShape
+rkaf:GeneratedWorkProductJustificationShape
   a sh:NodeShape ;
-  sh:targetClass pkaf:GeneratedWorkProduct ;
+  sh:targetClass rkaf:GeneratedWorkProduct ;
   rdfs:label "Generated Work Product Justification (PKAF overlay)" ;
 
   sh:property [
-    sh:path pkaf:justifiedByAssertion ;
+    sh:path rkaf:justifiedByAssertion ;
     sh:minCount 1 ;
     sh:nodeKind sh:IRI ;
-    sh:message "Every pkaf:GeneratedWorkProduct must declare at least one pkaf:justifiedByAssertion. PKAF-generated artifacts without an assertion chain are not auditable." ;
+    sh:message "Every rkaf:GeneratedWorkProduct must declare at least one rkaf:justifiedByAssertion. PKAF-generated artifacts without an assertion chain are not auditable." ;
   ] ;
 
   sh:property [
-    sh:path pkaf:bridgeContractVersion ;
+    sh:path rkaf:bridgeContractVersion ;
     sh:minCount 1 ; sh:maxCount 1 ;
     sh:datatype xsd:string ;
-    sh:pattern "^pkaf-bridge/[0-9]+\\.[0-9]+$" ;
-    sh:message "Every pkaf:GeneratedWorkProduct must declare pkaf:bridgeContractVersion." ;
+    sh:pattern "^rkaf-bridge/[0-9]+\\.[0-9]+$" ;
+    sh:message "Every rkaf:GeneratedWorkProduct must declare rkaf:bridgeContractVersion." ;
   ] ;
 
   sh:or (
-    [ sh:property [ sh:path pkaf:usageEligibility ; sh:minCount 1 ; sh:maxCount 1 ;
+    [ sh:property [ sh:path rkaf:usageEligibility ; sh:minCount 1 ; sh:maxCount 1 ;
         sh:in (
-          pkaf:notEligible pkaf:searchOnly pkaf:reviewQueueOnly
-          pkaf:draftGenerationAllowed pkaf:localOperationalUse
-          pkaf:publicationAllowed pkaf:officialUse
+          rkaf:notEligible rkaf:searchOnly rkaf:reviewQueueOnly
+          rkaf:draftGenerationAllowed rkaf:localOperationalUse
+          rkaf:publicationAllowed rkaf:officialUse
         ) ] ]
-    [ sh:property [ sh:path pkaf:proposedUsageEligibility ; sh:minCount 1 ; sh:maxCount 1 ;
+    [ sh:property [ sh:path rkaf:proposedUsageEligibility ; sh:minCount 1 ; sh:maxCount 1 ;
         sh:in (
-          pkaf:notEligible pkaf:searchOnly pkaf:reviewQueueOnly
-          pkaf:draftGenerationAllowed pkaf:localOperationalUse
-          pkaf:publicationAllowed pkaf:officialUse
+          rkaf:notEligible rkaf:searchOnly rkaf:reviewQueueOnly
+          rkaf:draftGenerationAllowed rkaf:localOperationalUse
+          rkaf:publicationAllowed rkaf:officialUse
         ) ] ]
   ) ;
-  sh:message "GeneratedWorkProduct must declare either pkaf:usageEligibility (current effective) or pkaf:proposedUsageEligibility (requested target for promotion)." .
+  sh:message "GeneratedWorkProduct must declare either rkaf:usageEligibility (current effective) or rkaf:proposedUsageEligibility (requested target for promotion)." .
 
 # === 2. ConsumerArtifactJustificationShape (PKAF Core §6) ===
-# Predicate-targeted generic shape: ANY node carrying pkaf:justifiedByAssertion
+# Predicate-targeted generic shape: ANY node carrying rkaf:justifiedByAssertion
 # (regardless of consumer-specific type) must also carry bridgeContractVersion.
 # This is the universal PKAF-overlay invariant: justification cannot float free
 # of a known bridge contract.
 
-pkaf:ConsumerArtifactJustificationShape
+rkaf:ConsumerArtifactJustificationShape
   a sh:NodeShape ;
-  sh:targetSubjectsOf pkaf:justifiedByAssertion ;
+  sh:targetSubjectsOf rkaf:justifiedByAssertion ;
   rdfs:label "Consumer Artifact PKAF Overlay (universal)" ;
 
   sh:property [
-    sh:path pkaf:bridgeContractVersion ;
+    sh:path rkaf:bridgeContractVersion ;
     sh:minCount 1 ; sh:maxCount 1 ;
     sh:datatype xsd:string ;
-    sh:pattern "^pkaf-bridge/[0-9]+\\.[0-9]+$" ;
-    sh:message "Any consumer artifact carrying pkaf:justifiedByAssertion MUST also declare pkaf:bridgeContractVersion. The overlay cannot exist as a partial attribution — consumers must be able to evaluate the justification against a known bridge contract version. Applies to any consumer artifact (search index entry, wiki page, form field, workflow step, document fragment, CMS asset, etc.)." ;
+    sh:pattern "^rkaf-bridge/[0-9]+\\.[0-9]+$" ;
+    sh:message "Any consumer artifact carrying rkaf:justifiedByAssertion MUST also declare rkaf:bridgeContractVersion. The overlay cannot exist as a partial attribution — consumers must be able to evaluate the justification against a known bridge contract version. Applies to any consumer artifact (search index entry, wiki page, form field, workflow step, document fragment, CMS asset, etc.)." ;
   ] .
 
 # === 3. DataCollectionArtifactJustificationShape (PKAF Core §6, §7) ===
-# Predicate-targeted: ANY node carrying pkaf:collectsEvidenceType must declare
+# Predicate-targeted: ANY node carrying rkaf:collectsEvidenceType must declare
 # the full overlay (justifiedByAssertion + bridgeContractVersion). This
 # generalizes the pattern beyond Formspec fields to any artifact that collects
 # evidence — survey questions, intake forms, document upload widgets, etc.
 
-pkaf:DataCollectionArtifactJustificationShape
+rkaf:DataCollectionArtifactJustificationShape
   a sh:NodeShape ;
-  sh:targetSubjectsOf pkaf:collectsEvidenceType ;
+  sh:targetSubjectsOf rkaf:collectsEvidenceType ;
   rdfs:label "Data Collection Artifact PKAF Overlay" ;
 
   sh:property [
-    sh:path pkaf:justifiedByAssertion ;
+    sh:path rkaf:justifiedByAssertion ;
     sh:minCount 1 ;
     sh:nodeKind sh:IRI ;
-    sh:message "Any artifact that declares pkaf:collectsEvidenceType must reference at least one pkaf:justifiedByAssertion. Evidence collection cannot be authorized without a justifying assertion." ;
+    sh:message "Any artifact that declares rkaf:collectsEvidenceType must reference at least one rkaf:justifiedByAssertion. Evidence collection cannot be authorized without a justifying assertion." ;
   ] ;
 
   sh:property [
-    sh:path pkaf:bridgeContractVersion ;
+    sh:path rkaf:bridgeContractVersion ;
     sh:minCount 1 ; sh:maxCount 1 ;
-    sh:pattern "^pkaf-bridge/[0-9]+\\.[0-9]+$" ;
-    sh:message "Any artifact that declares pkaf:collectsEvidenceType must also declare pkaf:bridgeContractVersion." ;
+    sh:pattern "^rkaf-bridge/[0-9]+\\.[0-9]+$" ;
+    sh:message "Any artifact that declares rkaf:collectsEvidenceType must also declare rkaf:bridgeContractVersion." ;
   ] .
 
 # === 4. ProcessArtifactJustificationShape (PKAF Core §6, §7) ===
-# Predicate-targeted: ANY node carrying pkaf:requiresEvidenceType (i.e., any
+# Predicate-targeted: ANY node carrying rkaf:requiresEvidenceType (i.e., any
 # process/workflow/decision artifact requiring evidence as a precondition to
 # proceed) must declare the full overlay. Generalizes beyond WOS steps to any
 # workflow engine, BPMN activity, case-system task, AI-agent action gate, etc.
 
-pkaf:ProcessArtifactJustificationShape
+rkaf:ProcessArtifactJustificationShape
   a sh:NodeShape ;
-  sh:targetSubjectsOf pkaf:requiresEvidenceType ;
+  sh:targetSubjectsOf rkaf:requiresEvidenceType ;
   rdfs:label "Process Artifact PKAF Overlay" ;
 
   sh:property [
-    sh:path pkaf:justifiedByAssertion ;
+    sh:path rkaf:justifiedByAssertion ;
     sh:minCount 1 ;
     sh:nodeKind sh:IRI ;
-    sh:message "Any artifact that declares pkaf:requiresEvidenceType must reference at least one pkaf:justifiedByAssertion. A process that gates on evidence cannot do so without a justifying assertion." ;
+    sh:message "Any artifact that declares rkaf:requiresEvidenceType must reference at least one rkaf:justifiedByAssertion. A process that gates on evidence cannot do so without a justifying assertion." ;
   ] ;
 
   sh:property [
-    sh:path pkaf:bridgeContractVersion ;
+    sh:path rkaf:bridgeContractVersion ;
     sh:minCount 1 ; sh:maxCount 1 ;
-    sh:pattern "^pkaf-bridge/[0-9]+\\.[0-9]+$" ;
-    sh:message "Any artifact that declares pkaf:requiresEvidenceType must also declare pkaf:bridgeContractVersion." ;
+    sh:pattern "^rkaf-bridge/[0-9]+\\.[0-9]+$" ;
+    sh:message "Any artifact that declares rkaf:requiresEvidenceType must also declare rkaf:bridgeContractVersion." ;
   ] .
 
 # === 5. FullBridgeValidationResultShape (PKAF Core §5.2) ===
 # Pattern C structural rule: non-accepted results must include at least one
 # structured indicator. Otherwise the result is unactionable for consumers.
 
-pkaf:FullBridgeValidationResultShape
+rkaf:FullBridgeValidationResultShape
   a sh:NodeShape ;
-  sh:targetClass pkaf:BridgeValidationResult ;
+  sh:targetClass rkaf:BridgeValidationResult ;
   rdfs:label "Full Bridge Validation Result (structured output requirement)" ;
 
   sh:or (
     [ sh:not [
         sh:property [
-          sh:path pkaf:result ;
-          sh:in ( pkaf:acceptedWithWarnings pkaf:rejected )
+          sh:path rkaf:result ;
+          sh:in ( rkaf:acceptedWithWarnings rkaf:rejected )
         ]
     ] ]
-    [ sh:property [ sh:path pkaf:warnings                  ; sh:minCount 1 ] ]
-    [ sh:property [ sh:path pkaf:errors                    ; sh:minCount 1 ] ]
-    [ sh:property [ sh:path pkaf:ineligibleAssertions      ; sh:minCount 1 ] ]
-    [ sh:property [ sh:path pkaf:unresolvedConcepts        ; sh:minCount 1 ] ]
-    [ sh:property [ sh:path pkaf:registryUnavailable       ; sh:minCount 1 ] ]
-    [ sh:property [ sh:path pkaf:registryVersionOutOfRange ; sh:minCount 1 ] ]
-    [ sh:property [ sh:path pkaf:staleDependencies         ; sh:minCount 1 ] ]
-    [ sh:property [ sh:path pkaf:staleConceptCache         ; sh:minCount 1 ] ]
-    [ sh:property [ sh:path pkaf:suggestedRemediation      ; sh:minCount 1 ] ]
-    [ sh:property [ sh:path pkaf:noRemediationReason       ; sh:minCount 1 ] ]
+    [ sh:property [ sh:path rkaf:warnings                  ; sh:minCount 1 ] ]
+    [ sh:property [ sh:path rkaf:errors                    ; sh:minCount 1 ] ]
+    [ sh:property [ sh:path rkaf:ineligibleAssertions      ; sh:minCount 1 ] ]
+    [ sh:property [ sh:path rkaf:unresolvedConcepts        ; sh:minCount 1 ] ]
+    [ sh:property [ sh:path rkaf:registryUnavailable       ; sh:minCount 1 ] ]
+    [ sh:property [ sh:path rkaf:registryVersionOutOfRange ; sh:minCount 1 ] ]
+    [ sh:property [ sh:path rkaf:staleDependencies         ; sh:minCount 1 ] ]
+    [ sh:property [ sh:path rkaf:staleConceptCache         ; sh:minCount 1 ] ]
+    [ sh:property [ sh:path rkaf:suggestedRemediation      ; sh:minCount 1 ] ]
+    [ sh:property [ sh:path rkaf:noRemediationReason       ; sh:minCount 1 ] ]
   ) ;
   sh:message "A BridgeValidationResult with result=acceptedWithWarnings or result=rejected MUST include at least one structured indicator: warnings, errors, ineligibleAssertions, unresolvedConcepts, registryUnavailable, registryVersionOutOfRange, staleDependencies, staleConceptCache, suggestedRemediation, or noRemediationReason. Otherwise the result is unactionable for consumers." .
 
@@ -181,36 +181,36 @@ pkaf:FullBridgeValidationResultShape
 # implements alongside hasAuthority and derivesAuthorityFrom. Justification
 # chains describe substantive realization, not just authority transmission.
 
-pkaf:JustificationChainHopShape
+rkaf:JustificationChainHopShape
   a sh:NodeShape ;
-  sh:targetClass pkaf:JustificationChainHop ;
+  sh:targetClass rkaf:JustificationChainHop ;
   rdfs:label "Justification Chain Hop (allows implements)" ;
 
   sh:property [
-    sh:path pkaf:assertion ;
+    sh:path rkaf:assertion ;
     sh:minCount 1 ; sh:maxCount 1 ;
     sh:nodeKind sh:IRI ;
   ] ;
 
   sh:property [
-    sh:path pkaf:predicate ;
+    sh:path rkaf:predicate ;
     sh:minCount 1 ; sh:maxCount 1 ;
-    sh:in ( pkaf:hasAuthority pkaf:derivesAuthorityFrom pkaf:implements ) ;
+    sh:in ( rkaf:hasAuthority rkaf:derivesAuthorityFrom rkaf:implements ) ;
     sh:message "Justification chain hop predicates include hasAuthority, derivesAuthorityFrom, and implements. The implements predicate is allowed here (distinct from AuthorityChainHop which forbids it)." ;
   ] ;
 
   sh:property [
-    sh:path pkaf:object ;
+    sh:path rkaf:object ;
     sh:minCount 1 ; sh:maxCount 1 ;
     sh:nodeKind sh:IRI ;
   ] ;
 
   sh:property [
-    sh:path pkaf:authorityKind ;
+    sh:path rkaf:authorityKind ;
     sh:maxCount 1 ;
     sh:in (
-      pkaf:legal pkaf:statutory pkaf:regulatory pkaf:delegated
-      pkaf:organizational pkaf:contractual pkaf:localOperational pkaf:publication
+      rkaf:legal rkaf:statutory rkaf:regulatory rkaf:delegated
+      rkaf:organizational rkaf:contractual rkaf:localOperational rkaf:publication
     ) ;
     sh:message "If authorityKind is present on a JustificationChainHop, it must be from the enumerated set. Justification hops via implements may omit authorityKind, since implements describes realization rather than authority transmission." ;
   ] .
@@ -231,7 +231,7 @@ pkaf:JustificationChainHopShape
 # native artifact type. Removing this shape would not weaken validation; the
 # generic predicate-targeted shapes catch the same defects.
 
-pkaf:FormspecFieldJustificationShape
+rkaf:FormspecFieldJustificationShape
   a sh:NodeShape ;
   sh:targetClass formspec:Field ;
   rdfs:label "Formspec Field PKAF Overlay (EXAMPLE specialization)" ;
@@ -242,32 +242,32 @@ pkaf:FormspecFieldJustificationShape
   sh:or (
     [ sh:not [
         sh:or (
-          [ sh:property [ sh:path pkaf:justifiedByAssertion    ; sh:minCount 1 ] ]
-          [ sh:property [ sh:path pkaf:usageEligibility        ; sh:minCount 1 ] ]
-          [ sh:property [ sh:path pkaf:proposedUsageEligibility ; sh:minCount 1 ] ]
-          [ sh:property [ sh:path pkaf:collectsEvidenceType    ; sh:minCount 1 ] ]
+          [ sh:property [ sh:path rkaf:justifiedByAssertion    ; sh:minCount 1 ] ]
+          [ sh:property [ sh:path rkaf:usageEligibility        ; sh:minCount 1 ] ]
+          [ sh:property [ sh:path rkaf:proposedUsageEligibility ; sh:minCount 1 ] ]
+          [ sh:property [ sh:path rkaf:collectsEvidenceType    ; sh:minCount 1 ] ]
         )
     ] ]
     [ sh:and (
         [ sh:property [
-            sh:path pkaf:bridgeContractVersion ;
+            sh:path rkaf:bridgeContractVersion ;
             sh:minCount 1 ; sh:maxCount 1 ;
-            sh:pattern "^pkaf-bridge/[0-9]+\\.[0-9]+$" ;
+            sh:pattern "^rkaf-bridge/[0-9]+\\.[0-9]+$" ;
         ] ]
         [ sh:property [
-            sh:path pkaf:justifiedByAssertion ;
+            sh:path rkaf:justifiedByAssertion ;
             sh:minCount 1 ;
             sh:nodeKind sh:IRI ;
         ] ]
     ) ]
   ) ;
-  sh:message "A formspec:Field carrying any PKAF overlay property MUST also declare pkaf:bridgeContractVersion and pkaf:justifiedByAssertion." .
+  sh:message "A formspec:Field carrying any PKAF overlay property MUST also declare rkaf:bridgeContractVersion and rkaf:justifiedByAssertion." .
 
 # === E2. WOSStepJustificationShape (EXAMPLE SPECIALIZATION) ===
 # Specialization of ConsumerArtifactJustificationShape and
 # ProcessArtifactJustificationShape for the wos:WorkflowStep consumer type.
 
-pkaf:WOSStepJustificationShape
+rkaf:WOSStepJustificationShape
   a sh:NodeShape ;
   sh:targetClass wos:WorkflowStep ;
   rdfs:label "WOS Step PKAF Overlay (EXAMPLE specialization)" ;
@@ -276,23 +276,23 @@ pkaf:WOSStepJustificationShape
   sh:or (
     [ sh:not [
         sh:or (
-          [ sh:property [ sh:path pkaf:justifiedByAssertion    ; sh:minCount 1 ] ]
-          [ sh:property [ sh:path pkaf:usageEligibility        ; sh:minCount 1 ] ]
-          [ sh:property [ sh:path pkaf:proposedUsageEligibility ; sh:minCount 1 ] ]
-          [ sh:property [ sh:path pkaf:requiresEvidenceType    ; sh:minCount 1 ] ]
+          [ sh:property [ sh:path rkaf:justifiedByAssertion    ; sh:minCount 1 ] ]
+          [ sh:property [ sh:path rkaf:usageEligibility        ; sh:minCount 1 ] ]
+          [ sh:property [ sh:path rkaf:proposedUsageEligibility ; sh:minCount 1 ] ]
+          [ sh:property [ sh:path rkaf:requiresEvidenceType    ; sh:minCount 1 ] ]
         )
     ] ]
     [ sh:and (
         [ sh:property [
-            sh:path pkaf:bridgeContractVersion ;
+            sh:path rkaf:bridgeContractVersion ;
             sh:minCount 1 ; sh:maxCount 1 ;
-            sh:pattern "^pkaf-bridge/[0-9]+\\.[0-9]+$" ;
+            sh:pattern "^rkaf-bridge/[0-9]+\\.[0-9]+$" ;
         ] ]
         [ sh:property [
-            sh:path pkaf:justifiedByAssertion ;
+            sh:path rkaf:justifiedByAssertion ;
             sh:minCount 1 ;
             sh:nodeKind sh:IRI ;
         ] ]
     ) ]
   ) ;
-  sh:message "A wos:WorkflowStep carrying any PKAF overlay property MUST also declare pkaf:bridgeContractVersion and pkaf:justifiedByAssertion." .
+  sh:message "A wos:WorkflowStep carrying any PKAF overlay property MUST also declare rkaf:bridgeContractVersion and rkaf:justifiedByAssertion." .
