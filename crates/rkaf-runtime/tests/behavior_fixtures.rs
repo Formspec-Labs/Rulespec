@@ -64,6 +64,11 @@ fn assert_value_passes(name: &str, tc: &Value) {
         (Ok(_), Some(want)) => panic!(
             "fixture {name} expected runtime error {want:?} but got Ok verdict"
         ),
+        // OutputMismatch precedence is deliberate: a fixture declaring
+        // `rkaf:expectedRuntimeError = "rkaf:OutputMismatch"` is therefore
+        // unreachable. OutputMismatch is always treated as an unexpected
+        // runtime surprise — fixtures use `rkaf:expectedOutput` for the
+        // success path; there is no use case for asserting a mismatch.
         (Err(RuntimeError::OutputMismatch { expected, actual }), _) => {
             panic!(
                 "fixture {name} OutputMismatch:\n  expected: {}\n  actual:   {}",
@@ -72,15 +77,7 @@ fn assert_value_passes(name: &str, tc: &Value) {
             );
         }
         (Err(other), Some(want)) => {
-            let actual_tag = match &other {
-                RuntimeError::MalformedTestCase(_) => "rkaf:MalformedTestCase",
-                RuntimeError::UnsupportedContract(_) => "rkaf:UnsupportedContract",
-                RuntimeError::Parse(_) => "rkaf:ParseError",
-                RuntimeError::MissingNode(_) => "rkaf:MissingNode",
-                RuntimeError::ContractInternal(_) => "rkaf:ContractInternal",
-                RuntimeError::Semver(_) => "rkaf:SemverError",
-                RuntimeError::OutputMismatch { .. } => "rkaf:OutputMismatch",
-            };
+            let actual_tag = other.iri_tag();
             assert_eq!(
                 actual_tag, want,
                 "fixture {name} expected runtime error {want:?}, got {actual_tag:?}: {other}"

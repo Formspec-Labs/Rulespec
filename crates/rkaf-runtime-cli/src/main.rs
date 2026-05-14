@@ -93,6 +93,11 @@ fn evaluate_one(path: &PathBuf) -> FixtureVerdict {
                 "expected runtime error {expected_err:?}, got Ok verdict"
             )),
         },
+        // OutputMismatch precedence is deliberate: a fixture declaring
+        // `rkaf:expectedRuntimeError = "rkaf:OutputMismatch"` is therefore
+        // unreachable. OutputMismatch is always treated as an unexpected
+        // runtime surprise — fixtures use `rkaf:expectedOutput` for the
+        // success path; there is no use case for asserting a mismatch.
         (Err(RuntimeError::OutputMismatch { expected, actual }), _) => FixtureVerdict {
             name,
             result: "fail".into(),
@@ -103,16 +108,7 @@ fn evaluate_one(path: &PathBuf) -> FixtureVerdict {
             )),
         },
         (Err(other), Some(expected_err)) => {
-            // Map RuntimeError variant to its IRI tag for fixture assertions.
-            let actual_tag = match &other {
-                RuntimeError::MalformedTestCase(_) => "rkaf:MalformedTestCase",
-                RuntimeError::UnsupportedContract(_) => "rkaf:UnsupportedContract",
-                RuntimeError::Parse(_) => "rkaf:ParseError",
-                RuntimeError::MissingNode(_) => "rkaf:MissingNode",
-                RuntimeError::ContractInternal(_) => "rkaf:ContractInternal",
-                RuntimeError::Semver(_) => "rkaf:SemverError",
-                RuntimeError::OutputMismatch { .. } => "rkaf:OutputMismatch",
-            };
+            let actual_tag = other.iri_tag();
             if actual_tag == expected_err {
                 FixtureVerdict {
                     name,
