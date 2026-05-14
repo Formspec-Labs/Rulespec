@@ -74,6 +74,8 @@ pub struct Attestation {
     pub last_verified_at: Option<String>,
     #[serde(rename = "rkaf:verifiedBy", skip_serializing_if = "Option::is_none", default)]
     pub verified_by: Option<String>,
+    #[serde(rename = "rkaf:targetFinding", skip_serializing_if = "Option::is_none", default)]
+    pub target_finding: Option<String>,
     #[serde(flatten)]
     pub extra: BTreeMap<String, serde_json::Value>,
 }

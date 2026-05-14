@@ -29,4 +29,10 @@ package rkaf
 	"rkaf:revokedAt"?:          string // xsd:dateTime — retraction marker; supersedes effective period if before period end
 	"rkaf:lastVerifiedAt"?:     string // xsd:dateTime — when last reconfirmed against source; ORTHOGONAL to lifecycle state
 	"rkaf:verifiedBy"?:         string // IRI of verifier (attestor or other party)
+	// ADR-0093 Phase B (RFC-pending). Attestations MAY target a specific
+	// rkaf:Finding to function as a waiver / override of that finding.
+	// The Attestation decides what to DO with the finding; the Finding
+	// remains the IRI-addressable record of the detection itself. Per
+	// ADR-0093 §"Decision (proposal — not yet ratified)".
+	"rkaf:targetFinding"?:      string // IRI of rkaf:Finding being attested over (e.g., waived)
 }

@@ -139,6 +139,23 @@ fn round_trip_attestation_revoked_fixture() {
 }
 
 #[test]
+fn round_trip_attestation_revoked_within_period_fixture() {
+    round_trip::<Attestation>(
+        "attestation-revoked-within-period-positive",
+        "rkaf:Attestation",
+    );
+}
+
+// ADR-0093 Phase B: targetFinding round-trip.
+#[test]
+fn round_trip_attestation_waiving_finding_fixture() {
+    round_trip::<Attestation>(
+        "attestation-waiving-finding-positive",
+        "rkaf:Attestation",
+    );
+}
+
+#[test]
 fn round_trip_sourcefragment_with_freshness_fixture() {
     round_trip::<SourceFragment>(
         "sourcefragment-with-freshness-positive",

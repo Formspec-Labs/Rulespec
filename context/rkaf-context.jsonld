@@ -925,6 +925,9 @@
     },
     "rkaf:verifiedBy": {
       "@type": "@id"
+    },
+    "rkaf:targetFinding": {
+      "@type": "@id"
     }
   },
   "_meta": {

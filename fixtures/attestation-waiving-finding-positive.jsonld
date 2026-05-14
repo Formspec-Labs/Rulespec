@@ -1,0 +1,27 @@
+{
+  "@context": "../context/rkaf-context.jsonld",
+  "@graph": [
+    {
+      "@id": "urn:rkaf:fixture:finding:stale-dep-snap-redet",
+      "@type": "rkaf:Finding",
+      "rkaf:findingKind": "rkaf:staleDependency",
+      "rkaf:detectedAt": "2026-05-13T09:30:00Z",
+      "rkaf:detectedBy": "urn:rkaf:fixture:bvr:medicaid-recert-fresh",
+      "rkaf:subject": "urn:rkaf:fixture:assert:snap-income-test-202-percent",
+      "rkaf:severity": "rkaf:operationalConflict",
+      "rkaf:rationale": "Upstream Assertion superseded; downstream consumer pending rebind."
+    },
+    {
+      "@id": "urn:rkaf:fixture:atst:waiver-for-stale-dep",
+      "@type": "rkaf:Attestation",
+      "rkaf:attestor": "urn:rkaf:fixture:actor:program-director",
+      "rkaf:attestorKind": "rkaf:formalReviewer",
+      "rkaf:targets": ["urn:rkaf:fixture:assert:snap-income-test-202-percent"],
+      "rkaf:decision": "rkaf:approvedWithConditions",
+      "rkaf:attestationScope": "urn:rkaf:fixture:scope:in-flight-recerts-q2-2026",
+      "rkaf:attestedAt": "2026-05-13T10:00:00Z",
+      "rkaf:targetFinding": "urn:rkaf:fixture:finding:stale-dep-snap-redet",
+      "rkaf:rationale": "Waiver: in-flight recertifications opened before the upstream supersession may continue under the prior Assertion until Q2 close. Per program-director authority."
+    }
+  ]
+}
