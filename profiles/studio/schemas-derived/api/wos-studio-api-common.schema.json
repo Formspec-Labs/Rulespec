@@ -1,0 +1,146 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://work-spec.org/schemas/studio-api-common/1.0",
+  "title": "WOS Studio (Authoring) — API Common $defs Library",
+  "description": "Shared wire-shape $defs for the Studio REST API surface per studio/specs/api-ingestion.md (and future per-surface specs api-review.md, api-projection.md, api-approval.md). Registered by $id only; consumed by other api/* schemas via $ref. RFC 9457 ProblemDetails with Studio extensions, RFC 3339 timestamps, cursor pagination, idempotency-key shape.",
+  "$comment": "Promotion status (Stage-8 deliverable 15, 2026-05-08): MVP shape; field shapes match the api-ingestion endpoint table.",
+  "type": "object",
+  "$defs": {
+    "ProblemDetails": {
+      "type": "object",
+      "description": "RFC 9457 problem-details object with Studio extensions. Returned for every non-2xx response per SA-MUST-api-ingest-062.",
+      "required": [
+        "type",
+        "title",
+        "status"
+      ],
+      "additionalProperties": true,
+      "patternProperties": {
+        "^(\\$|x-)": {}
+      },
+      "properties": {
+        "type": {
+          "type": "string",
+          "format": "uri",
+          "description": "URI identifying the problem type. Per RFC 9457."
+        },
+        "title": {
+          "type": "string"
+        },
+        "status": {
+          "type": "integer",
+          "minimum": 100,
+          "maximum": 599
+        },
+        "detail": {
+          "type": "string"
+        },
+        "instance": {
+          "type": "string"
+        },
+        "traceId": {
+          "type": "string",
+          "description": "Studio extension: server-side trace id for incident correlation."
+        },
+        "correlationId": {
+          "$ref": "#/$defs/CorrelationId"
+        },
+        "idempotencyKey": {
+          "$ref": "#/$defs/IdempotencyKey"
+        },
+        "violations": {
+          "type": "array",
+          "description": "Studio extension: structured rule-violation list, one per failing schema/lint check.",
+          "items": {
+            "type": "object",
+            "additionalProperties": true,
+            "required": [
+              "ruleId"
+            ],
+            "properties": {
+              "ruleId": {
+                "type": "string",
+                "examples": [
+                  "SV-LINT-002",
+                  "SA-MUST-source-051"
+                ]
+              },
+              "pointer": {
+                "type": "string",
+                "description": "JSON Pointer to the failing field, when applicable."
+              },
+              "message": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    },
+    "CursorPage": {
+      "type": "object",
+      "description": "Cursor pagination envelope for list endpoints. `nextCursor` is opaque; clients pass it back unchanged on the next call.",
+      "required": [
+        "items",
+        "pageInfo"
+      ],
+      "additionalProperties": false,
+      "patternProperties": {
+        "^(\\$|x-)": {}
+      },
+      "properties": {
+        "items": {
+          "type": "array"
+        },
+        "pageInfo": {
+          "type": "object",
+          "additionalProperties": false,
+          "patternProperties": {
+            "^(\\$|x-)": {}
+          },
+          "required": [
+            "hasMore"
+          ],
+          "properties": {
+            "hasMore": {
+              "type": "boolean"
+            },
+            "nextCursor": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "totalCount": {
+              "type": [
+                "integer",
+                "null"
+              ],
+              "minimum": 0
+            }
+          }
+        }
+      }
+    },
+    "IdempotencyKey": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256,
+      "description": "Client-supplied idempotency key per SA-MUST-api-ingest-061. Required on POST endpoints; the server stores the (idempotencyKey, request-hash) tuple and returns the prior response on replay."
+    },
+    "CorrelationId": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Server-issued correlation id pairing API submission with the AuthoringProvenanceRecord(s) emitted during async processing. Per SA-MUST-api-ingest-011."
+    },
+    "EtagToken": {
+      "type": "string",
+      "description": "Strong ETag per RFC 9110. The ingestion API uses ingestedHash-derived ETags for SourceVersion raw bytes (SA-MUST-api-ingest-005)."
+    },
+    "RFC3339Timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "RFC 3339 timestamp in UTC (Z suffix). Per SA-MUST-api-ingest-063."
+    }
+  }
+}

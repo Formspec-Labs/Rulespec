@@ -1,0 +1,204 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://work-spec.org/schemas/studio-api-jobs/1.0",
+  "title": "WOS Studio (Authoring) — API Jobs",
+  "description": "Async-job wire shapes per studio/specs/api-ingestion.md. JobAccepted is returned for state-changing POSTs (uploads, parses, extracts); JobStatus is returned by GET /jobs/{id}. Job lifecycle is queued → running → succeeded | failed | cancelled per SA-MUST-api-ingest-013. Every job carries the correlationId that is also stamped on emitted AuthoringProvenanceRecords per SA-MUST-api-ingest-040.",
+  "$comment": "Promotion status (Stage-8 deliverable 15, 2026-05-08): MVP shape.",
+  "type": "object",
+  "$defs": {
+    "JobKind": {
+      "type": "string",
+      "enum": [
+        "ingest",
+        "parse",
+        "extract"
+      ]
+    },
+    "JobLifecycleState": {
+      "type": "string",
+      "description": "Per SA-MUST-api-ingest-013. Terminal states: succeeded, failed, cancelled.",
+      "enum": [
+        "queued",
+        "running",
+        "succeeded",
+        "failed",
+        "cancelled"
+      ]
+    },
+    "JobError": {
+      "type": "object",
+      "required": [
+        "code",
+        "message"
+      ],
+      "additionalProperties": true,
+      "patternProperties": {
+        "^(\\$|x-)": {}
+      },
+      "properties": {
+        "code": {
+          "type": "string",
+          "description": "Stable error code; clients branch on this. Examples: 'parse-failed', 'extraction-rejected', 'permissions-denied'."
+        },
+        "message": {
+          "type": "string"
+        },
+        "violations": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": true
+          }
+        }
+      }
+    },
+    "JobResultRef": {
+      "type": "object",
+      "description": "Reference to the Studio object(s) created or modified by the job (e.g., the new SourceVersion after upload, the extracted claims after extract). Free-form refs; clients resolve via subsequent GET calls.",
+      "additionalProperties": true,
+      "patternProperties": {
+        "^(\\$|x-)": {}
+      },
+      "properties": {
+        "sourceVersionRef": {
+          "type": "string"
+        },
+        "extractedClaimRefs": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "JobAccepted": {
+      "type": "object",
+      "description": "Returned with HTTP 202 when a state-changing POST is accepted. Per SA-MUST-api-ingest-010. Carries the jobId for polling and the correlationId stamped on emitted provenance records.",
+      "required": [
+        "jobId",
+        "kind",
+        "correlationId",
+        "lifecycleState",
+        "createdAt"
+      ],
+      "additionalProperties": false,
+      "patternProperties": {
+        "^(\\$|x-)": {}
+      },
+      "properties": {
+        "jobId": {
+          "type": "string"
+        },
+        "kind": {
+          "$ref": "#/$defs/JobKind"
+        },
+        "correlationId": {
+          "$ref": "https://work-spec.org/schemas/studio-api-common/1.0#/$defs/CorrelationId"
+        },
+        "lifecycleState": {
+          "$ref": "#/$defs/JobLifecycleState"
+        },
+        "createdAt": {
+          "$ref": "https://work-spec.org/schemas/studio-api-common/1.0#/$defs/RFC3339Timestamp"
+        },
+        "statusUri": {
+          "type": "string",
+          "format": "uri-reference",
+          "description": "Convenience URI for polling. Equivalent to GET /jobs/{jobId}."
+        }
+      }
+    },
+    "JobStatus": {
+      "type": "object",
+      "description": "Returned by GET /jobs/{id} per SA-MUST-api-ingest-011/013. Carries lifecycle state plus terminal-state result/error blocks.",
+      "required": [
+        "jobId",
+        "kind",
+        "correlationId",
+        "lifecycleState",
+        "createdAt",
+        "updatedAt"
+      ],
+      "additionalProperties": false,
+      "patternProperties": {
+        "^(\\$|x-)": {}
+      },
+      "properties": {
+        "jobId": {
+          "type": "string"
+        },
+        "kind": {
+          "$ref": "#/$defs/JobKind"
+        },
+        "correlationId": {
+          "$ref": "https://work-spec.org/schemas/studio-api-common/1.0#/$defs/CorrelationId"
+        },
+        "lifecycleState": {
+          "$ref": "#/$defs/JobLifecycleState"
+        },
+        "createdAt": {
+          "$ref": "https://work-spec.org/schemas/studio-api-common/1.0#/$defs/RFC3339Timestamp"
+        },
+        "updatedAt": {
+          "$ref": "https://work-spec.org/schemas/studio-api-common/1.0#/$defs/RFC3339Timestamp"
+        },
+        "completedAt": {
+          "$ref": "https://work-spec.org/schemas/studio-api-common/1.0#/$defs/RFC3339Timestamp"
+        },
+        "result": {
+          "$ref": "#/$defs/JobResultRef"
+        },
+        "error": {
+          "$ref": "#/$defs/JobError"
+        },
+        "provenanceRecordIds": {
+          "type": "array",
+          "description": "Ids of the AuthoringProvenanceRecords emitted by this job; clients resolve via the AuthoringLedger. Per SA-MUST-api-ingest-040.",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "lifecycleState": {
+                "const": "succeeded"
+              }
+            },
+            "required": [
+              "lifecycleState"
+            ]
+          },
+          "then": {
+            "required": [
+              "completedAt",
+              "result"
+            ],
+            "$comment": "Per SA-MUST-api-ingest-013: succeeded jobs MUST carry completedAt + result."
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "lifecycleState": {
+                "const": "failed"
+              }
+            },
+            "required": [
+              "lifecycleState"
+            ]
+          },
+          "then": {
+            "required": [
+              "completedAt",
+              "error"
+            ],
+            "$comment": "Per SA-MUST-api-ingest-013: failed jobs MUST carry completedAt + error."
+          }
+        }
+      ]
+    }
+  }
+}

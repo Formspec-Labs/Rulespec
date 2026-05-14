@@ -1,0 +1,483 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://work-spec.org/schemas/studio-api-ingest/1.0",
+  "title": "WOS Studio (Authoring) — API Ingestion Surface",
+  "description": "Wire shapes for the ingestion + extraction-trigger surface per studio/specs/api-ingestion.md. Request bodies (UploadSourceMetadata, SourceUploadTargetRequest, UploadSourceFromBlobRequest, ReparseRequest, ExtractRequest), response envelopes (SourceUploadTargetResponse, SourceVersionView, SourceVersionListPage, SourceSectionListPage), all wired to existing Studio data shapes via $ref. The if/then on UploadSourceMetadata mirrors wos-studio-source.schema.json's existing canonicalSourceRef.referencedUri requirement when ingestFormat=json-ld so SA-MUST-source-051 is structurally re-asserted at the API boundary.",
+  "$comment": "Promotion status (Stage-8 deliverable 15, 2026-05-08): MVP shape; subsequent per-surface specs (review, projection, approval) reuse api-common + api-jobs but live in their own files.",
+  "type": "object",
+  "$defs": {
+    "UploadSourceMetadata": {
+      "type": "object",
+      "description": "Source upload metadata. Required fields cover the non-bytes inputs to SourceDocument + SourceVersion; the server materializes the SourceVersion after byte-hash verification.",
+      "required": [
+        "workspaceId",
+        "sourceDocument",
+        "sourceVersion"
+      ],
+      "additionalProperties": false,
+      "patternProperties": {
+        "^(\\$|x-)": {}
+      },
+      "properties": {
+        "workspaceId": {
+          "type": "string"
+        },
+        "sourceDocument": {
+          "type": "object",
+          "description": "If `id` is omitted, server creates a new SourceDocument; otherwise the version is appended to the existing one.",
+          "additionalProperties": true,
+          "required": [
+            "kind",
+            "permissionsRef"
+          ],
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "kind": {
+              "type": "string",
+              "enum": [
+                "regulation",
+                "statute",
+                "policy-manual",
+                "sop",
+                "memo",
+                "form",
+                "diagram",
+                "corrective-letter",
+                "guidance",
+                "other"
+              ]
+            },
+            "title": {
+              "type": "string"
+            },
+            "issuer": {
+              "type": "string"
+            },
+            "primaryUrl": {
+              "type": "string",
+              "format": "uri"
+            },
+            "permissionsRef": {
+              "type": "string"
+            }
+          }
+        },
+        "sourceVersion": {
+          "type": "object",
+          "required": [
+            "ingestFormat",
+            "ingestedHash",
+            "effectivenessRef"
+          ],
+          "additionalProperties": true,
+          "properties": {
+            "versionLabel": {
+              "type": "string"
+            },
+            "publishedAt": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "ingestFormat": {
+              "type": "string",
+              "enum": [
+                "pdf",
+                "html",
+                "markdown",
+                "json-ld",
+                "xml",
+                "text",
+                "other"
+              ]
+            },
+            "ingestedHash": {
+              "type": "string",
+              "description": "Client-computed SHA-256 of the payload bytes. Per SA-MUST-api-ingest-020 the server recomputes this against the multipart payload and rejects on mismatch.",
+              "pattern": "^sha256:[a-fA-F0-9]{64}$"
+            },
+            "contentLocales": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "effectivenessRef": {
+              "type": "string"
+            },
+            "canonicalSourceRef": {
+              "type": [
+                "object",
+                "null"
+              ],
+              "additionalProperties": true,
+              "properties": {
+                "referencedUri": {
+                  "type": "string",
+                  "format": "uri"
+                }
+              }
+            }
+          },
+          "allOf": [
+            {
+              "if": {
+                "properties": {
+                  "ingestFormat": {
+                    "const": "json-ld"
+                  }
+                },
+                "required": [
+                  "ingestFormat"
+                ]
+              },
+              "then": {
+                "properties": {
+                  "canonicalSourceRef": {
+                    "type": "object",
+                    "required": [
+                      "referencedUri"
+                    ],
+                    "properties": {
+                      "referencedUri": {
+                        "type": "string",
+                        "format": "uri"
+                      }
+                    }
+                  }
+                },
+                "required": [
+                  "canonicalSourceRef"
+                ],
+                "$comment": "Per SA-MUST-api-ingest-022 / SA-MUST-source-051: ingestFormat=json-ld requires canonicalSourceRef.referencedUri at the API boundary."
+              }
+            }
+          ]
+        }
+      }
+    },
+    "SourceUploadTargetRequest": {
+      "type": "object",
+      "description": "Request to reserve a direct-to-blob upload target. The SourceVault adapter mints the provider-specific target; clients then commit metadata through UploadSourceFromBlobRequest.",
+      "required": [
+        "workspaceId",
+        "ingestedHash",
+        "contentType",
+        "contentLengthBytes"
+      ],
+      "additionalProperties": false,
+      "patternProperties": {
+        "^(\\$|x-)": {}
+      },
+      "properties": {
+        "workspaceId": {
+          "type": "string"
+        },
+        "ingestedHash": {
+          "type": "string",
+          "pattern": "^sha256:[a-fA-F0-9]{64}$"
+        },
+        "contentType": {
+          "type": "string"
+        },
+        "contentLengthBytes": {
+          "type": "integer",
+          "minimum": 1
+        }
+      }
+    },
+    "SourceUploadTargetResponse": {
+      "type": "object",
+      "description": "Delegated upload target, suitable for S3/CloudFront-style presigned upload flows. Provider-specific signing details stay inside uploadUrl and headers.",
+      "required": [
+        "uploadId",
+        "sourceBlobRef",
+        "method",
+        "uploadUrl",
+        "headers",
+        "expiresAt",
+        "commitUrl"
+      ],
+      "additionalProperties": false,
+      "patternProperties": {
+        "^(\\$|x-)": {}
+      },
+      "properties": {
+        "uploadId": {
+          "type": "string"
+        },
+        "sourceBlobRef": {
+          "type": "string",
+          "pattern": "^sha256:[a-fA-F0-9]{64}$"
+        },
+        "method": {
+          "type": "string",
+          "enum": [
+            "PUT",
+            "POST"
+          ]
+        },
+        "uploadUrl": {
+          "type": "string",
+          "format": "uri"
+        },
+        "headers": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "expiresAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "commitUrl": {
+          "type": "string"
+        }
+      }
+    },
+    "UploadSourceFromBlobRequest": {
+      "type": "object",
+      "description": "Registers a SourceVersion after bytes were uploaded directly to the SourceVault adapter's blob storage target.",
+      "required": [
+        "metadata",
+        "sourceBlobRef"
+      ],
+      "additionalProperties": false,
+      "patternProperties": {
+        "^(\\$|x-)": {}
+      },
+      "properties": {
+        "metadata": {
+          "$ref": "#/$defs/UploadSourceMetadata"
+        },
+        "sourceBlobRef": {
+          "type": "string",
+          "description": "Content-addressed blob ref reserved by SourceUploadTargetResponse. Must match metadata.sourceVersion.ingestedHash.",
+          "pattern": "^sha256:[a-fA-F0-9]{64}$"
+        },
+        "uploadId": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "storageUri": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "Optional provider URI for audit, e.g. s3://bucket/key. Signed URLs must not be persisted here."
+        }
+      }
+    },
+    "ReparseRequest": {
+      "type": "object",
+      "required": [
+        "reason"
+      ],
+      "additionalProperties": false,
+      "patternProperties": {
+        "^(\\$|x-)": {}
+      },
+      "properties": {
+        "parserVersion": {
+          "type": "string",
+          "description": "Optional: pin a specific parser version. When omitted, server uses the workspace-default."
+        },
+        "reason": {
+          "type": "string",
+          "description": "Reviewer-supplied rationale; surfaced in the emitted AuthoringProvenanceRecord."
+        }
+      }
+    },
+    "ExtractRequest": {
+      "type": "object",
+      "required": [
+        "promptTemplateRef",
+        "modelVersionPolicy"
+      ],
+      "additionalProperties": false,
+      "patternProperties": {
+        "^(\\$|x-)": {}
+      },
+      "properties": {
+        "promptTemplateRef": {
+          "type": "string",
+          "description": "PromptRegistry id resolved server-side at submission per SA-MUST-api-ingest-050."
+        },
+        "promptTemplateVersion": {
+          "type": "string"
+        },
+        "modelVersionPolicy": {
+          "type": "string",
+          "enum": [
+            "pinned",
+            "rolling",
+            "latest"
+          ]
+        },
+        "sectionFilter": {
+          "type": "object",
+          "description": "Optional scoping: extract from a subset of SourceSections.",
+          "additionalProperties": false,
+          "patternProperties": {
+            "^(\\$|x-)": {}
+          },
+          "properties": {
+            "sectionRefs": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "anchorPrefix": {
+              "type": "string",
+              "description": "Anchor-prefix scope, e.g. '§273.10' to extract only from that subsection's children."
+            }
+          }
+        }
+      }
+    },
+    "SourceVersionView": {
+      "type": "object",
+      "description": "GET /sources/{id} response envelope. Carries the SourceVersion plus a latestJobs projection for ingest/parse/extract.",
+      "required": [
+        "sourceVersion",
+        "latestJobs"
+      ],
+      "additionalProperties": false,
+      "patternProperties": {
+        "^(\\$|x-)": {}
+      },
+      "properties": {
+        "sourceVersion": {
+          "$ref": "https://work-spec.org/schemas/studio-source/1.0#/$defs/SourceVersion"
+        },
+        "latestJobs": {
+          "type": "object",
+          "additionalProperties": false,
+          "patternProperties": {
+            "^(\\$|x-)": {}
+          },
+          "properties": {
+            "ingest": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "description": "URI for /jobs/{id} of the latest ingest job for this SourceVersion."
+            },
+            "parse": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "extract": {
+              "type": [
+                "string",
+                "null"
+              ]
+            }
+          }
+        }
+      }
+    },
+    "SourceVersionListPage": {
+      "type": "object",
+      "description": "GET /sources response envelope. Wraps a CursorPage with SourceVersionView items.",
+      "required": [
+        "items",
+        "pageInfo"
+      ],
+      "additionalProperties": false,
+      "patternProperties": {
+        "^(\\$|x-)": {}
+      },
+      "properties": {
+        "items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/SourceVersionView"
+          }
+        },
+        "pageInfo": {
+          "type": "object",
+          "additionalProperties": false,
+          "patternProperties": {
+            "^(\\$|x-)": {}
+          },
+          "required": [
+            "hasMore"
+          ],
+          "properties": {
+            "hasMore": {
+              "type": "boolean"
+            },
+            "nextCursor": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "totalCount": {
+              "type": [
+                "integer",
+                "null"
+              ]
+            }
+          }
+        }
+      }
+    },
+    "SourceSectionListPage": {
+      "type": "object",
+      "description": "GET /sources/{id}/sections response envelope.",
+      "required": [
+        "items",
+        "pageInfo"
+      ],
+      "additionalProperties": false,
+      "patternProperties": {
+        "^(\\$|x-)": {}
+      },
+      "properties": {
+        "items": {
+          "type": "array",
+          "items": {
+            "$ref": "https://work-spec.org/schemas/studio-source/1.0#/$defs/SourceSection"
+          }
+        },
+        "pageInfo": {
+          "type": "object",
+          "additionalProperties": false,
+          "patternProperties": {
+            "^(\\$|x-)": {}
+          },
+          "required": [
+            "hasMore"
+          ],
+          "properties": {
+            "hasMore": {
+              "type": "boolean"
+            },
+            "nextCursor": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "totalCount": {
+              "type": [
+                "integer",
+                "null"
+              ]
+            }
+          }
+        }
+      }
+    }
+  }
+}

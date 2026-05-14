@@ -1,0 +1,329 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://work-spec.org/schemas/studio-embedding-profile/1.0",
+  "title": "WOS Studio (Authoring) — EmbeddingProfile + EvidencePacket",
+  "description": "Versioned embedding profile catalog plus retrieval-router evidence-packet shape per studio/specs/retrieval-router.md. EmbeddingProfile pins (modelId × modelVersion × profileKind × sourceObjectKind × chunkingStrategy) with explicit invalidation events; RetrievalIndex implementations honor `invalidatedBy` filters at query time. EvidencePacket is the shape returned by the router's stage-6 assembly: hits with their source-standing labels and TrustZone tags, plus the automation-eligibility floor that downstream consumers (AI extraction, policy studio) check before driving automation.",
+  "$comment": "Promotion status (Stage-8 enhancement E2, 2026-05-08): MVP shape. Per-profile chunking-strategy parameters are intentionally permissive (additionalProperties: true on `chunkingStrategy`) so model-family-specific tuning lives outside the spec.",
+  "type": "object",
+  "required": [
+    "$wosStudioEmbeddingProfile",
+    "workspaceId"
+  ],
+  "additionalProperties": false,
+  "patternProperties": {
+    "^(\\$|x-)": {}
+  },
+  "properties": {
+    "$wosStudioEmbeddingProfile": {
+      "type": "string",
+      "const": "1.0",
+      "examples": [
+        "1.0"
+      ],
+      "x-lm": {
+        "critical": true,
+        "intent": "Document type marker for the Studio EmbeddingProfile + EvidencePacket schema family"
+      },
+      "description": "Document marker pinning this artifact to the Studio EmbeddingProfile 1.0 schema."
+    },
+    "workspaceId": {
+      "type": "string"
+    },
+    "embeddingProfile": {
+      "$ref": "#/$defs/EmbeddingProfile"
+    },
+    "embeddingProfiles": {
+      "type": "array",
+      "description": "Collection form: many EmbeddingProfile entries.",
+      "items": {
+        "$ref": "#/$defs/EmbeddingProfile"
+      }
+    },
+    "evidencePacket": {
+      "$ref": "#/$defs/EvidencePacket"
+    }
+  },
+  "$defs": {
+    "EmbeddingProfile": {
+      "type": "object",
+      "description": "Per SA-MUST-router-020/021/022. Pins the embedding's identity (model + version + chunking + sourceObjectKind) and tracks invalidation. Two profiles with identical (modelId, modelVersion, profileKind, sourceObjectKind, chunkingStrategy) are duplicates; the registry adapter MUST reject duplicates per SA-MUST-router-022.",
+      "required": [
+        "profileId",
+        "profileKind",
+        "modelId",
+        "modelVersion",
+        "sourceObjectKind",
+        "createdAt"
+      ],
+      "additionalProperties": false,
+      "patternProperties": {
+        "^(\\$|x-)": {}
+      },
+      "properties": {
+        "profileId": {
+          "type": "string",
+          "examples": [
+            "ep-raw-fragment-bge-large-v1.5-1k"
+          ]
+        },
+        "profileKind": {
+          "type": "string",
+          "description": "Per SA-MUST-router-020. Enum is closed; new kinds require additive schema extension.",
+          "enum": [
+            "rawFragment",
+            "sectionSummary",
+            "ruleFrame",
+            "conceptBag",
+            "metadataProfileSummary"
+          ],
+          "x-lm": {
+            "critical": true,
+            "intent": "Embedding profile kind — load-bearing for router stage-3 routing"
+          }
+        },
+        "modelId": {
+          "type": "string",
+          "examples": [
+            "bge-large-en-v1.5",
+            "text-embedding-3-large"
+          ]
+        },
+        "modelVersion": {
+          "type": "string",
+          "examples": [
+            "1.5",
+            "20240501"
+          ]
+        },
+        "chunkingStrategy": {
+          "type": "object",
+          "description": "Profile-specific chunking parameters (token windows, overlap, structural-boundary rules). Permissive on inner shape; the (modelId, modelVersion, profileKind, sourceObjectKind, chunkingStrategy-tuple) identity is what counts for invalidation.",
+          "additionalProperties": true,
+          "properties": {
+            "tokens": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "overlap": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "strategy": {
+              "type": "string",
+              "examples": [
+                "fixed-token",
+                "sentence-boundary",
+                "section-boundary",
+                "late-chunking"
+              ]
+            }
+          }
+        },
+        "sourceObjectKind": {
+          "type": "string",
+          "description": "What kind of Studio object this profile embeds. Per SA-MUST-router-021.",
+          "enum": [
+            "SourceFragment",
+            "PolicyObject",
+            "NormativeStatement",
+            "ConceptDefinition"
+          ]
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "invalidatedBy": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "AuthoringProvenanceRecord id whose eventKind is `embeddingInvalidatedByModelChange` or `embeddingInvalidatedBySupersession`. When set, RetrievalIndex MUST exclude embeddings of this profile from query results (per SA-MUST-router-024). Reviewers MAY query historical profiles directly for audit but MUST NOT use them in automation paths."
+        },
+        "invalidatedAt": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "date-time"
+        },
+        "trustZone": {
+          "type": "string",
+          "description": "Computed TrustZone of the profile's source objects. For sourceObjectKind=SourceFragment: derived from SourceVersion lifecycle. For sourceObjectKind=PolicyObject / NormativeStatement: derived from PolicyObject lifecycle. The value is informational on the profile; per-hit TrustZone tags are emitted by the router (EvidencePacket).",
+          "enum": [
+            "Z0",
+            "Z1",
+            "Z2",
+            "Z3",
+            "Z4",
+            "Z5",
+            "Z6",
+            "Z7"
+          ]
+        },
+        "notes": {
+          "type": "string"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "invalidatedBy": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "required": [
+              "invalidatedBy"
+            ]
+          },
+          "then": {
+            "required": [
+              "invalidatedAt"
+            ],
+            "$comment": "Per SA-MUST-router-023: an invalidated profile MUST also carry invalidatedAt for audit-trail completeness."
+          }
+        }
+      ]
+    },
+    "EvidencePacket": {
+      "type": "object",
+      "description": "Router stage-6 output per SA-MUST-router-040..042. Carries the ranked hits, the trust-zone floor that gated this query, and the automation-eligibility computed across the packet. Consumers (AI extraction, policy studio) check `automationEligible` before driving automation; semantic-only retrieval MUST NOT drive automation regardless of hit scores (SA-MUST-router-041).",
+      "required": [
+        "hits",
+        "trustZoneFloor",
+        "automationEligible"
+      ],
+      "additionalProperties": false,
+      "patternProperties": {
+        "^(\\$|x-)": {}
+      },
+      "properties": {
+        "queryRef": {
+          "type": "string",
+          "description": "Reference to the query (free-form id; the registry adapter logs the full query for replay)."
+        },
+        "trustZoneFloor": {
+          "type": "string",
+          "description": "Minimum TrustZone admitted into this packet. Stage-1 hard filter rejects below the floor. Per SA-MUST-router-040.",
+          "enum": [
+            "Z0",
+            "Z1",
+            "Z2",
+            "Z3",
+            "Z4",
+            "Z5",
+            "Z6",
+            "Z7"
+          ]
+        },
+        "automationEligible": {
+          "type": "boolean",
+          "description": "Computed across the packet: TRUE only if (a) trustZoneFloor >= Z5 AND (b) every hit's source has SourceAuthority.automationEligibility = canDriveAutomation AND (c) at least one stage-2 (lexical) or stage-4 (structured rerank) signal contributed (semantic-only retrieval is FALSE per SA-MUST-router-041)."
+        },
+        "stagesContributed": {
+          "type": "array",
+          "description": "Which router stages produced signals for this packet. Used by SA-MUST-router-041 to enforce automation-eligibility composition.",
+          "items": {
+            "type": "string",
+            "enum": [
+              "filter",
+              "lexical",
+              "semantic",
+              "structuredRerank",
+              "authorityRerank",
+              "evidenceAssembly"
+            ]
+          }
+        },
+        "hits": {
+          "type": "array",
+          "description": "Ranked retrieval hits. Order is router-determined.",
+          "items": {
+            "$ref": "#/$defs/EvidenceHit"
+          }
+        },
+        "rejected": {
+          "type": "array",
+          "description": "Hits filtered out at stage 1, retained for audit when the router records full provenance. Optional.",
+          "items": {
+            "$ref": "#/$defs/EvidenceHit"
+          }
+        }
+      }
+    },
+    "EvidenceHit": {
+      "type": "object",
+      "description": "A single retrieval hit. Carries source-standing label and TrustZone tag for downstream filtering. Per SA-MUST-router-042 every hit MUST carry both trustZone and authorityClass.",
+      "required": [
+        "sourceFragmentRef",
+        "score",
+        "trustZone",
+        "authorityClass"
+      ],
+      "additionalProperties": false,
+      "patternProperties": {
+        "^(\\$|x-)": {}
+      },
+      "properties": {
+        "sourceFragmentRef": {
+          "type": "string",
+          "description": "Id of the SourceFragment / PolicyObject / NormativeStatement the hit refers to."
+        },
+        "score": {
+          "type": "number",
+          "minimum": 0
+        },
+        "profileId": {
+          "type": "string",
+          "description": "EmbeddingProfile.profileId that produced the semantic-stage signal for this hit (omitted when the hit was lexical-only)."
+        },
+        "trustZone": {
+          "type": "string",
+          "enum": [
+            "Z0",
+            "Z1",
+            "Z2",
+            "Z3",
+            "Z4",
+            "Z5",
+            "Z6",
+            "Z7"
+          ]
+        },
+        "authorityClass": {
+          "type": "string",
+          "description": "Resolved SourceAuthority.authorityClass for the hit's source. References the 12-value enum from wos-studio-source-authority.schema.json.",
+          "enum": [
+            "officialLegalEdition",
+            "officialAgencyGuidance",
+            "officialPolicy",
+            "officialForm",
+            "unofficialConvenienceCopy",
+            "internalGuidance",
+            "trainingMaterial",
+            "draftPolicy",
+            "transcript",
+            "smeNote",
+            "generatedSummary",
+            "unknown"
+          ]
+        },
+        "stages": {
+          "type": "array",
+          "description": "Per-hit list of router stages that contributed signal. Aggregates into EvidencePacket.stagesContributed.",
+          "items": {
+            "type": "string",
+            "enum": [
+              "lexical",
+              "semantic",
+              "structuredRerank",
+              "authorityRerank"
+            ]
+          }
+        }
+      }
+    }
+  }
+}

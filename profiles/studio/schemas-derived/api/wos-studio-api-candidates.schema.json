@@ -1,0 +1,671 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://work-spec.org/schemas/studio-api-candidates/1.0",
+  "title": "WOS Studio (Authoring) - API Extracted Candidates Surface",
+  "description": "Wire shapes for the extracted-candidates read surface per studio/specs/api-candidates.md. Candidate responses expose source refs, source-section refs, prompt refs, extractor/verifier lineage, ConfidenceRecord, review state, promotion eligibility, and provenance refs. The schema reuses SourceCitation, SourceSection, ExtractedClaimReviewState, AuthoringProvenanceRecord, and API common timestamp defs where those schemas already exist.",
+  "$comment": "Promotion status (frontend-MVP, 2026-05-08): read-only candidate list/detail API. ConfidenceRecord is local until schemas/wos-studio-confidence.schema.json lands.",
+  "type": "object",
+  "$defs": {
+    "Sha256Hash": {
+      "type": "string",
+      "pattern": "^sha256:[a-fA-F0-9]{64}$"
+    },
+    "SourceAutomationEligibility": {
+      "type": "string",
+      "description": "Mirrors SourceAuthority.automationEligibility in wos-studio-source-authority.schema.json; duplicated here because JSON Schema cannot $ref an inline property.",
+      "enum": [
+        "canDriveAutomation",
+        "reviewOnly",
+        "searchOnly"
+      ]
+    },
+    "VerifierResult": {
+      "type": "string",
+      "enum": [
+        "agreed",
+        "disagreed",
+        "abstained",
+        "error"
+      ]
+    },
+    "ConfidenceRecord": {
+      "type": "object",
+      "description": "Six-signal confidence record per ADR-0088 and SA-MUST-arch-082. No single signal gates approval alone.",
+      "required": [
+        "schemaValidationResult",
+        "citationSupportScore",
+        "retrievalScore",
+        "verifierResult",
+        "riskTier",
+        "humanReviewState"
+      ],
+      "additionalProperties": false,
+      "patternProperties": {
+        "^(\\$|x-)": {}
+      },
+      "properties": {
+        "schemaValidationResult": {
+          "type": "string",
+          "enum": [
+            "passed",
+            "failed",
+            "recovered"
+          ]
+        },
+        "citationSupportScore": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "retrievalScore": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "verifierResult": {
+          "$ref": "#/$defs/VerifierResult"
+        },
+        "riskTier": {
+          "type": "string",
+          "enum": [
+            "low",
+            "medium",
+            "high",
+            "block"
+          ]
+        },
+        "humanReviewState": {
+          "type": "string",
+          "enum": [
+            "pending",
+            "approved",
+            "rejected",
+            "revisedThenApproved"
+          ]
+        }
+      }
+    },
+    "SourceRef": {
+      "type": "object",
+      "description": "Stable source-level refs for an extracted candidate. sourceDocumentRef and sourceVersionRef are required for every response.",
+      "required": [
+        "sourceDocumentRef",
+        "sourceVersionRef"
+      ],
+      "additionalProperties": false,
+      "patternProperties": {
+        "^(\\$|x-)": {}
+      },
+      "properties": {
+        "sourceDocumentRef": {
+          "type": "string"
+        },
+        "sourceVersionRef": {
+          "type": "string"
+        },
+        "sourceAuthorityRef": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "automationEligibility": {
+          "$ref": "#/$defs/SourceAutomationEligibility"
+        }
+      }
+    },
+    "PromptRef": {
+      "type": "object",
+      "description": "PromptRegistry snapshot used by the extractor.",
+      "required": [
+        "promptTemplateRef",
+        "promptTemplateVersion",
+        "inputContextHash"
+      ],
+      "additionalProperties": false,
+      "patternProperties": {
+        "^(\\$|x-)": {}
+      },
+      "properties": {
+        "promptTemplateRef": {
+          "type": "string"
+        },
+        "promptTemplateVersion": {
+          "type": "string"
+        },
+        "inputContextHash": {
+          "$ref": "#/$defs/Sha256Hash"
+        }
+      }
+    },
+    "ModelLineage": {
+      "type": "object",
+      "description": "Recorded model invocation identity and byte hashes. These are server-recorded replay inputs/outputs, not client-supplied claims.",
+      "required": [
+        "modelId",
+        "modelVersion",
+        "modelFamily",
+        "inputHash",
+        "outputHash"
+      ],
+      "additionalProperties": false,
+      "patternProperties": {
+        "^(\\$|x-)": {}
+      },
+      "properties": {
+        "modelId": {
+          "type": "string"
+        },
+        "modelVersion": {
+          "type": "string"
+        },
+        "modelFamily": {
+          "type": "string",
+          "description": "Family used to verify extractor/verifier independence per SA-MUST-arch-085."
+        },
+        "modelVersionPolicy": {
+          "type": "string",
+          "enum": [
+            "pinned",
+            "rolling",
+            "latest"
+          ]
+        },
+        "invocationRef": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "inputHash": {
+          "$ref": "#/$defs/Sha256Hash"
+        },
+        "outputHash": {
+          "$ref": "#/$defs/Sha256Hash"
+        },
+        "retrievalSetHash": {
+          "$ref": "#/$defs/Sha256Hash"
+        }
+      }
+    },
+    "VerifierLineage": {
+      "type": "object",
+      "description": "Recorded verifier invocation identity, byte hashes, and verifier result.",
+      "required": [
+        "modelId",
+        "modelVersion",
+        "modelFamily",
+        "inputHash",
+        "outputHash",
+        "verifierResult"
+      ],
+      "additionalProperties": false,
+      "patternProperties": {
+        "^(\\$|x-)": {}
+      },
+      "properties": {
+        "modelId": {
+          "type": "string"
+        },
+        "modelVersion": {
+          "type": "string"
+        },
+        "modelFamily": {
+          "type": "string",
+          "description": "Family used to verify extractor/verifier independence per SA-MUST-arch-085."
+        },
+        "modelVersionPolicy": {
+          "type": "string",
+          "enum": [
+            "pinned",
+            "rolling",
+            "latest"
+          ]
+        },
+        "invocationRef": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "inputHash": {
+          "$ref": "#/$defs/Sha256Hash"
+        },
+        "outputHash": {
+          "$ref": "#/$defs/Sha256Hash"
+        },
+        "retrievalSetHash": {
+          "$ref": "#/$defs/Sha256Hash"
+        },
+        "verifierResult": {
+          "$ref": "#/$defs/VerifierResult"
+        }
+      }
+    },
+    "CandidateLineage": {
+      "type": "object",
+      "required": [
+        "extractor",
+        "verifier"
+      ],
+      "additionalProperties": false,
+      "patternProperties": {
+        "^(\\$|x-)": {}
+      },
+      "properties": {
+        "extractor": {
+          "$ref": "#/$defs/ModelLineage"
+        },
+        "verifier": {
+          "$ref": "#/$defs/VerifierLineage"
+        }
+      }
+    },
+    "PromotionState": {
+      "type": "string",
+      "enum": [
+        "eligible",
+        "needs-human-review",
+        "blocked",
+        "already-promoted"
+      ]
+    },
+    "PromotionBlockReason": {
+      "type": "object",
+      "required": [
+        "ruleId",
+        "code"
+      ],
+      "additionalProperties": false,
+      "patternProperties": {
+        "^(\\$|x-)": {}
+      },
+      "properties": {
+        "ruleId": {
+          "type": "string",
+          "examples": [
+            "SA-MUST-srcauth-031",
+            "SA-MUST-arch-085",
+            "SA-MUST-source-021"
+          ]
+        },
+        "code": {
+          "type": "string",
+          "enum": [
+            "human-review-pending",
+            "human-review-rejected",
+            "source-review-only",
+            "source-search-only",
+            "source-authority-missing",
+            "schema-validation-failed",
+            "schema-validation-recovered",
+            "verifier-disagreed",
+            "verifier-abstained",
+            "verifier-error",
+            "verifier-family-not-independent",
+            "risk-block",
+            "citation-unsupported",
+            "already-promoted"
+          ]
+        },
+        "message": {
+          "type": "string"
+        },
+        "subjectRef": {
+          "type": "string"
+        }
+      }
+    },
+    "PromotionEligibility": {
+      "type": "object",
+      "description": "Read-only server projection. This is not an approval decision and does not emit provenance by itself.",
+      "required": [
+        "eligible",
+        "state",
+        "reasons"
+      ],
+      "additionalProperties": false,
+      "patternProperties": {
+        "^(\\$|x-)": {}
+      },
+      "properties": {
+        "eligible": {
+          "type": "boolean"
+        },
+        "state": {
+          "$ref": "#/$defs/PromotionState"
+        },
+        "reasons": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/PromotionBlockReason"
+          }
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "eligible": {
+                "const": true
+              }
+            },
+            "required": [
+              "eligible"
+            ]
+          },
+          "then": {
+            "properties": {
+              "state": {
+                "const": "eligible"
+              },
+              "reasons": {
+                "maxItems": 0
+              }
+            },
+            "$comment": "Per SA-MUST-api-candidates-050/051: eligible=true only when state=eligible and no block reasons remain."
+          }
+        }
+      ]
+    },
+    "CandidateProvenanceRefs": {
+      "type": "object",
+      "description": "Stable AuthoringProvenanceRecord ids associated with this candidate.",
+      "required": [
+        "extractionRecordRef",
+        "candidateRecordRefs"
+      ],
+      "additionalProperties": false,
+      "patternProperties": {
+        "^(\\$|x-)": {}
+      },
+      "properties": {
+        "extractionRecordRef": {
+          "type": "string"
+        },
+        "verifierRecordRef": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "latestReviewRecordRef": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "candidateRecordRefs": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "ExtractedCandidateSummary": {
+      "type": "object",
+      "description": "List-row candidate read model. Carries enough source, lineage, confidence, review, promotion, and provenance data for the frontend candidate queue.",
+      "required": [
+        "candidateId",
+        "workspaceId",
+        "candidateType",
+        "sourceRef",
+        "sourceSectionRef",
+        "sourceCitation",
+        "promptRef",
+        "lineage",
+        "confidence",
+        "reviewState",
+        "promotionEligibility",
+        "provenanceRefs",
+        "createdAt",
+        "updatedAt"
+      ],
+      "additionalProperties": false,
+      "patternProperties": {
+        "^(\\$|x-)": {}
+      },
+      "properties": {
+        "candidateId": {
+          "type": "string"
+        },
+        "workspaceId": {
+          "type": "string"
+        },
+        "extractJobRef": {
+          "type": "string"
+        },
+        "candidateType": {
+          "type": "string",
+          "description": "What kind of PolicyObject or authoring object this candidate could become."
+        },
+        "sourceRef": {
+          "$ref": "#/$defs/SourceRef"
+        },
+        "sourceSectionRef": {
+          "type": "string"
+        },
+        "sourceCitation": {
+          "$ref": "https://work-spec.org/schemas/studio-source/1.0#/$defs/SourceCitation"
+        },
+        "promptRef": {
+          "$ref": "#/$defs/PromptRef"
+        },
+        "lineage": {
+          "$ref": "#/$defs/CandidateLineage"
+        },
+        "confidence": {
+          "$ref": "#/$defs/ConfidenceRecord"
+        },
+        "reviewState": {
+          "$ref": "https://work-spec.org/schemas/studio-common/1.0#/$defs/ExtractedClaimReviewState"
+        },
+        "promotionEligibility": {
+          "$ref": "#/$defs/PromotionEligibility"
+        },
+        "provenanceRefs": {
+          "$ref": "#/$defs/CandidateProvenanceRefs"
+        },
+        "promotedTo": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "extractedFields": {
+          "type": "object",
+          "description": "Free-form bag of extracted field values; present on detail responses and MAY be present in list rows when compact enough.",
+          "additionalProperties": true
+        },
+        "rawExtractedClaim": {
+          "$ref": "https://work-spec.org/schemas/studio-source/1.0#/$defs/ExtractedClaim"
+        },
+        "createdAt": {
+          "$ref": "https://work-spec.org/schemas/studio-api-common/1.0#/$defs/RFC3339Timestamp"
+        },
+        "updatedAt": {
+          "$ref": "https://work-spec.org/schemas/studio-api-common/1.0#/$defs/RFC3339Timestamp"
+        }
+      }
+    },
+    "ExtractedCandidateDetail": {
+      "type": "object",
+      "description": "Detail response wrapper for GET /extracted-candidates/{id}. Optional sourceSection/provenance arrays are included only when requested.",
+      "required": [
+        "candidate"
+      ],
+      "additionalProperties": false,
+      "patternProperties": {
+        "^(\\$|x-)": {}
+      },
+      "properties": {
+        "candidate": {
+          "allOf": [
+            {
+              "$ref": "#/$defs/ExtractedCandidateSummary"
+            },
+            {
+              "type": "object",
+              "properties": {
+                "extractedFields": {
+                  "type": "object",
+                  "additionalProperties": true
+                },
+                "rawExtractedClaim": {
+                  "$ref": "https://work-spec.org/schemas/studio-source/1.0#/$defs/ExtractedClaim"
+                }
+              }
+            }
+          ]
+        },
+        "sourceSection": {
+          "$ref": "https://work-spec.org/schemas/studio-source/1.0#/$defs/SourceSection"
+        },
+        "provenanceRecords": {
+          "type": "array",
+          "items": {
+            "$ref": "https://work-spec.org/schemas/studio-provenance/1.0#/$defs/AuthoringProvenanceRecord"
+          }
+        }
+      }
+    },
+    "PageInfo": {
+      "type": "object",
+      "required": [
+        "hasMore",
+        "orderBy",
+        "snapshotWatermark",
+        "cursorScopeHash"
+      ],
+      "additionalProperties": false,
+      "patternProperties": {
+        "^(\\$|x-)": {}
+      },
+      "properties": {
+        "hasMore": {
+          "type": "boolean"
+        },
+        "nextCursor": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "totalCount": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "orderBy": {
+          "$ref": "#/$defs/CandidateListOrderBy"
+        },
+        "snapshotWatermark": {
+          "$ref": "#/$defs/CandidateListSnapshotWatermark"
+        },
+        "cursorScopeHash": {
+          "$ref": "#/$defs/Sha256Hash"
+        }
+      }
+    },
+    "CandidateListOrderBy": {
+      "type": "string",
+      "description": "Default and currently only supported candidate-list ordering. The queue is oldest-first by immutable creation tuple so review updates do not reorder an in-progress scan.",
+      "enum": [
+        "createdAt.asc,candidateId.asc"
+      ]
+    },
+    "CandidateListSnapshotWatermark": {
+      "type": "object",
+      "description": "Server-issued read snapshot and upper bound for an extracted-candidate list scan. capturedAt is always present. maxCreatedAt/maxCandidateId are either both concrete values for a non-empty visible snapshot or both null when the normalized request has no visible candidates.",
+      "required": [
+        "capturedAt",
+        "maxCreatedAt",
+        "maxCandidateId"
+      ],
+      "additionalProperties": false,
+      "patternProperties": {
+        "^(\\$|x-)": {}
+      },
+      "properties": {
+        "capturedAt": {
+          "$ref": "https://work-spec.org/schemas/studio-api-common/1.0#/$defs/RFC3339Timestamp"
+        },
+        "maxCreatedAt": {
+          "anyOf": [
+            {
+              "$ref": "https://work-spec.org/schemas/studio-api-common/1.0#/$defs/RFC3339Timestamp"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "maxCandidateId": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "oneOf": [
+        {
+          "properties": {
+            "maxCreatedAt": {
+              "$ref": "https://work-spec.org/schemas/studio-api-common/1.0#/$defs/RFC3339Timestamp"
+            },
+            "maxCandidateId": {
+              "type": "string"
+            }
+          }
+        },
+        {
+          "properties": {
+            "maxCreatedAt": {
+              "type": "null"
+            },
+            "maxCandidateId": {
+              "type": "null"
+            }
+          }
+        }
+      ]
+    },
+    "ExtractedCandidateListPage": {
+      "type": "object",
+      "description": "Cursor-paginated response for candidate list endpoints.",
+      "required": [
+        "workspaceId",
+        "items",
+        "pageInfo"
+      ],
+      "additionalProperties": false,
+      "patternProperties": {
+        "^(\\$|x-)": {}
+      },
+      "properties": {
+        "workspaceId": {
+          "type": "string"
+        },
+        "extractJobRef": {
+          "type": "string"
+        },
+        "sourceVersionRef": {
+          "type": "string"
+        },
+        "items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ExtractedCandidateSummary"
+          }
+        },
+        "pageInfo": {
+          "$ref": "#/$defs/PageInfo"
+        }
+      }
+    }
+  }
+}
