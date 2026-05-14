@@ -224,7 +224,7 @@ def evaluate(path: Path) -> FixtureResult:
     #   negative  → MUST fail L2 OR L3.
     #   behavior  → MUST pass L1 + L2; L3 not gated (input @graph may contain
     #               stubs as declarative meta-content). L4 verdict is set
-    #               separately by Plan 7b runtime impl (currently "skip").
+    #               separately by rkaf-behavior-validate.
     #   edge      → no strict expectation; report only.
     if result.expected == "positive":
         result.diverged = not (result.l2 == "pass" and result.l3 == "pass")
@@ -246,7 +246,10 @@ def evaluate(path: Path) -> FixtureResult:
     return result
 
 
-_RUNTIME_BIN = ROOT / "crates" / "target" / "debug" / "rkaf-behavior-validate"
+_RUNTIME_BINS = [
+    ROOT / "crates" / "target" / "debug" / "rkaf-behavior-validate",
+    ROOT / "crates" / "target" / "release" / "rkaf-behavior-validate",
+]
 
 
 def _l4_batch_evaluate(results: list) -> dict[str, str]:
@@ -254,12 +257,13 @@ def _l4_batch_evaluate(results: list) -> dict[str, str]:
     Returns a {fixture_stem: "pass"|"fail"|"error"} map. If the binary is
     missing, returns an empty map (caller treats as skip).
     """
-    if not _RUNTIME_BIN.is_file():
+    runtime_bin = next((p for p in _RUNTIME_BINS if p.is_file()), None)
+    if runtime_bin is None:
         return {}
     import subprocess
     paths = [str(FIXTURES_DIR / r.name) for r in results]
     proc = subprocess.run(
-        [str(_RUNTIME_BIN), "--json", *paths],
+        [str(runtime_bin), "--json", *paths],
         capture_output=True, cwd=ROOT,
     )
     if proc.returncode not in (0, 1):
@@ -299,7 +303,7 @@ def main() -> int:
                 r.diverged = True
             else:
                 r.l4 = "skip"
-                r.notes.append("L4: rkaf-behavior-validate binary missing; build with `cargo build -p rkaf-runtime-cli`")
+                r.notes.append("L4: rkaf-behavior-validate binary missing; build with `cargo build --manifest-path crates/Cargo.toml --workspace`")
 
     diverged = [r for r in results if r.diverged]
 

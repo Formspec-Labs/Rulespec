@@ -8,18 +8,18 @@ Every change to Rulespec shapes, fixtures, or specification proceeds through the
 
 1. **Anchor on spec sections.** Each new shape or constraint cites a specific section of the spec it enforces. No constraint exists without a textual basis.
 
-2. **Validate against all fixtures.** Run `python3 tools/ci_validate.py --mode batch4` against every fixture. Capture initial violation count.
+2. **Validate against all fixtures.** Run the relevant discovery-based gate (`python3 tools/ci_validate.py`, `python3 tools/validate_negatives.py`, `python3 tools/conformance_report.py`, or `python3 tools/vocab_audit.py`). Capture the initial violation count.
 
 3. **Classify violations.** Every violation falls into exactly one category:
    - **Shape over-strictness** — the shape requires more than the spec text. Patch the shape.
    - **Shape under-coverage** — the shape doesn't enforce what the spec text says. Patch the shape.
    - **Fixture defect** — the fixture doesn't represent the spec correctly. Patch the fixture.
    - **Spec ambiguity** — the spec text doesn't decide. Open an issue; do not silently patch.
-   - **Intended failure** — the fixture is supposed to demonstrate a violation. Mark and skip.
+   - **Intended failure** — the fixture is supposed to demonstrate a violation. Put it in the negative corpus and verify it fails through `tools/validate_negatives.py`; do not hide it with an allow-list.
 
 4. **Patch evidence-driven.** Each patch addresses a specific classified violation. No speculative spec changes. No new vocabulary unless validation forces it.
 
-5. **Converge to clean.** Iterate until 0 violations across 1,206+ triples. Document the iteration arc in a batch report under `reports/`.
+5. **Converge to clean.** Iterate until the relevant gate reports 0 unexpected violations or 0 divergences. Document the iteration arc in a batch report under `reports/` when the change affects release posture.
 
 This method produced four clean iteration arcs (251→14→0, 7→0, 2→0, 0→6→0) with zero spec drift across v0.1-rc1 through v0.1.1.
 
@@ -120,7 +120,7 @@ A shape, fixture, or context PR should include:
 
 - Rationale citing the relevant spec section
 - Initial validation output (count of violations before the change)
-- Final validation output (0 violations across 1,206+ triples after the change)
+- Final validation output from the relevant discovery-based gates after the change
 - Synthetic defect tests for any new conditional logic (CAUGHT confirmation)
 - Coverage matrix update if a previously-gap shape gains a fixture target
 - Hash table update in `reports/v0.1.1-release-manifest.md` if any shipped file's SHA-256 changes

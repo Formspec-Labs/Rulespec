@@ -4,19 +4,25 @@
   "@type": "rkaf:BehaviorTestCase",
   "rkaf:behaviorContract": "rkaf:BridgeContractRule",
   "rkaf:contractRuleNumber": 10,
-  "rkaf:rationale": "GeneratedWorkProduct lacks justifiedByAssertion. Rule fires.",
+  "rkaf:rationale": "GeneratedWorkProduct carries justifiedByAssertion, but the referenced Assertion has no terminating authority / adoption chain. Rule fires at L4 without relying on an L2 shape failure.",
   "rkaf:input": {
     "@graph": [
       {
         "@id": "wp1",
         "@type": "rkaf:GeneratedWorkProduct",
+        "rkaf:justifiedByAssertion": "a1",
         "rkaf:consumerLifecycleState": "rkaf:operational"
+      },
+      {
+        "@id": "a1",
+        "@type": "rkaf:Assertion",
+        "rkaf:assertionOrigin": "rkaf:humanAsserted"
       }
     ]
   },
   "rkaf:expectedOutput": {
     "bridgeValidationResult": "rkaf:rejected",
-    "errorClass": "rkaf:MissingJustificationMetadata",
-    "rationale": "GeneratedWorkProduct wp1 has no justifiedByAssertion"
+    "errorClass": "rkaf:UnterminatedJustificationChain",
+    "rationale": "GeneratedWorkProduct's justifiedByAssertion has no terminating chain per Rule 7"
   }
 }

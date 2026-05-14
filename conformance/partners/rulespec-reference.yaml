@@ -10,31 +10,28 @@ declared_levels:
   - L1
   - L2
   - L3
+  - L4
 
 adoption_depth: D3   # reference consumer; this repo IS the reference implementation
 
-test_corpus_run_at: "2026-05-13"
+test_corpus_run_at: "2026-05-14T03:38:23.334076+00:00"
 test_corpus_commit: "<see git log>"
 
 results:
   L1: pass
-  L2: pass     # rkaf-validate: every positive fixture validates; every negative surfaces ≥1 violation
-  L3: pass     # tools/ci_validate.py: 33 positive fixtures across 19 SHACL shape files, 0 violations; 4 negatives FAIL-AS-EXPECTED
-  L4: not-claimed
-              # Runtime behavior contracts (usageEligibility reducer, CascadeClosureV1,
-              # 10 bridge rules) are documented in spec/rkaf-behavior.md but not yet
-              # enforced by an automated suite. Plan 7b will close this.
+  L2: pass     # rkaf-validate: discovered positive fixtures validate and cover every embedded schema type.
+  L3: pass     # tools/ci_validate.py: 41 positive fixtures across 39 SHACL shape files, 0 violations; 104 negatives FAIL-AS-EXPECTED.
+  L4: pass     # rkaf-behavior-validate: 33 behavior fixtures cover reducer, cascade, PIT, concept resolution, and all 10 bridge rules.
 
 notes: |
   This implementation is the reference. Shape conformance (L1-L3) is end-to-end:
   CUE source-of-truth compiles to JSON Schema + SHACL + Rust; rkaf-validate
-  embeds the JSON Schema; tools/ci_validate.py runs the SHACL gate; both gates
-  are wired into CI.
+  discovers and embeds every compiled class schema; tools/ci_validate.py and
+  tools/validate_negatives.py discover the current fixture and shape corpora.
+  tools/conformance_report.py evaluated 193 fixtures with 0 divergences.
 
-  L4 behavioral conformance is the remaining gap. spec/rkaf-behavior.md §7
-  enumerates the runtime contracts (reducer, cascade closure, bridge rules,
-  point-in-time exceptions, stale transition) with a codification roadmap
-  pointing at Plan 7b conformance fixtures.
+  L4 behavioral conformance is enforced by crates/rkaf-runtime and
+  rkaf-behavior-validate against the 33 fixtures under fixtures/behavior/.
 
   Documented divergences:
     - 2 adversarial fixtures (`conditional-silent-pass-positive`,

@@ -2,7 +2,7 @@
 
 *Making rules legible to software.*
 
-**Version** `0.2.0-pre.5` · **Bridge contract** `rkaf-bridge/1.0` · **Conformance** 170 fixtures across 5 spec layers, 0 divergences
+**Version** `0.2.0-pre.5` · **Bridge contract** `rkaf-bridge/1.0` · **Conformance** 193 L1-L4 fixtures plus vocabulary audit, 0 divergences
 
 ---
 
@@ -51,16 +51,17 @@ Rulespec is enforced as five concentric layers. A fixture passes a layer only if
 | Layer | What it checks | How |
 |---|---|---|
 | **L1 — Parse** | Valid JSON-LD, contexts resolve, IRIs well-formed | `tools/ci_validate.py` parse pass |
-| **L2 — Shape** | JSON Schema conformance per primitive type | Generated schemas under `schemas/` |
+| **L2 — Shape** | JSON Schema conformance per primitive type | Generated schemas under `compiled/json-schema/core/` |
 | **L3 — Constraint** | Cross-property invariants (SHACL Pattern-C) | Shape files under `shapes/` |
 | **L4 — Behavior** | Five algorithmic contracts — usage-eligibility reducer, cascade closure, ten bridge-contract rules, point-in-time exceptions, concept-resolution conflict | `rkaf-behavior-validate` (Rust runtime) |
-| **L5 — Vocabulary** | Every term declared in context + spec + shape + schema | `tools/vocab_audit.py` |
+| **L5 — Vocabulary** | Vocabulary rows, CUE source, compiled schemas, and named fixtures stay aligned | `tools/vocab_audit.py` |
 
 Run the full sweep:
 
 ```bash
-cargo build -p rkaf-runtime-cli --release
+cargo build --manifest-path crates/Cargo.toml --workspace
 python3 tools/conformance_report.py
+python3 tools/vocab_audit.py
 ```
 
 The report cross-references every fixture against every layer. Behavior fixtures are produced by a small but exact Rust runtime that implements the five contracts described in `spec/rkaf-behavior.md`.

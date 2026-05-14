@@ -54,7 +54,7 @@ An L2 implementation MUST:
 
 ### 2.3 Self-certification
 
-Declaring L2 requires that **every positive fixture validates cleanly** and **every negative fixture surfaces ≥1 violation** through the implementation.
+Declaring L2 requires that **every positive fixture validates cleanly** and every embedded JSON Schema type has positive-fixture coverage. Negative fixtures MUST surface at least one L2 or L3 violation across the reference gates.
 
 ## 3. L3 — Constraint [Normative]
 
@@ -73,7 +73,7 @@ An L3 implementation MUST:
 
 ### 3.3 Self-certification
 
-Declaring L3 requires that **every positive fixture passes the full SHACL shape suite** and **every negative fixture surfaces the documented invariant violation**.
+Declaring L3 requires that **every positive fixture passes the full SHACL shape suite** and **every negative fixture surfaces at least one L2 or L3 violation** through the reference gates.
 
 ## 4. L4 — Behavior [Normative]
 
@@ -93,7 +93,7 @@ An L4 implementation MUST:
 
 L4 conformance is gated by `crates/rkaf-runtime-cli/src/main.rs` (the `rkaf-behavior-validate` binary). `tools/conformance_report.py` shells out to this binary for every fixture under `fixtures/behavior/`, parses the per-fixture JSON verdict, and populates the L4 column with `pass` / `fail` / `error` / `skip`. Exit 0 from the binary across all behavior fixtures (33 today: 2 cascade — base + as_of; 5 reducer — applicability gate, capability cap, local broadens, stale narrows, stale-with-honored-PIT; 2 PIT — base + unsupported anchor; 4 concept-resolution — base conflict + 3-step severity ladder (informational, publicationBlocking, authorityCritical); 20 bridge-rule — positive + negative per all 10 contract rules) is the L4 gate.
 
-When the binary is missing (e.g., the workspace has not been built), the reporter degrades to `L4: skip` with a clear note pointing at `cargo build -p rkaf-runtime-cli`.
+When the binary is missing (e.g., the workspace has not been built), the reporter degrades to `L4: skip` with a clear note pointing at `cargo build --manifest-path crates/Cargo.toml --workspace`.
 
 ### 4.3 Self-certification
 
@@ -105,12 +105,13 @@ The conformance test corpus lives under `fixtures/`. The §10.1 coverage target 
 
 | Coverage | Target | Current |
 |---|---|---|
-| Per-class positive fixtures | every codified class | 28 fixtures across 27 classes |
-| Per-class negative fixtures | every codified class | covered for the core 27 (see `negatives/` subdirectory) |
-| Per-class edge fixtures | every codified class | covered for representative cases |
-| Adversarial fixtures | ≥5 | 5 (in `fixtures/adversarial/`) |
+| Per-class positive fixtures | every embedded compiled schema type | 41 positive fixtures; `rkaf-validate` asserts coverage for all 31 embedded `@type` schemas |
+| Per-class negative fixtures | every codified class with required fields | 104 negative fixtures; `tools/validate_negatives.py` discovers and gates all of them |
+| Per-class edge fixtures | every codified class | 15 representative edge fixtures |
+| Behavior fixtures | every L4 contract family | 33 behavior fixtures |
+| Adversarial fixtures | ≥5 | 6 (in `fixtures/adversarial/`) |
 | AI-extraction adversarial fixtures | ≥3 | 3 (in `fixtures/ai-extraction/`) |
-| Projector round-trip fixtures | every projector × Attach/Extract | 7 (in `fixtures/projectors/`) |
+| Projector round-trip fixtures | every projector × Attach/Extract | 5 (in `fixtures/projectors/`) |
 | Cross-target parity fixtures | every CORE Vocabulary class × {JSON Schema, SHACL} | covered via `tools/constraints_parity.py` |
 
 A class's negative + edge fixtures are housed in `fixtures/negatives/<class>-*.jsonld` and `fixtures/edges/<class>-*.jsonld` respectively to keep the positive set discoverable.
@@ -123,14 +124,14 @@ Implementations declaring a conformance level publish a YAML at `conformance/par
 partner: "<organization or maintainer name>"
 implementation: "<package@version>"
 rulespec_version: "<commit hash or pre-release tag>"
-declared_levels: [L1, L2, L3]   # or subset
+declared_levels: [L1, L2, L3, L4]   # or subset
 test_corpus_run_at: "<date>"
 test_corpus_commit: "<rulespec commit>"
 results:
   L1: pass
   L2: pass
   L3: pass
-  L4: not-claimed
+  L4: pass
 notes: |
   Free-form. Document what the implementation does and does not enforce.
 ```
