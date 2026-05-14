@@ -1,0 +1,63 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@id": "urn:rkaf:fixture:beh:br8:target-finding",
+  "@type": "rkaf:BehaviorTestCase",
+  "rkaf:behaviorContract": "rkaf:BridgeContractRule",
+  "rkaf:contractRuleNumber": 8,
+  "rkaf:rationale": "BVR surfaces a staleDep issue and lists a Finding for it. An effective Attestation targets that Finding (not the BVR) via rkaf:targetFinding — per ADR-0093 this satisfies the issue→attestation contract just as cleanly as the legacy BVR-level match. Rule passes.",
+  "rkaf:input": {
+    "@graph": [
+      {
+        "@id": "biac1",
+        "@type": "rkaf:BridgeIssueAttestationContract",
+        "rkaf:consumer": "urn:rkaf:consumer:test",
+        "rkaf:attestedIssueKinds": [
+          "rkaf:staleDep"
+        ],
+        "rkaf:contractVersion": "1.0.0"
+      },
+      {
+        "@id": "finding-stale-1",
+        "@type": "rkaf:Finding",
+        "rkaf:findingKind": "rkaf:staleDependency",
+        "rkaf:detectedAt": "2026-04-15T00:00:00Z",
+        "rkaf:detectedBy": "bvr1",
+        "rkaf:subject": "urn:rkaf:fixture:assert:upstream-rule",
+        "rkaf:severity": "rkaf:operationalConflict",
+        "rkaf:rationale": "Upstream Assertion superseded; downstream rebind pending."
+      },
+      {
+        "@id": "bvr1",
+        "@type": "rkaf:BridgeValidationResult",
+        "rkaf:packetId": "pkt1",
+        "rkaf:consumer": "urn:rkaf:consumer:test",
+        "rkaf:bridgeContractVersion": "rkaf-bridge/1.0",
+        "rkaf:result": "rkaf:acceptedWithWarnings",
+        "rkaf:effectiveUsageEligibility": "rkaf:reviewQueueOnly",
+        "rkaf:effectiveUsageEligibilityRationale": "stale dependency under named-authority waiver",
+        "rkaf:validatedAt": "2026-04-15T00:00:00Z",
+        "rkaf:detectedIssues": [
+          "rkaf:staleDep"
+        ],
+        "rkaf:findings": [
+          "finding-stale-1"
+        ]
+      },
+      {
+        "@id": "att-waiver-1",
+        "@type": "rkaf:Attestation",
+        "rkaf:attestor": "urn:rkaf:fixture:actor:program-director",
+        "rkaf:attestorKind": "rkaf:formalReviewer",
+        "rkaf:decision": "rkaf:approvedWithConditions",
+        "rkaf:attestationScope": "urn:rkaf:fixture:scope:in-flight-recerts-q2-2026",
+        "rkaf:attestedAt": "2026-04-15T00:00:00Z",
+        "rkaf:targetFinding": "finding-stale-1",
+        "rkaf:targets": ["urn:rkaf:fixture:assert:upstream-rule"],
+        "rkaf:rationale": "Waiver: in-flight recerts opened before the upstream supersession may continue under the prior Assertion until Q2 close."
+      }
+    ]
+  },
+  "rkaf:expectedOutput": {
+    "bridgeValidationResult": "rkaf:accepted"
+  }
+}

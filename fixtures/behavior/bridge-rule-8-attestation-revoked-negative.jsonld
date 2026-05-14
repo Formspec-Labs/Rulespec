@@ -1,0 +1,52 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@id": "urn:rkaf:fixture:beh:br8:revoked",
+  "@type": "rkaf:BehaviorTestCase",
+  "rkaf:behaviorContract": "rkaf:BridgeContractRule",
+  "rkaf:contractRuleNumber": 8,
+  "rkaf:rationale": "BVR surfaces a staleDep issue AND an Attestation references the BVR — but the Attestation was revoked BEFORE the BVR's validatedAt. Plan 7e: a revoked Attestation no longer satisfies the issue→attestation contract. Rule MUST reject.",
+  "rkaf:input": {
+    "@graph": [
+      {
+        "@id": "biac1",
+        "@type": "rkaf:BridgeIssueAttestationContract",
+        "rkaf:consumer": "urn:rkaf:consumer:test",
+        "rkaf:attestedIssueKinds": [
+          "rkaf:staleDep"
+        ],
+        "rkaf:contractVersion": "1.0.0"
+      },
+      {
+        "@id": "bvr1",
+        "@type": "rkaf:BridgeValidationResult",
+        "rkaf:packetId": "pkt1",
+        "rkaf:consumer": "urn:rkaf:consumer:test",
+        "rkaf:bridgeContractVersion": "rkaf-bridge/1.0",
+        "rkaf:result": "rkaf:acceptedWithWarnings",
+        "rkaf:effectiveUsageEligibility": "rkaf:reviewQueueOnly",
+        "rkaf:effectiveUsageEligibilityRationale": "stale dependency",
+        "rkaf:validatedAt": "2026-04-15T00:00:00Z",
+        "rkaf:detectedIssues": [
+          "rkaf:staleDep"
+        ]
+      },
+      {
+        "@id": "att1",
+        "@type": "rkaf:Attestation",
+        "rkaf:attestor": "urn:rkaf:consumer:test",
+        "rkaf:attestorKind": "rkaf:automatedParser",
+        "rkaf:decision": "rkaf:flaggedForReview",
+        "rkaf:attestationScope": "urn:rkaf:scope:bridge",
+        "rkaf:attestedAt": "2026-03-01T00:00:00Z",
+        "rkaf:revokedAt": "2026-04-01T00:00:00Z",
+        "rkaf:targets": [
+          "bvr1"
+        ]
+      }
+    ]
+  },
+  "rkaf:expectedOutput": {
+    "bridgeValidationResult": "rkaf:rejected",
+    "errorClass": "rkaf:UnattestedConsumerIssue"
+  }
+}

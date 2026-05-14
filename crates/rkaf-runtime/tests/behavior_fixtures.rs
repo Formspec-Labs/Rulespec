@@ -196,6 +196,19 @@ fn bridge_rule_8_positive() {
 fn bridge_rule_8_negative() {
     assert_passes("bridge-rule-8-issue-without-attestation-negative");
 }
+// Plan 7e — effectiveness + targetFinding refinements of rule_8.
+#[test]
+fn bridge_rule_8_attestation_revoked() {
+    assert_passes("bridge-rule-8-attestation-revoked-negative");
+}
+#[test]
+fn bridge_rule_8_attestation_out_of_period() {
+    assert_passes("bridge-rule-8-attestation-out-of-period-negative");
+}
+#[test]
+fn bridge_rule_8_targeted_finding() {
+    assert_passes("bridge-rule-8-targeted-finding-positive");
+}
 #[test]
 fn bridge_rule_9_positive() {
     assert_passes("bridge-rule-9-version-in-range-positive");

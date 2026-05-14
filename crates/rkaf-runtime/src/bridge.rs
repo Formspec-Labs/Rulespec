@@ -5,12 +5,78 @@
 //! contract). The dispatcher reads `contractRuleNumber` from the
 //! BehaviorTestCase and routes to the matching function.
 
+use chrono::{DateTime, FixedOffset};
 use serde_json::{json, Value};
 use std::collections::HashSet;
 
 use crate::{
     consumer as consumer_mod, errors::RuntimeError, graph::Graph, reducer, stale, verdict::Verdict,
 };
+
+/// Plan 7e: an Attestation is "effective at time T" iff:
+///   * `revokedAt` is absent OR strictly after T, AND
+///   * `hasEffectivePeriod` is absent OR its EffectivePeriod contains T.
+/// Malformed timestamps or dangling EffectivePeriod IRIs propagate as
+/// `MalformedTestCase` (same strictness posture as `cascade::is_active`).
+fn effective_at(
+    attestation: &Value,
+    time: &DateTime<FixedOffset>,
+    graph: &Graph,
+) -> Result<bool, RuntimeError> {
+    let att_id = attestation
+        .get("@id")
+        .and_then(Value::as_str)
+        .unwrap_or("<unknown>");
+    // revokedAt — if present and <= time, attestation is no longer effective.
+    if let Some(raw) = attestation.get("rkaf:revokedAt").and_then(Value::as_str) {
+        let revoked = DateTime::parse_from_rfc3339(raw).map_err(|e| {
+            RuntimeError::MalformedTestCase(format!(
+                "Attestation {att_id} rkaf:revokedAt value {raw:?} is not valid RFC-3339: {e}"
+            ))
+        })?;
+        if revoked <= *time {
+            return Ok(false);
+        }
+    }
+    // hasEffectivePeriod — if present, the period MUST contain time.
+    let Some(period_iri) = attestation
+        .get("rkaf:hasEffectivePeriod")
+        .and_then(Value::as_str)
+    else {
+        return Ok(true); // no period declared
+    };
+    let Some(period) = graph.find(period_iri) else {
+        return Err(RuntimeError::MalformedTestCase(format!(
+            "Attestation {att_id} declares rkaf:hasEffectivePeriod {period_iri:?} but no such EffectivePeriod node exists in the graph"
+        )));
+    };
+    let parse_field = |field: &str, raw: &str| -> Result<DateTime<FixedOffset>, RuntimeError> {
+        DateTime::parse_from_rfc3339(raw).map_err(|e| {
+            RuntimeError::MalformedTestCase(format!(
+                "Attestation {att_id} EffectivePeriod.{field} value {raw:?} is not valid RFC-3339: {e}"
+            ))
+        })
+    };
+    if let Some(s) = period
+        .get("rkaf:effectivePeriodStart")
+        .and_then(Value::as_str)
+    {
+        let start = parse_field("effectivePeriodStart", s)?;
+        if *time < start {
+            return Ok(false);
+        }
+    }
+    if let Some(e) = period
+        .get("rkaf:effectivePeriodEnd")
+        .and_then(Value::as_str)
+    {
+        let end = parse_field("effectivePeriodEnd", e)?;
+        if *time > end {
+            return Ok(false);
+        }
+    }
+    Ok(true)
+}
 
 /// Bridge rules are typed verdicts: accepted / acceptedWithWarnings /
 /// rejected. The runtime emits the §7 output shape.
@@ -335,7 +401,19 @@ fn chain_terminates(assertion_id: &str, graph: &Graph) -> bool {
 fn rule_8(graph: &Graph) -> Result<Verdict, RuntimeError> {
     // For each BVR with detectedIssues, check that every issue kind appearing
     // in some consumer's BridgeIssueAttestationContract.attestedIssueKinds is
-    // attested via an Attestation referencing the BVR.
+    // attested via an EFFECTIVE Attestation referencing the BVR.
+    //
+    // Plan 7e: "Effective" means the Attestation's revokedAt is empty or
+    // strictly after the BVR's validatedAt, AND its hasEffectivePeriod
+    // contains the validatedAt (or is absent). A revoked attestation, or
+    // one that has expired, no longer satisfies the contract — the BVR
+    // surfaces an issue without an in-force waiver.
+    //
+    // An Attestation satisfies the contract if EITHER:
+    //   (a) targets[] contains the BVR's @id (legacy BVR-level match), OR
+    //   (b) targetFinding points at a Finding whose @id appears in the
+    //       BVR's findings[] (per ADR-0093: Attestations target the
+    //       specific Finding they waive).
     for bvr in graph.nodes_by_type("rkaf:BridgeValidationResult") {
         let Some(bvr_id) = bvr.get("@id").and_then(Value::as_str) else {
             continue;
@@ -360,21 +438,56 @@ fn rule_8(graph: &Graph) -> Result<Verdict, RuntimeError> {
             .map(|arr| arr.iter().filter_map(Value::as_str).collect())
             .unwrap_or_default();
 
+        // Effectiveness evaluation time = BVR's validatedAt.
+        let validated_at_raw = bvr.get("rkaf:validatedAt").and_then(Value::as_str);
+        let validated_at = match validated_at_raw {
+            Some(s) => DateTime::parse_from_rfc3339(s).map_err(|e| {
+                RuntimeError::MalformedTestCase(format!(
+                    "BVR {bvr_id} rkaf:validatedAt value {s:?} is not valid RFC-3339: {e}"
+                ))
+            })?,
+            None => continue, // BVR without validatedAt — shape-incomplete, skip
+        };
+
+        // Collect the set of Finding IRIs the BVR is reporting (ADR-0093).
+        let bvr_findings: HashSet<&str> = bvr
+            .get("rkaf:findings")
+            .and_then(Value::as_array)
+            .map(|arr| arr.iter().filter_map(Value::as_str).collect())
+            .unwrap_or_default();
+
         for issue in &detected {
             if !attested_kinds.contains(issue) {
                 continue; // not under contract — no attestation required
             }
-            // Look for any Attestation whose `targets` list contains bvr_id.
-            let has_attestation = graph.nodes_by_type("rkaf:Attestation").any(|att| {
-                att.get("rkaf:targets")
+            // Find any EFFECTIVE Attestation that satisfies (a) or (b).
+            let mut satisfied = false;
+            for att in graph.nodes_by_type("rkaf:Attestation") {
+                // (a) BVR-level match
+                let targets_bvr = att
+                    .get("rkaf:targets")
                     .and_then(Value::as_array)
                     .map(|arr| arr.iter().any(|v| v.as_str() == Some(bvr_id)))
-                    .unwrap_or(false)
-            });
-            if !has_attestation {
+                    .unwrap_or(false);
+                // (b) Finding-level match — Attestation.targetFinding must
+                //     point at one of the BVR's findings.
+                let targets_finding = att
+                    .get("rkaf:targetFinding")
+                    .and_then(Value::as_str)
+                    .map(|tf| bvr_findings.contains(tf))
+                    .unwrap_or(false);
+                if !(targets_bvr || targets_finding) {
+                    continue;
+                }
+                if effective_at(att, &validated_at, graph)? {
+                    satisfied = true;
+                    break;
+                }
+            }
+            if !satisfied {
                 return Ok(rejected(
                     "rkaf:UnattestedConsumerIssue",
-                    "BVR surfaces a contracted issue kind but no Attestation references the BVR",
+                    "BVR surfaces a contracted issue kind but no in-force Attestation references the BVR (or one of its findings)",
                 ));
             }
         }
@@ -453,6 +566,127 @@ fn rule_10(graph: &Graph) -> Result<Verdict, RuntimeError> {
 
 #[cfg(test)]
 mod tests {
-    // Module tests are in tests/behavior_fixtures.rs — they exercise via the
-    // full Runtime::evaluate path, which is the integration contract.
+    use super::*;
+    use serde_json::json;
+
+    // Integration tests in tests/behavior_fixtures.rs exercise the full
+    // Runtime::evaluate path. Unit tests below pin the `effective_at`
+    // helper directly for cases the integration suite can't easily reach:
+    // dangling-IRI loud-error, malformed-timestamp loud-error.
+
+    fn parse(s: &str) -> DateTime<FixedOffset> {
+        DateTime::parse_from_rfc3339(s).expect("parse rfc3339")
+    }
+
+    #[test]
+    fn effective_at_no_constraints_returns_true() {
+        let att = json!({"@id": "a", "@type": "rkaf:Attestation"});
+        let payload = json!({"@graph": [att.clone()]});
+        let g = Graph::from_payload(&payload).unwrap();
+        let t = parse("2026-06-01T00:00:00Z");
+        assert!(effective_at(&att, &t, &g).unwrap());
+    }
+
+    #[test]
+    fn effective_at_revoked_before_time_is_false() {
+        let att = json!({
+            "@id": "a",
+            "@type": "rkaf:Attestation",
+            "rkaf:revokedAt": "2026-03-01T00:00:00Z"
+        });
+        let payload = json!({"@graph": [att.clone()]});
+        let g = Graph::from_payload(&payload).unwrap();
+        let t = parse("2026-06-01T00:00:00Z");
+        assert!(!effective_at(&att, &t, &g).unwrap());
+    }
+
+    #[test]
+    fn effective_at_revoked_after_time_is_true() {
+        let att = json!({
+            "@id": "a",
+            "@type": "rkaf:Attestation",
+            "rkaf:revokedAt": "2026-09-01T00:00:00Z"
+        });
+        let payload = json!({"@graph": [att.clone()]});
+        let g = Graph::from_payload(&payload).unwrap();
+        let t = parse("2026-06-01T00:00:00Z");
+        assert!(effective_at(&att, &t, &g).unwrap());
+    }
+
+    #[test]
+    fn effective_at_period_contains_time() {
+        let att = json!({
+            "@id": "a",
+            "@type": "rkaf:Attestation",
+            "rkaf:hasEffectivePeriod": "ep1"
+        });
+        let ep = json!({
+            "@id": "ep1",
+            "@type": "rkaf:EffectivePeriod",
+            "rkaf:effectivePeriodStart": "2026-01-01T00:00:00Z",
+            "rkaf:effectivePeriodEnd": "2026-12-31T23:59:59Z"
+        });
+        let payload = json!({"@graph": [att.clone(), ep]});
+        let g = Graph::from_payload(&payload).unwrap();
+        let t = parse("2026-06-01T00:00:00Z");
+        assert!(effective_at(&att, &t, &g).unwrap());
+    }
+
+    #[test]
+    fn effective_at_period_excludes_time() {
+        let att = json!({
+            "@id": "a",
+            "@type": "rkaf:Attestation",
+            "rkaf:hasEffectivePeriod": "ep1"
+        });
+        let ep = json!({
+            "@id": "ep1",
+            "@type": "rkaf:EffectivePeriod",
+            "rkaf:effectivePeriodStart": "2024-01-01T00:00:00Z",
+            "rkaf:effectivePeriodEnd": "2024-12-31T23:59:59Z"
+        });
+        let payload = json!({"@graph": [att.clone(), ep]});
+        let g = Graph::from_payload(&payload).unwrap();
+        let t = parse("2026-06-01T00:00:00Z");
+        assert!(!effective_at(&att, &t, &g).unwrap());
+    }
+
+    #[test]
+    fn effective_at_dangling_period_iri_errors_loudly() {
+        let att = json!({
+            "@id": "a",
+            "@type": "rkaf:Attestation",
+            "rkaf:hasEffectivePeriod": "ep-missing"
+        });
+        let payload = json!({"@graph": [att.clone()]});
+        let g = Graph::from_payload(&payload).unwrap();
+        let t = parse("2026-06-01T00:00:00Z");
+        match effective_at(&att, &t, &g).unwrap_err() {
+            RuntimeError::MalformedTestCase(msg) => {
+                assert!(
+                    msg.contains("ep-missing") && msg.contains("hasEffectivePeriod"),
+                    "expected dangling-IRI error, got: {msg}"
+                );
+            }
+            other => panic!("unexpected error: {other:?}"),
+        }
+    }
+
+    #[test]
+    fn effective_at_malformed_revoked_at_errors_loudly() {
+        let att = json!({
+            "@id": "a",
+            "@type": "rkaf:Attestation",
+            "rkaf:revokedAt": "not-a-date"
+        });
+        let payload = json!({"@graph": [att.clone()]});
+        let g = Graph::from_payload(&payload).unwrap();
+        let t = parse("2026-06-01T00:00:00Z");
+        match effective_at(&att, &t, &g).unwrap_err() {
+            RuntimeError::MalformedTestCase(msg) => {
+                assert!(msg.contains("revokedAt"), "msg={msg}");
+            }
+            other => panic!("unexpected error: {other:?}"),
+        }
+    }
 }

@@ -246,7 +246,19 @@ Per v0.1 §5.4. Each rule has a decidable predicate over the graph + the consume
 
 ### §3.8 — Rule 8: bridge-emitted attestations for consumer-detected issues
 
-**Predicate:** for every consumer with a `BridgeIssueAttestationContract` declaring `attestedIssueKinds = K`, every `BridgeValidationResult` from that consumer whose `detectedIssues[]` contains an issue of any kind in `K` MUST be referenced by at least one `rkaf:Attestation` with `targets` containing the BVR's `@id`.
+**Predicate:** for every consumer with a `BridgeIssueAttestationContract` declaring `attestedIssueKinds = K`, every `BridgeValidationResult` from that consumer whose `detectedIssues[]` contains an issue of any kind in `K` MUST be referenced by at least one **effective** `rkaf:Attestation`, where "effective" and "references" are defined below.
+
+**"References" — either path satisfies (ADR-0093):**
+
+(a) **BVR-level match.** The Attestation's `targets` contains the BVR's `@id`. (Legacy path; predates ADR-0093.)
+
+(b) **Finding-level match.** The Attestation's `targetFinding` points at the `@id` of one of the BVR's `findings` (where each entry is an `rkaf:Finding` IRI). This is the targeted-waiver pattern — preferred for new consumers because the Attestation states precisely which detection it is waiving.
+
+**"Effective" — Plan 7e:** the Attestation MUST be in force at the BVR's `validatedAt`. That is:
+- `revokedAt` is empty OR strictly after `validatedAt`, AND
+- `hasEffectivePeriod` is empty OR its `EffectivePeriod` contains `validatedAt`.
+
+A revoked Attestation, or one whose effective period ended before the BVR was emitted, no longer satisfies the contract — the BVR surfaces an issue without an in-force waiver. Implementations: `bridge.rs::effective_at`.
 
 **Verdict on violation:** `rkaf:rejected` with `errorClass: rkaf:UnattestedConsumerIssue`.
 
