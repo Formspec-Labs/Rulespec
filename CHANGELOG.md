@@ -5,6 +5,50 @@ All notable changes to Rulespec are documented in this file.
 The format is loosely based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 adapted for a specification + shape + fixture project.
 
+## Unreleased — Plan 7d: Attestation temporal bounds + source freshness + identity boundary
+
+Adds 4 optional fields to existing primitives and 2 normative spec edits. Net new universal classes: zero. Conceptual debt: zero.
+
+Outcome: 8 of 9 Studio knowledge-shaped schemas become retire-able by composing `Attestation` + `EffectivePeriod` + the new freshness fields. The 9th (`wos-studio-identity-subject`) stays Studio-owned per the now-explicit §4.6 identity boundary.
+
+### Added (Plan 7d)
+
+- **CUE fields on existing primitives.** All optional, additive:
+  - `rkaf:Attestation` gains `hasEffectivePeriod` (reuses the existing edge, domain expansion), `revokedAt`, `lastVerifiedAt`, `verifiedBy`.
+  - `rkaf:SourceFragment` gains `lastVerifiedAt`, `verifiedBy`.
+  - `rkaf:EvidenceBinding` gains `lastVerifiedAt`, `verifiedBy`.
+  - `rkaf:BridgeValidationResult` gains `lastVerifiedAt`, `verifiedBy`.
+- **5 new positive fixtures**: `attestation-with-effective-period-positive`, `attestation-revoked-positive`, `sourcefragment-with-freshness-positive`, `evidencebinding-with-freshness-positive`, `bridgevalidationresult-with-freshness-positive`.
+- **Spec normative**:
+  - `thoughts/specs/2026-05-12-pkaf-as-public-schema-interop-framework.md` §3 — new `Authority grant` terminology entry (disambiguates content-grounding `Warrant` from binding-layer user-role grants) + new `Freshness` entry (defines the orthogonality invariant: lifecycle ≠ freshness).
+  - §4.6 — renamed "Anchoring and identity are dependency-inverted"; adds normative paragraph naming the identity boundary. Rulespec references identities by IRI; the identity shape belongs to bindings (W3C VC, OIDC, X.509, Trellis, etc.). Partner-level `AuthorityGrant` records likewise belong to bindings.
+  - `spec/rkaf-vocabulary.md` — predicate rows extended for `hasEffectivePeriod` (domain += Attestation), and 3 new predicate rows for `revokedAt` / `lastVerifiedAt` / `verifiedBy`.
+
+### Changed (Plan 7d)
+
+- **Codegen regenerated.** `tools/compile_all.sh` re-emitted `attestation.rs`, `source_fragment.rs`, `evidence_binding.rs`, `bridge_validation_result.rs` (+JSON Schema, SHACL, TS counterparts). +20 lines across the 4 generated Rust files.
+
+### Falsified (Plan 7d — what was scoped, then dropped)
+
+- **`rkaf:OriginClass` (proposed promotion).** DROPPED. Code-scout pass found this duplicates the existing `#AssertionOrigin` closed enum (`constraints/core/assertion.cue:4-9`) AND name-collides with Studio's existing `OriginClass` (different axis: supply-chain provenance). Promotion would have created a parallel competing taxonomy.
+- **`rkaf:Waiver` first-class class (proposed promotion).** DOWNGRADED to optional fields on `Attestation`. Studio's existing waiver implementation is four un-unified data clumps marked `*substrate-pending*`; promoting "Waiver" as a new universal class would have hardened an unfinished design.
+- **`rkaf:SourceDocument` (proposed promotion).** DOWNGRADED to Studio-profile-scope. The `kind` enum (`regulation|statute|policy-manual|sop|memo|...`) is authoring-domain flavored; universal federation transport handled by `#Artifact` + ELI/USLM/DOI/CID identifier schemes.
+- **`targetFinding` on Attestation.** DEFERRED to stack-level ADR-0093. `BridgeValidationResult` findings are not IRI-addressable today (`warnings` / `errors` / `staleDependencies` are `[...string]` arrays, not nodes with `@id`); promoting `targetFinding` would point at nothing typed.
+
+### Verified
+
+- `cargo test --workspace` — green.
+- `cargo test -p rkaf-runtime` — 18 unit + 39 integration, all passing.
+- `make test` — full L0-L5 sweep exits 0.
+- `conformance_report.py` — 221 fixtures (216 + 5 new positives), 0 divergences.
+- `codegen_drift_audit.py` — clean after regen.
+- `vocab_audit.py` — 32 CUE primitives, 32 covered.
+
+### Open follow-ups
+
+- **Stack-level ADR-0093** (`/Users/mikewolfd/Work/formspec-stack/thoughts/adr/0093-rkaf-finding-iri-addressability.md`) — proposes `rkaf:Finding` as a first-class IRI-addressable shape; unblocks `targetFinding` on `Attestation` and Studio readiness-tier promotion. Filed open; no implementation in this plan.
+- **Plan 7e** — runtime behavioral contracts consuming the new fields: `effective_attestations_at(time)` filter and `freshness_gate(consumer)` narrowing. Fixtures exercise the shape first; runtime semantics next cycle.
+
 ## Unreleased — L0-L3 coverage completion and gate hardening
 
 Closes the lower-layer coverage gaps that could be hidden by green verdict gates. L0-L3 now has a direct coverage audit in addition to the per-fixture conformance reporter.

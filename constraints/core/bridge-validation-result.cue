@@ -43,4 +43,9 @@ package rkaf
 	// fires when an issue kind in a consumer's BridgeIssueAttestationContract
 	// appears here without a matching rkaf:Attestation referencing this BVR.
 	"rkaf:detectedIssues"?:                  [...#BridgeIssueKind]
+	// Plan 7d — freshness. When was this validation last reconfirmed?
+	// Distinct from `validatedAt` (the original event) — supports the
+	// "is this BVR still trustworthy at evaluation time?" question.
+	"rkaf:lastVerifiedAt"?:                  string // xsd:dateTime
+	"rkaf:verifiedBy"?:                      string // IRI of verifier
 }

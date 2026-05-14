@@ -98,7 +98,10 @@ Beyond the v0.2 normative tier in §5, the following terms are codified as CUE c
 - `rkaf:supersedesAssertion` — many-to-many predicate (Core §1.5).
 - `rkaf:derivesAuthorityFrom` — hop in an authority chain (Core §2.1).
 - `rkaf:hasApplicability` — Warrant → ApplicabilityScope.
-- `rkaf:hasEffectivePeriod` — Warrant / Authority → EffectivePeriod.
+- `rkaf:hasEffectivePeriod` — Warrant / Authority / ApplicabilityScope / Attestation → EffectivePeriod. Plan 7d extends the domain to `Attestation`; same predicate, same semantics (validity window for the bearer). `cascade::is_active` reads exactly this edge across all domains.
+- `rkaf:revokedAt` — Attestation → xsd:dateTime (Plan 7d). Retraction marker. If set and ≤ evaluation time, the Attestation is no longer effective regardless of `hasEffectivePeriod`. Universal across legal, scientific, editorial, AI-substrate attestations.
+- `rkaf:lastVerifiedAt` — Attestation / SourceFragment / EvidenceBinding / BridgeValidationResult → xsd:dateTime (Plan 7d). When the bearer was last reconfirmed against its source. ORTHOGONAL to lifecycle state: lifecycle answers "is this in force?", freshness answers "when did we last check?". Consumers MAY narrow eligibility based on a max-staleness window. Lifecycle decisions MUST NOT be gated by freshness, and freshness MUST NOT be gated by lifecycle (§5 normative invariant).
+- `rkaf:verifiedBy` — Attestation / SourceFragment / EvidenceBinding / BridgeValidationResult → IRI of verifier (Plan 7d). Pairs with `lastVerifiedAt`; identifies the party that performed the most recent reconfirmation.
 - `rkaf:bridgeContractVersion` — version pin on lifecycle packets + bridge validation results.
 
 > Behavioral semantics (the `usageEligibility` reducer, the `CascadeClosureV1` algorithm, the 10 bridge contract rules) are normative prose in `spec/rkaf-behavior.md` and are *not* CUE-validatable. CUE + JSON Schema + SHACL validate shape; runtime correctness is gated by `rkaf-behavior-validate`.

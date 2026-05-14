@@ -46,6 +46,10 @@ pub struct SourceFragment {
     pub has_selector: crate::OneOrMany<serde_json::Value>,
     #[serde(rename = "rkaf:selectorKind")]
     pub selector_kind: crate::OneOrMany<SelectorKind>,
+    #[serde(rename = "rkaf:lastVerifiedAt", skip_serializing_if = "Option::is_none", default)]
+    pub last_verified_at: Option<String>,
+    #[serde(rename = "rkaf:verifiedBy", skip_serializing_if = "Option::is_none", default)]
+    pub verified_by: Option<String>,
     #[serde(flatten)]
     pub extra: BTreeMap<String, serde_json::Value>,
 }

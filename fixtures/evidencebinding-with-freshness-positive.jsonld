@@ -1,0 +1,9 @@
+{
+  "@context": "../context/rkaf-context.jsonld",
+  "@id": "urn:rkaf:fixture:eb:income-test-fresh",
+  "@type": "rkaf:EvidenceBinding",
+  "rkaf:bindsAssertion": "urn:rkaf:fixture:assert:snap-income-test-202-percent",
+  "rkaf:bindsSourceFragment": ["urn:rkaf:fixture:sf:cfr-7-273-9"],
+  "rkaf:lastVerifiedAt": "2026-04-30T16:45:00Z",
+  "rkaf:verifiedBy": "urn:rkaf:fixture:actor:legal-aid-research-lead"
+}

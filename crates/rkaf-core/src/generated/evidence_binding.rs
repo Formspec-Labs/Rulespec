@@ -26,6 +26,10 @@ pub struct EvidenceBinding {
     pub id: Option<String>,
     #[serde(rename = "rkaf:bindsAssertion")]
     pub binds_assertion: String,
+    #[serde(rename = "rkaf:lastVerifiedAt", skip_serializing_if = "Option::is_none", default)]
+    pub last_verified_at: Option<String>,
+    #[serde(rename = "rkaf:verifiedBy", skip_serializing_if = "Option::is_none", default)]
+    pub verified_by: Option<String>,
     #[serde(flatten)]
     pub extra: BTreeMap<String, serde_json::Value>,
 }

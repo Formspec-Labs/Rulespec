@@ -82,6 +82,10 @@ pub struct BridgeValidationResult {
     pub used_as_authority: Option<crate::OneOrMany<String>>,
     #[serde(rename = "rkaf:detectedIssues", skip_serializing_if = "Option::is_none", default)]
     pub detected_issues: Option<crate::OneOrMany<crate::generated::bridge_issue_attestation_contract::BridgeIssueKind>>,
+    #[serde(rename = "rkaf:lastVerifiedAt", skip_serializing_if = "Option::is_none", default)]
+    pub last_verified_at: Option<String>,
+    #[serde(rename = "rkaf:verifiedBy", skip_serializing_if = "Option::is_none", default)]
+    pub verified_by: Option<String>,
     #[serde(flatten)]
     pub extra: BTreeMap<String, serde_json::Value>,
 }

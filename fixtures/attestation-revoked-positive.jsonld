@@ -1,0 +1,13 @@
+{
+  "@context": "../context/rkaf-context.jsonld",
+  "@id": "urn:rkaf:fixture:atst:revoked-after-audit",
+  "@type": "rkaf:Attestation",
+  "rkaf:attestor": "urn:rkaf:fixture:actor:compliance-officer-3",
+  "rkaf:attestorKind": "rkaf:formalReviewer",
+  "rkaf:targets": ["urn:rkaf:fixture:assert:hud-fair-housing-determination-2025"],
+  "rkaf:decision": "rkaf:approved",
+  "rkaf:attestationScope": "urn:rkaf:fixture:scope:housing-eligibility",
+  "rkaf:attestedAt": "2025-11-10T14:30:00Z",
+  "rkaf:revokedAt": "2026-03-22T08:15:00Z",
+  "rkaf:rationale": "Originally approved; revoked following Q1 2026 internal audit that identified a procedural defect in source review."
+}

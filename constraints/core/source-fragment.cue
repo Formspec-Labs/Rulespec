@@ -13,4 +13,8 @@ import "list"
 	"rkaf:bindsArtifact": string // IRI of an Artifact
 	"rkaf:hasSelector":   list.MinItems(1)
 	"rkaf:selectorKind":  [...#SelectorKind] & list.MinItems(1)
+	// Plan 7d — freshness. Orthogonal to lifecycle: tracks WHEN the source
+	// was last reconfirmed, not whether the rule it grounds is in force.
+	"rkaf:lastVerifiedAt"?: string // xsd:dateTime
+	"rkaf:verifiedBy"?:     string // IRI of verifier
 }

@@ -21,4 +21,12 @@ package rkaf
 	"rkaf:attestationScope": string // free-form scope IRI or label
 	"rkaf:attestedAt":      string // xsd:dateTime
 	"rkaf:rationale"?:      string
+	// Plan 7d (rkaf-behavior.md §4.6 / §5) — temporal bounds + freshness.
+	// All optional, additive. `hasEffectivePeriod` reuses the same predicate
+	// already on Authority + ApplicabilityScope (cascade::is_active reads
+	// this edge); domain expansion, not parallel predicate.
+	"rkaf:hasEffectivePeriod"?: string // IRI to rkaf:EffectivePeriod
+	"rkaf:revokedAt"?:          string // xsd:dateTime — retraction marker; supersedes effective period if before period end
+	"rkaf:lastVerifiedAt"?:     string // xsd:dateTime — when last reconfirmed against source; ORTHOGONAL to lifecycle state
+	"rkaf:verifiedBy"?:         string // IRI of verifier (attestor or other party)
 }

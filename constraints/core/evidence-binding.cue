@@ -12,6 +12,9 @@ import "list"
 #EvidenceBinding: {
 	"@type":               "rkaf:EvidenceBinding"
 	"rkaf:bindsAssertion": string // IRI
+	// Plan 7d — freshness. Orthogonal to lifecycle.
+	"rkaf:lastVerifiedAt"?: string // xsd:dateTime
+	"rkaf:verifiedBy"?:     string // IRI of verifier
 	{
 		"rkaf:bindsSourceFragment": [...string] & list.MinItems(1)
 	} | {

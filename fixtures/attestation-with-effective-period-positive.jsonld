@@ -1,0 +1,23 @@
+{
+  "@context": "../context/rkaf-context.jsonld",
+  "@graph": [
+    {
+      "@id": "urn:rkaf:fixture:eff:atst-q4-2026",
+      "@type": "rkaf:EffectivePeriod",
+      "rkaf:effectivePeriodStart": "2026-01-01T00:00:00Z",
+      "rkaf:effectivePeriodEnd": "2026-12-31T23:59:59Z"
+    },
+    {
+      "@id": "urn:rkaf:fixture:atst:time-bounded-approval",
+      "@type": "rkaf:Attestation",
+      "rkaf:attestor": "urn:rkaf:fixture:actor:medical-reviewer-7",
+      "rkaf:attestorKind": "rkaf:formalReviewer",
+      "rkaf:targets": ["urn:rkaf:fixture:assert:fda-guidance-2026"],
+      "rkaf:decision": "rkaf:approvedWithConditions",
+      "rkaf:attestationScope": "urn:rkaf:fixture:scope:medical-device-class-iii",
+      "rkaf:attestedAt": "2026-01-15T09:00:00Z",
+      "rkaf:rationale": "Approval valid through calendar year 2026 pending mid-year reassessment per FDA cycle.",
+      "rkaf:hasEffectivePeriod": "urn:rkaf:fixture:eff:atst-q4-2026"
+    }
+  ]
+}

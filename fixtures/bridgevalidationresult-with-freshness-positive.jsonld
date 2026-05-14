@@ -1,0 +1,14 @@
+{
+  "@context": "../context/rkaf-context.jsonld",
+  "@id": "urn:rkaf:fixture:bvr:medicaid-recert-fresh",
+  "@type": "rkaf:BridgeValidationResult",
+  "rkaf:packetId": "urn:rkaf:fixture:pkt:medicaid-recert-2026-q2-001",
+  "rkaf:consumer": "urn:rkaf:fixture:consumer:state-medicaid-portal",
+  "rkaf:bridgeContractVersion": "rkaf-bridge/1.0",
+  "rkaf:result": "rkaf:accepted",
+  "rkaf:effectiveUsageEligibility": "rkaf:officialUse",
+  "rkaf:effectiveUsageEligibilityRationale": "All authorities current; no stale dependencies; concept resolution clean.",
+  "rkaf:validatedAt": "2026-04-01T10:00:00Z",
+  "rkaf:lastVerifiedAt": "2026-05-01T10:00:00Z",
+  "rkaf:verifiedBy": "urn:rkaf:fixture:actor:portal-revalidation-job"
+}

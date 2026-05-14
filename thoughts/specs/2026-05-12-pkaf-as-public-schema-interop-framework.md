@@ -188,7 +188,11 @@ Conformance is declared by **consumers**, not authoring tools. See §10.5.
 
 Terms inherited from Rulespec Core v0.1 retain their definitions there; this section adds framework-layer terms.
 
-**Access scope** — The visibility boundary attached to an assertion, attestation, evidence binding, or source fragment. Encodes that an assertion may be public while its evidence is private, that an attestation may be organization-visible while its target is publication-eligible, that a source fragment may be restricted while its existence is disclosable. Implementations MUST preserve access scope through projection, retrieval, summarization, and federation; consumers MUST NOT leak content their access scope forbids.
+**Access scope** — The visibility boundary attached to an assertion, attestation, evidence binding, or source fragment.
+
+**Authority grant** — A binding-layer concept: the authority that a specific *identity* (user, role, service principal, workspace) has been granted to perform an operation within a consumer system. Distinct from Rulespec's `Warrant` (which is the grounding of a *claim* against its source). Authority grants belong to identity-binding territory (see §4.6) — Rulespec references identities by IRI but does not model the grant itself. Naming-hygiene note: emerging identity-aware tooling sometimes uses "authority" for both content-grounding and user-role grants; Rulespec reserves the term `Warrant` (and its specialization `Authority` on `rkaf:hasAuthority`) for content-grounding and leaves `Authority grant` to bindings.
+
+**Freshness** — Plan 7d. When a primitive (Attestation, SourceFragment, EvidenceBinding, BridgeValidationResult) was last reconfirmed against its source, encoded as `rkaf:lastVerifiedAt` + `rkaf:verifiedBy`. Orthogonal to lifecycle state. Consumers MAY narrow `usageEligibility` based on a declared max-staleness window. Lifecycle decisions MUST NOT be gated by freshness, and freshness MUST NOT be gated by lifecycle — they answer different questions ("is this in force?" vs. "when did we last check?"). Encodes that an assertion may be public while its evidence is private, that an attestation may be organization-visible while its target is publication-eligible, that a source fragment may be restricted while its existence is disclosable. Implementations MUST preserve access scope through projection, retrieval, summarization, and federation; consumers MUST NOT leak content their access scope forbids.
 
 **Adoption depth** — The degree to which a partner integrates Rulespec into its stack. Six discrete depths are defined by the gradient in §4.5. No depth is privileged at the framework level.
 
@@ -315,9 +319,13 @@ Six adoption depths are defined. Partners declare their depth in conformance dis
 
 Depth-D0 is informational and not framework-conformant. Depth-D1 is the minimum conformant depth. Reference consumers SHOULD adopt at depth D3 or higher to demonstrate that deep adoption is practical. A partner stable at D1 forever is a successful federation participant; the gradient is not a ladder.
 
-### 4.6 Anchoring is dependency-inverted [Normative]
+### 4.6 Anchoring and identity are dependency-inverted [Normative]
 
-Rulespec assertions and overlays MAY be cryptographically anchored. The framework defines the **abstract anchoring contract** (what an anchor is, what it commits to, how it's referenced from a Rulespec graph). Concrete bindings (Trellis, COSE_Sign1, JWS, W3C Verifiable Credentials, Sigstore, IPFS+IPNS, content-addressed storage) implement the contract.
+Two dependency-inverted contracts live here: cryptographic anchoring (this section's original scope) and identity. Both follow the same posture — Rulespec defines an abstract contract and references the artifact by IRI; bindings depend on Rulespec, not the reverse.
+
+**Identity dependency inversion (Plan 7d clarification).** Rulespec references identities by IRI via `rkaf:attestor`, `rkaf:emittedBy`, `rkaf:consumer`, `rkaf:verifiedBy`, `rkaf:authorizedBy`, and similar predicates. **Rulespec does not define the shape of an identity.** The identity object — its claims, public keys, attestation levels, revocation state, role grants — belongs to binding implementations: W3C Verifiable Credentials, OIDC subjects, X.509 certificates, Trellis subject ledgers, organization-specific HR/IAM systems. The dependency direction is: bindings know about Rulespec (they emit identities Rulespec can reference); Rulespec does not name any specific identity binding. Partner-level `AuthorityGrant`-style records (user-role grants distinct from content-grounding warrants, see §3) likewise belong to bindings.
+
+**Cryptographic anchoring.** Rulespec assertions and overlays MAY be cryptographically anchored. The framework defines the **abstract anchoring contract** (what an anchor is, what it commits to, how it's referenced from a Rulespec graph). Concrete bindings (Trellis, COSE_Sign1, JWS, W3C Verifiable Credentials, Sigstore, IPFS+IPNS, content-addressed storage) implement the contract.
 
 **The dependency direction is**: bindings know about Rulespec; Rulespec does not know about any specific binding. Trellis's spec describes how Trellis anchors Rulespec; the Rulespec spec does not name Trellis. This is dependency inversion and is the normative posture of the framework.
 

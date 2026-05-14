@@ -66,6 +66,14 @@ pub struct Attestation {
     pub attested_at: String,
     #[serde(rename = "rkaf:rationale", skip_serializing_if = "Option::is_none", default)]
     pub rationale: Option<String>,
+    #[serde(rename = "rkaf:hasEffectivePeriod", skip_serializing_if = "Option::is_none", default)]
+    pub has_effective_period: Option<String>,
+    #[serde(rename = "rkaf:revokedAt", skip_serializing_if = "Option::is_none", default)]
+    pub revoked_at: Option<String>,
+    #[serde(rename = "rkaf:lastVerifiedAt", skip_serializing_if = "Option::is_none", default)]
+    pub last_verified_at: Option<String>,
+    #[serde(rename = "rkaf:verifiedBy", skip_serializing_if = "Option::is_none", default)]
+    pub verified_by: Option<String>,
     #[serde(flatten)]
     pub extra: BTreeMap<String, serde_json::Value>,
 }
