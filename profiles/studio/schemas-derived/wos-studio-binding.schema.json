@@ -204,10 +204,16 @@
             "patternProperties": {
               "^(\\$|x-)": {}
             },
-            "description": "ServiceBinding body. Required: operationKind ('openapi' | 'arazzo' | 'custom'). Recommended: apiSpecRef, operationRef, inputBindings[] (caseFile→request), outputBindings[] (response→caseFile).",
+            "description": "ServiceBinding body. Required: operationKind ('openapi' | 'arazzo' | 'custom'). Recommended: apiSpecRef, operationRef, inputBindings[] (caseFile→request), outputBindings[] (response→caseFile). When inputBindings reference sensitive DataElements, `body.sensitivityHandling` (redaction + retention) is required UNLESS body.sensitivityWaiver (an Attestation per ADR-0093) overrides — `sensitivityWaiver` replaces the pre-cutover `sensitivityWaiverRef` flat field.",
             "required": [
               "operationKind"
-            ]
+            ],
+            "properties": {
+              "sensitivityWaiver": {
+                "$ref": "https://work-spec.org/schemas/studio-common/1.0#/$defs/WaiverAttestationRef",
+                "description": "ADR-0093 unified waiver shape. Replaces the pre-cutover `sensitivityWaiverRef` flat field. When a ServiceBinding's inputBindings reference sensitive DataElements (DPV special-category etc.), the binding MUST declare `body.sensitivityHandling` OR record a waiver here whose `targetFinding` points at the BIND-LINT-005 Finding (per SA-MUST-bind-013). Mirrors `rkaf:Attestation(targetFinding=…)`."
+              }
+            }
           }
         },
         "required": [

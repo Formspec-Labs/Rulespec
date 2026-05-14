@@ -5,6 +5,40 @@ All notable changes to Rulespec are documented in this file.
 The format is loosely based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 adapted for a specification + shape + fixture project.
 
+## Unreleased — Plan 7e + ADR-0093 review follow-ups
+
+Coordinated cleanup pass closing the actionable findings from three neutral semi-formal reviews: Plan 7e APPROVE-WITH-NITS (6 items, F1-F6 below), the `b6c24de` polish-commit nit review (4 items, N1-N3), and a cross-stack Studio cutover port (ADR-0093 derive).
+
+### Changed — Plan 7e review F1 + F4 — freshness gate now requires effectiveness
+
+- `crates/rkaf-runtime/src/reducer.rs::narrow_for_freshness` now iterates `temporal::effective_attestations_at(graph, evaluation_time)` and filters by `rkaf:targets contains assertion_id`. Revoked or out-of-period Attestations are silently excluded from the freshness narrowing — they're already excluded from the authority chain, so narrowing freshness on their basis was over-firing. `effective_attestations_at` (Plan 7e.1's shared helper) now has its first real production caller.
+- `spec/rkaf-behavior.md` §1.2 Step 5.5 — normative paragraph updated: "any effective Attestation (per `temporal::effective_at`) targeting the assertion @id" replaces "any Attestation targeting the assertion @id". Pseudocode aligned. Strictness clause extended to cover `revokedAt` + `effectivePeriod{Start,End}` + dangling `hasEffectivePeriod` IRIs (propagated through `effective_attestations_at`).
+
+### Added — Plan 7e review F5 — richer rationale when freshness narrows
+
+- `reducer::evaluate` now emits `"freshness gate narrowed from <baseline> to <after-freshness> (maxAttestationStalenessDays=<n>)"` as the rationale whenever Step 5.5 actually narrows the effective level (workspace-wide reduction path). Implemented via a new internal `reduce_for_scope_traced` returning a `ScopeResult` trace; the public `reduce_for_scope` wrapper is unchanged. `rationale` is in `INFORMATIONAL_OUTPUT_KEYS` so existing fixtures continue to match.
+
+### Added — Plan 7e review F6 — malformed-`lastVerifiedAt` behavior fixture
+
+- `fixtures/behavior/usage-eligibility-reducer-freshness-malformed-negative.jsonld` exercises the Step 5.5 strict-error path on `Attestation.rkaf:lastVerifiedAt = "not-a-date"` using the `rkaf:expectedRuntimeError: "rkaf:MalformedTestCase"` pattern. Wired into `tests/behavior_fixtures.rs::reducer_freshness_malformed_negative`. Conformance: **235 → 236 fixtures, 0 divergences**.
+
+### Refactored — Plan 7e review F2 + F3 — `RuntimeError::iri_tag` extracted
+
+- New `RuntimeError::iri_tag(&self) -> &'static str` returning the 7 fixture-facing IRI strings. Replaces the duplicated inline match arms in `crates/rkaf-runtime/tests/behavior_fixtures.rs` and `crates/rkaf-runtime-cli/src/main.rs`. New `runtime_error_iri_tag_mapping` unit test pins the variant → IRI mapping (one assert per variant).
+- Both call sites now carry an inline comment documenting that `OutputMismatch` arm precedence is deliberate (a fixture declaring `rkaf:expectedRuntimeError = "rkaf:OutputMismatch"` is unreachable by design — fixtures use `rkaf:expectedOutput` for the success path).
+
+### Changed — Polish review N1 + N2 + N3 — `b6c24de` cleanup
+
+- **N1 — CHANGELOG.** Long-tail entries for Finding-6 + Observation-7 marked as closed in `b6c24de` (`fixtures/context.jsonld` removed; narrative annotations + Finding fixture self-containment landed).
+- **N2 — Dead exclusion references.** Dropped `context.jsonld` skip-branch in `crates/rkaf-validate/tests/fixture_validation.rs`; removed the docstring enumeration in `tools/conformance_report.py`; cleared the `NON_FIXTURE_NAMES` set in `tools/conformance_lib.py` (kept the predicate as an empty reserve for future non-fixture siblings — comment explains why).
+- **N3 — `fixtures/README.md`.** Added the inverse-clause: "Inline the referenced node when the fixture's primary purpose is to exercise the relationship itself; use a cross-fixture reference when the fixture isolates a single class for shape validation."
+
+### Changed — ADR-0093 cross-stack derive — Studio cutover ported into PKAF
+
+- `policy-studio/`'s post-cutover schema surface (`WaiverAttestationRef` collapse of 4 waiver-flavor clumps + `ValidationFinding.waiver: $ref WaiverAttestationRef` + `lifecycleState` enum sans `waived` + rkaf:Finding-aligned `findingKind`/`detectedAt`/`detectedBy`/`subject` + `findingKind` now required + `parsingWaiver` / `sensitivityWaiver` on SourceVersion / ServiceBinding) is now mirrored into `profiles/studio/schema-source/` (the Rulespec-owned source of truth that derive.sh transforms into `schemas-derived/`). Touched: `wos-studio-common.schema.json` (+`WaiverAttestationRef` $def), `wos-studio-readiness.schema.json` (Finding alignment + waiver field), `wos-studio-binding.schema.json` (sensitivityWaiver), `wos-studio-source.schema.json` (parsingWaiver).
+- `profiles/studio/derive.sh` re-emitted `schemas-derived/` + `SHA256SUMS` to match.
+- Rename hygiene: 2 stray `PKAF` brand tokens (carried over from the Studio repo prose) renamed to `Rulespec` in the schema descriptions; `tools/rename_audit.py` now clean.
+
 ## Unreleased — Plan 7e: runtime contracts use Plan 7d + ADR-0093 fields
 
 Plan 7d added optional temporal-bounds + freshness fields to Attestation, SourceFragment, EvidenceBinding, and BridgeValidationResult; ADR-0093 promoted `rkaf:Finding` and refactored `BridgeValidationResult` indicators. Plan 7e turns those shape additions into enforced runtime behavior across three increments.

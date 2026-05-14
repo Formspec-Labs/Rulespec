@@ -5,8 +5,8 @@ ec675ece68cbcf9b80e643ca6a67453c39bd848e872b7e45bc04e9ad3984c208  ./api/wos-stud
 2065047767a0a700b64024e7c069225777e1d12090e89e58c43ef52017951fd4  ./api/wos-studio-api-review.schema.json
 3575706cbab46b10bbfc933995e360420c07759d065a2f8953188edade3e7e23  ./api/wos-studio-api-workspace.schema.json
 db5b1f49217a8fdf3089572faea54558812fbd49ce2c62b3853d259ba5380a56  ./wos-studio-approval.schema.json
-85c8fef3af423fd1aa99da3c1c6377f55b670c9f15e0712f2a61d56e1ae01922  ./wos-studio-binding.schema.json
-abfe1b2b8450976f917d9624b68f03f72ef5e9517aae6da0085394b6d4176e0f  ./wos-studio-common.schema.json
+fc7c07b63d5dc7ad24fd4f87339a97b80bf07a41fc78e8771bf2fb4bfa9e2775  ./wos-studio-binding.schema.json
+ebc2d7dd74cd8f912764b15fdd236c57fc2215d2aed28d91d945a8946d706063  ./wos-studio-common.schema.json
 54ed3a5678589c5b2afed7bae0d2be58b58b090e6203de6cc608ea557b58b994  ./wos-studio-effectiveness.schema.json
 fc5d082069ebd47dbe38c154276b4441fe0840600e720a076c20aa033354a4e7  ./wos-studio-embedding-profile.schema.json
 9894afdb15b6bf970e65d29613bd0a0816680fcd02d0522aac296f19a7e6b4e1  ./wos-studio-export-bundle.schema.json
@@ -15,10 +15,10 @@ a332bc7d7079851c5c5bb32fbc82b7568eb5c3143d781a1c7194c2bb31280064  ./wos-studio-i
 d5db13e2cc2096d3a65a52b745a997e99832d3eeac1935d24ac316111f1c33d1  ./wos-studio-migration-path.schema.json
 d05ab15e85e4284d06b7e07cab7a9b09a23dd0ba604191bac7075a8e8daa3192  ./wos-studio-policy-object.schema.json
 f9c71232380fd4c1c2df64d7568b17510be41bf1d9daa8386231a6561f144a5c  ./wos-studio-provenance.schema.json
-fa97f3b6abaee1a6048f70489dd8851466ebf450545bb485c97c1415c5bcf13e  ./wos-studio-readiness.schema.json
+cb96875a7b3e88d5b2da825aaed24f9de5f35af80179f2fe0831c5f1f21f87a3  ./wos-studio-readiness.schema.json
 d27e39034c63d50e61a7edc859aaca28cacc4762a4ca6f406bfd8a536e035540  ./wos-studio-scenario.schema.json
 20415d15bdb292edabf4656d09f638663269298b9a09d0aa8905872cf4cebbe3  ./wos-studio-source-authority.schema.json
-871e7dbfe9233f04a212caf495c1ce1f935389e175e787e7d684c719b0ab9663  ./wos-studio-source.schema.json
+fcaa933f8abdd98c87f6126977937e5997e95ae948f9aa69591508528246cd86  ./wos-studio-source.schema.json
 f7c3404fc9b8557dec1ebe9051139c7d1a6a4d2015a145a65dbe14fb78b03c82  ./wos-studio-terminology-map.schema.json
 ab2a3ad017bf319ed80e71c46762677cd5906f4e886f81d38862c96e8d27f2c1  ./wos-studio-workflow-intent.schema.json
 68e6005940c952f2aa14ffb6960e1c90644204fd3b0b3a3b3ba85eb4c16968eb  ./wos-studio-workspace.schema.json

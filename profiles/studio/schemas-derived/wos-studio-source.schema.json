@@ -198,6 +198,10 @@
         "classificationResult": {
           "type": "object",
           "additionalProperties": true
+        },
+        "parsingWaiver": {
+          "$ref": "https://work-spec.org/schemas/studio-common/1.0#/$defs/WaiverAttestationRef",
+          "description": "ADR-0093 unified waiver shape. Replaces the pre-cutover `parsingWaiverRef` flat field. When `parsingResult.status='partial'`, a SourceVersion MAY proceed past `uploaded` only if a reviewer attests a waiver here whose `targetFinding` points at the SV-LINT-009 Finding (per SA-MUST-source-003). Mirrors `rkaf:Attestation(targetFinding=…)`."
         }
       },
       "additionalProperties": true,

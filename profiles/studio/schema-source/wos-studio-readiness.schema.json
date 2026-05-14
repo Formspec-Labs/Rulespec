@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://work-spec.org/schemas/studio-readiness/1.0",
   "title": "WOS Studio (Authoring) \u2014 Readiness (ValidationFinding + Rule Registry)",
-  "description": "Studio readiness shapes per studio/specs/readiness-validation.md. Top-level kind discriminator selects ValidationFinding (single finding) or RuleRegistry (catalog of rules) or ValidationReport (collection of findings for a workspace/workflow). ValidationFinding carries tier (S1-S6), ruleId, severity \u2208 {info|warn|error|block}, subjectRef, message, suggestedFix, lifecycleState (open|acknowledged|waived|resolved), waivedBy, waivedRationale.",
+  "description": "Studio readiness shapes per studio/specs/readiness-validation.md. Top-level kind discriminator selects ValidationFinding (single finding) or RuleRegistry (catalog of rules) or ValidationReport (collection of findings for a workspace/workflow). ValidationFinding carries tier (S1-S6), ruleId, severity \u2208 {info|warn|error|block}, subjectRef, message, suggestedFix, lifecycleState (open|acknowledged|resolved). Waiver state is no longer a discriminator on lifecycleState: per ADR-0093, a finding is waived iff it carries a `waiver` field of shape `WaiverAttestationRef` (a Studio-profile projection of `rkaf:Attestation` targeting the Finding IRI). ValidationFinding aligns with `rkaf:Finding` (ADR-0093 Phase A) on `findingKind`/`detectedAt`/`detectedBy`/`subject`/`severity`; Studio-profile extras (`ruleId`, `tier`, lifecycle) compose at the Studio layer.",
   "$comment": "Promotion status (Stage-3, 2026-05-01): MVP shape; rule registry is Stage-4 territory but schema accepts the shape so the registry can be authored as data.",
   "type": "object",
   "required": [
@@ -76,7 +76,8 @@
             "type": "integer"
           },
           "waived": {
-            "type": "integer"
+            "type": "integer",
+            "description": "Count of findings in this tier carrying a `waiver` Attestation (ADR-0093: waiver state is expressed by the presence of `waiver: WaiverAttestationRef`, not by `lifecycleState=waived`). This is NOT a `lifecycleState` counter — `lifecycleState` enumerates `{open, acknowledged, resolved}` only."
           },
           "blocking": {
             "type": "integer"
@@ -88,11 +89,16 @@
   "$defs": {
     "ValidationFinding": {
       "type": "object",
+      "description": "Studio-profile projection of `rkaf:Finding` (ADR-0093 Phase A). The rkaf:Finding-aligned core (`findingKind`, `detectedAt`, `detectedBy`, `subject`, `severity`) is the typed handle a Studio finding inherits from Rulespec; Studio-profile extras (`ruleId`, `tier`, `lifecycleState`, `suggestedFix`, `waiver`) compose at the Studio layer per the \u00a75.2 editorial rule of the framework spec. `severity` keeps the Studio four-rung ladder (`info|warn|error|block`) \u2014 Studio severity SHOULD be mapped to/from `rkaf:FindingSeverity` (`informational|operationalConflict|publicationBlocking|authorityCritical`) at the Studio\u2194Rulespec boundary (mapping table in studio/specs/readiness-validation.md \u00a7WOS mappings). Waiver state is expressed by the presence of `waiver: WaiverAttestationRef` (a Studio projection of `rkaf:Attestation(targetFinding=this)`), not by a `lifecycleState=waived` discriminator.",
       "required": [
         "id",
         "ruleId",
         "severity",
-        "subjectRef"
+        "subjectRef",
+        "findingKind",
+        "detectedAt",
+        "detectedBy",
+        "subject"
       ],
       "additionalProperties": true,
       "patternProperties": {
@@ -100,7 +106,8 @@
       },
       "properties": {
         "id": {
-          "type": "string"
+          "type": "string",
+          "description": "Studio-local finding id. IRI-addressable per ADR-0093 once the finding lifts to a `rkaf:Finding` IRI for cross-stack waiver Attestations."
         },
         "ruleId": {
           "type": "string",
@@ -131,7 +138,7 @@
             "error",
             "block"
           ],
-          "description": "Severity. `block` cannot be advanced past without explicit waiver.",
+          "description": "Severity. `block` cannot be advanced past without an explicit waiver Attestation (see `waiver`). Maps to `rkaf:FindingSeverity` at the Studio\u2194Rulespec boundary.",
           "examples": [
             "warn",
             "block"
@@ -140,6 +147,34 @@
             "critical": true,
             "intent": "Severity drives whether the finding blocks advancement \u2014 load-bearing for tier gates"
           }
+        },
+        "findingKind": {
+          "type": "string",
+          "description": "rkaf:Finding alignment (ADR-0093). Closed taxonomy of detection categories. Open extension via partner URIs is intentionally NOT permitted at L1; extensions go through a Rulespec RFC. Producers MUST emit a value; when no narrower kind applies, emit `rkaf:other` explicitly. (The schema previously carried `default: \"rkaf:other\"`; that was informational only and produced silently-empty `findingKind` in non-strict consumers. Dropped F3 (2026-05-13) once `findingKind` became required per F1.)",
+          "enum": [
+            "rkaf:warning",
+            "rkaf:error",
+            "rkaf:staleDependency",
+            "rkaf:registryUnavailable",
+            "rkaf:registryVersionOutOfRange",
+            "rkaf:conceptConflict",
+            "rkaf:authorityBroken",
+            "rkaf:unsupportedAnchor",
+            "rkaf:other"
+          ]
+        },
+        "detectedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "rkaf:Finding alignment (ADR-0093). When the detection happened. Replaces the legacy `openedAt` (kept as alias via additionalProperties: true for the migration window)."
+        },
+        "detectedBy": {
+          "type": "string",
+          "description": "rkaf:Finding alignment (ADR-0093). IRI of the detector (lint rule id, BVR id, validator)."
+        },
+        "subject": {
+          "type": "string",
+          "description": "rkaf:Finding alignment (ADR-0093). IRI of the object the finding concerns. The Studio-profile mirrors this onto `subjectRef` for backward-compat consumers; new producers SHOULD emit both fields during the migration window."
         },
         "subjectRef": {
           "type": "string"
@@ -158,35 +193,18 @@
           "enum": [
             "open",
             "acknowledged",
-            "waived",
             "resolved"
-          ]
-        },
-        "waivedBy": {
-          "type": "string"
-        },
-        "waivedRationale": {
-          "type": "string"
-        },
-        "waivedAt": {
-          "type": "string",
-          "format": "date-time"
-        },
-        "waivedScope": {
-          "type": "string",
-          "enum": [
-            "this-instance-only",
-            "this-rule-on-this-subject-until-condition"
           ],
-          "description": "SA-MUST-rv-030: a waiver MUST declare its scope. `this-rule-on-this-subject-until-condition` requires `expirationCondition`."
+          "description": "Finding lifecycle, sans `waived`. A finding is waived iff it carries a `waiver` field (per ADR-0093: waiver state collapses to `Attestation(targetFinding=\u2026)`). A waived finding's `lifecycleState` SHOULD remain `open` or `acknowledged`; the Attestation is the override record, not a state mutation."
         },
-        "expirationCondition": {
-          "type": "string",
-          "description": "FEL expression evaluated to determine when a time-bounded waiver expires."
+        "waiver": {
+          "$ref": "https://work-spec.org/schemas/studio-common/1.0#/$defs/WaiverAttestationRef",
+          "description": "Optional. When present, this finding is waived by the referenced Attestation. Per ADR-0093 \u00a7Decision item 2: the four pre-cutover waiver-flavor data clumps (`parsingWaiverRef`, `sensitivityWaiverRef`, scenario `waiver`, ValidationFinding flat `waivedBy`/`waivedRationale`/`waivedAt`/`waivedScope`) collapse to this single shape. The Attestation `targetFinding` MUST equal this finding's IRI."
         },
         "openedAt": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "description": "Legacy alias for `detectedAt`. New producers SHOULD emit `detectedAt`."
         },
         "resolvedAt": {
           "type": [
@@ -195,42 +213,7 @@
           ],
           "format": "date-time"
         }
-      },
-      "allOf": [
-        {
-          "$comment": "SA-MUST-rv-030: when lifecycleState is 'waived', a substantive waiver record is required.",
-          "if": {
-            "properties": {
-              "lifecycleState": {
-                "const": "waived"
-              }
-            },
-            "required": ["lifecycleState"]
-          },
-          "then": {
-            "required": ["waivedBy", "waivedRationale", "waivedAt", "waivedScope"],
-            "properties": {
-              "waivedRationale": {
-                "minLength": 50
-              }
-            }
-          }
-        },
-        {
-          "$comment": "SA-MUST-rv-030: time-bounded scope requires an expirationCondition.",
-          "if": {
-            "properties": {
-              "waivedScope": {
-                "const": "this-rule-on-this-subject-until-condition"
-              }
-            },
-            "required": ["waivedScope"]
-          },
-          "then": {
-            "required": ["expirationCondition"]
-          }
-        }
-      ]
+      }
     },
     "RuleRegistryEntry": {
       "type": "object",
