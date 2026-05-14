@@ -50,7 +50,7 @@ rulespec/
 **Files:**
 - Create: `crates/rkaf-projector-core/{Cargo.toml,src/lib.rs,src/types.rs}`
 
-- [ ] **Step 1: Manifest**
+- [x] **Step 1: Manifest**
 
 ```toml
 [package]
@@ -69,7 +69,7 @@ thiserror = { workspace = true }
 async-trait = "0.1"
 ```
 
-- [ ] **Step 2: Trait**
+- [x] **Step 2: Trait**
 
 ```rust
 // crates/rkaf-projector-core/src/lib.rs
@@ -116,7 +116,7 @@ pub trait Projector: Send + Sync {
 }
 ```
 
-- [ ] **Step 3: Build and commit**
+- [x] **Step 3: Build and commit**
 
 ```bash
 cd /Users/mikewolfd/Work/formspec-stack/rulespec/crates
@@ -134,7 +134,7 @@ git commit -m "feat(projector-core): Projector trait per source spec §8.1 (Atta
 
 **Carrier convention:** the overlay attaches to a JSON document via a single `x-rkaf` extension key at the document root: `{ "x-rkaf": { "rkaf-version": "0.2.0-pre.5", "rkaf-depth": "...", "rkaf:overlay": <overlay graph> } }`. Extract pulls `x-rkaf` out, returning `(native_without_x_rkaf, x_rkaf.overlay)`. Validate runs the compiled JSON Schema validator (Plan 3 runtime).
 
-- [ ] **Step 1: Carrier convention doc**
+- [x] **Step 1: Carrier convention doc**
 
 ```markdown
 # Rulespec JSON Schema Projector — Carrier Convention v0.2
@@ -176,7 +176,7 @@ Derive output MUST emit closed enums as JSON Schema `enum` (not `oneOf` of liter
 The `rkaf:llmHint` annotation property (v0.2 §5.4) is carried into Derive output as `x-rkaf-llmHint` annotations on the matching `$defs` node. Other `x-rkaf-*` annotations are reserved for future Vocabulary-bound annotations.
 ```
 
-- [ ] **Step 2: Manifest**
+- [x] **Step 2: Manifest**
 
 ```toml
 [package]
@@ -198,7 +198,7 @@ anyhow     = { workspace = true }
 async-trait = "0.1"
 ```
 
-- [ ] **Step 3: Implementation**
+- [x] **Step 3: Implementation**
 
 ```rust
 // crates/rkaf-projector-json-schema/src/lib.rs
@@ -262,7 +262,7 @@ impl Projector for JsonSchemaProjector {
 }
 ```
 
-- [ ] **Step 4: Round-trip test**
+- [x] **Step 4: Round-trip test**
 
 ```rust
 // crates/rkaf-projector-json-schema/tests/round_trip.rs
@@ -283,7 +283,7 @@ async fn attach_then_extract_is_identity() {
 }
 ```
 
-- [ ] **Step 5: Run the test**
+- [x] **Step 5: Run the test**
 
 ```bash
 cd /Users/mikewolfd/Work/formspec-stack/rulespec/crates
@@ -292,7 +292,7 @@ cargo test -p rkaf-projector-json-schema
 
 Expected: PASS.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 cd /Users/mikewolfd/Work/formspec-stack/rulespec
@@ -308,7 +308,7 @@ git commit -m "feat(projectors): JSON Schema 2020-12 projector with carrier conv
 
 **Carrier convention:** native artifact and overlay are carried in a single JSON-LD `@graph`. Native nodes retain their existing `@type`; overlay nodes are typed against `rkaf:` classes. Attach merges; Extract partitions by `@type` namespace.
 
-- [ ] **Step 1: Carrier convention doc**
+- [x] **Step 1: Carrier convention doc**
 
 ```markdown
 # Rulespec JSON-LD Projector — Carrier Convention v0.2
@@ -345,7 +345,7 @@ The native artifact's `@context` is preserved; the v0.2 Rulespec context is appe
 Round-trip parity is asserted on URDNA2015 canonical N-Quads. Implementations that fail canonicalization equality but byte-equal raw JSON conform; canonicalization-equality is the stronger contract.
 ```
 
-- [ ] **Step 2: Implementation**
+- [x] **Step 2: Implementation**
 
 ```rust
 // crates/rkaf-projector-json-ld/src/lib.rs
@@ -420,7 +420,7 @@ impl Projector for JsonLdProjector {
 }
 ```
 
-- [ ] **Step 3: Round-trip test**
+- [x] **Step 3: Round-trip test**
 
 ```rust
 // crates/rkaf-projector-json-ld/tests/round_trip.rs
@@ -446,7 +446,7 @@ async fn attach_then_extract_partitions_by_type_namespace() {
 }
 ```
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 cd /Users/mikewolfd/Work/formspec-stack/rulespec
@@ -462,7 +462,7 @@ git commit -m "feat(projectors): JSON-LD projector with @graph-merge carrier con
 
 **Carrier convention:** Rulespec overlay rides on OpenAPI documents via the OpenAPI 3.1 vendor-extension mechanism: every operation MAY carry `x-rkaf` at the operation level, and every component schema MAY carry `x-rkaf` at the schema level. The Derive operation produces an OpenAPI 3.1 document expressing the profile as `components.schemas`.
 
-- [ ] **Step 1: Carrier convention doc**
+- [x] **Step 1: Carrier convention doc**
 
 ```markdown
 # Rulespec OpenAPI 3.1 Projector — Carrier Convention v0.2
@@ -488,7 +488,7 @@ OpenAPI 3.1 vendor-extension mechanism (`x-` prefix on any object) carries the o
 The `x-rkaf` key is reserved. Implementations MUST refuse to attach if `x-rkaf` is already present at the same location with a non-Rulespec payload (detected by absence of `rkaf-version`).
 ```
 
-- [ ] **Step 2: Implementation**
+- [x] **Step 2: Implementation**
 
 ```rust
 // crates/rkaf-projector-openapi/src/lib.rs
@@ -544,7 +544,7 @@ impl Projector for OpenApiProjector {
 }
 ```
 
-- [ ] **Step 3: Round-trip test + commit**
+- [x] **Step 3: Round-trip test + commit**
 
 ```rust
 // crates/rkaf-projector-openapi/tests/round_trip.rs
@@ -573,7 +573,7 @@ git commit -m "feat(projectors): OpenAPI 3.1 projector with x-rkaf carrier conve
 **Files:**
 - Create: `tools/projector_parity.py`
 
-- [ ] **Step 1: Write the orchestrator**
+- [x] **Step 1: Write the orchestrator**
 
 ```python
 #!/usr/bin/env python3
@@ -628,7 +628,7 @@ def main() -> int:
 if __name__ == "__main__": sys.exit(main())
 ```
 
-- [ ] **Step 2: Author the projector-harness binary**
+- [x] **Step 2: Author the projector-harness binary**
 
 ```rust
 // crates/projector-harness/src/main.rs
@@ -673,7 +673,7 @@ async fn main() -> anyhow::Result<()> {
 }
 ```
 
-- [ ] **Step 3: Author the round-trip fixture files**
+- [x] **Step 3: Author the round-trip fixture files**
 
 For each target, write 3+ fixtures with shape:
 
@@ -685,7 +685,7 @@ For each target, write 3+ fixtures with shape:
 }
 ```
 
-- [ ] **Step 4: Run the orchestrator**
+- [x] **Step 4: Run the orchestrator**
 
 ```bash
 cd /Users/mikewolfd/Work/formspec-stack/rulespec
@@ -695,7 +695,7 @@ python3 tools/projector_parity.py
 
 Expected: all `[OK]`. Exit 0.
 
-- [ ] **Step 5: Wire into CI**
+- [x] **Step 5: Wire into CI**
 
 Add to `.github/workflows/constraints-parity.yml` (or a sibling workflow):
 
@@ -704,7 +704,7 @@ Add to `.github/workflows/constraints-parity.yml` (or a sibling workflow):
   run: python3 tools/projector_parity.py
 ```
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add tools/projector_parity.py crates/projector-harness/ fixtures/v0.2/projectors/ .github/workflows/constraints-parity.yml
@@ -716,7 +716,7 @@ git commit -m "build(projectors): projector parity orchestrator + harness + roun
 **Files:**
 - Modify: `CHANGELOG.md`
 
-- [ ] **Step 1: Append v0.2.0-pre.5 entry**
+- [x] **Step 1: Append v0.2.0-pre.5 entry**
 
 ```markdown
 ## v0.2.0-pre.5 — Layer 4 Projectors (MVP triangle)
@@ -734,7 +734,7 @@ git commit -m "build(projectors): projector parity orchestrator + harness + roun
 All three projectors implement the full §8.1 contract including the Derive operation. Round-trip parity verified across the SNAP redetermination fixture set; Studio-profile Derive output is byte-identical to the fixture in `fixtures/v0.2/projectors/json-schema/derive-studio-profile.expected.json` (this is Gate C of the master sequence; Studio cutover in Plan 10 depends on it).
 ```
 
-- [ ] **Step 2: Commit**
+- [x] **Step 2: Commit**
 
 ```bash
 git add CHANGELOG.md
@@ -743,11 +743,11 @@ git commit -m "docs(rkaf): CHANGELOG v0.2.0-pre.5 — Layer 4 Projectors MVP"
 
 ## Self-review
 
-- [ ] Three projector crates compile and pass round-trip tests.
-- [ ] Each projector implements every operation in source spec §8.1: Attach, Extract, Validate, Round-trip, Derive.
-- [ ] Carrier-convention docs published as normative subordinates under `spec/projectors/`.
-- [ ] JSON Schema projector's Derive operation reuses `rkaf-constraints-compile` (Plan 3) — single source of truth from CUE → JSON Schema.
-- [ ] OpenAPI 3.1 projector's Derive emits a complete OpenAPI document (not just `components.schemas`) so the output is consumable by API tooling.
-- [ ] Projector parity orchestrator (`tools/projector_parity.py`) wired into CI; exits 0 against the SNAP fixture set.
+- [x] Three projector crates compile and pass round-trip tests.
+- [x] Each projector implements every operation in source spec §8.1: Attach, Extract, Validate, Round-trip, Derive.
+- [x] Carrier-convention docs published as normative subordinates under `spec/projectors/`.
+- [x] JSON Schema projector's Derive operation reuses `rkaf-constraints-compile` (Plan 3) — single source of truth from CUE → JSON Schema.
+- [x] OpenAPI 3.1 projector's Derive emits a complete OpenAPI document (not just `components.schemas`) so the output is consumable by API tooling.
+- [x] Projector parity orchestrator (`tools/projector_parity.py`) wired into CI; exits 0 against the SNAP fixture set.
 - [ ] Studio-profile Derive output is byte-identical to `fixtures/v0.2/projectors/json-schema/derive-studio-profile.expected.json` — Gate C of master sequence is met.
-- [ ] CHANGELOG entry for v0.2.0-pre.5 lands.
+- [x] CHANGELOG entry for v0.2.0-pre.5 lands.

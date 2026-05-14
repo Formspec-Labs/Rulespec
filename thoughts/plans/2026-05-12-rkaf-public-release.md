@@ -39,7 +39,7 @@ rulespec/
 **Files:**
 - Create: `crates/rkaf-validate/{Cargo.toml,src/main.rs}`
 
-- [ ] **Step 1: Manifest**
+- [x] **Step 1: Manifest**
 
 ```toml
 [package]
@@ -64,7 +64,7 @@ anyhow     = { workspace = true }
 tokio      = { version = "1", features = ["full"] }
 ```
 
-- [ ] **Step 2: CLI**
+- [x] **Step 2: CLI**
 
 ```rust
 // crates/rkaf-validate/src/main.rs
@@ -144,7 +144,7 @@ git commit -m "feat(cli): rkaf-validate <file> — single-shot JSON-LD validator
 **Files:**
 - Modify: `README.md` (full rewrite)
 
-- [ ] **Step 1: Write the README**
+- [x] **Step 1: Write the README**
 
 ```markdown
 # Rulespec (RKAF)

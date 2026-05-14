@@ -124,13 +124,13 @@ Used identically in every per-layer plan; pinned here so they stay consistent.
 
 ## 8. Self-review checklist (run after every per-layer plan lands)
 
-- [ ] Every spec section in §§5-11 has at least one task implementing it (audited per per-layer plan).
-- [ ] No `pkaf:` prefix or `https://w3id.org/pkaf/` IRI remains in the renamed repo (audit step in plan 1; verified in plan 11).
-- [ ] Every promoted Studio-derived primitive in Appendix A is either in universal Vocabulary OR explicitly placed in the Studio profile per §5.2 (verified in plan 2 and plan 10).
-- [ ] Every public ontology in §5.9 has a row in `spec/rkaf-core-v0.2.md`'s alignment table with one of three relationship modes: import / align / project (verified in plan 2).
-- [ ] Every Layer 4 projector implements all five operations (Attach, Extract, Validate, Round-trip parity, Derive) per §8.1 (verified in plan 5).
+- [x] Every spec section in §§5-11 has at least one task implementing it (audited per per-layer plan).
+- [x] No `pkaf:` prefix or `https://w3id.org/pkaf/` IRI remains in the renamed repo (audit step in plan 1; verified in plan 11).
+- [x] Every promoted Studio-derived primitive in Appendix A is either in universal Vocabulary OR explicitly placed in the Studio profile per §5.2 (verified in plan 2 and plan 10).
+- [x] Every public ontology in §5.9 has a row in `spec/rkaf-core-v0.2.md`'s alignment table with one of three relationship modes: import / align / project (verified in plan 2).
+- [x] Every Layer 4 projector implements all five operations (Attach, Extract, Validate, Round-trip parity, Derive) per §8.1 (verified in plan 5).
 - [ ] Every reference SDK implements Vocabulary + Constraints + Registries + Projectors and passes the same fixture suite (verified in plan 6).
-- [ ] The conformance suite hits §10.1 coverage: every Vocabulary class with three fixtures (positive, negative, edge); every constraint with positive + negative; every projector with round-trip + Derive; ≥5 adversarial fixtures; ≥3 AI-extraction adversarial fixtures (verified in plan 7).
+- [x] The conformance suite hits §10.1 coverage: every Vocabulary class with three fixtures (positive, negative, edge); every constraint with positive + negative; every projector with round-trip + Derive; ≥5 adversarial fixtures; ≥3 AI-extraction adversarial fixtures (verified in plan 7).
 - [ ] At least one Reference Corpus exists per §11.4: SNAP slice formal; one non-policy corpus added (verified in plan 8).
 - [ ] The abstract anchoring contract is in `spec/rkaf-core-v0.2.md`; Trellis binding spec lives in the Trellis repo, not Rulespec (verified in plan 9).
 - [ ] Studio declares L3 + D3 in its conformance YAML; SNAP byte-identical output verified across cutover (verified in plan 10).

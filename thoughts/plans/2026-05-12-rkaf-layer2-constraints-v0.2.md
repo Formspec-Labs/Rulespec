@@ -103,7 +103,7 @@ The candidates per source spec §6.2 are: Rulespec Constraint DSL (greenfield), 
 
 **Selection: CUE.** Rationale captured in ADR.
 
-- [ ] **Step 1: Write the ADR**
+- [x] **Step 1: Write the ADR**
 
 ```markdown
 # ADR — Rulespec Constraint Source Language: CUE
@@ -147,7 +147,7 @@ Rejected:
 None. This decision is final pre-1.0; revisit only if CUE upstream becomes unmaintained.
 ```
 
-- [ ] **Step 2: Commit the ADR**
+- [x] **Step 2: Commit the ADR**
 
 ```bash
 cd /Users/mikewolfd/Work/formspec-stack/rulespec
@@ -162,14 +162,14 @@ git commit -m "adr(rkaf): select CUE as Layer 2 constraint source language"
 - Create: `tools/install-cue.sh`
 - Create: `.tool-versions` (asdf-compatible) — single line `cue 0.10.0`
 
-- [ ] **Step 1: Pin via asdf-style file**
+- [x] **Step 1: Pin via asdf-style file**
 
 ```bash
 cd /Users/mikewolfd/Work/formspec-stack/rulespec
 echo "cue 0.10.0" > .tool-versions
 ```
 
-- [ ] **Step 2: Write the installer**
+- [x] **Step 2: Write the installer**
 
 ```bash
 cat > tools/install-cue.sh <<'EOF'
@@ -207,7 +207,7 @@ chmod +x tools/install-cue.sh
 
 Expected: `.tools/cue version` reports `v0.10.0`.
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add .tool-versions tools/install-cue.sh
@@ -220,7 +220,7 @@ git commit -m "build(rkaf): pin cue 0.10.0 and add installer"
 
 **Files:** every file under `constraints/core/` listed in the file-structure section.
 
-- [ ] **Step 1: Write `constraints/core/artifact.cue`**
+- [x] **Step 1: Write `constraints/core/artifact.cue`**
 
 ```cue
 package rkaf
@@ -239,7 +239,7 @@ import "list"
 }
 ```
 
-- [ ] **Step 2: Write `constraints/core/source-fragment.cue`**
+- [x] **Step 2: Write `constraints/core/source-fragment.cue`**
 
 ```cue
 package rkaf
@@ -260,7 +260,7 @@ import "list"
 }
 ```
 
-- [ ] **Step 3: Write `constraints/core/evidence-binding.cue`** — load-bearing operational-validity invariant
+- [x] **Step 3: Write `constraints/core/evidence-binding.cue`** — load-bearing operational-validity invariant
 
 ```cue
 package rkaf
@@ -283,7 +283,7 @@ import "list"
 }
 ```
 
-- [ ] **Step 4: Write `constraints/core/warrant.cue`** — warrantKind / warrantFamily closed enums + family-transition warning hook
+- [x] **Step 4: Write `constraints/core/warrant.cue`** — warrantKind / warrantFamily closed enums + family-transition warning hook
 
 ```cue
 package rkaf
@@ -327,7 +327,7 @@ package rkaf
 }
 ```
 
-- [ ] **Step 5: Write `constraints/core/confidence-record.cue`**
+- [x] **Step 5: Write `constraints/core/confidence-record.cue`**
 
 ```cue
 package rkaf
@@ -356,7 +356,7 @@ import "list"
 }
 ```
 
-- [ ] **Step 6: Write `constraints/core/access-scope.cue`**
+- [x] **Step 6: Write `constraints/core/access-scope.cue`**
 
 ```cue
 package rkaf
@@ -385,7 +385,7 @@ import "list"
 }
 ```
 
-- [ ] **Step 7: Write `constraints/core/ai-lineage.cue`**
+- [x] **Step 7: Write `constraints/core/ai-lineage.cue`**
 
 ```cue
 package rkaf
@@ -403,7 +403,7 @@ package rkaf
 }
 ```
 
-- [ ] **Step 8: Write `constraints/core/retention-policy.cue`**
+- [x] **Step 8: Write `constraints/core/retention-policy.cue`**
 
 ```cue
 package rkaf
@@ -419,7 +419,7 @@ package rkaf
 }
 ```
 
-- [ ] **Step 9: Write `constraints/core/workspace.cue`**
+- [x] **Step 9: Write `constraints/core/workspace.cue`**
 
 ```cue
 package rkaf
@@ -431,7 +431,7 @@ package rkaf
 }
 ```
 
-- [ ] **Step 10: Write `constraints/core/assertion.cue`** — Assertion-level cross-property invariants
+- [x] **Step 10: Write `constraints/core/assertion.cue`** — Assertion-level cross-property invariants
 
 ```cue
 package rkaf
@@ -466,7 +466,7 @@ package rkaf
 }
 ```
 
-- [ ] **Step 12: Verify each file parses with the CUE binary**
+- [x] **Step 12: Verify each file parses with the CUE binary**
 
 ```bash
 cd /Users/mikewolfd/Work/formspec-stack/rulespec
@@ -475,7 +475,7 @@ cd /Users/mikewolfd/Work/formspec-stack/rulespec
 
 Expected: No errors. CUE prints nothing on success.
 
-- [ ] **Step 13: Commit**
+- [x] **Step 13: Commit**
 
 ```bash
 git add constraints/core/ constraints/README.md
@@ -1423,7 +1423,7 @@ git commit -m "feat(constraints-runtime): runtime crate executes compiled JSON S
 
 Per source spec §10.1: the conformance suite MUST include ≥5 adversarial fixtures designed to surface evaluator-class failures. These fixtures live in the test corpus regardless of which compilation target is exercised — the parity tool (Task 13) runs them against every target.
 
-- [ ] **Step 1: `conditional-silent-pass.cue` and its fixtures**
+- [x] **Step 1: `conditional-silent-pass.cue` and its fixtures**
 
 The Appendix-C class regression: a constraint that an `sh:if`/`sh:then`-based SHACL evaluator silently passes. Restated as a CUE constraint that compiles to all targets and is exercised against fixtures that PASS-when-they-shouldn't only on broken evaluators.
 
@@ -1451,9 +1451,9 @@ Create the positive and negative fixtures under `fixtures/v0.2/adversarial/`:
 
 `fixtures/v0.2/adversarial/conditional-silent-pass-negative.jsonld` — Assertion with safetyLabel = `rkaf:strict` + EB with consensus-without-citation. Should FAIL on every conformant target.
 
-- [ ] **Step 2: Repeat for the other four adversarial CUE constraints** — each with at least a paired positive (passes) and negative (fails) fixture.
+- [x] **Step 2: Repeat for the other four adversarial CUE constraints** — each with at least a paired positive (passes) and negative (fails) fixture.
 
-- [ ] **Step 3: Compile each adversarial constraint to every target**
+- [x] **Step 3: Compile each adversarial constraint to every target**
 
 ```bash
 cd /Users/mikewolfd/Work/formspec-stack/rulespec
@@ -1468,7 +1468,7 @@ done
 
 Expected: all 5 × 5 = 25 compiled artifacts produced. Output paths populated.
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add constraints/adversarial/ fixtures/v0.2/adversarial/ compiled/
@@ -1485,7 +1485,7 @@ git commit -m "constraints(rkaf): add adversarial fixture corpus (≥5 evaluator
 
 Per source spec §1.5(5) and §10.1: ≥3 AI-extraction adversarial fixtures surfacing LLM systematic-misinterpretation patterns. Each fixture is a payload an LLM might plausibly produce but that violates the closed Vocabulary.
 
-- [ ] **Step 1: `warrant-family-confusion-negative.jsonld`**
+- [x] **Step 1: `warrant-family-confusion-negative.jsonld`**
 
 ```json
 {
@@ -1498,7 +1498,7 @@ Per source spec §1.5(5) and §10.1: ≥3 AI-extraction adversarial fixtures sur
 
 LLM picks `statutory` (a legal-family kind) but assigns family `scientific` — should FAIL the family/kind agreement constraint.
 
-- [ ] **Step 2: `consent-vs-warrant-negative.jsonld`**
+- [x] **Step 2: `consent-vs-warrant-negative.jsonld`**
 
 ```json
 {
@@ -1511,7 +1511,7 @@ LLM picks `statutory` (a legal-family kind) but assigns family `scientific` — 
 
 `consent` is not in the closed `warrantKind` enum — LLM hallucinated a sensible-sounding label. Should FAIL on every target's enum check.
 
-- [ ] **Step 3: `confidence-score-without-method-negative.jsonld`**
+- [x] **Step 3: `confidence-score-without-method-negative.jsonld`**
 
 ```json
 {
@@ -1523,11 +1523,11 @@ LLM picks `statutory` (a legal-family kind) but assigns family `scientific` — 
 
 LLM emits a bare score; missing `confidenceMethod`, `calibrationStatus`, `confidenceBasis`, `generatedBy`. Should FAIL on every target.
 
-- [ ] **Step 4: Compile the adversarial AI-extraction CUE files to every target**
+- [x] **Step 4: Compile the adversarial AI-extraction CUE files to every target**
 
 (Same loop as Task 11 step 3, with `constraints/ai-extraction/`.)
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add constraints/ai-extraction/ fixtures/v0.2/ai-extraction/ compiled/
@@ -1541,7 +1541,7 @@ git commit -m "constraints(rkaf): add AI-extraction adversarial fixture corpus (
 
 This is the build gate. Per source spec §6.3 and §6.4: every constraint MUST have a positive fixture, ≥1 negative fixture, and a parity assertion across all compilation targets.
 
-- [ ] **Step 1: Write the orchestrator**
+- [x] **Step 1: Write the orchestrator**
 
 ```python
 #!/usr/bin/env python3
@@ -1727,7 +1727,7 @@ git commit -m "build(rkaf): cross-target constraint parity orchestrator + Rust/T
 **Files:**
 - Create: `.github/workflows/constraints-parity.yml`
 
-- [ ] **Step 1: Write the workflow**
+- [x] **Step 1: Write the workflow**
 
 ```yaml
 name: constraints-parity
@@ -1777,7 +1777,7 @@ jobs:
         run: python3 tools/validate_negatives.py
 ```
 
-- [ ] **Step 2: Commit**
+- [x] **Step 2: Commit**
 
 ```bash
 git add .github/workflows/constraints-parity.yml
@@ -1789,7 +1789,7 @@ git commit -m "ci(rkaf): wire constraints parity + SHACL pattern-C lint + vocab 
 **Files:**
 - Modify: `CHANGELOG.md`
 
-- [ ] **Step 1: Append v0.2.0-pre.3 entry**
+- [x] **Step 1: Append v0.2.0-pre.3 entry**
 
 ```markdown
 ## v0.2.0-pre.3 — Layer 2 Constraints
@@ -1814,7 +1814,7 @@ git commit -m "ci(rkaf): wire constraints parity + SHACL pattern-C lint + vocab 
 Pre-release. v0.1.x SHACL shape files do not interoperate with v0.2 compiled artifacts. No migration shim.
 ```
 
-- [ ] **Step 2: Commit**
+- [x] **Step 2: Commit**
 
 ```bash
 git add CHANGELOG.md
@@ -1823,15 +1823,15 @@ git commit -m "docs(rkaf): CHANGELOG v0.2.0-pre.3 — Layer 2 Constraints"
 
 ## Self-review
 
-- [ ] CUE selected and ratified in an ADR; `cue 0.10.0` pinned via `.tool-versions`.
-- [ ] CUE source files exist for every Vocabulary primitive in `spec/rkaf-vocabulary-v0.2.md`.
+- [x] CUE selected and ratified in an ADR; `cue 0.10.0` pinned via `.tool-versions`.
+- [x] CUE source files exist for every Vocabulary primitive in `spec/rkaf-vocabulary-v0.2.md`.
 - [ ] `rkaf-constraints-compile` crate compiles each CUE source to JSON Schema, Rust, TypeScript, SHACL, CUE, Rego.
-- [ ] JSON Schema target is load-bearing: emits Draft 2020-12, closed-enum-honoring, AI-tractable schemas.
-- [ ] SHACL target emits Pattern C only; CI grep gates against `sh:if`/`sh:then`.
+- [x] JSON Schema target is load-bearing: emits Draft 2020-12, closed-enum-honoring, AI-tractable schemas.
+- [x] SHACL target emits Pattern C only; CI grep gates against `sh:if`/`sh:then`.
 - [ ] `rkaf-constraints-runtime` exists; embeds JSON Schema validator; the SDKs (Plan 6) consume this crate.
-- [ ] Adversarial fixture corpus has ≥5 evaluator-class regressions per source spec §10.1.
-- [ ] AI-extraction adversarial fixture corpus has ≥3 LLM-systematic-misinterpretation patterns per source spec §10.1.
+- [x] Adversarial fixture corpus has ≥5 evaluator-class regressions per source spec §10.1.
+- [x] AI-extraction adversarial fixture corpus has ≥3 LLM-systematic-misinterpretation patterns per source spec §10.1.
 - [ ] `tools/constraints_parity.py` exits 0 — every fixture's classification is identical across JSON Schema, SHACL, Rust, TypeScript targets.
-- [ ] `.github/workflows/constraints-parity.yml` runs the parity check + Pattern-C lint + vocab audit + negative audit on every push.
-- [ ] CHANGELOG entry for v0.2.0-pre.3 lands.
-- [ ] No `pkaf:` strings introduced; rename audit still clean.
+- [x] `.github/workflows/constraints-parity.yml` runs the parity check + Pattern-C lint + vocab audit + negative audit on every push.
+- [x] CHANGELOG entry for v0.2.0-pre.3 lands.
+- [x] No `pkaf:` strings introduced; rename audit still clean.

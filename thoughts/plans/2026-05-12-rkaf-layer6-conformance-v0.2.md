@@ -656,13 +656,13 @@ git commit -m "docs(rkaf): CHANGELOG v0.2.0-pre.7 — Layer 6 Conformance"
 
 ## Self-review
 
-- [ ] Coverage matrix exists and maps every §10.1 coverage target to a concrete fixture.
-- [ ] Every Vocabulary class has ≥3 fixtures (positive, negative, edge) per source spec §10.1.
-- [ ] Every constraint has positive + negative coverage (Plan 3's `tools/constraints_parity.py` enforces this).
-- [ ] Every projector has round-trip + Derive coverage (Plan 5's `tools/projector_parity.py` enforces this).
+- [x] Coverage matrix exists and maps every §10.1 coverage target to a concrete fixture.
+- [x] Every Vocabulary class has ≥3 fixtures (positive, negative, edge) per source spec §10.1.
+- [x] Every constraint has positive + negative coverage (Plan 3's `tools/constraints_parity.py` enforces this).
+- [x] Every projector has round-trip + Derive coverage (Plan 5's `tools/projector_parity.py` enforces this).
 - [ ] Federation protocol covered by ≥3 fixtures (pull, push, disagreement) per source spec §10.1 (Plan 4 + this plan).
 - [ ] ≥5 adversarial fixtures (Plan 3) and ≥3 AI-extraction adversarial fixtures (Plan 3) cross-referenced in the index.
-- [ ] Cascade closure (CascadeClosureV1) and usageEligibility reducer fixtures exist for L3.
+- [x] Cascade closure (CascadeClosureV1) and usageEligibility reducer fixtures exist for L3.
 - [ ] `rkaf-conformance --level {L1,L2,L3,L4}` exits 0 against the local reference stack.
 - [ ] Self-certification template + howto published.
 - [ ] CI runs all four conformance levels on every push.

@@ -74,7 +74,7 @@ policy-studio/
 
 This is the byte-identical comparison target. It MUST be captured BEFORE any compiler change so we know exactly what shape we're holding constant.
 
-- [ ] **Step 1: Run the existing Studio compiler on the SNAP slice**
+- [x] **Step 1: Run the existing Studio compiler on the SNAP slice**
 
 ```bash
 cd /Users/mikewolfd/Work/formspec-stack/policy-studio
@@ -86,14 +86,14 @@ cargo run -p wos-studio-compiler -- \
 
 Expected: `snap-baseline/` is populated with `workflow.json`, `form.json`, `overlay.jsonld`, `manifest.json`.
 
-- [ ] **Step 2: Compute baseline hashes**
+- [x] **Step 2: Compute baseline hashes**
 
 ```bash
 cd /Users/mikewolfd/Work/formspec-stack/policy-studio
 shasum -a 256 snap-baseline/*.json snap-baseline/*.jsonld | tee snap-baseline/SHA256SUMS
 ```
 
-- [ ] **Step 3: Commit the baseline**
+- [x] **Step 3: Commit the baseline**
 
 ```bash
 git add snap-baseline/
@@ -190,7 +190,7 @@ git commit -m "spec(studio-profile): author Studio profile v0.2 — composes cor
 - Create: `rulespec/profiles/studio/schemas-derived/*.schema.json` (19 files)
 - Create: `rulespec/profiles/studio/derive.sh`
 
-- [ ] **Step 1: Write the derive script**
+- [x] **Step 1: Write the derive script**
 
 ```bash
 #!/usr/bin/env bash
@@ -208,7 +208,7 @@ for cue_def in profiles/studio/studio-profile-v0.2.cue profiles/studio/policy-ob
 done
 ```
 
-- [ ] **Step 2: Run derive**
+- [x] **Step 2: Run derive**
 
 ```bash
 cd /Users/mikewolfd/Work/formspec-stack/rulespec
@@ -252,7 +252,7 @@ Expected: Either every line says `OK`, or the printed diffs identify missing/ext
 
 Tighten `studio-profile-v0.2.cue` and the per-kind CUE files until every derived schema's property set matches the hand-written counterpart. This is iterative; at each iteration re-run `derive.sh` and re-run the comparator.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 cd /Users/mikewolfd/Work/formspec-stack/rulespec
@@ -266,7 +266,7 @@ git commit -m "build(studio-profile): derive 19 schemas from CUE profile via Lay
 - Create: `policy-studio/schemas-derived/` (symlink to `../rulespec/profiles/studio/schemas-derived/`)
 - Modify: `policy-studio/crates/wos-studio-compiler/src/schema_loader.rs`
 
-- [ ] **Step 1: Add the symlink**
+- [x] **Step 1: Add the symlink**
 
 ```bash
 cd /Users/mikewolfd/Work/formspec-stack/policy-studio
@@ -276,11 +276,11 @@ ls -la schemas-derived/
 
 Expected: `schemas-derived` resolves to the Rulespec-side directory; `ls schemas-derived/` shows the 19 derived schema files.
 
-- [ ] **Step 2: Rewire the loader**
+- [x] **Step 2: Rewire the loader**
 
 In `policy-studio/crates/wos-studio-compiler/src/schema_loader.rs`, change the schema-search path from `policy-studio/schemas/` to `policy-studio/schemas-derived/`. Single-line change in most cases — find the `const SCHEMA_DIR: &str = "schemas";` (or equivalent) and change to `"schemas-derived"`.
 
-- [ ] **Step 3: Build the Studio compiler**
+- [x] **Step 3: Build the Studio compiler**
 
 ```bash
 cd /Users/mikewolfd/Work/formspec-stack/policy-studio
@@ -289,7 +289,7 @@ cargo build -p wos-studio-compiler
 
 Expected: Builds cleanly.
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add schemas-derived crates/wos-studio-compiler/src/schema_loader.rs
@@ -303,7 +303,7 @@ git commit -m "refactor(studio): rewire compiler to consume schemas-derived/ (Ru
 
 This is the cutover gate. The test compiles the SNAP slice with the rewired compiler and asserts byte-identical output to `snap-baseline/`.
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 ```rust
 // policy-studio/crates/wos-studio-compiler/tests/snap_byte_identical.rs
@@ -348,7 +348,7 @@ Expected outcomes:
 
 This is the cutover gate. Do not proceed past this task with FAIL.
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add crates/wos-studio-compiler/tests/snap_byte_identical.rs
@@ -525,7 +525,7 @@ git commit -m "conformance(studio): publish L3 conformance report (post-rkaf-cut
 - Modify: `policy-studio/CLAUDE.md` (add a section pointing at the cutover doc and the disclosure)
 - Modify: `policy-studio/schemas/README.md` (mark hand-written schemas historical)
 
-- [ ] **Step 1: `docs/rkaf-cutover.md`**
+- [x] **Step 1: `docs/rkaf-cutover.md`**
 
 ```markdown
 # Studio ↔ Rulespec Cutover
@@ -549,7 +549,7 @@ Studio declares L3 + D3 in `rulespec/conformance/partners/policy-studio.yaml`. C
 Authoring ergonomics. IDE tooling. Codegen. The conceptual ground beneath these surfaces shifted from independent-Studio-vocabulary to derived-from-Rulespec-vocabulary; the surfaces themselves did not.
 ```
 
-- [ ] **Step 2: `policy-studio/CLAUDE.md` patch**
+- [x] **Step 2: `policy-studio/CLAUDE.md` patch**
 
 Add a section near the top:
 
@@ -559,13 +559,13 @@ Add a section near the top:
 Studio is depth-D3 conformant against Rulespec v0.2: native schemas are derived from `rulespec/profiles/studio/studio-profile-v0.2.cue`. The hand-written `schemas/` directory is historical; `schemas-derived/` is canonical. See `docs/rkaf-cutover.md` and `rulespec/conformance/partners/policy-studio.yaml`.
 ```
 
-- [ ] **Step 3: `policy-studio/schemas/README.md` patch**
+- [x] **Step 3: `policy-studio/schemas/README.md` patch**
 
 ```markdown
 > **Frozen.** As of v0.2 cutover, this directory is historical. Canonical schemas are derived from the Rulespec Studio profile and live under `schemas-derived/` (symlinked to `../rulespec/profiles/studio/schemas-derived/`). See `docs/rkaf-cutover.md`.
 ```
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 cd /Users/mikewolfd/Work/formspec-stack/policy-studio
@@ -575,7 +575,7 @@ git commit -m "docs(studio): rkaf cutover documentation + historical-schemas not
 
 ## Task 9: Bump submodule pointers in formspec-stack
 
-- [ ] **Step 1: Bump rulespec + policy-studio**
+- [x] **Step 1: Bump rulespec + policy-studio**
 
 ```bash
 cd /Users/mikewolfd/Work/formspec-stack
@@ -615,12 +615,12 @@ git commit -m "docs(rkaf): CHANGELOG v0.2.0-pre.10 — Studio reference-consumer
 
 - [ ] Studio profile exists at `rulespec/profiles/studio/studio-profile-v0.2.cue`; per-PolicyObject-kind CUE files cover every kind enumerated in source spec Appendix A.
 - [ ] `rulespec/profiles/studio/schemas-derived/` contains 19 derived schemas (one per Studio hand-written schema).
-- [ ] `policy-studio/schemas-derived/` is a symlink into the Rulespec checkout; the Studio compiler reads from it.
-- [ ] Studio compiler builds cleanly with the rewired schema loader.
+- [x] `policy-studio/schemas-derived/` is a symlink into the Rulespec checkout; the Studio compiler reads from it.
+- [x] Studio compiler builds cleanly with the rewired schema loader.
 - [ ] **Byte-identical SNAP-slice output** verified by `policy-studio/crates/wos-studio-compiler/tests/snap_byte_identical.rs` — this is Gate D of the master sequence.
 - [ ] Studio lint engine has the "overlay-grounded" rule tier sourced from Rulespec Layer 2 constraints (per source spec §14.1(4)).
 - [ ] Studio's conformance disclosure exists at `rulespec/conformance/partners/policy-studio.yaml`; declares L3 + D3; the L3 conformance report is published in `policy-studio/conformance-reports/L3-report.json`.
-- [ ] Hand-written `policy-studio/schemas/` flagged as historical via README notice.
-- [ ] formspec-stack submodule pointers bumped atomically.
+- [x] Hand-written `policy-studio/schemas/` flagged as historical via README notice.
+- [x] formspec-stack submodule pointers bumped atomically.
 - [ ] CHANGELOG entry for v0.2.0-pre.10 lands on the Rulespec side.
 - [ ] Future-reference-consumer flexibility preserved per source spec §14.3 (no framework-side requirement that future partners adopt at D3+).

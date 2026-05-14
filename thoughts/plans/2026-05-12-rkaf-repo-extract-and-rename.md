@@ -83,7 +83,7 @@ rulespec/
 **Files:**
 - Create: `/Users/mikewolfd/Work/formspec-stack/PKAF/tools/rename_audit.py`
 
-- [ ] **Step 1: Write the audit script (deterministic enumeration of every renamed surface)**
+- [x] **Step 1: Write the audit script (deterministic enumeration of every renamed surface)**
 
 ```python
 #!/usr/bin/env python3
@@ -180,13 +180,13 @@ if __name__ == "__main__":
     sys.exit(main())
 ```
 
-- [ ] **Step 2: Run the audit on the current PKAF tree to capture the baseline**
+- [x] **Step 2: Run the audit on the current PKAF tree to capture the baseline**
 
 Run: `python3 /Users/mikewolfd/Work/formspec-stack/PKAF/tools/rename_audit.py | tee /tmp/rkaf-rename-baseline.txt`
 
 Expected: Exit 1 with hundreds of findings. Capture the output as the baseline; the rename is complete when the audit exits 0.
 
-- [ ] **Step 3: Commit the audit script**
+- [x] **Step 3: Commit the audit script**
 
 ```bash
 cd /Users/mikewolfd/Work/formspec-stack/PKAF
@@ -206,7 +206,7 @@ git commit -m "build(tools): add rkaf rename audit script"
 - Rename: `PKAF/shapes/pkaf-shapes-lifecycle-v0.1.ttl` → `PKAF/shapes/rkaf-shapes-lifecycle-v0.1.ttl`
 - Rename: `PKAF/shapes/pkaf-shapes-justification-v0.1.ttl` → `PKAF/shapes/rkaf-shapes-justification-v0.1.ttl`
 
-- [ ] **Step 1: Rename via `git mv` (preserves history)**
+- [x] **Step 1: Rename via `git mv` (preserves history)**
 
 ```bash
 cd /Users/mikewolfd/Work/formspec-stack/PKAF
@@ -220,12 +220,12 @@ git mv shapes/pkaf-shapes-lifecycle-v0.1.ttl shapes/rkaf-shapes-lifecycle-v0.1.t
 git mv shapes/pkaf-shapes-justification-v0.1.ttl shapes/rkaf-shapes-justification-v0.1.ttl
 ```
 
-- [ ] **Step 2: Verify the renames landed**
+- [x] **Step 2: Verify the renames landed**
 
 Run: `git status`
 Expected: 8 renames listed under "renamed:" lines. No unstaged changes in those files (yet — content edit comes in Task 3).
 
-- [ ] **Step 3: Commit the renames as a separate commit (history-preserving)**
+- [x] **Step 3: Commit the renames as a separate commit (history-preserving)**
 
 ```bash
 git commit -m "refactor(rkaf): rename pkaf-* artifact filenames to rkaf-*"
@@ -236,7 +236,7 @@ git commit -m "refactor(rkaf): rename pkaf-* artifact filenames to rkaf-*"
 **Files:**
 - Modify: `PKAF/context/rkaf-context-v0.2.jsonld` (every `pkaf:` key → `rkaf:`; `https://w3id.org/pkaf/ns/v1#` → `https://rulespec.org/ns/v1#`)
 
-- [ ] **Step 1: Write a failing audit assertion**
+- [x] **Step 1: Write a failing audit assertion**
 
 ```bash
 cd /Users/mikewolfd/Work/formspec-stack/PKAF
@@ -250,7 +250,7 @@ assert 'pkaf' not in ctx, 'pkaf prefix must not remain'
 
 Expected: AssertionError on the first assertion (`rkaf` key not yet present).
 
-- [ ] **Step 2: Apply the rewrite**
+- [x] **Step 2: Apply the rewrite**
 
 Use `sed` only because the JSON-LD context is a flat key-value map; for the spec/SHACL files (Task 4+) a code-aware rewrite is required.
 
@@ -263,12 +263,12 @@ sed -i.bak \
 rm context/rkaf-context-v0.2.jsonld.bak
 ```
 
-- [ ] **Step 3: Re-run the assertion**
+- [x] **Step 3: Re-run the assertion**
 
 Same command as Step 1.
 Expected: No assertion error; exit 0.
 
-- [ ] **Step 4: Apply the same rewrite to v0.1 context**
+- [x] **Step 4: Apply the same rewrite to v0.1 context**
 
 ```bash
 sed -i.bak \
@@ -279,7 +279,7 @@ sed -i.bak \
 rm context/rkaf-context-v0.1.jsonld.bak
 ```
 
-- [ ] **Step 5: Validate JSON-LD parses**
+- [x] **Step 5: Validate JSON-LD parses**
 
 ```bash
 python3 -c "
@@ -292,7 +292,7 @@ for p in ['context/rkaf-context-v0.1.jsonld', 'context/rkaf-context-v0.2.jsonld'
 
 Expected: Both files print `parses OK`.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add context/
@@ -307,7 +307,7 @@ git commit -m "refactor(rkaf): rewrite JSON-LD contexts to rkaf prefix and rules
 - Modify: `PKAF/shapes/rkaf-shapes-lifecycle-v0.1.ttl`
 - Modify: `PKAF/shapes/rkaf-shapes-justification-v0.1.ttl`
 
-- [ ] **Step 1: Confirm pyshacl can parse the files (baseline)**
+- [x] **Step 1: Confirm pyshacl can parse the files (baseline)**
 
 ```bash
 cd /Users/mikewolfd/Work/formspec-stack/PKAF
@@ -320,7 +320,7 @@ for f in ['shapes/rkaf-shapes-core-v0.1.ttl','shapes/rkaf-shapes-conceptregistry
 
 Expected: Each file prints triple count, no exceptions.
 
-- [ ] **Step 2: Rewrite the prefix declarations and IRIs**
+- [x] **Step 2: Rewrite the prefix declarations and IRIs**
 
 ```bash
 for f in shapes/rkaf-shapes-*.ttl; do
@@ -333,12 +333,12 @@ for f in shapes/rkaf-shapes-*.ttl; do
 done
 ```
 
-- [ ] **Step 3: Re-parse to verify integrity**
+- [x] **Step 3: Re-parse to verify integrity**
 
 Same parse loop as Step 1.
 Expected: Same triple counts (parser sees the same graph; only prefix labels and IRI host changed).
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add shapes/
@@ -350,7 +350,7 @@ git commit -m "refactor(rkaf): rewrite SHACL shapes to rkaf prefix and rulespec.
 **Files:**
 - Modify: every file in `PKAF/fixtures/*.jsonld`
 
-- [ ] **Step 1: Write a failing parse-and-validate assertion**
+- [x] **Step 1: Write a failing parse-and-validate assertion**
 
 ```bash
 cd /Users/mikewolfd/Work/formspec-stack/PKAF
@@ -365,7 +365,7 @@ for p in ['fixtures/context.jsonld','fixtures/local-operational-v0.2.jsonld','fi
 
 Expected: AssertionError on first fixture (`pkaf:` still present).
 
-- [ ] **Step 2: Rewrite all fixtures**
+- [x] **Step 2: Rewrite all fixtures**
 
 ```bash
 for f in fixtures/*.jsonld; do
@@ -378,7 +378,7 @@ for f in fixtures/*.jsonld; do
 done
 ```
 
-- [ ] **Step 3: Verify each fixture still parses as JSON**
+- [x] **Step 3: Verify each fixture still parses as JSON**
 
 ```bash
 python3 -c "
@@ -390,7 +390,7 @@ for p in ['fixtures/context.jsonld','fixtures/local-operational-v0.2.jsonld','fi
 
 Expected: Each fixture prints `OK`.
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add fixtures/
@@ -402,7 +402,7 @@ git commit -m "refactor(rkaf): rewrite JSON-LD fixtures to rkaf prefix"
 **Files:**
 - Modify: `PKAF/tools/ci_validate.py` — every `PKAF` brand string → `Rulespec`/`RKAF`; every `pkaf-shapes-*.ttl` path → `rkaf-shapes-*.ttl`
 
-- [ ] **Step 1: Write a failing assertion**
+- [x] **Step 1: Write a failing assertion**
 
 ```bash
 cd /Users/mikewolfd/Work/formspec-stack/PKAF
@@ -411,7 +411,7 @@ grep -c 'rkaf-shapes' tools/ci_validate.py
 
 Expected: `0` (no occurrences yet).
 
-- [ ] **Step 2: Apply the rewrite**
+- [x] **Step 2: Apply the rewrite**
 
 Use the Edit tool, not sed, because this is code:
 
@@ -425,7 +425,7 @@ Replace every occurrence in `tools/ci_validate.py`:
 - `print(f"PKAF CI validation gate — mode: {args.mode}")` → `print(f"Rulespec CI validation gate — mode: {args.mode}")`
 - `parser = argparse.ArgumentParser(description="PKAF multi-mode CI validation gate")` → `parser = argparse.ArgumentParser(description="Rulespec multi-mode CI validation gate")`
 
-- [ ] **Step 3: Verify the validator still runs**
+- [x] **Step 3: Verify the validator still runs**
 
 ```bash
 cd /Users/mikewolfd/Work/formspec-stack/PKAF
@@ -434,7 +434,7 @@ python3 tools/ci_validate.py --mode batch4
 
 Expected: Output begins with `Rulespec CI validation gate — mode: batch4` and ends with `Result: PASS`. Exit 0. Triple counts unchanged from the v0.1.1 baseline (the rename does not change the SHACL graph).
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add tools/ci_validate.py
@@ -449,7 +449,7 @@ git commit -m "refactor(rkaf): rebrand ci_validate.py and point at rkaf-shapes-*
 
 These are normative spec text. Brand-rename inline; do not change semantics.
 
-- [ ] **Step 1: Apply scoped sed to in-prose tokens**
+- [x] **Step 1: Apply scoped sed to in-prose tokens**
 
 ```bash
 cd /Users/mikewolfd/Work/formspec-stack/PKAF
@@ -465,7 +465,7 @@ for f in spec/rkaf-core-v0.1.md spec/rkaf-concept-registry-v0.1.2.md; do
 done
 ```
 
-- [ ] **Step 2: Verify the spec body cleanly references the renamed shapes/context**
+- [x] **Step 2: Verify the spec body cleanly references the renamed shapes/context**
 
 ```bash
 grep -n "pkaf" spec/rkaf-core-v0.1.md spec/rkaf-concept-registry-v0.1.2.md
@@ -473,7 +473,7 @@ grep -n "pkaf" spec/rkaf-core-v0.1.md spec/rkaf-concept-registry-v0.1.2.md
 
 Expected: No output (zero matches).
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add spec/
@@ -490,7 +490,7 @@ git commit -m "docs(rkaf): rebrand spec body PKAF→Rulespec / pkaf:→rkaf:"
 - Modify: `PKAF/CHANGELOG.md`
 - Modify: `PKAF/README.md`
 
-- [ ] **Step 1: Bulk rebrand in markdown**
+- [x] **Step 1: Bulk rebrand in markdown**
 
 ```bash
 cd /Users/mikewolfd/Work/formspec-stack/PKAF
@@ -511,7 +511,7 @@ find reports fixtures/narratives spec context shapes tools \
 done
 ```
 
-- [ ] **Step 2: Append a CHANGELOG entry for the rename**
+- [x] **Step 2: Append a CHANGELOG entry for the rename**
 
 Edit `PKAF/CHANGELOG.md`. Insert at the top (under any existing pre-release section header):
 
@@ -525,7 +525,7 @@ Edit `PKAF/CHANGELOG.md`. Insert at the top (under any existing pre-release sect
 - This is a wholesale rename. There is no compatibility shim and no `pkaf:` prefix is supported in v0.2 or later.
 ```
 
-- [ ] **Step 3: Run the rename audit**
+- [x] **Step 3: Run the rename audit**
 
 ```bash
 python3 tools/rename_audit.py
@@ -533,7 +533,7 @@ python3 tools/rename_audit.py
 
 Expected: Exit 0 (CLEAN). If not, the printed findings tell you where residual `pkaf:` / `PKAF` strings remain — fix in place and rerun until clean.
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add reports/ fixtures/narratives/ spec/README.md context/README.md shapes/README.md fixtures/README.md tools/README.md reports/README.md CONTRIBUTING.md CHANGELOG.md README.md
@@ -545,14 +545,14 @@ git commit -m "docs(rkaf): rebrand README/CHANGELOG/CONTRIBUTING/reports/narrati
 **Files:**
 - Modify: `PKAF/VERSION`
 
-- [ ] **Step 1: Set the version**
+- [x] **Step 1: Set the version**
 
 ```bash
 cd /Users/mikewolfd/Work/formspec-stack/PKAF
 echo "0.2.0-pre.1" > VERSION
 ```
 
-- [ ] **Step 2: Commit**
+- [x] **Step 2: Commit**
 
 ```bash
 git add VERSION
@@ -564,7 +564,7 @@ git commit -m "chore(rkaf): bump VERSION to 0.2.0-pre.1"
 **Files:**
 - (no edits) verify the renamed tree is internally consistent
 
-- [ ] **Step 1: Run the rename audit once more**
+- [x] **Step 1: Run the rename audit once more**
 
 ```bash
 cd /Users/mikewolfd/Work/formspec-stack/PKAF
@@ -573,7 +573,7 @@ python3 tools/rename_audit.py
 
 Expected: Exit 0 (CLEAN).
 
-- [ ] **Step 2: Run the SHACL validator end-to-end**
+- [x] **Step 2: Run the SHACL validator end-to-end**
 
 ```bash
 python3 tools/ci_validate.py --mode batch4
@@ -581,7 +581,7 @@ python3 tools/ci_validate.py --mode batch4
 
 Expected: `Result: PASS`. Total triples ~1206 (matches v0.1.1 baseline; the rename touches labels, not graph structure).
 
-- [ ] **Step 3: Verify no broken intra-repo references**
+- [x] **Step 3: Verify no broken intra-repo references**
 
 ```bash
 grep -rn "shapes/pkaf-" .  || echo "no stale shape refs"
@@ -730,7 +730,7 @@ git commit -m "chore(stack): clean residual PKAF references after rulespec submo
 
 ## Self-review
 
-- [ ] Every renamed filename is reachable; the SHACL validator passes inside the submodule with the new file paths.
+- [x] Every renamed filename is reachable; the SHACL validator passes inside the submodule with the new file paths.
 - [ ] The rename audit script exits 0 inside `rulespec/` (no `pkaf:`/`PKAF`/`https://w3id.org/pkaf/`/`urn:pkaf:` strings remain in code-reachable surface — historical `thoughts/` artifacts retain original names).
 - [ ] `formspec-stack` no longer has a `PKAF/` directory; `rulespec/` is a registered submodule pointing at `https://github.com/formspec/rulespec.git`.
 - [ ] `formspec-stack/CLAUDE.md` lists Rulespec in the layer table.

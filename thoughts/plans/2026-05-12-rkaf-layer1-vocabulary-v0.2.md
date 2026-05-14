@@ -73,7 +73,7 @@ rulespec/
 **Files:**
 - Create: `/Users/mikewolfd/Work/formspec-stack/rulespec/spec/rkaf-core-v0.2.md`
 
-- [ ] **Step 1: Write the spec skeleton**
+- [x] **Step 1: Write the spec skeleton**
 
 Create the file with frontmatter and the section headings the v0.2 vocabulary spec MUST carry. Body content lands in subsequent tasks; this is the contract surface.
 
@@ -145,7 +145,7 @@ None. v0.2 supersedes v0.1.x wholesale. There is no migration shim.
 (normative + informative — populated in Task 12)
 ```
 
-- [ ] **Step 2: Verify the file parses as markdown (sanity)**
+- [x] **Step 2: Verify the file parses as markdown (sanity)**
 
 ```bash
 cd /Users/mikewolfd/Work/formspec-stack/rulespec
@@ -154,7 +154,7 @@ test -f spec/rkaf-core-v0.2.md && wc -l spec/rkaf-core-v0.2.md
 
 Expected: Line count ~70.
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add spec/rkaf-core-v0.2.md
@@ -168,7 +168,7 @@ git commit -m "spec(rkaf): scaffold spec/rkaf-core-v0.2.md skeleton"
 
 The v0.1 file from the rename plan currently contains v0.1 terms only. This task replaces it with the v0.2 context that imports the §5.9 namespaces and declares every new v0.2 term.
 
-- [ ] **Step 1: Write the v0.2 context (replace file contents)**
+- [x] **Step 1: Write the v0.2 context (replace file contents)**
 
 Replace `context/rkaf-context-v0.2.jsonld` with:
 
@@ -289,7 +289,7 @@ Replace `context/rkaf-context-v0.2.jsonld` with:
 }
 ```
 
-- [ ] **Step 2: Verify the file parses as JSON**
+- [x] **Step 2: Verify the file parses as JSON**
 
 ```bash
 cd /Users/mikewolfd/Work/formspec-stack/rulespec
@@ -298,7 +298,7 @@ python3 -c "import json; json.load(open('context/rkaf-context-v0.2.jsonld')); pr
 
 Expected: `OK`.
 
-- [ ] **Step 3: Verify the context expands a sample document via JSON-LD**
+- [x] **Step 3: Verify the context expands a sample document via JSON-LD**
 
 ```bash
 python3 -c "
@@ -317,7 +317,7 @@ print('expand OK:', expanded[0]['@type'])
 
 Expected: `expand OK: ['https://rulespec.org/ns/v1#Artifact']`.
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add context/rkaf-context-v0.2.jsonld
@@ -331,7 +331,7 @@ git commit -m "spec(rkaf): rewrite context/rkaf-context-v0.2.jsonld with full v0
 
 Wait — typo in path. Use `/Users/mikewolfd/Work/formspec-stack/rulespec/spec/rkaf-core-v0.2.md`.
 
-- [ ] **Step 1: Replace Section 4 placeholder with normative term definitions**
+- [x] **Step 1: Replace Section 4 placeholder with normative term definitions**
 
 Insert after `## 4. Universal primitives`:
 
@@ -427,7 +427,7 @@ Consumers MUST preserve AccessScope through retrieval, projection, summarization
 Aligned with **W3C ODRL** (rights expression — overlay-attached, not inline) and **W3C DPV** (privacy classification — overlay-attached for `regulatoryRestricted` cases). Partners requiring full rights expression or full privacy classification attach ODRL/DPV overlays via the Layer 4 projector pattern.
 ```
 
-- [ ] **Step 2: Verify the spec compiles to a single readable markdown file**
+- [x] **Step 2: Verify the spec compiles to a single readable markdown file**
 
 ```bash
 cd /Users/mikewolfd/Work/formspec-stack/rulespec
@@ -437,7 +437,7 @@ grep -c "^### 4\." spec/rkaf-core-v0.2.md
 
 Expected: ~250 lines; six §4.x subsection headings (4.1 through 4.6).
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add spec/rkaf-core-v0.2.md
@@ -450,7 +450,7 @@ git commit -m "spec(rkaf): define §4 universal primitives (Artifact, SourceFrag
 - Modify: `spec/rkaf-core-v0.2.md` (Section 5)
 - Create: `spec/rkaf-vocabulary-v0.2.md` — full term reference (one row per term)
 
-- [ ] **Step 1: Replace Section 5 placeholder with normative promotion definitions**
+- [x] **Step 1: Replace Section 5 placeholder with normative promotion definitions**
 
 Insert under `## 5. Studio-derived promotions`:
 
@@ -512,7 +512,7 @@ Property. Declares the target schema fragment a Rulespec overlay projects to. Do
 Generalizes Studio's `wosTarget` projection pattern.
 ```
 
-- [ ] **Step 2: Create `spec/rkaf-vocabulary-v0.2.md`** — flat term reference
+- [x] **Step 2: Create `spec/rkaf-vocabulary-v0.2.md`** — flat term reference
 
 This document is the full `term → IRI → type → domain → range → cardinality → fixture-name` table. It exists so the SDK code generators (Plan 6) and the JSON Schema projector (Plan 5) can consume one canonical source.
 
@@ -561,7 +561,7 @@ This document is the full `term → IRI → type → domain → range → cardin
 > Mechanical consumers: parse the table by markdown row. The `Required fixtures` column is enforced by `tools/vocab_audit.py` (Task 13) — every named fixture MUST exist under `fixtures/v0.2/`.
 ```
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add spec/rkaf-core-v0.2.md spec/rkaf-vocabulary-v0.2.md
@@ -573,7 +573,7 @@ git commit -m "spec(rkaf): define §5 Studio-derived promotions and full v0.2 te
 **Files:**
 - Create: `/Users/mikewolfd/Work/formspec-stack/rulespec/shapes/rkaf-shapes-warrant-v0.2.ttl`
 
-- [ ] **Step 1: Write the SHACL shape file**
+- [x] **Step 1: Write the SHACL shape file**
 
 ```turtle
 @prefix sh:    <http://www.w3.org/ns/shacl#> .
@@ -660,7 +660,7 @@ rkaf:WarrantShape a sh:NodeShape ;
   ] .
 ```
 
-- [ ] **Step 2: Verify pyshacl parses the shapes file**
+- [x] **Step 2: Verify pyshacl parses the shapes file**
 
 ```bash
 cd /Users/mikewolfd/Work/formspec-stack/rulespec
@@ -673,7 +673,7 @@ print(f'parsed {len(g)} triples')
 
 Expected: triple count > 0; no exceptions.
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add shapes/rkaf-shapes-warrant-v0.2.ttl
@@ -686,7 +686,7 @@ git commit -m "spec(rkaf): add SHACL shapes for v0.2 §4 primitives (warrant/art
 - Create: `shapes/rkaf-shapes-confidence-v0.2.ttl`
 - Create: `shapes/rkaf-shapes-accessscope-v0.2.ttl`
 
-- [ ] **Step 1: Write `rkaf-shapes-confidence-v0.2.ttl`**
+- [x] **Step 1: Write `rkaf-shapes-confidence-v0.2.ttl`**
 
 ```turtle
 @prefix sh:    <http://www.w3.org/ns/shacl#> .
@@ -720,7 +720,7 @@ rkaf:ConfidenceRecordShape a sh:NodeShape ;
   sh:message "ConfidenceRecord with calibratedAgainst MUST carry rkaf:evaluatedAgainst (§4.5)." .
 ```
 
-- [ ] **Step 2: Write `rkaf-shapes-accessscope-v0.2.ttl`**
+- [x] **Step 2: Write `rkaf-shapes-accessscope-v0.2.ttl`**
 
 ```turtle
 @prefix sh:    <http://www.w3.org/ns/shacl#> .
@@ -752,7 +752,7 @@ rkaf:AccessScopeShape a sh:NodeShape ;
   sh:message "embargoUntil AccessScope MUST carry rkaf:embargoUntil (xsd:dateTime) (§4.6)." .
 ```
 
-- [ ] **Step 3: Verify both shape files parse**
+- [x] **Step 3: Verify both shape files parse**
 
 ```bash
 cd /Users/mikewolfd/Work/formspec-stack/rulespec
@@ -765,7 +765,7 @@ for f in ['shapes/rkaf-shapes-confidence-v0.2.ttl', 'shapes/rkaf-shapes-accesssc
 
 Expected: Both files print non-zero triple count.
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add shapes/rkaf-shapes-confidence-v0.2.ttl shapes/rkaf-shapes-accessscope-v0.2.ttl
@@ -777,7 +777,7 @@ git commit -m "spec(rkaf): add SHACL shapes for ConfidenceRecord and AccessScope
 **Files:**
 - Create: `shapes/rkaf-shapes-studio-promotions-v0.2.ttl`
 
-- [ ] **Step 1: Write the shape file**
+- [x] **Step 1: Write the shape file**
 
 ```turtle
 @prefix sh:    <http://www.w3.org/ns/shacl#> .
@@ -819,7 +819,7 @@ rkaf:WorkspaceShape a sh:NodeShape ;
   sh:property [ sh:path rkaf:workspaceId ; sh:minCount 1 ; sh:maxCount 1 ; sh:datatype xsd:string ; ] .
 ```
 
-- [ ] **Step 2: Verify it parses**
+- [x] **Step 2: Verify it parses**
 
 ```bash
 cd /Users/mikewolfd/Work/formspec-stack/rulespec
@@ -832,7 +832,7 @@ print('triples:', len(g))
 
 Expected: Triple count > 0.
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add shapes/rkaf-shapes-studio-promotions-v0.2.ttl
@@ -846,7 +846,7 @@ git commit -m "spec(rkaf): add SHACL shapes for v0.2 Studio-derived promotions (
 
 This file is the canonical entry point for v0.2 SHACL validation. It imports the v0.1 inherited shapes (Authority/Assertion/etc., subclassed under Warrant) plus the four new v0.2 shape files.
 
-- [ ] **Step 1: Write the umbrella file**
+- [x] **Step 1: Write the umbrella file**
 
 ```turtle
 @prefix sh:    <http://www.w3.org/ns/shacl#> .
@@ -885,7 +885,7 @@ rkaf:AssertionAILineageShape a sh:NodeShape ;
   sh:message "Assertion with AI-touched assertionOrigin MUST carry rkaf:hasAILineage (§5.3)." .
 ```
 
-- [ ] **Step 2: Verify it parses (without owl:imports resolution — pyshacl loads the union explicitly)**
+- [x] **Step 2: Verify it parses (without owl:imports resolution — pyshacl loads the union explicitly)**
 
 ```bash
 cd /Users/mikewolfd/Work/formspec-stack/rulespec
@@ -898,7 +898,7 @@ print('triples:', len(g))
 
 Expected: Triple count > 0.
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add shapes/rkaf-shapes-core-v0.2.ttl
@@ -915,7 +915,7 @@ Concept registry v0.2 supersedes v0.1.2 — same primitives, extended to:
 - Adopt `rkaf:Workspace` scoping for partner-local concepts.
 - Use `rkaf:hasWarrant` instead of `rkaf:hasAuthority` for the warrant on a concept-mapping Justification.
 
-- [ ] **Step 1: Write the spec file (sections + normative term updates)**
+- [x] **Step 1: Write the spec file (sections + normative term updates)**
 
 Structure: copy the v0.1.2 structure (sections + headings) but replace prose where the warrant predicate broadens. Reference SKOS imports per §9 of `rkaf-core-v0.2.md`. Length similar to v0.1.2 (~600 lines).
 
@@ -963,7 +963,7 @@ Validated by `shapes/rkaf-shapes-conceptregistry-v0.2.ttl` (Task 10).
 None with v0.1.2. Migration not supported. Replace.
 ```
 
-- [ ] **Step 2: Commit**
+- [x] **Step 2: Commit**
 
 ```bash
 git add spec/rkaf-concept-registry-v0.2.md
@@ -975,7 +975,7 @@ git commit -m "spec(rkaf): author concept registry v0.2 (SKOS predicates, worksp
 **Files:**
 - Create: `shapes/rkaf-shapes-conceptregistry-v0.2.ttl`
 
-- [ ] **Step 1: Write the shape file (subsumes v0.1.2 with SKOS-predicate enum)**
+- [x] **Step 1: Write the shape file (subsumes v0.1.2 with SKOS-predicate enum)**
 
 ```turtle
 @prefix sh:    <http://www.w3.org/ns/shacl#> .
@@ -1000,7 +1000,7 @@ rkaf:ConceptWorkspaceShape a sh:NodeShape ;
   ] .
 ```
 
-- [ ] **Step 2: Verify parse**
+- [x] **Step 2: Verify parse**
 
 ```bash
 cd /Users/mikewolfd/Work/formspec-stack/rulespec
@@ -1013,7 +1013,7 @@ print('triples:', len(g))
 
 Expected: Triple count > 0.
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add shapes/rkaf-shapes-conceptregistry-v0.2.ttl
@@ -1025,13 +1025,13 @@ git commit -m "spec(rkaf): add SHACL shapes for concept registry v0.2 (SKOS-boun
 **Files:**
 - Modify: `spec/rkaf-core-v0.2.md` (Section 9)
 
-- [ ] **Step 1: Replace the §9 placeholder with the full alignment table**
+- [x] **Step 1: Replace the §9 placeholder with the full alignment table**
 
 Insert under `## 9. Public ontology imports and alignments`. The content here MUST match the source spec §5.9 verbatim in normative content (predicate names, prefixes, alignment postures). Copy the three subsections: Imports, Alignments, Projections, Reference/influence — all from spec §5.9.
 
 (The full text is omitted from this plan to avoid duplication — the engineer pastes the §5.9 normative content from `thoughts/specs/2026-05-12-pkaf-as-public-schema-interop-framework.md` lines ~456-518 with a heading change to "## 9. Public ontology imports and alignments [Normative]" and any `pkaf:`→`rkaf:` rewrites already covered by repo extract+rename.)
 
-- [ ] **Step 2: Verify the section pulled across cleanly**
+- [x] **Step 2: Verify the section pulled across cleanly**
 
 ```bash
 cd /Users/mikewolfd/Work/formspec-stack/rulespec
@@ -1040,7 +1040,7 @@ grep -c "^| \*\*W3C" spec/rkaf-core-v0.2.md
 
 Expected: 6 or more (six W3C-prefixed rows in the §5.9 imports + alignments table: PROV-O, OA, SKOS, ODRL, DPV, Verifiable Credentials, Web Annotation Ontology — depending on whether you count combined rows).
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add spec/rkaf-core-v0.2.md
@@ -1052,7 +1052,7 @@ git commit -m "spec(rkaf): import §9 ontology composition table into core v0.2 
 **Files:**
 - Modify: `spec/rkaf-core-v0.2.md` (Sections 10, 11, 12)
 
-- [ ] **Step 1: Replace placeholders with normative text**
+- [x] **Step 1: Replace placeholders with normative text**
 
 Under `## 10. Validation contract`:
 
@@ -1081,7 +1081,7 @@ Under `## 12. References`:
 
 Copy the normative + informative reference lists from source spec §References, replacing PKAF references with RKAF and updating file paths to `spec/rkaf-core-v0.2.md` etc.
 
-- [ ] **Step 2: Final spec sanity check**
+- [x] **Step 2: Final spec sanity check**
 
 ```bash
 cd /Users/mikewolfd/Work/formspec-stack/rulespec
@@ -1091,7 +1091,7 @@ grep -c "^## " spec/rkaf-core-v0.2.md
 
 Expected: ~600+ lines; 13 top-level sections (0-12).
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add spec/rkaf-core-v0.2.md
@@ -1103,7 +1103,7 @@ git commit -m "spec(rkaf): finalize v0.2 §10 validation contract, §11 compatib
 **Files:**
 - Create: `tools/vocab_audit.py`
 
-- [ ] **Step 1: Write the audit script**
+- [x] **Step 1: Write the audit script**
 
 ```python
 #!/usr/bin/env python3
@@ -1183,7 +1183,7 @@ python3 tools/vocab_audit.py
 
 Expected: Exit 1; lists every fixture from the term-reference `Required fixtures` column as missing.
 
-- [ ] **Step 3: Commit the audit tool**
+- [x] **Step 3: Commit the audit tool**
 
 ```bash
 git add tools/vocab_audit.py fixtures/v0.2/.gitkeep || git add tools/vocab_audit.py
@@ -1199,7 +1199,7 @@ git commit -m "build(rkaf): add vocab_audit.py — enforces fixture coverage fro
 
 There are ~25 fixtures named in the term reference (Task 4 step 2). Each is a small JSON-LD file. The Edit/Write tool produces them one per step; this task batches them by primitive group.
 
-- [ ] **Step 1: Write the four Artifact + SourceFragment fixtures**
+- [x] **Step 1: Write the four Artifact + SourceFragment fixtures**
 
 Create `fixtures/v0.2/artifact-eli-positive.jsonld`:
 
@@ -1265,7 +1265,7 @@ Create `fixtures/v0.2/sourcefragment-oa-textquote-positive.jsonld`:
 
 Create `fixtures/v0.2/sourcefragment-oa-xpath-positive.jsonld`, `fixtures/v0.2/sourcefragment-aknt-eid-positive.jsonld`, `fixtures/v0.2/sourcefragment-uslm-section-positive.jsonld` analogously, varying selectorKind to `oa:XPathSelector`, `rkaf:aknt-eId`, `rkaf:uslm-section` respectively, with appropriate selector payloads.
 
-- [ ] **Step 2: Write the four EvidenceBinding fixtures**
+- [x] **Step 2: Write the four EvidenceBinding fixtures**
 
 `fixtures/v0.2/evidencebinding-positive.jsonld` — EB binding an Assertion to a SourceFragment.
 `fixtures/v0.2/evidencebinding-no-evidence-reason-positive.jsonld` — EB with `noEvidenceReason: rkaf:axiomatic` and an Assertion whose `safetyLabel` permits axiomatic evidence.
@@ -1273,36 +1273,36 @@ Create `fixtures/v0.2/sourcefragment-oa-xpath-positive.jsonld`, `fixtures/v0.2/s
 
 (Use the same JSON-LD pattern: `@graph` list of typed nodes, `@context` pointing at relative `../../context/rkaf-context-v0.2.jsonld`.)
 
-- [ ] **Step 3: Write Warrant fixtures**
+- [x] **Step 3: Write Warrant fixtures**
 
 `fixtures/v0.2/warrant-legal-positive.jsonld` — Warrant with `warrantKind: rkaf:statutory`, `warrantFamily: rkaf:legal`.
 `fixtures/v0.2/warrant-scientific-positive.jsonld` — `warrantKind: rkaf:methodological`, `warrantFamily: rkaf:scientific`.
 `fixtures/v0.2/warrant-cross-family-transition-positive.jsonld` — chain of two Warrants, `editorial → methodological` (different families); fixture expects SHACL to PASS but emit a warning surfaced via `sh:Warning` severity (or via Layer 2 constraint annotation in Plan 3).
 
-- [ ] **Step 4: Write ConfidenceRecord fixtures**
+- [x] **Step 4: Write ConfidenceRecord fixtures**
 
 `fixtures/v0.2/confidencerecord-uncalibrated-positive.jsonld` — method=`model-inference`, calibrationStatus=`uncalibrated`, basis present, generatedBy present.
 `fixtures/v0.2/confidencerecord-calibrated-positive.jsonld` — calibrationStatus=`calibratedAgainst`, evaluatedAgainst pointing at a corpus IRI.
 `fixtures/v0.2/confidencerecord-score-theater-negative.jsonld` — bare score with no method, no basis, no calibrationStatus; SHACL MUST report violation.
 
-- [ ] **Step 5: Write AccessScope fixtures**
+- [x] **Step 5: Write AccessScope fixtures**
 
 `fixtures/v0.2/accessscope-public-positive.jsonld` — kind=`public`.
 `fixtures/v0.2/accessscope-organizationVisible-positive.jsonld` — kind=`organizationVisible`.
 `fixtures/v0.2/accessscope-leak-negative.jsonld` — `accessScopeKind: rkaf:regulatoryRestricted` without `regulatoryClass`; SHACL MUST report violation.
 
-- [ ] **Step 6: Write AILineage fixtures**
+- [x] **Step 6: Write AILineage fixtures**
 
 `fixtures/v0.2/ailineage-positive.jsonld` — full AILineage with humanApprover IRI present.
 `fixtures/v0.2/ailineage-missing-approver-negative.jsonld` — AILineage missing `humanApprover`; SHACL MUST report violation.
 
-- [ ] **Step 7: Write the remaining Studio-promotion fixtures**
+- [x] **Step 7: Write the remaining Studio-promotion fixtures**
 
 `fixtures/v0.2/retentionpolicy-positive.jsonld` — full RetentionPolicy.
 `fixtures/v0.2/mappingstate-positive.jsonld` — node carrying `rkaf:mappingState: rkaf:mapsToWos`.
 `fixtures/v0.2/workspace-positive.jsonld` — Workspace with workspaceId.
 
-- [ ] **Step 8: Run the vocab audit — should now PASS**
+- [x] **Step 8: Run the vocab audit — should now PASS**
 
 ```bash
 cd /Users/mikewolfd/Work/formspec-stack/rulespec
@@ -1311,7 +1311,7 @@ python3 tools/vocab_audit.py
 
 Expected: Exit 0. "MISSING" section absent.
 
-- [ ] **Step 9: Commit the fixture set**
+- [x] **Step 9: Commit the fixture set**
 
 ```bash
 git add fixtures/v0.2/
@@ -1395,7 +1395,7 @@ git commit -m "build(rkaf): extend ci_validate.py with v02 mode covering v0.2 vo
 
 Negative fixtures must FAIL SHACL validation by design; `ci_validate.py` is built around the positive-PASS contract. This is a sibling tool that asserts `violations > 0` for each negative fixture.
 
-- [ ] **Step 1: Write the wrapper**
+- [x] **Step 1: Write the wrapper**
 
 ```python
 #!/usr/bin/env python3
@@ -1452,7 +1452,7 @@ if __name__ == "__main__":
     sys.exit(main())
 ```
 
-- [ ] **Step 2: Run it**
+- [x] **Step 2: Run it**
 
 ```bash
 cd /Users/mikewolfd/Work/formspec-stack/rulespec
@@ -1461,7 +1461,7 @@ python3 tools/validate_negatives.py
 
 Expected: All four lines report `FAIL-AS-EXPECTED`. Exit 0.
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add tools/validate_negatives.py
@@ -1473,7 +1473,7 @@ git commit -m "build(rkaf): add validate_negatives.py — asserts negative fixtu
 **Files:**
 - Modify: `CHANGELOG.md`
 
-- [ ] **Step 1: Append a v0.2 entry**
+- [x] **Step 1: Append a v0.2 entry**
 
 At the top of `CHANGELOG.md`, above the rename entry from plan 1, add:
 
@@ -1520,7 +1520,7 @@ Projections (carried by Layer 4 projectors, Plan 5): JSON Schema, JSON-LD, OpenA
 None with v0.1.x. v0.2 supersedes wholesale.
 ```
 
-- [ ] **Step 2: Commit**
+- [x] **Step 2: Commit**
 
 ```bash
 git add CHANGELOG.md
@@ -1529,13 +1529,13 @@ git commit -m "docs(rkaf): CHANGELOG v0.2.0-pre.2 — Vocabulary Layer 1"
 
 ## Self-review
 
-- [ ] Every primitive in source spec §§5.5-5.8 has a class definition in `spec/rkaf-core-v0.2.md`, a SHACL shape, a JSON-LD context entry, and ≥1 positive + ≥1 negative fixture (`vocab_audit.py` enforces).
-- [ ] Every Studio-derived promotion in source spec Appendix A is either in universal Vocabulary (§5 of v0.2 spec) OR explicitly placed in the Studio profile per §5.2 (Studio profile lives in plan 10; the Vocabulary spec's §5 carries only the generalized promotions).
-- [ ] §9 ontology table matches source spec §5.9 — every row present (PROV-O, OA, SKOS, ELI/ELI-DL/ELI-I, RRMV, Akoma Ntoso, USLM, LegalRuleML, ECO/SEPIO, DPV, ODRL, DCTERMS, CiTO, Schema.org/Legislation, Nanopublications, DCAT/VoID, plus carrier-format projection rows).
-- [ ] Closed taxonomies (`warrantKind`, `warrantFamily`, `accessScopeKind`, `confidenceMethod`, `calibrationStatus`, `mappingState`, `retentionTrigger`, `retentionPostExpiry`, `noEvidenceReason`, `assertionOrigin`, `safetyLabel`, `usageEligibility`) are enumerated literally in both the spec body and the SHACL `sh:in` constraints.
-- [ ] No constraint uses `sh:if` / `sh:then` (per Appendix C of source spec) — all conditional shapes use Pattern C (`sh:or` with `sh:not`).
+- [x] Every primitive in source spec §§5.5-5.8 has a class definition in `spec/rkaf-core-v0.2.md`, a SHACL shape, a JSON-LD context entry, and ≥1 positive + ≥1 negative fixture (`vocab_audit.py` enforces).
+- [x] Every Studio-derived promotion in source spec Appendix A is either in universal Vocabulary (§5 of v0.2 spec) OR explicitly placed in the Studio profile per §5.2 (Studio profile lives in plan 10; the Vocabulary spec's §5 carries only the generalized promotions).
+- [x] §9 ontology table matches source spec §5.9 — every row present (PROV-O, OA, SKOS, ELI/ELI-DL/ELI-I, RRMV, Akoma Ntoso, USLM, LegalRuleML, ECO/SEPIO, DPV, ODRL, DCTERMS, CiTO, Schema.org/Legislation, Nanopublications, DCAT/VoID, plus carrier-format projection rows).
+- [x] Closed taxonomies (`warrantKind`, `warrantFamily`, `accessScopeKind`, `confidenceMethod`, `calibrationStatus`, `mappingState`, `retentionTrigger`, `retentionPostExpiry`, `noEvidenceReason`, `assertionOrigin`, `safetyLabel`, `usageEligibility`) are enumerated literally in both the spec body and the SHACL `sh:in` constraints.
+- [x] No constraint uses `sh:if` / `sh:then` (per Appendix C of source spec) — all conditional shapes use Pattern C (`sh:or` with `sh:not`).
 - [ ] `tools/ci_validate.py --mode v02` exits 0 with all positive fixtures PASS.
-- [ ] `tools/validate_negatives.py` exits 0 with all four negative fixtures FAIL-AS-EXPECTED.
-- [ ] `tools/vocab_audit.py` exits 0 (every required fixture present).
-- [ ] CHANGELOG entry for v0.2.0-pre.2 lands.
-- [ ] `tools/rename_audit.py` still exits 0 (no `pkaf:`/`PKAF` strings introduced).
+- [x] `tools/validate_negatives.py` exits 0 with all four negative fixtures FAIL-AS-EXPECTED.
+- [x] `tools/vocab_audit.py` exits 0 (every required fixture present).
+- [x] CHANGELOG entry for v0.2.0-pre.2 lands.
+- [x] `tools/rename_audit.py` still exits 0 (no `pkaf:`/`PKAF` strings introduced).

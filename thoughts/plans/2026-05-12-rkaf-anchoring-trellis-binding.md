@@ -54,7 +54,7 @@ trellis/
 **Files:**
 - Modify: `/Users/mikewolfd/Work/formspec-stack/rulespec/spec/rkaf-core-v0.2.md` (Section 7)
 
-- [ ] **Step 1: Replace §7 placeholder with normative content**
+- [x] **Step 1: Replace §7 placeholder with normative content**
 
 ```markdown
 ## 7. Anchoring contract (abstract) [Normative]
@@ -111,7 +111,7 @@ Every binding implementation that wishes to be cited as a Rulespec-conformant bi
 - Fails verification when a single triple in the anchored subgraph is mutated.
 ```
 
-- [ ] **Step 2: Commit**
+- [x] **Step 2: Commit**
 
 ```bash
 cd /Users/mikewolfd/Work/formspec-stack/rulespec
@@ -555,7 +555,7 @@ git commit -m "docs(trellis): CHANGELOG v0.2.0-pre.1 — Rulespec binding"
 
 **Files (formspec-stack repo):**
 
-- [ ] **Step 1: Bump rulespec + trellis submodule pointers**
+- [x] **Step 1: Bump rulespec + trellis submodule pointers**
 
 ```bash
 cd /Users/mikewolfd/Work/formspec-stack
@@ -567,7 +567,7 @@ git commit -m "chore(submodules): bump rulespec to v0.2.0-pre.9 (anchoring) + tr
 
 **Files (Rulespec repo):**
 
-- [ ] **Step 1: Append v0.2.0-pre.9 entry to `rulespec/CHANGELOG.md`**
+- [x] **Step 1: Append v0.2.0-pre.9 entry to `rulespec/CHANGELOG.md`**
 
 ```markdown
 ## v0.2.0-pre.9 — Anchoring contract (abstract)
@@ -585,7 +585,7 @@ The contract is dependency-inverted. Rulespec defines what an anchor is; binding
 Trellis publishes the reference binding (`urn:rkaf:anchor:trellis/1`) at `https://github.com/formspec/trellis/blob/main/spec/rkaf-binding.md` with implementation in `trellis/crates/trellis-rkaf`. Rulespec's `fixtures/v0.2/anchoring/` are anchored and round-trip-verified by that crate's reference-fixture tests.
 ```
 
-- [ ] **Step 2: Commit**
+- [x] **Step 2: Commit**
 
 ```bash
 cd /Users/mikewolfd/Work/formspec-stack/rulespec
@@ -604,4 +604,4 @@ git commit -m "docs(rkaf): CHANGELOG v0.2.0-pre.9 — Anchoring contract (abstra
 - [ ] `trellis/crates/trellis-rkaf` depends on Rulespec (never the reverse) and exposes `anchor` + `verify`.
 - [ ] Trellis crate's reference-fixture tests anchor and round-trip-verify Rulespec's anchoring fixtures.
 - [ ] Both Rulespec and Trellis CHANGELOGs carry the appropriate entries.
-- [ ] formspec-stack submodule pointers bumped atomically.
+- [x] formspec-stack submodule pointers bumped atomically.
