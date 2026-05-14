@@ -141,6 +141,9 @@ fn rule_2(graph: &Graph, consumer: Option<&Value>) -> Result<Verdict, RuntimeErr
             }
         }
 
+        // bridge::rule_2 does not pass `evaluation_time`; the freshness gate
+        // (reducer Step 5.5) is skipped here. Rule 2 enforces the structural
+        // narrowing invariant; freshness is a per-evaluation runtime concern.
         let computed = reducer::reduce_for_scope(
             assertion_id,
             baseline,
@@ -148,8 +151,9 @@ fn rule_2(graph: &Graph, consumer: Option<&Value>) -> Result<Verdict, RuntimeErr
             &applicability_set,
             scope,
             consumer,
+            None,
             graph,
-        );
+        )?;
 
         if rank_above(declared, Some(&computed)) {
             return Ok(rejected(

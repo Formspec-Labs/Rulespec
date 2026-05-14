@@ -1,0 +1,53 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@id": "urn:rkaf:fixture:beh:ue-fresh-pass:case1",
+  "@type": "rkaf:BehaviorTestCase",
+  "rkaf:behaviorContract": "rkaf:UsageEligibilityReducer",
+  "rkaf:subjectAssertion": "a1",
+  "rkaf:evaluationTime": "2026-05-15T00:00:00Z",
+  "rkaf:rationale": "Plan 7e.2 freshness gate (§1.2 step 5.5). The consumer declares maxAttestationStalenessDays=30. The relevant Attestation's lastVerifiedAt is 2026-05-10 (5 days before evaluationTime), well inside the 30-day window. Freshness gate does NOT fire — effective eligibility is the unmodified baseline.",
+  "rkaf:input": {
+    "@graph": [
+      {
+        "@id": "a1",
+        "@type": "rkaf:Assertion",
+        "rkaf:assertionOrigin": "rkaf:humanAsserted",
+        "rkaf:usageEligibility": "rkaf:publicationAllowed"
+      },
+      {
+        "@id": "reg-fresh",
+        "@type": "rkaf:BridgeConsumerRegistration",
+        "rkaf:consumer": "urn:rkaf:consumer:fresh-strict",
+        "rkaf:bridgeContractVersion": "rkaf-bridge/1.0",
+        "rkaf:registeredAt": "2026-04-15T00:00:00Z",
+        "rkaf:supportedEvaluationAnchors": [
+          "rkaf:applicationSubmissionTime"
+        ],
+        "rkaf:supportsRegistryVersionRange": [
+          "^1.0"
+        ],
+        "rkaf:supportedAutomaticMigrations": [],
+        "rkaf:supportedAuthorityKinds": [
+          "rkaf:statutory"
+        ],
+        "rkaf:maxAttestationStalenessDays": 30
+      },
+      {
+        "@id": "att-fresh",
+        "@type": "rkaf:Attestation",
+        "rkaf:attestor": "urn:rkaf:fixture:actor:program-reviewer",
+        "rkaf:attestorKind": "rkaf:formalReviewer",
+        "rkaf:decision": "rkaf:approved",
+        "rkaf:attestationScope": "urn:rkaf:fixture:scope:a1-recerts",
+        "rkaf:attestedAt": "2026-01-15T00:00:00Z",
+        "rkaf:targets": ["a1"],
+        "rkaf:lastVerifiedAt": "2026-05-10T00:00:00Z",
+        "rkaf:rationale": "Reverified recently; well within freshness window."
+      }
+    ]
+  },
+  "rkaf:expectedOutput": {
+    "effectiveUsageEligibility": "rkaf:publicationAllowed",
+    "rationale": "baseline applied; no LocalAdoption broadening (workspace-wide reduction)"
+  }
+}

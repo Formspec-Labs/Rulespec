@@ -30,6 +30,8 @@ pub struct BridgeConsumerRegistration {
     pub capability_cap: Option<crate::generated::usage_eligibility::UsageEligibility>,
     #[serde(rename = "rkaf:trustedRegistries", skip_serializing_if = "Option::is_none", default)]
     pub trusted_registries: Option<crate::OneOrMany<String>>,
+    #[serde(rename = "rkaf:maxAttestationStalenessDays", skip_serializing_if = "Option::is_none", default)]
+    pub max_attestation_staleness_days: Option<i64>,
     #[serde(flatten)]
     pub extra: BTreeMap<String, serde_json::Value>,
 }

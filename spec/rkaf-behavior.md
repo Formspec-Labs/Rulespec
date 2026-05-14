@@ -68,11 +68,24 @@ fn reduce_usage_eligibility(
                 lifecycle_floor = max_on_lattice(lifecycle_floor, la.usageEligibility)
         lifecycle_floor
 
+    // Step 5.5 — freshness gate (Plan 7e.2; optional, narrowing only)
+    let after_freshness =
+        if consumer.maxAttestationStalenessDays.is_some()
+           AND evaluation_time.is_some()
+           AND exists att in attestations targeting assertion.@id:
+                att.lastVerifiedAt is absent
+                OR att.lastVerifiedAt < (evaluation_time - maxAttestationStalenessDays):
+            step_down_lattice(after_adoptions)   // one step downward
+        else:
+            after_adoptions
+
     // Step 5 — consumer capability cap (narrowing only)
-    let capped = min_on_lattice(after_adoptions, consumer.capability_cap)
+    let capped = min_on_lattice(after_freshness, consumer.capability_cap)
 
     return capped
 ```
+
+> **Normative — Step 5.5 freshness gate (Plan 7e.2):** when the BridgeConsumerRegistration declares `rkaf:maxAttestationStalenessDays` AND the evaluation carries an `evaluation_time` (the fixture's `rkaf:evaluationTime`, or in production the BVR's `validatedAt` / workflow evaluation instant), the reducer narrows the effective level **one lattice step downward** if any relevant Attestation's `rkaf:lastVerifiedAt` is older than `evaluation_time - maxAttestationStalenessDays`. "Relevant" means the Attestation's `rkaf:targets` array contains the subject Assertion's `@id`. An Attestation with no `lastVerifiedAt` is treated as stale (the consumer asked for freshness signals; absence is a failed signal). The gate NEVER broadens. The gate is skipped when the consumer omits `rkaf:maxAttestationStalenessDays` or the evaluation carries no `evaluation_time`. Strictness: malformed RFC-3339 on `lastVerifiedAt` MUST yield `MalformedTestCase` (same posture as `cascade::is_active`). Orthogonality preserved: lifecycle answers "in force?", freshness answers "when last checked?" — the two are independent.
 
 ### §1.3 — Invariants
 

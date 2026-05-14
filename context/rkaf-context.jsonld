@@ -339,6 +339,12 @@
     "rkaf:bridgeContractVersion": {
       "@type": "xsd:string"
     },
+    "rkaf:maxAttestationStalenessDays": {
+      "@type": "xsd:integer"
+    },
+    "rkaf:evaluationTime": {
+      "@type": "xsd:dateTime"
+    },
     "rkaf:effectivePeriodStart": {
       "@type": "xsd:dateTime"
     },

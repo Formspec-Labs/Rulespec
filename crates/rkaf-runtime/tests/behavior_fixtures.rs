@@ -253,6 +253,18 @@ fn pit_unsupported_anchor_error() {
     assert_passes("point-in-time-exception-unsupported-anchor");
 }
 
+// ─── Plan 7e.2 — freshness gate (§1.2 step 5.5) ─────────────────────────
+
+#[test]
+fn reducer_freshness_stale_narrows() {
+    assert_passes("usage-eligibility-reducer-freshness-stale-narrows");
+}
+
+#[test]
+fn reducer_freshness_fresh_passes() {
+    assert_passes("usage-eligibility-reducer-freshness-fresh-passes");
+}
+
 // ─── Plan 7c — severity ladder + cascade as_of ─────────────────────────
 
 #[test]

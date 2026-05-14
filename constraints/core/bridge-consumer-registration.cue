@@ -28,4 +28,12 @@ package rkaf
 	// publicationBlocking conflict involves a mapping in one of these
 	// registries, severity upgrades to authorityCritical.
 	"rkaf:trustedRegistries"?:              [...string]
+	// Plan 7e.2 freshness gate (rkaf-behavior.md §1.2 step 5.5). When set,
+	// the reducer narrows usageEligibility one lattice step downward if any
+	// relevant Attestation's `lastVerifiedAt` is older than
+	// `(evaluation_time - maxAttestationStalenessDays)`. Orthogonal to
+	// lifecycle state per Plan 7d invariant: lifecycle answers "in force?",
+	// freshness answers "when last checked?". Absent ⇒ no freshness gate
+	// (Attestations of any age accepted).
+	"rkaf:maxAttestationStalenessDays"?:    int
 }
