@@ -14,7 +14,11 @@ COMPILED_SHACL_DIR = ROOT / "compiled" / "shacl" / "core"
 HAND_AUTHORED_SHACL_DIR = ROOT / "shapes"
 
 CROSS_GATE_DIRS = {"projectors", "adversarial", "ai-extraction"}
-NON_FIXTURE_NAMES = {"context.jsonld"}
+# Reserved for future non-fixture siblings under fixtures/ that the conformance
+# walker MUST skip (e.g., a shared local context, vocab manifests). Empty after
+# the b6c24de cleanup — the legacy `context.jsonld` was removed; the canonical
+# JSON-LD context lives at `context/rkaf-context.jsonld`.
+NON_FIXTURE_NAMES: set[str] = set()
 
 
 @dataclass(frozen=True)

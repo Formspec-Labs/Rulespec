@@ -189,7 +189,6 @@ def classify_fixture(name: str) -> str:
 
 def walk_fixtures() -> list[Path]:
     """Walk fixtures/ recursively for .jsonld files. Excludes:
-      - `fixtures/context.jsonld` (shared JSON-LD context, not a fixture)
       - `fixtures/projectors/` (carries `{native, overlay}` envelopes,
         consumed by tools/projector_parity.py, not single Rulespec nodes)
       - `fixtures/adversarial/` (cross-gate divergence corpus consumed by

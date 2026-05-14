@@ -88,10 +88,10 @@ Implements stack-level ADR-0093 (Rulespec Finding IRI Addressability) in three p
 - Studio cutover (`policy-studio/` repo) — projects `ValidationFinding` from `rkaf:Finding`; collapses four waiver flavors to `Attestation(targetFinding=…)`.
 - Trellis Finding anchoring (`trellis/` repo) — `rkaf:Finding` IRIs as anchored objects under the §4.6 binding contract.
 
-### Long-tail follow-up (lower priority)
+### Long-tail follow-up (closed in `b6c24de`)
 
-- Migrate or annotate `fixtures/narratives/*.md` and `fixtures/context.jsonld` — both still display the legacy BVR shape (`rkaf:warnings` etc.). Conformance walker excludes them; they're reading material, but they will teach future readers an obsolete shape. (Review FINDING 6.)
-- Dangling-IRI hygiene for `rkaf:detectedBy` in Finding fixtures (Review OBSERVATION 7).
+- ~~Migrate or annotate `fixtures/narratives/*.md` and `fixtures/context.jsonld` — both still display the legacy BVR shape (`rkaf:warnings` etc.).~~ — closed: narratives carry inline annotations pointing to the post-ADR-0093 shape; `fixtures/context.jsonld` was removed (unreferenced; canonical context lives at `context/rkaf-context.jsonld`). (Review FINDING 6.)
+- ~~Dangling-IRI hygiene for `rkaf:detectedBy` in Finding fixtures.~~ — closed: Finding fixtures now self-contain their `detectedBy` `rkaf:BridgeValidationResult` node. (Review OBSERVATION 7.)
 
 ## Unreleased — Plan 7d: Attestation temporal bounds + source freshness + identity boundary
 

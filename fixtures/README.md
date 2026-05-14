@@ -48,6 +48,12 @@ their resolvability. Where a fixture exercises an isolated node (e.g. a
 `Finding` not paired with the originating `BridgeValidationResult`), add a
 top-level `_comment` key noting the intent.
 
+Inline the referenced node when the fixture's primary purpose is to
+exercise the relationship itself (e.g., an Attestation→Finding waiver
+pair, a BridgeValidationResult→Finding emission pair); use a
+cross-fixture `@id` reference when the fixture isolates a single class
+for shape validation and the relationship is incidental.
+
 ## Adding Fixtures
 
 New fixtures should:

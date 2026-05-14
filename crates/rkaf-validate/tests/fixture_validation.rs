@@ -46,8 +46,10 @@ fn relative_name(path: &Path) -> String {
 
 fn expected_kind(path: &Path) -> Option<&'static str> {
     let name = relative_name(path);
-    if name == "context.jsonld"
-        || name.starts_with("behavior/")
+    // Cross-gate corpora and L4 behavior fixtures bypass the shape-only
+    // validator (each has its own gate). The legacy `context.jsonld`
+    // exclusion was removed in `b6c24de` along with the file itself.
+    if name.starts_with("behavior/")
         || name.starts_with("edges/")
         || name.starts_with("projectors/")
         || name.starts_with("adversarial/")
