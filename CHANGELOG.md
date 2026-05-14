@@ -5,6 +5,37 @@ All notable changes to Rulespec are documented in this file.
 The format is loosely based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 adapted for a specification + shape + fixture project.
 
+## v0.2.0-pre.6 — Studio reference-consumer cutover (L2 + D3)
+
+WOS Studio (Authoring) becomes the first Rulespec reference consumer at conformance level L2 (Shape) and adoption depth D3 (Derive). The L3 (Constraint) gate requires SHACL + Pattern-C validation and is disclosed as a path-to-close in the partner YAML.
+
+### Added — Studio profile
+
+- `profiles/studio/schema-source/` is the Rulespec-owned Studio profile in JSON Schema form (18 authoring + 6 api). `profiles/studio/schemas-derived/` is the projector output; `derive.sh` runs the projector. `profiles/studio/SHA256SUMS` pins the derived surface.
+- The current cutover is conservative: `derive.sh` is an identity copy. The JSON Schema source-of-truth carries authoring prose, x-lm hints, examples, and $defs that the current Layer-4 CUE projector cannot yet reproduce. CUE-projection upgrade is documented as future work; the schema-source/ → schemas-derived/ projector-output discipline is what underpins the D3 declaration.
+
+### Added — Cross-submodule overlay emission + lint
+
+- `policy-studio/crates/wos-studio-compiler` (sibling submodule) now emits `x-rkaf-overlay` on every artifact (wos-workflow.json, compile-manifest.json, workspace-export.bundle.json). Each overlay carries a 4-node `@graph`: an Artifact node (`wos:Workflow` on the workflow — WOS canonical substrate type; `rkaf:Artifact` on the manifest + bundle) plus `rkaf:Assertion` + `rkaf:Warrant` + `rkaf:AccessScope`. Determinism is preserved — `rkaf:emittedAt` derives from the manifest hash, not wall clock — so byte-identical SNAP gate continues to hold.
+- `policy-studio/crates/wos-studio-lint` gains the overlay-grounded rule tier, validating every emitted `rkaf:*` node against PKAF's compiled v0.2 vocabulary schemas via `rkaf-validate` (JSON Schema only). Non-`rkaf:*` nodes (e.g. the workflow's `wos:Workflow` root) are silently passed by design.
+
+### Added — Conformance disclosure
+
+- `conformance/partners/policy-studio.yaml` files Studio's L2 + D3 declaration with explicit provisional notes (L3 SHACL gate path, warrant chain, access scope default, JSON-Schema-vs-CUE source form, non-object carriers).
+- Studio's conformance report lives at `policy-studio/conformance-reports/L2-report.json` in the partner submodule.
+
+### Provisional — disclosed honestly
+
+- **L3 (Constraint) path.** Studio's overlay-grounded gate is JSON-Schema-only via `rkaf-validate`. L3 per `spec/rkaf-conformance.md` additionally requires SHACL + Pattern-C cross-property invariants. Promote `conformance_level: "L2"` → `"L3"` when a SHACL gate lands and runs green against the SNAP slice.
+- **Warrant chain.** All emitted `rkaf:Warrant` nodes carry `rkaf:provisionalUntilSourceAuthorityWired: true`. Wiring SourceAuthority records into overlay emission is Studio Stage-8 work.
+- **AccessScope default.** All emitted `rkaf:AccessScope` nodes default to `rkaf:organizationVisible` scoped to workspace; per-assertion classification (HIPAA-PHI / GDPR-PII) flows from source-classification records in Stage-8.
+- **CUE-projection upgrade.** Deferred until the Layer-4 CUE projector can round-trip authoring prose, x-lm hints, examples, and $defs without loss.
+- **Non-object carriers.** scenarios.json + compile-events.jsonl have no root-object slot for `x-rkaf-overlay`; per-scenario provenance is carried indirectly via the workspace-export bundle's overlay.
+
+### Future reference consumers
+
+Per source spec §14.3, no framework-side requirement that future partners adopt at D3+. Studio's depth-D3 commitment is a Studio commitment, not a framework requirement.
+
 ## Unreleased — Plan 7e + ADR-0093 review follow-ups
 
 Coordinated cleanup pass closing the actionable findings from three neutral semi-formal reviews: Plan 7e APPROVE-WITH-NITS (6 items, F1-F6 below), the `b6c24de` polish-commit nit review (4 items, N1-N3), and a cross-stack Studio cutover port (ADR-0093 derive).

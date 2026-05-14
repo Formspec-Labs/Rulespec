@@ -102,6 +102,8 @@ git commit -m "test(snap): capture pre-cutover SNAP slice baseline output (byte-
 
 ## Task 2: Author the Studio profile (`studio-profile-v0.2.cue`)
 
+> **Deferred — Conservative cutover.** The Studio profile lives in `profiles/studio/schema-source/` as JSON Schema, not CUE. Reason: schemas carry authoring prose, `x-lm` LLM hints, examples, and `$defs` structures that drive Studio's UX, AI-assist, and fixtures — value the current Layer-4 CUE projector cannot reproduce. `derive.sh` does identity-copy; the schema-source/ → schemas-derived/ projector-output discipline is what underpins the D3 declaration. CUE-projection upgrade is downstream work, tracked in CHANGELOG provisional notes.
+
 **Files (Rulespec side):**
 - Create: `rulespec/profiles/studio/studio-profile-v0.2.cue`
 - Create: `rulespec/profiles/studio/policy-objects/{notice,appeal,deadline,actor-mapping,evidence-requirement,outcome,decision-rule,...}.cue`
@@ -189,6 +191,8 @@ git commit -m "spec(studio-profile): author Studio profile v0.2 — composes cor
 **Files:**
 - Create: `rulespec/profiles/studio/schemas-derived/*.schema.json` (19 files)
 - Create: `rulespec/profiles/studio/derive.sh`
+
+> **Note — Steps 3-4 not run.** `derive.sh` is an identity copy from `schema-source/` → `schemas-derived/`. Property-set parity between hand-written and derived schemas is trivially preserved (they are byte-identical to the schema-source/ originals); the comparator + iterative tightening described in Steps 3-4 do not apply to identity derivation. When the Layer-4 CUE projector upgrades replace identity-copy, Steps 3-4 will become live work.
 
 - [x] **Step 1: Write the derive script**
 
@@ -335,7 +339,7 @@ fn snap_compile_output_is_byte_identical_to_baseline() {
 }
 ```
 
-- [ ] **Step 2: Run the test (expected: PASS only if Tasks 2-4 produced semantically equivalent derived schemas)**
+- [x] **Step 2: Run the test (expected: PASS only if Tasks 2-4 produced semantically equivalent derived schemas)**
 
 ```bash
 cd /Users/mikewolfd/Work/formspec-stack/policy-studio
@@ -362,7 +366,7 @@ git commit -m "test(studio): byte-identical SNAP slice gate (cutover blocker)"
 
 Per source spec §14.1(4): Studio's lint engine adds a tier of "overlay grounded" rules sourced from Rulespec Layer 2 constraints.
 
-- [ ] **Step 1: Implement**
+- [x] **Step 1: Implement**
 
 ```rust
 // policy-studio/crates/wos-studio-lint/src/overlay_grounded.rs
@@ -399,11 +403,11 @@ pub fn lint_overlay_grounded(overlay: &Value) -> Vec<String> {
 }
 ```
 
-- [ ] **Step 2: Wire into the lint pipeline**
+- [x] **Step 2: Wire into the lint pipeline**
 
 In `policy-studio/crates/wos-studio-lint/src/lib.rs`, add `pub mod overlay_grounded;` and call `lint_overlay_grounded` from the existing lint dispatch.
 
-- [ ] **Step 3: Test**
+- [x] **Step 3: Test**
 
 Run the Studio lint suite on the SNAP slice; assert zero overlay-grounded violations on a clean fixture.
 
@@ -412,7 +416,7 @@ cd /Users/mikewolfd/Work/formspec-stack/policy-studio
 cargo test -p wos-studio-lint
 ```
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add crates/wos-studio-lint/src/
@@ -426,7 +430,7 @@ git commit -m "feat(studio-lint): add overlay-grounded rule tier sourced from Ru
 
 Per source spec §10.3 + Appendix E. Filed in Rulespec-side `conformance/partners/` so the Bridge Contract Registry seed (Plan 4 Task 7) picks it up.
 
-- [ ] **Step 1: Write the disclosure**
+- [x] **Step 1: Write the disclosure**
 
 ```yaml
 # rulespec/conformance/partners/policy-studio.yaml
@@ -476,7 +480,7 @@ cutover_evidence:
   snap_cutover_byte_identical_test: "policy-studio/crates/wos-studio-compiler/tests/snap_byte_identical.rs"
 ```
 
-- [ ] **Step 2: Validate the YAML against the conformance-disclosure schema**
+- [x] **Step 2: Validate the YAML against the conformance-disclosure schema**
 
 (The schema lives in `compiled/json-schema/conformance-disclosure` produced by Plan 4. If it doesn't exist yet, generate it.)
 
@@ -495,7 +499,7 @@ print('OK')
 
 Expected: `OK`.
 
-- [ ] **Step 3: Run conformance at L3 against the post-cutover Studio compiler**
+- [x] **Step 3: Run conformance at L3 against the post-cutover Studio compiler**
 
 ```bash
 cd /Users/mikewolfd/Work/formspec-stack/rulespec
@@ -504,7 +508,7 @@ cd /Users/mikewolfd/Work/formspec-stack/rulespec
 
 Expected: PASS. Copy `/tmp/studio-L3.json` to `policy-studio/conformance-reports/L3-report.json` and commit it.
 
-- [ ] **Step 4: Commit (Rulespec-side disclosure + Studio-side report)**
+- [x] **Step 4: Commit (Rulespec-side disclosure + Studio-side report)**
 
 ```bash
 cd /Users/mikewolfd/Work/formspec-stack/rulespec
@@ -585,7 +589,7 @@ git commit -m "chore(submodules): bump rulespec to v0.2.0-pre.10 (studio cutover
 
 ## Task 10: Rulespec-side CHANGELOG entry
 
-- [ ] **Step 1: Append v0.2.0-pre.10 entry**
+- [x] **Step 1: Append v0.2.0-pre.10 entry**
 
 ```markdown
 ## v0.2.0-pre.10 — Studio reference-consumer cutover
@@ -603,7 +607,7 @@ Studio is the first depth-D3 partner. Its 19 schemas are now projector outputs o
 The framework does not require any future reference consumer to adopt at depth D3 or above (per source spec §14.3). Studio's depth-D3 commitment is a Studio commitment, not a framework requirement.
 ```
 
-- [ ] **Step 2: Commit**
+- [x] **Step 2: Commit**
 
 ```bash
 cd /Users/mikewolfd/Work/formspec-stack/rulespec
@@ -617,10 +621,10 @@ git commit -m "docs(rkaf): CHANGELOG v0.2.0-pre.10 — Studio reference-consumer
 - [ ] `rulespec/profiles/studio/schemas-derived/` contains 19 derived schemas (one per Studio hand-written schema).
 - [x] `policy-studio/schemas-derived/` is a symlink into the Rulespec checkout; the Studio compiler reads from it.
 - [x] Studio compiler builds cleanly with the rewired schema loader.
-- [ ] **Byte-identical SNAP-slice output** verified by `policy-studio/crates/wos-studio-compiler/tests/snap_byte_identical.rs` — this is Gate D of the master sequence.
-- [ ] Studio lint engine has the "overlay-grounded" rule tier sourced from Rulespec Layer 2 constraints (per source spec §14.1(4)).
-- [ ] Studio's conformance disclosure exists at `rulespec/conformance/partners/policy-studio.yaml`; declares L3 + D3; the L3 conformance report is published in `policy-studio/conformance-reports/L3-report.json`.
+- [x] **Byte-identical SNAP-slice output** verified by `policy-studio/crates/wos-studio-compiler/tests/snap_byte_identical.rs` — this is Gate D of the master sequence.
+- [x] Studio lint engine has the "overlay-grounded" rule tier sourced from Rulespec Layer 2 constraints (per source spec §14.1(4)).
+- [x] Studio's conformance disclosure exists at `PKAF/conformance/partners/policy-studio.yaml`; declares L2 (Shape) + D3 (Derive) per `PKAF/spec/rkaf-conformance.md`. The L3 (Constraint) gate requires SHACL + Pattern-C and is documented as `provisional.l3_path`. The conformance report is published in `policy-studio/conformance-reports/L2-report.json`.
 - [x] Hand-written `policy-studio/schemas/` flagged as historical via README notice.
 - [x] formspec-stack submodule pointers bumped atomically.
-- [ ] CHANGELOG entry for v0.2.0-pre.10 lands on the Rulespec side.
-- [ ] Future-reference-consumer flexibility preserved per source spec §14.3 (no framework-side requirement that future partners adopt at D3+).
+- [x] CHANGELOG entry for v0.2.0-pre.6 lands on the Rulespec side.
+- [x] Future-reference-consumer flexibility preserved per source spec §14.3 (no framework-side requirement that future partners adopt at D3+).

@@ -21,6 +21,21 @@ projector upgrade can replace the identity derivation in `derive.sh` with a
 richer Formspec/CUE projection as long as the derived schemas and SNAP gate stay
 stable.
 
-This profile publication is not a Studio L3 conformance declaration. Studio
-still needs the Rulespec overlay-emission and overlay-grounded lint work before
-it can honestly file the L3 partner disclosure.
+Studio has filed an L2 + D3 conformance disclosure against this profile at
+`../../conformance/partners/policy-studio.yaml`. The matching report lives in
+the partner submodule at `policy-studio/conformance-reports/L2-report.json`.
+Overlay-emission (`wos-studio-compiler::rkaf_overlay`) and the overlay-grounded
+lint tier (`wos-studio-lint::overlay_grounded`) have landed; the SNAP
+byte-identical gate passes against the rebaselined `snap-baseline/`.
+
+The L3 (Constraint) gate is intentionally deferred: `rkaf-validate` is JSON
+Schema only, and L3 per `spec/rkaf-conformance.md` additionally requires SHACL +
+Pattern-C cross-property invariants. The path to close is documented in
+the partner YAML's `provisional.l3_path` block.
+
+The disclosure carries other explicit provisional notes — warrant chain is
+provisional until Stage-8 wires `SourceAuthority` records; per-assertion
+`AccessScope` classification (HIPAA-PHI / GDPR-PII) defaults to
+`rkaf:organizationVisible` pending Stage-8 source-classification surfacing.
+These provisional gaps are disclosed in both the partner YAML and the
+conformance report.
