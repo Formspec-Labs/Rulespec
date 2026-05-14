@@ -1,0 +1,28 @@
+{
+  "@context": [
+    "../../../context/rkaf-context.jsonld",
+    {
+      "dcat":     "http://www.w3.org/ns/dcat#",
+      "dcterms":  "http://purl.org/dc/terms/",
+      "foaf":     "http://xmlns.com/foaf/0.1/"
+    }
+  ],
+  "@type": ["dcat:Dataset", "rkaf:ReferenceCorpus"],
+  "@id": "urn:rkaf:corpus:model-cards:v0.2",
+  "dcterms:title":       "Rulespec Reference Corpus — AI Model Cards v0.2",
+  "dcterms:description": "Canonical model-card fixtures demonstrating how PKAF primitives compose to describe AI model identity, intended use, evaluation results, and governance posture. Each model card is a @graph bundle exercising AILineage → Assertion → Warrant → ConfidenceRecord → Attestation → ApplicabilityScope as a coherent governance artifact.",
+  "dcterms:issued":      "2026-05-14",
+  "dcterms:license":     "https://creativecommons.org/licenses/by/4.0/",
+  "dcterms:publisher": {
+    "@type": "foaf:Organization",
+    "foaf:name": "Rulespec maintainers"
+  },
+  "dcat:keyword": ["model-card", "ai-governance", "evaluation", "reference-corpus"],
+  "dcat:theme":   ["ai-governance", "model-metadata"],
+  "dcat:distribution": [
+    { "@type": "dcat:Distribution", "dcat:downloadURL": "data/", "dcat:mediaType": "application/ld+json" }
+  ],
+  "rkaf:declaredConformanceLevel": "L3",
+  "rkaf:declaredAdoptionDepth":     "D2",
+  "rkaf:rulespecVersion":           "0.2.0-pre.6"
+}

@@ -1,0 +1,76 @@
+{
+  "@context": "../context/rkaf-context.jsonld",
+  "@graph": [
+    {
+      "@id": "urn:rkaf:fixture:mc:ai-lineage:gpt-x-2026",
+      "@type": "rkaf:AILineage",
+      "rkaf:modelId": "gpt-x-2026",
+      "rkaf:modelVersion": "2026.05.01",
+      "rkaf:promptTemplateRef": "urn:rkaf:prompt-template:classify-eligibility/v2",
+      "rkaf:temperature": 0.0,
+      "rkaf:seed": 42,
+      "rkaf:inputContextHash": "sha256:aabbccddee0011223344556677889900",
+      "rkaf:humanApprover": "urn:rkaf:fixture:mc:actor:model-approver",
+      "rkaf:humanRationale": "Model card approved for SNAP eligibility classification; deterministic temperature (0.0) required."
+    },
+    {
+      "@id": "urn:rkaf:fixture:mc:assert:snap-llm-classifier",
+      "@type": "rkaf:Assertion",
+      "rkaf:assertionOrigin": "rkaf:aiSuggested",
+      "rkaf:hasAILineage": "urn:rkaf:fixture:mc:ai-lineage:gpt-x-2026",
+      "rkaf:usageEligibility": "rkaf:reviewQueueOnly",
+      "rkaf:hasApplicability": "urn:rkaf:fixture:mc:applic:snap-classifier",
+      "rkaf:hasJustification": "urn:rkaf:fixture:mc:just:benchmark-eval",
+      "rkaf:hasWarrant": "urn:rkaf:fixture:mc:warrant:benchmark-methodology",
+      "rkaf:hasSafetyLabel": "rkaf:A3Advisory"
+    },
+    {
+      "@id": "urn:rkaf:fixture:mc:applic:snap-classifier",
+      "@type": "rkaf:ApplicabilityScope",
+      "rkaf:appliesInJurisdiction": ["urn:iso:3166:US"],
+      "rkaf:appliesToSubject": ["urn:rkaf:type:SNAPCase"],
+      "rkaf:hasEffectivePeriod": "urn:rkaf:fixture:mc:eff:q2-2026"
+    },
+    {
+      "@id": "urn:rkaf:fixture:mc:eff:q2-2026",
+      "@type": "rkaf:EffectivePeriod",
+      "rkaf:effectivePeriodStart": "2026-04-01T00:00:00Z",
+      "rkaf:effectivePeriodEnd": "2026-06-30T23:59:59Z"
+    },
+    {
+      "@id": "urn:rkaf:fixture:mc:warrant:benchmark-methodology",
+      "@type": "rkaf:Warrant",
+      "rkaf:warrantKind": "rkaf:methodological",
+      "rkaf:warrantFamily": "rkaf:scientific"
+    },
+    {
+      "@id": "urn:rkaf:fixture:mc:just:benchmark-eval",
+      "@type": "rkaf:Justification",
+      "rkaf:hasWarrant": "urn:rkaf:fixture:mc:warrant:benchmark-methodology",
+      "rkaf:basedOnEvidence": ["urn:rkaf:fixture:mc:conf:f1-score"],
+      "rkaf:assertedAt": "2026-05-01T07:00:00Z"
+    },
+    {
+      "@id": "urn:rkaf:fixture:mc:conf:f1-score",
+      "@type": "rkaf:ConfidenceRecord",
+      "rkaf:confidenceMethod": "rkaf:model-inference",
+      "rkaf:calibrationStatus": "rkaf:calibratedAgainst",
+      "rkaf:evaluatedAgainst": "urn:rkaf:corpus:snap-benchmark-v0.1",
+      "rkaf:score": 0.89,
+      "rkaf:confidenceBasis": "urn:rkaf:fixture:mc:evidence:benchmark-run",
+      "rkaf:generatedBy": "urn:rkaf:fixture:mc:actor:eval-pipeline"
+    },
+    {
+      "@id": "urn:rkaf:fixture:mc:atst:model-card-review",
+      "@type": "rkaf:Attestation",
+      "rkaf:attestor": "urn:rkaf:fixture:mc:actor:model-approver",
+      "rkaf:attestorKind": "rkaf:formalReviewer",
+      "rkaf:targets": ["urn:rkaf:fixture:mc:assert:snap-llm-classifier"],
+      "rkaf:decision": "rkaf:approvedWithConditions",
+      "rkaf:attestationScope": "urn:rkaf:fixture:scope:snap-classifier-q2-2026",
+      "rkaf:attestedAt": "2026-05-01T08:00:00Z",
+      "rkaf:rationale": "Approved for review-queue-only deployment. F1 threshold met; model card complete. Requires quarterly revalidation."
+    }
+  ],
+  "_comment": "Model card composite: exercises AILineage → Assertion → ApplicabilityScope → EffectivePeriod → Warrant → Justification → ConfidenceRecord → Attestation as a single coherent model-card bundle. Validates against every core constraint independently."
+}

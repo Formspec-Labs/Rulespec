@@ -1,0 +1,20 @@
+{
+  "@context": "../context/rkaf-context.jsonld",
+  "_comment": "Governance rejection: AI-promoted assertion without AILineage. The model card claims an assertion was promoted from AI suggestion to operational use, but omits the required rkaf:hasAILineage. Per §5.3, any assertion with assertionOrigin ∈ {aiSuggested, aiPromoted, humanQualified, humanRevalidation} MUST carry rkaf:hasAILineage. The ASLC governance pipeline must reject this model card as untraceable.",
+  "@graph": [
+    {
+      "@id": "urn:rkaf:fixture:mc-gov-neg:assert:promoted-no-lineage",
+      "@type": "rkaf:Assertion",
+      "rkaf:assertionOrigin": "rkaf:aiPromoted",
+      "rkaf:usageEligibility": "rkaf:localOperationalUse",
+      "rkaf:hasApplicability": "urn:rkaf:fixture:mc-gov-neg:applic:production-scope",
+      "rkaf:hasSafetyLabel": "rkaf:P4Production"
+    },
+    {
+      "@id": "urn:rkaf:fixture:mc-gov-neg:applic:production-scope",
+      "@type": "rkaf:ApplicabilityScope",
+      "rkaf:appliesInJurisdiction": ["urn:iso:3166:US"],
+      "rkaf:appliesToSubject": ["urn:rkaf:type:SNAPCase"]
+    }
+  ]
+}

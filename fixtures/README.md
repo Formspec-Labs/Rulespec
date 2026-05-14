@@ -14,11 +14,11 @@ Current reference counts:
 
 | Corpus | Count | Gate |
 |---|---:|---|
-| Positive fixtures | 41 | `tools/ci_validate.py`, `rkaf-validate` |
-| Negative fixtures | 104 | `tools/validate_negatives.py`, `tools/conformance_report.py` |
+| Positive fixtures | 42 | `tools/ci_validate.py`, `rkaf-validate` |
+| Negative fixtures | 105 | `tools/validate_negatives.py`, `tools/conformance_report.py` |
 | Edge fixtures | 15 | `tools/conformance_report.py` visibility only |
 | Behavior fixtures | 33 | `rkaf-behavior-validate`, `tools/conformance_report.py` L4 |
-| Total L1-L4 corpus | 193 | `tools/conformance_report.py` |
+| Total L1-L4 corpus | 195 | `tools/conformance_report.py` |
 
 ## Validating
 
