@@ -72,13 +72,28 @@ fn evaluate_one(path: &PathBuf) -> FixtureVerdict {
             };
         }
     };
-    match Runtime::evaluate_and_check(&tc) {
-        Ok(_) => FixtureVerdict {
+    // Plan 7e.3 — a fixture MAY declare `rkaf:expectedRuntimeError` to assert
+    // the runtime raises a specific structural error (e.g. MalformedTestCase
+    // on a dangling IRI). Used for strict-error parity tests where the
+    // contract refuses to compute a verdict at all.
+    let expected_runtime_error: Option<&str> = tc
+        .get("rkaf:expectedRuntimeError")
+        .and_then(Value::as_str);
+
+    match (Runtime::evaluate_and_check(&tc), expected_runtime_error) {
+        (Ok(_), None) => FixtureVerdict {
             name,
             result: "pass".into(),
             diagnostic: None,
         },
-        Err(RuntimeError::OutputMismatch { expected, actual }) => FixtureVerdict {
+        (Ok(_), Some(expected_err)) => FixtureVerdict {
+            name,
+            result: "fail".into(),
+            diagnostic: Some(format!(
+                "expected runtime error {expected_err:?}, got Ok verdict"
+            )),
+        },
+        (Err(RuntimeError::OutputMismatch { expected, actual }), _) => FixtureVerdict {
             name,
             result: "fail".into(),
             diagnostic: Some(format!(
@@ -87,7 +102,34 @@ fn evaluate_one(path: &PathBuf) -> FixtureVerdict {
                 serde_json::to_string(&actual).unwrap_or_default()
             )),
         },
-        Err(other) => FixtureVerdict {
+        (Err(other), Some(expected_err)) => {
+            // Map RuntimeError variant to its IRI tag for fixture assertions.
+            let actual_tag = match &other {
+                RuntimeError::MalformedTestCase(_) => "rkaf:MalformedTestCase",
+                RuntimeError::UnsupportedContract(_) => "rkaf:UnsupportedContract",
+                RuntimeError::Parse(_) => "rkaf:ParseError",
+                RuntimeError::MissingNode(_) => "rkaf:MissingNode",
+                RuntimeError::ContractInternal(_) => "rkaf:ContractInternal",
+                RuntimeError::Semver(_) => "rkaf:SemverError",
+                RuntimeError::OutputMismatch { .. } => "rkaf:OutputMismatch",
+            };
+            if actual_tag == expected_err {
+                FixtureVerdict {
+                    name,
+                    result: "pass".into(),
+                    diagnostic: Some(format!("expected runtime error matched: {other}")),
+                }
+            } else {
+                FixtureVerdict {
+                    name,
+                    result: "fail".into(),
+                    diagnostic: Some(format!(
+                        "expected runtime error {expected_err:?}, got {actual_tag:?}: {other}"
+                    )),
+                }
+            }
+        }
+        (Err(other), None) => FixtureVerdict {
             name,
             result: "error".into(),
             diagnostic: Some(format!("{other}")),

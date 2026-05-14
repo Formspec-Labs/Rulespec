@@ -52,16 +52,41 @@ fn assert_path_passes(path: &PathBuf) {
 }
 
 fn assert_value_passes(name: &str, tc: &Value) {
-    match Runtime::evaluate_and_check(&tc) {
-        Ok(_) => {}
-        Err(RuntimeError::OutputMismatch { expected, actual }) => {
+    // Plan 7e.3 — a fixture MAY declare `rkaf:expectedRuntimeError` to assert
+    // the runtime raises a specific structural error (e.g. MalformedTestCase
+    // on a dangling IRI). When present, evaluate_and_check MUST error with a
+    // matching variant; an Ok verdict is a failure.
+    let expected_err = tc
+        .get("rkaf:expectedRuntimeError")
+        .and_then(Value::as_str);
+    match (Runtime::evaluate_and_check(&tc), expected_err) {
+        (Ok(_), None) => {}
+        (Ok(_), Some(want)) => panic!(
+            "fixture {name} expected runtime error {want:?} but got Ok verdict"
+        ),
+        (Err(RuntimeError::OutputMismatch { expected, actual }), _) => {
             panic!(
                 "fixture {name} OutputMismatch:\n  expected: {}\n  actual:   {}",
                 serde_json::to_string_pretty(&expected).unwrap(),
                 serde_json::to_string_pretty(&actual).unwrap()
             );
         }
-        Err(other) => panic!("fixture {name} runtime error: {other}"),
+        (Err(other), Some(want)) => {
+            let actual_tag = match &other {
+                RuntimeError::MalformedTestCase(_) => "rkaf:MalformedTestCase",
+                RuntimeError::UnsupportedContract(_) => "rkaf:UnsupportedContract",
+                RuntimeError::Parse(_) => "rkaf:ParseError",
+                RuntimeError::MissingNode(_) => "rkaf:MissingNode",
+                RuntimeError::ContractInternal(_) => "rkaf:ContractInternal",
+                RuntimeError::Semver(_) => "rkaf:SemverError",
+                RuntimeError::OutputMismatch { .. } => "rkaf:OutputMismatch",
+            };
+            assert_eq!(
+                actual_tag, want,
+                "fixture {name} expected runtime error {want:?}, got {actual_tag:?}: {other}"
+            );
+        }
+        (Err(other), None) => panic!("fixture {name} runtime error: {other}"),
     }
 }
 
@@ -251,6 +276,13 @@ fn concept_resolution_informational_severity() {
 #[test]
 fn pit_unsupported_anchor_error() {
     assert_passes("point-in-time-exception-unsupported-anchor");
+}
+
+// ─── Plan 7e.3 — Finding-IRI dangling-IRI parity ───────────────────────
+
+#[test]
+fn bridge_rule_8_target_finding_dangling_negative() {
+    assert_passes("bridge-rule-8-target-finding-dangling-negative");
 }
 
 // ─── Plan 7e.2 — freshness gate (§1.2 step 5.5) ─────────────────────────

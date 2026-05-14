@@ -1,0 +1,53 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@id": "urn:rkaf:fixture:beh:br8:target-finding-dangling",
+  "@type": "rkaf:BehaviorTestCase",
+  "rkaf:behaviorContract": "rkaf:BridgeContractRule",
+  "rkaf:contractRuleNumber": 8,
+  "rkaf:rationale": "Plan 7e.3 — strict-error parity. An Attestation declares rkaf:targetFinding pointing at an IRI that has no resolving node in the graph. Per the ADR-0093 Phase B contract, dangling Finding IRIs are a structural malformation (parallel to the Plan 7c.6 hasEffectivePeriod parity). The runtime MUST raise MalformedTestCase rather than silently membership-test against a missing target.",
+  "rkaf:expectedRuntimeError": "rkaf:MalformedTestCase",
+  "rkaf:input": {
+    "@graph": [
+      {
+        "@id": "biac1",
+        "@type": "rkaf:BridgeIssueAttestationContract",
+        "rkaf:consumer": "urn:rkaf:consumer:test",
+        "rkaf:attestedIssueKinds": [
+          "rkaf:staleDep"
+        ],
+        "rkaf:contractVersion": "1.0.0"
+      },
+      {
+        "@id": "bvr1",
+        "@type": "rkaf:BridgeValidationResult",
+        "rkaf:packetId": "pkt1",
+        "rkaf:consumer": "urn:rkaf:consumer:test",
+        "rkaf:bridgeContractVersion": "rkaf-bridge/1.0",
+        "rkaf:result": "rkaf:acceptedWithWarnings",
+        "rkaf:effectiveUsageEligibility": "rkaf:reviewQueueOnly",
+        "rkaf:effectiveUsageEligibilityRationale": "stale dependency",
+        "rkaf:validatedAt": "2026-04-15T00:00:00Z",
+        "rkaf:detectedIssues": [
+          "rkaf:staleDep"
+        ]
+      },
+      {
+        "@id": "att-bad-target",
+        "@type": "rkaf:Attestation",
+        "rkaf:attestor": "urn:rkaf:fixture:actor:program-director",
+        "rkaf:attestorKind": "rkaf:formalReviewer",
+        "rkaf:decision": "rkaf:approvedWithConditions",
+        "rkaf:attestationScope": "urn:rkaf:fixture:scope:in-flight-recerts",
+        "rkaf:attestedAt": "2026-04-15T00:00:00Z",
+        "rkaf:targets": ["urn:rkaf:fixture:assert:upstream-rule"],
+        "rkaf:targetFinding": "finding-missing-from-graph",
+        "rkaf:rationale": "Targets a Finding that does not appear anywhere in the graph; loud error required."
+      }
+    ]
+  },
+  "rkaf:expectedOutput": {
+    "bridgeValidationResult": "rkaf:rejected",
+    "errorClass": "rkaf:MalformedTestCase",
+    "rationale": "Unreachable — runtime raises MalformedTestCase before computing a verdict; rkaf:expectedRuntimeError gates this fixture."
+  }
+}

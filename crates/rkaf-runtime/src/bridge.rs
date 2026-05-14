@@ -337,6 +337,47 @@ fn chain_terminates(assertion_id: &str, graph: &Graph) -> bool {
     false
 }
 
+/// Loud-error parity for Finding IRIs — Plan 7e.3 (ADR-0093 follow-up).
+/// Every `rkaf:targetFinding` on an Attestation and every entry in
+/// `rkaf:findings` on a BridgeValidationResult MUST resolve to a node in
+/// the graph (any node — the contract's job is membership-testing, not
+/// `@type` enforcement, which is SHACL's). Mirrors `cascade::is_active`'s
+/// dangling-IRI posture for `rkaf:hasEffectivePeriod` (Plan 7c.6).
+fn verify_finding_iris_resolve(graph: &Graph) -> Result<(), RuntimeError> {
+    for att in graph.nodes_by_type("rkaf:Attestation") {
+        let Some(tf) = att.get("rkaf:targetFinding").and_then(Value::as_str) else {
+            continue;
+        };
+        if graph.find(tf).is_none() {
+            let att_id = att
+                .get("@id")
+                .and_then(Value::as_str)
+                .unwrap_or("<unknown>");
+            return Err(RuntimeError::MalformedTestCase(format!(
+                "Attestation {att_id} declares rkaf:targetFinding {tf:?} but no such node exists in the graph"
+            )));
+        }
+    }
+    for bvr in graph.nodes_by_type("rkaf:BridgeValidationResult") {
+        let Some(arr) = bvr.get("rkaf:findings").and_then(Value::as_array) else {
+            continue;
+        };
+        for v in arr {
+            let Some(iri) = v.as_str() else { continue };
+            if graph.find(iri).is_none() {
+                let bvr_id = bvr
+                    .get("@id")
+                    .and_then(Value::as_str)
+                    .unwrap_or("<unknown>");
+                return Err(RuntimeError::MalformedTestCase(format!(
+                    "BridgeValidationResult {bvr_id} lists rkaf:findings entry {iri:?} but no such node exists in the graph"
+                )));
+            }
+        }
+    }
+    Ok(())
+}
+
 // ── Rule 8 — bridge-emitted attestations for consumer-detected issues ──
 fn rule_8(graph: &Graph) -> Result<Verdict, RuntimeError> {
     // For each BVR with detectedIssues, check that every issue kind appearing
@@ -354,6 +395,13 @@ fn rule_8(graph: &Graph) -> Result<Verdict, RuntimeError> {
     //   (b) targetFinding points at a Finding whose @id appears in the
     //       BVR's findings[] (per ADR-0093: Attestations target the
     //       specific Finding they waive).
+    //
+    // Plan 7e.3: before any membership-testing, dangling Finding IRIs on
+    // either side of the join (Attestation.targetFinding, BVR.findings)
+    // MUST error loudly — parity with cascade::is_active's posture for
+    // rkaf:hasEffectivePeriod (Plan 7c.6).
+    verify_finding_iris_resolve(graph)?;
+
     for bvr in graph.nodes_by_type("rkaf:BridgeValidationResult") {
         let Some(bvr_id) = bvr.get("@id").and_then(Value::as_str) else {
             continue;
@@ -502,5 +550,101 @@ fn rule_10(graph: &Graph) -> Result<Verdict, RuntimeError> {
         }
     }
     Ok(accepted())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use serde_json::json;
+
+    // Plan 7e.3 — pin the dangling-IRI loud-error parity for Finding edges.
+    // Integration coverage lives in fixtures/behavior/bridge-rule-8-target-
+    // finding-dangling-negative.jsonld + tests/behavior_fixtures.rs. These
+    // unit tests pin the helper directly.
+
+    #[test]
+    fn verify_finding_iris_resolve_empty_graph_ok() {
+        let payload = json!({"@graph": []});
+        let g = Graph::from_payload(&payload).unwrap();
+        assert!(verify_finding_iris_resolve(&g).is_ok());
+    }
+
+    #[test]
+    fn verify_finding_iris_resolve_target_finding_resolves_ok() {
+        let payload = json!({
+            "@graph": [
+                {"@id": "f1", "@type": "rkaf:Finding"},
+                {
+                    "@id": "att",
+                    "@type": "rkaf:Attestation",
+                    "rkaf:targetFinding": "f1"
+                }
+            ]
+        });
+        let g = Graph::from_payload(&payload).unwrap();
+        assert!(verify_finding_iris_resolve(&g).is_ok());
+    }
+
+    #[test]
+    fn verify_finding_iris_resolve_target_finding_dangling_errors() {
+        let payload = json!({
+            "@graph": [
+                {
+                    "@id": "att",
+                    "@type": "rkaf:Attestation",
+                    "rkaf:targetFinding": "f-missing"
+                }
+            ]
+        });
+        let g = Graph::from_payload(&payload).unwrap();
+        match verify_finding_iris_resolve(&g).unwrap_err() {
+            RuntimeError::MalformedTestCase(msg) => {
+                assert!(
+                    msg.contains("f-missing") && msg.contains("targetFinding"),
+                    "expected dangling targetFinding error, got: {msg}"
+                );
+            }
+            other => panic!("unexpected error: {other:?}"),
+        }
+    }
+
+    #[test]
+    fn verify_finding_iris_resolve_bvr_findings_dangling_errors() {
+        let payload = json!({
+            "@graph": [
+                {
+                    "@id": "bvr1",
+                    "@type": "rkaf:BridgeValidationResult",
+                    "rkaf:findings": ["f-missing"]
+                }
+            ]
+        });
+        let g = Graph::from_payload(&payload).unwrap();
+        match verify_finding_iris_resolve(&g).unwrap_err() {
+            RuntimeError::MalformedTestCase(msg) => {
+                assert!(
+                    msg.contains("f-missing") && msg.contains("findings"),
+                    "expected dangling findings error, got: {msg}"
+                );
+            }
+            other => panic!("unexpected error: {other:?}"),
+        }
+    }
+
+    #[test]
+    fn verify_finding_iris_resolve_bvr_findings_resolves_ok() {
+        let payload = json!({
+            "@graph": [
+                {"@id": "f1", "@type": "rkaf:Finding"},
+                {
+                    "@id": "bvr1",
+                    "@type": "rkaf:BridgeValidationResult",
+                    "rkaf:findings": ["f1"]
+                }
+            ]
+        });
+        let g = Graph::from_payload(&payload).unwrap();
+        assert!(verify_finding_iris_resolve(&g).is_ok());
+    }
 }
 
