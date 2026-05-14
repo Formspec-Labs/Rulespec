@@ -1,0 +1,25 @@
+{
+  "@context": "../context/rkaf-context.jsonld",
+  "@graph": [
+    {
+      "@id": "urn:rkaf:fixture:finding:stale-dep-snap-redet",
+      "@type": "rkaf:Finding",
+      "rkaf:findingKind": "rkaf:staleDependency",
+      "rkaf:detectedAt": "2026-05-13T09:30:00Z",
+      "rkaf:detectedBy": "urn:rkaf:fixture:bvr:medicaid-recert-fresh",
+      "rkaf:subject": "urn:rkaf:fixture:assert:snap-income-test-202-percent",
+      "rkaf:severity": "rkaf:operationalConflict",
+      "rkaf:rationale": "Upstream Assertion was superseded by amended FNS regulation 2026-04-15; downstream consumer has not yet rebound."
+    },
+    {
+      "@id": "urn:rkaf:fixture:finding:concept-disagreement-household",
+      "@type": "rkaf:Finding",
+      "rkaf:findingKind": "rkaf:conceptConflict",
+      "rkaf:detectedAt": "2026-05-13T10:15:00Z",
+      "rkaf:detectedBy": "urn:rkaf:fixture:bvr:medicaid-recert-fresh",
+      "rkaf:subject": "urn:rkaf:fixture:concept:household",
+      "rkaf:severity": "rkaf:publicationBlocking",
+      "rkaf:rationale": "Two trusted registries disagree on the canonical Concept for 'household'; resolution requires authority-critical attestation."
+    }
+  ]
+}

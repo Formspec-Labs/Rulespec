@@ -71,6 +71,7 @@ pub mod generated {
     pub mod effective_period                   { include!("generated/effective_period.rs"); }
     pub mod evaluation_anchor                  { include!("generated/evaluation_anchor.rs"); }
     pub mod evidence_binding                   { include!("generated/evidence_binding.rs"); }
+    pub mod finding                            { include!("generated/finding.rs"); }
     pub mod generated_work_product             { include!("generated/generated_work_product.rs"); }
     pub mod justification                      { include!("generated/justification.rs"); }
     pub mod lifecycle_event                    { include!("generated/lifecycle_event.rs"); }
@@ -105,6 +106,7 @@ pub use generated::confidence_record::ConfidenceRecord;
 pub use generated::consumer_effective_declaration::ConsumerEffectiveDeclaration;
 pub use generated::effective_period::EffectivePeriod;
 pub use generated::evidence_binding::EvidenceBinding;
+pub use generated::finding::Finding;
 pub use generated::generated_work_product::GeneratedWorkProduct;
 pub use generated::justification::Justification;
 pub use generated::lifecycle_event::LifecycleEvent;

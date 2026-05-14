@@ -83,6 +83,7 @@ Beyond the v0.2 normative tier in §5, the following terms are codified as CUE c
 | `rkaf:RevalidationClosureEvent` | `revalidation-event.cue` | `revalidationevent-positive.jsonld` | Closes a `RevalidationEvent` with a deterministic closure decision and optional successor Assertion or WorkProduct. (Core §4.8.) |
 | `rkaf:BridgeIssueAttestationContract` | `bridge-issue-attestation-contract.cue` | `bridgeissueattestationcontract-positive.jsonld` | Enumerates which `BridgeValidationResult` issue kinds MUST yield a matching `Attestation` for the BVR to be acceptable. Load-bearing for bridge rule #8. (Plan 7b §3.) |
 | `rkaf:ConsumerEffectiveDeclaration` | `consumer-effective-declaration.cue` | `consumereffectivedeclaration-positive.jsonld` | A consumer's declared effective `usageEligibility` for an Assertion in a given scope. The reducer's output MUST equal or exceed this on the lattice; a higher declared value is forbidden broadening (bridge rule #2). (Plan 7b §3.) |
+| `rkaf:Finding` | `finding.cue` | `finding-positive.jsonld` | First-class IRI-addressable record of a single validation/audit detection. Promoted in ADR-0093 from `BridgeValidationResult`'s flat string arrays so downstream primitives can REFERENCE a Finding by IRI — enables waiver-shaped Attestations (`rkaf:targetFinding`), Trellis anchoring of validation outcomes, and Studio readiness-tier projection. Carries closed `findingKind` + `severity` enums. |
 
 **Closed enums and lattices** (referenced by the classes above):
 

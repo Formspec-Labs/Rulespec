@@ -1,0 +1,24 @@
+{
+  "@context": "../context/rkaf-context.jsonld",
+  "@graph": [
+    {
+      "@id": "urn:rkaf:fixture:eff:atst-2026-full-year",
+      "@type": "rkaf:EffectivePeriod",
+      "rkaf:effectivePeriodStart": "2026-01-01T00:00:00Z",
+      "rkaf:effectivePeriodEnd": "2026-12-31T23:59:59Z"
+    },
+    {
+      "@id": "urn:rkaf:fixture:atst:revoked-mid-period",
+      "@type": "rkaf:Attestation",
+      "rkaf:attestor": "urn:rkaf:fixture:actor:fda-reviewer-9",
+      "rkaf:attestorKind": "rkaf:formalReviewer",
+      "rkaf:targets": ["urn:rkaf:fixture:assert:device-recall-determination-2026"],
+      "rkaf:decision": "rkaf:approved",
+      "rkaf:attestationScope": "urn:rkaf:fixture:scope:device-class-iii-recall",
+      "rkaf:attestedAt": "2026-01-10T08:00:00Z",
+      "rkaf:hasEffectivePeriod": "urn:rkaf:fixture:eff:atst-2026-full-year",
+      "rkaf:revokedAt": "2026-06-15T12:00:00Z",
+      "rkaf:rationale": "Approved for full calendar 2026; revoked mid-year following Q2 adverse-event signal. Revocation supersedes effective period per vocab spec §6: an Attestation with revokedAt <= evaluation-time is no longer effective regardless of hasEffectivePeriod."
+    }
+  ]
+}

@@ -1,0 +1,8 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@id": "urn:rkaf:fixture:neg:finding-no-detected-at",
+  "@type": "rkaf:Finding",
+  "rkaf:findingKind": "rkaf:warning",
+  "rkaf:detectedBy": "urn:rkaf:fixture:bvr:medicaid-recert-fresh",
+  "rkaf:subject": "urn:rkaf:fixture:assert:snap-income-test"
+}

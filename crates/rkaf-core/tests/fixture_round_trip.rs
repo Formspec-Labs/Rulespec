@@ -121,6 +121,47 @@ fn round_trip_attestation_fixture() {
     round_trip::<Attestation>("attestation-positive", "rkaf:Attestation");
 }
 
+// Plan 7d: temporal-bounds + freshness on existing primitives.
+// These tests exercise serde round-trip on the new optional fields so a
+// regression on `Option<String>` field handling or serde-rename keys
+// surfaces at the codegen layer, not just at SHACL.
+#[test]
+fn round_trip_attestation_with_effective_period_fixture() {
+    round_trip::<Attestation>(
+        "attestation-with-effective-period-positive",
+        "rkaf:Attestation",
+    );
+}
+
+#[test]
+fn round_trip_attestation_revoked_fixture() {
+    round_trip::<Attestation>("attestation-revoked-positive", "rkaf:Attestation");
+}
+
+#[test]
+fn round_trip_sourcefragment_with_freshness_fixture() {
+    round_trip::<SourceFragment>(
+        "sourcefragment-with-freshness-positive",
+        "rkaf:SourceFragment",
+    );
+}
+
+#[test]
+fn round_trip_evidencebinding_with_freshness_fixture() {
+    round_trip::<EvidenceBinding>(
+        "evidencebinding-with-freshness-positive",
+        "rkaf:EvidenceBinding",
+    );
+}
+
+#[test]
+fn round_trip_bridgevalidationresult_with_freshness_fixture() {
+    round_trip::<BridgeValidationResult>(
+        "bridgevalidationresult-with-freshness-positive",
+        "rkaf:BridgeValidationResult",
+    );
+}
+
 #[test]
 fn round_trip_local_adoption_fixture() {
     round_trip::<LocalAdoption>("localadoption-positive", "rkaf:LocalAdoption");

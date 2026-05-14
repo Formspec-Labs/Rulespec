@@ -910,6 +910,21 @@
     },
     "rkaf:definedInScope": {
       "@type": "@id"
+    },
+    "rkaf:findingKind": {
+      "@type": "@vocab"
+    },
+    "rkaf:severity": {
+      "@type": "@vocab"
+    },
+    "rkaf:subject": {
+      "@type": "@id"
+    },
+    "rkaf:detectedBy": {
+      "@type": "@id"
+    },
+    "rkaf:verifiedBy": {
+      "@type": "@id"
     }
   },
   "_meta": {
