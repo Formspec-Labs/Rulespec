@@ -25,6 +25,7 @@ pub mod pit;
 pub mod reducer;
 pub mod runtime;
 pub mod stale;
+pub mod temporal;
 pub mod verdict;
 
 pub use errors::RuntimeError;
