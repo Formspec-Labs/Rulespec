@@ -1,0 +1,8 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@id": "urn:rkaf:fixture:edge:rp:zero-duration",
+  "@type": "rkaf:RetentionPolicy",
+  "rkaf:retentionDurationDays": 0,
+  "rkaf:retentionTrigger": "rkaf:lifecycleEvent",
+  "rkaf:retentionPostExpiry": "rkaf:legal-hold-on-trigger"
+}

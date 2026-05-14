@@ -1,0 +1,50 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@id": "urn:rkaf:fixture:beh:br5:safe-migration-pos-1",
+  "@type": "rkaf:BehaviorTestCase",
+  "rkaf:behaviorContract": "rkaf:BridgeContractRule",
+  "rkaf:contractRuleNumber": 5,
+  "rkaf:rationale": "LifecycleEvent affects the assertion, but its safeAutomaticMigration is declared by the event and supported by the consumer; staleForCurrentUse is not required.",
+  "rkaf:input": {
+    "@graph": [
+      {
+        "@id": "reg1",
+        "@type": "rkaf:BridgeConsumerRegistration",
+        "rkaf:consumer": "urn:rkaf:consumer:auto-migration",
+        "rkaf:bridgeContractVersion": "rkaf-bridge/1.0",
+        "rkaf:registeredAt": "2026-04-15T00:00:00Z",
+        "rkaf:supportedEvaluationAnchors": [
+          "rkaf:applicationSubmissionTime"
+        ],
+        "rkaf:supportsRegistryVersionRange": [
+          "^1.0"
+        ],
+        "rkaf:supportedAutomaticMigrations": [
+          "rkaf:autoMigration:statute-update-2026"
+        ],
+        "rkaf:supportedAuthorityKinds": [
+          "rkaf:statutory"
+        ]
+      },
+      {
+        "@id": "a1",
+        "@type": "rkaf:Assertion",
+        "rkaf:assertionOrigin": "rkaf:humanAsserted",
+        "rkaf:consumerLifecycleState": "rkaf:operational"
+      },
+      {
+        "@id": "le1",
+        "@type": "rkaf:LifecycleEvent",
+        "rkaf:lifecycleEventKind": "rkaf:materialRevision",
+        "rkaf:effectiveDate": "2026-04-15T00:00:00Z",
+        "rkaf:emittedBy": "urn:rkaf:actor:agency",
+        "rkaf:appliesTo": "a1",
+        "rkaf:cascadeAlgorithm": "rkaf:CascadeClosureV1",
+        "rkaf:safeAutomaticMigration": "rkaf:autoMigration:statute-update-2026"
+      }
+    ]
+  },
+  "rkaf:expectedOutput": {
+    "bridgeValidationResult": "rkaf:accepted"
+  }
+}

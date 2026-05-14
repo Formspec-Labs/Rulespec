@@ -1,0 +1,8 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@id": "urn:rkaf:fixture:edge:gwp:proposed-eligibility",
+  "@type": "rkaf:GeneratedWorkProduct",
+  "rkaf:justifiedByAssertion": "urn:rkaf:fixture:edge:gwp:a1",
+  "rkaf:consumerLifecycleState": "rkaf:draft",
+  "rkaf:proposedUsageEligibility": "rkaf:draftGenerationAllowed"
+}

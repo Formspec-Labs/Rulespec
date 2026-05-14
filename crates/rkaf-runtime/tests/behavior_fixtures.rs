@@ -2,6 +2,8 @@
 //! `Runtime::evaluate_and_check` and MUST match its declared
 //! `rkaf:expectedOutput`. This is the L4 conformance gate.
 
+// Rust guideline compliant 2026-02-21
+
 use rkaf_runtime::{Runtime, RuntimeError};
 use serde_json::Value;
 use std::fs;
@@ -20,8 +22,36 @@ fn load(name: &str) -> Value {
     serde_json::from_slice(&bytes).expect("parse jsonld")
 }
 
+fn load_path(path: &PathBuf) -> Value {
+    let bytes = fs::read(path).unwrap_or_else(|e| panic!("read {}: {e}", path.display()));
+    serde_json::from_slice(&bytes).unwrap_or_else(|e| panic!("parse {}: {e}", path.display()))
+}
+
+fn behavior_fixture_paths() -> Vec<PathBuf> {
+    let mut paths: Vec<PathBuf> = fs::read_dir(behavior_dir())
+        .expect("read behavior fixture dir")
+        .map(|entry| entry.expect("read behavior fixture entry").path())
+        .filter(|path| path.extension().and_then(|s| s.to_str()) == Some("jsonld"))
+        .collect();
+    paths.sort();
+    paths
+}
+
 fn assert_passes(name: &str) {
     let tc = load(name);
+    assert_value_passes(name, &tc);
+}
+
+fn assert_path_passes(path: &PathBuf) {
+    let tc = load_path(path);
+    let name = path
+        .file_stem()
+        .and_then(|s| s.to_str())
+        .unwrap_or("<unknown>");
+    assert_value_passes(name, &tc);
+}
+
+fn assert_value_passes(name: &str, tc: &Value) {
     match Runtime::evaluate_and_check(&tc) {
         Ok(_) => {}
         Err(RuntimeError::OutputMismatch { expected, actual }) => {
@@ -35,6 +65,18 @@ fn assert_passes(name: &str) {
     }
 }
 
+#[test]
+fn all_behavior_fixtures_pass() {
+    let paths = behavior_fixture_paths();
+    assert!(
+        !paths.is_empty(),
+        "fixtures/behavior must contain L4 behavior fixtures"
+    );
+    for path in paths {
+        assert_path_passes(&path);
+    }
+}
+
 // ─── CascadeClosureV1 ───────────────────────────────────────────────────
 
 #[test]
@@ -42,7 +84,17 @@ fn cascade_closure_supersession_fanout() {
     assert_passes("cascade-closure-supersession-fanout");
 }
 
+#[test]
+fn cascade_all_edge_predicates() {
+    assert_passes("cascade-closure-all-edge-predicates");
+}
+
 // ─── UsageEligibility reducer ──────────────────────────────────────────
+
+#[test]
+fn usage_eligibility_reducer_baseline_workspace() {
+    assert_passes("usage-eligibility-reducer-baseline-workspace-positive");
+}
 
 #[test]
 fn usage_eligibility_reducer_stale_narrows() {
@@ -66,6 +118,16 @@ fn point_in_time_exception_honored() {
 #[test]
 fn concept_resolution_mapping_conflict() {
     assert_passes("concept-resolution-mapping-conflict");
+}
+
+#[test]
+fn concept_resolution_resolved() {
+    assert_passes("concept-resolution-resolved-positive");
+}
+
+#[test]
+fn concept_resolution_unresolved() {
+    assert_passes("concept-resolution-unresolved-positive");
 }
 
 // ─── Bridge contract rules — all 10 ────────────────────────────────────
@@ -105,6 +167,10 @@ fn bridge_rule_4_negative() {
 #[test]
 fn bridge_rule_5_positive() {
     assert_passes("bridge-rule-5-stale-transition-set-positive");
+}
+#[test]
+fn bridge_rule_5_safe_automatic_migration_positive() {
+    assert_passes("bridge-rule-5-safe-automatic-migration-positive");
 }
 #[test]
 fn bridge_rule_5_negative() {

@@ -18,7 +18,7 @@ help:
 	@echo "  make test               — full gate sweep (rust + shapes + audits + L1-L5 conformance)"
 	@echo "  make test-rust          — cargo test --workspace (unit + integration)"
 	@echo "  make test-shapes        — parse + JSON-Schema + SHACL + negative fixtures"
-	@echo "  make test-audits        — vocab, rename, constraints-parity, projector-parity, version-sync"
+	@echo "  make test-audits        — vocab, coverage, rename, constraints-parity, projector-parity, version-sync"
 	@echo "  make test-conformance   — L1-L5 conformance report across every fixture"
 	@echo "  make compile            — regenerate JSON Schema + Rust + SHACL + TS from CUE"
 	@echo "  make clean              — cargo clean"
@@ -49,7 +49,9 @@ test-shapes:
 
 test-audits:
 	$(PYTHON) tools/vocab_audit.py
+	$(PYTHON) tools/l0_l3_coverage_audit.py
 	$(PYTHON) tools/rename_audit.py
+	$(PYTHON) tools/l4_coverage_audit.py
 	$(PYTHON) tools/constraints_parity.py
 	$(PYTHON) tools/projector_parity.py
 	$(PYTHON) tools/version_sync.py --check

@@ -1,0 +1,9 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@id": "urn:rkaf:fixture:edge:rev-close:pit",
+  "@type": "rkaf:RevalidationClosureEvent",
+  "rkaf:closesRevalidation": "urn:rkaf:fixture:edge:rev:open1",
+  "rkaf:closureDecision": "rkaf:retainedForPointInTime",
+  "rkaf:closedAt": "2026-04-20T15:30:00Z",
+  "rkaf:bridgeContractVersion": "rkaf-bridge/1.0"
+}

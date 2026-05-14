@@ -5,6 +5,53 @@ All notable changes to Rulespec are documented in this file.
 The format is loosely based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 adapted for a specification + shape + fixture project.
 
+## Unreleased — L0-L3 coverage completion and gate hardening
+
+Closes the lower-layer coverage gaps that could be hidden by green verdict gates. L0-L3 now has a direct coverage audit in addition to the per-fixture conformance reporter.
+
+### Added
+
+- **18 new edge fixtures** so `fixtures/edges/` covers every compiled schema class, not just representative classes.
+- **`tools/l0_l3_coverage_audit.py`** — coverage gate for L0-L3. It verifies vocabulary/source coverage, JSON-LD parse coverage, positive/negative/edge coverage for all 31 compiled schema classes, and 93/93 required-field negative slots.
+
+### Changed
+
+- **`Makefile` and CI** now run the L0-L3 coverage audit as a first-class gate.
+- **Conformance docs and self-certification** now report 216 total fixtures and complete lower-layer coverage.
+
+### Verified
+
+- `tools/l0_l3_coverage_audit.py` — 216 normal fixtures, 31/31 schema classes covered by positive, negative, and edge fixtures; 93/93 required-field negative slots covered.
+- `tools/conformance_report.py` — 216 fixtures, 0 divergences.
+
+## Unreleased — L4 coverage completion and gate hardening
+
+Closes the remaining L4 branch-coverage gaps that were implemented in the runtime but not represented in `fixtures/behavior/`, and prevents missing L4 execution from reporting as a clean conformance run.
+
+### Added
+
+- **5 new behavior fixtures**:
+  - `cascade-closure-all-edge-predicates` covers every declared CascadeClosureV1 predicate, including SKOS concept-lifecycle edges.
+  - `usage-eligibility-reducer-baseline-workspace-positive` covers the no-scope baseline workspace branch.
+  - `bridge-rule-5-safe-automatic-migration-positive` covers the Rule 5 safeAutomaticMigration exemption.
+  - `concept-resolution-resolved-positive` covers single-target concept resolution.
+  - `concept-resolution-unresolved-positive` covers no-mapping concept resolution.
+- **`tools/l4_coverage_audit.py`** — branch-coverage gate for L4. It verifies 5/5 contracts, accepted/rejected coverage for all 10 bridge rules, Rule 5 safeAutomaticMigration, 6/6 reducer branches, 2/2 PIT branches, 3 concept outcomes plus 4 severities, cascade `as_of`, and 17/17 cascade predicates.
+- **Dynamic Rust fixture sweep** in `crates/rkaf-runtime/tests/behavior_fixtures.rs` so new `fixtures/behavior/*.jsonld` files are exercised by `cargo test` automatically, in addition to named regression tests.
+
+### Changed
+
+- **`tools/conformance_report.py`** now treats `L4=skip` from a missing `rkaf-behavior-validate` binary as a divergence. A conformance run that did not execute L4 behavior fixtures is not green.
+- **`Makefile` and CI** now run the L4 coverage audit as a first-class gate.
+- **Conformance docs and self-certification** now report 216 total fixtures and 38 behavior fixtures.
+
+### Verified
+
+- `tools/l4_coverage_audit.py` — 38 behavior fixtures; all L4 branches covered.
+- `rkaf-behavior-validate --json fixtures/behavior/*.jsonld` — 38/38 pass.
+- `cargo test -p rkaf-runtime --test behavior_fixtures` — 39 passing, 0 failing.
+- `tools/conformance_report.py` — 216 fixtures, 0 divergences.
+
 ## Unreleased — Plan 7c: concept severity ladder + cascade `as_of` date predicate + greenfield-strict reducer
 
 Closes the two Plan 7c reservations in `spec/rkaf-behavior.md` and the deferred cascade `as_of` work, then closes the six findings from the Plan 7c semi-formal-code-review.
@@ -29,7 +76,7 @@ Closes the two Plan 7c reservations in `spec/rkaf-behavior.md` and the deferred 
 - **`concept::compute_severity`** — multi-BCR errors from `select_consumer` now propagate via `?` instead of silently degrading to `publicationBlocking`. Return type `Result<&'static str, RuntimeError>`.
 - **`cascade::closure` + `is_active`** — accept `Option<&DateTime<FixedOffset>>` rather than `Option<&str>`. Malformed `cascadeAsOf` or `EffectivePeriod.{start,end}` returns `MalformedTestCase` with the offending node + field + raw value — no silent inclusion/exclusion.
 - **`reducer::evaluate`** — `rkaf:subjectAssertion` is now REQUIRED on every UsageEligibilityReducer fixture. Removed the "pick the first `rkaf:Assertion`" fallback (greenfield contract; silent selection is unsafe in any graph carrying a justification chain). All 5 existing reducer fixtures updated to declare it explicitly.
-- **`spec/rkaf-conformance.md` §4.2** — fixture count corrected: 33 today (2 cascade · 5 reducer · 2 PIT · 4 concept-resolution · 20 bridge-rule), with breakdown.
+- **`spec/rkaf-conformance.md` §4.2** — fixture count corrected for the Plan 7c closeout: 33 at that point (2 cascade · 5 reducer · 2 PIT · 4 concept-resolution · 20 bridge-rule), with breakdown.
 - **`crates/rkaf-runtime/Cargo.toml`** — `chrono` (default-features-off; `std`+`clock` only) added for semantic RFC-3339 comparison.
 - **Repo hygiene** — two cross-stack proposal documents (formspec generalization, implementation- and spec-side; 1133 lines) swept in by an upstream commit have been moved to the parent stack's `thoughts/proposals/` where they belong. PKAF's `thoughts/proposals/` no longer exists.
 
@@ -37,7 +84,7 @@ Closes the two Plan 7c reservations in `spec/rkaf-behavior.md` and the deferred 
 
 - `cargo test --workspace` — **all tests passing**; rkaf-runtime now reports 33 integration tests (was 30) + 15 unit tests (was 12, +3 cascade semantic-tz cases).
 - `cargo test -p rkaf-runtime` — **48 passing, 0 failing** (15 unit + 33 fixture).
-- Behavior fixtures: 33 in `fixtures/behavior/`, all `L4=pass`.
+- Behavior fixtures at Plan 7c closeout: 33 in `fixtures/behavior/`, all `L4=pass`.
 
 ## Unreleased — Plan 7b: L4 behavioral runtime (`rkaf-runtime` + `rkaf-behavior-validate` CLI)
 
@@ -55,7 +102,7 @@ L4 stops being aspirational. Ships a Rust runtime crate (`crates/rkaf-runtime/`)
 
 ### Changed (Plan 7b)
 
-- **`tools/conformance_report.py`** — `_l4_batch_evaluate` shells out to `rkaf-behavior-validate` once with all behavior fixture paths, parses JSON envelope, populates L4 column. L3-fail in behavior fixtures surfaces in `notes` (no longer silently masked). Human table includes L4 column. Binary-missing falls back to `L4=skip` with note.
+- **`tools/conformance_report.py`** — `_l4_batch_evaluate` shells out to `rkaf-behavior-validate` once with all behavior fixture paths, parses JSON envelope, populates L4 column. L3-fail in behavior fixtures surfaces in `notes` (no longer silently masked). Human table includes L4 column. Binary-missing surfaces as `L4=skip` with a note; the current reporter treats that skip as divergent.
 - **`spec/rkaf-conformance.md` §4.2** — L4 gate is no longer "deferred". Points at `rkaf-behavior-validate` + describes the reporter integration.
 - **`.github/workflows/constraints-parity.yml`** — workspace `cargo build` step now compiles `rkaf-runtime` + `rkaf-runtime-cli`.
 

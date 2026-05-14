@@ -1,0 +1,36 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@id": "urn:rkaf:fixture:beh:cm-resolved:case1",
+  "@type": "rkaf:BehaviorTestCase",
+  "rkaf:behaviorContract": "rkaf:ConceptResolutionWithConflict",
+  "rkaf:rationale": "A LocalConcept with exactly one mapping target resolves to that canonical RegisteredConcept; no RegistryConflict is emitted.",
+  "rkaf:input": {
+    "@graph": [
+      {
+        "@id": "X",
+        "@type": "rkaf:LocalConcept",
+        "rkaf:definedInScope": "urn:rkaf:scope:test",
+        "rkaf:conceptScope": "urn:rkaf:scope:test",
+        "rkaf:conceptStatus": "rkaf:active"
+      },
+      {
+        "@id": "canon:A",
+        "@type": "rkaf:RegisteredConcept",
+        "rkaf:managedByRegistry": "urn:rkaf:registry:canonical",
+        "rkaf:conceptScope": "urn:rkaf:scope:canonical",
+        "rkaf:conceptStatus": "rkaf:active"
+      },
+      {
+        "@id": "m1",
+        "@type": "rkaf:ConceptMapping",
+        "rkaf:sourceConcept": "X",
+        "rkaf:targetConcept": "canon:A",
+        "rkaf:mappingRelation": "skos:exactMatch"
+      }
+    ]
+  },
+  "rkaf:expectedOutput": {
+    "resolutionResult": "rkaf:resolved",
+    "canonicalConcept": "canon:A"
+  }
+}

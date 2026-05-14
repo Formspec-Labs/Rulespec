@@ -1,0 +1,13 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@id": "urn:rkaf:fixture:edge:mac:array-domain",
+  "@type": "rkaf:MappingApplicabilityContext",
+  "rkaf:applicationDomain": [
+    "urn:rkaf:program:snap",
+    "urn:rkaf:program:tanf"
+  ],
+  "rkaf:evidencePurpose": [
+    "eligibility-determination",
+    "quality-control"
+  ]
+}

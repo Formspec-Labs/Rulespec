@@ -1,0 +1,13 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@id": "urn:rkaf:fixture:edge:bcr:singletons",
+  "@type": "rkaf:BridgeConsumerRegistration",
+  "rkaf:consumer": "urn:rkaf:consumer:singleton-engine",
+  "rkaf:bridgeContractVersion": "rkaf-bridge/1.0",
+  "rkaf:registeredAt": "2026-04-15T00:00:00Z",
+  "rkaf:supportedEvaluationAnchors": "rkaf:currentTime",
+  "rkaf:supportsRegistryVersionRange": "^1.0",
+  "rkaf:supportedAutomaticMigrations": "rkaf:editorialRenameMigration",
+  "rkaf:supportedAuthorityKinds": "rkaf:statutory",
+  "rkaf:capabilityCap": "rkaf:publicationAllowed"
+}

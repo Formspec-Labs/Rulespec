@@ -1,0 +1,9 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@id": "urn:rkaf:fixture:edge:cres:unresolved",
+  "@type": "rkaf:ConceptResolutionResult",
+  "rkaf:inputConcept": "urn:rkaf:fixture:concept:local-only",
+  "rkaf:resolutionStatus": "rkaf:unresolved",
+  "rkaf:usageCeiling": "rkaf:reviewQueueOnly",
+  "rkaf:resolvedAt": "2026-04-15T10:00:00Z"
+}

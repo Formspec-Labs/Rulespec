@@ -1,0 +1,7 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@id": "urn:rkaf:fixture:edge:artifact:partner-defined",
+  "@type": "rkaf:Artifact",
+  "rkaf:hasArtifactIdentifier": "urn:partner:rules:source:abc-123",
+  "rkaf:artifactIdentifierScheme": "rkaf:partner-defined"
+}

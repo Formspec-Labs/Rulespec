@@ -1,0 +1,9 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@id": "urn:rkaf:fixture:edge:rev:current-time",
+  "@type": "rkaf:RevalidationEvent",
+  "rkaf:revalidationFor": "urn:rkaf:fixture:edge:rev:a1",
+  "rkaf:triggeredBy": "rkaf:currentTime",
+  "rkaf:openedAt": "2026-04-15T09:00:00Z",
+  "rkaf:bridgeContractVersion": "rkaf-bridge/1.0"
+}

@@ -46,11 +46,17 @@ jobs:
       - name: Vocab audit (every term has a fixture)
         run: python3 tools/vocab_audit.py
 
+      - name: L0-L3 coverage audit
+        run: python3 tools/l0_l3_coverage_audit.py
+
       - name: Negative-fixture audit (every -negative.jsonld FAILS as designed)
         run: python3 tools/validate_negatives.py
 
       - name: Rename audit (no pkaf:/PKAF strings introduced)
         run: python3 tools/rename_audit.py
+
+      - name: L4 behavior coverage audit
+        run: python3 tools/l4_coverage_audit.py
 
       - name: Version sync check (VERSION ↔ Cargo.toml ↔ jsonld context)
         run: python3 tools/version_sync.py --check

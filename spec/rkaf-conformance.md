@@ -91,9 +91,11 @@ An L4 implementation MUST:
 
 ### 4.2 Gate
 
-L4 conformance is gated by `crates/rkaf-runtime-cli/src/main.rs` (the `rkaf-behavior-validate` binary). `tools/conformance_report.py` shells out to this binary for every fixture under `fixtures/behavior/`, parses the per-fixture JSON verdict, and populates the L4 column with `pass` / `fail` / `error` / `skip`. Exit 0 from the binary across all behavior fixtures (33 today: 2 cascade — base + as_of; 5 reducer — applicability gate, capability cap, local broadens, stale narrows, stale-with-honored-PIT; 2 PIT — base + unsupported anchor; 4 concept-resolution — base conflict + 3-step severity ladder (informational, publicationBlocking, authorityCritical); 20 bridge-rule — positive + negative per all 10 contract rules) is the L4 gate.
+L4 conformance is gated by `crates/rkaf-runtime-cli/src/main.rs` (the `rkaf-behavior-validate` binary). `tools/conformance_report.py` shells out to this binary for every fixture under `fixtures/behavior/`, parses the per-fixture JSON verdict, and populates the L4 column with `pass` / `fail` / `error` / `skip`. Exit 0 from the binary across all behavior fixtures (38 today: 3 cascade — base fanout + all declared cascade predicates + as_of; 6 reducer — baseline workspace, applicability gate, capability cap, local broadens, stale narrows, stale-with-honored-PIT; 2 PIT — supported anchor + unsupported anchor; 6 concept-resolution — unresolved, resolved, and all 4 conflict severities (informational, operationalConflict, publicationBlocking, authorityCritical); 21 bridge-rule — positive + negative per all 10 contract rules plus Rule 5 safeAutomaticMigration exemption) is the L4 verdict gate.
 
-When the binary is missing (e.g., the workspace has not been built), the reporter degrades to `L4: skip` with a clear note pointing at `cargo build --manifest-path crates/Cargo.toml --workspace`.
+`tools/l4_coverage_audit.py` is the branch-coverage gate. It verifies that the behavior corpus covers all five contracts, all 10 bridge rules with accepted/rejected outcomes, the reducer's normative branches, supported/unsupported PIT handling, concept resolution outcomes plus the severity ladder, every cascade predicate, cascade `as_of`, and Rule 5 safeAutomaticMigration.
+
+When the binary is missing (e.g., the workspace has not been built), the reporter marks affected behavior fixtures `L4: skip` with a clear note and treats the run as divergent. A conformance run that did not execute L4 behavior fixtures is not green.
 
 ### 4.3 Self-certification
 
@@ -107,8 +109,8 @@ The conformance test corpus lives under `fixtures/`. The §10.1 coverage target 
 |---|---|---|
 | Per-class positive fixtures | every embedded compiled schema type | 41 positive fixtures; `rkaf-validate` asserts coverage for all 31 embedded `@type` schemas |
 | Per-class negative fixtures | every codified class with required fields | 104 negative fixtures; `tools/validate_negatives.py` discovers and gates all of them |
-| Per-class edge fixtures | every codified class | 15 representative edge fixtures |
-| Behavior fixtures | every L4 contract family | 33 behavior fixtures |
+| Per-class edge fixtures | every codified class | 33 edge fixtures; `tools/l0_l3_coverage_audit.py` asserts coverage for all 31 compiled schema classes |
+| Behavior fixtures | every L4 contract family and normative branch | 38 behavior fixtures |
 | Adversarial fixtures | ≥5 | 6 (in `fixtures/adversarial/`) |
 | AI-extraction adversarial fixtures | ≥3 | 3 (in `fixtures/ai-extraction/`) |
 | Projector round-trip fixtures | every projector × Attach/Extract | 5 (in `fixtures/projectors/`) |

@@ -1,0 +1,8 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@id": "urn:rkaf:fixture:edge:biac:single-kind",
+  "@type": "rkaf:BridgeIssueAttestationContract",
+  "rkaf:consumer": "urn:rkaf:consumer:singleton-engine",
+  "rkaf:attestedIssueKinds": "rkaf:unsupportedAnchor",
+  "rkaf:contractVersion": "1.0.0"
+}

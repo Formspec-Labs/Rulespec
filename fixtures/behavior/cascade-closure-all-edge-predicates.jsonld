@@ -1,0 +1,147 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@id": "urn:rkaf:fixture:beh:cascade:all-edges",
+  "@type": "rkaf:BehaviorTestCase",
+  "rkaf:behaviorContract": "rkaf:CascadeClosureV1",
+  "rkaf:cascadeSeed": "seed",
+  "rkaf:rationale": "One active incoming node per CascadeClosureV1 predicate verifies that L4 traverses every declared dependency edge, including SKOS concept-lifecycle edges.",
+  "rkaf:input": {
+    "@graph": [
+      {
+        "@id": "seed",
+        "@type": "rkaf:Assertion",
+        "rkaf:assertionOrigin": "rkaf:humanAsserted"
+      },
+      {
+        "@id": "edge-derived-from-fragment",
+        "@type": "rkaf:Assertion",
+        "rkaf:assertionOrigin": "rkaf:humanAsserted",
+        "rkaf:derivedFromFragment": "seed"
+      },
+      {
+        "@id": "edge-justified-by-assertion",
+        "@type": "rkaf:GeneratedWorkProduct",
+        "rkaf:justifiedByAssertion": "seed"
+      },
+      {
+        "@id": "edge-has-authority",
+        "@type": "rkaf:Assertion",
+        "rkaf:assertionOrigin": "rkaf:humanAsserted",
+        "rkaf:hasAuthority": "seed"
+      },
+      {
+        "@id": "edge-derives-authority-from",
+        "@type": "rkaf:Assertion",
+        "rkaf:assertionOrigin": "rkaf:humanAsserted",
+        "rkaf:derivesAuthorityFrom": "seed"
+      },
+      {
+        "@id": "edge-implements",
+        "@type": "rkaf:Assertion",
+        "rkaf:assertionOrigin": "rkaf:humanAsserted",
+        "rkaf:implements": "seed"
+      },
+      {
+        "@id": "edge-requires-evidence-type",
+        "@type": "rkaf:Assertion",
+        "rkaf:assertionOrigin": "rkaf:humanAsserted",
+        "rkaf:requiresEvidenceType": "seed"
+      },
+      {
+        "@id": "edge-collects-evidence-type",
+        "@type": "rkaf:Assertion",
+        "rkaf:assertionOrigin": "rkaf:humanAsserted",
+        "rkaf:collectsEvidenceType": "seed"
+      },
+      {
+        "@id": "edge-operationally-depends-on",
+        "@type": "rkaf:Assertion",
+        "rkaf:assertionOrigin": "rkaf:humanAsserted",
+        "rkaf:operationallyDependsOn": "seed"
+      },
+      {
+        "@id": "edge-local-adoption",
+        "@type": "rkaf:LocalAdoption",
+        "rkaf:organization": "urn:rkaf:org:test",
+        "rkaf:targetAssertion": "seed",
+        "rkaf:adoptionStatus": "rkaf:active",
+        "rkaf:usageEligibility": "rkaf:officialUse",
+        "rkaf:adoptionAuthorityKind": "rkaf:organizational",
+        "rkaf:adoptionScope": "urn:rkaf:scope:test",
+        "rkaf:authorizedBy": "urn:rkaf:actor:test-authority",
+        "rkaf:adoptedAt": "2026-04-15T00:00:00Z"
+      },
+      {
+        "@id": "edge-asserts-object",
+        "@type": "rkaf:Assertion",
+        "rkaf:assertionOrigin": "rkaf:humanAsserted",
+        "rkaf:assertsObject": "seed"
+      },
+      {
+        "@id": "edge-skos-exact-match",
+        "@type": "rkaf:Assertion",
+        "rkaf:assertionOrigin": "rkaf:humanAsserted",
+        "skos:exactMatch": "seed"
+      },
+      {
+        "@id": "edge-skos-close-match",
+        "@type": "rkaf:Assertion",
+        "rkaf:assertionOrigin": "rkaf:humanAsserted",
+        "skos:closeMatch": "seed"
+      },
+      {
+        "@id": "edge-skos-broad-match",
+        "@type": "rkaf:Assertion",
+        "rkaf:assertionOrigin": "rkaf:humanAsserted",
+        "skos:broadMatch": "seed"
+      },
+      {
+        "@id": "edge-skos-narrow-match",
+        "@type": "rkaf:Assertion",
+        "rkaf:assertionOrigin": "rkaf:humanAsserted",
+        "skos:narrowMatch": "seed"
+      },
+      {
+        "@id": "edge-skos-related-match",
+        "@type": "rkaf:Assertion",
+        "rkaf:assertionOrigin": "rkaf:humanAsserted",
+        "skos:relatedMatch": "seed"
+      },
+      {
+        "@id": "edge-source-concept",
+        "@type": "rkaf:Assertion",
+        "rkaf:assertionOrigin": "rkaf:humanAsserted",
+        "rkaf:sourceConcept": "seed"
+      },
+      {
+        "@id": "edge-target-concept",
+        "@type": "rkaf:Assertion",
+        "rkaf:assertionOrigin": "rkaf:humanAsserted",
+        "rkaf:targetConcept": "seed"
+      }
+    ]
+  },
+  "rkaf:expectedOutput": {
+    "affectedSet": [
+      "edge-asserts-object",
+      "edge-collects-evidence-type",
+      "edge-derived-from-fragment",
+      "edge-derives-authority-from",
+      "edge-has-authority",
+      "edge-implements",
+      "edge-justified-by-assertion",
+      "edge-local-adoption",
+      "edge-operationally-depends-on",
+      "edge-requires-evidence-type",
+      "edge-skos-broad-match",
+      "edge-skos-close-match",
+      "edge-skos-exact-match",
+      "edge-skos-narrow-match",
+      "edge-skos-related-match",
+      "edge-source-concept",
+      "edge-target-concept",
+      "seed"
+    ],
+    "algorithm": "rkaf:CascadeClosureV1"
+  }
+}

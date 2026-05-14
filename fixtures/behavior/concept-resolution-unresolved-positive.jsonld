@@ -1,0 +1,21 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@id": "urn:rkaf:fixture:beh:cm-unresolved:case1",
+  "@type": "rkaf:BehaviorTestCase",
+  "rkaf:behaviorContract": "rkaf:ConceptResolutionWithConflict",
+  "rkaf:rationale": "A LocalConcept with no ConceptMapping entries is unresolved; no canonicalConcept or RegistryConflict is emitted.",
+  "rkaf:input": {
+    "@graph": [
+      {
+        "@id": "X",
+        "@type": "rkaf:LocalConcept",
+        "rkaf:definedInScope": "urn:rkaf:scope:test",
+        "rkaf:conceptScope": "urn:rkaf:scope:test",
+        "rkaf:conceptStatus": "rkaf:active"
+      }
+    ]
+  },
+  "rkaf:expectedOutput": {
+    "resolutionResult": "rkaf:unresolved"
+  }
+}

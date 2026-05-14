@@ -1,0 +1,22 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@id": "urn:rkaf:fixture:beh:ue-baseline:case1",
+  "@type": "rkaf:BehaviorTestCase",
+  "rkaf:behaviorContract": "rkaf:UsageEligibilityReducer",
+  "rkaf:subjectAssertion": "a1",
+  "rkaf:rationale": "No scope, LocalAdoption, lifecycle stale state, PIT, or consumer cap is present; workspace-wide reduction returns the assertion baseline.",
+  "rkaf:input": {
+    "@graph": [
+      {
+        "@id": "a1",
+        "@type": "rkaf:Assertion",
+        "rkaf:assertionOrigin": "rkaf:humanAsserted",
+        "rkaf:usageEligibility": "rkaf:reviewQueueOnly"
+      }
+    ]
+  },
+  "rkaf:expectedOutput": {
+    "effectiveUsageEligibility": "rkaf:reviewQueueOnly",
+    "rationale": "baseline applied; no LocalAdoption broadening (workspace-wide reduction)"
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@id": "urn:rkaf:fixture:edge:ced:workspace",
+  "@type": "rkaf:ConsumerEffectiveDeclaration",
+  "rkaf:consumer": "urn:rkaf:consumer:workspace-engine",
+  "rkaf:forAssertion": "urn:rkaf:fixture:edge:ced:a1",
+  "rkaf:declaredEffective": "rkaf:searchOnly",
+  "rkaf:declaredAt": "2026-04-15T09:00:00Z"
+}

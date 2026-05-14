@@ -1,0 +1,13 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@id": "urn:rkaf:fixture:edge:rconf:authority-critical",
+  "@type": "rkaf:RegistryConflict",
+  "rkaf:conflictingEntries": [
+    "urn:rkaf:fixture:edge:cmap:state",
+    "urn:rkaf:fixture:edge:cmap:federal"
+  ],
+  "rkaf:severity": "rkaf:authorityCritical",
+  "rkaf:conflictingScope": "urn:rkaf:scope:official-benefit-determination",
+  "rkaf:detectedAt": "2026-04-15T11:00:00Z",
+  "rkaf:detectedBy": "urn:rkaf:registry:fns-canonical"
+}

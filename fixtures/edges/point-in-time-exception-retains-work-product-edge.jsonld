@@ -1,0 +1,8 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@id": "urn:rkaf:fixture:edge:pit:work-product",
+  "@type": "rkaf:PointInTimeException",
+  "rkaf:evaluationAnchor": "rkaf:noticeGenerationTime",
+  "rkaf:retainsWorkProduct": "urn:rkaf:fixture:edge:gwp:notice-v1",
+  "rkaf:exceptionScope": "Notices generated before the successor template was adopted."
+}

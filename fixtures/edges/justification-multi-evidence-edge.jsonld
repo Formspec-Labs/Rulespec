@@ -1,0 +1,12 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@id": "urn:rkaf:fixture:edge:justification:multi-evidence",
+  "@type": "rkaf:Justification",
+  "rkaf:hasWarrant": "urn:rkaf:fixture:edge:warrant:statutory",
+  "rkaf:basedOnEvidence": [
+    "urn:rkaf:fixture:edge:eb:one",
+    "urn:rkaf:fixture:edge:eb:two"
+  ],
+  "rkaf:asserted_by": "urn:rkaf:actor:reviewer:edge",
+  "rkaf:assertedAt": "2026-04-15T10:00:00Z"
+}

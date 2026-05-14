@@ -2,7 +2,7 @@
 # Regenerate the Studio schemas-derived/ surface from Rulespec-owned sources.
 #
 # Run from anywhere:
-#   PKAF/profiles/studio/derive.sh
+#   profiles/studio/derive.sh
 
 set -euo pipefail
 
@@ -29,4 +29,3 @@ fi
 ) > "$DERIVED_DIR/SHA256SUMS"
 
 echo "derived $(find "$DERIVED_DIR" -type f -name '*.schema.json' | wc -l | tr -d ' ') Studio schemas"
-

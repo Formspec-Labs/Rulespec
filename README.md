@@ -2,7 +2,7 @@
 
 *Making rules legible to software.*
 
-**Version** `0.2.0-pre.5` · **Bridge contract** `rkaf-bridge/1.0` · **Conformance** 193 L1-L4 fixtures plus vocabulary audit, 0 divergences
+**Version** `0.2.0-pre.5` · **Bridge contract** `rkaf-bridge/1.0` · **Conformance** 216 L1-L4 fixtures plus vocabulary audit, 0 divergences
 
 ---
 
@@ -61,6 +61,8 @@ Run the full sweep:
 ```bash
 cargo build --manifest-path crates/Cargo.toml --workspace
 python3 tools/conformance_report.py
+python3 tools/l0_l3_coverage_audit.py
+python3 tools/l4_coverage_audit.py
 python3 tools/vocab_audit.py
 ```
 
