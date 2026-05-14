@@ -3,7 +3,7 @@
 use chrono::{DateTime, Duration, FixedOffset};
 use serde_json::{json, Value};
 
-use crate::{errors::RuntimeError, graph::Graph, verdict::Verdict};
+use crate::{errors::RuntimeError, graph::Graph, temporal::effective_attestations_at, verdict::Verdict};
 
 /// The 7-level UsageEligibility lattice, ordered low → high.
 const LATTICE: &[&str] = &[
@@ -141,7 +141,11 @@ pub fn evaluate(test_case: &Value, graph: &Graph) -> Result<Verdict, RuntimeErro
 
     // No scopes declared → workspace-wide reduction (no LocalAdoption).
     if scopes.is_empty() {
-        let level = reduce_for_scope(
+        let ScopeResult {
+            level,
+            freshness_narrowed,
+            level_before_freshness,
+        } = reduce_for_scope_traced(
             &assertion_id,
             &baseline,
             is_stale,
@@ -151,13 +155,24 @@ pub fn evaluate(test_case: &Value, graph: &Graph) -> Result<Verdict, RuntimeErro
             evaluation_time.as_ref(),
             graph,
         )?;
+        let max_days = consumer
+            .and_then(|reg| {
+                reg.get("rkaf:maxAttestationStalenessDays")
+                    .and_then(Value::as_i64)
+            })
+            .unwrap_or(0);
+        let rationale: String = if freshness_narrowed {
+            format!(
+                "freshness gate narrowed from {level_before_freshness} to {level} (maxAttestationStalenessDays={max_days})"
+            )
+        } else if is_stale {
+            "lifecycle status (staleForCurrentUse) wins over baseline".into()
+        } else {
+            "baseline applied; no LocalAdoption broadening (workspace-wide reduction)".into()
+        };
         return Ok(Verdict::new(json!({
             "effectiveUsageEligibility": level,
-            "rationale": if is_stale {
-                "lifecycle status (staleForCurrentUse) wins over baseline"
-            } else {
-                "baseline applied; no LocalAdoption broadening (workspace-wide reduction)"
-            },
+            "rationale": rationale,
         })));
     }
 
@@ -176,6 +191,15 @@ pub fn evaluate(test_case: &Value, graph: &Graph) -> Result<Verdict, RuntimeErro
         by_scope.insert(scope, Value::String(level));
     }
     Ok(Verdict::new(json!({ "byScope": Value::Object(by_scope) })))
+}
+
+/// Internal trace of a single-scope reduction. Used by `evaluate` to
+/// build a richer rationale when Step 5.5 fires; per-scope `byScope`
+/// output discards the trace (the output shape carries only the level).
+struct ScopeResult {
+    level: String,
+    freshness_narrowed: bool,
+    level_before_freshness: String,
 }
 
 /// Compute effective UsageEligibility per spec/rkaf-behavior.md §1.2.
@@ -202,12 +226,40 @@ pub fn reduce_for_scope(
     evaluation_time: Option<&DateTime<FixedOffset>>,
     graph: &Graph,
 ) -> Result<String, RuntimeError> {
+    Ok(reduce_for_scope_traced(
+        assertion_id,
+        baseline,
+        is_stale,
+        applicability_set,
+        scope,
+        consumer,
+        evaluation_time,
+        graph,
+    )?
+    .level)
+}
+
+#[allow(clippy::too_many_arguments)]
+fn reduce_for_scope_traced(
+    assertion_id: &str,
+    baseline: &str,
+    is_stale: bool,
+    applicability_set: &[&str],
+    scope: Option<&str>,
+    consumer: Option<&Value>,
+    evaluation_time: Option<&DateTime<FixedOffset>>,
+    graph: &Graph,
+) -> Result<ScopeResult, RuntimeError> {
     // Step 1 — applicability gate. If eval scope is non-None AND the
     // assertion declares applicability AND eval scope is not in the
     // applicability set, return notEligible (§1.2 step 1).
     if let Some(scope_iri) = scope {
         if !applicability_set.is_empty() && !applicability_set.contains(&scope_iri) {
-            return Ok("rkaf:notEligible".to_string());
+            return Ok(ScopeResult {
+                level: "rkaf:notEligible".to_string(),
+                freshness_narrowed: false,
+                level_before_freshness: "rkaf:notEligible".to_string(),
+            });
         }
     }
 
@@ -235,10 +287,15 @@ pub fn reduce_for_scope(
     }
 
     // Step 5.5 — freshness gate (Plan 7e.2; spec §1.2 step 5.5). Narrow one
-    // lattice step downward if ANY relevant Attestation's `lastVerifiedAt`
-    // is older than `evaluation_time - maxAttestationStalenessDays`.
+    // lattice step downward if ANY relevant **effective** Attestation's
+    // `lastVerifiedAt` is older than `evaluation_time - maxAttestationStalenessDays`.
     // Relevance signal: Attestation.targets contains `assertion_id`.
+    // Effectiveness gate (Plan 7e review F1+F4): revoked or out-of-period
+    // Attestations are silently excluded — they're not in the active
+    // authority chain so they should not narrow freshness either.
     // Skipped when consumer omits the field OR no evaluation_time given.
+    let level_before_freshness = effective.clone();
+    let mut freshness_narrowed = false;
     if let (Some(reg), Some(eval_t)) = (consumer, evaluation_time) {
         if let Some(max_days) = reg
             .get("rkaf:maxAttestationStalenessDays")
@@ -246,6 +303,7 @@ pub fn reduce_for_scope(
         {
             if narrow_for_freshness(assertion_id, graph, eval_t, max_days)? {
                 effective = step_down_lattice(&effective);
+                freshness_narrowed = effective != level_before_freshness;
             }
         }
     }
@@ -258,13 +316,27 @@ pub fn reduce_for_scope(
         }
     }
 
-    Ok(effective)
+    Ok(ScopeResult {
+        level: effective,
+        freshness_narrowed,
+        level_before_freshness,
+    })
 }
 
-/// Step 5.5 helper — returns true iff a relevant Attestation is stale per
-/// the BCR's `maxAttestationStalenessDays` window. "Relevant" means
-/// `Attestation.targets` contains the assertion IRI. Malformed RFC-3339
-/// on `lastVerifiedAt` propagates as `MalformedTestCase`.
+/// Step 5.5 helper — returns true iff a relevant **effective** Attestation
+/// is stale per the BCR's `maxAttestationStalenessDays` window.
+///
+/// Plan 7e review F1+F4: the universe walked is
+/// `effective_attestations_at(graph, evaluation_time)`, NOT every targeting
+/// Attestation. Revoked or out-of-period Attestations are silently excluded
+/// from the freshness narrowing (they're already excluded from the
+/// underlying authority chain by `temporal::effective_at`). This is the
+/// only production caller of the Plan 7e.1 helper.
+///
+/// "Relevant" means `Attestation.targets` contains the assertion IRI.
+/// Malformed RFC-3339 on `lastVerifiedAt` propagates as `MalformedTestCase`.
+/// Malformed timestamps on `revokedAt` / `effectivePeriod{Start,End}` also
+/// propagate via `effective_attestations_at` (same strict posture).
 fn narrow_for_freshness(
     assertion_id: &str,
     graph: &Graph,
@@ -272,7 +344,8 @@ fn narrow_for_freshness(
     max_days: i64,
 ) -> Result<bool, RuntimeError> {
     let cutoff = *evaluation_time - Duration::days(max_days);
-    for att in graph.nodes_by_type("rkaf:Attestation") {
+    let effective = effective_attestations_at(graph, evaluation_time)?;
+    for att in effective {
         let targets_match = att
             .get("rkaf:targets")
             .and_then(Value::as_array)
@@ -282,9 +355,9 @@ fn narrow_for_freshness(
             continue;
         }
         let Some(raw) = att.get("rkaf:lastVerifiedAt").and_then(Value::as_str) else {
-            // Attestation with no freshness signal → does not satisfy
-            // freshness, so it narrows. Author intent: a consumer that
-            // declares maxAttestationStalenessDays wants every relevant
+            // Effective Attestation with no freshness signal → does not
+            // satisfy freshness, so it narrows. Author intent: a consumer
+            // that declares maxAttestationStalenessDays wants every relevant
             // Attestation to carry lastVerifiedAt.
             return Ok(true);
         };

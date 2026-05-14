@@ -294,6 +294,12 @@ fn reducer_freshness_fresh_passes() {
     assert_passes("usage-eligibility-reducer-freshness-fresh-passes");
 }
 
+// Plan 7e review F6 — strict-error parity for Step 5.5 malformed lastVerifiedAt.
+#[test]
+fn reducer_freshness_malformed_negative() {
+    assert_passes("usage-eligibility-reducer-freshness-malformed-negative");
+}
+
 // ─── Plan 7c — severity ladder + cascade as_of ─────────────────────────
 
 #[test]

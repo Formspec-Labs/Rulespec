@@ -1,0 +1,54 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@id": "urn:rkaf:fixture:beh:ue-fresh-malformed:case1",
+  "@type": "rkaf:BehaviorTestCase",
+  "rkaf:behaviorContract": "rkaf:UsageEligibilityReducer",
+  "rkaf:subjectAssertion": "a1",
+  "rkaf:evaluationTime": "2026-05-15T00:00:00Z",
+  "rkaf:rationale": "Plan 7e review F6 — strict-error parity for Step 5.5. The consumer declares maxAttestationStalenessDays=30 and an effective Attestation targeting the subject carries `rkaf:lastVerifiedAt: \"not-a-date\"`. Per spec §1.2 Step 5.5 strictness, the freshness gate MUST raise MalformedTestCase rather than silently treating the malformed literal as stale-or-fresh. Mirrors the cascade::is_active dangling-IRI strict posture (Plan 7c.6).",
+  "rkaf:expectedRuntimeError": "rkaf:MalformedTestCase",
+  "rkaf:input": {
+    "@graph": [
+      {
+        "@id": "a1",
+        "@type": "rkaf:Assertion",
+        "rkaf:assertionOrigin": "rkaf:humanAsserted",
+        "rkaf:usageEligibility": "rkaf:publicationAllowed"
+      },
+      {
+        "@id": "reg-fresh",
+        "@type": "rkaf:BridgeConsumerRegistration",
+        "rkaf:consumer": "urn:rkaf:consumer:fresh-strict",
+        "rkaf:bridgeContractVersion": "rkaf-bridge/1.0",
+        "rkaf:registeredAt": "2026-04-15T00:00:00Z",
+        "rkaf:supportedEvaluationAnchors": [
+          "rkaf:applicationSubmissionTime"
+        ],
+        "rkaf:supportsRegistryVersionRange": [
+          "^1.0"
+        ],
+        "rkaf:supportedAutomaticMigrations": [],
+        "rkaf:supportedAuthorityKinds": [
+          "rkaf:statutory"
+        ],
+        "rkaf:maxAttestationStalenessDays": 30
+      },
+      {
+        "@id": "att-malformed",
+        "@type": "rkaf:Attestation",
+        "rkaf:attestor": "urn:rkaf:fixture:actor:program-reviewer",
+        "rkaf:attestorKind": "rkaf:formalReviewer",
+        "rkaf:decision": "rkaf:approved",
+        "rkaf:attestationScope": "urn:rkaf:fixture:scope:a1-recerts",
+        "rkaf:attestedAt": "2026-01-15T00:00:00Z",
+        "rkaf:targets": ["a1"],
+        "rkaf:lastVerifiedAt": "not-a-date",
+        "rkaf:rationale": "Malformed RFC-3339 on lastVerifiedAt — runtime MUST raise MalformedTestCase."
+      }
+    ]
+  },
+  "rkaf:expectedOutput": {
+    "effectiveUsageEligibility": "rkaf:notEligible",
+    "rationale": "Unreachable — runtime raises MalformedTestCase before computing a verdict; rkaf:expectedRuntimeError gates this fixture."
+  }
+}
