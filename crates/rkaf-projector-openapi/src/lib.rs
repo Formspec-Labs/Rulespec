@@ -18,9 +18,7 @@ impl OpenApiProjector {
         Self {
             version: env!("CARGO_PKG_VERSION").into(),
             depth: "D1".into(),
-            constraints_compile_script: repo_root
-                .as_ref()
-                .join("tools/constraints_compile.py"),
+            constraints_compile_script: repo_root.as_ref().join("tools/constraints_compile.py"),
         }
     }
 }
@@ -34,11 +32,7 @@ impl Projector for OpenApiProjector {
         "0.2.0"
     }
 
-    async fn attach(
-        &self,
-        native: Value,
-        overlay: Value,
-    ) -> Result<Value, ProjectorError> {
+    async fn attach(&self, native: Value, overlay: Value) -> Result<Value, ProjectorError> {
         let mut doc = native
             .as_object()
             .ok_or_else(|| ProjectorError::Attach("native must be an OpenAPI object".into()))?
@@ -65,10 +59,7 @@ impl Projector for OpenApiProjector {
         Ok(Value::Object(doc))
     }
 
-    async fn extract(
-        &self,
-        merged: Value,
-    ) -> Result<(Value, Value), ProjectorError> {
+    async fn extract(&self, merged: Value) -> Result<(Value, Value), ProjectorError> {
         let mut doc = merged
             .as_object()
             .ok_or_else(|| ProjectorError::Extract("merged must be an OpenAPI object".into()))?
@@ -118,10 +109,7 @@ impl Projector for OpenApiProjector {
 
         let mut info = Map::new();
         info.insert("title".into(), Value::String(format!("Derived: {title}")));
-        info.insert(
-            "version".into(),
-            Value::String(self.version.clone()),
-        );
+        info.insert("version".into(), Value::String(self.version.clone()));
         info.insert(
             "description".into(),
             Value::String(format!(
@@ -133,10 +121,7 @@ impl Projector for OpenApiProjector {
         doc.insert("openapi".into(), Value::String("3.1.0".into()));
         doc.insert("info".into(), Value::Object(info));
         doc.insert("paths".into(), json!({}));
-        doc.insert(
-            "components".into(),
-            json!({ "schemas": defs }),
-        );
+        doc.insert("components".into(), json!({ "schemas": defs }));
         Ok(Value::Object(doc))
     }
 }

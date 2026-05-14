@@ -1,81 +1,91 @@
-//! Exercise the validator against the v0.2 positive + negative fixture set.
+//! Exercise the validator against the v0.2 fixture set.
 //!
-//! Positive fixtures MUST validate cleanly. Negative fixtures MUST produce ≥1
-//! violation. The corpus mirrors `tools/validate_negatives.py` (the SHACL-side
-//! negative-fixture gate).
+//! Positive fixtures MUST validate cleanly through the JSON Schema gate, and
+//! they MUST cover every compiled schema type embedded by `rkaf-validate`.
+//! Negative-fixture fail-as-expected behavior is enforced by the SHACL-side
+//! `tools/validate_negatives.py` gate.
 
 use rkaf_validate::Validator;
 use serde_json::Value;
+use std::collections::BTreeSet;
+use std::path::{Path, PathBuf};
 
-fn fixture(name: &str) -> Value {
-    let path = format!(
-        "{}/../../fixtures/{name}.jsonld",
-        env!("CARGO_MANIFEST_DIR")
-    );
-    serde_json::from_slice(&std::fs::read(&path).expect(&path)).unwrap()
+fn fixture_root() -> PathBuf {
+    PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../fixtures")
 }
 
-/// Every v0.2 positive fixture validates cleanly against the JSON Schema gate.
-///
-/// Previously the `sourcefragment-*` and `evidencebinding-*` fixtures lived in
-/// a separate `SHACL_ONLY_POSITIVE` list as documented Appendix-C divergences:
-///   - `hasSelector` was emitted as `string | array[string]` by the CUE → JSON
-///     Schema compiler, but real fixtures use structured OA selector objects.
-///   - Cross-ref Assertion placeholders carried no `assertionOrigin`.
-/// Both gaps were closed (constraint compiler emits `items: {}` for bare
-/// `list.MinItems(N)`; fixtures use a real `rkaf:humanAsserted` origin on
-/// cross-ref Assertions). The JSON Schema gate is now byte-equivalent to the
-/// SHACL gate on the v0.2 positive fixture set.
-const STRICT_POSITIVE: &[&str] = &[
-    "warrant-legal-positive",
-    "warrant-scientific-positive",
-    "warrant-cross-family-transition-positive",
-    "confidencerecord-calibrated-positive",
-    "confidencerecord-uncalibrated-positive",
-    "accessscope-public-positive",
-    "accessscope-organizationVisible-positive",
-    "ailineage-positive",
-    "artifact-eli-positive",
-    "artifact-doi-positive",
-    "artifact-cid-positive",
-    "sourcefragment-oa-textquote-positive",
-    "sourcefragment-oa-xpath-positive",
-    "sourcefragment-aknt-eid-positive",
-    "sourcefragment-uslm-section-positive",
-    "evidencebinding-positive",
-    "evidencebinding-no-evidence-reason-positive",
-    // Vocabulary backlog additions (must validate via embedded schemas).
-    "authority-positive",
-    "attestation-positive",
-    "localadoption-positive",
-    "applicabilityscope-positive",
-    "effectiveperiod-positive",
-    "lifecycleevent-positive",
-    "concept-registered-positive",
-    "conceptmapping-positive",
-    "conceptresolutionresult-positive",
-    "bridgevalidationresult-positive",
-    // Second-pass spec re-scan additions.
-    "registryconflict-positive",
-    "bridgeconsumerregistration-positive",
-    "justification-positive",
-];
+fn fixture(path: &Path) -> Value {
+    serde_json::from_slice(
+        &std::fs::read(path).unwrap_or_else(|e| panic!("read fixture {}: {e}", path.display())),
+    )
+    .unwrap_or_else(|e| panic!("parse fixture {}: {e}", path.display()))
+}
 
-const NEGATIVE: &[(&str, &str)] = &[
-    ("evidencebinding-missing-negative", "rkaf:EvidenceBinding"),
-    ("confidencerecord-score-theater-negative", "rkaf:ConfidenceRecord"),
-    ("accessscope-leak-negative", "rkaf:AccessScope"),
-    ("ailineage-missing-approver-negative", "rkaf:AILineage"),
-];
+fn fixture_paths(dir: &Path) -> Vec<PathBuf> {
+    let mut paths = Vec::new();
+    for entry in
+        std::fs::read_dir(dir).unwrap_or_else(|e| panic!("read fixture dir {}: {e}", dir.display()))
+    {
+        let path = entry.expect("fixture dir entry").path();
+        if path.is_dir() {
+            paths.extend(fixture_paths(&path));
+        } else if path.extension().and_then(|e| e.to_str()) == Some("jsonld") {
+            paths.push(path);
+        }
+    }
+    paths.sort();
+    paths
+}
+
+fn relative_name(path: &Path) -> String {
+    path.strip_prefix(fixture_root())
+        .expect("fixture path is below fixture root")
+        .to_string_lossy()
+        .replace('\\', "/")
+}
+
+fn expected_kind(path: &Path) -> Option<&'static str> {
+    let name = relative_name(path);
+    if name == "context.jsonld"
+        || name.starts_with("behavior/")
+        || name.starts_with("edges/")
+        || name.starts_with("projectors/")
+        || name.starts_with("adversarial/")
+        || name.starts_with("ai-extraction/")
+    {
+        return None;
+    }
+    if name.contains("-negative") {
+        Some("negative")
+    } else {
+        Some("positive")
+    }
+}
+
+fn collect_types(value: &Value, types: &mut BTreeSet<String>) {
+    if let Some(type_iri) = value.get("@type").and_then(Value::as_str) {
+        if type_iri.starts_with("rkaf:") {
+            types.insert(type_iri.to_string());
+        }
+    }
+    if let Some(graph) = value.get("@graph").and_then(Value::as_array) {
+        for node in graph {
+            collect_types(node, types);
+        }
+    }
+}
 
 #[test]
 fn every_positive_fixture_validates() {
     let v = Validator::new();
-    let mut fails: Vec<(&str, Vec<rkaf_validate::ValidationError>)> = Vec::new();
-    for name in STRICT_POSITIVE {
-        let doc = fixture(name);
+    let mut fails: Vec<(String, Vec<rkaf_validate::ValidationError>)> = Vec::new();
+    for path in fixture_paths(&fixture_root())
+        .into_iter()
+        .filter(|path| expected_kind(path) == Some("positive"))
+    {
+        let doc = fixture(&path);
         if let Err(errs) = v.validate_document(&doc) {
-            fails.push((name, errs));
+            fails.push((relative_name(&path), errs));
         }
     }
     if !fails.is_empty() {
@@ -86,27 +96,40 @@ fn every_positive_fixture_validates() {
                 eprintln!("    [{}] {} — {}", e.type_iri, e.pointer, e.message);
             }
         }
-        panic!("{} positive fixtures failed JSON-Schema validation", fails.len());
+        panic!(
+            "{} positive fixtures failed JSON-Schema validation",
+            fails.len()
+        );
     }
 }
 
-/// Negative fixtures intentionally break a Layer 2 invariant. Most break
-/// invariants that the *SHACL* shapes catch but the JSON Schema target does
-/// not (the documented Appendix-C gap). We assert that AT LEAST the documents
-/// parse — they're well-formed enough to load — and document which classes are
-/// JSON-Schema-catchable today.
-///
-/// This is informational: the rkaf-validate JSON-Schema gate is the
-/// weaker-side parity check, not the stronger-side SHACL gate.
 #[test]
 fn negative_fixtures_load_and_classify() {
     let v = Validator::new();
-    for (name, _type_iri) in NEGATIVE {
-        let doc = fixture(name);
+    for path in fixture_paths(&fixture_root())
+        .into_iter()
+        .filter(|path| expected_kind(path) == Some("negative"))
+    {
+        let doc = fixture(&path);
         let result = v.validate_document(&doc);
-        // The result might be Ok (Appendix-C gap: SHACL catches, JSON Schema
-        // doesn't) or Err (caught by JSON Schema). Either way, we just verify
-        // the load + validate path doesn't panic and the doc is parseable.
         let _ = result;
     }
+}
+
+#[test]
+fn positive_fixtures_cover_every_embedded_schema_type() {
+    let v = Validator::new();
+    let known: BTreeSet<String> = v.known_type_iris().map(str::to_owned).collect();
+    let mut covered = BTreeSet::new();
+    for path in fixture_paths(&fixture_root())
+        .into_iter()
+        .filter(|path| expected_kind(path) == Some("positive"))
+    {
+        collect_types(&fixture(&path), &mut covered);
+    }
+    let missing: Vec<_> = known.difference(&covered).cloned().collect();
+    assert!(
+        missing.is_empty(),
+        "positive fixture corpus does not cover embedded schema types: {missing:?}"
+    );
 }

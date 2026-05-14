@@ -65,7 +65,6 @@ pub mod generated {
     pub mod bridge_validation_result           { include!("generated/bridge_validation_result.rs"); }
     pub mod concept                            { include!("generated/concept.rs"); }
     pub mod concept_mapping                    { include!("generated/concept_mapping.rs"); }
-    pub mod concept_registry                   { include!("generated/concept_registry.rs"); }
     pub mod concept_resolution_result          { include!("generated/concept_resolution_result.rs"); }
     pub mod confidence_record                  { include!("generated/confidence_record.rs"); }
     pub mod consumer_effective_declaration     { include!("generated/consumer_effective_declaration.rs"); }

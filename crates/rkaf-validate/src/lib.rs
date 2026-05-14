@@ -21,165 +21,7 @@ use jsonschema::{Draft, JSONSchema};
 use serde_json::{json, Value};
 use std::collections::HashMap;
 
-/// Class identifier (`@type` IRI) → embedded JSON Schema source.
-///
-/// Each entry is the full schema file emitted by `tools/constraints_compile.py
-/// --target json-schema`. We construct a top-level `$ref` wrapper at load time
-/// to make each class independently validatable.
-const EMBEDDED_SCHEMAS: &[(&str, &str, &str)] = &[
-    (
-        "rkaf:Assertion",
-        "Assertion",
-        include_str!("../../../compiled/json-schema/core/assertion.schema.json"),
-    ),
-    (
-        "rkaf:Warrant",
-        "Warrant",
-        include_str!("../../../compiled/json-schema/core/warrant.schema.json"),
-    ),
-    (
-        "rkaf:EvidenceBinding",
-        "EvidenceBinding",
-        include_str!("../../../compiled/json-schema/core/evidence-binding.schema.json"),
-    ),
-    (
-        "rkaf:ConfidenceRecord",
-        "ConfidenceRecord",
-        include_str!("../../../compiled/json-schema/core/confidence-record.schema.json"),
-    ),
-    (
-        "rkaf:AccessScope",
-        "AccessScope",
-        include_str!("../../../compiled/json-schema/core/access-scope.schema.json"),
-    ),
-    (
-        "rkaf:AILineage",
-        "AILineage",
-        include_str!("../../../compiled/json-schema/core/ai-lineage.schema.json"),
-    ),
-    (
-        "rkaf:Artifact",
-        "Artifact",
-        include_str!("../../../compiled/json-schema/core/artifact.schema.json"),
-    ),
-    (
-        "rkaf:SourceFragment",
-        "SourceFragment",
-        include_str!("../../../compiled/json-schema/core/source-fragment.schema.json"),
-    ),
-    (
-        "rkaf:Authority",
-        "Authority",
-        include_str!("../../../compiled/json-schema/core/authority.schema.json"),
-    ),
-    (
-        "rkaf:Attestation",
-        "Attestation",
-        include_str!("../../../compiled/json-schema/core/attestation.schema.json"),
-    ),
-    (
-        "rkaf:LocalAdoption",
-        "LocalAdoption",
-        include_str!("../../../compiled/json-schema/core/local-adoption.schema.json"),
-    ),
-    (
-        "rkaf:ApplicabilityScope",
-        "ApplicabilityScope",
-        include_str!("../../../compiled/json-schema/core/applicability-scope.schema.json"),
-    ),
-    (
-        "rkaf:EffectivePeriod",
-        "EffectivePeriod",
-        include_str!("../../../compiled/json-schema/core/effective-period.schema.json"),
-    ),
-    (
-        "rkaf:LifecycleEvent",
-        "LifecycleEvent",
-        include_str!("../../../compiled/json-schema/core/lifecycle-event.schema.json"),
-    ),
-    (
-        "rkaf:RegisteredConcept",
-        "RegisteredConcept",
-        include_str!("../../../compiled/json-schema/core/concept.schema.json"),
-    ),
-    (
-        "rkaf:LocalConcept",
-        "LocalConcept",
-        include_str!("../../../compiled/json-schema/core/concept.schema.json"),
-    ),
-    (
-        "rkaf:ConceptMapping",
-        "ConceptMapping",
-        include_str!("../../../compiled/json-schema/core/concept-mapping.schema.json"),
-    ),
-    (
-        "rkaf:MappingApplicabilityContext",
-        "MappingApplicabilityContext",
-        include_str!("../../../compiled/json-schema/core/concept-mapping.schema.json"),
-    ),
-    (
-        "rkaf:ConceptResolutionResult",
-        "ConceptResolutionResult",
-        include_str!(
-            "../../../compiled/json-schema/core/concept-resolution-result.schema.json"
-        ),
-    ),
-    (
-        "rkaf:BridgeValidationResult",
-        "BridgeValidationResult",
-        include_str!(
-            "../../../compiled/json-schema/core/bridge-validation-result.schema.json"
-        ),
-    ),
-    (
-        "rkaf:BridgeConsumerRegistration",
-        "BridgeConsumerRegistration",
-        include_str!(
-            "../../../compiled/json-schema/core/bridge-consumer-registration.schema.json"
-        ),
-    ),
-    (
-        "rkaf:RegistryConflict",
-        "RegistryConflict",
-        include_str!("../../../compiled/json-schema/core/registry-conflict.schema.json"),
-    ),
-    (
-        "rkaf:Justification",
-        "Justification",
-        include_str!("../../../compiled/json-schema/core/justification.schema.json"),
-    ),
-    // Plan 7b — primitives the behavior contracts depend on.
-    (
-        "rkaf:PointInTimeException",
-        "PointInTimeException",
-        include_str!("../../../compiled/json-schema/core/point-in-time-exception.schema.json"),
-    ),
-    (
-        "rkaf:GeneratedWorkProduct",
-        "GeneratedWorkProduct",
-        include_str!("../../../compiled/json-schema/core/generated-work-product.schema.json"),
-    ),
-    (
-        "rkaf:RevalidationEvent",
-        "RevalidationEvent",
-        include_str!("../../../compiled/json-schema/core/revalidation-event.schema.json"),
-    ),
-    (
-        "rkaf:RevalidationClosureEvent",
-        "RevalidationClosureEvent",
-        include_str!("../../../compiled/json-schema/core/revalidation-event.schema.json"),
-    ),
-    (
-        "rkaf:ConsumerEffectiveDeclaration",
-        "ConsumerEffectiveDeclaration",
-        include_str!("../../../compiled/json-schema/core/consumer-effective-declaration.schema.json"),
-    ),
-    (
-        "rkaf:BridgeIssueAttestationContract",
-        "BridgeIssueAttestationContract",
-        include_str!("../../../compiled/json-schema/core/bridge-issue-attestation-contract.schema.json"),
-    ),
-];
+include!(concat!(env!("OUT_DIR"), "/schema_registry.rs"));
 
 /// A single validation error, paired with the validating class's `@type` IRI
 /// and the JSON pointer at which the error was discovered.
@@ -290,6 +132,11 @@ impl Validator {
             Err(all_errors)
         }
     }
+
+    /// Return the vocabulary type IRIs known to this validator.
+    pub fn known_type_iris(&self) -> impl Iterator<Item = &str> {
+        self.compiled.keys().map(String::as_str)
+    }
 }
 
 impl Default for Validator {
@@ -343,6 +190,9 @@ mod tests {
             ]
         });
         let errs = v.validate_document(&doc).unwrap_err();
-        assert_eq!(errs.iter().filter(|e| e.type_iri == "rkaf:Warrant").count(), 1);
+        assert_eq!(
+            errs.iter().filter(|e| e.type_iri == "rkaf:Warrant").count(),
+            1
+        );
     }
 }

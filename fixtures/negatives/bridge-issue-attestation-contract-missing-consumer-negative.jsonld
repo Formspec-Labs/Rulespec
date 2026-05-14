@@ -1,0 +1,12 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@id": "urn:rkaf:fixture:biac-pos:c1",
+  "@type": "rkaf:BridgeIssueAttestationContract",
+  "rkaf:attestedIssueKinds": [
+    "rkaf:staleDep",
+    "rkaf:unresolvedConcept",
+    "rkaf:brokenAuthority",
+    "rkaf:unsupportedAnchor"
+  ],
+  "rkaf:contractVersion": "1.0.0"
+}

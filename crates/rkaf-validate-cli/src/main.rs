@@ -88,7 +88,10 @@ fn main() -> ExitCode {
             ExitCode::SUCCESS
         }
         Err(errors) => {
-            eprintln!("rkaf-validate: {file_display} FAIL ({} violation(s))", errors.len());
+            eprintln!(
+                "rkaf-validate: {file_display} FAIL ({} violation(s))",
+                errors.len()
+            );
             for e in &errors {
                 eprintln!("  [{}] {} — {}", e.type_iri, e.pointer, e.message);
             }

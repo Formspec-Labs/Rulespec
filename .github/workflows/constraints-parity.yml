@@ -28,25 +28,10 @@ jobs:
           pip install pyshacl rdflib pyld jsonschema
 
       - name: Recompile every constraint to every target
-        run: |
-          for f in constraints/core/*.cue constraints/adversarial/*.cue constraints/ai-extraction/*.cue; do
-            base=$(basename "$f" .cue)
-            if [[ "$f" == constraints/core/* ]]; then sub="core"
-            elif [[ "$f" == constraints/adversarial/* ]]; then sub="adversarial"
-            else sub="ai-extraction"; fi
-            for t in json-schema rust typescript shacl cue rego; do
-              case "$t" in
-                json-schema) ext=".schema.json" ;;
-                rust) ext=".rs" ;;
-                typescript) ext=".ts" ;;
-                shacl) ext=".ttl" ;;
-                cue) ext=".cue" ;;
-                rego) ext=".rego" ;;
-              esac
-              mkdir -p "compiled/$t/$sub"
-              python3 tools/constraints_compile.py --in "$f" --target "$t" --out "compiled/$t/$sub/$base$ext"
-            done
-          done
+        run: tools/compile_all.sh
+
+      - name: Codegen drift gate (canonical Rust tree must match)
+        run: python3 tools/codegen_drift_audit.py
 
       - name: SHACL Pattern-C lint (no sh:if/sh:then in compiled output)
         run: |

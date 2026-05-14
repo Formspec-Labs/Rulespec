@@ -24,7 +24,9 @@ pub fn select_consumer<'a>(
     test_case: &Value,
     graph: &'a Graph<'a>,
 ) -> Result<Option<&'a Value>, RuntimeError> {
-    let bcrs: Vec<&Value> = graph.nodes_by_type("rkaf:BridgeConsumerRegistration").collect();
+    let bcrs: Vec<&Value> = graph
+        .nodes_by_type("rkaf:BridgeConsumerRegistration")
+        .collect();
     match bcrs.len() {
         0 => Ok(None),
         1 => Ok(Some(bcrs[0])),

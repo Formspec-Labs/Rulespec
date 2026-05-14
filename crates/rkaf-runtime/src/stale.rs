@@ -12,10 +12,7 @@ use crate::graph::Graph;
 /// True iff `lifecycle_event` declares a `safeAutomaticMigration` that the
 /// consumer supports — in which case the affected assertion is exempt from
 /// the stale transition.
-pub fn has_supported_migration(
-    lifecycle_event: &Value,
-    consumer_registration: &Value,
-) -> bool {
+pub fn has_supported_migration(lifecycle_event: &Value, consumer_registration: &Value) -> bool {
     let Some(declared) = lifecycle_event
         .get("rkaf:safeAutomaticMigration")
         .and_then(Value::as_str)
@@ -42,11 +39,7 @@ pub fn event_affects(lifecycle_event: &Value, assertion_id: &str) -> bool {
 /// graph's lifecycle events and the resolved consumer registration. The
 /// caller passes the consumer explicitly so the multi-BCR case is handled
 /// at one site (the dispatcher), not silently inside this helper.
-pub fn should_be_stale(
-    assertion_id: &str,
-    consumer: Option<&Value>,
-    graph: &Graph,
-) -> bool {
+pub fn should_be_stale(assertion_id: &str, consumer: Option<&Value>, graph: &Graph) -> bool {
     for event in graph.nodes_by_type("rkaf:LifecycleEvent") {
         if !event_affects(event, assertion_id) {
             continue;

@@ -1,0 +1,7 @@
+{
+  "@context": "../context/rkaf-context.jsonld",
+  "@id": "urn:rkaf:fixture:mac:tx-snap-eligibility",
+  "@type": "rkaf:MappingApplicabilityContext",
+  "rkaf:applicationDomain": "urn:rkaf:program:tx-snap",
+  "rkaf:evidencePurpose": "eligibility-determination"
+}

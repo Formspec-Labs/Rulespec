@@ -6,11 +6,11 @@ use rkaf_core::*;
 use serde_json::Value;
 
 fn fixture(slug: &str) -> Value {
-    let path =
-        format!("{}/../../fixtures/{slug}.jsonld", env!("CARGO_MANIFEST_DIR"));
-    let bytes = std::fs::read(&path).unwrap_or_else(|e| {
-        panic!("read fixture {path}: {e}")
-    });
+    let path = format!(
+        "{}/../../fixtures/{slug}.jsonld",
+        env!("CARGO_MANIFEST_DIR")
+    );
+    let bytes = std::fs::read(&path).unwrap_or_else(|e| panic!("read fixture {path}: {e}"));
     serde_json::from_slice(&bytes).unwrap()
 }
 
@@ -55,14 +55,23 @@ fn round_trip_warrant_fixtures() {
 
 #[test]
 fn round_trip_confidence_record_fixtures() {
-    round_trip::<ConfidenceRecord>("confidencerecord-calibrated-positive", "rkaf:ConfidenceRecord");
-    round_trip::<ConfidenceRecord>("confidencerecord-uncalibrated-positive", "rkaf:ConfidenceRecord");
+    round_trip::<ConfidenceRecord>(
+        "confidencerecord-calibrated-positive",
+        "rkaf:ConfidenceRecord",
+    );
+    round_trip::<ConfidenceRecord>(
+        "confidencerecord-uncalibrated-positive",
+        "rkaf:ConfidenceRecord",
+    );
 }
 
 #[test]
 fn round_trip_access_scope_fixtures() {
     round_trip::<AccessScope>("accessscope-public-positive", "rkaf:AccessScope");
-    round_trip::<AccessScope>("accessscope-organizationVisible-positive", "rkaf:AccessScope");
+    round_trip::<AccessScope>(
+        "accessscope-organizationVisible-positive",
+        "rkaf:AccessScope",
+    );
 }
 
 #[test]
@@ -79,16 +88,25 @@ fn round_trip_artifact_fixtures() {
 
 #[test]
 fn round_trip_source_fragment_fixtures() {
-    round_trip::<SourceFragment>("sourcefragment-oa-textquote-positive", "rkaf:SourceFragment");
+    round_trip::<SourceFragment>(
+        "sourcefragment-oa-textquote-positive",
+        "rkaf:SourceFragment",
+    );
     round_trip::<SourceFragment>("sourcefragment-oa-xpath-positive", "rkaf:SourceFragment");
     round_trip::<SourceFragment>("sourcefragment-aknt-eid-positive", "rkaf:SourceFragment");
-    round_trip::<SourceFragment>("sourcefragment-uslm-section-positive", "rkaf:SourceFragment");
+    round_trip::<SourceFragment>(
+        "sourcefragment-uslm-section-positive",
+        "rkaf:SourceFragment",
+    );
 }
 
 #[test]
 fn round_trip_evidence_binding_fixtures() {
     round_trip::<EvidenceBinding>("evidencebinding-positive", "rkaf:EvidenceBinding");
-    round_trip::<EvidenceBinding>("evidencebinding-no-evidence-reason-positive", "rkaf:EvidenceBinding");
+    round_trip::<EvidenceBinding>(
+        "evidencebinding-no-evidence-reason-positive",
+        "rkaf:EvidenceBinding",
+    );
 }
 
 // === Vocabulary backlog round-trip coverage ===
@@ -130,17 +148,26 @@ fn round_trip_concept_mapping_fixture() {
 
 #[test]
 fn round_trip_concept_resolution_result_fixture() {
-    round_trip::<ConceptResolutionResult>("conceptresolutionresult-positive", "rkaf:ConceptResolutionResult");
+    round_trip::<ConceptResolutionResult>(
+        "conceptresolutionresult-positive",
+        "rkaf:ConceptResolutionResult",
+    );
 }
 
 #[test]
 fn round_trip_bridge_validation_result_fixture() {
-    round_trip::<BridgeValidationResult>("bridgevalidationresult-positive", "rkaf:BridgeValidationResult");
+    round_trip::<BridgeValidationResult>(
+        "bridgevalidationresult-positive",
+        "rkaf:BridgeValidationResult",
+    );
 }
 
 #[test]
 fn round_trip_bridge_consumer_registration_fixture() {
-    round_trip::<BridgeConsumerRegistration>("bridgeconsumerregistration-positive", "rkaf:BridgeConsumerRegistration");
+    round_trip::<BridgeConsumerRegistration>(
+        "bridgeconsumerregistration-positive",
+        "rkaf:BridgeConsumerRegistration",
+    );
 }
 
 #[test]

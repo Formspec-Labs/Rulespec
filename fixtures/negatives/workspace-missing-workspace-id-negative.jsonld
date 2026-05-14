@@ -1,5 +1,5 @@
 {
-  "@context": "../context/rkaf-context.jsonld",
+  "@context": "../../context/rkaf-context.jsonld",
   "@id": "urn:rkaf:workspace:org-acme",
   "@type": "rkaf:Workspace",
   "rkaf:workspaceTrustList": [

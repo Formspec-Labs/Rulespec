@@ -36,11 +36,7 @@ pub trait Projector: Send + Sync {
     async fn validate(&self, overlay: Value) -> Result<(), ProjectorError>;
 
     /// Round-trip parity: `attach → extract` MUST be the identity transform.
-    async fn round_trip(
-        &self,
-        native: Value,
-        overlay: Value,
-    ) -> Result<bool, ProjectorError> {
+    async fn round_trip(&self, native: Value, overlay: Value) -> Result<bool, ProjectorError> {
         let merged = self.attach(native.clone(), overlay.clone()).await?;
         let (n2, o2) = self.extract(merged).await?;
         Ok(n2 == native && o2 == overlay)

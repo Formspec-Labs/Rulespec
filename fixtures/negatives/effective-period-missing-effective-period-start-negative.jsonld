@@ -1,5 +1,5 @@
 {
-  "@context": "../context/rkaf-context.jsonld",
+  "@context": "../../context/rkaf-context.jsonld",
   "@id": "urn:rkaf:fixture:eff:cfr-7-273",
   "@type": "rkaf:EffectivePeriod"
 }

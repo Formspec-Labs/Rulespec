@@ -26,43 +26,17 @@ import re
 import sys
 from pathlib import Path
 
+from conformance_lib import (
+    FIXTURES_DIR,
+    SchemaBinding,
+    iter_nodes,
+    load_json,
+    positive_fixture_paths,
+    schema_bindings,
+)
+
 ROOT = Path(__file__).resolve().parent.parent
-COMPILED_DIR = ROOT / "compiled" / "json-schema" / "core"
-FIXTURES_DIR = ROOT / "fixtures"
 OUT_DIR = FIXTURES_DIR / "negatives"
-
-
-# Class @type IRI → positive fixture stem (relative to fixtures/).
-# Many classes share schema files; the mapping is from class name to the
-# fixture filename without the .jsonld extension.
-_CLASS_TO_FIXTURE: dict[str, str] = {
-    "Artifact": "artifact-eli-positive",
-    "SourceFragment": "sourcefragment-oa-textquote-positive",
-    "EvidenceBinding": "evidencebinding-positive",
-    "Warrant": "warrant-legal-positive",
-    "ConfidenceRecord": "confidencerecord-calibrated-positive",
-    "AccessScope": "accessscope-public-positive",
-    "AILineage": "ailineage-positive",
-    "Assertion": None,                         # no standalone Assertion positive — appears inside @graph elsewhere
-    "RetentionPolicy": "retentionpolicy-positive",
-    "MappingState": "mappingstate-positive",
-    "Workspace": "workspace-positive",
-    "Authority": "authority-positive",
-    "Attestation": "attestation-positive",
-    "LocalAdoption": "localadoption-positive",
-    "ApplicabilityScope": "applicabilityscope-positive",
-    "EffectivePeriod": "effectiveperiod-positive",
-    "LifecycleEvent": "lifecycleevent-positive",
-    "RegisteredConcept": "concept-registered-positive",
-    "LocalConcept": None,                      # shares schema with RegisteredConcept; covered by that one
-    "ConceptMapping": "conceptmapping-positive",
-    "MappingApplicabilityContext": None,       # shares schema with ConceptMapping
-    "ConceptResolutionResult": "conceptresolutionresult-positive",
-    "BridgeValidationResult": "bridgevalidationresult-positive",
-    "BridgeConsumerRegistration": "bridgeconsumerregistration-positive",
-    "RegistryConflict": "registryconflict-positive",
-    "Justification": "justification-positive",
-}
 
 
 def _safe_filename(field: str) -> str:
@@ -94,6 +68,16 @@ def _find_target_node(doc: dict, target_type: str) -> dict | None:
     return None
 
 
+def _find_positive_fixture(target_type: str) -> Path | None:
+    for path in positive_fixture_paths():
+        doc = load_json(path)
+        if not doc:
+            continue
+        if any(node.get("@type") == target_type for node in iter_nodes(doc, include_behavior_input=False)):
+            return path
+    return None
+
+
 def _rewrap(original: dict, modified_node: dict, target_type: str) -> dict:
     """Reinsert `modified_node` back into the document structure (single-node
     or `@graph` envelope) without disturbing other content."""
@@ -115,40 +99,46 @@ def _rewrap(original: dict, modified_node: dict, target_type: str) -> dict:
     return new_doc
 
 
-def generate_for_class(class_name: str, schema_path: Path, dry_run: bool) -> list[Path]:
+def generate_for_class(binding: SchemaBinding, dry_run: bool) -> tuple[list[Path], bool]:
     """Generate one negative fixture per required field of `class_name`."""
-    schema = json.loads(schema_path.read_text())
-    cls = schema.get("$defs", {}).get(class_name)
+    schema = json.loads(binding.schema_path.read_text())
+    cls = schema.get("$defs", {}).get(binding.class_name)
     if not isinstance(cls, dict):
-        return []
+        return [], False
     required = cls.get("required", [])
     if not required:
-        return []
+        return [], False
 
-    fixture_stem = _CLASS_TO_FIXTURE.get(class_name)
-    if fixture_stem is None:
-        return []
-    positive_path = FIXTURES_DIR / f"{fixture_stem}.jsonld"
-    if not positive_path.is_file():
-        print(f"  [SKIP] {class_name}: no positive fixture at {positive_path.relative_to(ROOT)}",
+    target_type = binding.type_iri
+    positive_path = _find_positive_fixture(target_type)
+    if positive_path is None:
+        print(f"  [MISSING] {binding.class_name}: no positive fixture with @type={target_type}",
               file=sys.stderr)
-        return []
-    target_type = f"rkaf:{class_name}"
+        return [], True
     original = json.loads(positive_path.read_text())
     target_node = _find_target_node(original, target_type)
     if target_node is None:
-        print(f"  [SKIP] {class_name}: no @type={target_type} node in fixture",
+        print(f"  [MISSING] {binding.class_name}: no @type={target_type} node in fixture",
               file=sys.stderr)
-        return []
+        return [], True
 
     written: list[Path] = []
+    missing = False
     for field in required:
         if field == "@type":
             continue  # stripping @type would change the document into a non-Rulespec node
+        if field not in target_node:
+            print(
+                f"  [MISSING] {binding.class_name}: positive fixture "
+                f"{positive_path.relative_to(ROOT)} lacks required field {field}",
+                file=sys.stderr,
+            )
+            missing = True
+            continue
         modified = _strip_field_from_node(target_node, field)
         new_doc = _rewrap(original, modified, target_type)
         slug = _safe_filename(field)
-        cls_slug = re.sub(r"([A-Z])", r"-\1", class_name).lower().lstrip("-")
+        cls_slug = re.sub(r"([A-Z])", r"-\1", binding.class_name).lower().lstrip("-")
         out_path = OUT_DIR / f"{cls_slug}-missing-{slug}-negative.jsonld"
         if dry_run:
             print(f"  [DRY ] {out_path.relative_to(ROOT)}")
@@ -157,7 +147,7 @@ def generate_for_class(class_name: str, schema_path: Path, dry_run: bool) -> lis
             out_path.write_text(json.dumps(new_doc, indent=2) + "\n")
             print(f"  [WROTE] {out_path.relative_to(ROOT)}")
         written.append(out_path)
-    return written
+    return written, missing
 
 
 def main() -> int:
@@ -167,35 +157,14 @@ def main() -> int:
     args = ap.parse_args()
 
     total = 0
-    for class_name, fixture_stem in _CLASS_TO_FIXTURE.items():
-        # Find the schema file: try the class-named schema, else the shared schema.
-        candidates = [
-            COMPILED_DIR / f"{_safe_filename(class_name)}.schema.json",
-            COMPILED_DIR / "concept.schema.json"
-                if class_name in ("RegisteredConcept", "LocalConcept") else None,
-            COMPILED_DIR / "concept-mapping.schema.json"
-                if class_name in ("ConceptMapping", "MappingApplicabilityContext") else None,
-        ]
-        schema_path = None
-        for c in candidates:
-            if c and c.is_file():
-                schema_path = c
-                break
-        # Fallback: scan all schemas for a $defs entry with this class name.
-        if schema_path is None:
-            for p in COMPILED_DIR.glob("*.schema.json"):
-                schema = json.loads(p.read_text())
-                if class_name in schema.get("$defs", {}):
-                    schema_path = p
-                    break
-        if schema_path is None:
-            print(f"  [SKIP] {class_name}: no schema file found", file=sys.stderr)
-            continue
-        written = generate_for_class(class_name, schema_path, args.dry_run)
+    missing = False
+    for binding in sorted(schema_bindings().values(), key=lambda b: b.class_name):
+        written, has_missing = generate_for_class(binding, args.dry_run)
         total += len(written)
+        missing = missing or has_missing
 
     print(f"\nGenerated {total} negative fixtures{' (dry-run)' if args.dry_run else ''}.")
-    return 0
+    return 1 if missing else 0
 
 
 if __name__ == "__main__":

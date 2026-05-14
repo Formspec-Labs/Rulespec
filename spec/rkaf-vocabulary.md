@@ -68,14 +68,20 @@ Beyond the v0.2 normative tier in §5, the following terms are codified as CUE c
 | `rkaf:EffectivePeriod` | `effective-period.cue` | `effectiveperiod-positive.jsonld` | Temporal window. Start required; end / sunset / retroactive optional. |
 | `rkaf:LifecycleEvent` | `lifecycle-event.cue` | `lifecycleevent-positive.jsonld` | Audit-trail event (revalidation, amendment, supersession, rescission, material revision, concept lifecycle, promotion, demotion). |
 | `rkaf:RegisteredConcept` | `concept.cue` | `concept-registered-positive.jsonld` | Federation-shared Concept minted by a `rkaf:ConceptMintingAuthority`. |
-| `rkaf:LocalConcept` | `concept.cue` | (shares fixture) | Workspace-defined Concept, candidate for federation promotion. |
+| `rkaf:LocalConcept` | `concept.cue` | `localconcept-positive.jsonld` | Workspace-defined Concept, candidate for federation promotion. |
 | `rkaf:ConceptMapping` | `concept-mapping.cue` | `conceptmapping-positive.jsonld` | SKOS-mapping between concepts. Closed `mappingPredicate` enum. |
-| `rkaf:MappingApplicabilityContext` | `concept-mapping.cue` | (shares fixture) | Scopes a mapping by application-domain + evidence-purpose. |
+| `rkaf:MappingApplicabilityContext` | `concept-mapping.cue` | `mappingapplicabilitycontext-positive.jsonld` | Scopes a mapping by application-domain + evidence-purpose. |
 | `rkaf:ConceptResolutionResult` | `concept-resolution-result.cue` | `conceptresolutionresult-positive.jsonld` | Output of resolving a concept reference against the federation. |
 | `rkaf:BridgeValidationResult` | `bridge-validation-result.cue` | `bridgevalidationresult-positive.jsonld` | Control-plane record per packet ingestion: verdict + effective eligibility + authority-chain status + warnings/errors. |
 | `rkaf:BridgeConsumerRegistration` | `bridge-consumer-registration.cue` | `bridgeconsumerregistration-positive.jsonld` | Bridge consumer capability declaration (Core §5.1): supported authority kinds, evaluation anchors, registry version ranges, automatic migrations. |
 | `rkaf:RegistryConflict` | `registry-conflict.cue` | `registryconflict-positive.jsonld` | Two or more registry entries disagree on the same canonical claim (Appendix A; v0.1.2 §8 MappingConflict generalization). Closed severity enum. |
 | `rkaf:Justification` | `justification.cue` | `justification-positive.jsonld` | Warrant-family-agnostic grounding record carried by ConceptMapping or other nodes (`hasJustification` predicate). Generalizes v0.1.2's authority-chain hop. |
+| `rkaf:GeneratedWorkProduct` | `generated-work-product.cue` | `generatedworkproduct-positive.jsonld` | Overlay type for downstream consumer artifacts (forms, workflows, notices) that Rulespec cascades over. Carries `justifiedByAssertion` + `bridgeContractVersion`. (Core §6.1; bridge rule #10.) |
+| `rkaf:PointInTimeException` | `point-in-time-exception.cue` | `pointintimeexception-positive.jsonld` | Carried by a LifecycleEvent: retains an Assertion or WorkProduct for an in-flight case anchored to a specific `EvaluationAnchor`. Consumers MUST honor only when the anchor is in their supported set. (Core §4.6.) |
+| `rkaf:EvaluationAnchor` | `evaluation-anchor.cue` | `evaluationanchor-positive.jsonld` | Closed enum of 9 anchor kinds (`applicationSubmissionTime`, `eventOccurrenceTime`, `eligibilityDeterminationTime`, `noticeGenerationTime`, `workflowStartTime`, `workflowStepStartTime`, `currentTime`, `effectivePeriodStart`, `publicationTime`). Used by PIT + BridgeConsumerRegistration. (Core §4.7.) |
+| `rkaf:RevalidationEvent` | `revalidation-event.cue` | `revalidationevent-positive.jsonld` | Emitted on cascade ingest; remains open until a paired `RevalidationClosureEvent` references it. Target is an Assertion or WorkProduct; carries an optional successor list. (Core §4.8.) |
+| `rkaf:BridgeIssueAttestationContract` | `bridge-issue-attestation-contract.cue` | `bridgeissueattestationcontract-positive.jsonld` | Enumerates which `BridgeValidationResult` issue kinds MUST yield a matching `Attestation` for the BVR to be acceptable. Load-bearing for bridge rule #8. (Plan 7b §3.) |
+| `rkaf:ConsumerEffectiveDeclaration` | `consumer-effective-declaration.cue` | `consumereffectivedeclaration-positive.jsonld` | A consumer's declared effective `usageEligibility` for an Assertion in a given scope. The reducer's output MUST equal or exceed this on the lattice; a higher declared value is forbidden broadening (bridge rule #2). (Plan 7b §3.) |
 
 **Closed enums and lattices** (referenced by the classes above):
 
@@ -94,4 +100,4 @@ Beyond the v0.2 normative tier in §5, the following terms are codified as CUE c
 - `rkaf:hasEffectivePeriod` — Warrant / Authority → EffectivePeriod.
 - `rkaf:bridgeContractVersion` — version pin on lifecycle packets + bridge validation results.
 
-> Behavioral semantics (the `usageEligibility` reducer, the `CascadeClosureV1` algorithm, the 10 bridge contract rules) are normative prose in `archive/v0.1/spec/rkaf-core.md` and are *not* CUE-validatable. CUE + JSON Schema + SHACL validate shape; runtime correctness lives in the consuming SDK (`rkaf-validate`, future Layer 5 SDKs).
+> Behavioral semantics (the `usageEligibility` reducer, the `CascadeClosureV1` algorithm, the 10 bridge contract rules) are normative prose in `spec/rkaf-behavior.md` and are *not* CUE-validatable. CUE + JSON Schema + SHACL validate shape; runtime correctness is gated by `rkaf-behavior-validate`.

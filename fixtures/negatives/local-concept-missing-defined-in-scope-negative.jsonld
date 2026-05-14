@@ -1,0 +1,7 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@id": "urn:rkaf:fixture:local-concept:tx-grossEarnedIncome",
+  "@type": "rkaf:LocalConcept",
+  "rkaf:conceptScope": "tx-hhsc/snap/income",
+  "rkaf:conceptStatus": "rkaf:active"
+}

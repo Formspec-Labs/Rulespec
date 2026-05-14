@@ -8,8 +8,7 @@ use serde_json::{json, Map, Value};
 use std::path::{Path, PathBuf};
 
 /// The canonical Rulespec v0.2 JSON-LD context URL appended on Attach.
-pub const RKAF_CONTEXT: &str =
-    "https://rulespec.org/context/rkaf-context.jsonld";
+pub const RKAF_CONTEXT: &str = "https://rulespec.org/context/rkaf-context.jsonld";
 
 pub struct JsonLdProjector {
     pub version: String,
@@ -22,9 +21,7 @@ impl JsonLdProjector {
         Self {
             version: env!("CARGO_PKG_VERSION").into(),
             depth: "D1".into(),
-            constraints_compile_script: repo_root
-                .as_ref()
-                .join("tools/constraints_compile.py"),
+            constraints_compile_script: repo_root.as_ref().join("tools/constraints_compile.py"),
         }
     }
 }
@@ -39,9 +36,9 @@ fn graph_nodes(v: &Value) -> Vec<Value> {
 fn is_overlay_type(node: &Value) -> bool {
     match node.get("@type") {
         Some(Value::String(s)) => s.starts_with("rkaf:"),
-        Some(Value::Array(arr)) => arr.iter().any(|t| {
-            t.as_str().map(|s| s.starts_with("rkaf:")).unwrap_or(false)
-        }),
+        Some(Value::Array(arr)) => arr
+            .iter()
+            .any(|t| t.as_str().map(|s| s.starts_with("rkaf:")).unwrap_or(false)),
         _ => false,
     }
 }
@@ -86,11 +83,7 @@ impl Projector for JsonLdProjector {
         "0.2.0"
     }
 
-    async fn attach(
-        &self,
-        native: Value,
-        overlay: Value,
-    ) -> Result<Value, ProjectorError> {
+    async fn attach(&self, native: Value, overlay: Value) -> Result<Value, ProjectorError> {
         let native_obj = native
             .as_object()
             .ok_or_else(|| ProjectorError::Attach("native must be an object".into()))?;
@@ -107,10 +100,7 @@ impl Projector for JsonLdProjector {
         Ok(Value::Object(merged))
     }
 
-    async fn extract(
-        &self,
-        merged: Value,
-    ) -> Result<(Value, Value), ProjectorError> {
+    async fn extract(&self, merged: Value) -> Result<(Value, Value), ProjectorError> {
         let merged_obj = merged
             .as_object()
             .ok_or_else(|| ProjectorError::Extract("merged must be an object".into()))?;
@@ -151,9 +141,7 @@ impl Projector for JsonLdProjector {
             .arg(&self.constraints_compile_script)
             .args(["--in", profile_cue_path, "--target", "cue"])
             .output()
-            .map_err(|e| {
-                ProjectorError::Derive(format!("spawn constraints_compile: {e}"))
-            })?;
+            .map_err(|e| ProjectorError::Derive(format!("spawn constraints_compile: {e}")))?;
         if !out.status.success() {
             return Err(ProjectorError::Derive(
                 String::from_utf8_lossy(&out.stderr).into_owned(),

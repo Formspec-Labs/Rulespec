@@ -139,24 +139,40 @@ fn is_active(
     graph: &Graph,
 ) -> Result<bool, RuntimeError> {
     // (a) lifecycle-state exclusion
-    if let Some(s) = node.get("rkaf:consumerLifecycleState").and_then(Value::as_str) {
-        if matches!(s, "rkaf:staleForCurrentUse" | "rkaf:retired" | "rkaf:withdrawn") {
+    if let Some(s) = node
+        .get("rkaf:consumerLifecycleState")
+        .and_then(Value::as_str)
+    {
+        if matches!(
+            s,
+            "rkaf:staleForCurrentUse" | "rkaf:retired" | "rkaf:withdrawn"
+        ) {
             return Ok(false);
         }
     }
     // (b) effective-period exclusion (only when as_of is set)
-    let Some(as_of_ts) = as_of else { return Ok(true) };
-    let Some(period_iri) = node
-        .get("rkaf:hasEffectivePeriod")
-        .and_then(Value::as_str)
-    else {
+    let Some(as_of_ts) = as_of else {
+        return Ok(true);
+    };
+    let Some(period_iri) = node.get("rkaf:hasEffectivePeriod").and_then(Value::as_str) else {
         // No period declared → active by default.
         return Ok(true);
     };
+    let node_id = node
+        .get("@id")
+        .and_then(Value::as_str)
+        .unwrap_or("<unknown>");
+    // Dangling-IRI exclusion: a node declares a temporal scope but the
+    // referenced EffectivePeriod is not in the graph. Mirror the
+    // malformed-timestamp branch below — error loudly rather than silently
+    // returning Ok(true). Silent acceptance would let typos and missing
+    // nodes pass the as_of filter unchecked, which is exactly the
+    // strictness gap Plan 7c began closing for timestamp parsing.
     let Some(period) = graph.find(period_iri) else {
-        return Ok(true);
+        return Err(RuntimeError::MalformedTestCase(format!(
+            "node {node_id} declares rkaf:hasEffectivePeriod {period_iri:?} but no such EffectivePeriod node exists in the graph"
+        )));
     };
-    let node_id = node.get("@id").and_then(Value::as_str).unwrap_or("<unknown>");
     let parse_field = |field: &str, raw: &str| -> Result<DateTime<FixedOffset>, RuntimeError> {
         parse_rfc3339(raw).map_err(|e| {
             RuntimeError::MalformedTestCase(format!(
@@ -297,6 +313,39 @@ mod tests {
         match err {
             RuntimeError::MalformedTestCase(msg) => {
                 assert!(msg.contains("effectivePeriodStart"), "msg={msg}");
+            }
+            other => panic!("unexpected error: {other:?}"),
+        }
+    }
+
+    #[test]
+    fn dangling_effective_period_iri_errors_loudly() {
+        // Strictness parity with malformed_effective_period_errors_loudly:
+        // a node declaring hasEffectivePeriod that points at a missing
+        // node MUST yield MalformedTestCase rather than silently passing
+        // the as_of filter. Closes Plan 7c follow-up FINDING 6 (cascade
+        // asymmetry).
+        let payload = json!({
+            "@graph": [
+                {"@id": "A", "@type": "rkaf:Assertion"},
+                {
+                    "@id": "W",
+                    "@type": "rkaf:GeneratedWorkProduct",
+                    "rkaf:justifiedByAssertion": "A",
+                    "rkaf:hasEffectivePeriod": "ep-missing"
+                }
+                // No EffectivePeriod node with @id "ep-missing" exists.
+            ]
+        });
+        let g = Graph::from_payload(&payload).unwrap();
+        let as_of = parse_rfc3339("2026-06-01T00:00:00Z").unwrap();
+        let err = closure("A", Some(&as_of), &g).unwrap_err();
+        match err {
+            RuntimeError::MalformedTestCase(msg) => {
+                assert!(
+                    msg.contains("ep-missing") && msg.contains("hasEffectivePeriod"),
+                    "expected dangling-IRI error, got: {msg}"
+                );
             }
             other => panic!("unexpected error: {other:?}"),
         }

@@ -1,0 +1,7 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@id": "urn:rkaf:fixture:biac-pos:c1",
+  "@type": "rkaf:BridgeIssueAttestationContract",
+  "rkaf:consumer": "urn:rkaf:consumer:state-tx-snap-engine",
+  "rkaf:contractVersion": "1.0.0"
+}

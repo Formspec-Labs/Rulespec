@@ -8,7 +8,9 @@
 use serde_json::{json, Value};
 use std::collections::HashSet;
 
-use crate::{consumer as consumer_mod, errors::RuntimeError, graph::Graph, reducer, stale, verdict::Verdict};
+use crate::{
+    consumer as consumer_mod, errors::RuntimeError, graph::Graph, reducer, stale, verdict::Verdict,
+};
 
 /// Bridge rules are typed verdicts: accepted / acceptedWithWarnings /
 /// rejected. The runtime emits the §7 output shape.
@@ -71,9 +73,10 @@ fn rule_1(graph: &Graph) -> Result<Verdict, RuntimeError> {
         // of a LocalAdoption OR derive authority from a chain.
         let has_authority = assertion.get("rkaf:hasAuthority").is_some();
         let has_chain = warrant.get("rkaf:derivesAuthorityFrom").is_some();
-        let has_adoption = graph
-            .nodes_by_type("rkaf:LocalAdoption")
-            .any(|la| la.get("rkaf:targetAssertion").and_then(Value::as_str) == assertion.get("@id").and_then(Value::as_str));
+        let has_adoption = graph.nodes_by_type("rkaf:LocalAdoption").any(|la| {
+            la.get("rkaf:targetAssertion").and_then(Value::as_str)
+                == assertion.get("@id").and_then(Value::as_str)
+        });
         if has_authority || has_chain || has_adoption {
             continue;
         }
@@ -93,10 +96,7 @@ fn rule_2(graph: &Graph, consumer: Option<&Value>) -> Result<Verdict, RuntimeErr
         let Some(assertion_id) = decl.get("rkaf:forAssertion").and_then(Value::as_str) else {
             continue;
         };
-        let Some(declared) = decl
-            .get("rkaf:declaredEffective")
-            .and_then(Value::as_str)
-        else {
+        let Some(declared) = decl.get("rkaf:declaredEffective").and_then(Value::as_str) else {
             continue;
         };
         let Some(assertion) = graph.find(assertion_id) else {
@@ -123,7 +123,10 @@ fn rule_2(graph: &Graph, consumer: Option<&Value>) -> Result<Verdict, RuntimeErr
         let mut applicability_set: Vec<&str> = Vec::new();
         for app_iri in &applicability_iris {
             if let Some(app) = graph.find(app_iri) {
-                if let Some(arr) = app.get("rkaf:appliesInJurisdiction").and_then(Value::as_array) {
+                if let Some(arr) = app
+                    .get("rkaf:appliesInJurisdiction")
+                    .and_then(Value::as_array)
+                {
                     for v in arr {
                         if let Some(s) = v.as_str() {
                             applicability_set.push(s);
@@ -190,7 +193,11 @@ fn rule_3(graph: &Graph) -> Result<Verdict, RuntimeError> {
         let actual_kind = terminus_node
             .get("rkaf:authorityKind")
             .and_then(Value::as_str)
-            .or_else(|| terminus_node.get("rkaf:warrantKind").and_then(Value::as_str));
+            .or_else(|| {
+                terminus_node
+                    .get("rkaf:warrantKind")
+                    .and_then(Value::as_str)
+            });
         if actual_kind != Some(declared_kind) {
             return Ok(rejected(
                 "rkaf:AuthorityKindSubstitution",
@@ -377,14 +384,19 @@ fn rule_8(graph: &Graph) -> Result<Verdict, RuntimeError> {
 
 // ── Rule 9 — bridgeContractVersion declared; unsupported versions refused ──
 fn rule_9(graph: &Graph, consumer: Option<&Value>) -> Result<Verdict, RuntimeError> {
-    let Some(reg) = consumer else { return Ok(accepted()) };
+    let Some(reg) = consumer else {
+        return Ok(accepted());
+    };
     let ranges: Vec<&str> = reg
         .get("rkaf:supportsRegistryVersionRange")
         .and_then(Value::as_array)
         .map(|arr| arr.iter().filter_map(Value::as_str).collect())
         .unwrap_or_default();
     for bvr in graph.nodes_by_type("rkaf:BridgeValidationResult") {
-        let Some(version) = bvr.get("rkaf:bridgeContractVersion").and_then(Value::as_str) else {
+        let Some(version) = bvr
+            .get("rkaf:bridgeContractVersion")
+            .and_then(Value::as_str)
+        else {
             continue;
         };
         let parsed = semver::Version::parse(version);

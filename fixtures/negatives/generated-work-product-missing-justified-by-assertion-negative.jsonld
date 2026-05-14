@@ -1,0 +1,6 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@id": "urn:rkaf:fixture:gwp-pos:wp1",
+  "@type": "rkaf:GeneratedWorkProduct",
+  "rkaf:consumerLifecycleState": "rkaf:operational"
+}

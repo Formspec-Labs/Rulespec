@@ -52,7 +52,11 @@ pub fn evaluate(test_case: &Value, graph: &Graph) -> Result<Verdict, RuntimeErro
 
     let conflicting: Vec<Value> = mappings
         .iter()
-        .filter_map(|m| m.get("@id").and_then(Value::as_str).map(|s| Value::String(s.into())))
+        .filter_map(|m| {
+            m.get("@id")
+                .and_then(Value::as_str)
+                .map(|s| Value::String(s.into()))
+        })
         .collect();
 
     Ok(Verdict::new(json!({
@@ -82,9 +86,7 @@ fn compute_severity(
 ) -> Result<&'static str, RuntimeError> {
     let approved: Vec<&&Value> = mappings
         .iter()
-        .filter(|m| {
-            m.get("rkaf:lifecycleState").and_then(Value::as_str) == Some("rkaf:approved")
-        })
+        .filter(|m| m.get("rkaf:lifecycleState").and_then(Value::as_str) == Some("rkaf:approved"))
         .collect();
 
     if approved.len() >= 2 {
@@ -110,12 +112,91 @@ fn compute_severity(
         return Ok("rkaf:publicationBlocking");
     }
 
-    let any_exact = mappings.iter().any(|m| {
-        m.get("rkaf:mappingRelation").and_then(Value::as_str) == Some("skos:exactMatch")
-    });
+    let any_exact = mappings
+        .iter()
+        .any(|m| m.get("rkaf:mappingRelation").and_then(Value::as_str) == Some("skos:exactMatch"));
     Ok(if any_exact {
         "rkaf:operationalConflict"
     } else {
         "rkaf:informational"
     })
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use serde_json::json;
+
+    #[test]
+    fn multi_bcr_without_evaluation_consumer_propagates_error() {
+        // Two approved mappings with different targets — would normally
+        // trigger the publicationBlocking/authorityCritical branch where
+        // compute_severity reads the consumer. With 2 BCRs in the graph
+        // and no rkaf:evaluationConsumer in the test_case, select_consumer
+        // MUST return Err — and compute_severity MUST `?`-propagate, not
+        // silently degrade to publicationBlocking.
+        let test_case = json!({
+            "@type": "rkaf:BehaviorTestCase",
+            "rkaf:behaviorContract": "rkaf:ConceptResolutionWithConflict",
+            "rkaf:input": {
+                "@graph": [
+                    {"@id": "c1", "@type": "rkaf:LocalConcept"},
+                    {"@id": "c2", "@type": "rkaf:RegisteredConcept"},
+                    {"@id": "c3", "@type": "rkaf:RegisteredConcept"},
+                    {
+                        "@id": "m1",
+                        "@type": "rkaf:ConceptMapping",
+                        "rkaf:sourceConcept": "c1",
+                        "rkaf:targetConcept": "c2",
+                        "rkaf:lifecycleState": "rkaf:approved",
+                        "rkaf:managedByRegistry": "urn:reg:r1"
+                    },
+                    {
+                        "@id": "m2",
+                        "@type": "rkaf:ConceptMapping",
+                        "rkaf:sourceConcept": "c1",
+                        "rkaf:targetConcept": "c3",
+                        "rkaf:lifecycleState": "rkaf:approved",
+                        "rkaf:managedByRegistry": "urn:reg:r2"
+                    },
+                    {
+                        "@id": "bcr1",
+                        "@type": "rkaf:BridgeConsumerRegistration",
+                        "rkaf:consumer": "urn:consumer:one",
+                        "rkaf:bridgeContractVersion": "rkaf-bridge/1.0",
+                        "rkaf:registeredAt": "2026-04-15T00:00:00Z",
+                        "rkaf:supportedEvaluationAnchors": ["rkaf:applicationSubmissionTime"],
+                        "rkaf:supportsRegistryVersionRange": ["^1.0"],
+                        "rkaf:supportedAutomaticMigrations": [],
+                        "rkaf:supportedAuthorityKinds": ["rkaf:statutory"]
+                    },
+                    {
+                        "@id": "bcr2",
+                        "@type": "rkaf:BridgeConsumerRegistration",
+                        "rkaf:consumer": "urn:consumer:two",
+                        "rkaf:bridgeContractVersion": "rkaf-bridge/1.0",
+                        "rkaf:registeredAt": "2026-04-15T00:00:00Z",
+                        "rkaf:supportedEvaluationAnchors": ["rkaf:applicationSubmissionTime"],
+                        "rkaf:supportsRegistryVersionRange": ["^1.0"],
+                        "rkaf:supportedAutomaticMigrations": [],
+                        "rkaf:supportedAuthorityKinds": ["rkaf:statutory"]
+                    }
+                ]
+            }
+        });
+
+        let graph = Graph::from_payload(test_case.get("rkaf:input").unwrap()).expect("graph parse");
+        let err = evaluate(&test_case, &graph).unwrap_err();
+        match err {
+            RuntimeError::MalformedTestCase(msg) => {
+                assert!(
+                    msg.contains("BridgeConsumerRegistration"),
+                    "expected multi-BCR error, got: {msg}"
+                );
+            }
+            other => {
+                panic!("expected MalformedTestCase propagated from select_consumer, got: {other:?}")
+            }
+        }
+    }
 }

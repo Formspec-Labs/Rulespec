@@ -1,5 +1,5 @@
 {
-  "@context": "../context/rkaf-context.jsonld",
+  "@context": "../../context/rkaf-context.jsonld",
   "@id": "urn:rkaf:fixture:atst:reviewer-approved",
   "@type": "rkaf:Attestation",
   "rkaf:attestor": "urn:rkaf:fixture:actor:reviewer-1",

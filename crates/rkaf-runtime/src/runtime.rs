@@ -7,7 +7,9 @@
 
 use serde_json::Value;
 
-use crate::{bridge, cascade, concept, errors::RuntimeError, graph::Graph, pit, reducer, verdict::Verdict};
+use crate::{
+    bridge, cascade, concept, errors::RuntimeError, graph::Graph, pit, reducer, verdict::Verdict,
+};
 
 /// The top-level entry point for the L4 conformance runtime.
 pub struct Runtime;
@@ -33,9 +35,9 @@ impl Runtime {
                 RuntimeError::MalformedTestCase("missing rkaf:behaviorContract".into())
             })?;
 
-        let input = test_case.get("rkaf:input").ok_or_else(|| {
-            RuntimeError::MalformedTestCase("missing rkaf:input".into())
-        })?;
+        let input = test_case
+            .get("rkaf:input")
+            .ok_or_else(|| RuntimeError::MalformedTestCase("missing rkaf:input".into()))?;
         let graph = Graph::from_payload(input)?;
 
         match contract {
@@ -76,13 +78,27 @@ impl Runtime {
 /// `conflictingEntries` as order-insensitive; other arrays are order-
 /// sensitive. The harness can re-enter with sorted inputs if it wants
 /// strict ordering later.
+/// Keys EXCLUDED from output equality comparison. Centralized so the rule
+/// is discoverable and testable rather than embedded in deep_equal's body.
+///
+/// Each entry must have a justification in spec/rkaf-behavior.md §7
+/// (Expected-output format). Adding a key here changes the contract;
+/// `deep_equal_skips_informational_keys` test pins the current set.
+const INFORMATIONAL_OUTPUT_KEYS: &[&str] = &[
+    "rationale", // §7 — informational only; never gates a verdict.
+];
+
+fn is_informational_key(key: &str) -> bool {
+    INFORMATIONAL_OUTPUT_KEYS.contains(&key)
+}
+
 fn deep_equal(a: &Value, b: &Value) -> bool {
     match (a, b) {
         (Value::Object(am), Value::Object(bm)) => {
-            // `rationale` is OPTIONAL per spec §7 — informational only;
-            // skip it from comparison. Same for `algorithm` when the verdict
-            // is non-cascade (only cascade output carries it normatively).
-            let skip = |k: &str| k == "rationale";
+            // Per INFORMATIONAL_OUTPUT_KEYS: keys whose presence/absence
+            // MUST NOT cause an OutputMismatch. The set is normative;
+            // see spec/rkaf-behavior.md §7.
+            let skip = is_informational_key;
             let am_keys: std::collections::HashSet<&String> =
                 am.keys().filter(|k| !skip(k.as_str())).collect();
             let bm_keys: std::collections::HashSet<&String> =
@@ -169,5 +185,22 @@ mod tests {
         let a = json!({"chain": ["A", "B"]});
         let b = json!({"chain": ["B", "A"]});
         assert!(!deep_equal(&a, &b));
+    }
+
+    #[test]
+    fn deep_equal_skips_informational_keys() {
+        // Pins the INFORMATIONAL_OUTPUT_KEYS contract. Adding a key here
+        // is a spec change — must update spec/rkaf-behavior.md §7 alongside.
+        assert_eq!(INFORMATIONAL_OUTPUT_KEYS, &["rationale"]);
+        // Behavioral pin: equality holds across presence/absence of any
+        // informational key.
+        for k in INFORMATIONAL_OUTPUT_KEYS {
+            let with = serde_json::json!({"result": "ok", *k: "anything"});
+            let without = serde_json::json!({"result": "ok"});
+            assert!(
+                deep_equal(&with, &without),
+                "informational key {k:?} should not gate equality"
+            );
+        }
     }
 }

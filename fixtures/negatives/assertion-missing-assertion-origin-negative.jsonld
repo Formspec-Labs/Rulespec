@@ -1,0 +1,16 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@graph": [
+    {
+      "@id": "urn:rkaf:fixture:eb-ner:assertion",
+      "@type": "rkaf:Assertion",
+      "rkaf:hasSafetyLabel": "rkaf:A3AdvisoryAggregated"
+    },
+    {
+      "@id": "urn:rkaf:fixture:eb-ner:binding",
+      "@type": "rkaf:EvidenceBinding",
+      "rkaf:bindsAssertion": "urn:rkaf:fixture:eb-ner:assertion",
+      "rkaf:noEvidenceReason": "rkaf:axiomatic"
+    }
+  ]
+}

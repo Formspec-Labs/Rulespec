@@ -1,17 +1,28 @@
 {
-  "@context": "../context/rkaf-context.jsonld",
+  "@context": "../../context/rkaf-context.jsonld",
   "@graph": [
     {
-      "@id": "urn:rkaf:fixture:sf-oa-tq:artifact",
+      "@id": "urn:rkaf:fixture:eb-pos:artifact",
       "@type": "rkaf:Artifact",
       "rkaf:hasArtifactIdentifier": "doi:10.1038/s41586-020-2649-2",
       "rkaf:artifactIdentifierScheme": "rkaf:doi"
     },
     {
-      "@id": "urn:rkaf:fixture:sf-oa-tq:fragment",
+      "@id": "urn:rkaf:fixture:eb-pos:fragment",
       "@type": "rkaf:SourceFragment",
-      "rkaf:bindsArtifact": "urn:rkaf:fixture:sf-oa-tq:artifact",
+      "rkaf:bindsArtifact": "urn:rkaf:fixture:eb-pos:artifact",
       "rkaf:selectorKind": "oa:TextQuoteSelector"
+    },
+    {
+      "@id": "urn:rkaf:fixture:eb-pos:assertion",
+      "@type": "rkaf:Assertion",
+      "rkaf:assertionOrigin": "rkaf:humanAsserted"
+    },
+    {
+      "@id": "urn:rkaf:fixture:eb-pos:binding",
+      "@type": "rkaf:EvidenceBinding",
+      "rkaf:bindsAssertion": "urn:rkaf:fixture:eb-pos:assertion",
+      "rkaf:bindsSourceFragment": "urn:rkaf:fixture:eb-pos:fragment"
     }
   ]
 }

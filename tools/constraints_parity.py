@@ -161,8 +161,17 @@ def run_shacl(constraint: str, shape: str, fixture_path: Path) -> str:
 # appears (by name) in the Rust and TypeScript targets.
 def structural_parity_rust(constraint: str) -> bool:
     subdir = CONSTRAINTS[constraint]
-    js  = (ROOT / "compiled" / "json-schema" / subdir / f"{constraint}.schema.json").read_text()
-    rs  = (ROOT / "compiled" / "rust"        / subdir / f"{constraint}.rs").read_text()
+    js = (ROOT / "compiled" / "json-schema" / subdir / f"{constraint}.schema.json").read_text()
+    # Canonical Rust sink is crates/rkaf-core/src/generated/<snake>.rs.
+    # adversarial/ + ai-extraction/ constraints are not compiled to Rust
+    # (Plan 7a-7c restriction); skip parity for those.
+    if subdir != "core":
+        return True
+    snake = constraint.replace("-", "_")
+    rs_path = ROOT / "crates" / "rkaf-core" / "src" / "generated" / f"{snake}.rs"
+    if not rs_path.exists():
+        return False
+    rs = rs_path.read_text()
     schema = json.loads(js)
     for name in schema.get("$defs", {}):
         # Each $defs entry must appear in the Rust output as either `pub enum {name}`

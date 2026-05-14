@@ -58,7 +58,9 @@ pub fn evaluate(test_case: &Value, graph: &Graph) -> Result<Verdict, RuntimeErro
         .unwrap_or("rkaf:notEligible")
         .to_string();
 
-    let is_stale = assertion.get("rkaf:consumerLifecycleState").and_then(Value::as_str)
+    let is_stale = assertion
+        .get("rkaf:consumerLifecycleState")
+        .and_then(Value::as_str)
         == Some("rkaf:staleForCurrentUse");
 
     // hasApplicability is a single IRI per CUE; runtime accepts a list too
@@ -73,7 +75,10 @@ pub fn evaluate(test_case: &Value, graph: &Graph) -> Result<Verdict, RuntimeErro
     let mut applicability_set: Vec<&str> = Vec::new();
     for app_iri in &applicability_iris {
         if let Some(app) = graph.find(app_iri) {
-            if let Some(arr) = app.get("rkaf:appliesInJurisdiction").and_then(Value::as_array) {
+            if let Some(arr) = app
+                .get("rkaf:appliesInJurisdiction")
+                .and_then(Value::as_array)
+            {
                 for v in arr {
                     if let Some(s) = v.as_str() {
                         applicability_set.push(s);
@@ -92,7 +97,10 @@ pub fn evaluate(test_case: &Value, graph: &Graph) -> Result<Verdict, RuntimeErro
     // Behavior fixtures MAY carry rkaf:evaluationScopes; otherwise derive from
     // LocalAdoptions targeting the assertion.
     let mut scopes: Vec<String> = Vec::new();
-    if let Some(arr) = test_case.get("rkaf:evaluationScopes").and_then(Value::as_array) {
+    if let Some(arr) = test_case
+        .get("rkaf:evaluationScopes")
+        .and_then(Value::as_array)
+    {
         for v in arr {
             if let Some(s) = v.as_str() {
                 scopes.push(s.into());
@@ -118,7 +126,15 @@ pub fn evaluate(test_case: &Value, graph: &Graph) -> Result<Verdict, RuntimeErro
 
     // No scopes declared → workspace-wide reduction (no LocalAdoption).
     if scopes.is_empty() {
-        let level = reduce_for_scope(&assertion_id, &baseline, is_stale, &applicability_set, None, consumer, graph);
+        let level = reduce_for_scope(
+            &assertion_id,
+            &baseline,
+            is_stale,
+            &applicability_set,
+            None,
+            consumer,
+            graph,
+        );
         return Ok(Verdict::new(json!({
             "effectiveUsageEligibility": level,
             "rationale": if is_stale {
@@ -131,7 +147,15 @@ pub fn evaluate(test_case: &Value, graph: &Graph) -> Result<Verdict, RuntimeErro
 
     let mut by_scope = serde_json::Map::new();
     for scope in scopes {
-        let level = reduce_for_scope(&assertion_id, &baseline, is_stale, &applicability_set, Some(&scope), consumer, graph);
+        let level = reduce_for_scope(
+            &assertion_id,
+            &baseline,
+            is_stale,
+            &applicability_set,
+            Some(&scope),
+            consumer,
+            graph,
+        );
         by_scope.insert(scope, Value::String(level));
     }
     Ok(Verdict::new(json!({ "byScope": Value::Object(by_scope) })))
@@ -174,10 +198,7 @@ pub fn reduce_for_scope(
                 && la.get("rkaf:adoptionScope").and_then(Value::as_str) == Some(scope_iri)
                 && la.get("rkaf:adoptionStatus").and_then(Value::as_str) == Some("rkaf:active")
             {
-                if let Some(eligibility) = la
-                    .get("rkaf:usageEligibility")
-                    .and_then(Value::as_str)
-                {
+                if let Some(eligibility) = la.get("rkaf:usageEligibility").and_then(Value::as_str) {
                     effective = max_on_lattice(&effective, eligibility);
                 }
             }
@@ -201,13 +222,17 @@ pub fn reduce_for_scope(
 /// keeps its baseline rather than falling to notEligible.
 fn has_honored_pit(assertion_id: &str, consumer: Option<&Value>, graph: &Graph) -> bool {
     let supported: Vec<&str> = consumer
-        .and_then(|reg| reg.get("rkaf:supportedEvaluationAnchors").and_then(Value::as_array))
+        .and_then(|reg| {
+            reg.get("rkaf:supportedEvaluationAnchors")
+                .and_then(Value::as_array)
+        })
         .map(|arr| arr.iter().filter_map(Value::as_str).collect())
         .unwrap_or_default();
     for pit in graph.nodes_by_type("rkaf:PointInTimeException") {
         let retains = pit.get("rkaf:retainsAssertion").and_then(Value::as_str);
         let anchor = pit.get("rkaf:evaluationAnchor").and_then(Value::as_str);
-        if retains == Some(assertion_id) && anchor.map(|a| supported.contains(&a)).unwrap_or(false) {
+        if retains == Some(assertion_id) && anchor.map(|a| supported.contains(&a)).unwrap_or(false)
+        {
             return true;
         }
     }
@@ -222,7 +247,13 @@ mod tests {
     fn lattice_ordering() {
         assert!(rank("rkaf:officialUse") > rank("rkaf:publicationAllowed"));
         assert!(rank("rkaf:notEligible") < rank("rkaf:searchOnly"));
-        assert_eq!(max_on_lattice("rkaf:officialUse", "rkaf:searchOnly"), "rkaf:officialUse");
-        assert_eq!(min_on_lattice("rkaf:officialUse", "rkaf:searchOnly"), "rkaf:searchOnly");
+        assert_eq!(
+            max_on_lattice("rkaf:officialUse", "rkaf:searchOnly"),
+            "rkaf:officialUse"
+        );
+        assert_eq!(
+            min_on_lattice("rkaf:officialUse", "rkaf:searchOnly"),
+            "rkaf:searchOnly"
+        );
     }
 }

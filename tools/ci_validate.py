@@ -17,90 +17,10 @@ Exit codes:
 import argparse
 import json
 import sys
-from pathlib import Path
+
+from conformance_lib import ROOT, fixture_name, positive_fixture_paths, shacl_shape_paths
 
 MIN_PYSHACL = (0, 31, 0)
-
-# Single conformance mode: full positive-fixture set.
-SHAPES = [
-    # Hand-authored shapes carry Pattern-C cross-property invariants for the
-    # v0.2 normative-tier primitives. CUE-compiled equivalents are weaker
-    # (no sh:or / sh:not / cross-property predicates), so these stay authored.
-    "shapes/rkaf-shapes-core.ttl",
-    "shapes/rkaf-shapes-pattern-c.ttl",
-    "shapes/rkaf-shapes-warrant.ttl",
-    "shapes/rkaf-shapes-confidence.ttl",
-    "shapes/rkaf-shapes-accessscope.ttl",
-    "shapes/rkaf-shapes-studio-promotions.ttl",
-    "shapes/rkaf-shapes-conceptregistry.ttl",
-    # CUE-compiled shapes for the §6 codified additional terms. These cover
-    # enum-membership + cardinality only; Pattern-C invariants for these
-    # classes (if any) are runtime contracts per spec/rkaf-behavior.md.
-    "compiled/shacl/core/authority.ttl",
-    "compiled/shacl/core/attestation.ttl",
-    "compiled/shacl/core/local-adoption.ttl",
-    "compiled/shacl/core/applicability-scope.ttl",
-    "compiled/shacl/core/effective-period.ttl",
-    "compiled/shacl/core/lifecycle-event.ttl",
-    "compiled/shacl/core/concept.ttl",
-    "compiled/shacl/core/concept-mapping.ttl",
-    "compiled/shacl/core/concept-resolution-result.ttl",
-    "compiled/shacl/core/bridge-validation-result.ttl",
-    "compiled/shacl/core/bridge-consumer-registration.ttl",
-    "compiled/shacl/core/registry-conflict.ttl",
-    "compiled/shacl/core/justification.ttl",
-    "compiled/shacl/core/point-in-time-exception.ttl",
-    "compiled/shacl/core/generated-work-product.ttl",
-    "compiled/shacl/core/revalidation-event.ttl",
-    "compiled/shacl/core/consumer-effective-declaration.ttl",
-    "compiled/shacl/core/bridge-issue-attestation-contract.ttl",
-    # evaluation-anchor is a closed enum (no class shape); skipped.
-]
-EXPECTED = {
-    "artifact-eli-positive":                       {"triples": (1, 50)},
-    "artifact-doi-positive":                       {"triples": (1, 50)},
-    "artifact-cid-positive":                       {"triples": (1, 50)},
-    "sourcefragment-oa-textquote-positive":        {"triples": (1, 50)},
-    "sourcefragment-oa-xpath-positive":            {"triples": (1, 50)},
-    "sourcefragment-aknt-eid-positive":            {"triples": (1, 50)},
-    "sourcefragment-uslm-section-positive":        {"triples": (1, 50)},
-    "evidencebinding-positive":                    {"triples": (1, 50)},
-    "evidencebinding-no-evidence-reason-positive": {"triples": (1, 50)},
-    "warrant-legal-positive":                      {"triples": (1, 50)},
-    "warrant-scientific-positive":                 {"triples": (1, 50)},
-    "warrant-cross-family-transition-positive":    {"triples": (1, 50)},
-    "confidencerecord-uncalibrated-positive":      {"triples": (1, 50)},
-    "confidencerecord-calibrated-positive":        {"triples": (1, 50)},
-    "accessscope-public-positive":                 {"triples": (1, 50)},
-    "accessscope-organizationVisible-positive":    {"triples": (1, 50)},
-    "ailineage-positive":                          {"triples": (1, 50)},
-    "retentionpolicy-positive":                    {"triples": (1, 50)},
-    "mappingstate-positive":                       {"triples": (1, 50)},
-    "workspace-positive":                          {"triples": (1, 50)},
-    # §6 codified additional terms (backlog integration).
-    "authority-positive":                          {"triples": (1, 50)},
-    "attestation-positive":                        {"triples": (1, 50)},
-    "localadoption-positive":                      {"triples": (1, 50)},
-    "applicabilityscope-positive":                 {"triples": (1, 50)},
-    "effectiveperiod-positive":                    {"triples": (1, 50)},
-    "lifecycleevent-positive":                     {"triples": (1, 50)},
-    "concept-registered-positive":                 {"triples": (1, 50)},
-    "conceptmapping-positive":                     {"triples": (1, 50)},
-    "conceptresolutionresult-positive":            {"triples": (1, 50)},
-    "bridgevalidationresult-positive":             {"triples": (1, 50)},
-    # Second-pass spec re-scan additions.
-    "bridgeconsumerregistration-positive":         {"triples": (1, 50)},
-    "registryconflict-positive":                   {"triples": (1, 50)},
-    "justification-positive":                      {"triples": (1, 50)},
-    # Plan 7b — primitives the behavior contracts depend on.
-    "pointintimeexception-positive":               {"triples": (1, 50)},
-    "generatedworkproduct-positive":               {"triples": (1, 50)},
-    "revalidationevent-positive":                  {"triples": (1, 50)},
-    "consumereffectivedeclaration-positive":       {"triples": (1, 50)},
-    "bridgeissueattestationcontract-positive":     {"triples": (1, 50)},
-}
-
-FIXTURES_DIR = "fixtures"
 
 
 def die(msg, code=2):
@@ -163,13 +83,14 @@ def validate_one(fixture_path, shapes_paths):
 
 def main():
     parser = argparse.ArgumentParser(description="Rulespec CI validation gate")
-    parser.add_argument("--repo-root", default=".")
+    parser.add_argument("--repo-root", default=".", help="deprecated; discovery is relative to this script")
     parser.add_argument("--json", action="store_true")
     args = parser.parse_args()
 
-    repo_root = Path(args.repo_root).resolve()
-    shapes_paths = [repo_root / p for p in SHAPES]
-    fixtures_dir = repo_root / FIXTURES_DIR
+    _ = args.repo_root
+    repo_root = ROOT
+    shapes_paths = shacl_shape_paths()
+    fixture_paths = positive_fixture_paths()
 
     print("Rulespec CI validation gate")
     print("=" * 60)
@@ -180,16 +101,14 @@ def main():
         if not sp.exists():
             die(f"Shapes file missing: {sp}")
         print(f"  shapes:  {sp.relative_to(repo_root)}")
-    if not fixtures_dir.is_dir():
-        die(f"Fixtures dir missing: {fixtures_dir}")
+    if not fixture_paths:
+        die("No positive fixtures discovered")
 
     print("\n[2/3] Per-fixture validation")
     results = {}
     failed = False
-    drift_warnings = []
-
-    for slug, expected in EXPECTED.items():
-        fixture_path = fixtures_dir / f"{slug}.jsonld"
+    for fixture_path in fixture_paths:
+        slug = fixture_name(fixture_path).removesuffix(".jsonld")
         if not fixture_path.exists():
             die(f"Fixture missing: {fixture_path}")
         result = validate_one(fixture_path, shapes_paths)
@@ -200,34 +119,22 @@ def main():
             failed = True
             continue
 
-        violation_ok = result["violations"] == 0
-        lo, hi = expected["triples"]
-        triple_ok = lo <= result["triples"] <= hi
-
-        if not violation_ok:
+        if result["violations"] != 0:
             print(f"  [FAIL] {slug}: {result['violations']} violations, {result['triples']} triples")
             for v in result["violations_detail"][:5]:
                 print(f"           {v['constraint'].split('#')[-1]}: {v['message']}")
             failed = True
         else:
-            note = "" if triple_ok else f" (DRIFT: expected {lo}–{hi})"
-            print(f"  [PASS] {slug}: 0 violations, {result['triples']} triples{note}")
-            if not triple_ok:
-                drift_warnings.append((slug, result["triples"], lo, hi))
+            print(f"  [PASS] {slug}: 0 violations, {result['triples']} triples")
 
     print("\n[3/3] Summary")
     total_triples = sum(r.get("triples", 0) for r in results.values())
     total_violations = sum(r.get("violations", 0) for r in results.values())
-    print(f"  Shapes:     {len(SHAPES)} files")
+    print(f"  Shapes:     {len(shapes_paths)} files")
     print(f"  Fixtures:   {len(results)}")
     print(f"  Triples:    {total_triples}")
     print(f"  Violations: {total_violations}")
     print(f"  Result:     {'FAIL' if failed else 'PASS'}")
-
-    if drift_warnings:
-        print("\nDRIFT WARNINGS (non-fatal):")
-        for slug, actual, lo, hi in drift_warnings:
-            print(f"  {slug}: {actual} triples outside expected range [{lo}, {hi}]")
 
     if args.json:
         print("\n--- JSON ---")

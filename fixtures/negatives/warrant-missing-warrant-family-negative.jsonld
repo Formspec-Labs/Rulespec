@@ -1,7 +1,15 @@
 {
-  "@context": "../context/rkaf-context.jsonld",
-  "@id": "urn:rkaf:fixture:warrant-legal:w1",
-  "@type": "rkaf:Warrant",
-  "rkaf:warrantKind": "rkaf:statutory",
-  "rkaf:defeasible": false
+  "@context": "../../context/rkaf-context.jsonld",
+  "@graph": [
+    {
+      "@id": "urn:rkaf:fixture:warrant-xfam:editorial",
+      "@type": "rkaf:Warrant",
+      "rkaf:warrantKind": "rkaf:editorial"
+    },
+    {
+      "@id": "urn:rkaf:fixture:warrant-xfam:editorial",
+      "@type": "rkaf:Warrant",
+      "rkaf:warrantKind": "rkaf:editorial"
+    }
+  ]
 }

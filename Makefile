@@ -53,14 +53,19 @@ test-audits:
 	$(PYTHON) tools/constraints_parity.py
 	$(PYTHON) tools/projector_parity.py
 	$(PYTHON) tools/version_sync.py --check
+	$(PYTHON) tools/codegen_drift_audit.py
 
 test-conformance: build-runtime-cli
 	$(PYTHON) tools/conformance_report.py
 
 # ─── Codegen ───────────────────────────────────────────────────────────
+#
+# `compile` drives every primitive through every target via the single
+# canonical wrapper. Writes Rust to crates/rkaf-core/src/generated/ (tracked);
+# other targets to compiled/<target>/<sub>/ (gitignored).
 
 compile:
-	$(PYTHON) tools/constraints_compile.py
+	tools/compile_all.sh
 
 # ─── Clean ─────────────────────────────────────────────────────────────
 

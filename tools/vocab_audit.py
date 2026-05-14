@@ -1,13 +1,16 @@
 #!/usr/bin/env python3
-"""Vocab audit — fails the build if a vocabulary term has zero fixtures.
+"""Vocab audit — fails the build if vocabulary and CUE source diverge.
 
-Parses spec/rkaf-vocabulary.md (the term reference tables) and verifies
-that every fixture name listed in the `Required fixtures` column exists
-under fixtures/ as a `<name>.jsonld` file.
+Two checks:
+  (1) Fixture-presence: every fixture name listed in the
+      spec's `Required fixtures` column exists under fixtures/.
+  (2) CUE↔vocab coverage: every class term emitted by a compiled CUE schema is
+      mentioned in spec/rkaf-vocabulary.md as `rkaf:<Term>`. Enum/property-only
+      CUE files use a small fallback term map.
 
 Exit codes:
-  0  every required fixture present
-  1  one or more required fixtures missing
+  0  fixtures + CUE coverage both clean
+  1  fixtures missing OR CUE primitives un-declared
   2  parse error (table malformed)
 """
 import re
@@ -17,6 +20,54 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 TERM_DOC = ROOT / "spec" / "rkaf-vocabulary.md"
 FIXTURE_DIR = ROOT / "fixtures"
+CUE_DIR = ROOT / "constraints" / "core"
+COMPILED_JSON_SCHEMA_DIR = ROOT / "compiled" / "json-schema" / "core"
+
+# Enum/property-only schemas do not emit concrete JSON-LD @type constants.
+CUE_TERM_FALLBACKS: dict[str, set[str]] = {
+    "trust-and-safety": {"hasTrustZone", "hasSafetyLabel"},
+    "usage-eligibility": {"usageEligibility"},
+}
+
+
+def _kebab_to_titlecase(name: str) -> str:
+    return "".join(part[:1].upper() + part[1:] for part in name.split("-"))
+
+
+def _schema_type_terms(cue_stem: str) -> set[str]:
+    schema_path = COMPILED_JSON_SCHEMA_DIR / f"{cue_stem}.schema.json"
+    if not schema_path.is_file():
+        return set()
+    import json
+
+    doc = json.loads(schema_path.read_text())
+    terms: set[str] = set()
+    for class_schema in doc.get("$defs", {}).values():
+        if not isinstance(class_schema, dict):
+            continue
+        type_iri = (
+            class_schema.get("properties", {})
+            .get("@type", {})
+            .get("const")
+        )
+        if isinstance(type_iri, str) and type_iri.startswith("rkaf:"):
+            terms.add(type_iri.removeprefix("rkaf:"))
+    return terms
+
+
+def cue_primitives_expected_terms() -> dict[str, set[str]]:
+    """For each CUE file, return every vocab term suffix it must cover."""
+    out: dict[str, set[str]] = {}
+    for cue in sorted(CUE_DIR.glob("*.cue")):
+        stem = cue.stem
+        schema_terms = _schema_type_terms(stem)
+        if schema_terms:
+            out[stem] = schema_terms
+        elif stem in CUE_TERM_FALLBACKS:
+            out[stem] = CUE_TERM_FALLBACKS[stem]
+        else:
+            out[stem] = {_kebab_to_titlecase(stem)}
+    return out
 
 # Fixture names look like: lowercase-with-hyphens, possibly mixed case for camelCase enums.
 FIXTURE_NAME = re.compile(r"[a-zA-Z][a-zA-Z0-9-]+")
@@ -88,27 +139,64 @@ def parse_required_fixtures(text: str) -> set[str]:
     return required
 
 
+def cue_coverage_check(vocab_text: str) -> list[tuple[str, set[str]]]:
+    """Return (cue_filename, missing_terms) for uncovered CUE terms."""
+    missing: list[tuple[str, set[str]]] = []
+    for cue_stem, terms in cue_primitives_expected_terms().items():
+        missing_terms = {t for t in terms if not re.search(rf"\brkaf:{t}\b", vocab_text)}
+        if missing_terms:
+            missing.append((cue_stem, missing_terms))
+    return missing
+
+
 def main() -> int:
     if not TERM_DOC.exists():
         print(f"ERROR: term reference {TERM_DOC} missing", file=sys.stderr)
         return 2
-    required = parse_required_fixtures(TERM_DOC.read_text())
+    vocab_text = TERM_DOC.read_text()
+    required = parse_required_fixtures(vocab_text)
     if not FIXTURE_DIR.is_dir():
         print(f"ERROR: fixture dir {FIXTURE_DIR} missing", file=sys.stderr)
         return 2
+    if not CUE_DIR.is_dir():
+        print(f"ERROR: CUE source dir {CUE_DIR} missing", file=sys.stderr)
+        return 2
+    if not COMPILED_JSON_SCHEMA_DIR.is_dir():
+        print(f"ERROR: compiled JSON Schema dir {COMPILED_JSON_SCHEMA_DIR} missing", file=sys.stderr)
+        return 2
+
     present = {p.stem for p in FIXTURE_DIR.glob("*.jsonld")}
-    missing = sorted(required - present)
+    missing_fixtures = sorted(required - present)
     extra = sorted(present - required)
-    print(f"vocab audit — required: {len(required)} present: {len(present)}")
-    if missing:
-        print(f"\nMISSING ({len(missing)}):")
-        for m in missing:
+    missing_terms = cue_coverage_check(vocab_text)
+
+    print(
+        f"vocab audit — fixtures required: {len(required)} present: {len(present)} | "
+        f"CUE primitives: {len(list(CUE_DIR.glob('*.cue')))} covered: "
+        f"{len(list(CUE_DIR.glob('*.cue'))) - len(missing_terms)}"
+    )
+    if missing_fixtures:
+        print(f"\nMISSING FIXTURES ({len(missing_fixtures)}):")
+        for m in missing_fixtures:
             print(f"  {m}.jsonld")
+    if missing_terms:
+        print(f"\nCUE PRIMITIVES MISSING FROM spec/rkaf-vocabulary.md ({len(missing_terms)}):")
+        for cue_stem, terms in missing_terms:
+            choices = ", ".join(sorted(f"rkaf:{t}" for t in terms))
+            print(f"  constraints/core/{cue_stem}.cue missing: {choices}")
     if extra:
-        print(f"\nEXTRA fixtures (not declared in term reference; ok if intentional): {len(extra)}")
-        for x in extra:
-            print(f"  {x}.jsonld")
-    return 1 if missing else 0
+        # Compact form — count only by default; full list only when small.
+        if len(extra) <= 5:
+            print(f"\nEXTRA fixtures ({len(extra)}):")
+            for x in extra:
+                print(f"  {x}.jsonld")
+        else:
+            print(f"\nEXTRA fixtures: {len(extra)} (not in required list; informational; pass `--list-extras` to enumerate)")
+        if "--list-extras" in sys.argv:
+            for x in extra:
+                print(f"  {x}.jsonld")
+    fail = bool(missing_fixtures) or bool(missing_terms)
+    return 1 if fail else 0
 
 
 if __name__ == "__main__":

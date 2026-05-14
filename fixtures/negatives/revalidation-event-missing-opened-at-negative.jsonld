@@ -1,0 +1,21 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@graph": [
+    {
+      "@id": "urn:rkaf:fixture:rev-pos:open1",
+      "@type": "rkaf:RevalidationEvent",
+      "rkaf:revalidationFor": "urn:rkaf:fixture:rev-pos:a1",
+      "rkaf:triggeredBy": "urn:rkaf:fixture:rev-pos:lifecycle-event-1",
+      "rkaf:bridgeContractVersion": "rkaf-bridge/1.0"
+    },
+    {
+      "@id": "urn:rkaf:fixture:rev-pos:close1",
+      "@type": "rkaf:RevalidationClosureEvent",
+      "rkaf:closesRevalidation": "urn:rkaf:fixture:rev-pos:open1",
+      "rkaf:closureDecision": "rkaf:revalidated",
+      "rkaf:successorAssertion": "urn:rkaf:fixture:rev-pos:a2",
+      "rkaf:closedAt": "2026-04-20T15:30:00Z",
+      "rkaf:bridgeContractVersion": "rkaf-bridge/1.0"
+    }
+  ]
+}

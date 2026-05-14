@@ -68,7 +68,10 @@ pub fn evaluate(_test_case: &Value, graph: &Graph) -> Result<Verdict, RuntimeErr
 
     let mut output = serde_json::Map::new();
     if pit_applies {
-        output.insert(key_for_anchor, Value::String("rkaf:retainedForPointInTime".into()));
+        output.insert(
+            key_for_anchor,
+            Value::String("rkaf:retainedForPointInTime".into()),
+        );
     } else {
         output.insert(key_for_anchor, Value::String(lifecycle_state.into()));
     }

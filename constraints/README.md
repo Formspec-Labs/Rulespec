@@ -19,7 +19,7 @@ constraints/
 | Target        | Status | Output                                  |
 |---------------|--------|-----------------------------------------|
 | JSON Schema   | MUST   | `compiled/json-schema/<sub>/<name>.schema.json` (Draft 2020-12) |
-| Rust          | MUST   | `compiled/rust/<sub>/<name>.rs`         |
+| Rust          | MUST   | `crates/rkaf-core/src/generated/<snake>.rs` — canonical sink for the Rust workspace; kebab → snake mapping handled by `tools/compile_all.sh`. **Tracked in git.** No parallel `compiled/rust/` copy is produced. |
 | TypeScript    | MUST   | `compiled/typescript/<sub>/<name>.ts`   |
 | SHACL         | MAY    | `compiled/shacl/<sub>/<name>.ttl` (Pattern C only — no `sh:if`/`sh:then`) |
 | CUE           | MAY    | `compiled/cue/<sub>/<name>.cue` (passthrough) |

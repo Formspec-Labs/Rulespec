@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Rulespec conformance reporter — L1/L2/L3 per-fixture verdict.
+"""Rulespec conformance reporter — L1/L2/L3/L4 per-fixture verdict.
 
 For each fixture under `fixtures/` (positives, negatives, edges), runs three
 gates and reports a structured verdict:
@@ -11,8 +11,8 @@ gates and reports a structured verdict:
                     authored Pattern-C invariants + CUE-compiled enums/
                     cardinality)?
 
-L4 (Behavior) is not gated automatically; reports `not-tested` per
-spec/rkaf-conformance.md §4.2.
+L4 (Behavior) is gated for `fixtures/behavior/` by the Rust
+`rkaf-behavior-validate` binary.
 
 Usage:
   python3 tools/conformance_report.py
@@ -30,44 +30,22 @@ from __future__ import annotations
 import argparse
 import datetime
 import json
-import subprocess
 import sys
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Optional
 
-ROOT = Path(__file__).resolve().parent.parent
-FIXTURES_DIR = ROOT / "fixtures"
-COMPILED_JSON_SCHEMA_DIR = ROOT / "compiled" / "json-schema" / "core"
+from conformance_lib import (
+    FIXTURES_DIR,
+    fixture_name,
+    fixture_paths,
+    iter_nodes,
+    load_json,
+    schema_bindings,
+    shacl_shape_paths,
+)
 
-# Shape file set must match tools/ci_validate.py::SHAPES.
-SHACL_SHAPES = [
-    "shapes/rkaf-shapes-core.ttl",
-    "shapes/rkaf-shapes-pattern-c.ttl",
-    "shapes/rkaf-shapes-warrant.ttl",
-    "shapes/rkaf-shapes-confidence.ttl",
-    "shapes/rkaf-shapes-accessscope.ttl",
-    "shapes/rkaf-shapes-studio-promotions.ttl",
-    "shapes/rkaf-shapes-conceptregistry.ttl",
-    "compiled/shacl/core/authority.ttl",
-    "compiled/shacl/core/attestation.ttl",
-    "compiled/shacl/core/local-adoption.ttl",
-    "compiled/shacl/core/applicability-scope.ttl",
-    "compiled/shacl/core/effective-period.ttl",
-    "compiled/shacl/core/lifecycle-event.ttl",
-    "compiled/shacl/core/concept.ttl",
-    "compiled/shacl/core/concept-mapping.ttl",
-    "compiled/shacl/core/concept-resolution-result.ttl",
-    "compiled/shacl/core/bridge-validation-result.ttl",
-    "compiled/shacl/core/bridge-consumer-registration.ttl",
-    "compiled/shacl/core/registry-conflict.ttl",
-    "compiled/shacl/core/justification.ttl",
-    "compiled/shacl/core/point-in-time-exception.ttl",
-    "compiled/shacl/core/generated-work-product.ttl",
-    "compiled/shacl/core/revalidation-event.ttl",
-    "compiled/shacl/core/consumer-effective-declaration.ttl",
-    "compiled/shacl/core/bridge-issue-attestation-contract.ttl",
-]
+ROOT = Path(__file__).resolve().parent.parent
 
 
 @dataclass
@@ -90,53 +68,22 @@ def load_jsonld(path: Path) -> Optional[dict]:
     handled by pyshacl + rdflib when L3 runs; the L1 check is "structurally
     parseable as JSON.")"""
     try:
-        return json.loads(path.read_text())
+        return load_json(path)
     except (json.JSONDecodeError, UnicodeDecodeError):
         return None
 
 
-_SCHEMA_CACHE: dict[str, dict] = {}
+_SCHEMA_CACHE: dict[Path, dict] = {}
 
 
-def _load_schema(name: str) -> Optional[dict]:
-    if name in _SCHEMA_CACHE:
-        return _SCHEMA_CACHE[name]
-    candidate = COMPILED_JSON_SCHEMA_DIR / f"{name}.schema.json"
-    if not candidate.is_file():
+def _load_schema(path: Path) -> Optional[dict]:
+    if path in _SCHEMA_CACHE:
+        return _SCHEMA_CACHE[path]
+    if not path.is_file():
         return None
-    schema = json.loads(candidate.read_text())
-    _SCHEMA_CACHE[name] = schema
+    schema = json.loads(path.read_text())
+    _SCHEMA_CACHE[path] = schema
     return schema
-
-
-_TYPE_TO_SCHEMA = {
-    "rkaf:Artifact":                       ("artifact", "Artifact"),
-    "rkaf:SourceFragment":                 ("source-fragment", "SourceFragment"),
-    "rkaf:EvidenceBinding":                ("evidence-binding", "EvidenceBinding"),
-    "rkaf:Warrant":                        ("warrant", "Warrant"),
-    "rkaf:ConfidenceRecord":               ("confidence-record", "ConfidenceRecord"),
-    "rkaf:AccessScope":                    ("access-scope", "AccessScope"),
-    "rkaf:AILineage":                      ("ai-lineage", "AILineage"),
-    "rkaf:Assertion":                      ("assertion", "Assertion"),
-    "rkaf:RetentionPolicy":                ("retention-policy", "RetentionPolicy"),
-    "rkaf:MappingState":                   ("mapping-state", "MappingState"),
-    "rkaf:Workspace":                      ("workspace", "Workspace"),
-    "rkaf:Authority":                      ("authority", "Authority"),
-    "rkaf:Attestation":                    ("attestation", "Attestation"),
-    "rkaf:LocalAdoption":                  ("local-adoption", "LocalAdoption"),
-    "rkaf:ApplicabilityScope":             ("applicability-scope", "ApplicabilityScope"),
-    "rkaf:EffectivePeriod":                ("effective-period", "EffectivePeriod"),
-    "rkaf:LifecycleEvent":                 ("lifecycle-event", "LifecycleEvent"),
-    "rkaf:RegisteredConcept":              ("concept", "RegisteredConcept"),
-    "rkaf:LocalConcept":                   ("concept", "LocalConcept"),
-    "rkaf:ConceptMapping":                 ("concept-mapping", "ConceptMapping"),
-    "rkaf:MappingApplicabilityContext":    ("concept-mapping", "MappingApplicabilityContext"),
-    "rkaf:ConceptResolutionResult":        ("concept-resolution-result", "ConceptResolutionResult"),
-    "rkaf:BridgeValidationResult":         ("bridge-validation-result", "BridgeValidationResult"),
-    "rkaf:BridgeConsumerRegistration":     ("bridge-consumer-registration", "BridgeConsumerRegistration"),
-    "rkaf:RegistryConflict":               ("registry-conflict", "RegistryConflict"),
-    "rkaf:Justification":                  ("justification", "Justification"),
-}
 
 
 def l2_validate(doc: dict) -> tuple[bool, list[str]]:
@@ -148,38 +95,25 @@ def l2_validate(doc: dict) -> tuple[bool, list[str]]:
     except ImportError:
         return False, ["jsonschema not installed"]
 
-    nodes: list[dict] = []
-    if "@graph" in doc and isinstance(doc["@graph"], list):
-        nodes.extend(n for n in doc["@graph"] if isinstance(n, dict))
-    else:
-        nodes.append(doc)
-    # Behavior fixtures (rkaf:BehaviorTestCase) carry their substantive payload
-    # at `rkaf:input.@graph`. Walk that too — otherwise type errors in the
-    # input pass silently and only surface at L4. Fix from semi-formal review
-    # Finding 15 of Plan 7b Phase A.
-    nested = doc.get("rkaf:input")
-    if isinstance(nested, dict):
-        if "@graph" in nested and isinstance(nested["@graph"], list):
-            nodes.extend(n for n in nested["@graph"] if isinstance(n, dict))
-        elif isinstance(nested.get("@type"), str):
-            nodes.append(nested)
+    nodes = list(iter_nodes(doc))
+    bindings = schema_bindings()
 
     errs: list[str] = []
     for node in nodes:
         type_iri = node.get("@type")
         if not isinstance(type_iri, str) or not type_iri.startswith("rkaf:"):
             continue
-        if type_iri not in _TYPE_TO_SCHEMA:
+        binding = bindings.get(type_iri)
+        if binding is None:
             continue  # unknown rkaf:* class — pass silently per L2 spec
-        schema_name, class_name = _TYPE_TO_SCHEMA[type_iri]
-        schema = _load_schema(schema_name)
+        schema = _load_schema(binding.schema_path)
         if schema is None:
             errs.append(f"schema missing for {type_iri}")
             continue
         # Wrap with top-level $ref so the JSON Schema validator targets the right $defs entry.
         wrapper = {
             "$schema": "https://json-schema.org/draft/2020-12/schema",
-            "$ref":    f"#/$defs/{class_name}",
+            "$ref":    f"#/$defs/{binding.class_name}",
             "$defs":   schema.get("$defs", {}),
         }
         try:
@@ -198,10 +132,8 @@ def _load_shacl_graph():
         return _SHACL_GRAPH_CACHE
     import rdflib
     g = rdflib.Graph()
-    for p in SHACL_SHAPES:
-        full = ROOT / p
-        if full.is_file():
-            g.parse(str(full), format="turtle")
+    for full in shacl_shape_paths():
+        g.parse(str(full), format="turtle")
     _SHACL_GRAPH_CACHE = g
     return g
 
@@ -255,18 +187,6 @@ def classify_fixture(name: str) -> str:
     return "positive"
 
 
-# Negatives where the spec invariant is a runtime contract (L4), not a
-# shape contract (L3). These are EXPECTED to pass L2+L3 today and rely on
-# the runtime impl (Plan 7b) to catch the violation. Documented here so
-# the reporter doesn't flag them as divergences.
-L4_GAP_NEGATIVES = {
-    # §1.4 + §2.5: LocalAdoption usageEligibility broadening above its
-    # adoptionScope's authority requires graph-walk + scope analysis. Pure
-    # SHACL on the LocalAdoption node alone cannot decide it.
-    "negatives/local-adoption-officialUse-eligibility-negative.jsonld",
-}
-
-
 def walk_fixtures() -> list[Path]:
     """Walk fixtures/ recursively for .jsonld files. Excludes:
       - `fixtures/context.jsonld` (shared JSON-LD context, not a fixture)
@@ -277,21 +197,11 @@ def walk_fixtures() -> list[Path]:
         SHACL divergence, not conformance)
       - `fixtures/ai-extraction/` (same — AI-extraction adversarial corpus)
     """
-    skip_dirs = {"projectors", "adversarial", "ai-extraction"}
-    paths: list[Path] = []
-    for p in FIXTURES_DIR.rglob("*.jsonld"):
-        rel = p.relative_to(FIXTURES_DIR).as_posix()
-        if rel == "context.jsonld":
-            continue
-        if any(part in skip_dirs for part in p.relative_to(FIXTURES_DIR).parts):
-            continue
-        paths.append(p)
-    paths.sort()
-    return paths
+    return fixture_paths()
 
 
 def evaluate(path: Path) -> FixtureResult:
-    name = path.relative_to(FIXTURES_DIR).as_posix()
+    name = fixture_name(path)
     result = FixtureResult(name=name, expected=classify_fixture(name))
 
     doc = load_jsonld(path)
@@ -311,7 +221,7 @@ def evaluate(path: Path) -> FixtureResult:
 
     # Expectation check.
     #   positive  → MUST pass L2 + L3.
-    #   negative  → MUST fail L2 OR L3 (unless documented L4-gap).
+    #   negative  → MUST fail L2 OR L3.
     #   behavior  → MUST pass L1 + L2; L3 not gated (input @graph may contain
     #               stubs as declarative meta-content). L4 verdict is set
     #               separately by Plan 7b runtime impl (currently "skip").
@@ -319,13 +229,7 @@ def evaluate(path: Path) -> FixtureResult:
     if result.expected == "positive":
         result.diverged = not (result.l2 == "pass" and result.l3 == "pass")
     elif result.expected == "negative":
-        if result.name in L4_GAP_NEGATIVES:
-            # Documented runtime-only invariant — pass L2/L3 is expected.
-            result.l4 = "skip"
-            result.notes.append("L4-gap: invariant is a runtime contract, not shape; verified by Plan 7b runtime impl.")
-            result.diverged = False
-        else:
-            result.diverged = not (result.l2 == "fail" or result.l3 == "fail")
+        result.diverged = not (result.l2 == "fail" or result.l3 == "fail")
     elif result.expected == "behavior":
         # L1+L2 must pass on the wrapper + the inner rkaf:input graph.
         # L3 is permissive in the divergence check (input graph carries
@@ -422,15 +326,17 @@ def main() -> int:
 
     if args.self_certify:
         l2_pass = all(r.l2 == "pass" for r in results if r.expected == "positive") and \
-                  all(r.l2 == "fail" for r in results if r.expected == "negative")
+                  all((r.l2 == "fail" or r.l3 == "fail") for r in results if r.expected == "negative")
         l3_pass = all(r.l3 == "pass" for r in results if r.expected == "positive") and \
-                  all(r.l3 == "fail" for r in results if r.expected == "negative")
+                  all((r.l2 == "fail" or r.l3 == "fail") for r in results if r.expected == "negative")
+        behavior = [r for r in results if r.expected == "behavior"]
+        l4_pass = bool(behavior) and all(r.l4 == "pass" for r in behavior)
         version = (ROOT / "VERSION").read_text().strip()
         print(f"""# Auto-generated by tools/conformance_report.py --self-certify
 partner:          "Rulespec maintainers"
 implementation:   "rkaf-validate@{version} + tools/ci_validate.py"
 rulespec_version: "{version}"
-declared_levels:  [L1, L2, L3]
+declared_levels:  [L1, L2, L3, L4]
 adoption_depth:   D3
 test_corpus_run_at: "{datetime.datetime.now(datetime.timezone.utc).isoformat()}"
 test_corpus_commit: "<see git log>"
@@ -438,9 +344,10 @@ results:
   L1: pass
   L2: {"pass" if l2_pass else "fail"}
   L3: {"pass" if l3_pass else "fail"}
-  L4: not-claimed
+  L4: {"pass" if l4_pass else "fail"}
 notes: |
-  {len(results)} fixtures evaluated; {len(diverged)} divergences.""")
+  {len(results)} fixtures evaluated; {len(diverged)} divergences.
+  L4 covers {len(behavior)} behavior fixtures through rkaf-behavior-validate.""")
         return 1 if diverged else 0
 
     # Human-readable table.

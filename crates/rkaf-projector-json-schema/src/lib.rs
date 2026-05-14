@@ -40,11 +40,7 @@ impl Projector for JsonSchemaProjector {
         "0.2.0"
     }
 
-    async fn attach(
-        &self,
-        native: Value,
-        overlay: Value,
-    ) -> Result<Value, ProjectorError> {
+    async fn attach(&self, native: Value, overlay: Value) -> Result<Value, ProjectorError> {
         let mut merged = native
             .as_object()
             .ok_or_else(|| ProjectorError::Attach("native must be a JSON object".into()))?
@@ -65,10 +61,7 @@ impl Projector for JsonSchemaProjector {
         Ok(Value::Object(merged))
     }
 
-    async fn extract(
-        &self,
-        merged: Value,
-    ) -> Result<(Value, Value), ProjectorError> {
+    async fn extract(&self, merged: Value) -> Result<(Value, Value), ProjectorError> {
         let mut obj = merged
             .as_object()
             .ok_or_else(|| ProjectorError::Extract("merged must be a JSON object".into()))?
@@ -81,8 +74,7 @@ impl Projector for JsonSchemaProjector {
             .ok_or_else(|| ProjectorError::Extract("x-rkaf must be an object".into()))?;
         if !xrkaf_obj.contains_key("rkaf-version") {
             return Err(ProjectorError::Extract(
-                "x-rkaf missing rkaf-version; refusing to interpret as Rulespec overlay"
-                    .into(),
+                "x-rkaf missing rkaf-version; refusing to interpret as Rulespec overlay".into(),
             ));
         }
         let overlay = xrkaf_obj

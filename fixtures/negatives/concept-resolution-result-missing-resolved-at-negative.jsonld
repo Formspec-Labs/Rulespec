@@ -1,5 +1,5 @@
 {
-  "@context": "../context/rkaf-context.jsonld",
+  "@context": "../../context/rkaf-context.jsonld",
   "@id": "urn:rkaf:fixture:cres:income-resolved",
   "@type": "rkaf:ConceptResolutionResult",
   "rkaf:inputConcept": "urn:rkaf:fixture:concept:tx-grossEarnedIncome",

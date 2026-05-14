@@ -1,0 +1,7 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@id": "urn:rkaf:fixture:pit-pos:p1",
+  "@type": "rkaf:PointInTimeException",
+  "rkaf:retainsAssertion": "urn:rkaf:fixture:pit-pos:a1",
+  "rkaf:exceptionScope": "SNAP recertification cases submitted before 2026-06-01; rule R7 retained for those cases despite SupersessionPacket affecting it."
+}

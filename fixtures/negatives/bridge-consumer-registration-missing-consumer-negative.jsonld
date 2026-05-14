@@ -1,5 +1,5 @@
 {
-  "@context": "../context/rkaf-context.jsonld",
+  "@context": "../../context/rkaf-context.jsonld",
   "@id": "urn:rkaf:fixture:bcr:tx-snap-engine",
   "@type": "rkaf:BridgeConsumerRegistration",
   "rkaf:bridgeContractVersion": "rkaf-bridge/1.0",

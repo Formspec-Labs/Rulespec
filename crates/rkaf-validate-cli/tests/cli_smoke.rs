@@ -41,7 +41,10 @@ fn cli_fails_negative_fixture_with_diagnostic() {
         .unwrap();
     assert_eq!(out.status.code(), Some(1));
     let stderr = String::from_utf8_lossy(&out.stderr);
-    assert!(stderr.contains("FAIL"), "stderr did not mention FAIL: {stderr}");
+    assert!(
+        stderr.contains("FAIL"),
+        "stderr did not mention FAIL: {stderr}"
+    );
 }
 
 #[test]

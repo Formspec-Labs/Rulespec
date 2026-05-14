@@ -1,5 +1,5 @@
 {
-  "@context": "../context/rkaf-context.jsonld",
+  "@context": "../../context/rkaf-context.jsonld",
   "@id": "urn:rkaf:fixture:ail-pos:l1",
   "@type": "rkaf:AILineage",
   "rkaf:modelId": "gpt-x-2026",

@@ -56,7 +56,9 @@ fn projector_for(target: &str) -> anyhow::Result<Box<dyn Projector>> {
         "openapi" => Ok(Box::new(
             rkaf_projector_openapi::OpenApiProjector::with_repo_root(&root),
         )),
-        other => anyhow::bail!("unknown target `{other}` (expected: json-schema | json-ld | openapi)"),
+        other => {
+            anyhow::bail!("unknown target `{other}` (expected: json-schema | json-ld | openapi)")
+        }
     }
 }
 
