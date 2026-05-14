@@ -5,6 +5,65 @@ All notable changes to Rulespec are documented in this file.
 The format is loosely based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 adapted for a specification + shape + fixture project.
 
+## Unreleased — ADR-0093: rkaf:Finding promoted; BVR indicator refactor; Plan 7d review findings closed
+
+Implements stack-level ADR-0093 (Rulespec Finding IRI Addressability) in three phases inside PKAF and closes the actionable findings from the Plan 7d semi-formal-code-review along the way. Net new universal classes: one (`rkaf:Finding`). Breaking shape change on `BridgeValidationResult` (greenfield-justified — no installed base, no sibling-submodule consumers).
+
+### Added — Phase A (PKAF commit `c28cb3f`)
+
+- **`rkaf:Finding`** — new first-class IRI-addressable primitive at `constraints/core/finding.cue`. Closed `#FindingKind` (9 values: `warning` / `error` / `staleDependency` / `registryUnavailable` / `registryVersionOutOfRange` / `conceptConflict` / `authorityBroken` / `unsupportedAnchor` / `other`). Closed `#FindingSeverity` (4 values: `informational` / `operationalConflict` / `publicationBlocking` / `authorityCritical` — aligned with `#ConflictSeverity` so RegistryConflict and Finding speak the same vocabulary). Shape: required `findingKind` / `detectedAt` / `detectedBy` / `subject`; optional `severity` / `rationale` / `lastVerifiedAt` / `verifiedBy`.
+- **7 new fixtures** for Finding: `finding-positive` (two findings in one graph), `finding-minimal-edge`, four required-field negatives (`finding-missing-{finding-kind,detected-at,detected-by,subject}-negative`).
+- **Plan 7d follow-up fixes**:
+  - **BLOCKER fixed**: `thoughts/specs/2026-05-12-pkaf-as-public-schema-interop-framework.md` §3 — the Plan 7d edit had silently spliced the Access Scope normative MUST clause ("consumers MUST NOT leak content their access scope forbids") onto the tail of the new Freshness entry. Restored Access Scope's original text; Freshness now ends at the lifecycle ≠ freshness orthogonality statement.
+  - **MAJOR fixed**: `context/rkaf-context.jsonld` — added `rkaf:verifiedBy` (`@type:@id`) and `rkaf:findingKind` / `rkaf:severity` (`@type:@vocab`) and `rkaf:subject` / `rkaf:detectedBy` (`@type:@id`). Without these, JSON-LD expansion treated IRI references as string literals (breaks SPARQL joins, Trellis anchoring).
+  - **MAJOR fixed**: 5 new round-trip tests in `crates/rkaf-core/tests/fixture_round_trip.rs` covering the Plan 7d optional fields on Attestation / SourceFragment / EvidenceBinding / BridgeValidationResult.
+  - **FINDING 5 fixed**: `fixtures/attestation-revoked-within-period-positive.jsonld` exercises the "revocation supersedes effective period" semantic claimed by the vocab spec.
+
+### Added — Phase B (PKAF commit `5bce188`)
+
+- **`rkaf:targetFinding?: string` on Attestation** — optional IRI pointing at a `rkaf:Finding`. When set, the Attestation acts as a waiver / override of the targeted Finding. Plan 7d-deferred field; now live.
+- **`fixtures/attestation-waiving-finding-positive.jsonld`** — Finding (staleDependency) + Attestation that waives it under named program-director authority, scoped to in-flight recerts.
+- **Context**: `rkaf:targetFinding` declared `@type:@id`.
+
+### Changed — Phase C (PKAF commit `8f50dd8`) — BREAKING
+
+- **`BridgeValidationResult` indicator refactor.** Removed five flat `[...string]` arrays:
+  - `rkaf:warnings` / `rkaf:errors` / `rkaf:staleDependencies` / `rkaf:registryUnavailable` / `rkaf:registryVersionOutOfRange`
+  
+  Replaced with a single typed `rkaf:findings?: [...string]` (IRIs of `rkaf:Finding` nodes). The `#FindingKind` closed enum on `rkaf:Finding` subsumes the semantic distinctions the prior fields encoded (same five names, now enum values on a typed node, not bucket names on the BVR).
+- **Migrated** `fixtures/edges/bridge-validation-result-mixed-warning-edge.jsonld` to use Finding IRIs.
+- **Blast radius confirmed minimal**: runtime read NONE of the legacy fields (verified by grep); no sibling submodule consumes them (verified by grep across `policy-studio/`, `trellis/`, `formspec/`, `workspec-server/`, `work-spec/`); 33 behavior fixtures use `rkaf:detectedIssues` + `rkaf:usedAsAuthority` (unaffected).
+
+### Changed (review-finding follow-up — this commit)
+
+- **`crates/rkaf-core/tests/fixture_round_trip.rs`** — added `round_trip_finding_fixture` (review WARNING 1: Finding had no codegen-layer round-trip coverage despite being a new primitive). Round-trip suite: 26 → 27 tests.
+- **`context/rkaf-context.jsonld`** — deduplicated `rkaf:severity` (had conflicting `@id` vs `@vocab` declarations) and `rkaf:subject` (had two identical declarations); kept the Phase A `@vocab` semantics for severity since RegistryConflict's literal `"rkaf:operationalConflict"` resolves identically under either. Added `rkaf:Finding` class IRI declaration to match precedent (every other v0.2 class has one).
+- **`constraints/core/finding.cue`** — fixed comment that referenced non-existent `#RegistryConflictSeverity` (actual identifier in `registry-conflict.cue:10` is `#ConflictSeverity`).
+- **`thoughts/adr/0093-rkaf-finding-iri-addressability.md`** — reconciled internal contradictions: §Decision header no longer says "(proposal — not yet ratified)"; §Status reflects "PKAF Phases A+B+C: LANDED"; proposed-shape code block updated to match the actual landed enum values (camelCase: `conceptConflict` / `authorityBroken` / `unsupportedAnchor`, not the kebab-case the original draft proposed).
+
+### Verified
+
+- `cargo test --workspace` — green.
+- `cargo test -p rkaf-core --test fixture_round_trip` — **27 passing** (was 19 pre-Plan-7d).
+- `cargo test -p rkaf-runtime` — 18 unit + 39 integration, all passing.
+- `make test` — full L0-L5 sweep exits 0.
+- `conformance_report.py` — **229 fixtures, 0 divergences**.
+- `vocab_audit.py` — 33 CUE primitives / 33 covered.
+- `codegen_drift_audit.py` — clean.
+
+### Deferred to Plan 7e
+
+- `effective_attestations_at(time)` runtime filter — uses `hasEffectivePeriod` + `revokedAt` on Attestation.
+- `freshness_gate(consumer)` — narrows `usageEligibility` via `lastVerifiedAt` against a consumer-declared max-staleness window.
+- Symmetric strict-error for dangling `rkaf:targetFinding` IRIs in `cascade::is_active` (Plan 7c made malformed timestamps loud; Plan 7d-followup made dangling `hasEffectivePeriod` IRIs loud; Finding/targetFinding parity is still open).
+- Studio cutover (`policy-studio/` repo) — projects `ValidationFinding` from `rkaf:Finding`; collapses four waiver flavors to `Attestation(targetFinding=…)`.
+- Trellis Finding anchoring (`trellis/` repo) — `rkaf:Finding` IRIs as anchored objects under the §4.6 binding contract.
+
+### Long-tail follow-up (lower priority)
+
+- Migrate or annotate `fixtures/narratives/*.md` and `fixtures/context.jsonld` — both still display the legacy BVR shape (`rkaf:warnings` etc.). Conformance walker excludes them; they're reading material, but they will teach future readers an obsolete shape. (Review FINDING 6.)
+- Dangling-IRI hygiene for `rkaf:detectedBy` in Finding fixtures (Review OBSERVATION 7).
+
 ## Unreleased — Plan 7d: Attestation temporal bounds + source freshness + identity boundary
 
 Adds 4 optional fields to existing primitives and 2 normative spec edits. Net new universal classes: zero. Conceptual debt: zero.

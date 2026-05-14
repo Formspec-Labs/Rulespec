@@ -228,6 +228,9 @@
     "rkaf:RegistryConflict": {
       "@type": "@id"
     },
+    "rkaf:Finding": {
+      "@type": "@id"
+    },
     "rkaf:Justification": {
       "@type": "@id"
     },
@@ -406,9 +409,6 @@
       "@type": "@id"
     },
     "rkaf:errorCode": {
-      "@type": "@id"
-    },
-    "rkaf:severity": {
       "@type": "@id"
     },
     "rkaf:decision": {
@@ -709,9 +709,6 @@
       "@container": "@set"
     },
     "rkaf:assertion": {
-      "@type": "@id"
-    },
-    "rkaf:subject": {
       "@type": "@id"
     },
     "rkaf:object": {

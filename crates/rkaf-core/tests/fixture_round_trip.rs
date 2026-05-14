@@ -163,6 +163,12 @@ fn round_trip_sourcefragment_with_freshness_fixture() {
     );
 }
 
+// ADR-0093 Phase A: round-trip the new Finding primitive itself.
+#[test]
+fn round_trip_finding_fixture() {
+    round_trip::<Finding>("finding-positive", "rkaf:Finding");
+}
+
 #[test]
 fn round_trip_evidencebinding_with_freshness_fixture() {
     round_trip::<EvidenceBinding>(

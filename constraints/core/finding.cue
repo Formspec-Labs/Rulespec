@@ -20,10 +20,10 @@ package rkaf
 	"rkaf:authorityBroken" | "rkaf:unsupportedAnchor" |
 	"rkaf:other"
 
-// Closed severity ladder. Aligns with the ConceptResolutionResult severity
-// enum already in use (#RegistryConflictSeverity) so a Finding produced by
-// a ConceptResolutionResult and one produced by a BVR speak the same
-// vocabulary.
+// Closed severity ladder. Aligns with #ConflictSeverity declared in
+// constraints/core/registry-conflict.cue (same 4 values) so a Finding
+// produced by a ConceptResolutionResult and one produced by a BVR speak
+// the same severity vocabulary.
 #FindingSeverity: "rkaf:informational" | "rkaf:operationalConflict" |
 	"rkaf:publicationBlocking" | "rkaf:authorityCritical"
 
