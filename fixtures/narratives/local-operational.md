@@ -1,5 +1,7 @@
 # Rulespec Conformance Fixture v0.2
 
+> **Note**: This narrative was written pre-ADR-0093. `BridgeValidationResult` code blocks below show the legacy flat indicator arrays (`rkaf:warnings`, `rkaf:errors`, `rkaf:staleDependencies`, `rkaf:registryUnavailable`, `rkaf:registryVersionOutOfRange`). The current shape uses a single `rkaf:findings` list of `rkaf:Finding` `@id`s — see ADR-0093.
+
 Status: revised worked trace, absorbing decisions through Pass 3
 Replaces: rkaf-pass-2-worked-trace.md (Pass 2)
 Bridge contract version: `rkaf-bridge/1.0`

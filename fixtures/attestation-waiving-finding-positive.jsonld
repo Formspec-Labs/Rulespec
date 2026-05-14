@@ -1,5 +1,6 @@
 {
   "@context": "../context/rkaf-context.jsonld",
+  "_comment": "Finding-in-isolation positive: `rkaf:detectedBy` references `urn:rkaf:fixture:bvr:medicaid-recert-fresh`, a BridgeValidationResult defined in a sibling fixture. Cross-fixture `@id` references are permitted; see fixtures/README.md.",
   "@graph": [
     {
       "@id": "urn:rkaf:fixture:finding:stale-dep-snap-redet",

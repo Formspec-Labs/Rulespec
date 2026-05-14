@@ -1,5 +1,7 @@
 # Rulespec Statutory Authority Fixture v0.1
 
+> **Note**: This narrative was written pre-ADR-0093. `BridgeValidationResult` code blocks below show the legacy flat indicator arrays (`rkaf:warnings`, `rkaf:errors`, `rkaf:staleDependencies`, `rkaf:registryUnavailable`, `rkaf:registryVersionOutOfRange`). The current shape uses a single `rkaf:findings` list of `rkaf:Finding` `@id`s — see ADR-0093.
+
 Status: Editor's Draft conformance fixture for the A3 authority layer
 Companion to: Rulespec Core, Rulespec Conformance Fixture v0.2, Rulespec Mapping Fixture v0.1, Rulespec ConceptRegistry v0.1.2
 Bridge contract: `rkaf-bridge/1.0`

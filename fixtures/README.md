@@ -32,11 +32,21 @@ python3 tools/conformance_report.py
 python3 tools/vocab_audit.py
 ```
 
-## context.jsonld
+## JSON-LD context
 
-The file `context.jsonld` is the fixture-prep source for the inline `@context`
-that each fixture carries. It mirrors `context/rkaf-context.jsonld`; see
-`context/README.md` for rationale.
+Fixtures reference the canonical context at `../context/rkaf-context.jsonld`
+via the `@context` field. There is no separate fixture-prep copy under
+`fixtures/` — the canonical file is the single source.
+
+## Cross-fixture `@id` references
+
+A fixture's `@graph` is **not** required to be self-contained. Properties
+typed `@id` (e.g. `rkaf:detectedBy`, `rkaf:subject`, `rkaf:targets`) may
+reference IRIs defined in sibling fixtures. JSON-LD treats unresolved `@id`s
+as opaque IRIs; SHACL shapes validate the *structure* of references, not
+their resolvability. Where a fixture exercises an isolated node (e.g. a
+`Finding` not paired with the originating `BridgeValidationResult`), add a
+top-level `_comment` key noting the intent.
 
 ## Adding Fixtures
 

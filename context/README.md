@@ -23,7 +23,7 @@ Once published, these contexts will be hosted at stable URIs:
 - `https://rulespec.org/context/v1.jsonld` → `rkaf-context-v0.1.jsonld` (frozen)
 - `https://rulespec.org/context/v2.jsonld` → `rkaf-context.jsonld` (current)
 
-Fixtures and consumer artifacts reference one of these URIs via their `@context` field. Until hosting is set up, fixtures inline the full context as a literal object in their `@context` field; the file `fixtures/context.jsonld` is the canonical source for that inlined content.
+Fixtures and consumer artifacts reference one of these URIs via their `@context` field. Until hosting is set up, fixtures point at `../context/rkaf-context.jsonld` directly (relative path) from their `@context` field.
 
 ## Why both versions ship
 
@@ -33,16 +33,12 @@ The v0.1 context is preserved because:
 2. **Provenance.** The single change (adding `definedInScope` typing) was discovered during Batch 2 validation; the audit trail starts with v0.1 and ends with v0.2.
 3. **Forward compatibility.** Consumer systems that adopted v0.1 should continue to work; v0.2 is a strict superset, so existing v0.1 data validates under v0.2 without changes.
 
-## Inlined contexts in fixtures
+## Fixture context references
 
-Each fixture file in `fixtures/` carries its `@context` inline (a full copy of the v0.2 context content, minus the `_meta` block). This is the canonical reference state for fixture validation.
-
-The `fixtures/context.jsonld` file is the source from which the inline contexts are refreshed. It is **identical** to `context/rkaf-context.jsonld` in content. The two files exist for distinct purposes:
-
-- `context/rkaf-context.jsonld` → the **published** context (the canonical artifact for hosting)
-- `fixtures/context.jsonld` → the **fixture-prep source** (used by tooling to refresh fixture inlined contexts)
-
-If you edit one, edit both. A future tooling improvement could collapse this duplication.
+Each fixture file in `fixtures/` references the canonical context via the
+relative path `../context/rkaf-context.jsonld` in its `@context` field. The
+canonical file is the single source — no duplicate copy lives under
+`fixtures/`.
 
 ## Extension URIs
 
