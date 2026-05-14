@@ -5,6 +5,35 @@ All notable changes to Rulespec are documented in this file.
 The format is loosely based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 adapted for a specification + shape + fixture project.
 
+## Unreleased — Plan 7e: runtime contracts use Plan 7d + ADR-0093 fields
+
+Plan 7d added optional temporal-bounds + freshness fields to Attestation, SourceFragment, EvidenceBinding, and BridgeValidationResult; ADR-0093 promoted `rkaf:Finding` and refactored `BridgeValidationResult` indicators. Plan 7e turns those shape additions into enforced runtime behavior across three increments.
+
+### Added — 7e.1 — `effective_attestations_at` shared helper
+
+- New `crates/rkaf-runtime/src/temporal.rs` module exposing `effective_at(att, time, graph)` and `effective_attestations_at(graph, time)`. Plan 7d's "is this attestation in force at T?" predicate now has one canonical implementation; `bridge::rule_8` imports from it. Strictness posture mirrors `cascade::is_active`: dangling EffectivePeriod IRIs and unparseable RFC-3339 literals propagate as `MalformedTestCase`.
+- Unit tests cover empty graph, mix of effective/revoked/out-of-period, malformed timestamp propagation, dangling-IRI propagation.
+
+### Added — 7e.2 — freshness gate (`reducer::reduce_for_scope` Step 5.5)
+
+- New optional `rkaf:maxAttestationStalenessDays: integer` field on `BridgeConsumerRegistration` (`constraints/core/bridge-consumer-registration.cue`).
+- New optional `rkaf:evaluationTime: xsd:dateTime` on `BehaviorTestCase` fixtures drives the freshness check; production runtimes derive it from the packet's evaluation instant (e.g. BVR.validatedAt).
+- `reducer::reduce_for_scope` gains Step 5.5: when the consumer declares the field AND `evaluation_time` is set, narrow the effective level **one lattice step downward** if any Attestation targeting the subject assertion has `rkaf:lastVerifiedAt` older than `evaluation_time - max_days` (or has no `lastVerifiedAt` at all — absence of a freshness signal counts as stale). Strictly narrowing; never broadens. Skipped when either input is absent. Orthogonal to lifecycle per the Plan 7d invariant.
+- `spec/rkaf-behavior.md` §1.2 — algorithm gains the Step 5.5 block plus a normative paragraph spelling out evaluation-time, relevance, absence semantics, and the dangling/malformed strictness posture.
+- `spec/rkaf-vocabulary.md` — added `rkaf:maxAttestationStalenessDays` and `rkaf:evaluationTime` predicate rows.
+- `context/rkaf-context.jsonld` — declared both predicates with their xsd types.
+- Two new behavior fixtures:
+  - `usage-eligibility-reducer-freshness-stale-narrows` — 60-day-old `lastVerifiedAt`, 30-day window → narrows publicationAllowed → localOperationalUse.
+  - `usage-eligibility-reducer-freshness-fresh-passes` — 5-day-old `lastVerifiedAt`, 30-day window → unchanged baseline.
+- `bridge::rule_2` keeps its no-freshness-check posture (passes `None` for `evaluation_time`); Rule 2 enforces a structural invariant, not a runtime freshness check.
+
+### Added — 7e.3 — dangling-IRI parity for Finding edges
+
+- `bridge::rule_8` now invokes `verify_finding_iris_resolve(graph)` at entry, walking every `Attestation.targetFinding` and `BridgeValidationResult.findings[]`. Any IRI that fails to resolve raises `MalformedTestCase` — parity with `cascade::is_active`'s `rkaf:hasEffectivePeriod` posture (Plan 7c.6).
+- `rkaf-runtime-cli` gains `rkaf:expectedRuntimeError` fixture-level support so a behavior fixture MAY assert "the runtime MUST raise this error variant". `tests/behavior_fixtures.rs` mirrors the contract.
+- New fixture `bridge-rule-8-target-finding-dangling-negative` exercises the dangling-`targetFinding` path end-to-end; conformance reports 235 fixtures / 0 divergences.
+- Unit tests pin `verify_finding_iris_resolve` for: empty graph, resolving target, dangling `targetFinding`, dangling `BVR.findings[]`, resolving `BVR.findings[]`.
+
 ## Unreleased — ADR-0093: rkaf:Finding promoted; BVR indicator refactor; Plan 7d review findings closed
 
 Implements stack-level ADR-0093 (Rulespec Finding IRI Addressability) in three phases inside PKAF and closes the actionable findings from the Plan 7d semi-formal-code-review along the way. Net new universal classes: one (`rkaf:Finding`). Breaking shape change on `BridgeValidationResult` (greenfield-justified — no installed base, no sibling-submodule consumers).
