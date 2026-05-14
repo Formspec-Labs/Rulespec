@@ -56,16 +56,8 @@ pub struct BridgeValidationResult {
     pub validated_at: String,
     #[serde(rename = "rkaf:conceptResolutionResults", skip_serializing_if = "Option::is_none", default)]
     pub concept_resolution_results: Option<crate::OneOrMany<String>>,
-    #[serde(rename = "rkaf:warnings", skip_serializing_if = "Option::is_none", default)]
-    pub warnings: Option<crate::OneOrMany<String>>,
-    #[serde(rename = "rkaf:errors", skip_serializing_if = "Option::is_none", default)]
-    pub errors: Option<crate::OneOrMany<String>>,
-    #[serde(rename = "rkaf:staleDependencies", skip_serializing_if = "Option::is_none", default)]
-    pub stale_dependencies: Option<crate::OneOrMany<String>>,
-    #[serde(rename = "rkaf:registryUnavailable", skip_serializing_if = "Option::is_none", default)]
-    pub registry_unavailable: Option<crate::OneOrMany<String>>,
-    #[serde(rename = "rkaf:registryVersionOutOfRange", skip_serializing_if = "Option::is_none", default)]
-    pub registry_version_out_of_range: Option<crate::OneOrMany<String>>,
+    #[serde(rename = "rkaf:findings", skip_serializing_if = "Option::is_none", default)]
+    pub findings: Option<crate::OneOrMany<String>>,
     #[serde(rename = "rkaf:authorityChainTraversal", skip_serializing_if = "Option::is_none", default)]
     pub authority_chain_traversal: Option<crate::OneOrMany<String>>,
     #[serde(rename = "rkaf:chainTerminus", skip_serializing_if = "Option::is_none", default)]

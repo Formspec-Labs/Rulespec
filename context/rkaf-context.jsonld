@@ -928,6 +928,10 @@
     },
     "rkaf:targetFinding": {
       "@type": "@id"
+    },
+    "rkaf:findings": {
+      "@type": "@id",
+      "@container": "@set"
     }
   },
   "_meta": {

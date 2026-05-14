@@ -1,17 +1,40 @@
 {
   "@context": "../../context/rkaf-context.jsonld",
-  "@id": "urn:rkaf:fixture:bvr-mix:r1",
-  "@type": "rkaf:BridgeValidationResult",
-  "rkaf:packetId": "urn:rkaf:fixture:bvr-mix:pkt-1",
-  "rkaf:consumer": "urn:rkaf:consumer:studio",
-  "rkaf:bridgeContractVersion": "rkaf-bridge/1.0",
-  "rkaf:result": "rkaf:acceptedWithWarnings",
-  "rkaf:effectiveUsageEligibility": "rkaf:reviewQueueOnly",
-  "rkaf:effectiveUsageEligibilityRationale": "Two stale dependencies surfaced; manual review required before officialUse.",
-  "rkaf:validatedAt": "2026-03-15T10:00:00Z",
-  "rkaf:warnings": [
-    "StaleConceptCache: concept C1 cached >30d",
-    "AppellateStatePending: rule R7 under appeal"
-  ],
-  "rkaf:errors": []
+  "@graph": [
+    {
+      "@id": "urn:rkaf:fixture:bvr-mix:finding:stale-cache",
+      "@type": "rkaf:Finding",
+      "rkaf:findingKind": "rkaf:staleDependency",
+      "rkaf:detectedAt": "2026-03-15T10:00:00Z",
+      "rkaf:detectedBy": "urn:rkaf:fixture:bvr-mix:r1",
+      "rkaf:subject": "urn:rkaf:fixture:concept:c1",
+      "rkaf:severity": "rkaf:informational",
+      "rkaf:rationale": "Concept cache for C1 older than 30-day freshness window."
+    },
+    {
+      "@id": "urn:rkaf:fixture:bvr-mix:finding:appellate-pending",
+      "@type": "rkaf:Finding",
+      "rkaf:findingKind": "rkaf:warning",
+      "rkaf:detectedAt": "2026-03-15T10:00:00Z",
+      "rkaf:detectedBy": "urn:rkaf:fixture:bvr-mix:r1",
+      "rkaf:subject": "urn:rkaf:fixture:assert:rule-r7",
+      "rkaf:severity": "rkaf:operationalConflict",
+      "rkaf:rationale": "Rule R7 is under appellate review; current eligibility narrowed pending decision."
+    },
+    {
+      "@id": "urn:rkaf:fixture:bvr-mix:r1",
+      "@type": "rkaf:BridgeValidationResult",
+      "rkaf:packetId": "urn:rkaf:fixture:bvr-mix:pkt-1",
+      "rkaf:consumer": "urn:rkaf:consumer:studio",
+      "rkaf:bridgeContractVersion": "rkaf-bridge/1.0",
+      "rkaf:result": "rkaf:acceptedWithWarnings",
+      "rkaf:effectiveUsageEligibility": "rkaf:reviewQueueOnly",
+      "rkaf:effectiveUsageEligibilityRationale": "Two findings surfaced (stale concept cache + appellate-pending rule); manual review required before officialUse.",
+      "rkaf:validatedAt": "2026-03-15T10:00:00Z",
+      "rkaf:findings": [
+        "urn:rkaf:fixture:bvr-mix:finding:stale-cache",
+        "urn:rkaf:fixture:bvr-mix:finding:appellate-pending"
+      ]
+    }
+  ]
 }
