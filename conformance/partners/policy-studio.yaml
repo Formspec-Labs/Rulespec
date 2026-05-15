@@ -50,7 +50,4 @@ cutover_evidence:
   snap_cutover_projection_golden: "policy-studio/snap-golden/SHA256SUMS"
   snap_workspace_fixture: "policy-studio/examples/snap-redetermination-from-sources/workspace.jsonld"
 
-provisional:
-  - area: "studio_profile_source_form"
-    current_state: "policy-studio/profiles/studio/schema-source/ holds the Studio profile as JSON Schema; derive.sh identity-copies into schemas-derived/. Authoring prose / x-lm hints / examples / $defs are preserved."
-    path_to_close: "When the Layer-4 CUE projector matures enough to round-trip authoring prose + x-lm metadata, schema-source/ can move to CUE without losing user-facing value."
+provisional: []
