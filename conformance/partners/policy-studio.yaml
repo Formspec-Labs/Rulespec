@@ -12,11 +12,11 @@ partner:
 declaration:
   rkaf_version:           "0.2.0-pre.6"
   adoption_depth:         "D3"
-  # L2 on pure rkaf nodes; Studio-profile carriers use wos-studio:documentKind.
-  # rulespec-pass runs L3 via PKAF tools/ci_validate.py when present.
-  conformance_level:      "L2"
+  # L3 (Constraint): PKAF SHACL on positive fixtures + full SNAP workspace.jsonld.
+  # Studio-profile carriers use wos-studio:documentKind; pure rkaf nodes via rkaf-validate.
+  conformance_level:      "L3"
   fixture_suite_version:  "0.2.0-pre.6"
-  test_report_url:        "policy-studio/conformance-reports/L2-report.json"
+  test_report_url:        "policy-studio/conformance-reports/L3-report.json"
 
 # Studio implements validate on workspace.jsonld; profile derive lives in policy-studio.
 projectors_implemented:
@@ -51,9 +51,6 @@ cutover_evidence:
   snap_workspace_fixture: "policy-studio/examples/snap-redetermination-from-sources/workspace.jsonld"
 
 provisional:
-  - area: "l3_promotion"
-    current_state: "L2 declared. PKAF positive fixtures pass (policy-studio make test-l3). SNAP workspace SHACL blocked: make test-l3-snap-workspace reports 14 violations (2026-05-15; rkaf:humanAsserted QName vs SHACL list on Studio-profile carriers). STUDIO_RULESPEC_L3=1 not enabled in CI until SNAP gate is green."
-    path_to_close: "Zero violations on make test-l3-snap-workspace; add target to policy-studio make test; STUDIO_RULESPEC_L3=1 in compiler CI; set conformance_level to L3 and point test_report_url at L3-report.json."
   - area: "studio_profile_source_form"
     current_state: "policy-studio/profiles/studio/schema-source/ holds the Studio profile as JSON Schema; derive.sh identity-copies into schemas-derived/. Authoring prose / x-lm hints / examples / $defs are preserved."
     path_to_close: "When the Layer-4 CUE projector matures enough to round-trip authoring prose + x-lm metadata, schema-source/ can move to CUE without losing user-facing value."
