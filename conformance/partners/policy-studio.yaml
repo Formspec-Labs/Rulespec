@@ -12,29 +12,21 @@ partner:
 declaration:
   rkaf_version:           "0.2.0-pre.6"
   adoption_depth:         "D3"
-  # L2 = Shape, per PKAF/spec/rkaf-conformance.md: every Rulespec node validates
-  # against its compiled JSON Schema. Studio's overlay-grounded gate runs JSON
-  # Schema only. L3 (Constraint) additionally requires SHACL + Pattern-C; see
-  # provisional.l3_path below for the path to close.
+  # L2 on pure rkaf nodes; Studio-profile carriers use wos-studio:documentKind.
+  # rulespec-pass runs L3 via PKAF tools/ci_validate.py when present.
   conformance_level:      "L2"
   fixture_suite_version:  "0.2.0-pre.6"
   test_report_url:        "policy-studio/conformance-reports/L2-report.json"
 
-# Operations Studio actually implements on the JSON Schema carrier:
-#   attach   — wos-studio-compiler emits x-rkaf-overlay onto every artifact.
-#   validate — wos-studio-lint::overlay_grounded validates emitted overlays.
-# Extract is a JSON-LD read any consumer can perform; Studio does not own a
-# dedicated extractor surface. Derive lives in PKAF (profiles/studio/derive.sh),
-# not in Studio — Studio CONSUMES derived schemas via the schemas-derived/
-# symlink. Listing only what Studio implements is the honest read.
+# Studio implements validate on workspace.jsonld; profile derive lives in policy-studio.
 projectors_implemented:
   - target: "json-schema"
-    operations: ["attach", "validate"]
+    operations: ["validate"]
     carrier_convention_version: "0.2.0"
 
 profile:
   name:                    "Studio profile"
-  url:                     "PKAF/profiles/studio/"
+  url:                     "policy-studio/profiles/studio/"
   base_vocabulary_version: "rkaf-core/0.2.0-pre.6"
 
 anchoring_bindings:
@@ -50,26 +42,18 @@ partner_participation:
   federation_participation: true
 
 cutover_evidence:
-  snap_baseline_sha256_compile_manifest:       "1552ce797b0066de948190c497c799f5f5ddb9549380e4e43f356073ca36bb25"
+  snap_baseline_sha256_compile_manifest:       "3daf49fbe5c79a2fef9ff8e7a51b8a0a10ad5d77ff6536937bbf34b0526c4bfd"
   snap_baseline_sha256_scenarios:              "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
-  snap_baseline_sha256_workspace_export_bundle: "49573fabedece55906d0f6c8f37ecbdde36bc0aab9daf94bb7bb21569c95875b"
-  snap_baseline_sha256_wos_workflow:           "f1bedceec36e4311e83f3d9a756334f400fa1f351eb07c45726c0dba8d21f671"
-  snap_baseline_sha256_compile_events:         "c3a83aa16909480337df038287085ba2db2d4f131696fe6fa1b26a647b3f2c49"
-  snap_cutover_byte_identical_test: "policy-studio/crates/wos-studio-compiler/tests/snap_byte_identical.rs"
+  snap_baseline_sha256_workspace_export_bundle: "6607c8bbc5567dc060c03236924dce60e1df360941695a8565c4773a2464c520"
+  snap_baseline_sha256_wos_workflow:           "13a585f1387b6cda6009e99955394188306ae9a2edf49c37d9366bd00165e3e9"
+  snap_baseline_sha256_compile_events:         "f0189d2519033b2c394eda316044baa376af6e864441e6a34c45f259c8de7990"
+  snap_cutover_projection_golden: "policy-studio/snap-golden/SHA256SUMS"
+  snap_workspace_fixture: "policy-studio/examples/snap-redetermination-from-sources/workspace.jsonld"
 
 provisional:
-  - area: "l3_path"
-    current_state: "Studio's overlay-grounded gate runs JSON Schema only (via rkaf-validate, which depends on the jsonschema crate). L3 (Constraint) per PKAF/spec/rkaf-conformance.md additionally requires SHACL + Pattern-C cross-property invariant validation."
-    path_to_close: "Add a SHACL gate to overlay-grounded lint (either extend rkaf-validate to bundle the compiled shapes under PKAF/compiled/shacl/, or add a sibling Studio-side SHACL runner). Promote conformance_level to L3 when the SHACL gate is wired and green against the SNAP slice."
-  - area: "warrant_chain"
-    current_state: "All emitted Warrants carry rkaf:provisionalUntilSourceAuthorityWired: true. Family rkaf:source-class, kind rkaf:provenanceClass."
-    path_to_close: "Wire SourceAuthority records into compiler overlay emission (Stage-8 vertical slice)"
-  - area: "access_scope"
-    current_state: "All emitted AccessScope nodes default to rkaf:organizationVisible scoped to workspace."
-    path_to_close: "Surface per-assertion classification (HIPAA-PHI / GDPR-PII / etc.) from source-classification records (Stage-8)"
+  - area: "l3_promotion"
+    current_state: "L2 declared. PKAF positive fixtures pass (policy-studio make test-l3). SNAP workspace SHACL blocked: make test-l3-snap-workspace reports 14 violations (2026-05-15; rkaf:humanAsserted QName vs SHACL list on Studio-profile carriers). STUDIO_RULESPEC_L3=1 not enabled in CI until SNAP gate is green."
+    path_to_close: "Zero violations on make test-l3-snap-workspace; add target to policy-studio make test; STUDIO_RULESPEC_L3=1 in compiler CI; set conformance_level to L3 and point test_report_url at L3-report.json."
   - area: "studio_profile_source_form"
-    current_state: "PKAF/profiles/studio/schema-source/ holds the Studio profile as JSON Schema; derive.sh identity-copies into schemas-derived/. Authoring prose / x-lm hints / examples / $defs are preserved."
+    current_state: "policy-studio/profiles/studio/schema-source/ holds the Studio profile as JSON Schema; derive.sh identity-copies into schemas-derived/. Authoring prose / x-lm hints / examples / $defs are preserved."
     path_to_close: "When the Layer-4 CUE projector matures enough to round-trip authoring prose + x-lm metadata, schema-source/ can move to CUE without losing user-facing value."
-  - area: "non_object_carriers"
-    current_state: "scenarios.json (JSON array) and compile-events.jsonl (JSONL) have no document-level slot for x-rkaf-overlay. The workspace-export.bundle.json carries an overlay that references scenarios by id."
-    path_to_close: "If per-scenario provenance is needed, envelope-shape upgrade can carry a scenario-level overlay."

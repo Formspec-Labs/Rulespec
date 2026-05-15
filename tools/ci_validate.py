@@ -6,7 +6,10 @@ v0.1 was wholesale-superseded (master plan §1; source spec §11) and lives
 under `archive/v0.1/` — it is not loaded by this gate.
 
 Usage:
-  python3 ci_validate.py [--repo-root <path>] [--json]
+  python3 ci_validate.py [--repo-root <path>] [--json] [fixture.jsonld ...]
+
+  With positional fixtures, validates only those files (e.g. a Studio workspace.jsonld).
+  With no positional args, validates the standard positive-fixture set.
 
 Exit codes:
   0  all invariants pass
@@ -17,6 +20,7 @@ Exit codes:
 import argparse
 import json
 import sys
+from pathlib import Path
 
 from conformance_lib import ROOT, fixture_name, positive_fixture_paths, shacl_shape_paths
 
@@ -85,12 +89,18 @@ def main():
     parser = argparse.ArgumentParser(description="Rulespec CI validation gate")
     parser.add_argument("--repo-root", default=".", help="deprecated; discovery is relative to this script")
     parser.add_argument("--json", action="store_true")
+    parser.add_argument(
+        "fixtures",
+        nargs="*",
+        type=Path,
+        help="Additional JSON-LD files to validate (if omitted, use positive-fixture set)",
+    )
     args = parser.parse_args()
 
     _ = args.repo_root
     repo_root = ROOT
     shapes_paths = shacl_shape_paths()
-    fixture_paths = positive_fixture_paths()
+    fixture_paths = [Path(p).resolve() for p in args.fixtures] if args.fixtures else positive_fixture_paths()
 
     print("Rulespec CI validation gate")
     print("=" * 60)
@@ -108,7 +118,10 @@ def main():
     results = {}
     failed = False
     for fixture_path in fixture_paths:
-        slug = fixture_name(fixture_path).removesuffix(".jsonld")
+        try:
+            slug = fixture_name(fixture_path).removesuffix(".jsonld")
+        except ValueError:
+            slug = fixture_path.stem
         if not fixture_path.exists():
             die(f"Fixture missing: {fixture_path}")
         result = validate_one(fixture_path, shapes_paths)
