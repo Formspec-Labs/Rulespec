@@ -1,6 +1,7 @@
 {
   "description": "Studio profile derive regression — SHA256SUMS must match schemas-derived/ after derive.sh",
   "profileDir": "../policy-studio/profiles/studio",
+  "schemasDeriveManifest": "../policy-studio/profiles/studio/schemas-derive-manifest.json",
   "expectedSchemaCount": 24,
   "checksumFile": "../policy-studio/profiles/studio/schemas-derived/SHA256SUMS"
 }
