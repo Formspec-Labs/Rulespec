@@ -12,7 +12,7 @@ partner:
 declaration:
   rkaf_version:           "0.2.0-pre.6"
   adoption_depth:         "D3"
-  # L3 (Constraint): PKAF SHACL on positive fixtures + full SNAP workspace.jsonld.
+  # L3 (Constraint): Rulespec SHACL on positive fixtures + full SNAP workspace.jsonld.
   # Studio-profile carriers use wos-studio:documentKind; pure rkaf nodes via rkaf-validate.
   conformance_level:      "L3"
   fixture_suite_version:  "0.2.0-pre.6"

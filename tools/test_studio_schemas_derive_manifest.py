@@ -1,4 +1,4 @@
-"""Tests for ``studio_schemas_derive_manifest`` (run: ``python3 -m unittest tools.test_studio_schemas_derive_manifest`` from PKAF root)."""
+"""Tests for ``studio_schemas_derive_manifest`` (run from the Rulespec root)."""
 
 from __future__ import annotations
 
@@ -8,7 +8,7 @@ import sys
 import unittest
 from pathlib import Path
 
-PKAF_ROOT = Path(__file__).resolve().parent.parent
+RULESPEC_ROOT = Path(__file__).resolve().parent.parent
 TOOLS = Path(__file__).resolve().parent
 
 
@@ -143,7 +143,7 @@ class TestStudioSchemasDeriveManifest(unittest.TestCase):
             self.assertIn("rationale", str(ctx.exception).lower())
 
     def test_stack_sibling_policy_studio_profile(self) -> None:
-        profile = PKAF_ROOT.parent / "policy-studio" / "profiles" / "studio"
+        profile = RULESPEC_ROOT.parent / "policy-studio" / "profiles" / "studio"
         if not (profile / "schemas-derive-manifest.json").is_file():
             self.skipTest("policy-studio sibling checkout not present")
         files, sums = ssd.compute_derived(profile)

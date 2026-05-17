@@ -1,6 +1,6 @@
 # Model Cards Reference Corpus
 
-Structured AI model governance metadata expressed as PKAF `@graph` bundles.
+Structured AI model governance metadata expressed as Rulespec `@graph` bundles.
 
 ## Corpus structure
 

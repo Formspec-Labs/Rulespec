@@ -9,8 +9,8 @@ Each manifest output declares **provenance** (honest SoT):
 
 SHA256SUMS: sorted ``path`` keys, one line per file ``<sha256>  ./<relposix>\\n``.
 
-Used by ``policy-studio/profiles/studio/studio_profile_derive.py`` (importlib) when PKAF
-is available as a sibling checkout or ``PKAF_ROOT`` points at this repo.
+Used by ``policy-studio/profiles/studio/studio_profile_derive.py`` (importlib) when
+Rulespec is available as a sibling checkout or configured repository root.
 """
 
 from __future__ import annotations

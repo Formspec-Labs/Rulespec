@@ -14,5 +14,5 @@ Do not add schema sources here. Regenerate via `policy-studio/profiles/studio/de
 
 Partner disclosure [`policy-studio.yaml`](../../conformance/partners/policy-studio.yaml)
 sets `profile.url` to `policy-studio/profiles/studio/`. Resolve that path from the
-**formspec-stack repository root** (the monorepo parent that contains both `PKAF/`
-and `policy-studio/`), not from the `PKAF/` directory alone.
+**formspec-stack repository root** (the monorepo parent that contains both the
+Rulespec checkout and `policy-studio/`), not from the Rulespec directory alone.

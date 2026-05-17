@@ -938,7 +938,7 @@
     }
   },
   "_meta": {
-    "version": "v0.2.0-pre.5",
+    "version": "v0.2.0-pre.6",
     "supersedes": "v0.1.1",
     "relationship": "Vocabulary v0.2 — first-class Warrant/Artifact/SourceFragment/EvidenceBinding/ConfidenceRecord/AccessScope/AILineage/RetentionPolicy/MappingState/Workspace primitives; OA/PROV-O/SKOS/DCTERMS/CiTO/DCAT imports; ELI/ELI-DL/ELI-I/Akoma-Ntoso/USLM/LegalRuleML/RRMV/ECO/SEPIO/ODRL/DPV/Schema.org alignments. v0.1.x is editorial baseline only — wholesale supersession.",
     "delta_from_v0.1": [
