@@ -2,7 +2,7 @@
 
 *Making rules legible to software.*
 
-**Version** `0.2.0-pre.5` · **Bridge contract** `rkaf-bridge/1.0` · **Conformance** 216 L1-L4 fixtures plus vocabulary audit, 0 divergences
+**Version** `0.2.0-pre.6` · **Bridge contract** `rkaf-bridge/1.0` · **Conformance** 238 L1-L4 fixtures plus vocabulary audit, 0 divergences
 
 ---
 

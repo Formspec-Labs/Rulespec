@@ -10,7 +10,7 @@ partner:        "<organization or maintainer name>"
 implementation: "<package@version>"
 
 # The Rulespec commit / tag this self-certification was tested against.
-rulespec_version: "<commit hash or pre-release tag (e.g. 0.2.0-pre.5)>"
+rulespec_version: "<commit hash or pre-release tag (e.g. 0.2.0-pre.6)>"
 
 # Which levels this implementation claims to satisfy. Subset of [L1, L2, L3, L4].
 # Levels are cumulative — declaring L3 implies L1 + L2.

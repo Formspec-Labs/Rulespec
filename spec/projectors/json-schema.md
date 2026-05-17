@@ -12,7 +12,7 @@ A Rulespec overlay attaches to a JSON document via a single root-level extension
 {
   "<native fields>": "...",
   "x-rkaf": {
-    "rkaf-version": "0.2.0-pre.5",
+    "rkaf-version": "0.2.0-pre.6",
     "rkaf-depth":   "D1" | "D2" | "D3" | "D4" | "D5",
     "rkaf:overlay": "<a JSON-LD graph using context/rkaf-context.jsonld>"
   }
