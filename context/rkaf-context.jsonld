@@ -883,6 +883,24 @@
       "@type": "@id",
       "@container": "@set"
     },
+    "skos:prefLabel": {
+      "@type": "xsd:string"
+    },
+    "skos:altLabel": {
+      "@type": "xsd:string",
+      "@container": "@set"
+    },
+    "skos:broader": {
+      "@type": "@id"
+    },
+    "skos:narrower": {
+      "@type": "@id",
+      "@container": "@set"
+    },
+    "skos:related": {
+      "@type": "@id",
+      "@container": "@set"
+    },
     "rkaf:capturedAt": {
       "@type": "xsd:dateTime"
     },

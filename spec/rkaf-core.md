@@ -12,30 +12,21 @@ Per RFC 2119 / RFC 8174 (uppercase keywords are normative). Sections marked `[In
 
 The Rulespec vocabulary namespace is `https://rulespec.org/ns/v1#` with prefix `rkaf:`.
 
-**Imported namespaces** (direct dependencies; see §9):
+**Imported namespaces** (mode-1 direct predicate imports; see §9.1):
 - `prov:` → `http://www.w3.org/ns/prov#`
 - `oa:` → `http://www.w3.org/ns/oa#`
 - `skos:` → `http://www.w3.org/2004/02/skos/core#`
-- `dcterms:` → `http://purl.org/dc/terms/`
-- `cito:` → `http://purl.org/spar/cito/`
-- `dcat:` → `http://www.w3.org/ns/dcat#`
+- `eli:` → `http://data.europa.eu/eli/ontology#`
 - `rdf:` → `http://www.w3.org/1999/02/22-rdf-syntax-ns#`
 - `rdfs:` → `http://www.w3.org/2000/01/rdf-schema#`
 - `xsd:` → `http://www.w3.org/2001/XMLSchema#`
 - `sh:` → `http://www.w3.org/ns/shacl#` (compilation target only)
 
-**Aligned namespaces** (predicate-name and pattern compatibility; see §9):
-- `eli:` → `http://data.europa.eu/eli/ontology#`
+**Aligned namespaces** (mode-2/3 class-tag or URI-value composition; see §9.2):
 - `aknt:` → `http://docs.oasis-open.org/legaldocml/ns/akn/3.0/`
 - `uslm:` → `https://uslm.gov/2.1.0/`
-- `lrml:` → `http://docs.oasis-open.org/legalruleml/ns/v1.0/`
-- `rrmv:` → `http://data.europa.eu/m8g/rrmv/`
-- `eco:` → `http://purl.obolibrary.org/obo/ECO_`
-- `sepio:` → `http://purl.obolibrary.org/obo/SEPIO_`
 - `dpv:` → `https://w3id.org/dpv#`
 - `odrl:` → `http://www.w3.org/ns/odrl/2/`
-- `nano:` → `http://www.nanopub.org/nschema#`
-- `schemaorg:` → `https://schema.org/`
 
 ## 2. Three-axis claim model [Normative]
 
@@ -127,7 +118,7 @@ A warrant chain is hop-local: each hop carries its own `rkaf:warrantKind`, and c
 
 `rkaf:defeasible` (`xsd:boolean`, 0..1) is preserved for LegalRuleML interop.
 
-Alignments per §9: legal-family warrants align with **LegalRuleML**; reporting-requirement warrants align with **RRMV**; scientific-family warrants align with **ECO** / **SEPIO**.
+Future-projection alignments per §9.2.2: legal-family warrants have affinity with **LegalRuleML** (mode-4 pattern citation; `rkaf:defeasible` is the current interop point); reporting-requirement warrants have affinity with **RRMV**; scientific-family warrants have affinity with **ECO** / **SEPIO**. These promote to §9.2 when a partner consumer arrives with a named use case.
 
 ### 4.5 ConfidenceRecord
 
@@ -158,7 +149,9 @@ Conditional properties:
 
 Consumers MUST preserve `AccessScope` through retrieval, projection, summarization, federation, and AI-assisted consumption. A consumer that exposes content beyond its declared `AccessScope` is non-conformant. Layer 6 conformance includes adversarial fixtures designed to surface `AccessScope` leakage.
 
-Aligned with **W3C ODRL** (rights expression — overlay-attached, not inline) and **W3C DPV** (privacy classification — overlay-attached for `regulatoryRestricted` cases). Partners requiring full rights expression or full privacy classification attach ODRL / DPV overlays via the Layer 4 projector pattern.
+For `accessScopeKind = regulatoryRestricted` cases, AccessScope SHOULD compose `dpv:hasPersonalDataCategory` naming the specific personal-data category (e.g. `dpv:Health` for HIPAA-PHI cases, appropriate `dpv:*` personal-data subclasses for GDPR-PII cases) and SHOULD compose `dpv:hasLegalBasis` where applicable (e.g. a GDPR Art. 6 IRI). `dpv:hasPurpose` MAY additionally be composed to name the processing purpose. These predicates are cross-namespace annotations only; L1 and L3 impose no range constraints over `dpv:*` predicates — partner producers conform to DPV's own taxonomy (DPV 2.3, namespace `https://w3id.org/dpv#`).
+
+Aligned with **W3C ODRL** (rights expression — overlay-attached, not inline) and **W3C DPV** (privacy classification — composed directly for `regulatoryRestricted` cases via the three predicates above; see §9.2). Partners requiring full rights expression attach ODRL overlays via the Layer 4 projector pattern.
 
 ## 5. Studio-derived promotions [Normative]
 
@@ -257,39 +250,55 @@ Per source spec §1.5:
 
 ## 9. Public ontology imports and alignments [Normative]
 
-Rulespec composes deliberately with the existing public-ontology ecosystem. Three relationship modes are defined: **import** (code-level dependency in the JSON-LD context and SHACL shapes), **align** (predicate-name and pattern compatibility), **project** (partner-side carrier formats reached via the Layer 4 projector layer).
+Rulespec composes deliberately with the existing public-ontology ecosystem. Four composition modes govern how external namespaces integrate (see §9.2.1). Three relationship tiers are defined: **import** (mode-1 direct predicate import — predicate declared in `context/rkaf-context.jsonld` and used in CUE shape or projected schema), **align** (mode-2/3 class-tag or URI-value composition — external IRI carried as a typed value inside an rkaf-namespaced predicate), **project** (partner-side carrier formats reached via the Layer 4 projector layer). Pattern citations (mode 4) appear in §9.2.2 without a namespace claim. The decision framework governing cohort assignment is documented in `thoughts/specs/2026-05-20-section-9-composition-discipline.md` §3.
 
-### 9.1 Imports — direct dependencies
+### 9.1 Imports — mode-1 direct predicate imports
+
+This table lists only ontologies composed at mode 1: predicate declared in `context/rkaf-context.jsonld` and used directly in CUE shapes or projected schemas. Ontologies aligned at mode 2/3 appear in §9.2; pattern citations (mode 4) appear in §9.2.2.
 
 | Ontology | Prefix | Role |
 |---|---|---|
-| **W3C PROV-O** | `prov:` | Provenance vocabulary. `prov:wasDerivedFrom` chains compose with cryptographic anchoring (§7) and AI lineage records (§5.3). |
+| **W3C PROV-O** | `prov:` | Provenance vocabulary. `prov:wasGeneratedBy`, `prov:wasAttributedTo`, `prov:wasDerivedFrom`, `prov:generatedAtTime` compose with cryptographic anchoring (§7) and AI lineage records (§5.3). |
 | **W3C Web Annotation Ontology (OA)** | `oa:` | Selector vocabulary for `SourceFragment` (§4.2). Foundational selector kinds (`oa:FragmentSelector`, `oa:TextQuoteSelector`, `oa:TextPositionSelector`, `oa:RangeSelector`, `oa:XPathSelector`, `oa:CssSelector`) MUST be supported by every Rulespec implementation handling source fragments. |
 | **W3C SKOS** | `skos:` | Concept relations (`closeMatch`, `exactMatch`, `broader`, `narrower`, `related`, `mappingRelation`) for the Concept Registry (`spec/rkaf-concept-registry.md`). |
-| **DCTERMS** (Dublin Core) | `dcterms:` | Generic metadata + supersession (`dcterms:replaces` / `dcterms:isReplacedBy`). |
-| **CiTO** (Citation Typing Ontology) | `cito:` | Scholarly citation typing (`cito:supports`, `cito:disagreesWith`, `cito:extends`). |
-| **DCAT** | `dcat:` | Reference Corpora layer metadata. |
+| **ELI** (European Legislation Identifier) | `eli:` | Rulespec v0.2 composes **ELI 1.5 core** (2024 release; namespace `http://data.europa.eu/eli/ontology#`, stable across v1.0 → v1.5). Use ELI URIs as the canonical Artifact identifier scheme for EU legal sources (§4.1). Do not duplicate ELI's URI structure or metadata model; compose. For multi-predecessor consolidation edges (one consolidated text incorporating multiple prior versions or amending acts), compose `eli:consolidates` (and inverse `eli:consolidated_by`) directly — both predicates are non-functional in ELI 1.5 and explicitly designed for repeated use. Consolidation is semantically distinct from supersession: `eli:consolidates` denotes editorial restatement that incorporates predecessors which remain legally extant; `rkaf:supersedesAssertion` (§6, Lifecycle primitives) denotes replacement where predecessors become historical. Use both together when appropriate. Breaking changes in a future ELI 2.0 trigger an alignment-row re-evaluation: Rulespec declines L1/L3 constraints over `eli:*` predicates by design (partners conform to ELI's own domain/range), so migration policy must be documented at the alignment layer. |
+| **ELI-DL** | (sub-namespace) | Compose ELI-DL identifiers + metadata for assertions over draft/pending legislation. Lifecycle packets carry ELI-DL state transitions natively. |
+| **ELI-I** (Legal Impacts) | (sub-namespace) | Canonical model for fragment-continuity resolution under amendment in EU legal sources. Rulespec implementations targeting EU legal sources SHOULD compose ELI-I edges into supersession traversal (§4.2). |
 | **JSON-LD 1.1** | (carrier) | Primary serialization. Layer 4 projector target. |
 | **SHACL** | `sh:` | One Layer 2 compilation target (demoted from authoritative; see Appendix C of source spec). |
 | **RDF / RDFS / XSD** | `rdf:` / `rdfs:` / `xsd:` | Base graph model and typed literals. |
 
-### 9.2 Alignments — predicate-name and pattern compatibility
+### 9.2 Alignments — mode-2/3 class-tag and URI-value composition
 
 | Ontology | Domain | Alignment posture |
 |---|---|---|
-| **ELI** (European Legislation Identifier) | EU legal-resource identifiers + metadata | Rulespec v0.2 composes **ELI 1.5 core** (2024 release; namespace `http://data.europa.eu/eli/ontology#`, stable across v1.0 → v1.5). Use ELI URIs as the canonical Artifact identifier scheme for EU legal sources (§4.1). Do not duplicate ELI's URI structure or metadata model; compose. For multi-predecessor consolidation edges (one consolidated text incorporating multiple prior versions or amending acts), compose `eli:consolidates` (and inverse `eli:consolidated_by`) directly — both predicates are non-functional in ELI 1.5 and explicitly designed for repeated use. Consolidation is semantically distinct from supersession: `eli:consolidates` denotes editorial restatement that incorporates predecessors which remain legally extant; `rkaf:supersedesAssertion` (§6, Lifecycle primitives) denotes replacement where predecessors become historical. Use both together when appropriate. Breaking changes in a future ELI 2.0 trigger an alignment-row re-evaluation: Rulespec declines L1/L3 constraints over `eli:*` predicates by design (partners conform to ELI's own domain/range), so migration policy must be documented at the alignment layer. |
-| **ELI-DL** | Draft legislation | Compose ELI-DL identifiers + metadata for assertions over draft/pending legislation. Lifecycle packets carry ELI-DL state transitions natively. |
-| **ELI-I** (Legal Impacts) | Legislative impacts and amendments | Canonical model for fragment-continuity resolution under amendment in EU legal sources. Rulespec implementations targeting EU legal sources SHOULD compose ELI-I edges into supersession traversal (§4.2). |
-| **RRMV** (Reporting Requirement Metadata Vocabulary) | Reporting requirements in legal provisions | Align warrant chains for reporting-requirement assertions with RRMV's vocabulary (§4.4). RRMV's "who reports what / due dates / change tracking / requirement-to-artifact association" use cases map directly onto Rulespec assertions over reporting obligations. |
-| **Akoma Ntoso / LegalDocML** | Legal-document XML structure | Use Akoma Ntoso `eId` paths as a SourceFragment selector kind for legislative source-document substructure (§4.2). |
-| **USLM** (United States Legislative Markup) | US legislative XML structure | Use USLM section identifiers as a SourceFragment selector kind for US legal sources (§4.2). |
-| **OASIS LegalRuleML** | Formal legal norms (defeasibility, deontic) | Align legal-family warrants (§4.4); preserve `rkaf:defeasible` boolean for interop. Partners producing formal legal rules emit LegalRuleML and link via `rkaf:hasWarrant`. |
-| **ECO** (Evidence & Conclusion Ontology) / **SEPIO** | Scientific evidence types | Align the scientific-warrant family (`methodological` / `empirical` / `replication` / `peerReview`) with ECO's evidence-type vocabulary (§4.4). |
-| **Nanopublications** | Portable assertion + provenance + publication-info graphs | Align the overlay-attachment pattern with the nanopublication shape: assertion graph + provenance graph + publication-info graph. A Rulespec overlay is structurally a generalized nanopublication carrying domain-specific warrant chains. |
-| **W3C ODRL** | Rights/permission expression | Align `AccessScope` (§4.6) predicate names with ODRL where they overlap; partners requiring full rights expression attach ODRL overlays via the projector. |
-| **W3C DPV** | Privacy semantics | Align `AccessScope` `regulatoryRestricted` cases (§4.6) with DPV's privacy / personal-data / legal-basis vocabulary; partners requiring full privacy classification attach DPV overlays. |
-| **Schema.org / Schema.org/Legislation** | Public web markup | Align an export projection for SEO-grade public publication of assertions and source artifacts. Public-discovery layer only; not the operating model. |
-| **DCAT / VoID** | Dataset catalog / linked-data discovery | Align the Reference Corpora layer for dataset publication. Rulespec corpora SHOULD ship with DCAT-compatible metadata. |
+| **Akoma Ntoso / LegalDocML** | Legal-document XML structure | Composed as rkaf-namespaced selector kind (`rkaf:aknt-eId`) and identifier scheme. External prefix `aknt:` declared for forward compatibility; no `aknt:*` predicate is currently used directly. Use Akoma Ntoso `eId` paths as a SourceFragment selector kind for legislative source-document substructure (§4.2). |
+| **USLM** (United States Legislative Markup) | US legislative XML structure | Composed as rkaf-namespaced selector kind (`rkaf:uslm-section`) and identifier scheme. External prefix `uslm:` declared for forward compatibility; no `uslm:*` predicate is currently used directly. Use USLM section identifiers as a SourceFragment selector kind for US legal sources (§4.2). |
+| **W3C ODRL** | Rights/permission expression | ODRL alignment is composed at the overlay-projector layer (mode 2/3), not as predicate-level imports. Partners requiring full rights expression attach ODRL overlays via the Layer 4 projector contract. `rkaf:accessScopeKind` remains the operative predicate; ODRL maps over it at the projector boundary. |
+| **W3C DPV** | Privacy semantics | DPV alignment lands as predicate-level composition into `rkaf:AccessScope` (see ticket PKA-gb5c). For `accessScopeKind = regulatoryRestricted` cases, conformance SHOULD compose `dpv:hasPersonalDataCategory` and `dpv:hasLegalBasis`; L1 does not enforce DPV range constraints (partner producers conform to DPV's own taxonomy). |
+
+#### 9.2.1 Modes of composition
+
+The four composition modes classify how each alignment row integrates with the Rulespec corpus. Each mode carries different debt characteristics; the decision framework for cohort assignment is in `thoughts/specs/2026-05-20-section-9-composition-discipline.md` §2–§3.
+
+| Mode | Name | Description | Debt level | Examples |
+|------|------|-------------|------------|---------|
+| **1** | Direct predicate import | Predicate declared in `context/rkaf-context.jsonld`; used in CUE shape or projected schema. Highest commitment — context declaration is a release-boundary constraint. | Highest | `prov:wasGeneratedBy`, `eli:consolidates`, `oa:TextQuoteSelector` |
+| **2** | Class-tag composition | External IRI used as `@type` value or as a typed-string enum value inside an rkaf-namespaced predicate. No direct predicate import required. | Moderate | `oa:TextQuoteSelector` as `rkaf:selectorKind` value; `skos:exactMatch` as `rkaf:mappingPredicate` |
+| **3** | URI-value composition | External URI carried inside an rkaf-namespaced predicate, gated by a scheme enum. External structure is data, not graph shape. | Moderate | ELI URIs in `rkaf:hasArtifactIdentifier` where `rkaf:artifactIdentifierScheme: "rkaf:eli"` |
+| **4** | Pattern citation | Architectural prior art with no predicate or URI flow. No namespace declaration required. Preserves design rationale without accruing context debt. | Lowest | Nanopublications (overlay-shape pattern); LegalRuleML (defeasibility-preservation discipline) |
+
+#### 9.2.2 See also — partner ontologies for future projection
+
+The following ontologies have real theoretical value for Rulespec's positioning but no current consumer demand sufficient to validate a specific binding shape. Composing now would lock in an untested binding. Listed here to preserve option value at zero current debt. **Promote each row to §9.2 (Alignments) when a partner consumer arrives with a named use case.**
+
+| Ontology | Domain | Rationale for deferral |
+|---|---|---|
+| **OASIS LegalRuleML** (`lrml:`) | Formal legal norms (defeasibility, deontic) | Pattern citation only (mode 4). `rkaf:defeasible` boolean already captures the interop point; full `lrml:` predicate import deferred until a partner produces LegalRuleML output requiring a concrete binding. |
+| **RRMV** (Reporting Requirement Metadata Vocabulary) (`rrmv:`) | Reporting requirements in legal provisions | Theoretical alignment with warrant chains for reporting-requirement assertions is sound; no named partner demand to validate binding shape. Promote when a reporting-obligation producer arrives. |
+| **ECO** (Evidence & Conclusion Ontology) / **SEPIO** (`eco:` / `sepio:`) | Scientific evidence types | Scientific-warrant family (`methodological` / `empirical` / `replication` / `peerReview`) has structural affinity with ECO/SEPIO; no current consumer requiring the cross-namespace annotation. |
+| **CiTO** (Citation Typing Ontology) (`cito:`) | Scholarly citation typing | `cito:supports`, `cito:disagreesWith`, `cito:extends` align with EvidenceBinding semantics; no current corpus requiring the citation-typing cross-reference. |
+| **DCTERMS** (Dublin Core) (`dcterms:`) | Generic metadata + supersession | `dcterms:replaces` / `dcterms:isReplacedBy` overlap with `rkaf:supersedesAssertion` (§6); no current consumer requiring the DCTERMS supersession cross-namespace predicate. Promote if a linked-data consumer requires DC-compatible supersession edges. |
 
 ### 9.3 Projections — partner-side carrier formats reached via Layer 4
 
@@ -305,7 +314,7 @@ Rulespec composes deliberately with the existing public-ontology ecosystem. Thre
 
 ### 9.4 Discipline
 
-The composition discipline is: **do not reinvent**. If a public ontology owns the local problem (ELI for EU legal-resource identity, USLM for US legal source structure, RRMV for reporting requirements, ECO for scientific evidence, OA for selectors), Rulespec uses it. Rulespec's Vocabulary expresses what is genuinely missing — the universal warrant model, the federation contract, the consumer-overlay pattern, the depth gradient, the cross-domain conformance suite. Everything else composes.
+The composition discipline is: **do not reinvent**. If a public ontology owns the local problem (ELI for EU legal-resource identity, USLM for US legal source structure, OA for selectors, SKOS for concept relations, PROV-O for provenance), Rulespec uses it. Rulespec's Vocabulary expresses what is genuinely missing — the universal warrant model, the federation contract, the consumer-overlay pattern, the depth gradient, the cross-domain conformance suite. Everything else composes. See `thoughts/specs/2026-05-20-section-9-composition-discipline.md` for the four-cohort decision framework governing future composition decisions.
 
 ## 10. Validation contract [Normative]
 
