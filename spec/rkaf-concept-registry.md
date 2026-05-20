@@ -20,13 +20,19 @@ Concept resolution establishes **semantic compatibility**. It does NOT establish
 
 Required properties on a canonical `rkaf:RegisteredConcept`:
 - `@type`: includes `skos:Concept` and `rkaf:RegisteredConcept`.
-- `skos:prefLabel` (1).
+- `skos:prefLabel` (1). Enforced via `constraints/core/concept.cue` at L1; producers omitting `skos:prefLabel` are rejected at validation.
 - `rkaf:managedByRegistry` (1, IRI).
 - `rkaf:conceptScope` (1, closed enum).
 - `rkaf:conceptStatus` (1, closed enum).
 - `rkaf:registeredAt` (1, `xsd:dateTime`).
 
-Local concepts use `rkaf:LocalConcept` typed nodes, with `rkaf:definedInScope` (IRI of the owning Workspace or organizational scope).
+Optional SKOS predicates on both `RegisteredConcept` and `LocalConcept` (all at L1 optional; not constrained by Rulespec, partner producers conform to SKOS domain/range):
+- `skos:altLabel` (0..*) — synonym or alternate labels.
+- `skos:broader` (0..*) — IRI(s) of broader/parent concepts.
+- `skos:narrower` (0..*) — IRI(s) of narrower/child concepts.
+- `skos:related` (0..*) — IRI(s) of associatively related concepts.
+
+Local concepts use `rkaf:LocalConcept` typed nodes, with `rkaf:definedInScope` (IRI of the owning Workspace or organizational scope). `skos:prefLabel` (1) is required on `LocalConcept` as well; enforced by the same `constraints/core/concept.cue` shape.
 
 ### 2.2 rkaf:ConceptMapping
 

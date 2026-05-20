@@ -4,5 +4,6 @@
   "@type": "rkaf:RegisteredConcept",
   "rkaf:managedByRegistry": "urn:rkaf:registry:fns-canonical",
   "rkaf:conceptScope": "fns/snap/income",
-  "rkaf:conceptStatus": "rkaf:promoted"
+  "rkaf:conceptStatus": "rkaf:promoted",
+  "skos:prefLabel": "Income evidence (promoted)"
 }
