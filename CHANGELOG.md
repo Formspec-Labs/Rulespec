@@ -36,6 +36,14 @@ WOS Studio (Authoring) becomes the first Rulespec reference consumer at conforma
 
 Per source spec §14.3, no framework-side requirement that future partners adopt at D3+. Studio's depth-D3 commitment is a Studio commitment, not a framework requirement.
 
+## Unreleased — AI-governance vocabulary review (ADR 0149)
+
+### Documented — no vocabulary diff
+
+- `thoughts/adr/0149-pkaf-compose-patterns-vs-ai-governance-vocabulary.md` (stack-level) rejects six proposed AI-governance vocabulary additions (`rkaf:Projection`, `rkaf:Proposal` + Promotion, `rkaf:RetrievalPolicy`, `rkaf:SourceVersion`, `rkaf:AnswerTraceBundle`, `rkaf:MaterializedEdge`) as wholesale or near-wholesale duplications of existing primitives. Net new core terms: 0. Net new classes: 0. Closed-taxonomy discipline preserved.
+- `context/COMPOSE-PATTERNS.md` ships six reader-facing recipes showing the existing-primitive composition that satisfies each rejected proposal, with line-level citations to `spec/`, `constraints/core/`, `context/rkaf-context.jsonld`, and `crates/rkaf-runtime/`. First place a consumer looks when tempted to propose new vocabulary.
+- `thoughts/plans/2026-05-21-eli-i-consolidates-spike.md` queues a bounded ~1-day investigation into whether `eli:consolidates` composes directly into the rkaf context (via `owl:equivalentProperty`) for multi-predecessor source consolidation, or whether a single `rkaf:consolidates` predicate (no class) is warranted. Resolution pending; no vocabulary change in this entry.
+
 ## Unreleased — Plan 7e + ADR-0093 review follow-ups
 
 Coordinated cleanup pass closing the actionable findings from three neutral semi-formal reviews: Plan 7e APPROVE-WITH-NITS (6 items, F1-F6 below), the `b6c24de` polish-commit nit review (4 items, N1-N3), and a cross-stack Studio cutover port (ADR-0093 derive).
