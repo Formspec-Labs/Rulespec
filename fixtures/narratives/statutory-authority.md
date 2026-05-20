@@ -259,7 +259,7 @@ The CAA's operational requirement claims `hasAuthority` via the federal regulati
     {
       "@type": "rkaf:EvidenceBinding",
       "rkaf:evidenceRole": "rkaf:authorityCitation",
-      "rkaf:sourceFragment": "https://example.gov/fragment/45-cfr-96-30/identity-evidence-paragraph",
+      "rkaf:bindsSourceFragment": "https://example.gov/fragment/45-cfr-96-30/identity-evidence-paragraph",
       "rkaf:supportingQuote": "Eligible entities shall verify each applicant's identity through documentation including but not limited to: state-issued identification, passport, or equivalent."
     }
   ]

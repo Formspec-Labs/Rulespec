@@ -598,9 +598,6 @@
     "rkaf:precedingVersion": {
       "@type": "@id"
     },
-    "rkaf:sourceFragment": {
-      "@type": "@id"
-    },
     "rkaf:supportingEvent": {
       "@type": "@id"
     },
@@ -933,6 +930,9 @@
     },
     "rkaf:detectedBy": {
       "@type": "@id"
+    },
+    "rkaf:lastVerifiedAt": {
+      "@type": "xsd:dateTime"
     },
     "rkaf:verifiedBy": {
       "@type": "@id"

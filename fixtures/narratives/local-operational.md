@@ -132,7 +132,7 @@ No `assertionState`. Effective state computed from attestations/adoptions per sc
     {
       "@type": "rkaf:EvidenceBinding",
       "rkaf:evidenceRole": "rkaf:retrievalSignal",
-      "rkaf:sourceFragment": "https://example.org/fragment/wiki-csbg-eligibility-rev-1247/sec-3-p2"
+      "rkaf:bindsSourceFragment": "https://example.org/fragment/wiki-csbg-eligibility-rev-1247/sec-3-p2"
     }
   ],
   "rkaf:hasConfidence": {
@@ -167,7 +167,7 @@ No `assertionState`. Effective state computed from attestations/adoptions per sc
     {
       "@type": "rkaf:EvidenceBinding",
       "rkaf:evidenceRole": "rkaf:textualEvidence",
-      "rkaf:sourceFragment": "https://example.org/fragment/wiki-csbg-eligibility-rev-1247/sec-3-p2",
+      "rkaf:bindsSourceFragment": "https://example.org/fragment/wiki-csbg-eligibility-rev-1247/sec-3-p2",
       "rkaf:supportingQuote": "must provide documentation establishing household income for the prior twelve months"
     }
   ],
@@ -348,7 +348,7 @@ LocalAdoption with `adoptionAuthorityKind: localOperational` is the chain termin
     {
       "@type": "rkaf:EvidenceBinding",
       "rkaf:evidenceRole": "rkaf:textualEvidence",
-      "rkaf:sourceFragment": "https://example.org/fragment/wiki-csbg-eligibility-rev-1247/sec-3-p2"
+      "rkaf:bindsSourceFragment": "https://example.org/fragment/wiki-csbg-eligibility-rev-1247/sec-3-p2"
     }
   ],
   "rkaf:hasApplicability": {
@@ -634,7 +634,7 @@ This step is the non-cascading branch's exit point — if classification had ret
     {
       "@type": "rkaf:EvidenceBinding",
       "rkaf:evidenceRole": "rkaf:textualEvidence",
-      "rkaf:sourceFragment": "https://example.org/fragment/wiki-csbg-eligibility-rev-1302/sec-3-p2"
+      "rkaf:bindsSourceFragment": "https://example.org/fragment/wiki-csbg-eligibility-rev-1302/sec-3-p2"
     }
   ],
   "rkaf:hasApplicability": {
