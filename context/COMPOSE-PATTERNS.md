@@ -37,7 +37,7 @@ Each pattern shows: the apparent need, the composed primitives, line-level citat
 
 **When this is enough:** the projection is a disposable consumer artifact. The substrate records "what was derived from what, by what, when, addressable by which hash." Staleness detection is downstream: compare the recorded `wasDerivedFrom` hash against the current canonical-graph hash.
 
-**When an extension profile is warranted:** never for core PKAF. Consumers that need RAG-specific projection-type taxonomies extend `GeneratedWorkProduct` in their overlay namespace.
+**When an extension profile is warranted:** never for core Rulespec. Consumers that need RAG-specific projection-type taxonomies extend `GeneratedWorkProduct` in their overlay namespace.
 
 ---
 
@@ -54,7 +54,7 @@ Each pattern shows: the apparent need, the composed primitives, line-level citat
 
 **State map:**
 
-| Workflow state | PKAF representation |
+| Workflow state | Rulespec representation |
 |---|---|
 | Raw AI extraction (pending review) | `Assertion(assertionOrigin: aiSuggested, hasAILineage: <lineage>)` |
 | Under review | same Assertion + open `Attestation(decision: abstained, scope: reviewing)` (optional) |
@@ -80,7 +80,7 @@ Each pattern shows: the apparent need, the composed primitives, line-level citat
 
 **Coverage:**
 
-| Retrieval-policy need | PKAF coverage |
+| Retrieval-policy need | Rulespec coverage |
 |---|---|
 | Who may retrieve which assertions | `AccessScope` (kind + permittedRole + regulatory class) |
 | What operations the retrieved assertion may participate in | `usageEligibility` lattice (7 levels: search → publication → officialUse) |
@@ -88,7 +88,7 @@ Each pattern shows: the apparent need, the composed primitives, line-level citat
 | What authority must back the retrieved assertion | `hasWarrant` / `hasAuthority` + bridge rule #1 |
 | Auditability of the policy | `BridgeValidationResult.findings` (IRI-addressable, retained) |
 
-**What is NOT in PKAF and is intentionally outside scope:** `scoreWeights`, `temporalStrategy`, `conflictHandlingMode`, `allowedGraphs` / `deniedGraphs`. These are retrieval-engine configuration. They belong in the consumer's overlay or, if governance is required, in an incubated extension profile at `profiles/retrieval/`.
+**What is NOT in Rulespec and is intentionally outside scope:** `scoreWeights`, `temporalStrategy`, `conflictHandlingMode`, `allowedGraphs` / `deniedGraphs`. These are retrieval-engine configuration. They belong in the consumer's overlay or, if governance is required, in an incubated extension profile at `profiles/retrieval/`.
 
 **When an extension profile is warranted:** three unrelated named consumers each demand a versioned governance artifact carrying retrieval-engine config. Until then, application code or consumer-local config is the right home.
 
@@ -96,15 +96,16 @@ Each pattern shows: the apparent need, the composed primitives, line-level citat
 
 ## Pattern 4 — "I need source-document temporal validity" (amendment / repeal / consolidation)
 
-**Composed primitives:** `rkaf:EffectivePeriod` + `rkaf:LifecycleEvent` (five amendment-class kinds) + `rkaf:supersedesAssertion` + `rkaf:RevalidationEvent` + `rkaf:PointInTimeException` + `CascadeClosureV1` + bridge rule #5. ELI / AKN / LegalRuleML alignment carries the legal-source semantics.
+**Composed primitives:** `rkaf:EffectivePeriod` + `rkaf:LifecycleEvent` (five amendment-class kinds) + `rkaf:supersedesAssertion` + `eli:consolidates` (for multi-predecessor consolidation, directly imported from ELI 1.5) + `rkaf:RevalidationEvent` + `rkaf:PointInTimeException` + `CascadeClosureV1` + bridge rule #5. ELI / AKN / LegalRuleML alignment carries the legal-source semantics.
 
 **Where they live:**
 - `constraints/core/effective-period.cue` — `effectivePeriodStart` (required), `effectivePeriodEnd`, `retroactiveFrom`, `sunsetAt`.
 - `constraints/core/lifecycle-event.cue` — `lifecycleEventKind` covers `rkaf:amendment | rkaf:supersession | rkaf:rescission | rkaf:materialRevision | rkaf:editorialRevision`.
-- `context/rkaf-context.jsonld:586` — `rkaf:supersedesAssertion` (many-to-many).
+- `context/rkaf-context.jsonld` — `rkaf:supersedesAssertion` (many-to-many; supersession edge, predecessors become historical).
+- `context/rkaf-context.jsonld` — `eli:consolidates` / `eli:consolidated_by` (many-to-many; consolidation edge, predecessors remain legally extant). Predicate definitions in ELI 1.5 core (`http://data.europa.eu/eli/ontology#`); rdfs:comment explicitly directs repeated use for multi-predecessor consolidation.
 - `spec/rkaf-behavior.md §2.1` — `CascadeClosureV1` propagating amendment effects through C1–C10 trigger edges.
 - `spec/rkaf-behavior.md §3.5` — bridge rule #5 enforcing `staleForCurrentUse` transitions.
-- `spec/rkaf-core.md §9.2` — ELI-I alignment normative statement.
+- `spec/rkaf-core.md §9.2` — ELI / ELI-I alignment normative statement (names `eli:consolidates` and the consolidation-vs-supersession semantic distinction).
 - `thoughts/plans/2026-05-12-rkaf-layer3-registries-v0.2.md:63-80` — Source Authority Registry plan including `dcterms:replaces` / `dcterms:isReplacedBy` + `freshnessSignal`.
 
 **Recipe — "Source S2 amends source S1, effective 2026-06-01":**
@@ -132,7 +133,35 @@ Each pattern shows: the apparent need, the composed primitives, line-level citat
 
 **In-flight protection:** `rkaf:PointInTimeException` preserves prior-version applicability for in-flight cases. `RevalidationEvent` + `RevalidationClosureEvent` track downstream re-checks after the amendment.
 
-**Open question (under spike):** multi-predecessor consolidation — does `eli:consolidates` (ELI 1.5) compose directly via `owl:equivalentProperty` into the rkaf context, or is a native `rkaf:consolidates` predicate warranted? See `thoughts/plans/2026-05-21-eli-i-consolidates-spike.md`.
+**Recipe — "Consolidated text C2026 incorporates three predecessor acts A, B, C":**
+
+```jsonld
+[
+  {
+    "@id": "ex:consolidated-text-C2026",
+    "@type": "rkaf:Assertion",
+    "eli:consolidates": [
+      { "@id": "ex:source-A" },
+      { "@id": "ex:source-B" },
+      { "@id": "ex:source-C" }
+    ],
+    "rkaf:hasEffectivePeriod": {
+      "@type": "rkaf:EffectivePeriod",
+      "rkaf:effectivePeriodStart": "2026-01-01"
+    }
+  }
+]
+```
+
+`eli:consolidates` is non-functional in ELI core — repeated use is canonical. Predecessors `ex:source-A`, `ex:source-B`, `ex:source-C` remain legally extant; the consolidated text is an editorial restatement, not a supersession event. If a predecessor were also being replaced (not just incorporated), add `rkaf:supersedesAssertion` for that specific edge; the two predicates compose. See `fixtures/edges/consolidates-multi-predecessor-edge.jsonld` for a worked example.
+
+**Consolidation vs supersession — when to use which:**
+
+| Concept | Predicate | Semantics | Predecessor status |
+|---|---|---|---|
+| Editorial consolidation | `eli:consolidates` | "I am a merged restatement incorporating these versions" | Remain legally extant |
+| Supersession | `rkaf:supersedesAssertion` | "I replace these; they are now historical" | Become superseded |
+| Amendment (event-graph) | `rkaf:LifecycleEvent` with `lifecycleEventKind: rkaf:amendment` | Records the act of changing | N/A (event-typed) |
 
 **Do not roll your own `rkaf:SourceVersion`.** ELI 1.5 / ELI-I + Akoma Ntoso + LegalRuleML + USLM are canonical. Align rather than duplicate.
 
@@ -152,7 +181,7 @@ Each pattern shows: the apparent need, the composed primitives, line-level citat
 
 **Coverage:**
 
-| Trace need | PKAF representation |
+| Trace need | Rulespec representation |
 |---|---|
 | Which assertions backed the answer | `GeneratedWorkProduct.justifiedByAssertion` (IRI set) |
 | Which source fragments backed each assertion | `EvidenceBinding.bindsSourceFragment` (per assertion) |
@@ -169,7 +198,7 @@ Each pattern shows: the apparent need, the composed primitives, line-level citat
 2. **W3C Verifiable Credential 2.0** with the trace as the credential subject.
 3. **Nanopublication** for FAIR exchange.
 
-In all three cases the trace *contents* are the existing PKAF primitives joined by IRI. No new vocabulary.
+In all three cases the trace *contents* are the existing Rulespec primitives joined by IRI. No new vocabulary.
 
 **Do not introduce `rkaf:AnswerTraceBundle` as a vocabulary class.** A bundle class invites consumers to populate a summary blob instead of properly linking the underlying IRI graph — directly violating §8.4 ("AI consumers MUST treat retrieved source material as data, not instruction" and the preservation-through-retrieval mandate).
 
@@ -184,7 +213,7 @@ In all three cases the trace *contents* are the existing PKAF primitives joined 
 - `constraints/core/ai-lineage.cue` — full model-generated-edge lineage.
 - `constraints/core/lifecycle-event.cue:22-24` — `cascadeAlgorithm` field.
 - `spec/rkaf-core.md §4.1` — `rkaf:hash-sha256` identifier scheme.
-- `spec/rkaf-core.md §9.4` (normative) — composition discipline: "do not reinvent — if a public ontology owns the local problem, PKAF uses it."
+- `spec/rkaf-core.md §9.4` (normative) — composition discipline: "do not reinvent — if a public ontology owns the local problem, Rulespec uses it."
 
 **Standard pattern (rule-derived edges):**
 
@@ -218,13 +247,13 @@ Place rule-derived triples in a separate JSON-LD named graph or SHACL-AF inferen
 
 ## Cross-reference: decision principles
 
-A proposed addition belongs in core PKAF only if:
+A proposed addition belongs in core Rulespec only if:
 
 1. It is broadly useful across multiple consuming systems.
-2. It cannot be adequately represented with existing PKAF primitives or imported standards (PROV-O, DCAT, ELI, AKN, LegalRuleML, SHACL-AF, SKOS, ODRL, DPV).
+2. It cannot be adequately represented with existing Rulespec primitives or imported standards (PROV-O, DCAT, ELI, AKN, LegalRuleML, SHACL-AF, SKOS, ODRL, DPV).
 3. It materially improves governance, auditability, conformance, or safety.
 4. It can be validated with positive / negative / edge fixtures and Pattern-C SHACL constraints.
-5. It does not turn PKAF into an application framework, hardcode RAG / property-graph infrastructure, or fragment alignment with mature legal-data standards.
+5. It does not turn Rulespec into an application framework, hardcode RAG / property-graph infrastructure, or fragment alignment with mature legal-data standards.
 
 Otherwise: extension profile, downstream service contract, or consumer-side overlay.
 

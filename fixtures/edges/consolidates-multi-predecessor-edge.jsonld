@@ -1,0 +1,30 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@graph": [
+    {
+      "@id": "urn:rkaf:fixture:consolidates-multi:source-A",
+      "@type": "rkaf:Assertion",
+      "rkaf:assertionOrigin": "rkaf:humanAsserted"
+    },
+    {
+      "@id": "urn:rkaf:fixture:consolidates-multi:source-B",
+      "@type": "rkaf:Assertion",
+      "rkaf:assertionOrigin": "rkaf:humanAsserted"
+    },
+    {
+      "@id": "urn:rkaf:fixture:consolidates-multi:source-C",
+      "@type": "rkaf:Assertion",
+      "rkaf:assertionOrigin": "rkaf:humanAsserted"
+    },
+    {
+      "@id": "urn:rkaf:fixture:consolidates-multi:consolidated-2026",
+      "@type": "rkaf:Assertion",
+      "rkaf:assertionOrigin": "rkaf:humanAsserted",
+      "eli:consolidates": [
+        { "@id": "urn:rkaf:fixture:consolidates-multi:source-A" },
+        { "@id": "urn:rkaf:fixture:consolidates-multi:source-B" },
+        { "@id": "urn:rkaf:fixture:consolidates-multi:source-C" }
+      ]
+    }
+  ]
+}

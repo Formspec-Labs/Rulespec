@@ -878,6 +878,14 @@
     "prov:generatedAtTime": {
       "@type": "xsd:dateTime"
     },
+    "eli:consolidates": {
+      "@type": "@id",
+      "@container": "@set"
+    },
+    "eli:consolidated_by": {
+      "@type": "@id",
+      "@container": "@set"
+    },
     "rkaf:capturedAt": {
       "@type": "xsd:dateTime"
     },
