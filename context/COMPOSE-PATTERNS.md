@@ -88,6 +88,24 @@ Each pattern shows: the apparent need, the composed primitives, line-level citat
 | What authority must back the retrieved assertion | `hasWarrant` / `hasAuthority` + bridge rule #1 |
 | Auditability of the policy | `BridgeValidationResult.findings` (IRI-addressable, retained) |
 
+**Recipe — "regulatoryRestricted AccessScope composing DPV privacy classification (GDPR/HIPAA)":**
+
+```jsonld
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@id": "ex:access-scope-hipaa-phi",
+  "@type": "rkaf:AccessScope",
+  "rkaf:accessScopeKind": "rkaf:regulatoryRestricted",
+  "rkaf:regulatoryClass": ["rkaf:HIPAA-PHI"],
+  "dpv:hasPersonalDataCategory": [
+    { "@id": "https://w3id.org/dpv/dpv-pd#MedicalHealth" }
+  ],
+  "dpv:hasLegalBasis": { "@id": "https://w3id.org/dpv/legal/us#HIPAA" }
+}
+```
+
+`dpv:hasPersonalDataCategory` carries a set of DPV personal-data-category IRIs (DPV-PD sub-vocabulary). `dpv:hasLegalBasis` carries a single IRI identifying the applicable legal basis. `dpv:hasPurpose` is optional and names the processing purpose. L1 does not constrain DPV predicate ranges; these are cross-namespace annotations only. See `fixtures/edges/access-scope-with-dpv-composition-positive.jsonld` for a worked example and `spec/rkaf-core.md §9.2` for the version-pinned alignment row (DPV 2.3).
+
 **What is NOT in Rulespec and is intentionally outside scope:** `scoreWeights`, `temporalStrategy`, `conflictHandlingMode`, `allowedGraphs` / `deniedGraphs`. These are retrieval-engine configuration. They belong in the consumer's overlay or, if governance is required, in an incubated extension profile at `profiles/retrieval/`.
 
 **When an extension profile is warranted:** three unrelated named consumers each demand a versioned governance artifact carrying retrieval-engine config. Until then, application code or consumer-local config is the right home.

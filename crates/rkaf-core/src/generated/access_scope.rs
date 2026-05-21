@@ -50,6 +50,12 @@ pub struct AccessScope {
     pub id: Option<String>,
     #[serde(rename = "rkaf:accessScopeKind")]
     pub access_scope_kind: AccessScopeKind,
+    #[serde(rename = "dpv:hasPersonalDataCategory", skip_serializing_if = "Option::is_none", default)]
+    pub has_personal_data_category: Option<crate::OneOrMany<String>>,
+    #[serde(rename = "dpv:hasLegalBasis", skip_serializing_if = "Option::is_none", default)]
+    pub has_legal_basis: Option<String>,
+    #[serde(rename = "dpv:hasPurpose", skip_serializing_if = "Option::is_none", default)]
+    pub has_purpose: Option<String>,
     #[serde(flatten)]
     pub extra: BTreeMap<String, serde_json::Value>,
 }

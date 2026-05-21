@@ -876,6 +876,7 @@ def target_shacl(doc: ConstraintDoc) -> str:
         "@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .",
         "@prefix oa:   <http://www.w3.org/ns/oa#> .",
         "@prefix skos: <http://www.w3.org/2004/02/skos/core#> .",
+        "@prefix dpv:  <https://w3id.org/dpv#> .",
         "@prefix rkaf: <https://rulespec.org/ns/v1#> .",
         "",
     ]

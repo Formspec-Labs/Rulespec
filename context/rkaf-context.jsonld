@@ -892,6 +892,16 @@
       "@type": "@id",
       "@container": "@set"
     },
+    "dpv:hasPersonalDataCategory": {
+      "@type": "@id",
+      "@container": "@set"
+    },
+    "dpv:hasLegalBasis": {
+      "@type": "@id"
+    },
+    "dpv:hasPurpose": {
+      "@type": "@id"
+    },
     "skos:prefLabel": {
       "@type": "xsd:string"
     },

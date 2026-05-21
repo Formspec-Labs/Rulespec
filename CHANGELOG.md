@@ -5,6 +5,20 @@ All notable changes to Rulespec are documented in this file.
 The format is loosely based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 adapted for a specification + shape + fixture project.
 
+## Unreleased — DPV composition into AccessScope (PKA-gb5c)
+
+Cohort A landing per §9 composition-discipline framework. Matches the `eli:consolidates` (commit `08b7997`) and OA selector (commit `a5515b5`) precedents: cross-namespace predicate imports with L1/L3 declining to constrain DPV's range. Converts §9.2 DPV alignment overclaim into a concrete typed interop point for GDPR/HIPAA buyer audience.
+
+### Added — DPV predicate-level composition
+
+- `context/rkaf-context.jsonld` — added JSON-LD term definitions for `dpv:hasPersonalDataCategory` (`@type: @id`, `@container: @set`), `dpv:hasLegalBasis` (`@type: @id`), and `dpv:hasPurpose` (`@type: @id`) adjacent to the existing ELI block. The `dpv:` prefix was already declared; these entries make the multi-valued IRI-typed semantics explicit at the context layer.
+- `constraints/core/access-scope.cue` — extended `#AccessScope` with three optional cross-namespace fields: `dpv:hasPersonalDataCategory?`, `dpv:hasLegalBasis?`, `dpv:hasPurpose?`. No range constraints; DPV owns its taxonomy.
+- `spec/rkaf-core.md §9.2` — extended the DPV alignment row with explicit predicate names (`dpv:hasPersonalDataCategory`, `dpv:hasLegalBasis`, `dpv:hasPurpose`), DPV version pin (DPV 2.3, 2026-02-25), and forward-migration clause. Converts the existing overclaim placeholder into a concrete typed alignment row matching the ELI/OA row shape.
+- `spec/rkaf-core.md §4.6` — normative SHOULD text already present from the PKA-03og §9 reshape; no change required.
+- `context/COMPOSE-PATTERNS.md` Pattern 3 (AccessScope locus) — added `dpv:` composition recipe block showing HIPAA-PHI and GDPR-PII cases, with pointer to the new fixture.
+- `fixtures/edges/access-scope-with-dpv-composition-positive.jsonld` — new edge fixture demonstrating two `regulatoryRestricted` AccessScope nodes composing `dpv:hasPersonalDataCategory` + `dpv:hasLegalBasis` (one HIPAA-PHI case, one GDPR-PII case with optional `dpv:hasPurpose`).
+- No SHACL shape over `dpv:*` predicates; no L1 enforcement of cardinality. Partner producers conform to DPV's own taxonomy. Closed-taxonomy debt unchanged; net new vocabulary classes 0.
+
 ## v0.2.0-pre.6 — Studio reference-consumer cutover (L2 + D3)
 
 WOS Studio (Authoring) becomes the first Rulespec reference consumer at conformance level L2 (Shape) and adoption depth D3 (Derive). The L3 (Constraint) gate requires SHACL + Pattern-C validation and is disclosed as a path-to-close in the partner YAML.

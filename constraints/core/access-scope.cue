@@ -21,4 +21,9 @@ import "list"
 	if "rkaf:accessScopeKind" == "rkaf:roleRestricted" {
 		"rkaf:permittedRole": [...string] & list.MinItems(1)
 	}
+	// DPV 2.3 cross-namespace composition (Cohort A, §9.2). Optional. L1 imposes no
+	// range constraints — partner producers conform to DPV's own taxonomy.
+	"dpv:hasPersonalDataCategory"?: [...string]
+	"dpv:hasLegalBasis"?:           string
+	"dpv:hasPurpose"?:              string
 }
