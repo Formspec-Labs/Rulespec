@@ -36,16 +36,6 @@ pub struct RegisteredConcept {
     pub concept_scope: String,
     #[serde(rename = "rkaf:conceptStatus")]
     pub concept_status: ConceptStatus,
-    #[serde(rename = "skos:prefLabel")]
-    pub pref_label: String,
-    #[serde(rename = "skos:altLabel", skip_serializing_if = "Option::is_none", default)]
-    pub alt_label: Option<crate::OneOrMany<String>>,
-    #[serde(rename = "skos:broader", skip_serializing_if = "Option::is_none", default)]
-    pub broader: Option<crate::OneOrMany<String>>,
-    #[serde(rename = "skos:narrower", skip_serializing_if = "Option::is_none", default)]
-    pub narrower: Option<crate::OneOrMany<String>>,
-    #[serde(rename = "skos:related", skip_serializing_if = "Option::is_none", default)]
-    pub related: Option<crate::OneOrMany<String>>,
     #[serde(flatten)]
     pub extra: BTreeMap<String, serde_json::Value>,
 }
@@ -66,16 +56,6 @@ pub struct LocalConcept {
     pub concept_scope: String,
     #[serde(rename = "rkaf:conceptStatus")]
     pub concept_status: ConceptStatus,
-    #[serde(rename = "skos:prefLabel")]
-    pub pref_label: String,
-    #[serde(rename = "skos:altLabel", skip_serializing_if = "Option::is_none", default)]
-    pub alt_label: Option<crate::OneOrMany<String>>,
-    #[serde(rename = "skos:broader", skip_serializing_if = "Option::is_none", default)]
-    pub broader: Option<crate::OneOrMany<String>>,
-    #[serde(rename = "skos:narrower", skip_serializing_if = "Option::is_none", default)]
-    pub narrower: Option<crate::OneOrMany<String>>,
-    #[serde(rename = "skos:related", skip_serializing_if = "Option::is_none", default)]
-    pub related: Option<crate::OneOrMany<String>>,
     #[serde(flatten)]
     pub extra: BTreeMap<String, serde_json::Value>,
 }

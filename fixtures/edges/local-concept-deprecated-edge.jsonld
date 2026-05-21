@@ -4,6 +4,5 @@
   "@type": "rkaf:LocalConcept",
   "rkaf:definedInScope": "urn:rkaf:scope:county-benefits",
   "rkaf:conceptScope": "county-benefits/income",
-  "rkaf:conceptStatus": "rkaf:deprecated",
-  "skos:prefLabel": "County income evidence (deprecated)"
+  "rkaf:conceptStatus": "rkaf:deprecated"
 }

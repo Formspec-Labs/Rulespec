@@ -1,8 +1,0 @@
-{
-  "@context": "../../context/rkaf-context.jsonld",
-  "@id": "urn:rkaf:fixture:concept:nolabel",
-  "@type": "rkaf:RegisteredConcept",
-  "rkaf:managedByRegistry": "urn:rkaf:fixture:registry:fns-snap-canonical",
-  "rkaf:conceptScope": "fns/snap/eligibility/income",
-  "rkaf:conceptStatus": "rkaf:active"
-}

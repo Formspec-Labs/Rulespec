@@ -4,8 +4,5 @@
   "@type": "rkaf:RegisteredConcept",
   "rkaf:managedByRegistry": "urn:rkaf:fixture:registry:fns-snap-canonical",
   "rkaf:conceptScope": "fns/snap/eligibility/income",
-  "rkaf:conceptStatus": "rkaf:active",
-  "skos:prefLabel": "Household income evidence",
-  "skos:altLabel": ["income documentation", "proof of income"],
-  "skos:broader": ["https://registry.example.gov/concepts/FinancialEligibilityEvidence"]
+  "rkaf:conceptStatus": "rkaf:active"
 }

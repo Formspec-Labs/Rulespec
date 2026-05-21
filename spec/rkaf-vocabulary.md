@@ -67,8 +67,8 @@ Beyond the v0.2 normative tier in §5, the following terms are codified as CUE c
 | `rkaf:ApplicabilityScope` | `applicability-scope.cue` | `applicabilityscope-positive.jsonld` | Where/to-whom/when a Warrant applies. ELI / ISO 3166 / agency-code IRIs. |
 | `rkaf:EffectivePeriod` | `effective-period.cue` | `effectiveperiod-positive.jsonld` | Temporal window. Start required; end / sunset / retroactive optional. |
 | `rkaf:LifecycleEvent` | `lifecycle-event.cue` | `lifecycleevent-positive.jsonld` | Audit-trail event (revalidation, amendment, supersession, rescission, material revision, concept lifecycle, promotion, demotion). |
-| `rkaf:RegisteredConcept` | `concept.cue` | `concept-registered-positive.jsonld` | Federation-shared Concept minted by a `rkaf:ConceptMintingAuthority`. Requires `skos:prefLabel` (1) — enforced by `concept.cue` at L1 (see §9.1 SKOS composition). |
-| `rkaf:LocalConcept` | `concept.cue` | `localconcept-positive.jsonld` | Workspace-defined Concept, candidate for federation promotion. Requires `skos:prefLabel` (1) — same shape as `RegisteredConcept`. |
+| `rkaf:RegisteredConcept` | `concept.cue` | `concept-registered-positive.jsonld` | Federation-shared Concept minted by a `rkaf:ConceptMintingAuthority`. |
+| `rkaf:LocalConcept` | `concept.cue` | `localconcept-positive.jsonld` | Workspace-defined Concept, candidate for federation promotion. |
 | `rkaf:ConceptMapping` | `concept-mapping.cue` | `conceptmapping-positive.jsonld` | SKOS-mapping between concepts. Closed `mappingPredicate` enum. |
 | `rkaf:MappingApplicabilityContext` | `concept-mapping.cue` | `mappingapplicabilitycontext-positive.jsonld` | Scopes a mapping by application-domain + evidence-purpose. |
 | `rkaf:ConceptResolutionResult` | `concept-resolution-result.cue` | `conceptresolutionresult-positive.jsonld` | Output of resolving a concept reference against the federation. |
@@ -93,16 +93,6 @@ Beyond the v0.2 normative tier in §5, the following terms are codified as CUE c
 - `rkaf:authorityKind` — 8-value closed enum, hop-local. Federation refuses unsupported kinds.
 - `rkaf:lifecycleEventKind` — 10-value closed enum spanning revalidation/amendment/supersession/etc.
 - `rkaf:mappingPredicate` — SKOS-aligned (`skos:exactMatch` / `closeMatch` / `broadMatch` / `narrowMatch` / `relatedMatch`).
-
-**Composed SKOS predicates on Concept shapes** (§9.1 mode-1 imports; declared in `context/rkaf-context.jsonld`; `concept.cue` enforces `skos:prefLabel` at L1):
-
-| Predicate | Domain | Range | Cardinality | Notes |
-|---|---|---|---|---|
-| `skos:prefLabel` | `rkaf:RegisteredConcept`, `rkaf:LocalConcept` | `xsd:string` | 1 | REQUIRED. Human-readable primary label. L1-enforced. |
-| `skos:altLabel` | `rkaf:RegisteredConcept`, `rkaf:LocalConcept` | `xsd:string` | 0..* | Optional synonym / alternate labels. |
-| `skos:broader` | `rkaf:RegisteredConcept`, `rkaf:LocalConcept` | IRI | 0..* | Optional parent concept IRI(s). L1 does not constrain range. |
-| `skos:narrower` | `rkaf:RegisteredConcept`, `rkaf:LocalConcept` | IRI | 0..* | Optional child concept IRI(s). L1 does not constrain range. |
-| `skos:related` | `rkaf:RegisteredConcept`, `rkaf:LocalConcept` | IRI | 0..* | Optional associatively related concept IRI(s). L1 does not constrain range. |
 
 **Predicates** (declared in `context/rkaf-context.jsonld` for graph traversal):
 
