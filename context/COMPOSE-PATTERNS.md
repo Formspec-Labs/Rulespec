@@ -98,9 +98,9 @@ Each pattern shows: the apparent need, the composed primitives, line-level citat
   "rkaf:accessScopeKind": "rkaf:regulatoryRestricted",
   "rkaf:regulatoryClass": ["rkaf:HIPAA-PHI"],
   "dpv:hasPersonalDataCategory": [
-    { "@id": "https://w3id.org/dpv/dpv-pd#MedicalHealth" }
+    "https://w3id.org/dpv/dpv-pd#MedicalHealth"
   ],
-  "dpv:hasLegalBasis": { "@id": "https://w3id.org/dpv/legal/us#HIPAA" }
+  "dpv:hasLegalBasis": "https://w3id.org/dpv/legal/us#HIPAA"
 }
 ```
 

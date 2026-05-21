@@ -7,9 +7,9 @@
       "rkaf:accessScopeKind": "rkaf:regulatoryRestricted",
       "rkaf:regulatoryClass": ["rkaf:HIPAA-PHI"],
       "dpv:hasPersonalDataCategory": [
-        { "@id": "https://w3id.org/dpv/dpv-pd#MedicalHealth" }
+        "https://w3id.org/dpv/dpv-pd#MedicalHealth"
       ],
-      "dpv:hasLegalBasis": { "@id": "https://w3id.org/dpv/legal/us#HIPAA" }
+      "dpv:hasLegalBasis": "https://w3id.org/dpv/legal/us#HIPAA"
     },
     {
       "@id": "urn:rkaf:fixture:access-scope-dpv:scope-gdpr",
@@ -17,10 +17,10 @@
       "rkaf:accessScopeKind": "rkaf:regulatoryRestricted",
       "rkaf:regulatoryClass": ["rkaf:GDPR-PII"],
       "dpv:hasPersonalDataCategory": [
-        { "@id": "https://w3id.org/dpv/dpv-pd#FinancialAccount" }
+        "https://w3id.org/dpv/dpv-pd#FinancialAccount"
       ],
-      "dpv:hasLegalBasis": { "@id": "https://w3id.org/dpv/legal/eu/gdpr#A6-1-b" },
-      "dpv:hasPurpose": { "@id": "https://w3id.org/dpv#ContractPerformance" }
+      "dpv:hasLegalBasis": "https://w3id.org/dpv/legal/eu/gdpr#A6-1-b",
+      "dpv:hasPurpose": "https://w3id.org/dpv#ContractPerformance"
     }
   ]
 }
