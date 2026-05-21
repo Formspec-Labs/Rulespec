@@ -2,6 +2,7 @@
   "@context": "../../context/rkaf-context.jsonld",
   "@id": "urn:rkaf:fixture:edge:local-concept:deprecated",
   "@type": "rkaf:LocalConcept",
+  "skos:prefLabel": "Household income (deprecated local definition)",
   "rkaf:definedInScope": "urn:rkaf:scope:county-benefits",
   "rkaf:conceptScope": "county-benefits/income",
   "rkaf:conceptStatus": "rkaf:deprecated"

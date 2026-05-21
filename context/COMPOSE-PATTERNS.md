@@ -263,6 +263,28 @@ Place rule-derived triples in a separate JSON-LD named graph or SHACL-AF inferen
 
 ---
 
+## Cohort A composition — authoring note for cross-namespace IRI predicates
+
+When composing a cross-namespace predicate whose `@type` is `@id` (e.g. `eli:consolidates`, `oa:hasSource`, `dpv:hasLegalBasis`, `skos:broader`), **use plain IRI strings in fixtures, not `{"@id": "..."}` objects.**
+
+```jsonld
+// Correct — projected JSON Schema accepts string IRIs
+"dpv:hasPersonalDataCategory": ["https://w3id.org/dpv/dpv-pd#Health"]
+
+// Wrong — JSON Schema rejects the object form even though JSON-LD compaction allows it
+"dpv:hasPersonalDataCategory": [{ "@id": "https://w3id.org/dpv/dpv-pd#Health" }]
+```
+
+**Why:** the `@type: @id` context entry is interpreted by JSON-LD processors at expansion time. The projected JSON Schema (Layer 4) doesn't carry that JSON-LD semantic — it sees the raw shape, which is `string` (or `array of string` with `@container: @set`). JSON-LD's idiomatic compact form (`{"@id": "..."}` object) is structurally an object and fails the `string` schema.
+
+This is a known trap for every Cohort A landing. If a fixture authored in the idiomatic JSON-LD form rejects at L1, flatten to plain IRI strings — the JSON-LD parse semantics still produce the correct expanded form.
+
+Future migration: `tools/constraints_compile.py` could project `anyOf: [string, object with @id]` for `@type: @id` predicates. Until then, the plain-string convention applies.
+
+Framework anchor: `thoughts/specs/2026-05-20-section-9-composition-discipline.md` §3 Cohort A treatment.
+
+---
+
 ## Cross-reference: decision principles
 
 A proposed addition belongs in core Rulespec only if:

@@ -6,7 +6,6 @@
     "skos": "http://www.w3.org/2004/02/skos/core#",
     "dcterms": "http://purl.org/dc/terms/",
     "cito": "http://purl.org/spar/cito/",
-    "dcat": "http://www.w3.org/ns/dcat#",
     "wos": "https://w3id.org/wos/ns/v1#",
     "formspec": "https://w3id.org/formspec/ns/v1#",
     "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
@@ -22,8 +21,6 @@
     "sepio": "http://purl.obolibrary.org/obo/SEPIO_",
     "dpv": "https://w3id.org/dpv#",
     "odrl": "http://www.w3.org/ns/odrl/2/",
-    "nano": "http://www.nanopub.org/nschema#",
-    "schemaorg": "https://schema.org/",
     "rkaf:Artifact": {
       "@type": "@id"
     },
@@ -985,7 +982,7 @@
   "_meta": {
     "version": "v0.2.0-pre.6",
     "supersedes": "v0.1.1",
-    "relationship": "Vocabulary v0.2 — first-class Warrant/Artifact/SourceFragment/EvidenceBinding/ConfidenceRecord/AccessScope/AILineage/RetentionPolicy/MappingState/Workspace primitives; OA/PROV-O/SKOS/DCTERMS/CiTO/DCAT imports; ELI/ELI-DL/ELI-I/Akoma-Ntoso/USLM/LegalRuleML/RRMV/ECO/SEPIO/ODRL/DPV/Schema.org alignments. v0.1.x is editorial baseline only — wholesale supersession.",
+    "relationship": "Vocabulary v0.2 — first-class Warrant/Artifact/SourceFragment/EvidenceBinding/ConfidenceRecord/AccessScope/AILineage/RetentionPolicy/MappingState/Workspace primitives; OA/PROV-O/SKOS/ELI predicate-level imports; AKN/USLM/DPV/ODRL alignments; legacy v0.1 ontology aspirations demoted per the §9 four-mode reshape (PKA-03og). v0.1.x is editorial baseline only — wholesale supersession.",
     "delta_from_v0.1": [
       "Added rkaf:definedInScope as @type:@id (was missing, treated as string literal in v0.1)",
       "Added rkaf:Artifact, rkaf:SourceFragment, rkaf:EvidenceBinding, rkaf:Warrant, rkaf:ConfidenceRecord, rkaf:AccessScope as first-class primitives",
@@ -993,8 +990,10 @@
       "Added rkaf:AILineage with mandatory humanApprover",
       "Added rkaf:MappingState, rkaf:RetentionPolicy, rkaf:Workspace, rkaf:projectsTo, rkaf:llmHint (Studio-derived promotions)",
       "Added rkaf:anchoredBy / rkaf:anchorType (abstract anchoring contract, bindings live outside Rulespec)",
-      "Imported namespaces: prov, oa, skos, dcterms, cito, dcat, rdf, rdfs, xsd, sh",
-      "Aligned namespaces: eli, eli-dl, eli-i, aknt, uslm, lrml, rrmv, eco, sepio, dpv, odrl, nano, schemaorg"
+      "Mode-1 direct predicate imports: prov:, oa:, skos:, eli: (§9.1). All carry term defs in this context.",
+      "Mode-2/3 alignments (class-tag and URI-value composition): aknt:, uslm:, dpv:, odrl: (§9.2). External prefix declared; rkaf-namespaced predicates carry the external IRIs as values.",
+      "See also (future-projection, no predicate import): lrml:, rrmv:, eco:, sepio:, cito:, dcterms: (§9.2.2). Promote to §9.2 Alignment when a partner consumer arrives with a named use case.",
+      "Dropped Cohort D dead-weight prefix declarations: dcat: (no Reference Corpora layer), nano: (pattern citation, not predicate import), schemaorg: (no SEO projector). Re-declare when the dependent layer ships."
     ],
     "note": "_meta is JSON-LD-safe: keys not in @context are ignored by JSON-LD processors."
   }

@@ -5,6 +5,21 @@ All notable changes to Rulespec are documented in this file.
 The format is loosely based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 adapted for a specification + shape + fixture project.
 
+## Unreleased — SKOS predicate composition on Concept; prefLabel(1) enforced at L1 + L3 (PKA-2szi)
+
+The normative mandate at `spec/rkaf-concept-registry.md` for `skos:prefLabel (1)` on every `rkaf:RegisteredConcept` / `rkaf:LocalConcept` was previously unenforced — producers could omit the label and pass validation. This entry closes the gap with explicit L1 (CUE → JSON Schema) AND L3 (SHACL `sh:minCount 1`) enforcement, plus optional `skos:altLabel` / `skos:broader` / `skos:narrower` / `skos:related` composition.
+
+### Added — SKOS predicate-level composition + dual-layer enforcement
+
+- `context/rkaf-context.jsonld` — added JSON-LD term definitions for `skos:prefLabel`, `skos:altLabel` (set), `skos:broader`, `skos:narrower` (set), `skos:related` (set).
+- `constraints/core/concept.cue` — extended `#RegisteredConcept` and `#LocalConcept` with required `skos:prefLabel` (cardinality 1) and optional skos: relations.
+- `compiled/shacl/core/concept.ttl` — regenerated with `sh:property [ sh:path skos:prefLabel ; sh:minCount 1 ]` on both Concept shapes. SHACL compiler taught `@prefix skos:`.
+- `compiled/json-schema/core/concept.schema.json` — regenerated with `skos:prefLabel` in `required[]` on both shapes.
+- `fixtures/negatives/local-concept-missing-pref-label-negative.jsonld` + `fixtures/negatives/registered-concept-missing-pref-label-negative.jsonld` — new negative fixtures; FAIL-AS-EXPECTED at both L1 (JSON Schema) and L3 (SHACL).
+- 8 behavior fixtures + 2 edge fixtures (`fixtures/behavior/{bridge-rule-6-*,concept-resolution-*}.jsonld` + `fixtures/edges/{local-concept-deprecated,registered-concept-promoted}-edge.jsonld`) updated to carry `skos:prefLabel` on embedded Concept nodes.
+- `spec/rkaf-concept-registry.md` — extended with normative enforcement note citing both layers.
+- First-attempt commit `396bbfa` enforced at L1 only and shipped negative fixtures the SHACL gate failed to catch as UNEXPECTED-PASS. That commit was reverted as `4661052`; this entry is the re-do.
+
 ## Unreleased — DPV composition into AccessScope (PKA-gb5c)
 
 Cohort A landing per §9 composition-discipline framework. Matches the `eli:consolidates` (commit `08b7997`) and OA selector (commit `a5515b5`) precedents: cross-namespace predicate imports with L1/L3 declining to constrain DPV's range. Converts §9.2 DPV alignment overclaim into a concrete typed interop point for GDPR/HIPAA buyer audience.
@@ -18,6 +33,50 @@ Cohort A landing per §9 composition-discipline framework. Matches the `eli:cons
 - `context/COMPOSE-PATTERNS.md` Pattern 3 (AccessScope locus) — added `dpv:` composition recipe block showing HIPAA-PHI and GDPR-PII cases, with pointer to the new fixture.
 - `fixtures/edges/access-scope-with-dpv-composition-positive.jsonld` — new edge fixture demonstrating two `regulatoryRestricted` AccessScope nodes composing `dpv:hasPersonalDataCategory` + `dpv:hasLegalBasis` (one HIPAA-PHI case, one GDPR-PII case with optional `dpv:hasPurpose`).
 - No SHACL shape over `dpv:*` predicates; no L1 enforcement of cardinality. Partner producers conform to DPV's own taxonomy. Closed-taxonomy debt unchanged; net new vocabulary classes 0.
+
+## Unreleased — OA selector composition: predicate-level imports + SourceFragment subClassOf (PKA-ehze + PKA-f03y)
+
+Cohort A landing per §9 composition-discipline framework. Closes the §9.4 inversion where Rulespec imported W3C Web Annotation Ontology but used rkaf-namespaced attachment predicates. Matches the `eli:consolidates` precedent (commit `08b7997`).
+
+### Changed — OA predicate-level composition (breaking JSON-LD wire shape)
+
+- `context/rkaf-context.jsonld` — removed `rkaf:hasSelector` and `rkaf:bindsArtifact` term definitions; added `oa:hasSelector` (`@type: @id`), `oa:hasSource` (`@type: @id`), `oa:exact` / `oa:prefix` / `oa:suffix` (`@type: xsd:string`).
+- `spec/rkaf-vocabulary.md` — vocabulary table rows updated from rkaf-prefixed to oa-prefixed predicates.
+- `constraints/core/source-fragment.cue` — fields renamed; `#TextQuoteSelectorPayload` shape added for `oa:exact` / `oa:prefix` / `oa:suffix` composition.
+- `compiled/json-schema/core/source-fragment.schema.json`, `compiled/shacl/core/source-fragment.ttl`, `crates/rkaf-core/src/generated/source_fragment.rs` — regenerated.
+- `spec/rkaf-core.md` — §4.2 prose updated; §9.1 OA row pinned to OA 1.0 with forward-migration clause; declares `rkaf:SourceFragment rdfs:subClassOf oa:SpecificResource`.
+- All affected positive fixtures (11) renamed predicate keys.
+- **Wire-shape break:** producers emitting `rkaf:hasSelector` or `rkaf:bindsArtifact` must rename to `oa:hasSelector` / `oa:hasSource`. v0.2 pre-1.0 closed-taxonomy timing.
+
+## Unreleased — §9 reshape: four-mode composition classifier + four-cohort treatment (PKA-03og)
+
+Replaces the §9.1 (Imports) / §9.2 (Alignments) two-mode taxonomy with the four-mode classifier (Direct predicate import / Class-tag / URI-value / Pattern citation) derived from corpus evidence in the post-fs-pmf4 alias audit. Spec credibility tightening; zero behavior change.
+
+### Changed — §9 structure
+
+- `spec/rkaf-core.md §1 Namespaces` — Imported list trimmed to mode-1 only (`prov:`, `oa:`, `skos:`, `eli:`); Aligned list trimmed to mode-2/3 only (`aknt:`, `uslm:`, `dpv:`, `odrl:`). Cohort C/D prefixes removed.
+- `spec/rkaf-core.md §9.1` — renamed "Imports — mode-1 direct predicate imports"; rows now list only ontologies with predicate-level imports declared in `context/rkaf-context.jsonld`. ELI promoted here from §9.2 to reflect actual composition shape.
+- `spec/rkaf-core.md §9.2` — Alignments tightened to mode-2/3 with explicit notes: ODRL row clarifies overlay-projector composition (Cohort B); DPV row points to PKA-gb5c as the active Cohort A landing; aknt: / uslm: rows carry forward-compat notes.
+- `spec/rkaf-core.md §9.2.1` — new "Modes of composition" subsection with four-mode classifier table.
+- `spec/rkaf-core.md §9.2.2` — new "See also — partner ontologies for future projection" subsection housing Cohort C demotions (`lrml:`, `rrmv:`, `eco:`, `sepio:`, `cito:`, `dcterms:`) with promotion criteria.
+- `spec/rkaf-core.md §9.4` — examples updated; framework-memo cross-reference added.
+- `spec/rkaf-core.md §12 References` — DCTERMS, LegalRuleML, ECO/SEPIO moved from Normative to Informative to match §9.2.2 cohort assignments.
+- `context/rkaf-context.jsonld` — Cohort D dead-weight prefix declarations dropped (`dcat:`, `nano:`, `schemaorg:`); `_meta.relationship` + `_meta.delta_from_v0.1` rewritten to reflect the four-mode taxonomy.
+
+## Unreleased — §9 composition-discipline framework + drift cleanups
+
+### Documented — composition-discipline framework
+
+- `thoughts/specs/2026-05-20-section-9-composition-discipline.md` — new framework memo. Establishes the measurement metric for §9 composition decisions: `(User Value [real + theoretical]) × (Architectural Debt Reduction)`, explicitly NOT time or session-cost. Documents the four composition modes (direct predicate / class-tag / URI-value / pattern citation), the four-cohort treatment (Compose / Clarify / Demote / Drop), per-cohort precedents (ELI = Cohort A landed; DPV = Cohort A next), and the 5-question decision framework for evaluating future §9 candidates.
+
+### Removed — dead predicate; renamed legacy holdover
+
+- `context/rkaf-context.jsonld` — removed `rkaf:sourceFragment` (lowercase) JSON-LD term definition. v0.1 holdover; absent from vocabulary table, CUE constraints, compiled artifacts, Rust generated code, spec body. Only used in v0.1-era narrative fixtures (since renamed).
+- `fixtures/narratives/{local-operational,statutory-authority}.md` — 5 occurrences of `rkaf:sourceFragment` renamed to `rkaf:bindsSourceFragment` (the canonical v0.2 predicate at `spec/rkaf-vocabulary.md:20`).
+
+### Added — drift fix: lastVerifiedAt datetime typing
+
+- `context/rkaf-context.jsonld` — added `rkaf:lastVerifiedAt` with `@type: xsd:dateTime`. Predicate was used in 5 CUE shapes + vocabulary spec + normative orthogonality invariant but missing from context, causing string-literal serialization instead of typed datetime in JSON-LD output. Drift introduced during Plan 7d landing.
 
 ## v0.2.0-pre.6 — Studio reference-consumer cutover (L2 + D3)
 

@@ -347,12 +347,9 @@ This is greenfield. v0.1.x served as the editorial baseline; v0.2 is the contrac
 - W3C Web Annotation Ontology — `oa:` selector vocabulary.
 - W3C PROV-O — provenance.
 - W3C SKOS — concept relations.
-- DCTERMS — supersession metadata.
 - ELI / ELI-DL / ELI-I — EU legal-resource identifiers.
 - USLM — US legislative markup.
 - Akoma Ntoso / LegalDocML — legal-document XML structure.
-- OASIS LegalRuleML — formal legal norms.
-- ECO / SEPIO — scientific evidence types.
 - W3C ODRL — rights expression.
 - W3C DPV — privacy semantics.
 
@@ -361,10 +358,14 @@ This is greenfield. v0.1.x served as the editorial baseline; v0.2 is the contrac
 - Source spec: `thoughts/specs/2026-05-12-pkaf-as-public-schema-interop-framework.md`.
 - Companion: `spec/rkaf-concept-registry.md`.
 - Full term reference: `spec/rkaf-vocabulary.md`.
-- RRMV — reporting requirement metadata.
-- CiTO — citation typing.
-- Nanopublications — overlay shape pattern.
-- DCAT / VoID — dataset catalog metadata.
-- Schema.org/Legislation — public-discovery markup.
+- Framework memo: `thoughts/specs/2026-05-20-section-9-composition-discipline.md` — user-value × architectural-debt decision framework for §9 composition decisions.
+- DCTERMS — supersession metadata (Cohort C; demoted from Normative per §9.2.2).
+- OASIS LegalRuleML — formal legal norms (Cohort C; demoted per §9.2.2; `rkaf:defeasible` is the current interop point).
+- ECO / SEPIO — scientific evidence types (Cohort C; demoted per §9.2.2).
+- RRMV — reporting requirement metadata (Cohort C per §9.2.2).
+- CiTO — citation typing (Cohort C per §9.2.2).
+- Nanopublications — overlay shape pattern citation (Cohort D — pattern reference only; no namespace claim per §9.2.2).
+- DCAT / VoID — dataset catalog metadata (Cohort D; prefix dropped from context until Reference Corpora layer ships).
+- Schema.org/Legislation — public-discovery markup (Cohort D; prefix dropped from context until SEO projector ships).
 - HL7 FHIR, NIEM IEPDs — projector partner formats.
 - Lynx Legal Knowledge Graph (H2020), LKIF, EuroVoc/ESCO, Toulmin/AIF, Wikidata/Wikibase — reference / influence (studied but not imported).

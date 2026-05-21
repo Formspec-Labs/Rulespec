@@ -2,6 +2,7 @@
   "@context": "../../context/rkaf-context.jsonld",
   "@id": "urn:rkaf:fixture:edge:registered-concept:promoted",
   "@type": "rkaf:RegisteredConcept",
+  "skos:prefLabel": "SNAP household income (promoted to canonical registry)",
   "rkaf:managedByRegistry": "urn:rkaf:registry:fns-canonical",
   "rkaf:conceptScope": "fns/snap/income",
   "rkaf:conceptStatus": "rkaf:promoted"
