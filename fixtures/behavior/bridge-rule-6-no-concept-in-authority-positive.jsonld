@@ -31,7 +31,8 @@
         "@type": "rkaf:LocalConcept",
         "rkaf:conceptScope": "urn:rkaf:scope:test",
         "rkaf:conceptStatus": "rkaf:active",
-        "rkaf:definedInScope": "urn:rkaf:scope:test"
+        "rkaf:definedInScope": "urn:rkaf:scope:test",
+        "skos:prefLabel": "Concept1"
       }
     ]
   },

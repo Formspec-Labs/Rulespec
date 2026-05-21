@@ -11,14 +11,16 @@
         "@type": "rkaf:LocalConcept",
         "rkaf:definedInScope": "urn:rkaf:scope:test",
         "rkaf:conceptScope": "urn:rkaf:scope:test",
-        "rkaf:conceptStatus": "rkaf:active"
+        "rkaf:conceptStatus": "rkaf:active",
+        "skos:prefLabel": "X"
       },
       {
         "@id": "canon:A",
         "@type": "rkaf:RegisteredConcept",
         "rkaf:managedByRegistry": "urn:rkaf:registry:canonical",
         "rkaf:conceptScope": "urn:rkaf:scope:canonical",
-        "rkaf:conceptStatus": "rkaf:active"
+        "rkaf:conceptStatus": "rkaf:active",
+        "skos:prefLabel": "Canon A"
       },
       {
         "@id": "m1",
