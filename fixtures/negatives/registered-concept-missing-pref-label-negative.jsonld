@@ -1,8 +1,7 @@
 {
-  "@context": "../context/rkaf-context.jsonld",
-  "@id": "urn:rkaf:fixture:concept:household-income",
+  "@context": "../../context/rkaf-context.jsonld",
+  "@id": "urn:rkaf:fixture:concept:missing-pref-label",
   "@type": "rkaf:RegisteredConcept",
-  "skos:prefLabel": "Household income evidence",
   "rkaf:managedByRegistry": "urn:rkaf:fixture:registry:fns-snap-canonical",
   "rkaf:conceptScope": "fns/snap/eligibility/income",
   "rkaf:conceptStatus": "rkaf:active"

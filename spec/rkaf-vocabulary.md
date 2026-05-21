@@ -70,8 +70,13 @@ Beyond the v0.2 normative tier in §5, the following terms are codified as CUE c
 | `rkaf:ApplicabilityScope` | `applicability-scope.cue` | `applicabilityscope-positive.jsonld` | Where/to-whom/when a Warrant applies. ELI / ISO 3166 / agency-code IRIs. |
 | `rkaf:EffectivePeriod` | `effective-period.cue` | `effectiveperiod-positive.jsonld` | Temporal window. Start required; end / sunset / retroactive optional. |
 | `rkaf:LifecycleEvent` | `lifecycle-event.cue` | `lifecycleevent-positive.jsonld` | Audit-trail event (revalidation, amendment, supersession, rescission, material revision, concept lifecycle, promotion, demotion). |
-| `rkaf:RegisteredConcept` | `concept.cue` | `concept-registered-positive.jsonld` | Federation-shared Concept minted by a `rkaf:ConceptMintingAuthority`. |
-| `rkaf:LocalConcept` | `concept.cue` | `localconcept-positive.jsonld` | Workspace-defined Concept, candidate for federation promotion. |
+| `rkaf:RegisteredConcept` | `concept.cue` | `concept-registered-positive.jsonld` | Federation-shared Concept minted by a `rkaf:ConceptMintingAuthority`. Requires `skos:prefLabel(1)`. |
+| `rkaf:LocalConcept` | `concept.cue` | `localconcept-positive.jsonld` | Workspace-defined Concept, candidate for federation promotion. Requires `skos:prefLabel(1)`. |
+| `skos:prefLabel` | `http://www.w3.org/2004/02/skos/core#prefLabel` | Property (SKOS 2.0 import) | `rkaf:RegisteredConcept`, `rkaf:LocalConcept` | `xsd:string` | **1** (required) | `concept-registered-positive.jsonld`, `localconcept-positive.jsonld` |
+| `skos:altLabel` | `http://www.w3.org/2004/02/skos/core#altLabel` | Property (SKOS 2.0 import) | `rkaf:RegisteredConcept`, `rkaf:LocalConcept` | `xsd:string` | 0..* | — |
+| `skos:broader` | `http://www.w3.org/2004/02/skos/core#broader` | Property (SKOS 2.0 import) | `rkaf:RegisteredConcept`, `rkaf:LocalConcept` | IRI | 0..1 | — |
+| `skos:narrower` | `http://www.w3.org/2004/02/skos/core#narrower` | Property (SKOS 2.0 import) | `rkaf:RegisteredConcept`, `rkaf:LocalConcept` | IRI | 0..* | — |
+| `skos:related` | `http://www.w3.org/2004/02/skos/core#related` | Property (SKOS 2.0 import) | `rkaf:RegisteredConcept`, `rkaf:LocalConcept` | IRI | 0..* | — |
 | `rkaf:ConceptMapping` | `concept-mapping.cue` | `conceptmapping-positive.jsonld` | SKOS-mapping between concepts. Closed `mappingPredicate` enum. |
 | `rkaf:MappingApplicabilityContext` | `concept-mapping.cue` | `mappingapplicabilitycontext-positive.jsonld` | Scopes a mapping by application-domain + evidence-purpose. |
 | `rkaf:ConceptResolutionResult` | `concept-resolution-result.cue` | `conceptresolutionresult-positive.jsonld` | Output of resolving a concept reference against the federation. |

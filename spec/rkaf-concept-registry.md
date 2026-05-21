@@ -70,6 +70,8 @@ Concept lifecycle events — `rkaf:registered`, `rkaf:deprecated`, `rkaf:superse
 
 Validated by `shapes/rkaf-shapes-conceptregistry.ttl` (new) **plus** the inherited `shapes/rkaf-shapes-conceptregistry-v0.1.ttl` (lifecycle and applicability rules).
 
+`skos:prefLabel(1)` is enforced at **L1** (CUE → `constraints/core/concept.cue` → `compiled/json-schema/core/concept.schema.json`) and **L3** (`compiled/shacl/core/concept.ttl` — `sh:property [ sh:path skos:prefLabel ; sh:minCount 1 ]` on both `rkaf:RegisteredConceptShape` and `rkaf:LocalConceptShape`). Producers omitting `skos:prefLabel` are rejected at both validation layers.
+
 ## 6. Compatibility
 
 None with v0.1.2. Migration not supported. Replace.
