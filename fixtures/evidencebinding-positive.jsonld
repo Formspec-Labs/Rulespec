@@ -10,8 +10,8 @@
     {
       "@id": "urn:rkaf:fixture:eb-pos:fragment",
       "@type": "rkaf:SourceFragment",
-      "rkaf:bindsArtifact": "urn:rkaf:fixture:eb-pos:artifact",
-      "rkaf:hasSelector": {
+      "oa:hasSource": "urn:rkaf:fixture:eb-pos:artifact",
+      "oa:hasSelector": {
         "@type": "oa:TextQuoteSelector",
         "oa:exact": "the substrate is dependency-inverted"
       },

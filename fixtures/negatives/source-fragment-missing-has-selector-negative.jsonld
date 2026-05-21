@@ -10,7 +10,7 @@
     {
       "@id": "urn:rkaf:fixture:eb-pos:fragment",
       "@type": "rkaf:SourceFragment",
-      "rkaf:bindsArtifact": "urn:rkaf:fixture:eb-pos:artifact",
+      "oa:hasSource": "urn:rkaf:fixture:eb-pos:artifact",
       "rkaf:selectorKind": "oa:TextQuoteSelector"
     },
     {

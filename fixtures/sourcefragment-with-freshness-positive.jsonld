@@ -2,8 +2,8 @@
   "@context": "../context/rkaf-context.jsonld",
   "@id": "urn:rkaf:fixture:sf:cfr-7-273-2-with-freshness",
   "@type": "rkaf:SourceFragment",
-  "rkaf:bindsArtifact": "urn:rkaf:fixture:art:cfr-7-273",
-  "rkaf:hasSelector": ["§ 273.2"],
+  "oa:hasSource": "urn:rkaf:fixture:art:cfr-7-273",
+  "oa:hasSelector": ["§ 273.2"],
   "rkaf:selectorKind": ["rkaf:uslm-section"],
   "rkaf:lastVerifiedAt": "2026-05-01T12:00:00Z",
   "rkaf:verifiedBy": "urn:rkaf:fixture:actor:policy-research-team"

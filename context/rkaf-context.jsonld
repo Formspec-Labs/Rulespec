@@ -36,11 +36,20 @@
     "rkaf:SourceFragment": {
       "@type": "@id"
     },
-    "rkaf:bindsArtifact": {
+    "oa:hasSource": {
       "@type": "@id"
     },
-    "rkaf:hasSelector": {
+    "oa:hasSelector": {
       "@type": "@id"
+    },
+    "oa:exact": {
+      "@type": "xsd:string"
+    },
+    "oa:prefix": {
+      "@type": "xsd:string"
+    },
+    "oa:suffix": {
+      "@type": "xsd:string"
     },
     "rkaf:selectorKind": {
       "@type": "@vocab"

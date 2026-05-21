@@ -11,9 +11,12 @@
 | rkaf:Artifact | https://rulespec.org/ns/v1#Artifact | Class | — | — | — | artifact-eli-positive, artifact-doi-positive, artifact-cid-positive |
 | rkaf:hasArtifactIdentifier | https://rulespec.org/ns/v1#hasArtifactIdentifier | Property | rkaf:Artifact | xsd:string \| IRI | 1..* | artifact-eli-positive |
 | rkaf:artifactIdentifierScheme | https://rulespec.org/ns/v1#artifactIdentifierScheme | Property (closed enum) | rkaf:Artifact | rkaf:ArtifactIdentifierScheme | 1..* | artifact-eli-positive |
-| rkaf:SourceFragment | https://rulespec.org/ns/v1#SourceFragment | Class | — | — | — | sourcefragment-oa-textquote-positive, sourcefragment-oa-xpath-positive, sourcefragment-aknt-eid-positive, sourcefragment-uslm-section-positive |
-| rkaf:bindsArtifact | https://rulespec.org/ns/v1#bindsArtifact | Property | rkaf:SourceFragment | rkaf:Artifact | 1 | sourcefragment-oa-textquote-positive |
-| rkaf:hasSelector | https://rulespec.org/ns/v1#hasSelector | Property | rkaf:SourceFragment | oa:Selector OR rkaf:Selector | 1..* | sourcefragment-oa-textquote-positive |
+| rkaf:SourceFragment | https://rulespec.org/ns/v1#SourceFragment | Class (rdfs:subClassOf oa:SpecificResource) | — | — | — | sourcefragment-oa-textquote-positive, sourcefragment-oa-xpath-positive, sourcefragment-aknt-eid-positive, sourcefragment-uslm-section-positive |
+| oa:hasSource | http://www.w3.org/ns/oa#hasSource | Property (OA 1.0 import) | rkaf:SourceFragment | rkaf:Artifact | 1 | sourcefragment-oa-textquote-positive |
+| oa:hasSelector | http://www.w3.org/ns/oa#hasSelector | Property (OA 1.0 import) | rkaf:SourceFragment | oa:Selector | 1..* | sourcefragment-oa-textquote-positive |
+| oa:exact | http://www.w3.org/ns/oa#exact | Property (OA 1.0 import) | oa:TextQuoteSelector | xsd:string | 1 (on TextQuoteSelector) | sourcefragment-oa-textquote-positive |
+| oa:prefix | http://www.w3.org/ns/oa#prefix | Property (OA 1.0 import) | oa:TextQuoteSelector | xsd:string | 0..1 | sourcefragment-oa-textquote-positive |
+| oa:suffix | http://www.w3.org/ns/oa#suffix | Property (OA 1.0 import) | oa:TextQuoteSelector | xsd:string | 0..1 | sourcefragment-oa-textquote-positive |
 | rkaf:selectorKind | https://rulespec.org/ns/v1#selectorKind | Property (closed enum) | rkaf:SourceFragment | rkaf:SelectorKind | 1..* | sourcefragment-oa-textquote-positive |
 | rkaf:EvidenceBinding | https://rulespec.org/ns/v1#EvidenceBinding | Class | — | — | — | evidencebinding-positive, evidencebinding-no-evidence-reason-positive, evidencebinding-missing-negative |
 | rkaf:bindsAssertion | https://rulespec.org/ns/v1#bindsAssertion | Property | rkaf:EvidenceBinding | rkaf:Assertion | 1 | evidencebinding-positive |

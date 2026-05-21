@@ -2,8 +2,8 @@
   "@context": "../../context/rkaf-context.jsonld",
   "@id": "urn:rkaf:fixture:sf-mix:f1",
   "@type": "rkaf:SourceFragment",
-  "rkaf:bindsArtifact": "urn:rkaf:fixture:sf-mix:art1",
-  "rkaf:hasSelector": [
+  "oa:hasSource": "urn:rkaf:fixture:sf-mix:art1",
+  "oa:hasSelector": [
     {
       "@type": "oa:TextQuoteSelector",
       "oa:exact": "section 4(a)"

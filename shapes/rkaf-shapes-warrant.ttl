@@ -28,13 +28,16 @@ rkaf:ArtifactShape a sh:NodeShape ;
   ] .
 
 # --- SourceFragment (§4.2) ---
+# rkaf:SourceFragment rdfs:subClassOf oa:SpecificResource (OA 1.0 alignment).
+rkaf:SourceFragment rdfs:subClassOf oa:SpecificResource .
+
 rkaf:SourceFragmentShape a sh:NodeShape ;
   sh:targetClass rkaf:SourceFragment ;
-  sh:property [ sh:path rkaf:bindsArtifact ; sh:minCount 1 ; sh:maxCount 1 ;
-    sh:message "SourceFragment MUST reference exactly one parent Artifact (§4.2)." ;
+  sh:property [ sh:path oa:hasSource ; sh:minCount 1 ; sh:maxCount 1 ;
+    sh:message "SourceFragment MUST reference exactly one parent Artifact via oa:hasSource (§4.2)." ;
   ] ;
-  sh:property [ sh:path rkaf:hasSelector ; sh:minCount 1 ;
-    sh:message "SourceFragment MUST carry at least one selector (§4.2)." ;
+  sh:property [ sh:path oa:hasSelector ; sh:minCount 1 ;
+    sh:message "SourceFragment MUST carry at least one selector via oa:hasSelector (§4.2)." ;
   ] ;
   sh:property [ sh:path rkaf:selectorKind ; sh:minCount 1 ;
     sh:in ( oa:FragmentSelector oa:TextQuoteSelector oa:TextPositionSelector

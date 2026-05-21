@@ -10,8 +10,8 @@
     {
       "@id": "urn:rkaf:fixture:sf-aknt:fragment",
       "@type": "rkaf:SourceFragment",
-      "rkaf:bindsArtifact": "urn:rkaf:fixture:sf-aknt:artifact",
-      "rkaf:hasSelector": {
+      "oa:hasSource": "urn:rkaf:fixture:sf-aknt:artifact",
+      "oa:hasSelector": {
         "@type": "rkaf:AktnEIdSelector",
         "rdf:value": "art_5__para_2__list_a"
       },

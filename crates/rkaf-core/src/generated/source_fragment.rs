@@ -35,14 +35,34 @@ pub enum SelectorKind {
 use std::collections::BTreeMap;
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct TextQuoteSelector {
+    #[serde(rename = "@type", default = "TextQuoteSelector::default_type")]
+    pub type_: String,
+    #[serde(rename = "@id", skip_serializing_if = "Option::is_none", default)]
+    pub id: Option<String>,
+    #[serde(rename = "oa:exact")]
+    pub exact: String,
+    #[serde(rename = "oa:prefix", skip_serializing_if = "Option::is_none", default)]
+    pub prefix: Option<String>,
+    #[serde(rename = "oa:suffix", skip_serializing_if = "Option::is_none", default)]
+    pub suffix: Option<String>,
+    #[serde(flatten)]
+    pub extra: BTreeMap<String, serde_json::Value>,
+}
+
+impl TextQuoteSelector {
+    fn default_type() -> String { "oa:TextQuoteSelector".into() }
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct SourceFragment {
     #[serde(rename = "@type", default = "SourceFragment::default_type")]
     pub type_: String,
     #[serde(rename = "@id", skip_serializing_if = "Option::is_none", default)]
     pub id: Option<String>,
-    #[serde(rename = "rkaf:bindsArtifact")]
-    pub binds_artifact: String,
-    #[serde(rename = "rkaf:hasSelector")]
+    #[serde(rename = "oa:hasSource")]
+    pub has_source: String,
+    #[serde(rename = "oa:hasSelector")]
     pub has_selector: crate::OneOrMany<serde_json::Value>,
     #[serde(rename = "rkaf:selectorKind")]
     pub selector_kind: crate::OneOrMany<SelectorKind>,

@@ -10,8 +10,8 @@
     {
       "@id": "urn:rkaf:fixture:sf-oa-xp:fragment",
       "@type": "rkaf:SourceFragment",
-      "rkaf:bindsArtifact": "urn:rkaf:fixture:sf-oa-xp:artifact",
-      "rkaf:hasSelector": {
+      "oa:hasSource": "urn:rkaf:fixture:sf-oa-xp:artifact",
+      "oa:hasSelector": {
         "@type": "oa:XPathSelector",
         "rdf:value": "/akomaNtoso/act/body/section[3]/subsection[2]"
       },

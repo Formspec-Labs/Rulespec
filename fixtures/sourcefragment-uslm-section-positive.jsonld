@@ -10,8 +10,8 @@
     {
       "@id": "urn:rkaf:fixture:sf-uslm:fragment",
       "@type": "rkaf:SourceFragment",
-      "rkaf:bindsArtifact": "urn:rkaf:fixture:sf-uslm:artifact",
-      "rkaf:hasSelector": {
+      "oa:hasSource": "urn:rkaf:fixture:sf-uslm:artifact",
+      "oa:hasSelector": {
         "@type": "rkaf:USLMSectionSelector",
         "rdf:value": "/us/usc/t42/s9601(a)"
       },

@@ -69,14 +69,16 @@ Citing an Artifact by mutable URL alone is non-conformant. Layer 2 enforces this
 
 ### 4.2 SourceFragment
 
-**rkaf:SourceFragment** — an addressable region within an Artifact.
+**rkaf:SourceFragment** — an addressable region within an Artifact. `rkaf:SourceFragment rdfs:subClassOf oa:SpecificResource` (W3C Web Annotation Ontology 1.0 — §9.1 Cohort A alignment).
 
 Required properties:
-- `rkaf:bindsArtifact` (1) — the parent Artifact identifier.
-- `rkaf:hasSelector` (1..*) — at least one selector.
-- `rkaf:selectorKind` (1..*) — closed enum:
+- `oa:hasSource` (1) — the parent Artifact IRI. OA canonical predicate for the source resource in a SpecificResource pattern.
+- `oa:hasSelector` (1..*) — at least one selector object. OA canonical predicate.
+- `rkaf:selectorKind` (1..*) — closed enum declaring the selector type(s):
   - Foundational (W3C Web Annotation Ontology — `oa:`): `oa:FragmentSelector`, `oa:TextQuoteSelector`, `oa:TextPositionSelector`, `oa:RangeSelector`, `oa:XPathSelector`, `oa:CssSelector`.
   - Domain selectors: `rkaf:aknt-eId`, `rkaf:uslm-section`, `rkaf:eli-fragment`, `rkaf:jsonpath`, `rkaf:doi-fragment`, `rkaf:partner-defined`.
+
+For `rkaf:selectorKind: "oa:TextQuoteSelector"`, the selector object MUST carry `oa:exact` (xsd:string, the verbatim quoted text). `oa:prefix` and `oa:suffix` (xsd:string, surrounding context anchors) are optional. Rulespec declines L1/L3 constraints over the OA TextQuoteSelector range beyond these three predicates; producers conform to OA 1.0's own domain/range.
 
 Selector stability across Artifact revisions is a partner obligation. Supersession (§6.1, inherited) resolves fragment continuity. For ELI artifacts, ELI-I edges are the canonical fragment-continuity model.
 
@@ -259,7 +261,7 @@ This table lists only ontologies composed at mode 1: predicate declared in `cont
 | Ontology | Prefix | Role |
 |---|---|---|
 | **W3C PROV-O** | `prov:` | Provenance vocabulary. `prov:wasGeneratedBy`, `prov:wasAttributedTo`, `prov:wasDerivedFrom`, `prov:generatedAtTime` compose with cryptographic anchoring (§7) and AI lineage records (§5.3). |
-| **W3C Web Annotation Ontology (OA)** | `oa:` | Selector vocabulary for `SourceFragment` (§4.2). Foundational selector kinds (`oa:FragmentSelector`, `oa:TextQuoteSelector`, `oa:TextPositionSelector`, `oa:RangeSelector`, `oa:XPathSelector`, `oa:CssSelector`) MUST be supported by every Rulespec implementation handling source fragments. |
+| **W3C Web Annotation Ontology (OA)** | `oa:` | Rulespec v0.2 composes **OA 1.0** (W3C Recommendation 2017-02-23; namespace `http://www.w3.org/ns/oa#`, stable). Predicate-level imports: `oa:hasSource` (parent-resource edge on a SpecificResource), `oa:hasSelector` (selector attachment), `oa:exact` / `oa:prefix` / `oa:suffix` (TextQuoteSelector payload). `rkaf:SourceFragment rdfs:subClassOf oa:SpecificResource`. Foundational selector kinds (`oa:FragmentSelector`, `oa:TextQuoteSelector`, `oa:TextPositionSelector`, `oa:RangeSelector`, `oa:XPathSelector`, `oa:CssSelector`) MUST be supported by every Rulespec implementation handling source fragments. Rulespec declines L1/L3 constraints over OA predicate ranges; partner producers conform to OA's own domain/range. Breaking changes in a future OA 2.0 trigger an alignment-row re-evaluation. |
 | **W3C SKOS** | `skos:` | Concept relations (`closeMatch`, `exactMatch`, `broader`, `narrower`, `related`, `mappingRelation`) for the Concept Registry (`spec/rkaf-concept-registry.md`). |
 | **ELI** (European Legislation Identifier) | `eli:` | Rulespec v0.2 composes **ELI 1.5 core** (2024 release; namespace `http://data.europa.eu/eli/ontology#`, stable across v1.0 → v1.5). Use ELI URIs as the canonical Artifact identifier scheme for EU legal sources (§4.1). Do not duplicate ELI's URI structure or metadata model; compose. For multi-predecessor consolidation edges (one consolidated text incorporating multiple prior versions or amending acts), compose `eli:consolidates` (and inverse `eli:consolidated_by`) directly — both predicates are non-functional in ELI 1.5 and explicitly designed for repeated use. Consolidation is semantically distinct from supersession: `eli:consolidates` denotes editorial restatement that incorporates predecessors which remain legally extant; `rkaf:supersedesAssertion` (§6, Lifecycle primitives) denotes replacement where predecessors become historical. Use both together when appropriate. Breaking changes in a future ELI 2.0 trigger an alignment-row re-evaluation: Rulespec declines L1/L3 constraints over `eli:*` predicates by design (partners conform to ELI's own domain/range), so migration policy must be documented at the alignment layer. |
 | **ELI-DL** | (sub-namespace) | Compose ELI-DL identifiers + metadata for assertions over draft/pending legislation. Lifecycle packets carry ELI-DL state transitions natively. |
