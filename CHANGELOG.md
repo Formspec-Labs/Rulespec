@@ -5,11 +5,19 @@ All notable changes to Rulespec are documented in this file.
 The format is loosely based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 adapted for a specification + shape + fixture project.
 
-## Unreleased — SKOS predicate composition on Concept; prefLabel(1) enforced at L1 + L3 (PKA-2szi)
+## v0.2.0-pre.7 — Constraint, runtime, and composition consolidation
+
+This release consolidates the work from Plans 6a and 7a–7e: the Rust SDK and
+constraint pipeline, complete L1–L4 conformance coverage, behavioral runtime
+contracts, ADR-0093 `rkaf:Finding` promotion, temporal and freshness semantics,
+and disciplined composition with public vocabularies. The detailed change
+records follow.
+
+### SKOS predicate composition on Concept; prefLabel(1) enforced at L1 + L3 (PKA-2szi)
 
 The normative mandate at `spec/rkaf-concept-registry.md` for `skos:prefLabel (1)` on every `rkaf:RegisteredConcept` / `rkaf:LocalConcept` was previously unenforced — producers could omit the label and pass validation. This entry closes the gap with explicit L1 (CUE → JSON Schema) AND L3 (SHACL `sh:minCount 1`) enforcement, plus optional `skos:altLabel` / `skos:broader` / `skos:narrower` / `skos:related` composition.
 
-### Added — SKOS predicate-level composition + dual-layer enforcement
+#### Added — SKOS predicate-level composition + dual-layer enforcement
 
 - `context/rkaf-context.jsonld` — added JSON-LD term definitions for `skos:prefLabel`, `skos:altLabel` (set), `skos:broader`, `skos:narrower` (set), `skos:related` (set).
 - `constraints/core/concept.cue` — extended `#RegisteredConcept` and `#LocalConcept` with required `skos:prefLabel` (cardinality 1) and optional skos: relations.
@@ -20,11 +28,11 @@ The normative mandate at `spec/rkaf-concept-registry.md` for `skos:prefLabel (1)
 - `spec/rkaf-concept-registry.md` — extended with normative enforcement note citing both layers.
 - First-attempt commit `396bbfa` enforced at L1 only and shipped negative fixtures the SHACL gate failed to catch as UNEXPECTED-PASS. That commit was reverted as `4661052`; this entry is the re-do.
 
-## Unreleased — DPV composition into AccessScope (PKA-gb5c)
+### DPV composition into AccessScope (PKA-gb5c)
 
 Cohort A landing per §9 composition-discipline framework. Matches the `eli:consolidates` (commit `08b7997`) and OA selector (commit `a5515b5`) precedents: cross-namespace predicate imports with L1/L3 declining to constrain DPV's range. Converts §9.2 DPV alignment overclaim into a concrete typed interop point for GDPR/HIPAA buyer audience.
 
-### Added — DPV predicate-level composition
+#### Added — DPV predicate-level composition
 
 - `context/rkaf-context.jsonld` — added JSON-LD term definitions for `dpv:hasPersonalDataCategory` (`@type: @id`, `@container: @set`), `dpv:hasLegalBasis` (`@type: @id`), and `dpv:hasPurpose` (`@type: @id`) adjacent to the existing ELI block. The `dpv:` prefix was already declared; these entries make the multi-valued IRI-typed semantics explicit at the context layer.
 - `constraints/core/access-scope.cue` — extended `#AccessScope` with three optional cross-namespace fields: `dpv:hasPersonalDataCategory?`, `dpv:hasLegalBasis?`, `dpv:hasPurpose?`. No range constraints; DPV owns its taxonomy.
@@ -34,11 +42,11 @@ Cohort A landing per §9 composition-discipline framework. Matches the `eli:cons
 - `fixtures/edges/access-scope-with-dpv-composition-positive.jsonld` — new edge fixture demonstrating two `regulatoryRestricted` AccessScope nodes composing `dpv:hasPersonalDataCategory` + `dpv:hasLegalBasis` (one HIPAA-PHI case, one GDPR-PII case with optional `dpv:hasPurpose`).
 - No SHACL shape over `dpv:*` predicates; no L1 enforcement of cardinality. Partner producers conform to DPV's own taxonomy. Closed-taxonomy debt unchanged; net new vocabulary classes 0.
 
-## Unreleased — OA selector composition: predicate-level imports + SourceFragment subClassOf (PKA-ehze + PKA-f03y)
+### OA selector composition: predicate-level imports + SourceFragment subClassOf (PKA-ehze + PKA-f03y)
 
 Cohort A landing per §9 composition-discipline framework. Closes the §9.4 inversion where Rulespec imported W3C Web Annotation Ontology but used rkaf-namespaced attachment predicates. Matches the `eli:consolidates` precedent (commit `08b7997`).
 
-### Changed — OA predicate-level composition (breaking JSON-LD wire shape)
+#### Changed — OA predicate-level composition (breaking JSON-LD wire shape)
 
 - `context/rkaf-context.jsonld` — removed `rkaf:hasSelector` and `rkaf:bindsArtifact` term definitions; added `oa:hasSelector` (`@type: @id`), `oa:hasSource` (`@type: @id`), `oa:exact` / `oa:prefix` / `oa:suffix` (`@type: xsd:string`).
 - `spec/rkaf-vocabulary.md` — vocabulary table rows updated from rkaf-prefixed to oa-prefixed predicates.
@@ -48,11 +56,11 @@ Cohort A landing per §9 composition-discipline framework. Closes the §9.4 inve
 - All affected positive fixtures (11) renamed predicate keys.
 - **Wire-shape break:** producers emitting `rkaf:hasSelector` or `rkaf:bindsArtifact` must rename to `oa:hasSelector` / `oa:hasSource`. v0.2 pre-1.0 closed-taxonomy timing.
 
-## Unreleased — §9 reshape: four-mode composition classifier + four-cohort treatment (PKA-03og)
+### §9 reshape: four-mode composition classifier + four-cohort treatment (PKA-03og)
 
 Replaces the §9.1 (Imports) / §9.2 (Alignments) two-mode taxonomy with the four-mode classifier (Direct predicate import / Class-tag / URI-value / Pattern citation) derived from corpus evidence in the post-fs-pmf4 alias audit. Spec credibility tightening; zero behavior change.
 
-### Changed — §9 structure
+#### Changed — §9 structure
 
 - `spec/rkaf-core.md §1 Namespaces` — Imported list trimmed to mode-1 only (`prov:`, `oa:`, `skos:`, `eli:`); Aligned list trimmed to mode-2/3 only (`aknt:`, `uslm:`, `dpv:`, `odrl:`). Cohort C/D prefixes removed.
 - `spec/rkaf-core.md §9.1` — renamed "Imports — mode-1 direct predicate imports"; rows now list only ontologies with predicate-level imports declared in `context/rkaf-context.jsonld`. ELI promoted here from §9.2 to reflect actual composition shape.
@@ -63,61 +71,30 @@ Replaces the §9.1 (Imports) / §9.2 (Alignments) two-mode taxonomy with the fou
 - `spec/rkaf-core.md §12 References` — DCTERMS, LegalRuleML, ECO/SEPIO moved from Normative to Informative to match §9.2.2 cohort assignments.
 - `context/rkaf-context.jsonld` — Cohort D dead-weight prefix declarations dropped (`dcat:`, `nano:`, `schemaorg:`); `_meta.relationship` + `_meta.delta_from_v0.1` rewritten to reflect the four-mode taxonomy.
 
-## Unreleased — §9 composition-discipline framework + drift cleanups
+### §9 composition-discipline framework + drift cleanups
 
-### Documented — composition-discipline framework
+#### Documented — composition-discipline framework
 
 - `thoughts/specs/2026-05-20-section-9-composition-discipline.md` — new framework memo. Establishes the measurement metric for §9 composition decisions: `(User Value [real + theoretical]) × (Architectural Debt Reduction)`, explicitly NOT time or session-cost. Documents the four composition modes (direct predicate / class-tag / URI-value / pattern citation), the four-cohort treatment (Compose / Clarify / Demote / Drop), per-cohort precedents (ELI = Cohort A landed; DPV = Cohort A next), and the 5-question decision framework for evaluating future §9 candidates.
 
-### Removed — dead predicate; renamed legacy holdover
+#### Removed — dead predicate; renamed legacy holdover
 
 - `context/rkaf-context.jsonld` — removed `rkaf:sourceFragment` (lowercase) JSON-LD term definition. v0.1 holdover; absent from vocabulary table, CUE constraints, compiled artifacts, Rust generated code, spec body. Only used in v0.1-era narrative fixtures (since renamed).
 - `fixtures/narratives/{local-operational,statutory-authority}.md` — 5 occurrences of `rkaf:sourceFragment` renamed to `rkaf:bindsSourceFragment` (the canonical v0.2 predicate at `spec/rkaf-vocabulary.md:20`).
 
-### Added — drift fix: lastVerifiedAt datetime typing
+#### Added — drift fix: lastVerifiedAt datetime typing
 
 - `context/rkaf-context.jsonld` — added `rkaf:lastVerifiedAt` with `@type: xsd:dateTime`. Predicate was used in 5 CUE shapes + vocabulary spec + normative orthogonality invariant but missing from context, causing string-literal serialization instead of typed datetime in JSON-LD output. Drift introduced during Plan 7d landing.
 
-## v0.2.0-pre.6 — Studio reference-consumer cutover (L2 + D3)
+### AI-governance vocabulary review (ADR 0149)
 
-WOS Studio (Authoring) becomes the first Rulespec reference consumer at conformance level L2 (Shape) and adoption depth D3 (Derive). The L3 (Constraint) gate requires SHACL + Pattern-C validation and is disclosed as a path-to-close in the partner YAML.
-
-### Added — Studio profile
-
-- `profiles/studio/schema-source/` is the Rulespec-owned Studio profile in JSON Schema form (18 authoring + 6 api). `profiles/studio/schemas-derived/` is the projector output; `derive.sh` runs the projector. `profiles/studio/SHA256SUMS` pins the derived surface.
-- The current cutover is conservative: `derive.sh` is an identity copy. The JSON Schema source-of-truth carries authoring prose, x-lm hints, examples, and $defs that the current Layer-4 CUE projector cannot yet reproduce. CUE-projection upgrade is documented as future work; the schema-source/ → schemas-derived/ projector-output discipline is what underpins the D3 declaration.
-
-### Added — Cross-submodule overlay emission + lint
-
-- `policy-studio/crates/wos-studio-compiler` (sibling submodule) now emits `x-rkaf-overlay` on every artifact (wos-workflow.json, compile-manifest.json, workspace-export.bundle.json). Each overlay carries a 4-node `@graph`: an Artifact node (`wos:Workflow` on the workflow — WOS canonical substrate type; `rkaf:Artifact` on the manifest + bundle) plus `rkaf:Assertion` + `rkaf:Warrant` + `rkaf:AccessScope`. Determinism is preserved — `rkaf:emittedAt` derives from the manifest hash, not wall clock — so byte-identical SNAP gate continues to hold.
-- `policy-studio/crates/wos-studio-lint` gains the overlay-grounded rule tier, validating every emitted `rkaf:*` node against PKAF's compiled v0.2 vocabulary schemas via `rkaf-validate` (JSON Schema only). Non-`rkaf:*` nodes (e.g. the workflow's `wos:Workflow` root) are silently passed by design.
-
-### Added — Conformance disclosure
-
-- `conformance/partners/policy-studio.yaml` files Studio's L2 + D3 declaration with explicit provisional notes (L3 SHACL gate path, warrant chain, access scope default, JSON-Schema-vs-CUE source form, non-object carriers).
-- Studio's conformance report lives at `policy-studio/conformance-reports/L2-report.json` in the partner submodule.
-
-### Provisional — disclosed honestly
-
-- **L3 (Constraint) path.** Studio's overlay-grounded gate is JSON-Schema-only via `rkaf-validate`. L3 per `spec/rkaf-conformance.md` additionally requires SHACL + Pattern-C cross-property invariants. Promote `conformance_level: "L2"` → `"L3"` when a SHACL gate lands and runs green against the SNAP slice.
-- **Warrant chain.** All emitted `rkaf:Warrant` nodes carry `rkaf:provisionalUntilSourceAuthorityWired: true`. Wiring SourceAuthority records into overlay emission is Studio Stage-8 work.
-- **AccessScope default.** All emitted `rkaf:AccessScope` nodes default to `rkaf:organizationVisible` scoped to workspace; per-assertion classification (HIPAA-PHI / GDPR-PII) flows from source-classification records in Stage-8.
-- **CUE-projection upgrade.** Deferred until the Layer-4 CUE projector can round-trip authoring prose, x-lm hints, examples, and $defs without loss.
-- **Non-object carriers.** scenarios.json + compile-events.jsonl have no root-object slot for `x-rkaf-overlay`; per-scenario provenance is carried indirectly via the workspace-export bundle's overlay.
-
-### Future reference consumers
-
-Per source spec §14.3, no framework-side requirement that future partners adopt at D3+. Studio's depth-D3 commitment is a Studio commitment, not a framework requirement.
-
-## Unreleased — AI-governance vocabulary review (ADR 0149)
-
-### Documented — no vocabulary diff
+#### Documented — no vocabulary diff
 
 - `thoughts/adr/0149-pkaf-compose-patterns-vs-ai-governance-vocabulary.md` (stack-level) rejects six proposed AI-governance vocabulary additions (`rkaf:Projection`, `rkaf:Proposal` + Promotion, `rkaf:RetrievalPolicy`, `rkaf:SourceVersion`, `rkaf:AnswerTraceBundle`, `rkaf:MaterializedEdge`) as wholesale or near-wholesale duplications of existing primitives. Net new core terms: 0. Net new classes: 0. Closed-taxonomy discipline preserved.
 - `context/COMPOSE-PATTERNS.md` ships six reader-facing recipes showing the existing-primitive composition that satisfies each rejected proposal, with line-level citations to `spec/`, `constraints/core/`, `context/rkaf-context.jsonld`, and `crates/rkaf-runtime/`. First place a consumer looks when tempted to propose new vocabulary.
 - `thoughts/plans/2026-05-21-eli-consolidates-spike.md` queues a bounded ~1-day investigation into whether `eli:consolidates` composes directly into the rkaf context (via `owl:equivalentProperty`) for multi-predecessor source consolidation, or whether a single `rkaf:consolidates` predicate (no class) is warranted. **Resolved 2026-05-20** — outcome: direct import of `eli:consolidates`. See "Resolved — ELI-consolidates spike (Outcome 1)" below. (Spike file was renamed mid-investigation from `eli-i-consolidates-spike.md` to `eli-consolidates-spike.md` after confirming the predicate is in ELI core, not ELI-I.)
 
-### Resolved — ELI-consolidates spike (Outcome 1: direct import)
+#### Resolved — ELI-consolidates spike (Outcome 1: direct import)
 
 - `context/rkaf-context.jsonld` — added JSON-LD term definitions for `eli:consolidates` and `eli:consolidated_by` (both `@type: @id`, `@container: @set`) adjacent to the existing PROV-O block. The `eli:` prefix was already declared (L16); these entries make the multi-valued IRI-typed semantics explicit at the context layer. Eight lines added.
 - `spec/rkaf-core.md §9.2` — extended the ELI alignment row to name `eli:consolidates` and `eli:consolidated_by` for multi-predecessor consolidation edges, with normative guidance on the consolidation-vs-supersession semantic distinction (consolidation: predecessors remain legally extant; supersession: predecessors become historical) and a cross-reference to `rkaf:supersedesAssertion` (§6, Lifecycle primitives). Confirms ELI 1.5 design (predicate non-functional; rdfs:comment explicitly directs repeated use). Spike found the predicate is in ELI core (not ELI-I as the spike title suggested); spike filename retained for path stability.
@@ -125,50 +102,50 @@ Per source spec §14.3, no framework-side requirement that future partners adopt
 - `fixtures/edges/consolidates-multi-predecessor-edge.jsonld` — new edge fixture (4-node `@graph`: 3 predecessor assertions + 1 consolidated text linking via `eli:consolidates`).
 - No constraint changes; no SHACL changes; no compiled-artifact regeneration. PKAF declines to constrain a non-PKAF-namespaced predicate at L1 — partner producers conform to ELI's own domain/range (`LegalExpression ∪ LegalResource`). §9.4 discipline ("do not reinvent — if a public ontology owns the local problem, Rulespec uses it") satisfied. Closed-taxonomy debt unchanged; net new vocabulary classes still 0.
 
-## Unreleased — Plan 7e + ADR-0093 review follow-ups
+### Plan 7e + ADR-0093 review follow-ups
 
 Coordinated cleanup pass closing the actionable findings from three neutral semi-formal reviews: Plan 7e APPROVE-WITH-NITS (6 items, F1-F6 below), the `b6c24de` polish-commit nit review (4 items, N1-N3), and a cross-stack Studio cutover port (ADR-0093 derive).
 
-### Changed — Plan 7e review F1 + F4 — freshness gate now requires effectiveness
+#### Changed — Plan 7e review F1 + F4 — freshness gate now requires effectiveness
 
 - `crates/rkaf-runtime/src/reducer.rs::narrow_for_freshness` now iterates `temporal::effective_attestations_at(graph, evaluation_time)` and filters by `rkaf:targets contains assertion_id`. Revoked or out-of-period Attestations are silently excluded from the freshness narrowing — they're already excluded from the authority chain, so narrowing freshness on their basis was over-firing. `effective_attestations_at` (Plan 7e.1's shared helper) now has its first real production caller.
 - `spec/rkaf-behavior.md` §1.2 Step 5.5 — normative paragraph updated: "any effective Attestation (per `temporal::effective_at`) targeting the assertion @id" replaces "any Attestation targeting the assertion @id". Pseudocode aligned. Strictness clause extended to cover `revokedAt` + `effectivePeriod{Start,End}` + dangling `hasEffectivePeriod` IRIs (propagated through `effective_attestations_at`).
 
-### Added — Plan 7e review F5 — richer rationale when freshness narrows
+#### Added — Plan 7e review F5 — richer rationale when freshness narrows
 
 - `reducer::evaluate` now emits `"freshness gate narrowed from <baseline> to <after-freshness> (maxAttestationStalenessDays=<n>)"` as the rationale whenever Step 5.5 actually narrows the effective level (workspace-wide reduction path). Implemented via a new internal `reduce_for_scope_traced` returning a `ScopeResult` trace; the public `reduce_for_scope` wrapper is unchanged. `rationale` is in `INFORMATIONAL_OUTPUT_KEYS` so existing fixtures continue to match.
 
-### Added — Plan 7e review F6 — malformed-`lastVerifiedAt` behavior fixture
+#### Added — Plan 7e review F6 — malformed-`lastVerifiedAt` behavior fixture
 
 - `fixtures/behavior/usage-eligibility-reducer-freshness-malformed-negative.jsonld` exercises the Step 5.5 strict-error path on `Attestation.rkaf:lastVerifiedAt = "not-a-date"` using the `rkaf:expectedRuntimeError: "rkaf:MalformedTestCase"` pattern. Wired into `tests/behavior_fixtures.rs::reducer_freshness_malformed_negative`. Conformance: **235 → 236 fixtures, 0 divergences**.
 
-### Refactored — Plan 7e review F2 + F3 — `RuntimeError::iri_tag` extracted
+#### Refactored — Plan 7e review F2 + F3 — `RuntimeError::iri_tag` extracted
 
 - New `RuntimeError::iri_tag(&self) -> &'static str` returning the 7 fixture-facing IRI strings. Replaces the duplicated inline match arms in `crates/rkaf-runtime/tests/behavior_fixtures.rs` and `crates/rkaf-runtime-cli/src/main.rs`. New `runtime_error_iri_tag_mapping` unit test pins the variant → IRI mapping (one assert per variant).
 - Both call sites now carry an inline comment documenting that `OutputMismatch` arm precedence is deliberate (a fixture declaring `rkaf:expectedRuntimeError = "rkaf:OutputMismatch"` is unreachable by design — fixtures use `rkaf:expectedOutput` for the success path).
 
-### Changed — Polish review N1 + N2 + N3 — `b6c24de` cleanup
+#### Changed — Polish review N1 + N2 + N3 — `b6c24de` cleanup
 
 - **N1 — CHANGELOG.** Long-tail entries for Finding-6 + Observation-7 marked as closed in `b6c24de` (`fixtures/context.jsonld` removed; narrative annotations + Finding fixture self-containment landed).
 - **N2 — Dead exclusion references.** Dropped `context.jsonld` skip-branch in `crates/rkaf-validate/tests/fixture_validation.rs`; removed the docstring enumeration in `tools/conformance_report.py`; cleared the `NON_FIXTURE_NAMES` set in `tools/conformance_lib.py` (kept the predicate as an empty reserve for future non-fixture siblings — comment explains why).
 - **N3 — `fixtures/README.md`.** Added the inverse-clause: "Inline the referenced node when the fixture's primary purpose is to exercise the relationship itself; use a cross-fixture reference when the fixture isolates a single class for shape validation."
 
-### Changed — ADR-0093 cross-stack derive — Studio cutover ported into PKAF
+#### Changed — ADR-0093 cross-stack derive — Studio cutover ported into PKAF
 
 - `policy-studio/`'s post-cutover schema surface (`WaiverAttestationRef` collapse of 4 waiver-flavor clumps + `ValidationFinding.waiver: $ref WaiverAttestationRef` + `lifecycleState` enum sans `waived` + rkaf:Finding-aligned `findingKind`/`detectedAt`/`detectedBy`/`subject` + `findingKind` now required + `parsingWaiver` / `sensitivityWaiver` on SourceVersion / ServiceBinding) is now mirrored into `profiles/studio/schema-source/` (the Rulespec-owned source of truth that derive.sh transforms into `schemas-derived/`). Touched: `wos-studio-common.schema.json` (+`WaiverAttestationRef` $def), `wos-studio-readiness.schema.json` (Finding alignment + waiver field), `wos-studio-binding.schema.json` (sensitivityWaiver), `wos-studio-source.schema.json` (parsingWaiver).
 - `profiles/studio/derive.sh` re-emitted `schemas-derived/` + `SHA256SUMS` to match.
 - Rename hygiene: 2 stray `PKAF` brand tokens (carried over from the Studio repo prose) renamed to `Rulespec` in the schema descriptions; `tools/rename_audit.py` now clean.
 
-## Unreleased — Plan 7e: runtime contracts use Plan 7d + ADR-0093 fields
+### Plan 7e: runtime contracts use Plan 7d + ADR-0093 fields
 
 Plan 7d added optional temporal-bounds + freshness fields to Attestation, SourceFragment, EvidenceBinding, and BridgeValidationResult; ADR-0093 promoted `rkaf:Finding` and refactored `BridgeValidationResult` indicators. Plan 7e turns those shape additions into enforced runtime behavior across three increments.
 
-### Added — 7e.1 — `effective_attestations_at` shared helper
+#### Added — 7e.1 — `effective_attestations_at` shared helper
 
 - New `crates/rkaf-runtime/src/temporal.rs` module exposing `effective_at(att, time, graph)` and `effective_attestations_at(graph, time)`. Plan 7d's "is this attestation in force at T?" predicate now has one canonical implementation; `bridge::rule_8` imports from it. Strictness posture mirrors `cascade::is_active`: dangling EffectivePeriod IRIs and unparseable RFC-3339 literals propagate as `MalformedTestCase`.
 - Unit tests cover empty graph, mix of effective/revoked/out-of-period, malformed timestamp propagation, dangling-IRI propagation.
 
-### Added — 7e.2 — freshness gate (`reducer::reduce_for_scope` Step 5.5)
+#### Added — 7e.2 — freshness gate (`reducer::reduce_for_scope` Step 5.5)
 
 - New optional `rkaf:maxAttestationStalenessDays: integer` field on `BridgeConsumerRegistration` (`constraints/core/bridge-consumer-registration.cue`).
 - New optional `rkaf:evaluationTime: xsd:dateTime` on `BehaviorTestCase` fixtures drives the freshness check; production runtimes derive it from the packet's evaluation instant (e.g. BVR.validatedAt).
@@ -181,18 +158,18 @@ Plan 7d added optional temporal-bounds + freshness fields to Attestation, Source
   - `usage-eligibility-reducer-freshness-fresh-passes` — 5-day-old `lastVerifiedAt`, 30-day window → unchanged baseline.
 - `bridge::rule_2` keeps its no-freshness-check posture (passes `None` for `evaluation_time`); Rule 2 enforces a structural invariant, not a runtime freshness check.
 
-### Added — 7e.3 — dangling-IRI parity for Finding edges
+#### Added — 7e.3 — dangling-IRI parity for Finding edges
 
 - `bridge::rule_8` now invokes `verify_finding_iris_resolve(graph)` at entry, walking every `Attestation.targetFinding` and `BridgeValidationResult.findings[]`. Any IRI that fails to resolve raises `MalformedTestCase` — parity with `cascade::is_active`'s `rkaf:hasEffectivePeriod` posture (Plan 7c.6).
 - `rkaf-runtime-cli` gains `rkaf:expectedRuntimeError` fixture-level support so a behavior fixture MAY assert "the runtime MUST raise this error variant". `tests/behavior_fixtures.rs` mirrors the contract.
 - New fixture `bridge-rule-8-target-finding-dangling-negative` exercises the dangling-`targetFinding` path end-to-end; conformance reports 235 fixtures / 0 divergences.
 - Unit tests pin `verify_finding_iris_resolve` for: empty graph, resolving target, dangling `targetFinding`, dangling `BVR.findings[]`, resolving `BVR.findings[]`.
 
-## Unreleased — ADR-0093: rkaf:Finding promoted; BVR indicator refactor; Plan 7d review findings closed
+### ADR-0093: rkaf:Finding promoted; BVR indicator refactor; Plan 7d review findings closed
 
 Implements stack-level ADR-0093 (Rulespec Finding IRI Addressability) in three phases inside PKAF and closes the actionable findings from the Plan 7d semi-formal-code-review along the way. Net new universal classes: one (`rkaf:Finding`). Breaking shape change on `BridgeValidationResult` (greenfield-justified — no installed base, no sibling-submodule consumers).
 
-### Added — Phase A (PKAF commit `c28cb3f`)
+#### Added — Phase A (PKAF commit `c28cb3f`)
 
 - **`rkaf:Finding`** — new first-class IRI-addressable primitive at `constraints/core/finding.cue`. Closed `#FindingKind` (9 values: `warning` / `error` / `staleDependency` / `registryUnavailable` / `registryVersionOutOfRange` / `conceptConflict` / `authorityBroken` / `unsupportedAnchor` / `other`). Closed `#FindingSeverity` (4 values: `informational` / `operationalConflict` / `publicationBlocking` / `authorityCritical` — aligned with `#ConflictSeverity` so RegistryConflict and Finding speak the same vocabulary). Shape: required `findingKind` / `detectedAt` / `detectedBy` / `subject`; optional `severity` / `rationale` / `lastVerifiedAt` / `verifiedBy`.
 - **7 new fixtures** for Finding: `finding-positive` (two findings in one graph), `finding-minimal-edge`, four required-field negatives (`finding-missing-{finding-kind,detected-at,detected-by,subject}-negative`).
@@ -202,13 +179,13 @@ Implements stack-level ADR-0093 (Rulespec Finding IRI Addressability) in three p
   - **MAJOR fixed**: 5 new round-trip tests in `crates/rkaf-core/tests/fixture_round_trip.rs` covering the Plan 7d optional fields on Attestation / SourceFragment / EvidenceBinding / BridgeValidationResult.
   - **FINDING 5 fixed**: `fixtures/attestation-revoked-within-period-positive.jsonld` exercises the "revocation supersedes effective period" semantic claimed by the vocab spec.
 
-### Added — Phase B (PKAF commit `5bce188`)
+#### Added — Phase B (PKAF commit `5bce188`)
 
 - **`rkaf:targetFinding?: string` on Attestation** — optional IRI pointing at a `rkaf:Finding`. When set, the Attestation acts as a waiver / override of the targeted Finding. Plan 7d-deferred field; now live.
 - **`fixtures/attestation-waiving-finding-positive.jsonld`** — Finding (staleDependency) + Attestation that waives it under named program-director authority, scoped to in-flight recerts.
 - **Context**: `rkaf:targetFinding` declared `@type:@id`.
 
-### Changed — Phase C (PKAF commit `8f50dd8`) — BREAKING
+#### Changed — Phase C (PKAF commit `8f50dd8`) — BREAKING
 
 - **`BridgeValidationResult` indicator refactor.** Removed five flat `[...string]` arrays:
   - `rkaf:warnings` / `rkaf:errors` / `rkaf:staleDependencies` / `rkaf:registryUnavailable` / `rkaf:registryVersionOutOfRange`
@@ -217,14 +194,14 @@ Implements stack-level ADR-0093 (Rulespec Finding IRI Addressability) in three p
 - **Migrated** `fixtures/edges/bridge-validation-result-mixed-warning-edge.jsonld` to use Finding IRIs.
 - **Blast radius confirmed minimal**: runtime read NONE of the legacy fields (verified by grep); no sibling submodule consumes them (verified by grep across `policy-studio/`, `trellis/`, `formspec/`, `workspec-server/`, `work-spec/`); 33 behavior fixtures use `rkaf:detectedIssues` + `rkaf:usedAsAuthority` (unaffected).
 
-### Changed (review-finding follow-up — this commit)
+#### Changed (review-finding follow-up — this commit)
 
 - **`crates/rkaf-core/tests/fixture_round_trip.rs`** — added `round_trip_finding_fixture` (review WARNING 1: Finding had no codegen-layer round-trip coverage despite being a new primitive). Round-trip suite: 26 → 27 tests.
 - **`context/rkaf-context.jsonld`** — deduplicated `rkaf:severity` (had conflicting `@id` vs `@vocab` declarations) and `rkaf:subject` (had two identical declarations); kept the Phase A `@vocab` semantics for severity since RegistryConflict's literal `"rkaf:operationalConflict"` resolves identically under either. Added `rkaf:Finding` class IRI declaration to match precedent (every other v0.2 class has one).
 - **`constraints/core/finding.cue`** — fixed comment that referenced non-existent `#RegistryConflictSeverity` (actual identifier in `registry-conflict.cue:10` is `#ConflictSeverity`).
 - **`thoughts/adr/0093-rkaf-finding-iri-addressability.md`** — reconciled internal contradictions: §Decision header no longer says "(proposal — not yet ratified)"; §Status reflects "PKAF Phases A+B+C: LANDED"; proposed-shape code block updated to match the actual landed enum values (camelCase: `conceptConflict` / `authorityBroken` / `unsupportedAnchor`, not the kebab-case the original draft proposed).
 
-### Verified
+#### Verified
 
 - `cargo test --workspace` — green.
 - `cargo test -p rkaf-core --test fixture_round_trip` — **27 passing** (was 19 pre-Plan-7d).
@@ -234,7 +211,7 @@ Implements stack-level ADR-0093 (Rulespec Finding IRI Addressability) in three p
 - `vocab_audit.py` — 33 CUE primitives / 33 covered.
 - `codegen_drift_audit.py` — clean.
 
-### Deferred to Plan 7e
+#### Deferred to Plan 7e
 
 - `effective_attestations_at(time)` runtime filter — uses `hasEffectivePeriod` + `revokedAt` on Attestation.
 - `freshness_gate(consumer)` — narrows `usageEligibility` via `lastVerifiedAt` against a consumer-declared max-staleness window.
@@ -242,18 +219,18 @@ Implements stack-level ADR-0093 (Rulespec Finding IRI Addressability) in three p
 - Studio cutover (`policy-studio/` repo) — projects `ValidationFinding` from `rkaf:Finding`; collapses four waiver flavors to `Attestation(targetFinding=…)`.
 - Trellis Finding anchoring (`trellis/` repo) — `rkaf:Finding` IRIs as anchored objects under the §4.6 binding contract.
 
-### Long-tail follow-up (closed in `b6c24de`)
+#### Long-tail follow-up (closed in `b6c24de`)
 
 - ~~Migrate or annotate `fixtures/narratives/*.md` and `fixtures/context.jsonld` — both still display the legacy BVR shape (`rkaf:warnings` etc.).~~ — closed: narratives carry inline annotations pointing to the post-ADR-0093 shape; `fixtures/context.jsonld` was removed (unreferenced; canonical context lives at `context/rkaf-context.jsonld`). (Review FINDING 6.)
 - ~~Dangling-IRI hygiene for `rkaf:detectedBy` in Finding fixtures.~~ — closed: Finding fixtures now self-contain their `detectedBy` `rkaf:BridgeValidationResult` node. (Review OBSERVATION 7.)
 
-## Unreleased — Plan 7d: Attestation temporal bounds + source freshness + identity boundary
+### Plan 7d: Attestation temporal bounds + source freshness + identity boundary
 
 Adds 4 optional fields to existing primitives and 2 normative spec edits. Net new universal classes: zero. Conceptual debt: zero.
 
 Outcome: 8 of 9 Studio knowledge-shaped schemas become retire-able by composing `Attestation` + `EffectivePeriod` + the new freshness fields. The 9th (`wos-studio-identity-subject`) stays Studio-owned per the now-explicit §4.6 identity boundary.
 
-### Added (Plan 7d)
+#### Added (Plan 7d)
 
 - **CUE fields on existing primitives.** All optional, additive:
   - `rkaf:Attestation` gains `hasEffectivePeriod` (reuses the existing edge, domain expansion), `revokedAt`, `lastVerifiedAt`, `verifiedBy`.
@@ -266,18 +243,18 @@ Outcome: 8 of 9 Studio knowledge-shaped schemas become retire-able by composing 
   - §4.6 — renamed "Anchoring and identity are dependency-inverted"; adds normative paragraph naming the identity boundary. Rulespec references identities by IRI; the identity shape belongs to bindings (W3C VC, OIDC, X.509, Trellis, etc.). Partner-level `AuthorityGrant` records likewise belong to bindings.
   - `spec/rkaf-vocabulary.md` — predicate rows extended for `hasEffectivePeriod` (domain += Attestation), and 3 new predicate rows for `revokedAt` / `lastVerifiedAt` / `verifiedBy`.
 
-### Changed (Plan 7d)
+#### Changed (Plan 7d)
 
 - **Codegen regenerated.** `tools/compile_all.sh` re-emitted `attestation.rs`, `source_fragment.rs`, `evidence_binding.rs`, `bridge_validation_result.rs` (+JSON Schema, SHACL, TS counterparts). +20 lines across the 4 generated Rust files.
 
-### Falsified (Plan 7d — what was scoped, then dropped)
+#### Falsified (Plan 7d — what was scoped, then dropped)
 
 - **`rkaf:OriginClass` (proposed promotion).** DROPPED. Code-scout pass found this duplicates the existing `#AssertionOrigin` closed enum (`constraints/core/assertion.cue:4-9`) AND name-collides with Studio's existing `OriginClass` (different axis: supply-chain provenance). Promotion would have created a parallel competing taxonomy.
 - **`rkaf:Waiver` first-class class (proposed promotion).** DOWNGRADED to optional fields on `Attestation`. Studio's existing waiver implementation is four un-unified data clumps marked `*substrate-pending*`; promoting "Waiver" as a new universal class would have hardened an unfinished design.
 - **`rkaf:SourceDocument` (proposed promotion).** DOWNGRADED to Studio-profile-scope. The `kind` enum (`regulation|statute|policy-manual|sop|memo|...`) is authoring-domain flavored; universal federation transport handled by `#Artifact` + ELI/USLM/DOI/CID identifier schemes.
 - **`targetFinding` on Attestation.** DEFERRED to stack-level ADR-0093. `BridgeValidationResult` findings are not IRI-addressable today (`warnings` / `errors` / `staleDependencies` are `[...string]` arrays, not nodes with `@id`); promoting `targetFinding` would point at nothing typed.
 
-### Verified
+#### Verified
 
 - `cargo test --workspace` — green.
 - `cargo test -p rkaf-runtime` — 18 unit + 39 integration, all passing.
@@ -286,35 +263,35 @@ Outcome: 8 of 9 Studio knowledge-shaped schemas become retire-able by composing 
 - `codegen_drift_audit.py` — clean after regen.
 - `vocab_audit.py` — 32 CUE primitives, 32 covered.
 
-### Open follow-ups
+#### Open follow-ups
 
 - **Stack-level ADR-0093** (`/Users/mikewolfd/Work/formspec-stack/thoughts/adr/0093-rkaf-finding-iri-addressability.md`) — proposes `rkaf:Finding` as a first-class IRI-addressable shape; unblocks `targetFinding` on `Attestation` and Studio readiness-tier promotion. Filed open; no implementation in this plan.
 - **Plan 7e** — runtime behavioral contracts consuming the new fields: `effective_attestations_at(time)` filter and `freshness_gate(consumer)` narrowing. Fixtures exercise the shape first; runtime semantics next cycle.
 
-## Unreleased — L0-L3 coverage completion and gate hardening
+### L0-L3 coverage completion and gate hardening
 
 Closes the lower-layer coverage gaps that could be hidden by green verdict gates. L0-L3 now has a direct coverage audit in addition to the per-fixture conformance reporter.
 
-### Added
+#### Added
 
 - **18 new edge fixtures** so `fixtures/edges/` covers every compiled schema class, not just representative classes.
 - **`tools/l0_l3_coverage_audit.py`** — coverage gate for L0-L3. It verifies vocabulary/source coverage, JSON-LD parse coverage, positive/negative/edge coverage for all 31 compiled schema classes, and 93/93 required-field negative slots.
 
-### Changed
+#### Changed
 
 - **`Makefile` and CI** now run the L0-L3 coverage audit as a first-class gate.
 - **Conformance docs and self-certification** now report 216 total fixtures and complete lower-layer coverage.
 
-### Verified
+#### Verified
 
 - `tools/l0_l3_coverage_audit.py` — 216 normal fixtures, 31/31 schema classes covered by positive, negative, and edge fixtures; 93/93 required-field negative slots covered.
 - `tools/conformance_report.py` — 216 fixtures, 0 divergences.
 
-## Unreleased — L4 coverage completion and gate hardening
+### L4 coverage completion and gate hardening
 
 Closes the remaining L4 branch-coverage gaps that were implemented in the runtime but not represented in `fixtures/behavior/`, and prevents missing L4 execution from reporting as a clean conformance run.
 
-### Added
+#### Added
 
 - **5 new behavior fixtures**:
   - `cascade-closure-all-edge-predicates` covers every declared CascadeClosureV1 predicate, including SKOS concept-lifecycle edges.
@@ -325,24 +302,24 @@ Closes the remaining L4 branch-coverage gaps that were implemented in the runtim
 - **`tools/l4_coverage_audit.py`** — branch-coverage gate for L4. It verifies 5/5 contracts, accepted/rejected coverage for all 10 bridge rules, Rule 5 safeAutomaticMigration, 6/6 reducer branches, 2/2 PIT branches, 3 concept outcomes plus 4 severities, cascade `as_of`, and 17/17 cascade predicates.
 - **Dynamic Rust fixture sweep** in `crates/rkaf-runtime/tests/behavior_fixtures.rs` so new `fixtures/behavior/*.jsonld` files are exercised by `cargo test` automatically, in addition to named regression tests.
 
-### Changed
+#### Changed
 
 - **`tools/conformance_report.py`** now treats `L4=skip` from a missing `rkaf-behavior-validate` binary as a divergence. A conformance run that did not execute L4 behavior fixtures is not green.
 - **`Makefile` and CI** now run the L4 coverage audit as a first-class gate.
 - **Conformance docs and self-certification** now report 216 total fixtures and 38 behavior fixtures.
 
-### Verified
+#### Verified
 
 - `tools/l4_coverage_audit.py` — 38 behavior fixtures; all L4 branches covered.
 - `rkaf-behavior-validate --json fixtures/behavior/*.jsonld` — 38/38 pass.
 - `cargo test -p rkaf-runtime --test behavior_fixtures` — 39 passing, 0 failing.
 - `tools/conformance_report.py` — 216 fixtures, 0 divergences.
 
-## Unreleased — Plan 7c: concept severity ladder + cascade `as_of` date predicate + greenfield-strict reducer
+### Plan 7c: concept severity ladder + cascade `as_of` date predicate + greenfield-strict reducer
 
 Closes the two Plan 7c reservations in `spec/rkaf-behavior.md` and the deferred cascade `as_of` work, then closes the six findings from the Plan 7c semi-formal-code-review.
 
-### Added (Plan 7c)
+#### Added (Plan 7c)
 
 - **Concept-resolution 4-level severity ladder** (§6.1, full):
   - `authorityCritical` ⇐ `publicationBlocking` + ≥1 approved mapping in `consumer.trustedRegistries`
@@ -357,7 +334,7 @@ Closes the two Plan 7c reservations in `spec/rkaf-behavior.md` and the deferred 
 - **3 new behavior fixtures**: `concept-resolution-publication-blocking`, `concept-resolution-authority-critical`, `cascade-closure-as-of-excludes-expired`.
 - **3 new cascade unit tests**: semantic non-Z offset equivalence, out-of-period exclusion, malformed-EffectivePeriod loud error.
 
-### Changed (Plan 7c — review findings closed)
+#### Changed (Plan 7c — review findings closed)
 
 - **`concept::compute_severity`** — multi-BCR errors from `select_consumer` now propagate via `?` instead of silently degrading to `publicationBlocking`. Return type `Result<&'static str, RuntimeError>`.
 - **`cascade::closure` + `is_active`** — accept `Option<&DateTime<FixedOffset>>` rather than `Option<&str>`. Malformed `cascadeAsOf` or `EffectivePeriod.{start,end}` returns `MalformedTestCase` with the offending node + field + raw value — no silent inclusion/exclusion.
@@ -366,17 +343,17 @@ Closes the two Plan 7c reservations in `spec/rkaf-behavior.md` and the deferred 
 - **`crates/rkaf-runtime/Cargo.toml`** — `chrono` (default-features-off; `std`+`clock` only) added for semantic RFC-3339 comparison.
 - **Repo hygiene** — two cross-stack proposal documents (formspec generalization, implementation- and spec-side; 1133 lines) swept in by an upstream commit have been moved to the parent stack's `thoughts/proposals/` where they belong. PKAF's `thoughts/proposals/` no longer exists.
 
-### Verified (Plan 7c)
+#### Verified (Plan 7c)
 
 - `cargo test --workspace` — **all tests passing**; rkaf-runtime now reports 33 integration tests (was 30) + 15 unit tests (was 12, +3 cascade semantic-tz cases).
 - `cargo test -p rkaf-runtime` — **48 passing, 0 failing** (15 unit + 33 fixture).
 - Behavior fixtures at Plan 7c closeout: 33 in `fixtures/behavior/`, all `L4=pass`.
 
-## Unreleased — Plan 7b: L4 behavioral runtime (`rkaf-runtime` + `rkaf-behavior-validate` CLI)
+### Plan 7b: L4 behavioral runtime (`rkaf-runtime` + `rkaf-behavior-validate` CLI)
 
 L4 stops being aspirational. Ships a Rust runtime crate (`crates/rkaf-runtime/`) implementing all 5 algorithmic contracts in `spec/rkaf-behavior.md` — UsageEligibility reducer, CascadeClosureV1, all 10 bridge contract rules, PointInTimeException evaluation, concept resolution with conflict — plus a CLI binary (`rkaf-behavior-validate`) the conformance reporter shells out to. 24 behavior fixtures (6 prior + 18 new bridge-rule fixtures, covering all 10 rules) produce real L4 verdicts.
 
-### Added (Plan 7b)
+#### Added (Plan 7b)
 
 - **`spec/rkaf-behavior.md` rewritten** from ~173 lines of descriptive prose to ~470 lines of algorithmic pseudocode + decidable predicates + per-contract output format spec. §7 declares the format per contract; §7.1 closes the errorClass IRI registry; §8 enumerates 8 open ambiguities resolved during codification.
 - **7 codified primitives**: `EvaluationAnchor` (9-value closed enum), `PointInTimeException`, `GeneratedWorkProduct`, `RevalidationEvent` + `RevalidationClosureEvent`, plus 3 new support concepts (`ConsumerEffectiveDeclaration`, `BridgeIssueAttestationContract`, BVR fields `usedAsAuthority` + `detectedIssues`). Each ships full vertical slice (CUE + JSON Schema + Rust + SHACL + positive fixture + context entry + rkaf-validate embedded schema + vocab spec §6 row).
@@ -386,27 +363,27 @@ L4 stops being aspirational. Ships a Rust runtime crate (`crates/rkaf-runtime/`)
 - **18 new bridge-rule behavior fixtures** — one positive + one negative per rules 1-6 + 8-10. Rule 7 fixture already existed.
 - **Integration test** at `crates/rkaf-runtime/tests/behavior_fixtures.rs` — every fixture in `fixtures/behavior/` runs as a `#[test]`.
 
-### Changed (Plan 7b)
+#### Changed (Plan 7b)
 
 - **`tools/conformance_report.py`** — `_l4_batch_evaluate` shells out to `rkaf-behavior-validate` once with all behavior fixture paths, parses JSON envelope, populates L4 column. L3-fail in behavior fixtures surfaces in `notes` (no longer silently masked). Human table includes L4 column. Binary-missing surfaces as `L4=skip` with a note; the current reporter treats that skip as divergent.
 - **`spec/rkaf-conformance.md` §4.2** — L4 gate is no longer "deferred". Points at `rkaf-behavior-validate` + describes the reporter integration.
 - **`.github/workflows/constraints-parity.yml`** — workspace `cargo build` step now compiles `rkaf-runtime` + `rkaf-runtime-cli`.
 
-### Verified
+#### Verified
 
 - `cargo test --workspace` — **75 tests passing** (was 39).
 - `conformance_report.py` — 161 fixtures, 0 divergences; behavior fixtures show **L4=pass** (was L4=skip).
 - `ci_validate.py` — 38 fixtures × 25 shape files, 0 violations, 229 triples.
 - `rkaf-behavior-validate --json fixtures/behavior/*.jsonld` → pass=24 fail=0 error=0.
 
-### Two review checkpoints honored
+#### Two review checkpoints honored
 
 Both rounds of `semi-formal-code-review` caught real bugs the test corpus didn't surface — same pattern (tests-pass but spec-drift hidden) as the prior backlog-integration review:
 
 - **Phase A review (5fe0ce8)** — 6 BLOCKERs + 7 WARNINGs: missing CUE fields (`safeAutomaticMigration`, `capabilityCap`), fixture typos (`UntermimatedJustificationChain`), ambiguous CascadeClosureV1 (trigger vs cascade edges), invalid enum values in fixtures, vacuous inner-@graph L2 gate. All closed in commit 7b43431.
 - **Phase G review (035a0f6)** — 4 BLOCKERs + 7 WARNINGs: reducer missing applicability gate + rule_2 inline reducer drift, PIT unsupported-anchor silent-degradation, Rule 10 missing chain check, cascade missing 5 SKOS mapping edges. All closed in this commit.
 
-### Honest gaps (intentionally deferred)
+#### Honest gaps (intentionally deferred)
 
 - **Multi-BCR graphs** — `stale.rs`, `reducer.rs` step 5, and `bridge.rs` rule_9 pick the first BridgeConsumerRegistration via `.next()`. Single-consumer is the v0.2 assumption; federated scenarios are post-Plan-7b.
 - **Cascade `as_of` active filter** — promised in §2.2 but not threaded through the implementation. Closure visits every reachable node regardless of lifecycle state.
@@ -414,11 +391,11 @@ Both rounds of `semi-formal-code-review` caught real bugs the test corpus didn't
 
 ---
 
-## Unreleased — Plan 7a: shape conformance (L1–L4) + complete negative coverage
+### Plan 7a: shape conformance (L1–L4) + complete negative coverage
 
 Closes the §10.1 fixture-coverage target for shape conformance. Defines what "Rulespec-compliant" means as a graded contract (L1 Parse / L2 Shape / L3 Constraint / L4 Behavior). Adds a per-fixture conformance reporter, a self-certification document template + reference implementation entry, and 71 mechanically-generated negative fixtures.
 
-### Added
+#### Added
 
 - **`spec/rkaf-conformance.md`** — normative spec defining L1 (Parse), L2 (Shape — JSON Schema), L3 (Constraint — SHACL + Pattern-C), L4 (Behavior — runtime contracts per `spec/rkaf-behavior.md`). Includes per-level gate identifiers, self-certification requirements, the §10.1 corpus targets, the adoption-depth-gradient interaction matrix, and the rationale for consumer-declared (vs authority-certified) conformance pre-1.0.
 - **`tools/conformance_report.py`** — per-fixture L1/L2/L3 reporter. Walks `fixtures/` (excluding the cross-gate adversarial / projector envelopes), classifies each fixture as positive/negative/edge, runs all three gates, surfaces divergences. Three modes: human table (default), `--json` (machine-readable), `--self-certify` (emits a YAML self-cert doc).
@@ -427,12 +404,12 @@ Closes the §10.1 fixture-coverage target for shape conformance. Defines what "R
 - **`conformance/self-certification.template.yaml`** — partner self-certification template; minimum fields documented.
 - **`conformance/partners/rulespec-reference.yaml`** — self-cert document for this repo's reference implementation. Declares L1+L2+L3 at D3, L4 not-claimed (pending Plan 7b).
 
-### Changed
+#### Changed
 
 - **`fixtures/local-operational-positive.jsonld` archived.** This was the renamed v0.1 fixture preserved during the squash; it carried v0.1 Artifact / SourceFragment patterns that don't satisfy the v0.2 `hasArtifactIdentifier` / `bindsArtifact` required fields. Moved to `archive/v0.1/fixtures/local-operational-v0.2.jsonld` as the legacy reference it always was.
 - **CI workflow.** `tools/conformance_report.py` wired into `constraints-parity.yml` as the post-cargo gate. Exit-1 on any divergence between expected and actual fixture verdicts.
 
-### Verified
+#### Verified
 
 | Gate | Result |
 |---|---|
@@ -446,7 +423,7 @@ Closes the §10.1 fixture-coverage target for shape conformance. Defines what "R
 | `tools/projector_parity.py` | 7/7 round-trip OK |
 | `tools/version_sync.py --check` | clean |
 
-### Coverage shift
+#### Coverage shift
 
 Per spec §10.1: every codified class needs positive + negative (+ optional edge) fixtures.
 
@@ -482,34 +459,34 @@ L2: every positive validates clean against compiled JSON Schema; every negative 
 L3: same at the SHACL gate.
 L4: framework defined (spec/rkaf-conformance.md §4); fixtures deferred to Plan 7b.
 
-### Deferred to Plan 7b
+#### Deferred to Plan 7b
 
 - **Edge fixtures.** §10.1 wants positive + negative + **edge** per class. Edge fixtures need domain judgment (boundary dates, multi-typed nodes, empty-but-valid arrays, etc.) — authoring deferred until a class's edge cases surface from real adoption.
 - **L4 behavior conformance fixtures.** Per `spec/rkaf-behavior.md` §7 roadmap: reducer-correctness, cascade-closure, bridge-rule, point-in-time-exception, stale-transition fixtures. Need a runtime impl to validate against — paired with whoever ships Plan 5.5 or Plan 7b.
 - **Cross-property invariant fixtures** beyond what's already in `archive/v0.1/shapes/`. The 5 adversarial + 3 AI-extraction fixtures cover the documented JSON-Schema/SHACL divergence corpus; deeper Pattern-C coverage is post-Plan-7a.
 
-## Unreleased — Second-pass spec re-scan: 3 more codifications + SHACL emitter bug
+### Second-pass spec re-scan: 3 more codifications + SHACL emitter bug
 
 A second careful re-read of `thoughts/specs/2026-05-12-pkaf-as-public-schema-interop-framework.md` surfaced three primitives the spec names but we hadn't codified.
 
-### Added
+#### Added
 
 - **`rkaf:RegistryConflict`** (`registry-conflict.cue`, `registryconflict-positive.jsonld`) — Appendix A explicitly names it as the generalization of v0.1.2's `MappingConflict` (concept-registry §8). Closed `severity` enum (`informational` / `operationalConflict` / `publicationBlocking` / `authorityCritical`); ≥2 conflicting entries; optional applicability scope.
 - **`rkaf:BridgeConsumerRegistration`** (`bridge-consumer-registration.cue`, `bridgeconsumerregistration-positive.jsonld`) — §7.1 names "Bridge Contract Registry" as one of three normative registries; Core §5.1 specifies the registration record's properties. Carries `consumer`, `bridgeContractVersion`, `supportedEvaluationAnchors`, `supportsRegistryVersionRange`, `supportedAutomaticMigrations`, and `supportedAuthorityKinds` (the last typed against the cross-file `AuthorityKind` enum).
 - **`rkaf:Justification`** (`justification.cue`, `justification-positive.jsonld`) — §1.1 abstract primitive list names "justification" alongside attestation, adoption, etc. `spec/rkaf-concept-registry.md` §2.5 describes `rkaf:hasJustification` carrying a `Justification` with `hasWarrant`. Warrant-family-agnostic; generalizes v0.1.2's authority-chain hop into any-family grounding.
 
-### Fixed (SHACL emitter bug surfaced by RegistryConflict)
+#### Fixed (SHACL emitter bug surfaced by RegistryConflict)
 
 - **Duplicate `sh:minCount` predicates.** When a property is both `required` (auto-`sh:minCount 1`) AND has `list.MinItems(N)` cardinality (`sh:minCount N`), the SHACL target previously emitted both predicates on the same property block. pySHACL 0.31+ refuses with `MinCountConstraintComponent must have at most one sh:minCount`. Fix: consolidate to `max(required ? 1 : 0, list_min_items)`. Affects every property with both flags set; surfaced first by `RegistryConflict.conflictingEntries` (`list.MinItems(2)` and required).
 
-### Coverage
+#### Coverage
 
 - `cargo test --workspace`: 36 → **39 tests passing** (3 new round-trip tests).
 - `tools/ci_validate.py` (SHACL): 30 → **33 fixtures × 19 shape files**, 0 violations, **198 triples** (up from 173).
 - `tools/vocab_audit.py`: 34 → **37 required terms declared** in spec.
 - `rkaf-validate` `EMBEDDED_SCHEMAS`: 20 → **23 entries** (some classes share schema files).
 
-### Remaining intentional gaps (not blockers)
+#### Remaining intentional gaps (not blockers)
 
 Per `spec/rkaf-behavior.md` §7 codification roadmap, these are deferred to Plan 7 (Conformance) work:
 
@@ -522,15 +499,15 @@ Per `spec/rkaf-behavior.md` §7 codification roadmap, these are deferred to Plan
 
 These are not in the active-spec normative list; they're Plan 7 codification candidates documented in the behavior spec's roadmap.
 
-## Unreleased — All deferred gaps closed
+### All deferred gaps closed
 
 Follow-up to the review-driven fixes: close every remaining gap noted as deferred or informational in the prior CHANGELOG entry. The semi-formal review's findings 6 and 7 are now closed.
 
-### Added
+#### Added
 
 - **`spec/rkaf-behavior.md`** — new normative document covering the Layer 5 runtime contracts: `usageEligibility` reducer invariants, `CascadeClosureV1` algorithm, the 10 bridge contract rules, point-in-time exception evaluation, stale transition semantics. Includes a codification roadmap mapping each runtime contract to its current state (shape-codified / partial / runtime-only) and the path to fuller codification under Plan 7 (Conformance). The full v0.1 normative prose remains preserved at `archive/v0.1/spec/rkaf-core.md` as the authoritative reference until the roadmap completes.
 
-### Changed
+#### Changed
 
 - **`tools/ci_validate.py` extended.** The SHACL gate now validates the 10 §6 codified additional terms via the CUE-compiled SHACL shapes at `compiled/shacl/core/`. 10 new shape files added to the `SHAPES` list; 10 new fixtures added to `EXPECTED`. Gate now validates **30 fixtures across 16 shape files** (was 20 across 6); 0 violations, 173 triples.
 - **`tools/vocab_audit.py` recognizes the §6 codified-terms table layout.** Previously the audit only parsed §5's 7-cell layout (`| Term | IRI | … | Required fixtures |`); my §6 uses a 4-cell layout (`| Term | CUE | Fixture | Purpose |`). The audit now detects either header signature and reads the matching column. Required-fixtures count: 24 → 34; remaining "extras" are `context.jsonld` (shared JSON-LD context, by design) and `local-operational-positive.jsonld` (preserved v0.1 fixture).
@@ -538,7 +515,7 @@ Follow-up to the review-driven fixes: close every remaining gap noted as deferre
 - **`spec/README.md` rewritten.** Previously referenced nonexistent filenames (`rkaf-core-v0.1.md`, `rkaf-concept-registry-v0.1.2.md`) — a pre-existing staleness the review surfaced. Now enumerates every active spec document (`rkaf-core.md`, `rkaf-vocabulary.md`, `rkaf-concept-registry.md`, `rkaf-behavior.md`, the three projector carrier conventions) with current paths, and points at `archive/v0.1/` for historical reference. `tools/rename_audit.py` allowlists this file (historical PKAF references are intentional context).
 - **`OneOrMany<T>` doc-comment** in `crates/rkaf-core/src/lib.rs` now discloses the empty-array permissiveness: `[]` deserializes as `Many(vec![])`, bypassing `list.MinItems(N)` at the Rust layer. JSON Schema (`rkaf-validate`) and SHACL (`tools/ci_validate.py`) catch cardinality on their respective gates.
 
-### Verified (post-fix)
+#### Verified (post-fix)
 
 - `cargo test --workspace`: **36 tests, 0 failures**.
 - `tools/ci_validate.py` (SHACL): **30 fixtures across 16 shape files, 0 violations, 173 triples**.
@@ -549,7 +526,7 @@ Follow-up to the review-driven fixes: close every remaining gap noted as deferre
 - `tools/projector_parity.py`: 7/7 round-trip OK.
 - `tools/version_sync.py --check`: clean.
 
-### Status of the original review findings
+#### Status of the original review findings
 
 | Finding | Severity | Status |
 |---|---|---|
@@ -566,17 +543,17 @@ Follow-up to the review-driven fixes: close every remaining gap noted as deferre
 
 Every flag the semi-formal review raised is closed. The active tree has no remaining deferred gaps from the backlog-integration work.
 
-## Unreleased — Vocabulary backlog integration: review-driven follow-ups
+### Vocabulary backlog integration: review-driven follow-ups
 
 A semi-formal code review of the initial backlog integration surfaced one BLOCKER and four WARNINGs. All are addressed here.
 
-### Fixed (review follow-ups)
+#### Fixed (review follow-ups)
 
 - **BLOCKER: cross-file enum `$ref`s in compiled JSON Schemas.** The Rust target had a `_RUST_CROSS_FILE_ENUMS` registry; the JSON Schema target did not. As a result, 4 of 10 new positive fixtures (`conceptmapping-positive`, `conceptresolutionresult-positive`, `localadoption-positive`, `bridgevalidationresult-positive`) failed validation at runtime with `Invalid reference: #/$defs/UsageEligibility` errors. **Fix:** `tools/constraints_compile.py` now scans every sibling CUE file at startup (`_scan_global_enum_registry`), builds an enum-name → source-file map, and the JSON Schema target inlines cross-file enum definitions into each consuming schema's `$defs`. The Rust target was migrated off the hardcoded `_RUST_CROSS_FILE_ENUMS` dict onto the same auto-discovered registry. (Findings 1 + 5.)
 - **`@type` field was never emitted in generated Rust structs.** The parser diverts `@type` into `shape.type_iri` before the property loop; the Rust target was looking for `@type` in `s.properties` and never finding it, making the `pub type_: String` + `default_type()` constructor emission dead code. **Fix:** consult `s.type_iri` directly. 21 of 24 generated modules now emit `@type` (the 3 without are pure enum-only files). (Finding 2.)
 - **Missing test coverage on the 10 new fixtures.** None were in `STRICT_POSITIVE` (rkaf-validate) or as round-trip tests (rkaf-core). The BLOCKER above was invisible because the coverage gap concealed it. **Fix:** all 10 fixtures added to `STRICT_POSITIVE`; 9 new round-trip tests added (one per backlog class — Authority, Attestation, LocalAdoption, ApplicabilityScope, EffectivePeriod, LifecycleEvent, ConceptMapping, ConceptResolutionResult, BridgeValidationResult). Round-trip test count: 7 → 16. Total workspace test count: 20 → 36. (Finding 3.)
 
-### Disclosed (review-prompted API-break narrative)
+#### Disclosed (review-prompted API-break narrative)
 
 The "no public API drift" claim in the prior CHANGELOG entry was wrong. The CUE→Rust pivot is a public API break, intentional and aligned with the v0.1 normative spec:
 
@@ -590,13 +567,13 @@ The "no public API drift" claim in the prior CHANGELOG entry was wrong. The CUE�
 
 Pre-release, no published crates.io consumer; the break is internal-only.
 
-### Gaps explicitly deferred (not blockers)
+#### Gaps explicitly deferred (not blockers)
 
 - **SHACL coverage of new vocab.** The 12 new CUE files do generate SHACL Turtle output (now in `compiled/shacl/core/`) — but the hand-authored `shapes/rkaf-shapes-*.ttl` files used by `tools/ci_validate.py` don't yet include the new classes. The CUE-source-of-truth SHACL is regenerated but not yet wired into the SHACL gate. This is intentional scope for a follow-up (the path is: switch `ci_validate.py` from hand-authored shapes to `compiled/shacl/` outputs).
 - **Behavioral semantics (Layer 5).** The v0.1 `usageEligibility` reducer, `CascadeClosureV1` algorithm, and 10 bridge contract rules remain normative prose only (in `archive/v0.1/spec/rkaf-core.md`). They're not CUE-validatable shape; they're runtime contracts. A future `spec/rkaf-behavior.md` or `rkaf-runtime` crate would close this. Tracked in `spec/rkaf-vocabulary.md:94`.
 - **`OneOrMany<T>` empty-array permissiveness.** The wrapper deserializes `[]` as `Many(vec![])`, bypassing `list.MinItems(N)` at the Rust layer. JSON Schema catches it on the validator side; the Rust layer trades type-strictness for round-trip parity. Documented in the lib.rs doc-comment.
 
-### Verified (post-fix)
+#### Verified (post-fix)
 
 - `cargo test --workspace`: **36 tests passing** (up from 20); zero failures.
 - `tools/ci_validate.py` (SHACL): 20/20 pre-existing fixtures, 0 violations.
@@ -608,11 +585,11 @@ Pre-release, no published crates.io consumer; the break is internal-only.
 - **All 10 new positive fixtures validate cleanly via `rkaf-validate`.**
 - **All 10 new typed structs round-trip cleanly through `rkaf-core` serde.**
 
-## Unreleased — Vocabulary backlog integration + CUE→Rust pipeline
+### Vocabulary backlog integration + CUE→Rust pipeline
 
 **Closes the 17-term vocabulary backlog. The CUE source-of-truth is now the canonical generator for the Rust SDK as well as JSON Schema, SHACL, and TypeScript. Hand-authored Rust types are gone.**
 
-### Added
+#### Added
 
 - **12 new CUE constraint files** under `constraints/core/`: `authority.cue`, `attestation.cue`, `local-adoption.cue`, `applicability-scope.cue`, `effective-period.cue`, `lifecycle-event.cue`, `concept.cue`, `concept-mapping.cue`, `concept-resolution-result.cue`, `bridge-validation-result.cue`, plus closed-enum lattices `usage-eligibility.cue` and `trust-and-safety.cue`.
 - **24 generated Rust modules** under `crates/rkaf-core/src/generated/` — one per CUE source file. Drives the entire `rkaf-core` type surface from CUE.
@@ -621,17 +598,17 @@ Pre-release, no published crates.io consumer; the break is internal-only.
 - **`rkaf_core::OneOrMany<T>`** untagged-enum wrapper mirroring the JSON-LD wire shorthand (a property value may appear as either a single scalar or an array; the JSON Schema target emits `anyOf: [scalar, array]`, and this type accepts either).
 - **22 new term declarations** in `context/rkaf-context.jsonld` for the new class IRIs + predicates (`hasApplicability`, `hasEffectivePeriod`, `derivesAuthorityFrom`, etc.).
 
-### Changed
+#### Changed
 
 - **`tools/constraints_compile.py` `--target rust`** rewritten. The output now matches the JSON-LD wire format: `@type` field with `default = "Class::default_type"`, `@id` as optional, properties renamed from `rkaf:foo` to idiomatic `foo` (no `rkaf_` prefix), `#[serde(flatten)] extra: BTreeMap<String, serde_json::Value>` catch-all for forward-compatibility, list types emitted as `crate::OneOrMany<T>` to handle the JSON-LD scalar-or-array shorthand. Cross-file enum references resolve to fully-qualified paths via the `_RUST_CROSS_FILE_ENUMS` registry (covers `UsageEligibility`, `AuthorityKind`, `TrustZone`, `SafetyLabel`).
 - **`crates/rkaf-core/src/lib.rs`** is now a thin module index. The 8 hand-authored modules (`assertion.rs`, `warrant.rs`, `evidence.rs`, etc.) are deleted; their types now live in `generated/`. Top-level re-exports preserve the public API surface.
 - **`spec/rkaf-vocabulary.md` §6** rewritten from "Vocabulary backlog — specified but not yet codified" to "Codified Vocabulary — additional terms," enumerating every codified class + enum + predicate with its CUE source, fixture, and purpose.
 
-### Removed
+#### Removed
 
 - `crates/rkaf-core/src/{access_scope,ai_lineage,artifact,assertion,confidence,evidence,source_fragment,warrant}.rs` — replaced wholesale by generated equivalents. No public API drift.
 
-### Verified
+#### Verified
 
 - `cargo test --workspace`: 20 `test result: ok` lines, zero failures.
 - `tools/ci_validate.py` (SHACL): 20/20 fixtures pass, 0 violations, 114 triples.
@@ -641,7 +618,7 @@ Pre-release, no published crates.io consumer; the break is internal-only.
 - `tools/version_sync.py --check`: clean.
 - `tools/rename_audit.py`: 0 findings.
 
-### Compatibility
+#### Compatibility
 
 Pre-release. The CUE source-of-truth pipeline is now end-to-end:
 
@@ -653,24 +630,24 @@ constraints/<class>.cue
 
 A future schema or vocab change should land as a CUE edit; all four targets regenerate. Hand-authoring Rust to match a CUE schema is now drift.
 
-## Unreleased — Plan 6a: Rust SDK (Vocab + Validate + CLI)
+### Plan 6a: Rust SDK (Vocab + Validate + CLI)
 
 **Three Rust crates land the first SDK surface: `rkaf-core` (typed Vocabulary primitives with serde round-trip), `rkaf-validate` (embedded v0.2 JSON Schema validator), and `rkaf-validate-cli` (the `rkaf-validate` binary).** This is the first time external code can pick up Rulespec without `git clone`-ing the repo or shelling out to the Python compiler.
 
-### Added
+#### Added
 
 - `crates/rkaf-core/` — 8 typed primitives (Assertion, Warrant, EvidenceBinding, ConfidenceRecord, AccessScope, AILineage, Artifact, SourceFragment) with closed enums and JSON-LD-compatible serde derive. Each primitive carries a `#[serde(flatten)] extra` map preserving unknown properties through round-trip.
 - `crates/rkaf-validate/` — `Validator` with all 8 v0.2 class schemas embedded via `include_str!` (no filesystem dependency at runtime). Exposes `validate(&node)` (single node) and `validate_document(&doc)` (walks `@graph` arrays). Unknown `@type` IRIs pass silently — outside our contract.
 - `crates/rkaf-validate-cli/` — `rkaf-validate <file>` binary. Exit 0 on PASS, 1 on FAIL, 2 on setup error. `--json` emits a structured report.
 
-### Verified
+#### Verified
 
 - 16 v0.2 positive fixtures round-trip through their matching `rkaf-core` types byte-identically.
 - **All 17 positive fixtures validate cleanly via `rkaf-validate`**. The two Appendix-C divergences surfaced during Plan 6a development were both closed in the same pass (see "Constraint compiler + fixture fixes" below).
 - CLI integration tests cover PASS/FAIL/--json across positive and negative fixtures.
 - Full workspace `cargo test --workspace` passes; `tools/ci_validate.py` (SHACL) passes 20/20; `tools/validate_negatives.py` passes 4/4 fail-as-expected.
 
-### Constraint compiler + fixture fixes
+#### Constraint compiler + fixture fixes
 
 Plan 6a surfaced two real Layer 2/3 issues that previously produced JSON-Schema vs SHACL divergence on positive fixtures. Both are now fixed:
 
@@ -682,9 +659,40 @@ Plan 6a surfaced two real Layer 2/3 issues that previously produced JSON-Schema 
 
 After both fixes, every v0.2 positive fixture validates byte-identically across the JSON Schema (`rkaf-validate`) and SHACL (`tools/ci_validate.py`) gates. The `STRICT_POSITIVE` / `SHACL_ONLY_POSITIVE` split in the test source was retired.
 
-### Compatibility
+#### Compatibility
 
 Pre-release. The three new crates are versioned at workspace level (`0.2.0-pre.5`); their public API is small and stable enough for Plan 11 publication once the GitHub extraction lands.
+
+## v0.2.0-pre.6 — Studio reference-consumer cutover (L2 + D3)
+
+WOS Studio (Authoring) becomes the first Rulespec reference consumer at conformance level L2 (Shape) and adoption depth D3 (Derive). The L3 (Constraint) gate requires SHACL + Pattern-C validation and is disclosed as a path-to-close in the partner YAML.
+
+### Added — Studio profile
+
+- `profiles/studio/schema-source/` is the Rulespec-owned Studio profile in JSON Schema form (18 authoring + 6 api). `profiles/studio/schemas-derived/` is the projector output; `derive.sh` runs the projector. `profiles/studio/SHA256SUMS` pins the derived surface.
+- The current cutover is conservative: `derive.sh` is an identity copy. The JSON Schema source-of-truth carries authoring prose, x-lm hints, examples, and $defs that the current Layer-4 CUE projector cannot yet reproduce. CUE-projection upgrade is documented as future work; the schema-source/ → schemas-derived/ projector-output discipline is what underpins the D3 declaration.
+
+### Added — Cross-submodule overlay emission + lint
+
+- `policy-studio/crates/wos-studio-compiler` (sibling submodule) now emits `x-rkaf-overlay` on every artifact (wos-workflow.json, compile-manifest.json, workspace-export.bundle.json). Each overlay carries a 4-node `@graph`: an Artifact node (`wos:Workflow` on the workflow — WOS canonical substrate type; `rkaf:Artifact` on the manifest + bundle) plus `rkaf:Assertion` + `rkaf:Warrant` + `rkaf:AccessScope`. Determinism is preserved — `rkaf:emittedAt` derives from the manifest hash, not wall clock — so byte-identical SNAP gate continues to hold.
+- `policy-studio/crates/wos-studio-lint` gains the overlay-grounded rule tier, validating every emitted `rkaf:*` node against PKAF's compiled v0.2 vocabulary schemas via `rkaf-validate` (JSON Schema only). Non-`rkaf:*` nodes (e.g. the workflow's `wos:Workflow` root) are silently passed by design.
+
+### Added — Conformance disclosure
+
+- `conformance/partners/policy-studio.yaml` files Studio's L2 + D3 declaration with explicit provisional notes (L3 SHACL gate path, warrant chain, access scope default, JSON-Schema-vs-CUE source form, non-object carriers).
+- Studio's conformance report lives at `policy-studio/conformance-reports/L2-report.json` in the partner submodule.
+
+### Provisional — disclosed honestly
+
+- **L3 (Constraint) path.** Studio's overlay-grounded gate is JSON-Schema-only via `rkaf-validate`. L3 per `spec/rkaf-conformance.md` additionally requires SHACL + Pattern-C cross-property invariants. Promote `conformance_level: "L2"` → `"L3"` when a SHACL gate lands and runs green against the SNAP slice.
+- **Warrant chain.** All emitted `rkaf:Warrant` nodes carry `rkaf:provisionalUntilSourceAuthorityWired: true`. Wiring SourceAuthority records into overlay emission is Studio Stage-8 work.
+- **AccessScope default.** All emitted `rkaf:AccessScope` nodes default to `rkaf:organizationVisible` scoped to workspace; per-assertion classification (HIPAA-PHI / GDPR-PII) flows from source-classification records in Stage-8.
+- **CUE-projection upgrade.** Deferred until the Layer-4 CUE projector can round-trip authoring prose, x-lm hints, examples, and $defs without loss.
+- **Non-object carriers.** scenarios.json + compile-events.jsonl have no root-object slot for `x-rkaf-overlay`; per-scenario provenance is carried indirectly via the workspace-export bundle's overlay.
+
+### Future reference consumers
+
+Per source spec §14.3, no framework-side requirement that future partners adopt at D3+. Studio's depth-D3 commitment is a Studio commitment, not a framework requirement.
 
 ## v0.2.0-pre.5 — Layer 4 Projectors (MVP triangle)
 
