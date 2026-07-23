@@ -25,8 +25,10 @@ The plan specified `rkaf-conformance` Rust binary + `suite.index.json` + `confor
 ## US regulatory vocabulary and rulemaking follow-through
 
 - [ ] Land and tag the `v0.2.0-pre.7` consolidation before assigning the US identifier and L0 work to a release, as required by the design memo's sequencing.
+- [ ] Decide the release shape before tagging: the memo prescribed two releases (N+1: identifiers + L0; N+2: rulemaking module + corpus), but all four deliverables sit together in Unreleased. Either cut them as two tags or record in the memo why one combined release preserves the sequencing intent (2026-07-23 architecture review, FINDING 2).
+- [ ] Regenerate `conformance/partners/rulespec-reference.yaml` via `tools/conformance_report.py --self-certify` at the release cut — it is pinned to `0.2.0-pre.6` with a 2026-05-17 corpus run and predates the US-identifier fixtures (2026-07-23 architecture review, FINDING 6).
 - [ ] File `conformance/partners/spicy-regs.yaml` only after spicy-regs ships both `rule_targets` and `docs/ontology.md`, then run `tools/l0_mapping_audit.py` against that real mapping.
-- [ ] Keep `spec/rkaf-rulemaking.md` Experimental until a full-corpus spicy-regs `proceedings` / `comment_periods` run publishes a friction report and a non-originating consumer completes review.
+- [ ] Keep `spec/rkaf-rulemaking.md` Experimental until a full-corpus spicy-regs `proceedings` / `comment_periods` run publishes a friction report and a non-originating consumer completes review, working the §8 condition-2 agenda (cross-posting pattern, required `hasAuthority`, stage-value naming).
 
 ## Rust SDK (Layer 5) — umbrella crate
 

@@ -36,6 +36,21 @@ adapted for a specification + shape + fixture project.
   optional when unknown, CommentPeriod requires qualified PROV-O evidence, and
   Federal Register source values outside `YYYY-NNNNN` use a normative
   permanent-publication URL fallback without a false `rkaf:us-frdoc` claim.
+- Incorporated the 2026-07-23 post-implementation architecture review: a
+  normative cross-posting pattern (`spec/rkaf-rulemaking.md` §4.1 and core
+  §4.1) — one Artifact per source posting, at most one regulatory-identifier
+  pair each, postings linked with `dcterms:hasFormat`/`isFormatOf`; a
+  `rkaf:us-regsgov` legacy-identifier fallback mirroring the `us-frdoc` rule;
+  a documented rationale for the unprefixed `proceedingStage` value IRIs; and
+  an explicit §8 agenda for the condition-2 independent review.
+- Extended the US rulemaking reference corpus to exercise all seven US
+  regulatory schemes: the cross-posted regulations.gov posting of the proposed
+  rule (`rkaf:us-regsgov`), Public Law 91-604 in the authority chain
+  (`rkaf:us-pl`), and referenced Executive Order 13990 (`rkaf:us-eo`).
+- `tools/compile_all.sh` now runs `tools/repin_contract_digest.py`, so the
+  contract digests embedded in the L0 conformance example and the corpus
+  manifest re-pin with the compile instead of by hand-edited follow-up
+  commits.
 
 ### Deferred by contract
 

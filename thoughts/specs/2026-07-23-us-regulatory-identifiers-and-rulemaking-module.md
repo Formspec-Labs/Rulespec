@@ -1,8 +1,10 @@
 # US Regulatory Identifiers, L0 Vocabulary Tier, and Rulemaking-Process Module
 
 - **Date:** 2026-07-23
-- **Status:** Implemented with architecture-review and full-corpus consumer
-  corrections; independent review remains pending
+- **Status:** Implemented with architecture-review, full-corpus consumer, and
+  2026-07-23 post-implementation review corrections (cross-posting pattern,
+  `us-regsgov` legacy fallback, full-scheme corpus); independent review
+  remains pending
 - **Type:** Design memo (`thoughts/specs/`), targeting normative changes in `spec/`
 - **Companion:** spicy-regs `docs/superpowers/specs/2026-07-23-metadata-ontology-layer-design.md` (spec 1 of this pair — the consumer this memo serves)
 
@@ -109,7 +111,11 @@ Entities, composing existing primitives rather than duplicating them:
 - **FR documents are plain `rkaf:Artifact`s** whose permanent publication URL
   establishes Artifact identity and whose `rkaf:us-frdoc` value is a separate
   regulatory identifier. A new relation `rkaf:publishedInProceeding` links
-  Artifact → Proceeding.
+  Artifact → Proceeding. A document cross-posted to more than one registry
+  (the same proposed rule as FR document and regulations.gov docket document)
+  is one Artifact per posting — each with at most one regulatory-identifier
+  pair — linked with `dcterms:hasFormat`/`isFormatOf` (spec §4.1, added by
+  the 2026-07-23 post-implementation review).
 - **Stage transitions are `rkaf:LifecycleEvent`s** on the Proceeding — the
   existing lifecycle enum gains proceeding-stage event values rather than a
   parallel event system. `rkaf:proceedingStage` is optional; absent evidence
