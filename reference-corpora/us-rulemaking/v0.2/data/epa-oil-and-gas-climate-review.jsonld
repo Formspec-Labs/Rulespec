@@ -1,0 +1,151 @@
+{
+  "@context": "../../../../context/rkaf-context.jsonld",
+  "@graph": [
+    {
+      "@id": "urn:rkaf:corpus:us-rulemaking:proceeding:2060-AV16",
+      "@type": "rkaf:Proceeding",
+      "dcterms:title": "Standards of Performance for New, Reconstructed, and Modified Sources and Emissions Guidelines for Existing Sources: Oil and Natural Gas Sector Climate Review",
+      "rkaf:hasArtifactIdentifier": [
+        "urn:rkaf:us:rin:2060-AV16",
+        "urn:rkaf:us:regsgov:EPA-HQ-OAR-2021-0317"
+      ],
+      "rkaf:artifactIdentifierScheme": [
+        "rkaf:us-rin",
+        "rkaf:us-regsgov"
+      ],
+      "rkaf:proceedingStage": "rkaf:final",
+      "rkaf:hasAuthority": "urn:rkaf:corpus:us-rulemaking:authority:clean-air-act-section-111",
+      "rkaf:proceedingAffects": "urn:rkaf:corpus:us-rulemaking:artifact:cfr-40-60"
+    },
+    {
+      "@id": "urn:rkaf:corpus:us-rulemaking:artifact:docket-EPA-HQ-OAR-2021-0317",
+      "@type": "rkaf:Artifact",
+      "dcterms:title": "EPA docket EPA-HQ-OAR-2021-0317",
+      "rkaf:hasArtifactIdentifier": [
+        "urn:rkaf:us:regsgov:EPA-HQ-OAR-2021-0317",
+        "https://www.regulations.gov/docket/EPA-HQ-OAR-2021-0317"
+      ],
+      "rkaf:artifactIdentifierScheme": "rkaf:us-regsgov"
+    },
+    {
+      "@id": "urn:rkaf:corpus:us-rulemaking:artifact:frdoc-2021-24202",
+      "@type": "rkaf:Artifact",
+      "dcterms:title": "Oil and Natural Gas Sector Climate Review — proposed rule",
+      "dcterms:issued": "2021-11-15",
+      "rkaf:hasArtifactIdentifier": [
+        "urn:rkaf:us:frdoc:2021-24202",
+        "https://www.federalregister.gov/d/2021-24202"
+      ],
+      "rkaf:artifactIdentifierScheme": "rkaf:us-frdoc",
+      "rkaf:publishedInProceeding": "urn:rkaf:corpus:us-rulemaking:proceeding:2060-AV16"
+    },
+    {
+      "@id": "urn:rkaf:corpus:us-rulemaking:artifact:frdoc-2021-27312",
+      "@type": "rkaf:Artifact",
+      "dcterms:title": "Oil and Natural Gas Sector Climate Review — extension of comment period",
+      "dcterms:issued": "2021-12-17",
+      "rkaf:hasArtifactIdentifier": [
+        "urn:rkaf:us:frdoc:2021-27312",
+        "https://www.federalregister.gov/d/2021-27312"
+      ],
+      "rkaf:artifactIdentifierScheme": "rkaf:us-frdoc",
+      "rkaf:publishedInProceeding": "urn:rkaf:corpus:us-rulemaking:proceeding:2060-AV16"
+    },
+    {
+      "@id": "urn:rkaf:corpus:us-rulemaking:artifact:frdoc-2022-24675",
+      "@type": "rkaf:Artifact",
+      "dcterms:title": "Oil and Natural Gas Sector Climate Review — supplemental proposed rule",
+      "dcterms:issued": "2022-12-06",
+      "rkaf:hasArtifactIdentifier": [
+        "urn:rkaf:us:frdoc:2022-24675",
+        "https://www.federalregister.gov/d/2022-24675"
+      ],
+      "rkaf:artifactIdentifierScheme": "rkaf:us-frdoc",
+      "rkaf:publishedInProceeding": "urn:rkaf:corpus:us-rulemaking:proceeding:2060-AV16"
+    },
+    {
+      "@id": "urn:rkaf:corpus:us-rulemaking:artifact:frdoc-2024-00366",
+      "@type": "rkaf:Artifact",
+      "dcterms:title": "Oil and Natural Gas Sector Climate Review — final rule",
+      "dcterms:issued": "2024-03-08",
+      "rkaf:hasArtifactIdentifier": [
+        "urn:rkaf:us:frdoc:2024-00366",
+        "https://www.federalregister.gov/d/2024-00366"
+      ],
+      "rkaf:artifactIdentifierScheme": "rkaf:us-frdoc",
+      "rkaf:publishedInProceeding": "urn:rkaf:corpus:us-rulemaking:proceeding:2060-AV16"
+    },
+    {
+      "@id": "urn:rkaf:corpus:us-rulemaking:artifact:unified-agenda-202404-2060-AV16",
+      "@type": "rkaf:Artifact",
+      "dcterms:title": "April 2024 Unified Agenda entry for RIN 2060-AV16",
+      "rkaf:hasArtifactIdentifier": [
+        "urn:rkaf:partner:reginfo:agenda:202404:2060-AV16",
+        "https://www.reginfo.gov/public/do/eAgendaViewRule?RIN=2060-AV16&pubId=202404"
+      ],
+      "rkaf:artifactIdentifierScheme": "rkaf:partner-defined",
+      "rkaf:publishedInProceeding": "urn:rkaf:corpus:us-rulemaking:proceeding:2060-AV16"
+    },
+    {
+      "@id": "urn:rkaf:corpus:us-rulemaking:artifact:cfr-40-60",
+      "@type": "rkaf:Artifact",
+      "dcterms:title": "40 CFR part 60",
+      "rkaf:hasArtifactIdentifier": [
+        "urn:rkaf:us:cfr:40:60",
+        "https://www.ecfr.gov/current/title-40/chapter-I/subchapter-C/part-60"
+      ],
+      "rkaf:artifactIdentifierScheme": "rkaf:us-cfr"
+    },
+    {
+      "@id": "urn:rkaf:corpus:us-rulemaking:artifact:usc-42-7411",
+      "@type": "rkaf:Artifact",
+      "dcterms:title": "42 U.S.C. 7411",
+      "rkaf:hasArtifactIdentifier": "urn:rkaf:us:usc:42:7411",
+      "rkaf:artifactIdentifierScheme": "rkaf:us-usc"
+    },
+    {
+      "@id": "urn:rkaf:corpus:us-rulemaking:authority:clean-air-act-section-111",
+      "@type": "rkaf:Authority",
+      "rkaf:authorityKind": "rkaf:regulatory",
+      "rkaf:derivesAuthorityFrom": "urn:rkaf:corpus:us-rulemaking:artifact:usc-42-7411"
+    },
+    {
+      "@id": "urn:rkaf:corpus:us-rulemaking:comment-period:proposal",
+      "@type": "rkaf:CommentPeriod",
+      "rkaf:commentPeriodFor": "urn:rkaf:corpus:us-rulemaking:proceeding:2060-AV16",
+      "rkaf:commentPeriodStart": "2021-11-15",
+      "rkaf:commentPeriodEnd": "2022-01-31"
+    },
+    {
+      "@id": "urn:rkaf:corpus:us-rulemaking:comment-period:supplemental-proposal",
+      "@type": "rkaf:CommentPeriod",
+      "rkaf:commentPeriodFor": "urn:rkaf:corpus:us-rulemaking:proceeding:2060-AV16",
+      "rkaf:commentPeriodStart": "2022-12-06",
+      "rkaf:commentPeriodEnd": "2023-01-05"
+    },
+    {
+      "@id": "urn:rkaf:corpus:us-rulemaking:lifecycle:proposed",
+      "@type": "rkaf:LifecycleEvent",
+      "rkaf:lifecycleEventKind": "rkaf:proceedingProposed",
+      "rkaf:effectiveDate": "2021-11-15T00:00:00Z",
+      "rkaf:emittedBy": "https://www.epa.gov/",
+      "rkaf:appliesTo": "urn:rkaf:corpus:us-rulemaking:proceeding:2060-AV16"
+    },
+    {
+      "@id": "urn:rkaf:corpus:us-rulemaking:lifecycle:supplemental",
+      "@type": "rkaf:LifecycleEvent",
+      "rkaf:lifecycleEventKind": "rkaf:proceedingSupplemental",
+      "rkaf:effectiveDate": "2022-12-06T00:00:00Z",
+      "rkaf:emittedBy": "https://www.epa.gov/",
+      "rkaf:appliesTo": "urn:rkaf:corpus:us-rulemaking:proceeding:2060-AV16"
+    },
+    {
+      "@id": "urn:rkaf:corpus:us-rulemaking:lifecycle:final",
+      "@type": "rkaf:LifecycleEvent",
+      "rkaf:lifecycleEventKind": "rkaf:proceedingFinal",
+      "rkaf:effectiveDate": "2024-03-08T00:00:00Z",
+      "rkaf:emittedBy": "https://www.epa.gov/",
+      "rkaf:appliesTo": "urn:rkaf:corpus:us-rulemaking:proceeding:2060-AV16"
+    }
+  ]
+}

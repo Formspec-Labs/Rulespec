@@ -1,0 +1,64 @@
+{
+  "@context": [
+    "../../../context/rkaf-context.jsonld",
+    {
+      "dcat": "http://www.w3.org/ns/dcat#",
+      "dcterms": "http://purl.org/dc/terms/",
+      "foaf": "http://xmlns.com/foaf/0.1/"
+    }
+  ],
+  "@type": [
+    "dcat:Dataset",
+    "rkaf:ReferenceCorpus"
+  ],
+  "@id": "urn:rkaf:corpus:us-rulemaking:v0.2",
+  "dcterms:title": "Rulespec Reference Corpus — US Rulemaking v0.2",
+  "dcterms:description": "One RIN-bounded EPA notice-and-comment proceeding, including its docket, Federal Register documents, Unified Agenda entry, CFR target, statutory authority, comment periods, and stage transitions.",
+  "dcterms:issued": "2026-07-23",
+  "dcterms:license": "https://creativecommons.org/publicdomain/zero/1.0/",
+  "dcterms:publisher": {
+    "@type": "foaf:Organization",
+    "foaf:name": "Rulespec maintainers"
+  },
+  "dcterms:source": [
+    {
+      "@id": "https://www.federalregister.gov/api/v1/documents/2021-24202.json"
+    },
+    {
+      "@id": "https://www.federalregister.gov/api/v1/documents/2021-27312.json"
+    },
+    {
+      "@id": "https://www.federalregister.gov/api/v1/documents/2022-24675.json"
+    },
+    {
+      "@id": "https://www.federalregister.gov/api/v1/documents/2024-00366.json"
+    },
+    {
+      "@id": "https://www.regulations.gov/docket/EPA-HQ-OAR-2021-0317"
+    },
+    {
+      "@id": "https://www.reginfo.gov/public/do/eAgendaViewRule?RIN=2060-AV16&pubId=202404"
+    }
+  ],
+  "dcat:keyword": [
+    "rulemaking",
+    "federal-register",
+    "regulations.gov",
+    "rin",
+    "cfr"
+  ],
+  "dcat:theme": [
+    "us-regulation",
+    "notice-and-comment"
+  ],
+  "dcat:distribution": [
+    {
+      "@type": "dcat:Distribution",
+      "dcat:downloadURL": "data/epa-oil-and-gas-climate-review.jsonld",
+      "dcat:mediaType": "application/ld+json"
+    }
+  ],
+  "rkaf:declaredConformanceLevel": "L3",
+  "rkaf:declaredAdoptionDepth": "D2",
+  "rkaf:rulespecVersion": "unreleased"
+}
