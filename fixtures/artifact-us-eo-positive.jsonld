@@ -1,0 +1,7 @@
+{
+  "@context": "../context/rkaf-context.jsonld",
+  "@id": "urn:rkaf:fixture:artifact:executive-order-14094",
+  "@type": "rkaf:Artifact",
+  "rkaf:hasArtifactIdentifier": "urn:rkaf:us:eo:14094",
+  "rkaf:artifactIdentifierScheme": "rkaf:us-eo"
+}

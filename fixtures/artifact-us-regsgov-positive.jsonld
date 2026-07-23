@@ -1,0 +1,12 @@
+{
+  "@context": "../context/rkaf-context.jsonld",
+  "@id": "urn:rkaf:fixture:artifact:regsgov-docket",
+  "@type": "rkaf:Artifact",
+  "rkaf:hasArtifactIdentifier": [
+    "urn:rkaf:us:regsgov:EPA-HQ-OAR-2021-0317",
+    "urn:rkaf:us:regsgov:EPA-HQ-OAR-2021-0317-0086",
+    "urn:rkaf:us:regsgov:EPA-HQ-OAR-2021-0317-0184",
+    "https://www.regulations.gov/docket/EPA-HQ-OAR-2021-0317"
+  ],
+  "rkaf:artifactIdentifierScheme": "rkaf:us-regsgov"
+}

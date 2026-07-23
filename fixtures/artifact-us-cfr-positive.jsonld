@@ -1,0 +1,10 @@
+{
+  "@context": "../context/rkaf-context.jsonld",
+  "@id": "urn:rkaf:fixture:artifact:cfr-40-60-1",
+  "@type": "rkaf:Artifact",
+  "rkaf:hasArtifactIdentifier": [
+    "urn:rkaf:us:cfr:40:60.1",
+    "https://www.ecfr.gov/current/title-40/chapter-I/subchapter-C/part-60/section-60.1"
+  ],
+  "rkaf:artifactIdentifierScheme": "rkaf:us-cfr"
+}

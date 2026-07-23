@@ -1,0 +1,19 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@graph": [
+    {
+      "@id": "urn:rkaf:fixture:edge:comment-period-initial",
+      "@type": "rkaf:CommentPeriod",
+      "rkaf:commentPeriodFor": "urn:rkaf:fixture:proceeding:example-reopened",
+      "rkaf:commentPeriodStart": "2025-01-10",
+      "rkaf:commentPeriodEnd": "2025-02-10"
+    },
+    {
+      "@id": "urn:rkaf:fixture:edge:comment-period-reopened",
+      "@type": "rkaf:CommentPeriod",
+      "rkaf:commentPeriodFor": "urn:rkaf:fixture:proceeding:example-reopened",
+      "rkaf:commentPeriodStart": "2025-03-03",
+      "rkaf:commentPeriodEnd": "2025-03-17"
+    }
+  ]
+}

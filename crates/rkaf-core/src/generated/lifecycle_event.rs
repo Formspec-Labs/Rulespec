@@ -26,6 +26,18 @@ pub enum LifecycleEventKind {
     Promotion,
     #[serde(rename = "rkaf:demotion")]
     Demotion,
+    #[serde(rename = "rkaf:proceedingPrerule")]
+    ProceedingPrerule,
+    #[serde(rename = "rkaf:proceedingProposed")]
+    ProceedingProposed,
+    #[serde(rename = "rkaf:proceedingSupplemental")]
+    ProceedingSupplemental,
+    #[serde(rename = "rkaf:proceedingFinal")]
+    ProceedingFinal,
+    #[serde(rename = "rkaf:proceedingWithdrawn")]
+    ProceedingWithdrawn,
+    #[serde(rename = "rkaf:proceedingLongterm")]
+    ProceedingLongterm,
 }
 
 use std::collections::BTreeMap;

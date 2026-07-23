@@ -8,9 +8,9 @@
 
 | Term | IRI | Kind | Domain | Range | Cardinality | Required fixtures |
 |---|---|---|---|---|---|---|
-| rkaf:Artifact | https://rulespec.org/ns/v1#Artifact | Class | — | — | — | artifact-eli-positive, artifact-doi-positive, artifact-cid-positive |
-| rkaf:hasArtifactIdentifier | https://rulespec.org/ns/v1#hasArtifactIdentifier | Property | rkaf:Artifact | xsd:string \| IRI | 1..* | artifact-eli-positive |
-| rkaf:artifactIdentifierScheme | https://rulespec.org/ns/v1#artifactIdentifierScheme | Property (closed enum) | rkaf:Artifact | rkaf:ArtifactIdentifierScheme | 1..* | artifact-eli-positive |
+| rkaf:Artifact | https://rulespec.org/ns/v1#Artifact | Class | — | — | — | artifact-eli-positive, artifact-doi-positive, artifact-cid-positive, artifact-us-cfr-positive, artifact-us-usc-positive, artifact-us-frdoc-positive, artifact-us-regsgov-positive, artifact-us-pl-positive, artifact-us-eo-positive |
+| rkaf:hasArtifactIdentifier | https://rulespec.org/ns/v1#hasArtifactIdentifier | Property | rkaf:Artifact / rkaf:Proceeding | xsd:string \| IRI | 1..* | artifact-eli-positive, proceeding-us-rin-positive |
+| rkaf:artifactIdentifierScheme | https://rulespec.org/ns/v1#artifactIdentifierScheme | Property (closed enum) | rkaf:Artifact / rkaf:Proceeding | rkaf:ArtifactIdentifierScheme | 1..* | artifact-eli-positive, proceeding-us-rin-positive |
 | rkaf:SourceFragment | https://rulespec.org/ns/v1#SourceFragment | Class (rdfs:subClassOf oa:SpecificResource) | — | — | — | sourcefragment-oa-textquote-positive, sourcefragment-oa-xpath-positive, sourcefragment-aknt-eid-positive, sourcefragment-uslm-section-positive |
 | oa:hasSource | http://www.w3.org/ns/oa#hasSource | Property (OA 1.0 import) | rkaf:SourceFragment | rkaf:Artifact | 1 | sourcefragment-oa-textquote-positive |
 | oa:hasSelector | http://www.w3.org/ns/oa#hasSelector | Property (OA 1.0 import) | rkaf:SourceFragment | oa:Selector | 1..* | sourcefragment-oa-textquote-positive |
@@ -26,7 +26,7 @@
 | rkaf:hasWarrant | https://rulespec.org/ns/v1#hasWarrant | Property | rkaf:Assertion / rkaf:EvidenceBinding | rkaf:Warrant | 1..* | warrant-legal-positive |
 | rkaf:warrantKind | https://rulespec.org/ns/v1#warrantKind | Property (closed enum) | rkaf:Warrant | rkaf:WarrantKind | 1 | warrant-legal-positive |
 | rkaf:warrantFamily | https://rulespec.org/ns/v1#warrantFamily | Property (closed enum) | rkaf:Warrant | rkaf:WarrantFamily | 1 | warrant-legal-positive |
-| rkaf:hasAuthority | https://rulespec.org/ns/v1#hasAuthority | Property (legal specialization of hasWarrant) | rkaf:Assertion | rkaf:Authority | 1..* | warrant-legal-positive |
+| rkaf:hasAuthority | https://rulespec.org/ns/v1#hasAuthority | Property (legal specialization of hasWarrant) | rkaf:Assertion / rkaf:Proceeding | rkaf:Authority | 1..* | warrant-legal-positive, proceeding-us-rin-positive |
 | rkaf:ConfidenceRecord | https://rulespec.org/ns/v1#ConfidenceRecord | Class | — | — | — | confidencerecord-uncalibrated-positive, confidencerecord-calibrated-positive, confidencerecord-score-theater-negative |
 | rkaf:hasConfidence | https://rulespec.org/ns/v1#hasConfidence | Property | rkaf:Assertion | rkaf:ConfidenceRecord | 0..* | confidencerecord-uncalibrated-positive |
 | rkaf:confidenceMethod | https://rulespec.org/ns/v1#confidenceMethod | Property (closed enum) | rkaf:ConfidenceRecord | rkaf:ConfidenceMethod | 1 | confidencerecord-uncalibrated-positive |
@@ -34,6 +34,23 @@
 | rkaf:AccessScope | https://rulespec.org/ns/v1#AccessScope | Class | — | — | — | accessscope-public-positive, accessscope-organizationVisible-positive, accessscope-leak-negative |
 | rkaf:hasAccessScope | https://rulespec.org/ns/v1#hasAccessScope | Property | rkaf:Assertion / rkaf:Attestation / rkaf:EvidenceBinding / rkaf:SourceFragment | rkaf:AccessScope | 0..1 | accessscope-public-positive |
 | rkaf:accessScopeKind | https://rulespec.org/ns/v1#accessScopeKind | Property (closed enum) | rkaf:AccessScope | rkaf:AccessScopeKind | 1 | accessscope-public-positive |
+
+## Experimental US rulemaking-process module
+
+These terms are defined by `spec/rkaf-rulemaking.md`. Their status is Experimental; inclusion in the mechanically checked vocabulary does not satisfy the module's stabilization gate.
+
+| Term | IRI | Kind | Domain | Range | Cardinality | Required fixtures |
+|---|---|---|---|---|---|---|
+| rkaf:Proceeding | https://rulespec.org/ns/v1#Proceeding | Class | — | — | — | proceeding-us-rin-positive |
+| rkaf:CommentPeriod | https://rulespec.org/ns/v1#CommentPeriod | Class | — | — | — | commentperiod-positive |
+| rkaf:proceedingStage | https://rulespec.org/ns/v1#proceedingStage | Property (closed enum) | rkaf:Proceeding | rkaf:ProceedingStage | 1 | proceeding-us-rin-positive |
+| rkaf:proceedingAffects | https://rulespec.org/ns/v1#proceedingAffects | Property | rkaf:Proceeding | rkaf:Artifact | 0..* | proceeding-us-rin-positive |
+| rkaf:publishedInProceeding | https://rulespec.org/ns/v1#publishedInProceeding | Property | rkaf:Artifact | rkaf:Proceeding | 0..* | artifact-us-frdoc-positive |
+| rkaf:commentPeriodFor | https://rulespec.org/ns/v1#commentPeriodFor | Property | rkaf:CommentPeriod | rkaf:Proceeding | 1 | commentperiod-positive |
+| rkaf:commentPeriodStart | https://rulespec.org/ns/v1#commentPeriodStart | Property | rkaf:CommentPeriod | xsd:date | 1 | commentperiod-positive |
+| rkaf:commentPeriodEnd | https://rulespec.org/ns/v1#commentPeriodEnd | Property | rkaf:CommentPeriod | xsd:date | 1 | commentperiod-positive |
+
+`rkaf:proceedingStage` has six values: `rkaf:prerule`, `rkaf:proposed`, `rkaf:supplemental`, `rkaf:final`, `rkaf:withdrawn`, and `rkaf:longterm`.
 
 ## v0.2 Studio-derived promotions (§5 of `spec/rkaf-core.md`)
 
@@ -69,7 +86,7 @@ Beyond the v0.2 normative tier in §5, the following terms are codified as CUE c
 | `rkaf:LocalAdoption` | `local-adoption.cue` | `localadoption-positive.jsonld` | Workspace-scoped authorization of an Assertion (Core §3.2). Restricted `adoptionAuthorityKind` per §2.5 invariant. |
 | `rkaf:ApplicabilityScope` | `applicability-scope.cue` | `applicabilityscope-positive.jsonld` | Where/to-whom/when a Warrant applies. ELI / ISO 3166 / agency-code IRIs. |
 | `rkaf:EffectivePeriod` | `effective-period.cue` | `effectiveperiod-positive.jsonld` | Temporal window. Start required; end / sunset / retroactive optional. |
-| `rkaf:LifecycleEvent` | `lifecycle-event.cue` | `lifecycleevent-positive.jsonld` | Audit-trail event (revalidation, amendment, supersession, rescission, material revision, concept lifecycle, promotion, demotion). |
+| `rkaf:LifecycleEvent` | `lifecycle-event.cue` | `lifecycleevent-positive.jsonld` | Audit-trail event for assertion, concept, and proceeding-stage transitions. |
 | `rkaf:RegisteredConcept` | `concept.cue` | `concept-registered-positive.jsonld` | Federation-shared Concept minted by a `rkaf:ConceptMintingAuthority`. Requires `skos:prefLabel(1)`. |
 | `rkaf:LocalConcept` | `concept.cue` | `localconcept-positive.jsonld` | Workspace-defined Concept, candidate for federation promotion. Requires `skos:prefLabel(1)`. |
 | `skos:prefLabel` | `http://www.w3.org/2004/02/skos/core#prefLabel` | Property (SKOS 2.0 import) | `rkaf:RegisteredConcept`, `rkaf:LocalConcept` | `xsd:string` | **1** (required) | `concept-registered-positive.jsonld`, `localconcept-positive.jsonld` |
@@ -99,7 +116,7 @@ Beyond the v0.2 normative tier in §5, the following terms are codified as CUE c
 - `rkaf:hasTrustZone` — `rkaf:Z0` through `rkaf:Z8`. Structural property (kind of object).
 - `rkaf:hasSafetyLabel` — `D0` / `S1` / `R2` / `A3` / `P4` plus advisory + authority-critical refinements. Operational property (what the consumer may do).
 - `rkaf:authorityKind` — 8-value closed enum, hop-local. Federation refuses unsupported kinds.
-- `rkaf:lifecycleEventKind` — 10-value closed enum spanning revalidation/amendment/supersession/etc.
+- `rkaf:lifecycleEventKind` — 16-value closed enum spanning revalidation, amendment, supersession, concept transitions, and the six experimental proceeding-stage transitions.
 - `rkaf:mappingPredicate` — SKOS-aligned (`skos:exactMatch` / `closeMatch` / `broadMatch` / `narrowMatch` / `relatedMatch`).
 
 **Predicates** (declared in `context/rkaf-context.jsonld` for graph traversal):

@@ -84,6 +84,12 @@ fn round_trip_artifact_fixtures() {
     round_trip::<Artifact>("artifact-eli-positive", "rkaf:Artifact");
     round_trip::<Artifact>("artifact-doi-positive", "rkaf:Artifact");
     round_trip::<Artifact>("artifact-cid-positive", "rkaf:Artifact");
+    round_trip::<Artifact>("artifact-us-cfr-positive", "rkaf:Artifact");
+    round_trip::<Artifact>("artifact-us-usc-positive", "rkaf:Artifact");
+    round_trip::<Artifact>("artifact-us-frdoc-positive", "rkaf:Artifact");
+    round_trip::<Artifact>("artifact-us-regsgov-positive", "rkaf:Artifact");
+    round_trip::<Artifact>("artifact-us-pl-positive", "rkaf:Artifact");
+    round_trip::<Artifact>("artifact-us-eo-positive", "rkaf:Artifact");
 }
 
 #[test]
@@ -203,6 +209,16 @@ fn round_trip_effective_period_fixture() {
 #[test]
 fn round_trip_lifecycle_event_fixture() {
     round_trip::<LifecycleEvent>("lifecycleevent-positive", "rkaf:LifecycleEvent");
+    round_trip::<LifecycleEvent>(
+        "lifecycleevent-proceeding-stages-positive",
+        "rkaf:LifecycleEvent",
+    );
+}
+
+#[test]
+fn round_trip_rulemaking_fixtures() {
+    round_trip::<Proceeding>("proceeding-us-rin-positive", "rkaf:Proceeding");
+    round_trip::<CommentPeriod>("commentperiod-positive", "rkaf:CommentPeriod");
 }
 
 #[test]

@@ -8,7 +8,10 @@ package rkaf
 #LifecycleEventKind: "rkaf:revalidation" | "rkaf:revalidationClosure" |
 	"rkaf:amendment" | "rkaf:supersession" | "rkaf:rescission" |
 	"rkaf:materialRevision" | "rkaf:editorialRevision" |
-	"rkaf:conceptLifecycle" | "rkaf:promotion" | "rkaf:demotion"
+	"rkaf:conceptLifecycle" | "rkaf:promotion" | "rkaf:demotion" |
+	"rkaf:proceedingPrerule" | "rkaf:proceedingProposed" |
+	"rkaf:proceedingSupplemental" | "rkaf:proceedingFinal" |
+	"rkaf:proceedingWithdrawn" | "rkaf:proceedingLongterm"
 
 #LifecycleEvent: {
 	"@type":                          "rkaf:LifecycleEvent"

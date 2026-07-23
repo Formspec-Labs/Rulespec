@@ -1,0 +1,7 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@id": "urn:rkaf:fixture:negative:artifact-us-cfr",
+  "@type": "rkaf:Artifact",
+  "rkaf:hasArtifactIdentifier": "urn:rkaf:us:cfr:040:60.1",
+  "rkaf:artifactIdentifierScheme": "rkaf:us-cfr"
+}

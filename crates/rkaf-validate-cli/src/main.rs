@@ -21,9 +21,8 @@ use std::process::ExitCode;
     about = "Validate a Rulespec v0.2 JSON-LD document against the embedded JSON Schema gate.",
     long_about = "\
 Validates a Rulespec v0.2 JSON-LD document (or @graph envelope of documents)
-against the embedded JSON Schema 2020-12 gate covering Assertion, Warrant,
-EvidenceBinding, ConfidenceRecord, AccessScope, AILineage, Artifact, and
-SourceFragment classes.
+against the complete embedded JSON Schema 2020-12 gate generated from
+constraints/core/.
 
 This CLI exercises the JSON Schema target only. Full v0.2 conformance also
 requires the SHACL gate (`tools/ci_validate.py` in the rulespec repo).

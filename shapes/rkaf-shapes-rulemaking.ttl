@@ -1,0 +1,63 @@
+# Rulespec experimental US rulemaking-process shapes
+# Spec anchor: spec/rkaf-rulemaking.md
+# Profile: SHACL Core
+
+@prefix sh:   <http://www.w3.org/ns/shacl#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+@prefix rkaf: <https://rulespec.org/ns/v1#> .
+
+rkaf:ProceedingShape a sh:NodeShape ;
+  sh:targetClass rkaf:Proceeding ;
+  sh:property [
+    sh:path rkaf:artifactIdentifierScheme ;
+    sh:minCount 1 ;
+    sh:in ( rkaf:us-rin rkaf:us-regsgov ) ;
+    sh:message "Proceeding identifiers MUST use us-rin and/or us-regsgov." ;
+  ] ;
+  sh:property [
+    sh:path rkaf:proceedingStage ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:in ( rkaf:prerule rkaf:proposed rkaf:supplemental
+            rkaf:final rkaf:withdrawn rkaf:longterm ) ;
+  ] ;
+  sh:property [
+    sh:path rkaf:hasAuthority ;
+    sh:minCount 1 ;
+    sh:nodeKind sh:IRI ;
+  ] ;
+  sh:property [
+    sh:path rkaf:proceedingAffects ;
+    sh:nodeKind sh:IRI ;
+  ] .
+
+rkaf:CommentPeriodShape a sh:NodeShape ;
+  sh:targetClass rkaf:CommentPeriod ;
+  sh:property [
+    sh:path rkaf:commentPeriodFor ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:nodeKind sh:IRI ;
+  ] ;
+  sh:property [
+    sh:path rkaf:commentPeriodStart ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:date ;
+    sh:lessThanOrEquals rkaf:commentPeriodEnd ;
+  ] ;
+  sh:property [
+    sh:path rkaf:commentPeriodEnd ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:date ;
+  ] ;
+  sh:message "CommentPeriod requires one xsd:date start and end, with start on or before end." .
+
+rkaf:PublishedInProceedingShape a sh:NodeShape ;
+  sh:targetSubjectsOf rkaf:publishedInProceeding ;
+  sh:property [
+    sh:path rkaf:publishedInProceeding ;
+    sh:minCount 1 ;
+    sh:nodeKind sh:IRI ;
+  ] .

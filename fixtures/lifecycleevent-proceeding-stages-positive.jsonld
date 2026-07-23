@@ -1,0 +1,53 @@
+{
+  "@context": "../context/rkaf-context.jsonld",
+  "@graph": [
+    {
+      "@id": "urn:rkaf:fixture:lifecycle:2060-AV16-prerule",
+      "@type": "rkaf:LifecycleEvent",
+      "rkaf:lifecycleEventKind": "rkaf:proceedingPrerule",
+      "rkaf:effectiveDate": "2020-09-14T00:00:00Z",
+      "rkaf:emittedBy": "urn:rkaf:actor:agency:epa",
+      "rkaf:appliesTo": "urn:rkaf:fixture:proceeding:2060-AV16"
+    },
+    {
+      "@id": "urn:rkaf:fixture:lifecycle:2060-AV16-proposed",
+      "@type": "rkaf:LifecycleEvent",
+      "rkaf:lifecycleEventKind": "rkaf:proceedingProposed",
+      "rkaf:effectiveDate": "2021-11-15T00:00:00Z",
+      "rkaf:emittedBy": "urn:rkaf:actor:agency:epa",
+      "rkaf:appliesTo": "urn:rkaf:fixture:proceeding:2060-AV16"
+    },
+    {
+      "@id": "urn:rkaf:fixture:lifecycle:2060-AV16-supplemental",
+      "@type": "rkaf:LifecycleEvent",
+      "rkaf:lifecycleEventKind": "rkaf:proceedingSupplemental",
+      "rkaf:effectiveDate": "2022-12-06T00:00:00Z",
+      "rkaf:emittedBy": "urn:rkaf:actor:agency:epa",
+      "rkaf:appliesTo": "urn:rkaf:fixture:proceeding:2060-AV16"
+    },
+    {
+      "@id": "urn:rkaf:fixture:lifecycle:2060-AV16-final",
+      "@type": "rkaf:LifecycleEvent",
+      "rkaf:lifecycleEventKind": "rkaf:proceedingFinal",
+      "rkaf:effectiveDate": "2024-03-08T00:00:00Z",
+      "rkaf:emittedBy": "urn:rkaf:actor:agency:epa",
+      "rkaf:appliesTo": "urn:rkaf:fixture:proceeding:2060-AV16"
+    },
+    {
+      "@id": "urn:rkaf:fixture:lifecycle:example-withdrawn",
+      "@type": "rkaf:LifecycleEvent",
+      "rkaf:lifecycleEventKind": "rkaf:proceedingWithdrawn",
+      "rkaf:effectiveDate": "2025-01-01T00:00:00Z",
+      "rkaf:emittedBy": "urn:rkaf:actor:agency:example",
+      "rkaf:appliesTo": "urn:rkaf:fixture:proceeding:withdrawn"
+    },
+    {
+      "@id": "urn:rkaf:fixture:lifecycle:example-longterm",
+      "@type": "rkaf:LifecycleEvent",
+      "rkaf:lifecycleEventKind": "rkaf:proceedingLongterm",
+      "rkaf:effectiveDate": "2025-06-01T00:00:00Z",
+      "rkaf:emittedBy": "urn:rkaf:actor:agency:example",
+      "rkaf:appliesTo": "urn:rkaf:fixture:proceeding:longterm"
+    }
+  ]
+}

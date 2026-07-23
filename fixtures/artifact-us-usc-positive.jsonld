@@ -1,0 +1,7 @@
+{
+  "@context": "../context/rkaf-context.jsonld",
+  "@id": "urn:rkaf:fixture:artifact:usc-42-7411",
+  "@type": "rkaf:Artifact",
+  "rkaf:hasArtifactIdentifier": "urn:rkaf:us:usc:42:7411",
+  "rkaf:artifactIdentifierScheme": "rkaf:us-usc"
+}

@@ -1,0 +1,7 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@id": "urn:rkaf:fixture:negative:comment-period-missing-end",
+  "@type": "rkaf:CommentPeriod",
+  "rkaf:commentPeriodFor": "urn:rkaf:fixture:proceeding:2060-AV16",
+  "rkaf:commentPeriodStart": "2021-11-15"
+}

@@ -30,6 +30,20 @@ pub enum ArtifactIdentifierScheme {
     UrnPersistent,
     #[serde(rename = "rkaf:partner-defined")]
     PartnerDefined,
+    #[serde(rename = "rkaf:us-cfr")]
+    UsCfr,
+    #[serde(rename = "rkaf:us-usc")]
+    UsUsc,
+    #[serde(rename = "rkaf:us-rin")]
+    UsRin,
+    #[serde(rename = "rkaf:us-frdoc")]
+    UsFrdoc,
+    #[serde(rename = "rkaf:us-regsgov")]
+    UsRegsgov,
+    #[serde(rename = "rkaf:us-pl")]
+    UsPl,
+    #[serde(rename = "rkaf:us-eo")]
+    UsEo,
 }
 
 use std::collections::BTreeMap;
@@ -44,6 +58,8 @@ pub struct Artifact {
     pub has_artifact_identifier: crate::OneOrMany<serde_json::Value>,
     #[serde(rename = "rkaf:artifactIdentifierScheme")]
     pub artifact_identifier_scheme: crate::OneOrMany<ArtifactIdentifierScheme>,
+    #[serde(rename = "rkaf:publishedInProceeding", skip_serializing_if = "Option::is_none", default)]
+    pub published_in_proceeding: Option<crate::OneOrMany<String>>,
     #[serde(flatten)]
     pub extra: BTreeMap<String, serde_json::Value>,
 }

@@ -81,6 +81,7 @@ pub mod generated {
     pub mod point_in_time_exception            { include!("generated/point_in_time_exception.rs"); }
     pub mod retention_policy                   { include!("generated/retention_policy.rs"); }
     pub mod revalidation_event                 { include!("generated/revalidation_event.rs"); }
+    pub mod rulemaking                         { include!("generated/rulemaking.rs"); }
     pub mod source_fragment                    { include!("generated/source_fragment.rs"); }
     pub mod trust_and_safety                   { include!("generated/trust_and_safety.rs"); }
     pub mod usage_eligibility                  { include!("generated/usage_eligibility.rs"); }
@@ -114,6 +115,7 @@ pub use generated::local_adoption::LocalAdoption;
 pub use generated::point_in_time_exception::PointInTimeException;
 pub use generated::registry_conflict::RegistryConflict;
 pub use generated::revalidation_event::{RevalidationClosureEvent, RevalidationEvent};
+pub use generated::rulemaking::{CommentPeriod, Proceeding};
 pub use generated::source_fragment::SourceFragment;
 pub use generated::warrant::Warrant;
 pub use generated::workspace::Workspace;
