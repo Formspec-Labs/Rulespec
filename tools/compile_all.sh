@@ -90,6 +90,10 @@ main() {
             compile_one "$src" "$t"
         done
     done
+
+    # Keep the embedded L0 contract digests (conformance example, corpus
+    # manifest) pinned to the contract that was just compiled.
+    $PYTHON tools/repin_contract_digest.py
 }
 
 main "$@"
