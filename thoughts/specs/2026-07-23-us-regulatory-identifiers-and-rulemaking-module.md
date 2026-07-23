@@ -36,12 +36,13 @@ New enum values and canonical identifier templates:
 | `rkaf:us-usc` | A U.S. Code unit (title, section) | `urn:rkaf:us:usc:42:7401` | Citation identity, distinct from the existing `rkaf:uslm-section` *selector* (which addresses substructure inside USLM markup — both compose on one Artifact). |
 | `rkaf:us-rin` | A Regulation Identifier Number | `urn:rkaf:us:rin:2060-AV12` | Uppercase normalized. Identifies the *rulemaking*, not a document — pairs with the Proceeding entity (Deliverable C). |
 | `rkaf:us-frdoc` | A Federal Register document | `urn:rkaf:us:frdoc:2017-07442` | The FR document number is GPO's persistent id; federalregister.gov URLs compose as mode-3 additional identifiers (mutable-URL-alone stays non-conformant per §4.1). |
-| `rkaf:us-regsgov` | A regulations.gov docket, document, or comment | `urn:rkaf:us:regsgov:EPA-HQ-OAR-2021-0317` (docket); document/comment ids follow the same scheme | Agency-issued ids are already globally unique in practice; the normalization note documents known legacy exceptions. |
-| `rkaf:us-pl` | A public law | `urn:rkaf:us:pl:117-58` | Bridges to statute artifacts before codification. |
+| `rkaf:us-regsgov` | A regulations.gov docket, document, or comment | `urn:rkaf:us:regsgov:EPA-HQ-OAR-2021-0317` (docket); document/comment ids follow the same scheme | Agency-issued ids are already globally unique in practice; the normalization note documents known legacy exceptions. The comment-id form is fixture-exercised only until a consumer ingests comment ids (spicy-regs defers comment-level work). |
+| `rkaf:us-pl` | A public law | `urn:rkaf:us:pl:117-58` | Bridges to statute artifacts before codification. Consumer exercise: spicy-regs `authority_edges.pl_number` (joins `congress_bills`). |
+| `rkaf:us-eo` | An Executive order | `urn:rkaf:us:eo:14094` | Numeric normalization. EOs appear in Unified Agenda legal-authority strings alongside statutes; without a scheme those rows would stay raw-only. |
 
 Exact URN syntax is a spec-PR decision; the normative content of this deliverable is: one scheme per identifier class above, a normalization grammar for each, and a statement of what each identifies (registry citation identity — the analog of ELI URIs for EU sources, per §9.4's do-not-reinvent rule: no US public body mints citation URIs today, so Rulespec minting them is composition-consistent).
 
-**Validation-contract cost (§10):** each new enum value requires at least one positive and one negative fixture. Budget ~12 fixtures. Spicy-regs supplies real-world values (Deliverable D).
+**Validation-contract cost (§10):** each new enum value requires at least one positive and one negative fixture. Budget ~14 fixtures. Spicy-regs supplies real-world values (Deliverable D).
 
 ## 4. Deliverable B — L0 "Vocabulary" conformance tier
 
@@ -55,7 +56,9 @@ An L0 implementation MUST:
 4. NOT claim L1+ (no JSON-LD carrier is exercised).
 5. Self-certify via the existing `conformance/partners/<implementation>.yaml`, extended with a `carrier_mapping:` field pointing at the mapping document and a `terms_used:` list.
 
-**Falsifiability gate:** a new `tools/l0_mapping_audit.py` that parses a partner's mapping document and verifies every referenced term and enum value exists in the vocabulary. Deliberately cheap — L0's guarantees are semantic fidelity and identifier conformance, not shape validation.
+**Carrier-mapping format (normative, part of this deliverable):** the mapping document embeds one or more fenced `yaml rkaf-l0-mapping` code blocks, each a list of entries `{table, column, term, enum_map?}` — `term` is the full IRI; `enum_map` gives column-value → registered-enum-value correspondences where the column carries an enum. Prose around the blocks is free. This format is defined here, not left to the audit tool's author, because the mapping document is the one artifact carrying obligations in both directions (spec 1's design record and this repo's L0 certification input) and its shape must not drift.
+
+**Falsifiability gate:** a new `tools/l0_mapping_audit.py` that parses the fenced mapping blocks and verifies every referenced term and enum value exists in the vocabulary, including `enum_map` targets. Deliberately cheap — L0's guarantees are semantic fidelity and identifier conformance, not shape validation.
 
 L0 composes with the adoption-depth axis unchanged: spicy-regs declares (L0, D1). The conformance doc's ladder table gains one row; L1–L4 are untouched.
 
@@ -76,6 +79,8 @@ Composition citations: **ELI-DL** is the EU analog for pre-enactment lifecycle a
 
 **Non-goals:** comment content, commenter identity, campaign detection, and descriptive topic tagging stay consumer-side (spicy-regs spec 1). This module models the proceeding's structure and provenance, not public-participation analytics.
 
+**Corpus-scale exercise (gates stabilization):** the reference corpus (Deliverable D) supplies fixtures; it is not a consumer. The consumer exercise for `Proceeding`, `proceedingStage`, `CommentPeriod`, and `publishedInProceeding` is spicy-regs' follow-on `proceedings` and `comment_periods` tables (spec 1 §7, promoting its existing `rulemaking_lifecycles` rollup), run at full corpus scale. That run is what surfaces the hard cases this module exists for — proceedings spanning multiple dockets, reopened comment periods, stage-transition sequences — and C does not stabilize without it.
+
 **Validation-contract cost:** new class + relation fixtures, supplied from the reference corpus (Deliverable D). Budget ~15 fixtures.
 
 ## 6. Deliverable D — First L0 partner and US reference corpus
@@ -88,10 +93,10 @@ This is the falsifiability loop closing in both directions: Rulespec's §10 vali
 ## 7. Sequencing and release mechanics
 
 1. **Land `v0.2.0-pre.7` consolidation first** (already on TODO) — this memo's changes do not ride that release.
-2. **Release N+1 (small):** Deliverable A (enum extension + fixtures) and Deliverable B (L0 tier + audit tool). These are spicy-regs spec 1's prerequisites; spec 1's delivery order blocks on them and nothing else.
+2. **Release N+1 (small):** Deliverable A (enum extension + fixtures) and Deliverable B (L0 tier + audit tool). These are spicy-regs spec 1's prerequisites; spec 1's delivery order blocks on them and nothing else. If N+1 slips, spec 1 proceeds on provisional `x-` prefixed local terms with a committed rename after release — the enum, not the calendar, is the contract.
 3. **Spicy-regs builds** `rule_targets` / `authority_edges` against N+1. Friction found here feeds back before C freezes anything.
 4. **Release N+2:** Deliverable C (rulemaking module, experimental) shaped by step 3's experience, plus Deliverable D (partner YAML + reference corpus).
-5. **Stabilization of C** (experimental → pre-release normative) only after the spicy-regs full-corpus run and at least one non-spicy-regs consumer review.
+5. **Stabilization of C** (experimental → pre-release normative) only after the spicy-regs full-corpus `proceedings`/`comment_periods` run (spec 1 §7) and at least one non-spicy-regs consumer review. Candidate reviewer: the Axiom Foundation corpus pipeline, which keys on the same identifier space as Deliverable A and is the natural third consumer of the schemes.
 
 ## 8. Explicit non-changes
 
