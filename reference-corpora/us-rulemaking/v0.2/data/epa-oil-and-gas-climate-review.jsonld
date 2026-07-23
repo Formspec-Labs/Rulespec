@@ -27,10 +27,30 @@
       "@type": "rkaf:Artifact",
       "dcterms:title": "Oil and Natural Gas Sector Climate Review — proposed rule",
       "dcterms:issued": "2021-11-15",
+      "dcterms:hasFormat": {
+        "@id": "urn:rkaf:corpus:us-rulemaking:artifact:regsgov-EPA-HQ-OAR-2021-0317-0001"
+      },
+      "dcterms:references": {
+        "@id": "urn:rkaf:corpus:us-rulemaking:artifact:eo-13990"
+      },
       "rkaf:hasArtifactIdentifier": "https://www.federalregister.gov/d/2021-24202",
       "rkaf:artifactIdentifierScheme": "rkaf:urn-persistent",
       "rkaf:hasRegulatoryIdentifier": "urn:rkaf:us:frdoc:2021-24202",
       "rkaf:regulatoryIdentifierScheme": "rkaf:us-frdoc",
+      "rkaf:publishedInProceeding": "urn:rkaf:corpus:us-rulemaking:proceeding:2060-AV16"
+    },
+    {
+      "@id": "urn:rkaf:corpus:us-rulemaking:artifact:regsgov-EPA-HQ-OAR-2021-0317-0001",
+      "@type": "rkaf:Artifact",
+      "dcterms:title": "Oil and Natural Gas Sector Climate Review — proposed rule, regulations.gov posting",
+      "dcterms:issued": "2021-11-15",
+      "dcterms:isFormatOf": {
+        "@id": "urn:rkaf:corpus:us-rulemaking:artifact:frdoc-2021-24202"
+      },
+      "rkaf:hasArtifactIdentifier": "https://www.regulations.gov/document/EPA-HQ-OAR-2021-0317-0001",
+      "rkaf:artifactIdentifierScheme": "rkaf:urn-persistent",
+      "rkaf:hasRegulatoryIdentifier": "urn:rkaf:us:regsgov:EPA-HQ-OAR-2021-0317-0001",
+      "rkaf:regulatoryIdentifierScheme": "rkaf:us-regsgov",
       "rkaf:publishedInProceeding": "urn:rkaf:corpus:us-rulemaking:proceeding:2060-AV16"
     },
     {
@@ -96,10 +116,33 @@
       "rkaf:regulatoryIdentifierScheme": "rkaf:us-usc"
     },
     {
+      "@id": "urn:rkaf:corpus:us-rulemaking:artifact:pl-91-604",
+      "@type": "rkaf:Artifact",
+      "dcterms:title": "Clean Air Amendments of 1970, Public Law 91-604",
+      "dcterms:issued": "1970-12-31",
+      "rkaf:hasArtifactIdentifier": "https://www.govinfo.gov/app/details/STATUTE-84/STATUTE-84-Pg1676",
+      "rkaf:artifactIdentifierScheme": "rkaf:urn-persistent",
+      "rkaf:hasRegulatoryIdentifier": "urn:rkaf:us:pl:91-604",
+      "rkaf:regulatoryIdentifierScheme": "rkaf:us-pl"
+    },
+    {
+      "@id": "urn:rkaf:corpus:us-rulemaking:artifact:eo-13990",
+      "@type": "rkaf:Artifact",
+      "dcterms:title": "Executive Order 13990: Protecting Public Health and the Environment and Restoring Science To Tackle the Climate Crisis",
+      "dcterms:issued": "2021-01-25",
+      "rkaf:hasArtifactIdentifier": "https://www.federalregister.gov/d/2021-01765",
+      "rkaf:artifactIdentifierScheme": "rkaf:urn-persistent",
+      "rkaf:hasRegulatoryIdentifier": "urn:rkaf:us:eo:13990",
+      "rkaf:regulatoryIdentifierScheme": "rkaf:us-eo"
+    },
+    {
       "@id": "urn:rkaf:corpus:us-rulemaking:authority:clean-air-act-section-111",
       "@type": "rkaf:Authority",
       "rkaf:authorityKind": "rkaf:regulatory",
-      "rkaf:derivesAuthorityFrom": "urn:rkaf:corpus:us-rulemaking:artifact:usc-42-7411"
+      "rkaf:derivesAuthorityFrom": [
+        "urn:rkaf:corpus:us-rulemaking:artifact:usc-42-7411",
+        "urn:rkaf:corpus:us-rulemaking:artifact:pl-91-604"
+      ]
     },
     {
       "@id": "urn:rkaf:corpus:us-rulemaking:comment-period:proposal",

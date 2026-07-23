@@ -13,7 +13,7 @@
   ],
   "@id": "urn:rkaf:corpus:us-rulemaking:v0.2",
   "dcterms:title": "Rulespec Reference Corpus — US Rulemaking v0.2",
-  "dcterms:description": "One RIN-bounded EPA notice-and-comment proceeding, including its docket, Federal Register documents, Unified Agenda entry, CFR target, statutory authority, comment periods, and stage transitions.",
+  "dcterms:description": "One RIN-bounded EPA notice-and-comment proceeding, including its docket, Federal Register documents, the cross-posted regulations.gov proposed rule, Unified Agenda entry, CFR target, statutory authority chain to its enacting public law, referenced Executive order, comment periods, and stage transitions.",
   "dcterms:issued": "2026-07-23",
   "dcterms:license": "https://creativecommons.org/publicdomain/zero/1.0/",
   "dcterms:publisher": {
@@ -37,7 +37,16 @@
       "@id": "https://www.regulations.gov/docket/EPA-HQ-OAR-2021-0317"
     },
     {
+      "@id": "https://www.regulations.gov/document/EPA-HQ-OAR-2021-0317-0001"
+    },
+    {
       "@id": "https://www.reginfo.gov/public/do/eAgendaViewRule?RIN=2060-AV16&pubId=202404"
+    },
+    {
+      "@id": "https://www.federalregister.gov/api/v1/documents/2021-01765.json"
+    },
+    {
+      "@id": "https://www.govinfo.gov/app/details/STATUTE-84/STATUTE-84-Pg1676"
     }
   ],
   "dcat:keyword": [
