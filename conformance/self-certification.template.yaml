@@ -12,12 +12,20 @@ implementation: "<package@version>"
 # The Rulespec commit / tag this self-certification was tested against.
 rulespec_version: "<commit hash or pre-release tag (e.g. 0.2.0-pre.6)>"
 
-# Which levels this implementation claims to satisfy. Subset of [L1, L2, L3, L4].
-# Levels are cumulative — declaring L3 implies L1 + L2.
+# Which levels this implementation claims to satisfy. L1-L4 are cumulative —
+# declaring L3 implies L1 + L2. L0 is vocabulary-only and MUST be declared
+# alone as [L0].
 declared_levels:
   - L1
   - L2
   - L3
+
+# L0-only fields. Uncomment these and replace declared_levels with [L0].
+# `carrier_mapping` is resolved relative to this repository root or this YAML.
+# `terms_used` is the unique set of full term IRIs in the mapping blocks.
+# carrier_mapping: "path/to/published-mapping.md"
+# terms_used:
+#   - "https://rulespec.org/ns/v1#hasArtifactIdentifier"
 
 # Operational adoption depth — D0 cite / D1 overlay / D2 align / D3 derive /
 # D4 substrate / D5 sole. See source spec Appendix D.
@@ -32,6 +40,7 @@ test_corpus_commit: "<rulespec commit SHA against which the fixture set was run>
 # this level. `partial` means some failures or unclaimed coverage. `fail`
 # means the level cannot be declared at this commit.
 results:
+  L0: not-claimed
   L1: pass
   L2: pass
   L3: pass

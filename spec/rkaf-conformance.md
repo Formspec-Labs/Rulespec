@@ -1,22 +1,68 @@
-# Rulespec Conformance — L1–L4 levels
+# Rulespec Conformance — L0–L4 levels
 
 Status: Editor's Draft, normative.
 Companion to: `spec/rkaf-core.md`, `spec/rkaf-vocabulary.md`, `spec/rkaf-behavior.md`.
 
 ## 0. Purpose
 
-This document specifies what "Rulespec-conformant" means at increasing depths of integration. Conformance is **consumer-declared and self-certified** — there is no central certification authority pre-1.0. An implementation declares the highest level it satisfies; the conformance test suite under `fixtures/` is the falsifiability gate.
+This document specifies what "Rulespec-conformant" means at increasing depths of integration. Conformance is **consumer-declared and self-certified** — there is no central certification authority pre-1.0. An implementation declares the level it satisfies; the relevant audit or conformance suite is the falsifiability gate.
 
-Four levels are defined:
+Five levels are defined:
 
 | Level | What an L`n`-conformant implementation guarantees |
 |---|---|
+| **L0 — Vocabulary** | A non-JSON-LD carrier maps its fields to registered Rulespec terms, identifier schemes, and closed-enum values. |
 | **L1 — Parse** | Documents claiming to be Rulespec parseable as JSON-LD without error. |
 | **L2 — Shape** | Every Rulespec node validates against its compiled JSON Schema. |
 | **L3 — Constraint** | Every Rulespec node also passes SHACL constraints, including Pattern-C cross-property invariants. |
 | **L4 — Behavior** | Implementation honors the runtime contracts in `spec/rkaf-behavior.md` (reducer, CascadeClosureV1, 10 bridge rules, point-in-time exceptions, stale transition). |
 
-L1 ⊂ L2 ⊂ L3 ⊂ L4 — each level subsumes the prior. An L3-conformant implementation MUST also be L2- and L1-conformant.
+L1 ⊂ L2 ⊂ L3 ⊂ L4 — each JSON-LD level subsumes the prior. L0 is the vocabulary-only path for tabular or other non-JSON-LD carriers; it is not a prerequisite for L1. An L3-conformant implementation MUST also be L2- and L1-conformant.
+
+## 0.1 L0 — Vocabulary [Normative]
+
+### Requirement
+
+An L0 implementation MUST:
+
+1. Publish a carrier-mapping document. Every field or column carrying Rulespec semantics maps to the term it implements and gives the term's full IRI.
+2. Use conformant identifier values for every identifier field. A carrier MAY store a compact value if the mapping document specifies its deterministic expansion to the canonical identifier form.
+3. Preserve closed-enum discipline. An enum-valued field carries only registered values, or its mapping gives every carrier value's registered equivalent.
+4. File a self-certification with `declared_levels: [L0]`, `carrier_mapping`, and `terms_used`. `terms_used` MUST be the unique set of full term IRIs present in the mapping blocks.
+5. NOT claim L1, L2, L3, or L4. L0 does not exercise a JSON-LD carrier.
+
+### Carrier-mapping format
+
+The carrier-mapping document MUST contain one or more fenced code blocks whose info string is exactly `yaml rkaf-l0-mapping`. Each block contains a non-empty YAML list. Each list entry has this shape:
+
+```yaml rkaf-l0-mapping
+- table: proceedings
+  column: stage
+  term: https://rulespec.org/ns/v1#proceedingStage
+  enum_map:
+    proposed: https://rulespec.org/ns/v1#proposed
+    final: https://rulespec.org/ns/v1#final
+- table: proceedings
+  column: rin
+  term: https://rulespec.org/ns/v1#hasArtifactIdentifier
+```
+
+`table`, `column`, and `term` are required non-empty strings. `term` MUST be a full HTTP(S) IRI registered by Rulespec or an imported vocabulary. `enum_map` is optional and valid only when `term` names a closed-enum property. Each `enum_map` key is a carrier value; each target MUST be the full IRI of a registered value allowed for that property. A document MAY contain prose and other code blocks around the mapping blocks.
+
+### Gate
+
+`tools/l0_mapping_audit.py` parses the fenced blocks and verifies their shape, terms, and enum targets against the CUE vocabulary and canonical JSON-LD context. Given a partner YAML, it also resolves `carrier_mapping`, verifies `terms_used`, and rejects mixed L0/L1+ claims.
+
+```bash
+python3 tools/l0_mapping_audit.py docs/ontology.md
+python3 tools/l0_mapping_audit.py conformance/partners/example.yaml
+```
+
+The repository gate invokes the tool without arguments. That mode discovers every L0 declaration under `conformance/partners/`.
+
+### Self-certification
+
+Declaring L0 requires the mapping audit to pass against the published carrier mapping. L1–L4 fixture verdicts are `not-claimed`; they do not determine the L0 result.
 
 ## 1. L1 — Parse [Normative]
 
@@ -107,9 +153,9 @@ The conformance test corpus lives under `fixtures/`. The §10.1 coverage target 
 
 | Coverage | Target | Current |
 |---|---|---|
-| Per-class positive fixtures | every embedded compiled schema type | 50 positive fixtures; `rkaf-validate` asserts coverage for all 32 embedded `@type` schemas |
-| Per-class negative fixtures | every codified class with required fields | 109 negative fixtures; `tools/validate_negatives.py` discovers and gates all of them |
-| Per-class edge fixtures | every codified class | 34 edge fixtures; `tools/l0_l3_coverage_audit.py` asserts coverage for all 32 compiled schema classes |
+| Per-class positive fixtures | every embedded compiled schema type | 60 positive fixtures; `rkaf-validate` asserts coverage for all 34 embedded `@type` schemas |
+| Per-class negative fixtures | every codified class with required fields | 126 negative fixtures; `tools/validate_negatives.py` discovers and gates all of them |
+| Per-class edge fixtures | every codified class | 37 edge fixtures; `tools/l0_l3_coverage_audit.py` asserts coverage for all 34 compiled schema classes |
 | Behavior fixtures | every L4 contract family and normative branch | 45 behavior fixtures |
 | Adversarial fixtures | ≥5 | 6 (in `fixtures/adversarial/`) |
 | AI-extraction adversarial fixtures | ≥3 | 3 (in `fixtures/ai-extraction/`) |
@@ -120,16 +166,17 @@ A class's negative + edge fixtures are housed in `fixtures/negatives/<class>-*.j
 
 ## 6. Self-certification document [Normative]
 
-Implementations declaring a conformance level publish a YAML at `conformance/partners/<implementation>.yaml`. The template at `conformance/self-certification.template.yaml` enumerates the required fields. The minimum fields:
+Implementations declaring a conformance level publish a YAML at `conformance/partners/<implementation>.yaml`. The template at `conformance/self-certification.template.yaml` enumerates the required fields. The common fields are:
 
 ```yaml
 partner: "<organization or maintainer name>"
 implementation: "<package@version>"
 rulespec_version: "<commit hash or pre-release tag>"
-declared_levels: [L1, L2, L3, L4]   # or subset
+declared_levels: [L1, L2, L3, L4]   # cumulative JSON-LD subset, or [L0] alone
 test_corpus_run_at: "<date>"
 test_corpus_commit: "<rulespec commit>"
 results:
+  L0: not-claimed
   L1: pass
   L2: pass
   L3: pass
@@ -140,6 +187,21 @@ notes: |
 
 The conformance reporter (`tools/conformance_report.py --self-certify > conformance/partners/<implementation>.yaml`) produces this document from a test run.
 
+An L0 document also includes:
+
+```yaml
+declared_levels: [L0]
+carrier_mapping: "path/to/the/published-mapping.md"
+terms_used:
+  - "https://rulespec.org/ns/v1#hasArtifactIdentifier"
+results:
+  L0: pass
+  L1: not-claimed
+  L2: not-claimed
+  L3: not-claimed
+  L4: not-claimed
+```
+
 ## 7. Why consumer-declared and not authority-certified [Informative]
 
 Pre-1.0 Rulespec is a public substrate, not a credentialed-membership organization. The federation thesis (`spec/rkaf-core.md` §1.3) is structural: partners agree on the substrate, not on a body that certifies their conformance. Self-certification with falsifiability through the conformance suite is the appropriate posture for a federation substrate at this stage.
@@ -148,10 +210,11 @@ Post-1.0, a governance shell (per `spec/rkaf-core.md` §13.3) MAY introduce thir
 
 ## 8. Adoption depth gradient interaction [Informative]
 
-Conformance level (L1–L4) is distinct from adoption depth (D0–D5 per source spec Appendix D). An implementation may be:
+Conformance level (L0–L4) is distinct from adoption depth (D0–D5 per source spec Appendix D). An implementation may be:
 
+- **L0 at D1** — a tabular data producer using Rulespec terms and canonical identifiers through a published carrier mapping.
 - **L2 at D1** — a partner accepting Rulespec overlays in JSON Schema documents (low integration, basic validation).
 - **L3 at D3** — a reference consumer (like Studio) whose schemas are CUE-derived from a Rulespec profile, with full SHACL gate enforcement.
 - **L4 at D5** — a substrate-level implementation owning the runtime contracts (workflow engine, governance platform).
 
-The matrix is multiplicative: an implementation declares a (level, depth) tuple. Most consumers operate at (L2, D1) or (L3, D2); reference consumers operate at (L3, D3); substrate hosts operate at (L4, D4) or (L4, D5).
+The matrix is multiplicative: an implementation declares a (level, depth) tuple. Vocabulary-only data products may operate at (L0, D1); JSON-LD consumers often operate at (L2, D1) or (L3, D2); reference consumers operate at (L3, D3); substrate hosts operate at (L4, D4) or (L4, D5).

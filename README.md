@@ -2,7 +2,7 @@
 
 *Making rules legible to software.*
 
-**Version** `0.2.0-pre.6` · **Bridge contract** `rkaf-bridge/1.0` · **Conformance** 238 L1-L4 fixtures plus vocabulary audit, 0 divergences
+**Version** `0.2.0-pre.6` · **Bridge contract** `rkaf-bridge/1.0` · **Conformance** 268 L1-L4 fixtures plus L0 carrier-mapping and vocabulary audits, 0 core divergences
 
 ---
 
@@ -46,21 +46,24 @@ The hardest part of building rule-driven software is not building the engine. It
 
 ## How conformance works
 
-Rulespec is enforced as five concentric layers. A fixture passes a layer only if it parses, structurally matches, satisfies cross-property invariants, and behaves correctly under the runtime — every check above it included.
+Rulespec has two conformance paths. L0 lets tabular, SQL, parquet, and CSV producers use the vocabulary through an audited carrier mapping without pretending to emit JSON-LD. L1–L4 are cumulative JSON-LD levels: parse, shape, constraint, then runtime behavior.
 
 | Layer | What it checks | How |
 |---|---|---|
+| **L0 — Vocabulary** | Non-JSON-LD fields map to registered terms, identifiers, and enums | `tools/l0_mapping_audit.py` |
 | **L1 — Parse** | Valid JSON-LD, contexts resolve, IRIs well-formed | `tools/ci_validate.py` parse pass |
 | **L2 — Shape** | JSON Schema conformance per primitive type | Generated schemas under `compiled/json-schema/core/` |
 | **L3 — Constraint** | Cross-property invariants (SHACL Pattern-C) | Shape files under `shapes/` |
 | **L4 — Behavior** | Five algorithmic contracts — usage-eligibility reducer, cascade closure, ten bridge-contract rules, point-in-time exceptions, concept-resolution conflict | `rkaf-behavior-validate` (Rust runtime) |
-| **L5 — Vocabulary** | Vocabulary rows, CUE source, compiled schemas, and named fixtures stay aligned | `tools/vocab_audit.py` |
+
+Repository audits such as `tools/vocab_audit.py` keep the specification, CUE source, generated schemas, and fixtures aligned. They are release gates, not a fifth consumer conformance level.
 
 Run the full sweep:
 
 ```bash
 cargo build --manifest-path crates/Cargo.toml --workspace
 python3 tools/conformance_report.py
+python3 tools/l0_mapping_audit.py
 python3 tools/l0_l3_coverage_audit.py
 python3 tools/l4_coverage_audit.py
 python3 tools/vocab_audit.py

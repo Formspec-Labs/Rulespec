@@ -3,3 +3,4 @@
 
 pyshacl>=0.31.0
 rdflib>=7.0.0
+PyYAML>=6.0

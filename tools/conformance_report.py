@@ -368,6 +368,7 @@ test_corpus_run_at: "{ran_at.isoformat()}"
 test_corpus_commit: "<see git log>"
 
 results:
+  L0: not-claimed
   L1: {"pass" if l1_pass else "fail"}
   L2: {"pass" if l2_pass else "fail"}     # rkaf-validate: discovered positive fixtures validate and cover every embedded schema type.
   L3: {"pass" if l3_pass else "fail"}     # tools/ci_validate.py: {positive_count} positive fixtures across {shape_count} SHACL shape files, 0 violations; {negative_count} negatives FAIL-AS-EXPECTED.

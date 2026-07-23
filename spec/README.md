@@ -12,6 +12,14 @@ Normative architecture and conformance — the load-bearing surface above the vo
 
 Enumerates every codified Rulespec class and predicate, with the CUE source file, fixture, and purpose for each. §5 covers the v0.2 normative-tier primitives (Assertion, Warrant, Artifact, SourceFragment, EvidenceBinding, ConfidenceRecord, AccessScope, AILineage, RetentionPolicy, MappingState, Workspace, anchoring). §6 covers the codified additional terms (Authority, Attestation, LocalAdoption, ApplicabilityScope, EffectivePeriod, LifecycleEvent, Concept, ConceptMapping, ConceptResolutionResult, BridgeValidationResult, closed-enum lattices, predicates).
 
+### `rkaf-conformance.md`
+
+Defines the two conformance paths: L0 vocabulary fidelity for non-JSON-LD carriers, and the cumulative L1–L4 JSON-LD parse, shape, constraint, and behavior levels. It also specifies the L0 carrier-mapping block and partner self-certification formats.
+
+### `rkaf-rulemaking.md`
+
+Experimental US notice-and-comment rulemaking module. Defines Proceeding, CommentPeriod, proceeding-stage values and lifecycle events, published-document links, CFR targets, and composition with existing authority chains.
+
 ### `rkaf-concept-registry.md`
 
 The concept registry specification — companion to `rkaf-vocabulary.md` §6. Defines `RegisteredConcept`, `LocalConcept`, `ConceptRegistry`, `ConceptMintingAuthority`, the SKOS mapping predicates, `MappingApplicabilityContext`, `ConceptResolutionResult`, and the three conformance levels (Core, Lifecycle, Federated).
