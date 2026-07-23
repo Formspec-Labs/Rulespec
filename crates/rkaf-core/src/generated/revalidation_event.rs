@@ -4,34 +4,47 @@
 
 use serde::{Deserialize, Serialize};
 
+/// Closed Rulespec values for `RevalidationClosureDecision`.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum RevalidationClosureDecision {
+    /// Wire value `rkaf:revalidated`.
     #[serde(rename = "rkaf:revalidated")]
     Revalidated,
+    /// Wire value `rkaf:supersededBySuccessor`.
     #[serde(rename = "rkaf:supersededBySuccessor")]
     SupersededBySuccessor,
+    /// Wire value `rkaf:retainedForPointInTime`.
     #[serde(rename = "rkaf:retainedForPointInTime")]
     RetainedForPointInTime,
+    /// Wire value `rkaf:retired`.
     #[serde(rename = "rkaf:retired")]
     Retired,
 }
 
 use std::collections::BTreeMap;
 
+/// Generated JSON-LD carrier for `RevalidationEvent`.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct RevalidationEvent {
+    /// JSON-LD resource type.
     #[serde(rename = "@type", default = "RevalidationEvent::default_type")]
     pub type_: String,
+    /// Optional JSON-LD resource identifier.
     #[serde(rename = "@id", skip_serializing_if = "Option::is_none", default)]
     pub id: Option<String>,
+    /// JSON-LD property `rkaf:revalidationFor`.
     #[serde(rename = "rkaf:revalidationFor")]
     pub revalidation_for: String,
+    /// JSON-LD property `rkaf:triggeredBy`.
     #[serde(rename = "rkaf:triggeredBy")]
     pub triggered_by: String,
+    /// JSON-LD property `rkaf:openedAt`.
     #[serde(rename = "rkaf:openedAt")]
     pub opened_at: String,
+    /// JSON-LD property `rkaf:bridgeContractVersion`.
     #[serde(rename = "rkaf:bridgeContractVersion")]
     pub bridge_contract_version: String,
+    /// Additional JSON-LD properties preserved during round trips.
     #[serde(flatten)]
     pub extra: BTreeMap<String, serde_json::Value>,
 }
@@ -40,24 +53,34 @@ impl RevalidationEvent {
     fn default_type() -> String { "rkaf:RevalidationEvent".into() }
 }
 
+/// Generated JSON-LD carrier for `RevalidationClosureEvent`.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct RevalidationClosureEvent {
+    /// JSON-LD resource type.
     #[serde(rename = "@type", default = "RevalidationClosureEvent::default_type")]
     pub type_: String,
+    /// Optional JSON-LD resource identifier.
     #[serde(rename = "@id", skip_serializing_if = "Option::is_none", default)]
     pub id: Option<String>,
+    /// JSON-LD property `rkaf:closesRevalidation`.
     #[serde(rename = "rkaf:closesRevalidation")]
     pub closes_revalidation: String,
+    /// JSON-LD property `rkaf:closureDecision`.
     #[serde(rename = "rkaf:closureDecision")]
     pub closure_decision: RevalidationClosureDecision,
+    /// JSON-LD property `rkaf:successorAssertion`.
     #[serde(rename = "rkaf:successorAssertion", skip_serializing_if = "Option::is_none", default)]
     pub successor_assertion: Option<String>,
+    /// JSON-LD property `rkaf:successorWorkProduct`.
     #[serde(rename = "rkaf:successorWorkProduct", skip_serializing_if = "Option::is_none", default)]
     pub successor_work_product: Option<String>,
+    /// JSON-LD property `rkaf:closedAt`.
     #[serde(rename = "rkaf:closedAt")]
     pub closed_at: String,
+    /// JSON-LD property `rkaf:bridgeContractVersion`.
     #[serde(rename = "rkaf:bridgeContractVersion")]
     pub bridge_contract_version: String,
+    /// Additional JSON-LD properties preserved during round trips.
     #[serde(flatten)]
     pub extra: BTreeMap<String, serde_json::Value>,
 }

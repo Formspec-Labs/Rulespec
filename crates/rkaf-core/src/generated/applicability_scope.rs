@@ -6,20 +6,28 @@ use serde::{Deserialize, Serialize};
 
 use std::collections::BTreeMap;
 
+/// Generated JSON-LD carrier for `ApplicabilityScope`.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct ApplicabilityScope {
+    /// JSON-LD resource type.
     #[serde(rename = "@type", default = "ApplicabilityScope::default_type")]
     pub type_: String,
+    /// Optional JSON-LD resource identifier.
     #[serde(rename = "@id", skip_serializing_if = "Option::is_none", default)]
     pub id: Option<String>,
+    /// JSON-LD property `rkaf:appliesInJurisdiction`.
     #[serde(rename = "rkaf:appliesInJurisdiction")]
     pub applies_in_jurisdiction: crate::OneOrMany<String>,
+    /// JSON-LD property `rkaf:appliesToSubject`.
     #[serde(rename = "rkaf:appliesToSubject", skip_serializing_if = "Option::is_none", default)]
     pub applies_to_subject: Option<crate::OneOrMany<String>>,
+    /// JSON-LD property `rkaf:hasEffectivePeriod`.
     #[serde(rename = "rkaf:hasEffectivePeriod", skip_serializing_if = "Option::is_none", default)]
     pub has_effective_period: Option<String>,
+    /// JSON-LD property `rkaf:applicabilityCondition`.
     #[serde(rename = "rkaf:applicabilityCondition", skip_serializing_if = "Option::is_none", default)]
     pub applicability_condition: Option<String>,
+    /// Additional JSON-LD properties preserved during round trips.
     #[serde(flatten)]
     pub extra: BTreeMap<String, serde_json::Value>,
 }

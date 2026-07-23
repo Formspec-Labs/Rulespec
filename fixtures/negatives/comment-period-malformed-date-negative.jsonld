@@ -1,0 +1,11 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@id": "urn:rkaf:fixture:negative:comment-period-malformed-date",
+  "@type": "rkaf:CommentPeriod",
+  "rkaf:commentPeriodFor": "urn:rkaf:fixture:proceeding:2060-AV16",
+  "rkaf:commentPeriodStart": "2022-13-40",
+  "rkaf:commentPeriodEnd": "2022-13-41",
+  "prov:wasDerivedFrom": [
+    "urn:rkaf:fixture:evidence:comment-period-malformed-date"
+  ]
+}

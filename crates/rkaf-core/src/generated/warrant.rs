@@ -4,154 +4,220 @@
 
 use serde::{Deserialize, Serialize};
 
+/// Closed Rulespec values for `WarrantFamily`.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum WarrantFamily {
+    /// Wire value `rkaf:legal`.
     #[serde(rename = "rkaf:legal")]
     Legal,
+    /// Wire value `rkaf:scientific`.
     #[serde(rename = "rkaf:scientific")]
     Scientific,
+    /// Wire value `rkaf:editorial`.
     #[serde(rename = "rkaf:editorial")]
     Editorial,
+    /// Wire value `rkaf:cryptographic`.
     #[serde(rename = "rkaf:cryptographic")]
     Cryptographic,
+    /// Wire value `rkaf:social`.
     #[serde(rename = "rkaf:social")]
     Social,
+    /// Wire value `rkaf:source-class`.
     #[serde(rename = "rkaf:source-class")]
     SourceClass,
 }
 
+/// Closed Rulespec values for `WarrantKindLegal`.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum WarrantKindLegal {
+    /// Wire value `rkaf:legal`.
     #[serde(rename = "rkaf:legal")]
     Legal,
+    /// Wire value `rkaf:statutory`.
     #[serde(rename = "rkaf:statutory")]
     Statutory,
+    /// Wire value `rkaf:regulatory`.
     #[serde(rename = "rkaf:regulatory")]
     Regulatory,
+    /// Wire value `rkaf:delegated`.
     #[serde(rename = "rkaf:delegated")]
     Delegated,
+    /// Wire value `rkaf:organizational`.
     #[serde(rename = "rkaf:organizational")]
     Organizational,
+    /// Wire value `rkaf:contractual`.
     #[serde(rename = "rkaf:contractual")]
     Contractual,
+    /// Wire value `rkaf:localOperational`.
     #[serde(rename = "rkaf:localOperational")]
     LocalOperational,
+    /// Wire value `rkaf:publication`.
     #[serde(rename = "rkaf:publication")]
     Publication,
 }
 
+/// Closed Rulespec values for `WarrantKindScientific`.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum WarrantKindScientific {
+    /// Wire value `rkaf:methodological`.
     #[serde(rename = "rkaf:methodological")]
     Methodological,
+    /// Wire value `rkaf:empirical`.
     #[serde(rename = "rkaf:empirical")]
     Empirical,
+    /// Wire value `rkaf:replication`.
     #[serde(rename = "rkaf:replication")]
     Replication,
+    /// Wire value `rkaf:peerReview`.
     #[serde(rename = "rkaf:peerReview")]
     PeerReview,
 }
 
+/// Closed Rulespec values for `WarrantKindEditorial`.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum WarrantKindEditorial {
+    /// Wire value `rkaf:editorial`.
     #[serde(rename = "rkaf:editorial")]
     Editorial,
+    /// Wire value `rkaf:factCheck`.
     #[serde(rename = "rkaf:factCheck")]
     FactCheck,
+    /// Wire value `rkaf:correction`.
     #[serde(rename = "rkaf:correction")]
     Correction,
 }
 
+/// Closed Rulespec values for `WarrantKindCryptographic`.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum WarrantKindCryptographic {
+    /// Wire value `rkaf:cryptographic`.
     #[serde(rename = "rkaf:cryptographic")]
     Cryptographic,
+    /// Wire value `rkaf:commitment`.
     #[serde(rename = "rkaf:commitment")]
     Commitment,
 }
 
+/// Closed Rulespec values for `WarrantKindSocial`.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum WarrantKindSocial {
+    /// Wire value `rkaf:consensus`.
     #[serde(rename = "rkaf:consensus")]
     Consensus,
+    /// Wire value `rkaf:expertOpinion`.
     #[serde(rename = "rkaf:expertOpinion")]
     ExpertOpinion,
+    /// Wire value `rkaf:communityEndorsement`.
     #[serde(rename = "rkaf:communityEndorsement")]
     CommunityEndorsement,
 }
 
+/// Closed Rulespec values for `WarrantKindSourceClass`.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum WarrantKindSourceClass {
+    /// Wire value `rkaf:sourceReliability`.
     #[serde(rename = "rkaf:sourceReliability")]
     SourceReliability,
+    /// Wire value `rkaf:provenanceClass`.
     #[serde(rename = "rkaf:provenanceClass")]
     ProvenanceClass,
 }
 
+/// Closed Rulespec values for `WarrantKind`.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum WarrantKind {
+    /// Wire value `rkaf:legal`.
     #[serde(rename = "rkaf:legal")]
     Legal,
+    /// Wire value `rkaf:statutory`.
     #[serde(rename = "rkaf:statutory")]
     Statutory,
+    /// Wire value `rkaf:regulatory`.
     #[serde(rename = "rkaf:regulatory")]
     Regulatory,
+    /// Wire value `rkaf:delegated`.
     #[serde(rename = "rkaf:delegated")]
     Delegated,
+    /// Wire value `rkaf:organizational`.
     #[serde(rename = "rkaf:organizational")]
     Organizational,
+    /// Wire value `rkaf:contractual`.
     #[serde(rename = "rkaf:contractual")]
     Contractual,
+    /// Wire value `rkaf:localOperational`.
     #[serde(rename = "rkaf:localOperational")]
     LocalOperational,
+    /// Wire value `rkaf:publication`.
     #[serde(rename = "rkaf:publication")]
     Publication,
+    /// Wire value `rkaf:methodological`.
     #[serde(rename = "rkaf:methodological")]
     Methodological,
+    /// Wire value `rkaf:empirical`.
     #[serde(rename = "rkaf:empirical")]
     Empirical,
+    /// Wire value `rkaf:replication`.
     #[serde(rename = "rkaf:replication")]
     Replication,
+    /// Wire value `rkaf:peerReview`.
     #[serde(rename = "rkaf:peerReview")]
     PeerReview,
+    /// Wire value `rkaf:editorial`.
     #[serde(rename = "rkaf:editorial")]
     Editorial,
+    /// Wire value `rkaf:factCheck`.
     #[serde(rename = "rkaf:factCheck")]
     FactCheck,
+    /// Wire value `rkaf:correction`.
     #[serde(rename = "rkaf:correction")]
     Correction,
+    /// Wire value `rkaf:cryptographic`.
     #[serde(rename = "rkaf:cryptographic")]
     Cryptographic,
+    /// Wire value `rkaf:commitment`.
     #[serde(rename = "rkaf:commitment")]
     Commitment,
+    /// Wire value `rkaf:consensus`.
     #[serde(rename = "rkaf:consensus")]
     Consensus,
+    /// Wire value `rkaf:expertOpinion`.
     #[serde(rename = "rkaf:expertOpinion")]
     ExpertOpinion,
+    /// Wire value `rkaf:communityEndorsement`.
     #[serde(rename = "rkaf:communityEndorsement")]
     CommunityEndorsement,
+    /// Wire value `rkaf:sourceReliability`.
     #[serde(rename = "rkaf:sourceReliability")]
     SourceReliability,
+    /// Wire value `rkaf:provenanceClass`.
     #[serde(rename = "rkaf:provenanceClass")]
     ProvenanceClass,
 }
 
 use std::collections::BTreeMap;
 
+/// Generated JSON-LD carrier for `Warrant`.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Warrant {
+    /// JSON-LD resource type.
     #[serde(rename = "@type", default = "Warrant::default_type")]
     pub type_: String,
+    /// Optional JSON-LD resource identifier.
     #[serde(rename = "@id", skip_serializing_if = "Option::is_none", default)]
     pub id: Option<String>,
+    /// JSON-LD property `rkaf:warrantKind`.
     #[serde(rename = "rkaf:warrantKind")]
     pub warrant_kind: WarrantKind,
+    /// JSON-LD property `rkaf:warrantFamily`.
     #[serde(rename = "rkaf:warrantFamily")]
     pub warrant_family: WarrantFamily,
+    /// JSON-LD property `rkaf:hasPredecessor`.
     #[serde(rename = "rkaf:hasPredecessor", skip_serializing_if = "Option::is_none", default)]
     pub has_predecessor: Option<crate::OneOrMany<String>>,
+    /// JSON-LD property `rkaf:defeasible`.
     #[serde(rename = "rkaf:defeasible", skip_serializing_if = "Option::is_none", default)]
     pub defeasible: Option<bool>,
+    /// Additional JSON-LD properties preserved during round trips.
     #[serde(flatten)]
     pub extra: BTreeMap<String, serde_json::Value>,
 }
@@ -160,10 +226,13 @@ impl Warrant {
     fn default_type() -> String { "rkaf:Warrant".into() }
 }
 
+/// Generated JSON-LD carrier for `WarrantFamilyKindAgreement`.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct WarrantFamilyKindAgreement {
+    /// Optional JSON-LD resource identifier.
     #[serde(rename = "@id", skip_serializing_if = "Option::is_none", default)]
     pub id: Option<String>,
+    /// Additional JSON-LD properties preserved during round trips.
     #[serde(flatten)]
     pub extra: BTreeMap<String, serde_json::Value>,
 }

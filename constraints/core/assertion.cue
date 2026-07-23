@@ -31,5 +31,6 @@ package rkaf
 	"rkaf:hasJustification"?:         string // IRI of a Justification
 	"rkaf:hasWarrant"?:               string // IRI of the warrant grounding this assertion
 	"rkaf:hasAuthority"?:             string // IRI; legal-family Warrant or Authority
+	"prov:wasDerivedFrom"?:           [...(string & =~"^[A-Za-z][A-Za-z0-9+.-]*:[^\\s]+$")]
 	"rkaf:consumerLifecycleState"?:   #ConsumerLifecycleState
 }

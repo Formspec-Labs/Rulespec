@@ -25,35 +25,98 @@ L1 ⊂ L2 ⊂ L3 ⊂ L4 — each JSON-LD level subsumes the prior. L0 is the voc
 
 An L0 implementation MUST:
 
-1. Publish a carrier-mapping document. Every field or column carrying Rulespec semantics maps to the term it implements and gives the term's full IRI.
-2. Use conformant identifier values for every identifier field. A carrier MAY store a compact value if the mapping document specifies its deterministic expansion to the canonical identifier form.
-3. Preserve closed-enum discipline. An enum-valued field carries only registered values, or its mapping gives every carrier value's registered equivalent.
-4. File a self-certification with `declared_levels: [L0]`, `carrier_mapping`, and `terms_used`. `terms_used` MUST be the unique set of full term IRIs present in the mapping blocks.
-5. NOT claim L1, L2, L3, or L4. L0 does not exercise a JSON-LD carrier.
+1. Publish a carrier-mapping document pinned to the SHA-256 digest of the
+   Rulespec CUE, context, and L0 range contract.
+2. Declare each mapped field's carrier location, subject type, predicate,
+   direction, value kind, collection behavior, and class-valued range.
+3. Give an executable transform and sample for every IRI-valued field.
+   Identifier transforms also declare the registered identifier scheme.
+4. Preserve closed-enum discipline through an explicit `enum_map` or
+   executable transform.
+5. File a self-certification with `declared_levels: [L0]`,
+   `rulespec_version`, `carrier_mapping`, `terms_used`, and
+   `test_corpus_version`. `terms_used` MUST be the unique set of full term IRIs
+   present in the mapping blocks.
+6. NOT claim L1, L2, L3, L4, or an Appendix-D adoption depth. L0 does not
+   exercise a JSON-LD carrier, and Appendix D does not define depth semantics
+   for vocabulary-only carriers.
 
 ### Carrier-mapping format
 
-The carrier-mapping document MUST contain one or more fenced code blocks whose info string is exactly `yaml rkaf-l0-mapping`. Each block contains a non-empty YAML list. Each list entry has this shape:
+The carrier-mapping document MUST contain one or more fenced code blocks whose
+info string is exactly `yaml rkaf-l0-mapping`. Each block is a mapping with
+exactly `rulespec_version` and `mappings`. `rulespec_version` MUST equal the
+current `sha256:<64 lowercase hex>` contract digest. Every block in one
+document MUST use the same digest.
 
 ```yaml rkaf-l0-mapping
-- table: proceedings
-  column: stage
-  term: https://rulespec.org/ns/v1#proceedingStage
-  enum_map:
-    proposed: https://rulespec.org/ns/v1#proposed
-    final: https://rulespec.org/ns/v1#final
-- table: proceedings
-  column: rin
-  term: https://rulespec.org/ns/v1#hasArtifactIdentifier
+rulespec_version: "sha256:422f09a6666cd5947348971b5ba3e338bced545beec600c7a707dc71314a7f5f"
+mappings:
+  - table: proceedings
+    column: current_stage
+    subject_type: https://rulespec.org/ns/v1#Proceeding
+    term: https://rulespec.org/ns/v1#proceedingStage
+    direction: forward
+    value_kind: vocab
+    enum_map:
+      proposed: https://rulespec.org/ns/v1#proposed
+      final: https://rulespec.org/ns/v1#final
+  - table: proceedings
+    column: fr_document_numbers_json
+    subject_type: https://rulespec.org/ns/v1#Proceeding
+    term: https://rulespec.org/ns/v1#publishedInProceeding
+    direction: inverse
+    object_type: https://rulespec.org/ns/v1#Artifact
+    value_kind: iri
+    collection: json-list
+    transform:
+      template: "https://www.federalregister.gov/d/{value}"
+    samples:
+      - input:
+          fr_document_numbers_json: '["2024-00366"]'
+        output:
+          - https://www.federalregister.gov/d/2024-00366
 ```
 
-`table`, `column`, and `term` are required non-empty strings. `term` MUST be a full HTTP(S) IRI registered by Rulespec or an imported vocabulary. `enum_map` is optional and valid only when `term` names a closed-enum property. Each `enum_map` key is a carrier value; each target MUST be the full IRI of a registered value allowed for that property. A document MAY contain prose and other code blocks around the mapping blocks.
+Each entry has these rules:
+
+- `table`, `subject_type`, `term`, `direction`, and `value_kind` are required.
+  `subject_type` and `term` MUST be full registered HTTP(S) IRIs.
+- Exactly one of `column` or `columns` is required. `columns` is a non-empty,
+  duplicate-free list for transforms that compose several fields.
+- `direction` is `forward` or `inverse`. Forward emits
+  `subject --term--> transformed value`. Inverse emits the transformed related
+  node as the RDF subject pointing to the carrier subject. `object_type`
+  declares that related node's class and is required for inverse mappings and
+  class-valued ranges.
+- `value_kind` is `iri`, `vocab`, `literal`, `number`, or `date` and MUST match
+  the registered context/CUE coercion. `collection` defaults to `scalar`;
+  `json-list` parses a single JSON-array column and applies the transform to
+  every item as `{value}`.
+- `enum_map` is valid only for a closed-enum property. Every target MUST be a
+  registered value allowed for that property.
+- `transform` contains either `template`, or `pattern` plus `replacement`.
+  Identifier predicates also require `identifier_scheme`.
+- A transform requires a non-empty `samples` list. Each sample has exactly an
+  `input` mapping and expected `output`; the audit executes it and checks the
+  declared value kind.
+
+Unknown block, entry, transform, and sample keys are errors. The audit checks
+predicate domains and class ranges from the current CUE contract, so an
+inverse relationship cannot silently become a forward relationship.
+A document MAY contain prose and other code blocks around the mapping blocks.
 
 ### Gate
 
-`tools/l0_mapping_audit.py` parses the fenced blocks and verifies their shape, terms, and enum targets against the CUE vocabulary and canonical JSON-LD context. Given a partner YAML, it also resolves `carrier_mapping`, verifies `terms_used`, and rejects mixed L0/L1+ claims.
+`tools/l0_mapping_audit.py` parses the fenced blocks and verifies their contract
+digest, structure, vocabulary terms, domain/range, direction, value kind,
+transforms, samples, and enum targets against the CUE vocabulary, semantic
+range registry, and canonical JSON-LD context. Given a partner YAML, it also
+resolves `carrier_mapping`, verifies `terms_used`, and rejects mixed L0/L1+
+claims or an L0 adoption-depth claim.
 
 ```bash
+python3 tools/l0_mapping_audit.py --print-contract-version
 python3 tools/l0_mapping_audit.py docs/ontology.md
 python3 tools/l0_mapping_audit.py conformance/partners/example.yaml
 ```
@@ -109,7 +172,10 @@ Declaring L2 requires that **every positive fixture validates cleanly** and ever
 An L3 implementation MUST:
 
 1. Satisfy L2.
-2. Validate every Rulespec node against the SHACL shapes under `shapes/` (hand-authored, Pattern-C-bearing) AND `compiled/shacl/core/` (CUE-generated, enum + cardinality).
+2. Validate every Rulespec node against CUE-generated SHACL under
+   `compiled/shacl/core/` and the legacy Pattern-C-only suite under `shapes/`.
+   A hand-authored shape MUST NOT redefine a CUE-expressible structural,
+   lexical, date, or ordered-field constraint.
 3. Enforce Pattern-C cross-property invariants — e.g., an Assertion with `assertionOrigin` in the AI-touched subset MUST carry `hasAILineage`.
 4. Surface SHACL violations with focus node, result path, source constraint component, and result message.
 
@@ -153,9 +219,9 @@ The conformance test corpus lives under `fixtures/`. The §10.1 coverage target 
 
 | Coverage | Target | Current |
 |---|---|---|
-| Per-class positive fixtures | every embedded compiled schema type | 60 positive fixtures; `rkaf-validate` asserts coverage for all 34 embedded `@type` schemas |
-| Per-class negative fixtures | every codified class with required fields | 126 negative fixtures; `tools/validate_negatives.py` discovers and gates all of them |
-| Per-class edge fixtures | every codified class | 37 edge fixtures; `tools/l0_l3_coverage_audit.py` asserts coverage for all 34 compiled schema classes |
+| Per-class positive fixtures | every embedded compiled schema type | 61 positive fixtures; `rkaf-validate` asserts coverage for all 35 embedded `@type` schemas |
+| Per-class negative fixtures | every codified class with required fields | 132 negative fixtures; `tools/validate_negatives.py` discovers and gates all of them |
+| Per-class edge fixtures | every codified class | 38 edge fixtures; `tools/l0_l3_coverage_audit.py` asserts coverage for all 35 compiled schema classes |
 | Behavior fixtures | every L4 contract family and normative branch | 45 behavior fixtures |
 | Adversarial fixtures | ≥5 | 6 (in `fixtures/adversarial/`) |
 | AI-extraction adversarial fixtures | ≥3 | 3 (in `fixtures/ai-extraction/`) |
@@ -171,10 +237,10 @@ Implementations declaring a conformance level publish a YAML at `conformance/par
 ```yaml
 partner: "<organization or maintainer name>"
 implementation: "<package@version>"
-rulespec_version: "<commit hash or pre-release tag>"
+rulespec_version: "<commit hash or pre-release tag; L0 uses contract sha256>"
 declared_levels: [L1, L2, L3, L4]   # cumulative JSON-LD subset, or [L0] alone
 test_corpus_run_at: "<date>"
-test_corpus_commit: "<rulespec commit>"
+test_corpus_version: "<immutable fixture/corpus version>"
 results:
   L0: not-claimed
   L1: pass
@@ -191,9 +257,11 @@ An L0 document also includes:
 
 ```yaml
 declared_levels: [L0]
+rulespec_version: "sha256:<current L0 contract digest>"
 carrier_mapping: "path/to/the/published-mapping.md"
 terms_used:
-  - "https://rulespec.org/ns/v1#hasArtifactIdentifier"
+  - "https://rulespec.org/ns/v1#hasProceedingIdentifier"
+test_corpus_version: "<immutable carrier corpus version>"
 results:
   L0: pass
   L1: not-claimed
@@ -210,11 +278,17 @@ Post-1.0, a governance shell (per `spec/rkaf-core.md` §13.3) MAY introduce thir
 
 ## 8. Adoption depth gradient interaction [Informative]
 
-Conformance level (L0–L4) is distinct from adoption depth (D0–D5 per source spec Appendix D). An implementation may be:
+Conformance level is distinct from adoption depth (D0–D5 per source spec
+Appendix D). Appendix D describes integration with the structured Rulespec
+substrate and does not define a depth for the L0 vocabulary-only carrier path.
+An L0 declaration therefore omits `adoption_depth`. A JSON-LD implementation
+may be:
 
-- **L0 at D1** — a tabular data producer using Rulespec terms and canonical identifiers through a published carrier mapping.
 - **L2 at D1** — a partner accepting Rulespec overlays in JSON Schema documents (low integration, basic validation).
 - **L3 at D3** — a reference consumer (like Studio) whose schemas are CUE-derived from a Rulespec profile, with full SHACL gate enforcement.
 - **L4 at D5** — a substrate-level implementation owning the runtime contracts (workflow engine, governance platform).
 
-The matrix is multiplicative: an implementation declares a (level, depth) tuple. Vocabulary-only data products may operate at (L0, D1); JSON-LD consumers often operate at (L2, D1) or (L3, D2); reference consumers operate at (L3, D3); substrate hosts operate at (L4, D4) or (L4, D5).
+For L1–L4, the matrix is multiplicative: an implementation declares a
+(level, depth) tuple. JSON-LD consumers often operate at (L2, D1) or (L3, D2);
+reference consumers operate at (L3, D3); substrate hosts operate at (L4, D4)
+or (L4, D5).

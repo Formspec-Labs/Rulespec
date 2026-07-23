@@ -4,58 +4,82 @@
 
 use serde::{Deserialize, Serialize};
 
+/// Closed Rulespec values for `SkosMappingPredicate`.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum SkosMappingPredicate {
+    /// Wire value `skos:closeMatch`.
     #[serde(rename = "skos:closeMatch")]
     CloseMatch,
+    /// Wire value `skos:exactMatch`.
     #[serde(rename = "skos:exactMatch")]
     ExactMatch,
+    /// Wire value `skos:broader`.
     #[serde(rename = "skos:broader")]
     Broader,
+    /// Wire value `skos:narrower`.
     #[serde(rename = "skos:narrower")]
     Narrower,
+    /// Wire value `skos:related`.
     #[serde(rename = "skos:related")]
     Related,
+    /// Wire value `skos:mappingRelation`.
     #[serde(rename = "skos:mappingRelation")]
     MappingRelation,
 }
 
+/// Closed Rulespec values for `ConceptMappingLifecycleState`.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum ConceptMappingLifecycleState {
+    /// Wire value `rkaf:proposed`.
     #[serde(rename = "rkaf:proposed")]
     Proposed,
+    /// Wire value `rkaf:underReview`.
     #[serde(rename = "rkaf:underReview")]
     UnderReview,
+    /// Wire value `rkaf:approved`.
     #[serde(rename = "rkaf:approved")]
     Approved,
+    /// Wire value `rkaf:deprecated`.
     #[serde(rename = "rkaf:deprecated")]
     Deprecated,
+    /// Wire value `rkaf:retired`.
     #[serde(rename = "rkaf:retired")]
     Retired,
 }
 
 use std::collections::BTreeMap;
 
+/// Generated JSON-LD carrier for `ConceptMapping`.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct ConceptMapping {
+    /// JSON-LD resource type.
     #[serde(rename = "@type", default = "ConceptMapping::default_type")]
     pub type_: String,
+    /// Optional JSON-LD resource identifier.
     #[serde(rename = "@id", skip_serializing_if = "Option::is_none", default)]
     pub id: Option<String>,
+    /// JSON-LD property `rkaf:sourceConcept`.
     #[serde(rename = "rkaf:sourceConcept")]
     pub source_concept: String,
+    /// JSON-LD property `rkaf:targetConcept`.
     #[serde(rename = "rkaf:targetConcept")]
     pub target_concept: String,
+    /// JSON-LD property `rkaf:mappingRelation`.
     #[serde(rename = "rkaf:mappingRelation")]
     pub mapping_relation: SkosMappingPredicate,
+    /// JSON-LD property `rkaf:hasApplicability`.
     #[serde(rename = "rkaf:hasApplicability", skip_serializing_if = "Option::is_none", default)]
     pub has_applicability: Option<String>,
+    /// JSON-LD property `rkaf:usageEligibility`.
     #[serde(rename = "rkaf:usageEligibility", skip_serializing_if = "Option::is_none", default)]
     pub usage_eligibility: Option<crate::generated::usage_eligibility::UsageEligibility>,
+    /// JSON-LD property `rkaf:lifecycleState`.
     #[serde(rename = "rkaf:lifecycleState", skip_serializing_if = "Option::is_none", default)]
     pub lifecycle_state: Option<ConceptMappingLifecycleState>,
+    /// JSON-LD property `rkaf:managedByRegistry`.
     #[serde(rename = "rkaf:managedByRegistry", skip_serializing_if = "Option::is_none", default)]
     pub managed_by_registry: Option<String>,
+    /// Additional JSON-LD properties preserved during round trips.
     #[serde(flatten)]
     pub extra: BTreeMap<String, serde_json::Value>,
 }
@@ -64,16 +88,22 @@ impl ConceptMapping {
     fn default_type() -> String { "rkaf:ConceptMapping".into() }
 }
 
+/// Generated JSON-LD carrier for `MappingApplicabilityContext`.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct MappingApplicabilityContext {
+    /// JSON-LD resource type.
     #[serde(rename = "@type", default = "MappingApplicabilityContext::default_type")]
     pub type_: String,
+    /// Optional JSON-LD resource identifier.
     #[serde(rename = "@id", skip_serializing_if = "Option::is_none", default)]
     pub id: Option<String>,
+    /// JSON-LD property `rkaf:applicationDomain`.
     #[serde(rename = "rkaf:applicationDomain")]
     pub application_domain: crate::OneOrMany<String>,
+    /// JSON-LD property `rkaf:evidencePurpose`.
     #[serde(rename = "rkaf:evidencePurpose", skip_serializing_if = "Option::is_none", default)]
     pub evidence_purpose: Option<crate::OneOrMany<String>>,
+    /// Additional JSON-LD properties preserved during round trips.
     #[serde(flatten)]
     pub extra: BTreeMap<String, serde_json::Value>,
 }

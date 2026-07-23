@@ -4,44 +4,63 @@
 
 use serde::{Deserialize, Serialize};
 
+/// Closed Rulespec values for `TrustZone`.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum TrustZone {
+    /// Wire value `rkaf:Z0`.
     #[serde(rename = "rkaf:Z0")]
     Z0,
+    /// Wire value `rkaf:Z1`.
     #[serde(rename = "rkaf:Z1")]
     Z1,
+    /// Wire value `rkaf:Z2`.
     #[serde(rename = "rkaf:Z2")]
     Z2,
+    /// Wire value `rkaf:Z3`.
     #[serde(rename = "rkaf:Z3")]
     Z3,
+    /// Wire value `rkaf:Z4`.
     #[serde(rename = "rkaf:Z4")]
     Z4,
+    /// Wire value `rkaf:Z5`.
     #[serde(rename = "rkaf:Z5")]
     Z5,
+    /// Wire value `rkaf:Z6`.
     #[serde(rename = "rkaf:Z6")]
     Z6,
+    /// Wire value `rkaf:Z7`.
     #[serde(rename = "rkaf:Z7")]
     Z7,
+    /// Wire value `rkaf:Z8`.
     #[serde(rename = "rkaf:Z8")]
     Z8,
 }
 
+/// Closed Rulespec values for `SafetyLabel`.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum SafetyLabel {
+    /// Wire value `rkaf:D0DisplayOnly`.
     #[serde(rename = "rkaf:D0DisplayOnly")]
     D0DisplayOnly,
+    /// Wire value `rkaf:S1Suggestion`.
     #[serde(rename = "rkaf:S1Suggestion")]
     S1Suggestion,
+    /// Wire value `rkaf:R2Review`.
     #[serde(rename = "rkaf:R2Review")]
     R2Review,
+    /// Wire value `rkaf:A3Advisory`.
     #[serde(rename = "rkaf:A3Advisory")]
     A3Advisory,
+    /// Wire value `rkaf:A3AdvisoryAggregated`.
     #[serde(rename = "rkaf:A3AdvisoryAggregated")]
     A3AdvisoryAggregated,
+    /// Wire value `rkaf:A3AuthorityCritical`.
     #[serde(rename = "rkaf:A3AuthorityCritical")]
     A3AuthorityCritical,
+    /// Wire value `rkaf:P4Production`.
     #[serde(rename = "rkaf:P4Production")]
     P4Production,
+    /// Wire value `rkaf:permits-axiomatic`.
     #[serde(rename = "rkaf:permits-axiomatic")]
     PermitsAxiomatic,
 }

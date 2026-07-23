@@ -2,6 +2,8 @@
   "@context": "../../context/rkaf-context.jsonld",
   "@id": "urn:rkaf:fixture:negative:artifact-us-regsgov",
   "@type": "rkaf:Artifact",
-  "rkaf:hasArtifactIdentifier": "urn:rkaf:us:regsgov:EPA-HQ-OAR-2021-0317-abc1",
-  "rkaf:artifactIdentifierScheme": "rkaf:us-regsgov"
+  "rkaf:hasArtifactIdentifier": "urn:rkaf:fixture:snapshot:artifact-us-regsgov",
+  "rkaf:artifactIdentifierScheme": "rkaf:partner-defined",
+  "rkaf:hasRegulatoryIdentifier": "urn:rkaf:us:regsgov:EPA-HQ-OAR-2021-0317-abc1",
+  "rkaf:regulatoryIdentifierScheme": "rkaf:us-regsgov"
 }

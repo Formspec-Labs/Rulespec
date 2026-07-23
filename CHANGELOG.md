@@ -9,15 +9,39 @@ adapted for a specification + shape + fixture project.
 
 ### Added
 
-- Seven closed `artifactIdentifierScheme` values for CFR, U.S. Code, RIN, Federal Register document, regulations.gov, public-law, and Executive-order identity, with normative URN grammars and SHACL normalization checks.
-- Positive and negative normalization fixtures for every new scheme, including real docket, document, and comment identifiers.
-- An L0 Vocabulary conformance path for non-JSON-LD carriers, a normative `yaml rkaf-l0-mapping` format, self-certification fields, and `tools/l0_mapping_audit.py`.
-- The Experimental `spec/rkaf-rulemaking.md` module with generated Proceeding and CommentPeriod types, proceeding-stage lifecycle values, CFR targets, published-document links, and authority-chain composition.
-- A curated EPA RIN `2060-AV16` reference corpus with source provenance and a dedicated validation gate.
+- Six closed US regulatory-identifier values for CFR, U.S. Code, Federal
+  Register document, regulations.gov document/comment, public-law, and
+  Executive-order citations. They are separate from immutable Artifact
+  identity and carry CUE-generated normalization constraints.
+- Dedicated `Proceeding` and mutable `Docket` identity predicates and schemes,
+  with explicit `hasDocket` links so a docket cannot stand in for a
+  proceeding.
+- Positive and negative normalization fixtures for every new scheme,
+  including docket, document, malformed identifier, malformed date, and
+  reversed-interval cases.
+- An L0 Vocabulary conformance path for non-JSON-LD carriers. Its normative
+  `yaml rkaf-l0-mapping` format pins the exact Rulespec contract, declares
+  subject/domain/range/direction/value semantics, and executes transform
+  samples through `tools/l0_mapping_audit.py`.
+- The Experimental `spec/rkaf-rulemaking.md` module with CUE-generated Docket,
+  Proceeding, and CommentPeriod types, proceeding-stage lifecycle values,
+  versioned CFR targets, published-document links, and authority-chain
+  composition.
+- A curated EPA RIN `2060-AV16` reference corpus with source provenance,
+  validation-result metadata, and a dedicated validation gate.
+
+### Changed
+
+- Incorporated the Spicy Regs full-corpus findings: proceeding stage is
+  optional when unknown, CommentPeriod requires qualified PROV-O evidence, and
+  Federal Register source values outside `YYYY-NNNNN` use a normative
+  permanent-publication URL fallback without a false `rkaf:us-frdoc` claim.
 
 ### Deferred by contract
 
-- `conformance/partners/spicy-regs.yaml` remains unfiled until spicy-regs ships both the `rule_targets` table and `docs/ontology.md` carrier mapping. Filing an L0 claim before those artifacts exist would be a false certification.
+- The Spicy Regs L0 certificate remains in the consumer repository beside its
+  carrier mapping and corpus evidence; this repository does not mirror or
+  overstate that external claim.
 - No version bump assigns these unreleased changes to `0.2.0-pre.6`; the design memo requires the existing `pre.7` consolidation to land first.
 
 ## Unreleased — SKOS predicate composition on Concept; prefLabel(1) enforced at L1 + L3 (PKA-2szi)

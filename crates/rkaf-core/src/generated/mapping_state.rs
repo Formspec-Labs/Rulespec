@@ -4,26 +4,35 @@
 
 use serde::{Deserialize, Serialize};
 
+/// Closed Rulespec values for `MappingState`.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum MappingState {
+    /// Wire value `rkaf:mapsToWos`.
     #[serde(rename = "rkaf:mapsToWos")]
     MapsToWos,
+    /// Wire value `rkaf:authoringOnly`.
     #[serde(rename = "rkaf:authoringOnly")]
     AuthoringOnly,
+    /// Wire value `rkaf:requiresSpecExtension`.
     #[serde(rename = "rkaf:requiresSpecExtension")]
     RequiresSpecExtension,
+    /// Wire value `rkaf:unmappedButApproved`.
     #[serde(rename = "rkaf:unmappedButApproved")]
     UnmappedButApproved,
 }
 
 use std::collections::BTreeMap;
 
+/// Generated JSON-LD carrier for `MappingStateCarrier`.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct MappingStateCarrier {
+    /// Optional JSON-LD resource identifier.
     #[serde(rename = "@id", skip_serializing_if = "Option::is_none", default)]
     pub id: Option<String>,
+    /// JSON-LD property `rkaf:mappingState`.
     #[serde(rename = "rkaf:mappingState")]
     pub mapping_state: MappingState,
+    /// Additional JSON-LD properties preserved during round trips.
     #[serde(flatten)]
     pub extra: BTreeMap<String, serde_json::Value>,
 }

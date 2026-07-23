@@ -4,64 +4,92 @@
 
 use serde::{Deserialize, Serialize};
 
+/// Closed Rulespec values for `LifecycleEventKind`.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum LifecycleEventKind {
+    /// Wire value `rkaf:revalidation`.
     #[serde(rename = "rkaf:revalidation")]
     Revalidation,
+    /// Wire value `rkaf:revalidationClosure`.
     #[serde(rename = "rkaf:revalidationClosure")]
     RevalidationClosure,
+    /// Wire value `rkaf:amendment`.
     #[serde(rename = "rkaf:amendment")]
     Amendment,
+    /// Wire value `rkaf:supersession`.
     #[serde(rename = "rkaf:supersession")]
     Supersession,
+    /// Wire value `rkaf:rescission`.
     #[serde(rename = "rkaf:rescission")]
     Rescission,
+    /// Wire value `rkaf:materialRevision`.
     #[serde(rename = "rkaf:materialRevision")]
     MaterialRevision,
+    /// Wire value `rkaf:editorialRevision`.
     #[serde(rename = "rkaf:editorialRevision")]
     EditorialRevision,
+    /// Wire value `rkaf:conceptLifecycle`.
     #[serde(rename = "rkaf:conceptLifecycle")]
     ConceptLifecycle,
+    /// Wire value `rkaf:promotion`.
     #[serde(rename = "rkaf:promotion")]
     Promotion,
+    /// Wire value `rkaf:demotion`.
     #[serde(rename = "rkaf:demotion")]
     Demotion,
+    /// Wire value `rkaf:proceedingPrerule`.
     #[serde(rename = "rkaf:proceedingPrerule")]
     ProceedingPrerule,
+    /// Wire value `rkaf:proceedingProposed`.
     #[serde(rename = "rkaf:proceedingProposed")]
     ProceedingProposed,
+    /// Wire value `rkaf:proceedingSupplemental`.
     #[serde(rename = "rkaf:proceedingSupplemental")]
     ProceedingSupplemental,
+    /// Wire value `rkaf:proceedingFinal`.
     #[serde(rename = "rkaf:proceedingFinal")]
     ProceedingFinal,
+    /// Wire value `rkaf:proceedingWithdrawn`.
     #[serde(rename = "rkaf:proceedingWithdrawn")]
     ProceedingWithdrawn,
+    /// Wire value `rkaf:proceedingLongterm`.
     #[serde(rename = "rkaf:proceedingLongterm")]
     ProceedingLongterm,
 }
 
 use std::collections::BTreeMap;
 
+/// Generated JSON-LD carrier for `LifecycleEvent`.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct LifecycleEvent {
+    /// JSON-LD resource type.
     #[serde(rename = "@type", default = "LifecycleEvent::default_type")]
     pub type_: String,
+    /// Optional JSON-LD resource identifier.
     #[serde(rename = "@id", skip_serializing_if = "Option::is_none", default)]
     pub id: Option<String>,
+    /// JSON-LD property `rkaf:lifecycleEventKind`.
     #[serde(rename = "rkaf:lifecycleEventKind")]
     pub lifecycle_event_kind: LifecycleEventKind,
+    /// JSON-LD property `rkaf:effectiveDate`.
     #[serde(rename = "rkaf:effectiveDate")]
     pub effective_date: String,
+    /// JSON-LD property `rkaf:emittedBy`.
     #[serde(rename = "rkaf:emittedBy")]
     pub emitted_by: String,
+    /// JSON-LD property `rkaf:appliesTo`.
     #[serde(rename = "rkaf:appliesTo")]
     pub applies_to: crate::OneOrMany<String>,
+    /// JSON-LD property `rkaf:bridgeContractVersion`.
     #[serde(rename = "rkaf:bridgeContractVersion", skip_serializing_if = "Option::is_none", default)]
     pub bridge_contract_version: Option<String>,
+    /// JSON-LD property `rkaf:cascadeAlgorithm`.
     #[serde(rename = "rkaf:cascadeAlgorithm", skip_serializing_if = "Option::is_none", default)]
     pub cascade_algorithm: Option<String>,
+    /// JSON-LD property `rkaf:safeAutomaticMigration`.
     #[serde(rename = "rkaf:safeAutomaticMigration", skip_serializing_if = "Option::is_none", default)]
     pub safe_automatic_migration: Option<String>,
+    /// Additional JSON-LD properties preserved during round trips.
     #[serde(flatten)]
     pub extra: BTreeMap<String, serde_json::Value>,
 }

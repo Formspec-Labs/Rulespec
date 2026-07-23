@@ -2,16 +2,12 @@
   "@context": "../../context/rkaf-context.jsonld",
   "@id": "urn:rkaf:fixture:edge:proceeding-multi-docket",
   "@type": "rkaf:Proceeding",
-  "rkaf:hasArtifactIdentifier": [
-    "urn:rkaf:us:rin:2060-AV16",
-    "urn:rkaf:us:regsgov:EPA-HQ-OAR-2021-0317",
-    "urn:rkaf:us:regsgov:EPA-HQ-OAR-2025-0192"
+  "rkaf:hasProceedingIdentifier": "urn:rkaf:us:rin:2060-AV16",
+  "rkaf:proceedingIdentifierScheme": "rkaf:us-rin",
+  "rkaf:hasDocket": [
+    "urn:rkaf:fixture:docket:EPA-HQ-OAR-2021-0317",
+    "urn:rkaf:fixture:docket:EPA-HQ-OAR-2025-0192"
   ],
-  "rkaf:artifactIdentifierScheme": [
-    "rkaf:us-rin",
-    "rkaf:us-regsgov"
-  ],
-  "rkaf:proceedingStage": "rkaf:final",
   "rkaf:hasAuthority": [
     "urn:rkaf:fixture:authority:clean-air-act-111"
   ],

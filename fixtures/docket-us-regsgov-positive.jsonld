@@ -1,0 +1,7 @@
+{
+  "@context": "../context/rkaf-context.jsonld",
+  "@id": "urn:rkaf:fixture:docket:regsgov",
+  "@type": "rkaf:Docket",
+  "rkaf:hasDocketIdentifier": "urn:rkaf:us:regsgov:EPA-HQ-OAR-2021-0317",
+  "rkaf:docketIdentifierScheme": "rkaf:us-regsgov"
+}

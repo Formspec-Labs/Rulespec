@@ -4,20 +4,28 @@
 
 use serde::{Deserialize, Serialize};
 
+/// Closed Rulespec values for `UsageEligibility`.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum UsageEligibility {
+    /// Wire value `rkaf:notEligible`.
     #[serde(rename = "rkaf:notEligible")]
     NotEligible,
+    /// Wire value `rkaf:searchOnly`.
     #[serde(rename = "rkaf:searchOnly")]
     SearchOnly,
+    /// Wire value `rkaf:reviewQueueOnly`.
     #[serde(rename = "rkaf:reviewQueueOnly")]
     ReviewQueueOnly,
+    /// Wire value `rkaf:draftGenerationAllowed`.
     #[serde(rename = "rkaf:draftGenerationAllowed")]
     DraftGenerationAllowed,
+    /// Wire value `rkaf:localOperationalUse`.
     #[serde(rename = "rkaf:localOperationalUse")]
     LocalOperationalUse,
+    /// Wire value `rkaf:publicationAllowed`.
     #[serde(rename = "rkaf:publicationAllowed")]
     PublicationAllowed,
+    /// Wire value `rkaf:officialUse`.
     #[serde(rename = "rkaf:officialUse")]
     OfficialUse,
 }

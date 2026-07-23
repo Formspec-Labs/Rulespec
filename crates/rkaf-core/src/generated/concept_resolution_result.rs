@@ -4,42 +4,59 @@
 
 use serde::{Deserialize, Serialize};
 
+/// Closed Rulespec values for `ConceptResolutionStatus`.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum ConceptResolutionStatus {
+    /// Wire value `rkaf:resolved`.
     #[serde(rename = "rkaf:resolved")]
     Resolved,
+    /// Wire value `rkaf:unresolved`.
     #[serde(rename = "rkaf:unresolved")]
     Unresolved,
+    /// Wire value `rkaf:ambiguous`.
     #[serde(rename = "rkaf:ambiguous")]
     Ambiguous,
+    /// Wire value `rkaf:conflicting`.
     #[serde(rename = "rkaf:conflicting")]
     Conflicting,
+    /// Wire value `rkaf:registryUnavailable`.
     #[serde(rename = "rkaf:registryUnavailable")]
     RegistryUnavailable,
+    /// Wire value `rkaf:staleCacheFallback`.
     #[serde(rename = "rkaf:staleCacheFallback")]
     StaleCacheFallback,
 }
 
 use std::collections::BTreeMap;
 
+/// Generated JSON-LD carrier for `ConceptResolutionResult`.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct ConceptResolutionResult {
+    /// JSON-LD resource type.
     #[serde(rename = "@type", default = "ConceptResolutionResult::default_type")]
     pub type_: String,
+    /// Optional JSON-LD resource identifier.
     #[serde(rename = "@id", skip_serializing_if = "Option::is_none", default)]
     pub id: Option<String>,
+    /// JSON-LD property `rkaf:inputConcept`.
     #[serde(rename = "rkaf:inputConcept")]
     pub input_concept: String,
+    /// JSON-LD property `rkaf:resolutionStatus`.
     #[serde(rename = "rkaf:resolutionStatus")]
     pub resolution_status: ConceptResolutionStatus,
+    /// JSON-LD property `rkaf:resolvedConcept`.
     #[serde(rename = "rkaf:resolvedConcept", skip_serializing_if = "Option::is_none", default)]
     pub resolved_concept: Option<String>,
+    /// JSON-LD property `rkaf:usageCeiling`.
     #[serde(rename = "rkaf:usageCeiling", skip_serializing_if = "Option::is_none", default)]
     pub usage_ceiling: Option<crate::generated::usage_eligibility::UsageEligibility>,
+    /// JSON-LD property `rkaf:resolvedAt`.
     #[serde(rename = "rkaf:resolvedAt")]
     pub resolved_at: String,
+    /// JSON-LD property `rkaf:resolverId`.
     #[serde(rename = "rkaf:resolverId", skip_serializing_if = "Option::is_none", default)]
     pub resolver_id: Option<String>,
+    /// Additional JSON-LD properties preserved during round trips.
     #[serde(flatten)]
     pub extra: BTreeMap<String, serde_json::Value>,
 }

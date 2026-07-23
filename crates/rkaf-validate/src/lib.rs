@@ -45,6 +45,13 @@ pub enum ValidatorError {
 
 pub struct Validator {
     compiled: HashMap<String, JSONSchema>,
+    orders: HashMap<String, Vec<OrderConstraint>>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+struct OrderConstraint {
+    lower: String,
+    upper: String,
 }
 
 impl Validator {
@@ -59,12 +66,20 @@ impl Validator {
     /// failure handling.
     pub fn try_new() -> Result<Self, ValidatorError> {
         let mut compiled = HashMap::new();
+        let mut orders = HashMap::new();
         for (type_iri, class_name, raw) in EMBEDDED_SCHEMAS {
             let parsed: Value =
                 serde_json::from_str(raw).map_err(|source| ValidatorError::Parse {
                     class: (*class_name).into(),
                     source,
                 })?;
+            let class_schema = parsed.get("$defs").and_then(|defs| defs.get(*class_name));
+            let class_orders = parse_order_constraints(class_schema).map_err(|message| {
+                ValidatorError::Compile {
+                    class: (*class_name).into(),
+                    message,
+                }
+            })?;
             let defs = parsed.get("$defs").cloned().unwrap_or(json!({}));
             let wrapped = json!({
                 "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -73,14 +88,16 @@ impl Validator {
             });
             let schema = JSONSchema::options()
                 .with_draft(Draft::Draft202012)
+                .should_validate_formats(true)
                 .compile(&wrapped)
                 .map_err(|e| ValidatorError::Compile {
                     class: (*class_name).into(),
                     message: e.to_string(),
                 })?;
             compiled.insert((*type_iri).into(), schema);
+            orders.insert((*type_iri).into(), class_orders);
         }
-        Ok(Self { compiled })
+        Ok(Self { compiled, orders })
     }
 
     /// Validate a single JSON-LD node against the schema for its `@type` IRI.
@@ -94,7 +111,7 @@ impl Validator {
         let Some(schema) = self.compiled.get(type_iri) else {
             return Ok(()); // @type is not a v0.2 rkaf:* class — pass silently
         };
-        let errors: Vec<ValidationError> = schema
+        let mut errors: Vec<ValidationError> = schema
             .validate(node)
             .err()
             .into_iter()
@@ -105,6 +122,20 @@ impl Validator {
                 message: e.to_string(),
             })
             .collect();
+        for order in self.orders.get(type_iri).into_iter().flatten() {
+            let lower = node.get(&order.lower).and_then(Value::as_str);
+            let upper = node.get(&order.upper).and_then(Value::as_str);
+            if lower.is_some_and(|value| upper.is_some_and(|end| value > end)) {
+                errors.push(ValidationError {
+                    type_iri: type_iri.to_string(),
+                    pointer: format!("/{}", order.lower.replace('~', "~0").replace('/', "~1")),
+                    message: format!(
+                        "{} must be less than or equal to {}",
+                        order.lower, order.upper
+                    ),
+                });
+            }
+        }
         if errors.is_empty() {
             Ok(())
         } else {
@@ -137,6 +168,32 @@ impl Validator {
     pub fn known_type_iris(&self) -> impl Iterator<Item = &str> {
         self.compiled.keys().map(String::as_str)
     }
+}
+
+fn parse_order_constraints(class_schema: Option<&Value>) -> Result<Vec<OrderConstraint>, String> {
+    let Some(raw_orders) = class_schema.and_then(|schema| schema.get("x-rkaf-order")) else {
+        return Ok(Vec::new());
+    };
+    let Some(entries) = raw_orders.as_array() else {
+        return Err("x-rkaf-order must be an array".into());
+    };
+    entries
+        .iter()
+        .map(|entry| {
+            let lower = entry
+                .get("lower")
+                .and_then(Value::as_str)
+                .ok_or_else(|| "x-rkaf-order entry requires string lower".to_string())?;
+            let upper = entry
+                .get("upper")
+                .and_then(Value::as_str)
+                .ok_or_else(|| "x-rkaf-order entry requires string upper".to_string())?;
+            Ok(OrderConstraint {
+                lower: lower.into(),
+                upper: upper.into(),
+            })
+        })
+        .collect()
 }
 
 impl Default for Validator {
@@ -194,5 +251,41 @@ mod tests {
             errs.iter().filter(|e| e.type_iri == "rkaf:Warrant").count(),
             1
         );
+    }
+
+    #[test]
+    fn reversed_comment_period_fails() {
+        let validator = Validator::new();
+        let period = json!({
+            "@type": "rkaf:CommentPeriod",
+            "rkaf:commentPeriodFor": "urn:rkaf:fixture:proceeding:2060-AV16",
+            "rkaf:commentPeriodStart": "2022-02-01",
+            "rkaf:commentPeriodEnd": "2022-01-31",
+            "prov:wasDerivedFrom": ["urn:rkaf:fixture:evidence:reversed"]
+        });
+
+        let errors = validator.validate(&period).unwrap_err();
+        assert!(errors.iter().any(|error| {
+            error
+                .message
+                .contains("commentPeriodStart must be less than or equal")
+        }));
+    }
+
+    #[test]
+    fn malformed_comment_period_date_fails() {
+        let validator = Validator::new();
+        let period = json!({
+            "@type": "rkaf:CommentPeriod",
+            "rkaf:commentPeriodFor": "urn:rkaf:fixture:proceeding:2060-AV16",
+            "rkaf:commentPeriodStart": "2022-13-40",
+            "rkaf:commentPeriodEnd": "2022-13-41",
+            "prov:wasDerivedFrom": ["urn:rkaf:fixture:evidence:malformed-date"]
+        });
+
+        let errors = validator.validate(&period).unwrap_err();
+        assert!(errors
+            .iter()
+            .any(|error| error.message.contains("is not a \"date\"")));
     }
 }

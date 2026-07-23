@@ -4,36 +4,50 @@
 
 use serde::{Deserialize, Serialize};
 
+/// Closed Rulespec values for `ConflictSeverity`.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum ConflictSeverity {
+    /// Wire value `rkaf:informational`.
     #[serde(rename = "rkaf:informational")]
     Informational,
+    /// Wire value `rkaf:operationalConflict`.
     #[serde(rename = "rkaf:operationalConflict")]
     OperationalConflict,
+    /// Wire value `rkaf:publicationBlocking`.
     #[serde(rename = "rkaf:publicationBlocking")]
     PublicationBlocking,
+    /// Wire value `rkaf:authorityCritical`.
     #[serde(rename = "rkaf:authorityCritical")]
     AuthorityCritical,
 }
 
 use std::collections::BTreeMap;
 
+/// Generated JSON-LD carrier for `RegistryConflict`.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct RegistryConflict {
+    /// JSON-LD resource type.
     #[serde(rename = "@type", default = "RegistryConflict::default_type")]
     pub type_: String,
+    /// Optional JSON-LD resource identifier.
     #[serde(rename = "@id", skip_serializing_if = "Option::is_none", default)]
     pub id: Option<String>,
+    /// JSON-LD property `rkaf:conflictingEntries`.
     #[serde(rename = "rkaf:conflictingEntries")]
     pub conflicting_entries: crate::OneOrMany<serde_json::Value>,
+    /// JSON-LD property `rkaf:severity`.
     #[serde(rename = "rkaf:severity")]
     pub severity: ConflictSeverity,
+    /// JSON-LD property `rkaf:conflictingScope`.
     #[serde(rename = "rkaf:conflictingScope", skip_serializing_if = "Option::is_none", default)]
     pub conflicting_scope: Option<String>,
+    /// JSON-LD property `rkaf:detectedAt`.
     #[serde(rename = "rkaf:detectedAt")]
     pub detected_at: String,
+    /// JSON-LD property `rkaf:detectedBy`.
     #[serde(rename = "rkaf:detectedBy", skip_serializing_if = "Option::is_none", default)]
     pub detected_by: Option<String>,
+    /// Additional JSON-LD properties preserved during round trips.
     #[serde(flatten)]
     pub extra: BTreeMap<String, serde_json::Value>,
 }

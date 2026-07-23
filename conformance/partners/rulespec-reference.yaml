@@ -15,12 +15,12 @@ declared_levels:
 adoption_depth: D3   # reference consumer; this repo IS the reference implementation
 
 test_corpus_run_at: "2026-05-17T06:28:29+00:00"
-test_corpus_commit: "<see git log>"
+test_corpus_version: "<see git log>"
 
 results:
   L1: pass
   L2: pass     # rkaf-validate: discovered positive fixtures validate and cover every embedded schema type.
-  L3: pass     # tools/ci_validate.py: 50 positive fixtures across 40 SHACL shape files, 0 violations; 109 negatives FAIL-AS-EXPECTED.
+  L3: pass     # tools/ci_validate.py: 61 positive fixtures across 41 SHACL shape files, 0 violations; 132 negatives FAIL-AS-EXPECTED.
   L4: pass     # rkaf-behavior-validate: 45 behavior fixtures cover reducer, cascade, PIT, concept resolution, and all 10 bridge rules.
 
 notes: |
@@ -28,11 +28,11 @@ notes: |
   CUE source-of-truth compiles to JSON Schema + SHACL + Rust; rkaf-validate
   discovers and embeds every compiled class schema; tools/ci_validate.py and
   tools/validate_negatives.py discover the current fixture and shape corpora.
-  tools/conformance_report.py evaluated 238 fixtures with 0 divergences.
+  tools/conformance_report.py evaluated 276 fixtures with 0 divergences.
   tools/l0_l3_coverage_audit.py verifies L0 vocabulary/source coverage,
   L1 JSON-LD parse coverage, L2 positive/negative type coverage, all
-  97 required-field negative slots, and L3 edge coverage across
-  all 32 compiled schema classes.
+  108 required-field negative slots, and L3 edge coverage across
+  all 35 compiled schema classes.
 
   L4 behavioral conformance is enforced by crates/rkaf-runtime and
   rkaf-behavior-validate against the 45 fixtures under fixtures/behavior/.

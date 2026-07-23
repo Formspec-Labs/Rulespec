@@ -4,64 +4,91 @@
 
 use serde::{Deserialize, Serialize};
 
+/// Closed Rulespec values for `FindingKind`.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum FindingKind {
+    /// Wire value `rkaf:warning`.
     #[serde(rename = "rkaf:warning")]
     Warning,
+    /// Wire value `rkaf:error`.
     #[serde(rename = "rkaf:error")]
     Error,
+    /// Wire value `rkaf:staleDependency`.
     #[serde(rename = "rkaf:staleDependency")]
     StaleDependency,
+    /// Wire value `rkaf:registryUnavailable`.
     #[serde(rename = "rkaf:registryUnavailable")]
     RegistryUnavailable,
+    /// Wire value `rkaf:registryVersionOutOfRange`.
     #[serde(rename = "rkaf:registryVersionOutOfRange")]
     RegistryVersionOutOfRange,
+    /// Wire value `rkaf:conceptConflict`.
     #[serde(rename = "rkaf:conceptConflict")]
     ConceptConflict,
+    /// Wire value `rkaf:authorityBroken`.
     #[serde(rename = "rkaf:authorityBroken")]
     AuthorityBroken,
+    /// Wire value `rkaf:unsupportedAnchor`.
     #[serde(rename = "rkaf:unsupportedAnchor")]
     UnsupportedAnchor,
+    /// Wire value `rkaf:other`.
     #[serde(rename = "rkaf:other")]
     Other,
 }
 
+/// Closed Rulespec values for `FindingSeverity`.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum FindingSeverity {
+    /// Wire value `rkaf:informational`.
     #[serde(rename = "rkaf:informational")]
     Informational,
+    /// Wire value `rkaf:operationalConflict`.
     #[serde(rename = "rkaf:operationalConflict")]
     OperationalConflict,
+    /// Wire value `rkaf:publicationBlocking`.
     #[serde(rename = "rkaf:publicationBlocking")]
     PublicationBlocking,
+    /// Wire value `rkaf:authorityCritical`.
     #[serde(rename = "rkaf:authorityCritical")]
     AuthorityCritical,
 }
 
 use std::collections::BTreeMap;
 
+/// Generated JSON-LD carrier for `Finding`.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Finding {
+    /// JSON-LD resource type.
     #[serde(rename = "@type", default = "Finding::default_type")]
     pub type_: String,
+    /// Optional JSON-LD resource identifier.
     #[serde(rename = "@id", skip_serializing_if = "Option::is_none", default)]
     pub id: Option<String>,
+    /// JSON-LD property `rkaf:findingKind`.
     #[serde(rename = "rkaf:findingKind")]
     pub finding_kind: FindingKind,
+    /// JSON-LD property `rkaf:detectedAt`.
     #[serde(rename = "rkaf:detectedAt")]
     pub detected_at: String,
+    /// JSON-LD property `rkaf:detectedBy`.
     #[serde(rename = "rkaf:detectedBy")]
     pub detected_by: String,
+    /// JSON-LD property `rkaf:subject`.
     #[serde(rename = "rkaf:subject")]
     pub subject: String,
+    /// JSON-LD property `rkaf:severity`.
     #[serde(rename = "rkaf:severity", skip_serializing_if = "Option::is_none", default)]
     pub severity: Option<FindingSeverity>,
+    /// JSON-LD property `rkaf:rationale`.
     #[serde(rename = "rkaf:rationale", skip_serializing_if = "Option::is_none", default)]
     pub rationale: Option<String>,
+    /// JSON-LD property `rkaf:lastVerifiedAt`.
     #[serde(rename = "rkaf:lastVerifiedAt", skip_serializing_if = "Option::is_none", default)]
     pub last_verified_at: Option<String>,
+    /// JSON-LD property `rkaf:verifiedBy`.
     #[serde(rename = "rkaf:verifiedBy", skip_serializing_if = "Option::is_none", default)]
     pub verified_by: Option<String>,
+    /// Additional JSON-LD properties preserved during round trips.
     #[serde(flatten)]
     pub extra: BTreeMap<String, serde_json::Value>,
 }

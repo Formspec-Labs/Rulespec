@@ -4,48 +4,68 @@
 
 use serde::{Deserialize, Serialize};
 
+/// Closed Rulespec values for `ConceptStatus`.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum ConceptStatus {
+    /// Wire value `rkaf:draft`.
     #[serde(rename = "rkaf:draft")]
     Draft,
+    /// Wire value `rkaf:proposed`.
     #[serde(rename = "rkaf:proposed")]
     Proposed,
+    /// Wire value `rkaf:active`.
     #[serde(rename = "rkaf:active")]
     Active,
+    /// Wire value `rkaf:promoted`.
     #[serde(rename = "rkaf:promoted")]
     Promoted,
+    /// Wire value `rkaf:deprecated`.
     #[serde(rename = "rkaf:deprecated")]
     Deprecated,
+    /// Wire value `rkaf:retired`.
     #[serde(rename = "rkaf:retired")]
     Retired,
+    /// Wire value `rkaf:rejected`.
     #[serde(rename = "rkaf:rejected")]
     Rejected,
 }
 
 use std::collections::BTreeMap;
 
+/// Generated JSON-LD carrier for `RegisteredConcept`.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct RegisteredConcept {
+    /// JSON-LD resource type.
     #[serde(rename = "@type", default = "RegisteredConcept::default_type")]
     pub type_: String,
+    /// Optional JSON-LD resource identifier.
     #[serde(rename = "@id", skip_serializing_if = "Option::is_none", default)]
     pub id: Option<String>,
+    /// JSON-LD property `skos:prefLabel`.
     #[serde(rename = "skos:prefLabel")]
     pub pref_label: String,
+    /// JSON-LD property `rkaf:managedByRegistry`.
     #[serde(rename = "rkaf:managedByRegistry")]
     pub managed_by_registry: String,
+    /// JSON-LD property `rkaf:conceptScope`.
     #[serde(rename = "rkaf:conceptScope")]
     pub concept_scope: String,
+    /// JSON-LD property `rkaf:conceptStatus`.
     #[serde(rename = "rkaf:conceptStatus")]
     pub concept_status: ConceptStatus,
+    /// JSON-LD property `skos:altLabel`.
     #[serde(rename = "skos:altLabel", skip_serializing_if = "Option::is_none", default)]
     pub alt_label: Option<crate::OneOrMany<String>>,
+    /// JSON-LD property `skos:broader`.
     #[serde(rename = "skos:broader", skip_serializing_if = "Option::is_none", default)]
     pub broader: Option<String>,
+    /// JSON-LD property `skos:narrower`.
     #[serde(rename = "skos:narrower", skip_serializing_if = "Option::is_none", default)]
     pub narrower: Option<crate::OneOrMany<String>>,
+    /// JSON-LD property `skos:related`.
     #[serde(rename = "skos:related", skip_serializing_if = "Option::is_none", default)]
     pub related: Option<crate::OneOrMany<String>>,
+    /// Additional JSON-LD properties preserved during round trips.
     #[serde(flatten)]
     pub extra: BTreeMap<String, serde_json::Value>,
 }
@@ -54,28 +74,40 @@ impl RegisteredConcept {
     fn default_type() -> String { "rkaf:RegisteredConcept".into() }
 }
 
+/// Generated JSON-LD carrier for `LocalConcept`.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct LocalConcept {
+    /// JSON-LD resource type.
     #[serde(rename = "@type", default = "LocalConcept::default_type")]
     pub type_: String,
+    /// Optional JSON-LD resource identifier.
     #[serde(rename = "@id", skip_serializing_if = "Option::is_none", default)]
     pub id: Option<String>,
+    /// JSON-LD property `skos:prefLabel`.
     #[serde(rename = "skos:prefLabel")]
     pub pref_label: String,
+    /// JSON-LD property `rkaf:definedInScope`.
     #[serde(rename = "rkaf:definedInScope")]
     pub defined_in_scope: String,
+    /// JSON-LD property `rkaf:conceptScope`.
     #[serde(rename = "rkaf:conceptScope")]
     pub concept_scope: String,
+    /// JSON-LD property `rkaf:conceptStatus`.
     #[serde(rename = "rkaf:conceptStatus")]
     pub concept_status: ConceptStatus,
+    /// JSON-LD property `skos:altLabel`.
     #[serde(rename = "skos:altLabel", skip_serializing_if = "Option::is_none", default)]
     pub alt_label: Option<crate::OneOrMany<String>>,
+    /// JSON-LD property `skos:broader`.
     #[serde(rename = "skos:broader", skip_serializing_if = "Option::is_none", default)]
     pub broader: Option<String>,
+    /// JSON-LD property `skos:narrower`.
     #[serde(rename = "skos:narrower", skip_serializing_if = "Option::is_none", default)]
     pub narrower: Option<crate::OneOrMany<String>>,
+    /// JSON-LD property `skos:related`.
     #[serde(rename = "skos:related", skip_serializing_if = "Option::is_none", default)]
     pub related: Option<crate::OneOrMany<String>>,
+    /// Additional JSON-LD properties preserved during round trips.
     #[serde(flatten)]
     pub extra: BTreeMap<String, serde_json::Value>,
 }

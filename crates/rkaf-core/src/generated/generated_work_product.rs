@@ -4,34 +4,47 @@
 
 use serde::{Deserialize, Serialize};
 
+/// Closed Rulespec values for `ConsumerLifecycleState`.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum ConsumerLifecycleState {
+    /// Wire value `rkaf:draft`.
     #[serde(rename = "rkaf:draft")]
     Draft,
+    /// Wire value `rkaf:proposedForOperational`.
     #[serde(rename = "rkaf:proposedForOperational")]
     ProposedForOperational,
+    /// Wire value `rkaf:operational`.
     #[serde(rename = "rkaf:operational")]
     Operational,
+    /// Wire value `rkaf:staleForCurrentUse`.
     #[serde(rename = "rkaf:staleForCurrentUse")]
     StaleForCurrentUse,
+    /// Wire value `rkaf:published`.
     #[serde(rename = "rkaf:published")]
     Published,
 }
 
 use std::collections::BTreeMap;
 
+/// Generated JSON-LD carrier for `GeneratedWorkProduct`.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct GeneratedWorkProduct {
+    /// JSON-LD resource type.
     #[serde(rename = "@type", default = "GeneratedWorkProduct::default_type")]
     pub type_: String,
+    /// Optional JSON-LD resource identifier.
     #[serde(rename = "@id", skip_serializing_if = "Option::is_none", default)]
     pub id: Option<String>,
+    /// JSON-LD property `rkaf:justifiedByAssertion`.
     #[serde(rename = "rkaf:justifiedByAssertion")]
     pub justified_by_assertion: String,
+    /// JSON-LD property `rkaf:consumerLifecycleState`.
     #[serde(rename = "rkaf:consumerLifecycleState", skip_serializing_if = "Option::is_none", default)]
     pub consumer_lifecycle_state: Option<ConsumerLifecycleState>,
+    /// JSON-LD property `rkaf:proposedUsageEligibility`.
     #[serde(rename = "rkaf:proposedUsageEligibility", skip_serializing_if = "Option::is_none", default)]
     pub proposed_usage_eligibility: Option<String>,
+    /// Additional JSON-LD properties preserved during round trips.
     #[serde(flatten)]
     pub extra: BTreeMap<String, serde_json::Value>,
 }

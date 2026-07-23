@@ -4,46 +4,65 @@
 
 use serde::{Deserialize, Serialize};
 
+/// Closed Rulespec values for `LocalAdoptionAuthorityKind`.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum LocalAdoptionAuthorityKind {
+    /// Wire value `rkaf:organizational`.
     #[serde(rename = "rkaf:organizational")]
     Organizational,
+    /// Wire value `rkaf:localOperational`.
     #[serde(rename = "rkaf:localOperational")]
     LocalOperational,
+    /// Wire value `rkaf:contractual`.
     #[serde(rename = "rkaf:contractual")]
     Contractual,
+    /// Wire value `rkaf:publication`.
     #[serde(rename = "rkaf:publication")]
     Publication,
 }
 
 use std::collections::BTreeMap;
 
+/// Generated JSON-LD carrier for `LocalAdoption`.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct LocalAdoption {
+    /// JSON-LD resource type.
     #[serde(rename = "@type", default = "LocalAdoption::default_type")]
     pub type_: String,
+    /// Optional JSON-LD resource identifier.
     #[serde(rename = "@id", skip_serializing_if = "Option::is_none", default)]
     pub id: Option<String>,
+    /// JSON-LD property `rkaf:organization`.
     #[serde(rename = "rkaf:organization")]
     pub organization: String,
+    /// JSON-LD property `rkaf:targetAssertion`.
     #[serde(rename = "rkaf:targetAssertion")]
     pub target_assertion: String,
+    /// JSON-LD property `rkaf:adoptionStatus`.
     #[serde(rename = "rkaf:adoptionStatus")]
     pub adoption_status: String,
+    /// JSON-LD property `rkaf:usageEligibility`.
     #[serde(rename = "rkaf:usageEligibility")]
     pub usage_eligibility: crate::generated::usage_eligibility::UsageEligibility,
+    /// JSON-LD property `rkaf:adoptionAuthorityKind`.
     #[serde(rename = "rkaf:adoptionAuthorityKind")]
     pub adoption_authority_kind: LocalAdoptionAuthorityKind,
+    /// JSON-LD property `rkaf:adoptionScope`.
     #[serde(rename = "rkaf:adoptionScope")]
     pub adoption_scope: String,
+    /// JSON-LD property `rkaf:authorizedBy`.
     #[serde(rename = "rkaf:authorizedBy")]
     pub authorized_by: String,
+    /// JSON-LD property `rkaf:adoptedAt`.
     #[serde(rename = "rkaf:adoptedAt")]
     pub adopted_at: String,
+    /// JSON-LD property `rkaf:adoptsApplicability`.
     #[serde(rename = "rkaf:adoptsApplicability", skip_serializing_if = "Option::is_none", default)]
     pub adopts_applicability: Option<String>,
+    /// JSON-LD property `rkaf:basedOnAttestation`.
     #[serde(rename = "rkaf:basedOnAttestation", skip_serializing_if = "Option::is_none", default)]
     pub based_on_attestation: Option<String>,
+    /// Additional JSON-LD properties preserved during round trips.
     #[serde(flatten)]
     pub extra: BTreeMap<String, serde_json::Value>,
 }

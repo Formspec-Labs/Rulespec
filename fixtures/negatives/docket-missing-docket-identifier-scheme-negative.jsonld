@@ -1,0 +1,6 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@id": "urn:rkaf:fixture:negative:docket-missing-docket-identifier-scheme",
+  "@type": "rkaf:Docket",
+  "rkaf:hasDocketIdentifier": "urn:partner:docket:legacy-123"
+}

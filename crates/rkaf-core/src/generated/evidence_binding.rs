@@ -4,32 +4,44 @@
 
 use serde::{Deserialize, Serialize};
 
+/// Closed Rulespec values for `NoEvidenceReason`.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum NoEvidenceReason {
+    /// Wire value `rkaf:axiomatic`.
     #[serde(rename = "rkaf:axiomatic")]
     Axiomatic,
+    /// Wire value `rkaf:inferred-from-warrant-class`.
     #[serde(rename = "rkaf:inferred-from-warrant-class")]
     InferredFromWarrantClass,
+    /// Wire value `rkaf:consensus-without-citation`.
     #[serde(rename = "rkaf:consensus-without-citation")]
     ConsensusWithoutCitation,
+    /// Wire value `rkaf:permitted-by-safety-label`.
     #[serde(rename = "rkaf:permitted-by-safety-label")]
     PermittedBySafetyLabel,
 }
 
 use std::collections::BTreeMap;
 
+/// Generated JSON-LD carrier for `EvidenceBinding`.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct EvidenceBinding {
+    /// JSON-LD resource type.
     #[serde(rename = "@type", default = "EvidenceBinding::default_type")]
     pub type_: String,
+    /// Optional JSON-LD resource identifier.
     #[serde(rename = "@id", skip_serializing_if = "Option::is_none", default)]
     pub id: Option<String>,
+    /// JSON-LD property `rkaf:bindsAssertion`.
     #[serde(rename = "rkaf:bindsAssertion")]
     pub binds_assertion: String,
+    /// JSON-LD property `rkaf:lastVerifiedAt`.
     #[serde(rename = "rkaf:lastVerifiedAt", skip_serializing_if = "Option::is_none", default)]
     pub last_verified_at: Option<String>,
+    /// JSON-LD property `rkaf:verifiedBy`.
     #[serde(rename = "rkaf:verifiedBy", skip_serializing_if = "Option::is_none", default)]
     pub verified_by: Option<String>,
+    /// Additional JSON-LD properties preserved during round trips.
     #[serde(flatten)]
     pub extra: BTreeMap<String, serde_json::Value>,
 }

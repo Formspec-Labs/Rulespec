@@ -6,20 +6,28 @@ use serde::{Deserialize, Serialize};
 
 use std::collections::BTreeMap;
 
+/// Generated JSON-LD carrier for `PointInTimeException`.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct PointInTimeException {
+    /// JSON-LD resource type.
     #[serde(rename = "@type", default = "PointInTimeException::default_type")]
     pub type_: String,
+    /// Optional JSON-LD resource identifier.
     #[serde(rename = "@id", skip_serializing_if = "Option::is_none", default)]
     pub id: Option<String>,
+    /// JSON-LD property `rkaf:evaluationAnchor`.
     #[serde(rename = "rkaf:evaluationAnchor")]
     pub evaluation_anchor: crate::generated::evaluation_anchor::EvaluationAnchor,
+    /// JSON-LD property `rkaf:retainsAssertion`.
     #[serde(rename = "rkaf:retainsAssertion", skip_serializing_if = "Option::is_none", default)]
     pub retains_assertion: Option<String>,
+    /// JSON-LD property `rkaf:retainsWorkProduct`.
     #[serde(rename = "rkaf:retainsWorkProduct", skip_serializing_if = "Option::is_none", default)]
     pub retains_work_product: Option<String>,
+    /// JSON-LD property `rkaf:exceptionScope`.
     #[serde(rename = "rkaf:exceptionScope", skip_serializing_if = "Option::is_none", default)]
     pub exception_scope: Option<String>,
+    /// Additional JSON-LD properties preserved during round trips.
     #[serde(flatten)]
     pub extra: BTreeMap<String, serde_json::Value>,
 }

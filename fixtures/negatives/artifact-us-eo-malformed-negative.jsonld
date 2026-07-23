@@ -2,6 +2,8 @@
   "@context": "../../context/rkaf-context.jsonld",
   "@id": "urn:rkaf:fixture:negative:artifact-us-eo",
   "@type": "rkaf:Artifact",
-  "rkaf:hasArtifactIdentifier": "urn:rkaf:us:eo:014094",
-  "rkaf:artifactIdentifierScheme": "rkaf:us-eo"
+  "rkaf:hasArtifactIdentifier": "urn:rkaf:fixture:snapshot:artifact-us-eo",
+  "rkaf:artifactIdentifierScheme": "rkaf:partner-defined",
+  "rkaf:hasRegulatoryIdentifier": "urn:rkaf:us:eo:014094",
+  "rkaf:regulatoryIdentifierScheme": "rkaf:us-eo"
 }

@@ -6,20 +6,28 @@ use serde::{Deserialize, Serialize};
 
 use std::collections::BTreeMap;
 
+/// Generated JSON-LD carrier for `EffectivePeriod`.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct EffectivePeriod {
+    /// JSON-LD resource type.
     #[serde(rename = "@type", default = "EffectivePeriod::default_type")]
     pub type_: String,
+    /// Optional JSON-LD resource identifier.
     #[serde(rename = "@id", skip_serializing_if = "Option::is_none", default)]
     pub id: Option<String>,
+    /// JSON-LD property `rkaf:effectivePeriodStart`.
     #[serde(rename = "rkaf:effectivePeriodStart")]
     pub effective_period_start: String,
+    /// JSON-LD property `rkaf:effectivePeriodEnd`.
     #[serde(rename = "rkaf:effectivePeriodEnd", skip_serializing_if = "Option::is_none", default)]
     pub effective_period_end: Option<String>,
+    /// JSON-LD property `rkaf:retroactiveFrom`.
     #[serde(rename = "rkaf:retroactiveFrom", skip_serializing_if = "Option::is_none", default)]
     pub retroactive_from: Option<String>,
+    /// JSON-LD property `rkaf:sunsetAt`.
     #[serde(rename = "rkaf:sunsetAt", skip_serializing_if = "Option::is_none", default)]
     pub sunset_at: Option<String>,
+    /// Additional JSON-LD properties preserved during round trips.
     #[serde(flatten)]
     pub extra: BTreeMap<String, serde_json::Value>,
 }

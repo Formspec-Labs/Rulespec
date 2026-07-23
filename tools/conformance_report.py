@@ -365,7 +365,7 @@ declared_levels:
 adoption_depth: D3   # reference consumer; this repo IS the reference implementation
 
 test_corpus_run_at: "{ran_at.isoformat()}"
-test_corpus_commit: "<see git log>"
+test_corpus_version: "<see git log>"
 
 results:
   L0: not-claimed

@@ -6,32 +6,46 @@ use serde::{Deserialize, Serialize};
 
 use std::collections::BTreeMap;
 
+/// Generated JSON-LD carrier for `BridgeConsumerRegistration`.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct BridgeConsumerRegistration {
+    /// JSON-LD resource type.
     #[serde(rename = "@type", default = "BridgeConsumerRegistration::default_type")]
     pub type_: String,
+    /// Optional JSON-LD resource identifier.
     #[serde(rename = "@id", skip_serializing_if = "Option::is_none", default)]
     pub id: Option<String>,
+    /// JSON-LD property `rkaf:consumer`.
     #[serde(rename = "rkaf:consumer")]
     pub consumer: String,
+    /// JSON-LD property `rkaf:bridgeContractVersion`.
     #[serde(rename = "rkaf:bridgeContractVersion")]
     pub bridge_contract_version: String,
+    /// JSON-LD property `rkaf:registeredAt`.
     #[serde(rename = "rkaf:registeredAt")]
     pub registered_at: String,
+    /// JSON-LD property `rkaf:supportedEvaluationAnchors`.
     #[serde(rename = "rkaf:supportedEvaluationAnchors")]
     pub supported_evaluation_anchors: crate::OneOrMany<String>,
+    /// JSON-LD property `rkaf:supportsRegistryVersionRange`.
     #[serde(rename = "rkaf:supportsRegistryVersionRange")]
     pub supports_registry_version_range: crate::OneOrMany<String>,
+    /// JSON-LD property `rkaf:supportedAutomaticMigrations`.
     #[serde(rename = "rkaf:supportedAutomaticMigrations")]
     pub supported_automatic_migrations: crate::OneOrMany<String>,
+    /// JSON-LD property `rkaf:supportedAuthorityKinds`.
     #[serde(rename = "rkaf:supportedAuthorityKinds")]
     pub supported_authority_kinds: crate::OneOrMany<crate::generated::authority::AuthorityKind>,
+    /// JSON-LD property `rkaf:capabilityCap`.
     #[serde(rename = "rkaf:capabilityCap", skip_serializing_if = "Option::is_none", default)]
     pub capability_cap: Option<crate::generated::usage_eligibility::UsageEligibility>,
+    /// JSON-LD property `rkaf:trustedRegistries`.
     #[serde(rename = "rkaf:trustedRegistries", skip_serializing_if = "Option::is_none", default)]
     pub trusted_registries: Option<crate::OneOrMany<String>>,
+    /// JSON-LD property `rkaf:maxAttestationStalenessDays`.
     #[serde(rename = "rkaf:maxAttestationStalenessDays", skip_serializing_if = "Option::is_none", default)]
     pub max_attestation_staleness_days: Option<i64>,
+    /// Additional JSON-LD properties preserved during round trips.
     #[serde(flatten)]
     pub extra: BTreeMap<String, serde_json::Value>,
 }

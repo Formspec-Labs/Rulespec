@@ -4,42 +4,59 @@
 
 use serde::{Deserialize, Serialize};
 
+/// Closed Rulespec values for `AuthorityKind`.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum AuthorityKind {
+    /// Wire value `rkaf:legal`.
     #[serde(rename = "rkaf:legal")]
     Legal,
+    /// Wire value `rkaf:statutory`.
     #[serde(rename = "rkaf:statutory")]
     Statutory,
+    /// Wire value `rkaf:regulatory`.
     #[serde(rename = "rkaf:regulatory")]
     Regulatory,
+    /// Wire value `rkaf:delegated`.
     #[serde(rename = "rkaf:delegated")]
     Delegated,
+    /// Wire value `rkaf:organizational`.
     #[serde(rename = "rkaf:organizational")]
     Organizational,
+    /// Wire value `rkaf:contractual`.
     #[serde(rename = "rkaf:contractual")]
     Contractual,
+    /// Wire value `rkaf:localOperational`.
     #[serde(rename = "rkaf:localOperational")]
     LocalOperational,
+    /// Wire value `rkaf:publication`.
     #[serde(rename = "rkaf:publication")]
     Publication,
 }
 
 use std::collections::BTreeMap;
 
+/// Generated JSON-LD carrier for `Authority`.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Authority {
+    /// JSON-LD resource type.
     #[serde(rename = "@type", default = "Authority::default_type")]
     pub type_: String,
+    /// Optional JSON-LD resource identifier.
     #[serde(rename = "@id", skip_serializing_if = "Option::is_none", default)]
     pub id: Option<String>,
+    /// JSON-LD property `rkaf:authorityKind`.
     #[serde(rename = "rkaf:authorityKind")]
     pub authority_kind: AuthorityKind,
+    /// JSON-LD property `rkaf:hasApplicability`.
     #[serde(rename = "rkaf:hasApplicability", skip_serializing_if = "Option::is_none", default)]
     pub has_applicability: Option<String>,
+    /// JSON-LD property `rkaf:hasEffectivePeriod`.
     #[serde(rename = "rkaf:hasEffectivePeriod", skip_serializing_if = "Option::is_none", default)]
     pub has_effective_period: Option<String>,
+    /// JSON-LD property `rkaf:derivesAuthorityFrom`.
     #[serde(rename = "rkaf:derivesAuthorityFrom", skip_serializing_if = "Option::is_none", default)]
     pub derives_authority_from: Option<crate::OneOrMany<String>>,
+    /// Additional JSON-LD properties preserved during round trips.
     #[serde(flatten)]
     pub extra: BTreeMap<String, serde_json::Value>,
 }

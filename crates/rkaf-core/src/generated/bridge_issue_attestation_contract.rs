@@ -4,32 +4,44 @@
 
 use serde::{Deserialize, Serialize};
 
+/// Closed Rulespec values for `BridgeIssueKind`.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum BridgeIssueKind {
+    /// Wire value `rkaf:staleDep`.
     #[serde(rename = "rkaf:staleDep")]
     StaleDep,
+    /// Wire value `rkaf:unresolvedConcept`.
     #[serde(rename = "rkaf:unresolvedConcept")]
     UnresolvedConcept,
+    /// Wire value `rkaf:brokenAuthority`.
     #[serde(rename = "rkaf:brokenAuthority")]
     BrokenAuthority,
+    /// Wire value `rkaf:unsupportedAnchor`.
     #[serde(rename = "rkaf:unsupportedAnchor")]
     UnsupportedAnchor,
 }
 
 use std::collections::BTreeMap;
 
+/// Generated JSON-LD carrier for `BridgeIssueAttestationContract`.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct BridgeIssueAttestationContract {
+    /// JSON-LD resource type.
     #[serde(rename = "@type", default = "BridgeIssueAttestationContract::default_type")]
     pub type_: String,
+    /// Optional JSON-LD resource identifier.
     #[serde(rename = "@id", skip_serializing_if = "Option::is_none", default)]
     pub id: Option<String>,
+    /// JSON-LD property `rkaf:consumer`.
     #[serde(rename = "rkaf:consumer")]
     pub consumer: String,
+    /// JSON-LD property `rkaf:attestedIssueKinds`.
     #[serde(rename = "rkaf:attestedIssueKinds")]
     pub attested_issue_kinds: crate::OneOrMany<BridgeIssueKind>,
+    /// JSON-LD property `rkaf:contractVersion`.
     #[serde(rename = "rkaf:contractVersion")]
     pub contract_version: String,
+    /// Additional JSON-LD properties preserved during round trips.
     #[serde(flatten)]
     pub extra: BTreeMap<String, serde_json::Value>,
 }

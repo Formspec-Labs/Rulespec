@@ -2,9 +2,10 @@
   "@context": "../context/rkaf-context.jsonld",
   "@id": "urn:rkaf:fixture:proceeding:2060-AV16",
   "@type": "rkaf:Proceeding",
-  "rkaf:hasArtifactIdentifier": "urn:rkaf:us:rin:2060-AV16",
-  "rkaf:artifactIdentifierScheme": "rkaf:us-rin",
+  "rkaf:hasProceedingIdentifier": "urn:rkaf:us:rin:2060-AV16",
+  "rkaf:proceedingIdentifierScheme": "rkaf:us-rin",
   "rkaf:proceedingStage": "rkaf:final",
   "rkaf:hasAuthority": "urn:rkaf:fixture:authority:clean-air-act-111",
+  "rkaf:hasDocket": "urn:rkaf:fixture:docket:regsgov",
   "rkaf:proceedingAffects": "urn:rkaf:fixture:artifact:cfr-40-60"
 }

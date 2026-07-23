@@ -6,22 +6,31 @@ use serde::{Deserialize, Serialize};
 
 use std::collections::BTreeMap;
 
+/// Generated JSON-LD carrier for `ConsumerEffectiveDeclaration`.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct ConsumerEffectiveDeclaration {
+    /// JSON-LD resource type.
     #[serde(rename = "@type", default = "ConsumerEffectiveDeclaration::default_type")]
     pub type_: String,
+    /// Optional JSON-LD resource identifier.
     #[serde(rename = "@id", skip_serializing_if = "Option::is_none", default)]
     pub id: Option<String>,
+    /// JSON-LD property `rkaf:consumer`.
     #[serde(rename = "rkaf:consumer")]
     pub consumer: String,
+    /// JSON-LD property `rkaf:forAssertion`.
     #[serde(rename = "rkaf:forAssertion")]
     pub for_assertion: String,
+    /// JSON-LD property `rkaf:declaredEffective`.
     #[serde(rename = "rkaf:declaredEffective")]
     pub declared_effective: crate::generated::usage_eligibility::UsageEligibility,
+    /// JSON-LD property `rkaf:declaredScope`.
     #[serde(rename = "rkaf:declaredScope", skip_serializing_if = "Option::is_none", default)]
     pub declared_scope: Option<String>,
+    /// JSON-LD property `rkaf:declaredAt`.
     #[serde(rename = "rkaf:declaredAt")]
     pub declared_at: String,
+    /// Additional JSON-LD properties preserved during round trips.
     #[serde(flatten)]
     pub extra: BTreeMap<String, serde_json::Value>,
 }

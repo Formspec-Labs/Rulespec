@@ -2,7 +2,7 @@
   "@context": "../../context/rkaf-context.jsonld",
   "@id": "urn:rkaf:fixture:negative:proceeding-missing-identifier",
   "@type": "rkaf:Proceeding",
-  "rkaf:artifactIdentifierScheme": "rkaf:us-rin",
+  "rkaf:proceedingIdentifierScheme": "rkaf:us-rin",
   "rkaf:proceedingStage": "rkaf:proposed",
   "rkaf:hasAuthority": "urn:rkaf:fixture:authority:clean-air-act-111"
 }

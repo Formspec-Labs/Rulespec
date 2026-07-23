@@ -1,12 +1,9 @@
 {
   "@context": "../context/rkaf-context.jsonld",
-  "@id": "urn:rkaf:fixture:artifact:regsgov-docket",
+  "@id": "urn:rkaf:fixture:artifact:regsgov-document",
   "@type": "rkaf:Artifact",
-  "rkaf:hasArtifactIdentifier": [
-    "urn:rkaf:us:regsgov:EPA-HQ-OAR-2021-0317",
-    "urn:rkaf:us:regsgov:EPA-HQ-OAR-2021-0317-0086",
-    "urn:rkaf:us:regsgov:EPA-HQ-OAR-2021-0317-0184",
-    "https://www.regulations.gov/docket/EPA-HQ-OAR-2021-0317"
-  ],
-  "rkaf:artifactIdentifierScheme": "rkaf:us-regsgov"
+  "rkaf:hasArtifactIdentifier": "urn:rkaf:fixture:snapshot:regsgov:EPA-HQ-OAR-2021-0317-0184:2026-07-23",
+  "rkaf:artifactIdentifierScheme": "rkaf:partner-defined",
+  "rkaf:hasRegulatoryIdentifier": "urn:rkaf:us:regsgov:EPA-HQ-OAR-2021-0317-0184",
+  "rkaf:regulatoryIdentifierScheme": "rkaf:us-regsgov"
 }

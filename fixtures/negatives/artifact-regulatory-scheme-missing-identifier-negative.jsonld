@@ -1,9 +1,8 @@
 {
   "@context": "../../context/rkaf-context.jsonld",
-  "@id": "urn:rkaf:fixture:negative:artifact-us-cfr",
+  "@id": "urn:rkaf:fixture:negative:artifact-regulatory-scheme-missing-identifier",
   "@type": "rkaf:Artifact",
-  "rkaf:hasArtifactIdentifier": "urn:rkaf:fixture:snapshot:artifact-us-cfr",
+  "rkaf:hasArtifactIdentifier": "urn:rkaf:fixture:snapshot:artifact-regulatory-scheme-missing-identifier",
   "rkaf:artifactIdentifierScheme": "rkaf:partner-defined",
-  "rkaf:hasRegulatoryIdentifier": "urn:rkaf:us:cfr:040:60.1",
   "rkaf:regulatoryIdentifierScheme": "rkaf:us-cfr"
 }

@@ -4,58 +4,82 @@
 
 use serde::{Deserialize, Serialize};
 
+/// Closed Rulespec values for `AccessScopeKind`.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum AccessScopeKind {
+    /// Wire value `rkaf:public`.
     #[serde(rename = "rkaf:public")]
     Public,
+    /// Wire value `rkaf:partnerVisible`.
     #[serde(rename = "rkaf:partnerVisible")]
     PartnerVisible,
+    /// Wire value `rkaf:organizationVisible`.
     #[serde(rename = "rkaf:organizationVisible")]
     OrganizationVisible,
+    /// Wire value `rkaf:roleRestricted`.
     #[serde(rename = "rkaf:roleRestricted")]
     RoleRestricted,
+    /// Wire value `rkaf:personalRestricted`.
     #[serde(rename = "rkaf:personalRestricted")]
     PersonalRestricted,
+    /// Wire value `rkaf:regulatoryRestricted`.
     #[serde(rename = "rkaf:regulatoryRestricted")]
     RegulatoryRestricted,
+    /// Wire value `rkaf:embargoUntil`.
     #[serde(rename = "rkaf:embargoUntil")]
     EmbargoUntil,
 }
 
+/// Closed Rulespec values for `RegulatoryClass`.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum RegulatoryClass {
+    /// Wire value `rkaf:HIPAA-PHI`.
     #[serde(rename = "rkaf:HIPAA-PHI")]
     HIPAAPHI,
+    /// Wire value `rkaf:GDPR-PII`.
     #[serde(rename = "rkaf:GDPR-PII")]
     GDPRPII,
+    /// Wire value `rkaf:FERPA`.
     #[serde(rename = "rkaf:FERPA")]
     FERPA,
+    /// Wire value `rkaf:CJIS`.
     #[serde(rename = "rkaf:CJIS")]
     CJIS,
+    /// Wire value `rkaf:classified`.
     #[serde(rename = "rkaf:classified")]
     Classified,
+    /// Wire value `rkaf:legally-privileged`.
     #[serde(rename = "rkaf:legally-privileged")]
     LegallyPrivileged,
+    /// Wire value `rkaf:partner-defined`.
     #[serde(rename = "rkaf:partner-defined")]
     PartnerDefined,
 }
 
 use std::collections::BTreeMap;
 
+/// Generated JSON-LD carrier for `AccessScope`.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct AccessScope {
+    /// JSON-LD resource type.
     #[serde(rename = "@type", default = "AccessScope::default_type")]
     pub type_: String,
+    /// Optional JSON-LD resource identifier.
     #[serde(rename = "@id", skip_serializing_if = "Option::is_none", default)]
     pub id: Option<String>,
+    /// JSON-LD property `rkaf:accessScopeKind`.
     #[serde(rename = "rkaf:accessScopeKind")]
     pub access_scope_kind: AccessScopeKind,
+    /// JSON-LD property `dpv:hasPersonalDataCategory`.
     #[serde(rename = "dpv:hasPersonalDataCategory", skip_serializing_if = "Option::is_none", default)]
     pub has_personal_data_category: Option<crate::OneOrMany<String>>,
+    /// JSON-LD property `dpv:hasLegalBasis`.
     #[serde(rename = "dpv:hasLegalBasis", skip_serializing_if = "Option::is_none", default)]
     pub has_legal_basis: Option<String>,
+    /// JSON-LD property `dpv:hasPurpose`.
     #[serde(rename = "dpv:hasPurpose", skip_serializing_if = "Option::is_none", default)]
     pub has_purpose: Option<String>,
+    /// Additional JSON-LD properties preserved during round trips.
     #[serde(flatten)]
     pub extra: BTreeMap<String, serde_json::Value>,
 }

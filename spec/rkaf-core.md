@@ -44,7 +44,7 @@ Every enum defined in this spec is **closed within a release**. Extending an enu
 
 The closed enums introduced by v0.2 are:
 
-- `rkaf:artifactIdentifierScheme` (§4.1)
+- `rkaf:artifactIdentifierScheme` and `rkaf:regulatoryIdentifierScheme` (§4.1)
 - `rkaf:selectorKind` (§4.2)
 - `rkaf:noEvidenceReason` (§4.3)
 - `rkaf:warrantKind` and `rkaf:warrantFamily` (§4.4)
@@ -53,7 +53,10 @@ The closed enums introduced by v0.2 are:
 - `rkaf:mappingState` (§5.1)
 - `rkaf:retentionTrigger` and `rkaf:retentionPostExpiry` (§5.2)
 
-The experimental US rulemaking module adds `rkaf:proceedingStage`; see `spec/rkaf-rulemaking.md`. Its values follow the same release-bound closed-taxonomy discipline.
+The experimental US rulemaking module adds
+`rkaf:proceedingIdentifierScheme`, `rkaf:docketIdentifierScheme`, and
+`rkaf:proceedingStage`; see `spec/rkaf-rulemaking.md`. Their values follow the
+same release-bound closed-taxonomy discipline.
 
 The closed enums inherited from v0.1 retain their definitions: `rkaf:assertionOrigin`, `rkaf:hasSafetyLabel`, `rkaf:hasTrustZone`, `rkaf:usageEligibility`, `rkaf:authorityKind`, `rkaf:adoptionAuthorityKind`, `rkaf:adoptionStatus`, `rkaf:result`, `rkaf:resolutionStatus`, `rkaf:resolutionMethod`, `rkaf:cacheStatus`, `rkaf:usageCeiling`, `rkaf:cascadeAlgorithm`, `rkaf:evidenceRole`, `rkaf:severity`, `rkaf:decision`, `rkaf:visibility`, `rkaf:lifecycleEvent`.
 
@@ -64,28 +67,62 @@ The closed enums inherited from v0.1 retain their definitions: `rkaf:assertionOr
 **rkaf:Artifact** — an immutable, addressable unit of source material.
 
 Required properties:
-- `rkaf:hasArtifactIdentifier` (1..*) — at least one content-addressable or persistent-URI identifier. Each declared scheme MUST have at least one identifier value conforming to that scheme.
-- `rkaf:artifactIdentifierScheme` (1..*) — closed enum: `rkaf:eli`, `rkaf:eli-dl`, `rkaf:eli-i`, `rkaf:uslm`, `rkaf:aknt-eId`, `rkaf:doi`, `rkaf:isbn`, `rkaf:issn`, `rkaf:cid`, `rkaf:hash-sha256`, `rkaf:urn-persistent`, `rkaf:partner-defined`, `rkaf:us-cfr`, `rkaf:us-usc`, `rkaf:us-rin`, `rkaf:us-frdoc`, `rkaf:us-regsgov`, `rkaf:us-pl`, `rkaf:us-eo`.
+- `rkaf:hasArtifactIdentifier` (1..*) — at least one identifier for the
+  immutable resource itself.
+- `rkaf:artifactIdentifierScheme` (1..*) — closed enum:
+  `rkaf:eli`, `rkaf:eli-dl`, `rkaf:eli-i`, `rkaf:uslm`,
+  `rkaf:aknt-eId`, `rkaf:doi`, `rkaf:isbn`, `rkaf:issn`, `rkaf:cid`,
+  `rkaf:hash-sha256`, `rkaf:urn-persistent`, `rkaf:partner-defined`.
 
-Citing an Artifact by mutable URL alone is non-conformant. JSON Schema enforces scheme registration; the SHACL identifier shapes enforce the canonical US forms.
+An Artifact identifier MUST resolve to, or be derived from, one immutable
+edition, publication, snapshot, or content payload. Examples include a
+content hash, an edition-scoped GovInfo package or granule URL, a permanent
+Federal Register document URL, and a producer-scoped snapshot URN. A current
+eCFR URL, an unversioned U.S. Code locator, or a citation such as “40 CFR
+60.1” does not establish Artifact identity.
 
-The US schemes use these canonical forms:
+An Artifact MAY also carry one US regulatory citation or agency identifier:
+
+- `rkaf:hasRegulatoryIdentifier` (0..1) — canonical identifier IRI from the
+  table below.
+- `rkaf:regulatoryIdentifierScheme` (0..1) — corresponding value from the
+  closed US regulatory-identifier enum.
+
+These properties MUST occur together. They identify the cited legal or
+administrative resource independently of the immutable Artifact edition.
+They never satisfy the required `rkaf:hasArtifactIdentifier` /
+`rkaf:artifactIdentifierScheme` pair.
+
+The US regulatory schemes use these canonical forms:
 
 | Scheme | Identifies | Canonical form and normalization |
 |---|---|---|
 | `rkaf:us-cfr` | A CFR part or section | `urn:rkaf:us:cfr:<title>:<part>[.<section>]`, for example `urn:rkaf:us:cfr:40:60` or `urn:rkaf:us:cfr:40:60.1`. Title, part, and section components are decimal digits without spaces; title has no leading zero. Subparts are outside this identifier grammar. |
 | `rkaf:us-usc` | A U.S. Code section | `urn:rkaf:us:usc:<title>:<section>`, for example `urn:rkaf:us:usc:42:7411`. Omit subsection parentheses. Preserve internal hyphens and normalize alphabetic suffixes to lowercase. |
-| `rkaf:us-rin` | A rulemaking proceeding | `urn:rkaf:us:rin:<RIN>`, for example `urn:rkaf:us:rin:2060-AV16`. A RIN is four digits, a hyphen, two uppercase letters, and two digits. It identifies a `rkaf:Proceeding`, not a Federal Register document. |
-| `rkaf:us-frdoc` | A Federal Register document | `urn:rkaf:us:frdoc:<document-number>`, for example `urn:rkaf:us:frdoc:2024-00366`. The document number is a four-digit year, a hyphen, and a five-digit sequence. |
-| `rkaf:us-regsgov` | A regulations.gov docket, document, or comment | `urn:rkaf:us:regsgov:<agency-issued-id>`, for example `urn:rkaf:us:regsgov:EPA-HQ-OAR-2021-0317` or `urn:rkaf:us:regsgov:EPA-HQ-OAR-2021-0317-0184`. Normalize ASCII letters to uppercase and preserve the agency-issued hyphen-separated segments. Known legacy identifiers may have fewer segments; producers MUST NOT invent missing segments. |
+| `rkaf:us-frdoc` | A Federal Register document | `urn:rkaf:us:frdoc:<document-number>`, for example `urn:rkaf:us:frdoc:2024-00366`. The document number is a four-digit year, a hyphen, and a five-digit sequence. Official source values outside this grammar use the permanent-publication fallback below. |
+| `rkaf:us-regsgov` | A regulations.gov document or comment Artifact | `urn:rkaf:us:regsgov:<agency-issued-id>`, for example `urn:rkaf:us:regsgov:EPA-HQ-OAR-2021-0317-0184`. Normalize ASCII letters to uppercase and preserve the agency-issued hyphen-separated segments. Known legacy identifiers may have fewer segments; producers MUST NOT invent missing segments. Docket containers use the same lexical scheme on `rkaf:Docket`, not on `rkaf:Artifact`; see `spec/rkaf-rulemaking.md`. |
 | `rkaf:us-pl` | A public law | `urn:rkaf:us:pl:<congress>-<law-number>`, for example `urn:rkaf:us:pl:117-58`. Both components are positive decimal integers without leading zeroes. |
 | `rkaf:us-eo` | An Executive order | `urn:rkaf:us:eo:<order-number>`, for example `urn:rkaf:us:eo:14094`. The order number is a positive decimal integer without leading zeroes. |
 
-These URNs supply registry citation identity where no US public body publishes a canonical citation URI. They preserve, rather than replace, the identifier classes owned by the CFR, U.S. Code, Federal Register, regulations.gov, Congress, and the Executive Office; this is composition-consistent minting under §9.4.
+These URNs supply normalized citation and agency identity where no US public
+body publishes a canonical citation URI. They preserve, rather than replace,
+the identifier classes owned by the CFR, U.S. Code, Federal Register,
+regulations.gov, Congress, and the Executive Office. This is
+composition-consistent minting under §9.4.
 
-An Artifact MAY also carry an eCFR, GovInfo, federalregister.gov, or regulations.gov URL. The canonical URN remains required when a US scheme is declared; an additional mutable locator never establishes identity by itself.
+For an official Federal Register document number outside the
+`YYYY-NNNNN` grammar, a producer MUST identify the Artifact with its permanent
+`https://www.federalregister.gov/d/<source-value>` URL and
+`rkaf:artifactIdentifierScheme: rkaf:urn-persistent`. It MUST NOT assert
+`rkaf:regulatoryIdentifierScheme: rkaf:us-frdoc` for the unsupported lexical
+form. Producers MAY retain the source value in provenance metadata. This
+fallback preserves the source document without broadening the normalized
+`rkaf:us-frdoc` citation space.
 
-`rkaf:Proceeding` reuses `rkaf:hasArtifactIdentifier` and `rkaf:artifactIdentifierScheme` for RIN and regulations.gov docket identity. This narrowly extends those predicates' domain beyond Artifact without changing their value semantics. `rkaf:uslm-section` remains a selector for substructure inside USLM markup; it is distinct from the `rkaf:us-usc` citation identity for a U.S. Code section.
+`rkaf:Proceeding` and `rkaf:Docket` have distinct identity predicates in the
+experimental rulemaking module. Neither class reuses Artifact identity.
+`rkaf:uslm-section` remains a selector for substructure inside USLM markup; it
+is distinct from the `rkaf:us-usc` citation identity for a U.S. Code section.
 
 ### 4.2 SourceFragment
 
@@ -347,7 +384,13 @@ Every term defined in §§4-6 MUST be exercised by:
 
 Fixture-coverage enforcement is automated by `tools/vocab_audit.py`.
 
-The v0.2 SHACL shape set `shapes/rkaf-shapes-core.ttl` is one **compilation target** of the constraint source-of-truth language defined in Layer 2 (Plan 3). When the Layer 2 constraint DSL lands, the SHACL shapes in this directory become projector outputs and not the source of truth (per source spec §6.1 and Appendix C — SHACL `sh:if` / `sh:then` Pattern B is forbidden; Pattern C — `sh:or` with `sh:not` — is the only conditional pattern permitted in compiled output).
+The CUE files under `constraints/core/` are the source of truth for structural,
+lexical, date, and ordered-field constraints. JSON Schema, Rust, TypeScript,
+and SHACL under `compiled/` are deterministic projector outputs from
+`tools/compile_all.sh`. Legacy hand-authored SHACL remains only for Pattern-C
+invariants not yet expressible by the compiler; it MUST NOT redefine a
+CUE-expressible constraint. SHACL `sh:if` / `sh:then` Pattern B is forbidden;
+compiled conditionals use Pattern C (`sh:or` with `sh:not`).
 
 ## 11. Compatibility and migration [Normative]
 

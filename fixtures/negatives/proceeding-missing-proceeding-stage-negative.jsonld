@@ -1,8 +1,0 @@
-{
-  "@context": "../../context/rkaf-context.jsonld",
-  "@id": "urn:rkaf:fixture:negative:proceeding-missing-stage",
-  "@type": "rkaf:Proceeding",
-  "rkaf:hasArtifactIdentifier": "urn:rkaf:us:rin:2060-AV16",
-  "rkaf:artifactIdentifierScheme": "rkaf:us-rin",
-  "rkaf:hasAuthority": "urn:rkaf:fixture:authority:clean-air-act-111"
-}

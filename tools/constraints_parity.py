@@ -22,12 +22,11 @@ Exit codes:
 from __future__ import annotations
 
 import json
+import logging
 import sys
 from pathlib import Path
-from typing import Callable
-
 import rdflib
-from jsonschema import Draft202012Validator
+from jsonschema import Draft202012Validator, FormatChecker
 from pyshacl import validate as shacl_validate
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -87,15 +86,31 @@ FIXTURE_BINDINGS: list[tuple[str, str, str, str]] = [
     ("artifact", "Artifact", "fixtures/artifact-us-regsgov-positive.jsonld", "PASS"),
     ("artifact", "Artifact", "fixtures/artifact-us-pl-positive.jsonld", "PASS"),
     ("artifact", "Artifact", "fixtures/artifact-us-eo-positive.jsonld", "PASS"),
+    ("artifact", "Artifact", "fixtures/negatives/artifact-regulatory-identifier-missing-scheme-negative.jsonld", "FAIL"),
+    ("artifact", "Artifact", "fixtures/negatives/artifact-regulatory-scheme-missing-identifier-negative.jsonld", "FAIL"),
+    ("artifact", "Artifact", "fixtures/negatives/artifact-us-cfr-malformed-negative.jsonld", "FAIL"),
+    ("artifact", "Artifact", "fixtures/negatives/artifact-us-usc-malformed-negative.jsonld", "FAIL"),
+    ("artifact", "Artifact", "fixtures/negatives/artifact-us-frdoc-malformed-negative.jsonld", "FAIL"),
+    ("artifact", "Artifact", "fixtures/negatives/artifact-us-regsgov-malformed-negative.jsonld", "FAIL"),
+    ("artifact", "Artifact", "fixtures/negatives/artifact-us-pl-malformed-negative.jsonld", "FAIL"),
+    ("artifact", "Artifact", "fixtures/negatives/artifact-us-eo-malformed-negative.jsonld", "FAIL"),
+    ("rulemaking", "Docket", "fixtures/docket-us-regsgov-positive.jsonld", "PASS"),
+    ("rulemaking", "Docket", "fixtures/negatives/docket-missing-has-docket-identifier-negative.jsonld", "FAIL"),
+    ("rulemaking", "Docket", "fixtures/negatives/docket-missing-docket-identifier-scheme-negative.jsonld", "FAIL"),
+    ("rulemaking", "Docket", "fixtures/negatives/docket-us-regsgov-malformed-negative.jsonld", "FAIL"),
     ("rulemaking", "Proceeding", "fixtures/proceeding-us-rin-positive.jsonld", "PASS"),
-    ("rulemaking", "Proceeding", "fixtures/negatives/proceeding-missing-has-artifact-identifier-negative.jsonld", "FAIL"),
-    ("rulemaking", "Proceeding", "fixtures/negatives/proceeding-missing-artifact-identifier-scheme-negative.jsonld", "FAIL"),
-    ("rulemaking", "Proceeding", "fixtures/negatives/proceeding-missing-proceeding-stage-negative.jsonld", "FAIL"),
+    ("rulemaking", "Proceeding", "fixtures/negatives/proceeding-missing-has-proceeding-identifier-negative.jsonld", "FAIL"),
+    ("rulemaking", "Proceeding", "fixtures/negatives/proceeding-missing-proceeding-identifier-scheme-negative.jsonld", "FAIL"),
+    ("rulemaking", "Proceeding", "fixtures/edges/proceeding-multi-docket-edge.jsonld", "PASS"),
     ("rulemaking", "Proceeding", "fixtures/negatives/proceeding-missing-has-authority-negative.jsonld", "FAIL"),
+    ("rulemaking", "Proceeding", "fixtures/negatives/proceeding-us-rin-malformed-negative.jsonld", "FAIL"),
     ("rulemaking", "CommentPeriod", "fixtures/commentperiod-positive.jsonld", "PASS"),
     ("rulemaking", "CommentPeriod", "fixtures/negatives/comment-period-missing-comment-period-for-negative.jsonld", "FAIL"),
     ("rulemaking", "CommentPeriod", "fixtures/negatives/comment-period-missing-comment-period-start-negative.jsonld", "FAIL"),
     ("rulemaking", "CommentPeriod", "fixtures/negatives/comment-period-missing-comment-period-end-negative.jsonld", "FAIL"),
+    ("rulemaking", "CommentPeriod", "fixtures/negatives/comment-period-missing-provenance-negative.jsonld", "FAIL"),
+    ("rulemaking", "CommentPeriod", "fixtures/negatives/comment-period-malformed-date-negative.jsonld", "FAIL"),
+    ("rulemaking", "CommentPeriod", "fixtures/negatives/comment-period-end-before-start-negative.jsonld", "FAIL"),
     ("warrant",  "Warrant",  "fixtures/warrant-legal-positive.jsonld", "PASS"),
     ("warrant",  "Warrant",  "fixtures/warrant-scientific-positive.jsonld", "PASS"),
     ("confidence-record", "ConfidenceRecord", "fixtures/confidencerecord-uncalibrated-positive.jsonld", "PASS"),
@@ -147,7 +162,21 @@ def run_jsonschema(constraint: str, shape: str, fixture_path: Path) -> str:
     for node in nodes:
         node = dict(node)
         node.pop("@context", None)
-        errs = list(Draft202012Validator(target_schema).iter_errors(node))
+        errs = list(
+            Draft202012Validator(
+                target_schema,
+                format_checker=FormatChecker(),
+            ).iter_errors(node)
+        )
+        for order in target_schema.get("x-rkaf-order", []):
+            lower = node.get(order["lower"])
+            upper = node.get(order["upper"])
+            if isinstance(lower, str) and isinstance(upper, str) and lower > upper:
+                errs.append(
+                    ValueError(
+                        f"{order['lower']} must be less than or equal to {order['upper']}"
+                    )
+                )
         if errs:
             return "FAIL"
     return "PASS"
@@ -159,7 +188,16 @@ def run_shacl(constraint: str, shape: str, fixture_path: Path) -> str:
     if not shape_path.exists():
         return "PASS"  # if no SHACL emitted (e.g. enum-only), treat as PASS
     data = rdflib.Graph()
-    data.parse(str(fixture_path), format="json-ld")
+    # rdflib logs a traceback while retaining malformed xsd:date lexemes.
+    # Those lexemes are intentional negative-fixture inputs; SHACL should
+    # produce the verdict without obscuring the parity report.
+    term_logger = logging.getLogger("rdflib.term")
+    previous_level = term_logger.level
+    term_logger.setLevel(logging.CRITICAL)
+    try:
+        data.parse(str(fixture_path), format="json-ld")
+    finally:
+        term_logger.setLevel(previous_level)
     shapes = rdflib.Graph()
     shapes.parse(str(shape_path), format="turtle")
     conforms, _, _ = shacl_validate(

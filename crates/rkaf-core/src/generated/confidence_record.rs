@@ -4,62 +4,87 @@
 
 use serde::{Deserialize, Serialize};
 
+/// Closed Rulespec values for `ConfidenceMethod`.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum ConfidenceMethod {
+    /// Wire value `rkaf:model-inference`.
     #[serde(rename = "rkaf:model-inference")]
     ModelInference,
+    /// Wire value `rkaf:human-estimation`.
     #[serde(rename = "rkaf:human-estimation")]
     HumanEstimation,
+    /// Wire value `rkaf:review-consensus`.
     #[serde(rename = "rkaf:review-consensus")]
     ReviewConsensus,
+    /// Wire value `rkaf:source-class-inheritance`.
     #[serde(rename = "rkaf:source-class-inheritance")]
     SourceClassInheritance,
+    /// Wire value `rkaf:rule-based`.
     #[serde(rename = "rkaf:rule-based")]
     RuleBased,
 }
 
+/// Closed Rulespec values for `CalibrationStatus`.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum CalibrationStatus {
+    /// Wire value `rkaf:uncalibrated`.
     #[serde(rename = "rkaf:uncalibrated")]
     Uncalibrated,
+    /// Wire value `rkaf:calibratedAgainst`.
     #[serde(rename = "rkaf:calibratedAgainst")]
     CalibratedAgainst,
+    /// Wire value `rkaf:humanEstimated`.
     #[serde(rename = "rkaf:humanEstimated")]
     HumanEstimated,
+    /// Wire value `rkaf:consensus`.
     #[serde(rename = "rkaf:consensus")]
     Consensus,
 }
 
+/// Closed Rulespec values for `ScoreCategorical`.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum ScoreCategorical {
+    /// Wire value `rkaf:very-low`.
     #[serde(rename = "rkaf:very-low")]
     VeryLow,
+    /// Wire value `rkaf:low`.
     #[serde(rename = "rkaf:low")]
     Low,
+    /// Wire value `rkaf:medium`.
     #[serde(rename = "rkaf:medium")]
     Medium,
+    /// Wire value `rkaf:high`.
     #[serde(rename = "rkaf:high")]
     High,
+    /// Wire value `rkaf:very-high`.
     #[serde(rename = "rkaf:very-high")]
     VeryHigh,
 }
 
 use std::collections::BTreeMap;
 
+/// Generated JSON-LD carrier for `ConfidenceRecord`.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct ConfidenceRecord {
+    /// JSON-LD resource type.
     #[serde(rename = "@type", default = "ConfidenceRecord::default_type")]
     pub type_: String,
+    /// Optional JSON-LD resource identifier.
     #[serde(rename = "@id", skip_serializing_if = "Option::is_none", default)]
     pub id: Option<String>,
+    /// JSON-LD property `rkaf:confidenceMethod`.
     #[serde(rename = "rkaf:confidenceMethod")]
     pub confidence_method: ConfidenceMethod,
+    /// JSON-LD property `rkaf:calibrationStatus`.
     #[serde(rename = "rkaf:calibrationStatus")]
     pub calibration_status: CalibrationStatus,
+    /// JSON-LD property `rkaf:confidenceBasis`.
     #[serde(rename = "rkaf:confidenceBasis")]
     pub confidence_basis: crate::OneOrMany<String>,
+    /// JSON-LD property `rkaf:generatedBy`.
     #[serde(rename = "rkaf:generatedBy")]
     pub generated_by: String,
+    /// Additional JSON-LD properties preserved during round trips.
     #[serde(flatten)]
     pub extra: BTreeMap<String, serde_json::Value>,
 }

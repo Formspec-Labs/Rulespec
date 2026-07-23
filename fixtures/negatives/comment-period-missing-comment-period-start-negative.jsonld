@@ -3,5 +3,8 @@
   "@id": "urn:rkaf:fixture:negative:comment-period-missing-start",
   "@type": "rkaf:CommentPeriod",
   "rkaf:commentPeriodFor": "urn:rkaf:fixture:proceeding:2060-AV16",
-  "rkaf:commentPeriodEnd": "2022-01-31"
+  "rkaf:commentPeriodEnd": "2022-01-31",
+  "prov:wasDerivedFrom": [
+    "urn:rkaf:fixture:evidence:comment-period-missing-start"
+  ]
 }

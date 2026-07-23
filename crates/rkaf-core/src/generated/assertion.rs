@@ -4,56 +4,82 @@
 
 use serde::{Deserialize, Serialize};
 
+/// Closed Rulespec values for `AssertionOrigin`.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum AssertionOrigin {
+    /// Wire value `rkaf:humanAsserted`.
     #[serde(rename = "rkaf:humanAsserted")]
     HumanAsserted,
+    /// Wire value `rkaf:aiSuggested`.
     #[serde(rename = "rkaf:aiSuggested")]
     AiSuggested,
+    /// Wire value `rkaf:aiPromoted`.
     #[serde(rename = "rkaf:aiPromoted")]
     AiPromoted,
+    /// Wire value `rkaf:humanQualified`.
     #[serde(rename = "rkaf:humanQualified")]
     HumanQualified,
+    /// Wire value `rkaf:humanRevalidation`.
     #[serde(rename = "rkaf:humanRevalidation")]
     HumanRevalidation,
+    /// Wire value `rkaf:imported`.
     #[serde(rename = "rkaf:imported")]
     Imported,
 }
 
+/// Closed Rulespec values for `AssertionOriginAITouched`.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum AssertionOriginAITouched {
+    /// Wire value `rkaf:aiSuggested`.
     #[serde(rename = "rkaf:aiSuggested")]
     AiSuggested,
+    /// Wire value `rkaf:aiPromoted`.
     #[serde(rename = "rkaf:aiPromoted")]
     AiPromoted,
+    /// Wire value `rkaf:humanQualified`.
     #[serde(rename = "rkaf:humanQualified")]
     HumanQualified,
+    /// Wire value `rkaf:humanRevalidation`.
     #[serde(rename = "rkaf:humanRevalidation")]
     HumanRevalidation,
 }
 
 use std::collections::BTreeMap;
 
+/// Generated JSON-LD carrier for `Assertion`.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Assertion {
+    /// JSON-LD resource type.
     #[serde(rename = "@type", default = "Assertion::default_type")]
     pub type_: String,
+    /// Optional JSON-LD resource identifier.
     #[serde(rename = "@id", skip_serializing_if = "Option::is_none", default)]
     pub id: Option<String>,
+    /// JSON-LD property `rkaf:assertionOrigin`.
     #[serde(rename = "rkaf:assertionOrigin")]
     pub assertion_origin: AssertionOrigin,
+    /// JSON-LD property `rkaf:usageEligibility`.
     #[serde(rename = "rkaf:usageEligibility", skip_serializing_if = "Option::is_none", default)]
     pub usage_eligibility: Option<crate::generated::usage_eligibility::UsageEligibility>,
+    /// JSON-LD property `rkaf:hasApplicability`.
     #[serde(rename = "rkaf:hasApplicability", skip_serializing_if = "Option::is_none", default)]
     pub has_applicability: Option<String>,
+    /// JSON-LD property `rkaf:hasJustification`.
     #[serde(rename = "rkaf:hasJustification", skip_serializing_if = "Option::is_none", default)]
     pub has_justification: Option<String>,
+    /// JSON-LD property `rkaf:hasWarrant`.
     #[serde(rename = "rkaf:hasWarrant", skip_serializing_if = "Option::is_none", default)]
     pub has_warrant: Option<String>,
+    /// JSON-LD property `rkaf:hasAuthority`.
     #[serde(rename = "rkaf:hasAuthority", skip_serializing_if = "Option::is_none", default)]
     pub has_authority: Option<String>,
+    /// JSON-LD property `prov:wasDerivedFrom`.
+    #[serde(rename = "prov:wasDerivedFrom", skip_serializing_if = "Option::is_none", default)]
+    pub was_derived_from: Option<crate::OneOrMany<String>>,
+    /// JSON-LD property `rkaf:consumerLifecycleState`.
     #[serde(rename = "rkaf:consumerLifecycleState", skip_serializing_if = "Option::is_none", default)]
     pub consumer_lifecycle_state: Option<crate::generated::generated_work_product::ConsumerLifecycleState>,
+    /// Additional JSON-LD properties preserved during round trips.
     #[serde(flatten)]
     pub extra: BTreeMap<String, serde_json::Value>,
 }

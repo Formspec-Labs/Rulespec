@@ -9,8 +9,10 @@
 partner:        "<organization or maintainer name>"
 implementation: "<package@version>"
 
-# The Rulespec commit / tag this self-certification was tested against.
-rulespec_version: "<commit hash or pre-release tag (e.g. 0.2.0-pre.6)>"
+# The Rulespec commit/tag tested by L1-L4. L0 instead uses the exact
+# sha256 digest printed by:
+#   python3 tools/l0_mapping_audit.py --print-contract-version
+rulespec_version: "<commit/tag, or sha256:<64 lowercase hex> for L0>"
 
 # Which levels this implementation claims to satisfy. L1-L4 are cumulative —
 # declaring L3 implies L1 + L2. L0 is vocabulary-only and MUST be declared
@@ -22,18 +24,20 @@ declared_levels:
 
 # L0-only fields. Uncomment these and replace declared_levels with [L0].
 # `carrier_mapping` is resolved relative to this repository root or this YAML.
+# Every mapping block repeats the same L0 rulespec_version digest.
 # `terms_used` is the unique set of full term IRIs in the mapping blocks.
 # carrier_mapping: "path/to/published-mapping.md"
 # terms_used:
-#   - "https://rulespec.org/ns/v1#hasArtifactIdentifier"
+#   - "https://rulespec.org/ns/v1#hasProceedingIdentifier"
 
 # Operational adoption depth — D0 cite / D1 overlay / D2 align / D3 derive /
-# D4 substrate / D5 sole. See source spec Appendix D.
+# D4 substrate / D5 sole. See source spec Appendix D. L0 declarations MUST
+# delete this field because Appendix D does not define vocabulary-only depth.
 adoption_depth: D1
 
 # Test corpus identification.
 test_corpus_run_at: "<ISO 8601 datetime>"
-test_corpus_commit: "<rulespec commit SHA against which the fixture set was run>"
+test_corpus_version: "<immutable fixture or carrier-corpus version>"
 
 # Per-level results from the conformance reporter run. `pass` means every
 # positive fixture passed and every negative fixture failed as expected at

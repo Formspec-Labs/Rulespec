@@ -6,20 +6,28 @@ use serde::{Deserialize, Serialize};
 
 use std::collections::BTreeMap;
 
+/// Generated JSON-LD carrier for `Justification`.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Justification {
+    /// JSON-LD resource type.
     #[serde(rename = "@type", default = "Justification::default_type")]
     pub type_: String,
+    /// Optional JSON-LD resource identifier.
     #[serde(rename = "@id", skip_serializing_if = "Option::is_none", default)]
     pub id: Option<String>,
+    /// JSON-LD property `rkaf:hasWarrant`.
     #[serde(rename = "rkaf:hasWarrant")]
     pub has_warrant: String,
+    /// JSON-LD property `rkaf:basedOnEvidence`.
     #[serde(rename = "rkaf:basedOnEvidence", skip_serializing_if = "Option::is_none", default)]
     pub based_on_evidence: Option<crate::OneOrMany<String>>,
+    /// JSON-LD property `rkaf:asserted_by`.
     #[serde(rename = "rkaf:asserted_by", skip_serializing_if = "Option::is_none", default)]
     pub asserted_by: Option<String>,
+    /// JSON-LD property `rkaf:assertedAt`.
     #[serde(rename = "rkaf:assertedAt", skip_serializing_if = "Option::is_none", default)]
     pub asserted_at: Option<String>,
+    /// Additional JSON-LD properties preserved during round trips.
     #[serde(flatten)]
     pub extra: BTreeMap<String, serde_json::Value>,
 }

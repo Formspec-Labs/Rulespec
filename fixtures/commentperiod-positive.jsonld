@@ -4,5 +4,9 @@
   "@type": "rkaf:CommentPeriod",
   "rkaf:commentPeriodFor": "urn:rkaf:fixture:proceeding:2060-AV16",
   "rkaf:commentPeriodStart": "2021-11-15",
-  "rkaf:commentPeriodEnd": "2022-01-31"
+  "rkaf:commentPeriodEnd": "2022-01-31",
+  "prov:wasDerivedFrom": [
+    "https://www.federalregister.gov/d/2021-24202",
+    "https://www.federalregister.gov/d/2021-27312"
+  ]
 }

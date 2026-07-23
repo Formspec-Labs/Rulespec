@@ -4,78 +4,112 @@
 
 use serde::{Deserialize, Serialize};
 
+/// Closed Rulespec values for `AttestationDecision`.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum AttestationDecision {
+    /// Wire value `rkaf:approved`.
     #[serde(rename = "rkaf:approved")]
     Approved,
+    /// Wire value `rkaf:approvedWithConditions`.
     #[serde(rename = "rkaf:approvedWithConditions")]
     ApprovedWithConditions,
+    /// Wire value `rkaf:rejected`.
     #[serde(rename = "rkaf:rejected")]
     Rejected,
+    /// Wire value `rkaf:abstained`.
     #[serde(rename = "rkaf:abstained")]
     Abstained,
+    /// Wire value `rkaf:advisory`.
     #[serde(rename = "rkaf:advisory")]
     Advisory,
+    /// Wire value `rkaf:endorsedForReview`.
     #[serde(rename = "rkaf:endorsedForReview")]
     EndorsedForReview,
+    /// Wire value `rkaf:flaggedForReview`.
     #[serde(rename = "rkaf:flaggedForReview")]
     FlaggedForReview,
 }
 
+/// Closed Rulespec values for `AttestorKind`.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum AttestorKind {
+    /// Wire value `rkaf:humanUser`.
     #[serde(rename = "rkaf:humanUser")]
     HumanUser,
+    /// Wire value `rkaf:aiModel`.
     #[serde(rename = "rkaf:aiModel")]
     AiModel,
+    /// Wire value `rkaf:aiAgent`.
     #[serde(rename = "rkaf:aiAgent")]
     AiAgent,
+    /// Wire value `rkaf:automatedParser`.
     #[serde(rename = "rkaf:automatedParser")]
     AutomatedParser,
+    /// Wire value `rkaf:team`.
     #[serde(rename = "rkaf:team")]
     Team,
+    /// Wire value `rkaf:organization`.
     #[serde(rename = "rkaf:organization")]
     Organization,
+    /// Wire value `rkaf:community`.
     #[serde(rename = "rkaf:community")]
     Community,
+    /// Wire value `rkaf:formalReviewer`.
     #[serde(rename = "rkaf:formalReviewer")]
     FormalReviewer,
+    /// Wire value `rkaf:conceptMintingAuthority`.
     #[serde(rename = "rkaf:conceptMintingAuthority")]
     ConceptMintingAuthority,
 }
 
 use std::collections::BTreeMap;
 
+/// Generated JSON-LD carrier for `Attestation`.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Attestation {
+    /// JSON-LD resource type.
     #[serde(rename = "@type", default = "Attestation::default_type")]
     pub type_: String,
+    /// Optional JSON-LD resource identifier.
     #[serde(rename = "@id", skip_serializing_if = "Option::is_none", default)]
     pub id: Option<String>,
+    /// JSON-LD property `rkaf:attestor`.
     #[serde(rename = "rkaf:attestor")]
     pub attestor: String,
+    /// JSON-LD property `rkaf:attestorKind`.
     #[serde(rename = "rkaf:attestorKind")]
     pub attestor_kind: AttestorKind,
+    /// JSON-LD property `rkaf:targets`.
     #[serde(rename = "rkaf:targets")]
     pub targets: crate::OneOrMany<String>,
+    /// JSON-LD property `rkaf:decision`.
     #[serde(rename = "rkaf:decision")]
     pub decision: AttestationDecision,
+    /// JSON-LD property `rkaf:attestationScope`.
     #[serde(rename = "rkaf:attestationScope")]
     pub attestation_scope: String,
+    /// JSON-LD property `rkaf:attestedAt`.
     #[serde(rename = "rkaf:attestedAt")]
     pub attested_at: String,
+    /// JSON-LD property `rkaf:rationale`.
     #[serde(rename = "rkaf:rationale", skip_serializing_if = "Option::is_none", default)]
     pub rationale: Option<String>,
+    /// JSON-LD property `rkaf:hasEffectivePeriod`.
     #[serde(rename = "rkaf:hasEffectivePeriod", skip_serializing_if = "Option::is_none", default)]
     pub has_effective_period: Option<String>,
+    /// JSON-LD property `rkaf:revokedAt`.
     #[serde(rename = "rkaf:revokedAt", skip_serializing_if = "Option::is_none", default)]
     pub revoked_at: Option<String>,
+    /// JSON-LD property `rkaf:lastVerifiedAt`.
     #[serde(rename = "rkaf:lastVerifiedAt", skip_serializing_if = "Option::is_none", default)]
     pub last_verified_at: Option<String>,
+    /// JSON-LD property `rkaf:verifiedBy`.
     #[serde(rename = "rkaf:verifiedBy", skip_serializing_if = "Option::is_none", default)]
     pub verified_by: Option<String>,
+    /// JSON-LD property `rkaf:targetFinding`.
     #[serde(rename = "rkaf:targetFinding", skip_serializing_if = "Option::is_none", default)]
     pub target_finding: Option<String>,
+    /// Additional JSON-LD properties preserved during round trips.
     #[serde(flatten)]
     pub extra: BTreeMap<String, serde_json::Value>,
 }

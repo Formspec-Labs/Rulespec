@@ -4,5 +4,8 @@
   "@type": "rkaf:CommentPeriod",
   "rkaf:commentPeriodFor": "urn:rkaf:fixture:proceeding:2060-AV16",
   "rkaf:commentPeriodStart": "2022-02-01",
-  "rkaf:commentPeriodEnd": "2022-01-31"
+  "rkaf:commentPeriodEnd": "2022-01-31",
+  "prov:wasDerivedFrom": [
+    "urn:rkaf:fixture:evidence:comment-period-reversed"
+  ]
 }

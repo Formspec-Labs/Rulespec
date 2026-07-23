@@ -4,24 +4,34 @@
 
 use serde::{Deserialize, Serialize};
 
+/// Closed Rulespec values for `EvaluationAnchor`.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum EvaluationAnchor {
+    /// Wire value `rkaf:applicationSubmissionTime`.
     #[serde(rename = "rkaf:applicationSubmissionTime")]
     ApplicationSubmissionTime,
+    /// Wire value `rkaf:eventOccurrenceTime`.
     #[serde(rename = "rkaf:eventOccurrenceTime")]
     EventOccurrenceTime,
+    /// Wire value `rkaf:eligibilityDeterminationTime`.
     #[serde(rename = "rkaf:eligibilityDeterminationTime")]
     EligibilityDeterminationTime,
+    /// Wire value `rkaf:noticeGenerationTime`.
     #[serde(rename = "rkaf:noticeGenerationTime")]
     NoticeGenerationTime,
+    /// Wire value `rkaf:workflowStartTime`.
     #[serde(rename = "rkaf:workflowStartTime")]
     WorkflowStartTime,
+    /// Wire value `rkaf:workflowStepStartTime`.
     #[serde(rename = "rkaf:workflowStepStartTime")]
     WorkflowStepStartTime,
+    /// Wire value `rkaf:currentTime`.
     #[serde(rename = "rkaf:currentTime")]
     CurrentTime,
+    /// Wire value `rkaf:effectivePeriodStart`.
     #[serde(rename = "rkaf:effectivePeriodStart")]
     EffectivePeriodStart,
+    /// Wire value `rkaf:publicationTime`.
     #[serde(rename = "rkaf:publicationTime")]
     PublicationTime,
 }

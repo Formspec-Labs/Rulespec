@@ -22,7 +22,19 @@
   "dcat:distribution": [
     { "@type": "dcat:Distribution", "dcat:downloadURL": "data/", "dcat:mediaType": "application/ld+json" }
   ],
-  "rkaf:declaredConformanceLevel": "L3",
-  "rkaf:declaredAdoptionDepth":     "D2",
-  "rkaf:rulespecVersion":           "0.2.0-pre.6"
+  "dcterms:relation": {
+    "@id": "urn:rkaf:corpus:model-cards:validation:0.2.0-pre.6",
+    "@type": "prov:Entity",
+    "dcterms:title": "Model-card reference-corpus validation result",
+    "dcterms:description": "Passed the reference JSON-LD and SHACL fixture gates; this is validation evidence, not a consumer conformance declaration.",
+    "prov:value": "pass",
+    "prov:wasGeneratedBy": {
+      "@id": "urn:rkaf:corpus:model-cards:validation-activity:0.2.0-pre.6",
+      "@type": "prov:Activity",
+      "prov:used": {
+        "@id": "urn:rulespec:release:0.2.0-pre.6"
+      },
+      "dcterms:date": "2026-05-14"
+    }
+  }
 }

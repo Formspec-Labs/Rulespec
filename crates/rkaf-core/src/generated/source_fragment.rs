@@ -4,48 +4,68 @@
 
 use serde::{Deserialize, Serialize};
 
+/// Closed Rulespec values for `SelectorKind`.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum SelectorKind {
+    /// Wire value `oa:FragmentSelector`.
     #[serde(rename = "oa:FragmentSelector")]
     FragmentSelector,
+    /// Wire value `oa:TextQuoteSelector`.
     #[serde(rename = "oa:TextQuoteSelector")]
     TextQuoteSelector,
+    /// Wire value `oa:TextPositionSelector`.
     #[serde(rename = "oa:TextPositionSelector")]
     TextPositionSelector,
+    /// Wire value `oa:RangeSelector`.
     #[serde(rename = "oa:RangeSelector")]
     RangeSelector,
+    /// Wire value `oa:XPathSelector`.
     #[serde(rename = "oa:XPathSelector")]
     XPathSelector,
+    /// Wire value `oa:CssSelector`.
     #[serde(rename = "oa:CssSelector")]
     CssSelector,
+    /// Wire value `rkaf:aknt-eId`.
     #[serde(rename = "rkaf:aknt-eId")]
     AkntEId,
+    /// Wire value `rkaf:uslm-section`.
     #[serde(rename = "rkaf:uslm-section")]
     UslmSection,
+    /// Wire value `rkaf:eli-fragment`.
     #[serde(rename = "rkaf:eli-fragment")]
     EliFragment,
+    /// Wire value `rkaf:jsonpath`.
     #[serde(rename = "rkaf:jsonpath")]
     Jsonpath,
+    /// Wire value `rkaf:doi-fragment`.
     #[serde(rename = "rkaf:doi-fragment")]
     DoiFragment,
+    /// Wire value `rkaf:partner-defined`.
     #[serde(rename = "rkaf:partner-defined")]
     PartnerDefined,
 }
 
 use std::collections::BTreeMap;
 
+/// Generated JSON-LD carrier for `TextQuoteSelector`.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct TextQuoteSelector {
+    /// JSON-LD resource type.
     #[serde(rename = "@type", default = "TextQuoteSelector::default_type")]
     pub type_: String,
+    /// Optional JSON-LD resource identifier.
     #[serde(rename = "@id", skip_serializing_if = "Option::is_none", default)]
     pub id: Option<String>,
+    /// JSON-LD property `oa:exact`.
     #[serde(rename = "oa:exact")]
     pub exact: String,
+    /// JSON-LD property `oa:prefix`.
     #[serde(rename = "oa:prefix", skip_serializing_if = "Option::is_none", default)]
     pub prefix: Option<String>,
+    /// JSON-LD property `oa:suffix`.
     #[serde(rename = "oa:suffix", skip_serializing_if = "Option::is_none", default)]
     pub suffix: Option<String>,
+    /// Additional JSON-LD properties preserved during round trips.
     #[serde(flatten)]
     pub extra: BTreeMap<String, serde_json::Value>,
 }
@@ -54,22 +74,31 @@ impl TextQuoteSelector {
     fn default_type() -> String { "oa:TextQuoteSelector".into() }
 }
 
+/// Generated JSON-LD carrier for `SourceFragment`.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct SourceFragment {
+    /// JSON-LD resource type.
     #[serde(rename = "@type", default = "SourceFragment::default_type")]
     pub type_: String,
+    /// Optional JSON-LD resource identifier.
     #[serde(rename = "@id", skip_serializing_if = "Option::is_none", default)]
     pub id: Option<String>,
+    /// JSON-LD property `oa:hasSource`.
     #[serde(rename = "oa:hasSource")]
     pub has_source: String,
+    /// JSON-LD property `oa:hasSelector`.
     #[serde(rename = "oa:hasSelector")]
     pub has_selector: crate::OneOrMany<serde_json::Value>,
+    /// JSON-LD property `rkaf:selectorKind`.
     #[serde(rename = "rkaf:selectorKind")]
     pub selector_kind: crate::OneOrMany<SelectorKind>,
+    /// JSON-LD property `rkaf:lastVerifiedAt`.
     #[serde(rename = "rkaf:lastVerifiedAt", skip_serializing_if = "Option::is_none", default)]
     pub last_verified_at: Option<String>,
+    /// JSON-LD property `rkaf:verifiedBy`.
     #[serde(rename = "rkaf:verifiedBy", skip_serializing_if = "Option::is_none", default)]
     pub verified_by: Option<String>,
+    /// Additional JSON-LD properties preserved during round trips.
     #[serde(flatten)]
     pub extra: BTreeMap<String, serde_json::Value>,
 }

@@ -4,80 +4,115 @@
 
 use serde::{Deserialize, Serialize};
 
+/// Closed Rulespec values for `BridgeResult`.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum BridgeResult {
+    /// Wire value `rkaf:accepted`.
     #[serde(rename = "rkaf:accepted")]
     Accepted,
+    /// Wire value `rkaf:acceptedWithWarnings`.
     #[serde(rename = "rkaf:acceptedWithWarnings")]
     AcceptedWithWarnings,
+    /// Wire value `rkaf:rejected`.
     #[serde(rename = "rkaf:rejected")]
     Rejected,
 }
 
+/// Closed Rulespec values for `AuthorityChainStatus`.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum AuthorityChainStatus {
+    /// Wire value `rkaf:valid`.
     #[serde(rename = "rkaf:valid")]
     Valid,
+    /// Wire value `rkaf:broken`.
     #[serde(rename = "rkaf:broken")]
     Broken,
+    /// Wire value `rkaf:staleForCurrentUse`.
     #[serde(rename = "rkaf:staleForCurrentUse")]
     StaleForCurrentUse,
+    /// Wire value `rkaf:validForPointInTimeOnly`.
     #[serde(rename = "rkaf:validForPointInTimeOnly")]
     ValidForPointInTimeOnly,
+    /// Wire value `rkaf:brokenForNewCases`.
     #[serde(rename = "rkaf:brokenForNewCases")]
     BrokenForNewCases,
+    /// Wire value `rkaf:missingAuthority`.
     #[serde(rename = "rkaf:missingAuthority")]
     MissingAuthority,
+    /// Wire value `rkaf:unsupportedAuthorityKind`.
     #[serde(rename = "rkaf:unsupportedAuthorityKind")]
     UnsupportedAuthorityKind,
 }
 
 use std::collections::BTreeMap;
 
+/// Generated JSON-LD carrier for `BridgeValidationResult`.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct BridgeValidationResult {
+    /// JSON-LD resource type.
     #[serde(rename = "@type", default = "BridgeValidationResult::default_type")]
     pub type_: String,
+    /// Optional JSON-LD resource identifier.
     #[serde(rename = "@id", skip_serializing_if = "Option::is_none", default)]
     pub id: Option<String>,
+    /// JSON-LD property `rkaf:packetId`.
     #[serde(rename = "rkaf:packetId")]
     pub packet_id: String,
+    /// JSON-LD property `rkaf:consumer`.
     #[serde(rename = "rkaf:consumer")]
     pub consumer: String,
+    /// JSON-LD property `rkaf:bridgeContractVersion`.
     #[serde(rename = "rkaf:bridgeContractVersion")]
     pub bridge_contract_version: String,
+    /// JSON-LD property `rkaf:result`.
     #[serde(rename = "rkaf:result")]
     pub result: BridgeResult,
+    /// JSON-LD property `rkaf:effectiveUsageEligibility`.
     #[serde(rename = "rkaf:effectiveUsageEligibility")]
     pub effective_usage_eligibility: crate::generated::usage_eligibility::UsageEligibility,
+    /// JSON-LD property `rkaf:effectiveUsageEligibilityRationale`.
     #[serde(rename = "rkaf:effectiveUsageEligibilityRationale")]
     pub effective_usage_eligibility_rationale: String,
+    /// JSON-LD property `rkaf:validatedAt`.
     #[serde(rename = "rkaf:validatedAt")]
     pub validated_at: String,
+    /// JSON-LD property `rkaf:conceptResolutionResults`.
     #[serde(rename = "rkaf:conceptResolutionResults", skip_serializing_if = "Option::is_none", default)]
     pub concept_resolution_results: Option<crate::OneOrMany<String>>,
+    /// JSON-LD property `rkaf:findings`.
     #[serde(rename = "rkaf:findings", skip_serializing_if = "Option::is_none", default)]
     pub findings: Option<crate::OneOrMany<String>>,
+    /// JSON-LD property `rkaf:authorityChainTraversal`.
     #[serde(rename = "rkaf:authorityChainTraversal", skip_serializing_if = "Option::is_none", default)]
     pub authority_chain_traversal: Option<crate::OneOrMany<String>>,
+    /// JSON-LD property `rkaf:chainTerminus`.
     #[serde(rename = "rkaf:chainTerminus", skip_serializing_if = "Option::is_none", default)]
     pub chain_terminus: Option<String>,
+    /// JSON-LD property `rkaf:chainTerminusKind`.
     #[serde(rename = "rkaf:chainTerminusKind", skip_serializing_if = "Option::is_none", default)]
     pub chain_terminus_kind: Option<crate::generated::authority::AuthorityKind>,
+    /// JSON-LD property `rkaf:authorityChainStatus`.
     #[serde(rename = "rkaf:authorityChainStatus", skip_serializing_if = "Option::is_none", default)]
     pub authority_chain_status: Option<AuthorityChainStatus>,
+    /// JSON-LD property `rkaf:suggestedRemediation`.
     #[serde(rename = "rkaf:suggestedRemediation", skip_serializing_if = "Option::is_none", default)]
     pub suggested_remediation: Option<String>,
+    /// JSON-LD property `rkaf:noRemediationReason`.
     #[serde(rename = "rkaf:noRemediationReason", skip_serializing_if = "Option::is_none", default)]
     pub no_remediation_reason: Option<String>,
+    /// JSON-LD property `rkaf:usedAsAuthority`.
     #[serde(rename = "rkaf:usedAsAuthority", skip_serializing_if = "Option::is_none", default)]
     pub used_as_authority: Option<crate::OneOrMany<String>>,
+    /// JSON-LD property `rkaf:detectedIssues`.
     #[serde(rename = "rkaf:detectedIssues", skip_serializing_if = "Option::is_none", default)]
     pub detected_issues: Option<crate::OneOrMany<crate::generated::bridge_issue_attestation_contract::BridgeIssueKind>>,
+    /// JSON-LD property `rkaf:lastVerifiedAt`.
     #[serde(rename = "rkaf:lastVerifiedAt", skip_serializing_if = "Option::is_none", default)]
     pub last_verified_at: Option<String>,
+    /// JSON-LD property `rkaf:verifiedBy`.
     #[serde(rename = "rkaf:verifiedBy", skip_serializing_if = "Option::is_none", default)]
     pub verified_by: Option<String>,
+    /// Additional JSON-LD properties preserved during round trips.
     #[serde(flatten)]
     pub extra: BTreeMap<String, serde_json::Value>,
 }

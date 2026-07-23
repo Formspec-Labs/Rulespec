@@ -1,0 +1,7 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@id": "urn:rkaf:fixture:edge:docket-partner-defined",
+  "@type": "rkaf:Docket",
+  "rkaf:hasDocketIdentifier": "urn:partner:docket:legacy-123",
+  "rkaf:docketIdentifierScheme": "rkaf:partner-defined"
+}

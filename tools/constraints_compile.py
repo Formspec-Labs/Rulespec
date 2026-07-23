@@ -5,7 +5,7 @@ CUE source-of-truth → multiple compilation targets:
   - JSON Schema 2020-12 (MUST)
   - Rust validator code  (MUST)
   - TypeScript validator code (MUST)
-  - SHACL Turtle Pattern C only (MAY; v0.2 hand-written shapes remain canonical)
+  - SHACL Turtle Pattern C only (MUST for CUE-expressible constraints)
   - CUE passthrough (identity)
   - Rego (closed-enum + cardinality only)
 
@@ -15,9 +15,11 @@ constraints/ai-extraction/):
 
   - `#Name: "lit" | "lit" | "lit"`          → closed enum
   - `#Name: { "field": #TypeRef, ... }`     → shape with typed properties
-  - `if "x" == "v" { "y": T }`              → conditional branch
+  - `if X["x"] == "v" { "y": T }`           → conditional branch
+  - `if X["start"] > X["end"] { _|_ }`       → ordered-field invariant
   - `{...} | {...}`                          → disjunction branch
   - `list.MinItems(N)` / `[...#X] & list.MinItems(N)` → list cardinality
+  - `time.Format("2006-01-02")`              → JSON Schema/SHACL date
 
 This is NOT a full CUE parser — it handles the regular patterns Rulespec uses.
 The CUE source is the authoritative spec; this compiler is a deterministic
@@ -70,6 +72,7 @@ class PropDef:
     optional: bool = False
     fixed_value: Optional[str] = None
     pattern: Optional[str] = None
+    string_format: Optional[str] = None
     min_inclusive: Optional[float] = None
     max_inclusive: Optional[float] = None
     inline_enum_values: Optional[list[str]] = None
@@ -79,8 +82,14 @@ class PropDef:
 @dataclass
 class ConditionalBranch:
     when_property: str
-    when_equals: str
+    when_equals: Optional[str]
     then_require: list[PropDef]
+
+
+@dataclass
+class OrderConstraint:
+    lower_property: str
+    upper_property: str
 
 
 @dataclass
@@ -94,6 +103,7 @@ class ShapeDef:
     type_iri: Optional[str]
     properties: list[PropDef] = field(default_factory=list)
     conditionals: list[ConditionalBranch] = field(default_factory=list)
+    orders: list[OrderConstraint] = field(default_factory=list)
     disjunctions: list[list[DisjunctionBranch]] = field(default_factory=list)
 
 
@@ -116,8 +126,6 @@ ENUM_UNION_REFS_RE = re.compile(r'#(\w+)')
 
 def parse_cue_file(path: Path) -> ConstraintDoc:
     src = path.read_text()
-    package_match = re.search(r"^package\s+(\w+)", src, re.MULTILINE)
-    package = package_match.group(1) if package_match else path.stem
 
     doc = ConstraintDoc(package=path.stem)
 
@@ -210,8 +218,8 @@ def parse_cue_file(path: Path) -> ConstraintDoc:
             doc.enum_unions.append(EnumUnion(name=name, refs=refs))
             idx += 1
             continue
-        # Shape opening: `#Name: {`
-        sm = re.match(r"^#(\w+):\s*\{$", line)
+        # Shape opening: `#Name: {` or `#Name: Alias={`
+        sm = re.match(r"^#(\w+):\s*(?:\w+=)?\{$", line)
         if sm:
             shape_name = sm.group(1)
             shape, consumed = parse_shape_body(joined_lines, idx + 1)
@@ -238,7 +246,8 @@ def parse_shape_body(lines: list[tuple[int, str]], start: int) -> tuple[ShapeDef
 
     Walks line-by-line. Recognized constructs:
       - Top-level property: `"name": <type-expr>`
-      - Conditional: `if "x" == "v" { props }`
+      - Conditional: `if X["x"] == "v" { props }`
+      - Ordering: `if X["start"] > X["end"] { _|_ }`
       - Disjunction marker: a line that is exactly `{` or `} |` or `} | {` is part
         of a sibling-block disjunction. We scan such blocks character-by-character
         via parse_disjunction_block_text.
@@ -249,8 +258,6 @@ def parse_shape_body(lines: list[tuple[int, str]], start: int) -> tuple[ShapeDef
     while i < len(lines) and depth > 0:
         _, raw = lines[i]
         line = raw.strip()
-        opens = line.count("{")
-        closes = line.count("}")
         if line == "}":
             depth -= 1
             if depth == 0:
@@ -258,9 +265,34 @@ def parse_shape_body(lines: list[tuple[int, str]], start: int) -> tuple[ShapeDef
                 break
             i += 1
             continue
+        # Cross-field ordering. The CUE branch makes values where lower >
+        # upper bottom; projections carry the equivalent lower <= upper rule.
+        order_match = re.match(
+            r'^if\s+\w+\["([^"]+)"\]\s*>\s*\w+\["([^"]+)"\]\s*\{',
+            line,
+        )
+        if order_match:
+            shape.orders.append(
+                OrderConstraint(
+                    lower_property=order_match.group(1),
+                    upper_property=order_match.group(2),
+                )
+            )
+            j = i + 1
+            while j < len(lines) and lines[j][1].strip() != "}":
+                j += 1
+            i = j + 1
+            continue
         # Conditional
         if line.startswith("if ") and "{" in line:
-            mc = re.match(r'^if\s+"([^"]+)"\s*==\s*"([^"]+)"\s*\{', line)
+            mc = re.match(
+                r'^if\s+\w+\["([^"]+)"\]\s*==\s*"([^"]+)"\s*\{',
+                line,
+            )
+            if mc is None:
+                # Backward-compatible parser for the repository's early
+                # condition spelling. New CUE must use the alias form above.
+                mc = re.match(r'^if\s+"([^"]+)"\s*==\s*"([^"]+)"\s*\{', line)
             if mc:
                 when_prop, when_eq = mc.group(1), mc.group(2)
                 req_props: list[PropDef] = []
@@ -277,6 +309,31 @@ def parse_shape_body(lines: list[tuple[int, str]], start: int) -> tuple[ShapeDef
                 shape.conditionals.append(ConditionalBranch(
                     when_property=when_prop, when_equals=when_eq, then_require=req_props
                 ))
+                i = j + 1
+                continue
+            present = re.match(
+                r'^if\s+\w+\["([^"]+)"\]\s*!=\s*_\|_\s*\{',
+                line,
+            )
+            if present:
+                req_props = []
+                j = i + 1
+                while j < len(lines):
+                    _, l2_raw = lines[j]
+                    l2 = l2_raw.strip()
+                    if l2 == "}":
+                        break
+                    p = parse_property_line(l2)
+                    if p:
+                        req_props.append(p)
+                    j += 1
+                shape.conditionals.append(
+                    ConditionalBranch(
+                        when_property=present.group(1),
+                        when_equals=None,
+                        then_require=req_props,
+                    )
+                )
                 i = j + 1
                 continue
         # Disjunction line(s)
@@ -322,6 +379,11 @@ def parse_shape_body(lines: list[tuple[int, str]], start: int) -> tuple[ShapeDef
 PROP_RE = re.compile(r'^"([^"]+)"(\?)?:\s*(.+)\s*$')
 
 
+def _decode_cue_string(value: str) -> str:
+    """Decode escapes captured from a CUE quoted string."""
+    return json.loads(f'"{value}"')
+
+
 def parse_property_line(line: str) -> Optional[PropDef]:
     line = line.strip().rstrip(",")
     if not line:
@@ -360,6 +422,18 @@ def parse_property_line(line: str) -> Optional[PropDef]:
         p.type_ref = "list"
         p.list_of_string = True
         p.list_min_items = int(ls.group(1))
+        return p
+    # `[...(string & =~"pattern")] & list.MinItems(N)`
+    lsp = re.match(
+        r'^\[\.\.\.\(string\s*&\s*=~"([^"]+)"\)\]'
+        r'(?:\s*&\s*list\.MinItems\((\d+)\))?$',
+        rhs,
+    )
+    if lsp:
+        p.type_ref = "list"
+        p.list_of_string = True
+        p.pattern = _decode_cue_string(lsp.group(1))
+        p.list_min_items = int(lsp.group(2) or 0)
         return p
     # `[...#Enum]`
     le = re.match(r"^\[\.\.\.#(\w+)\]$", rhs)
@@ -406,17 +480,22 @@ def parse_property_line(line: str) -> Optional[PropDef]:
     pm = re.match(r'^string\s*&\s*=~"([^"]+)"$', rhs)
     if pm:
         p.type_ref = "string"
-        p.pattern = pm.group(1)
+        p.pattern = _decode_cue_string(pm.group(1))
         return p
     # `=~"pattern"`
     pm2 = re.match(r'^=~"([^"]+)"$', rhs)
     if pm2:
         p.type_ref = "string"
-        p.pattern = pm2.group(1)
+        p.pattern = _decode_cue_string(pm2.group(1))
         return p
     # `string`
     if rhs == "string":
         p.type_ref = "string"
+        return p
+    # CUE's strict calendar-date format.
+    if rhs == 'time.Format("2006-01-02")':
+        p.type_ref = "string"
+        p.string_format = "date"
         return p
     # Inline closed enum: `"a" | "b" | "c"`
     if re.match(r'^"[^"]+"\s*\|', rhs) or (rhs.startswith('"') and "|" in rhs):
@@ -546,8 +625,25 @@ def target_json_schema(doc: ConstraintDoc, registry: Optional[dict] = None) -> s
                 then_props[tp.name] = property_to_jsonschema(tp, doc)
                 if tp.name not in props:
                     props[tp.name] = property_to_jsonschema(tp, doc)
+            if c.when_equals is None:
+                condition = {"required": [c.when_property]}
+            else:
+                condition = {
+                    "properties": {
+                        c.when_property: {
+                            "anyOf": [
+                                {"const": c.when_equals},
+                                {
+                                    "type": "array",
+                                    "contains": {"const": c.when_equals},
+                                },
+                            ]
+                        }
+                    },
+                    "required": [c.when_property],
+                }
             all_of.append({
-                "if":   {"properties": {c.when_property: {"const": c.when_equals}}, "required": [c.when_property]},
+                "if": condition,
                 "then": {"properties": then_props, "required": list(then_props.keys())},
             })
         # Disjunction branches → anyOf — each branch requires its own properties
@@ -570,6 +666,14 @@ def target_json_schema(doc: ConstraintDoc, registry: Optional[dict] = None) -> s
             schema["allOf"] = all_of
         if any_of_groups:
             schema.setdefault("allOf", []).extend(any_of_groups)
+        if s.orders:
+            schema["x-rkaf-order"] = [
+                {
+                    "lower": order.lower_property,
+                    "upper": order.upper_property,
+                }
+                for order in s.orders
+            ]
         schemas[s.name] = schema
 
     envelope = {
@@ -605,6 +709,10 @@ def property_to_jsonschema(p: PropDef, doc: ConstraintDoc) -> dict:
         else:
             # Bare `list.MinItems(N)` — items may be any JSON value.
             items = {}
+        if p.pattern:
+            items["pattern"] = p.pattern
+        if p.string_format:
+            items["format"] = p.string_format
         arr: dict = {"type": "array", "items": items}
         if p.list_min_items > 0:
             arr["minItems"] = p.list_min_items
@@ -630,6 +738,8 @@ def property_to_jsonschema(p: PropDef, doc: ConstraintDoc) -> dict:
     out = {"type": "string"}
     if p.pattern:
         out["pattern"] = p.pattern
+    if p.string_format:
+        out["format"] = p.string_format
     return out
 
 
@@ -645,10 +755,12 @@ def target_rust(doc: ConstraintDoc, registry: Optional[dict] = None) -> str:
         "",
     ]
     for e in doc.enums:
+        out.append(f"/// Closed Rulespec values for `{e.name}`.")
         out.append("#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]")
         out.append(f"pub enum {e.name} {{")
         for v in e.values:
             variant = _pascal_after_colon(v)
+            out.append(f"    /// Wire value `{v}`.")
             out.append(f'    #[serde(rename = "{v}")]')
             out.append(f"    {variant},")
         out.append("}")
@@ -656,12 +768,14 @@ def target_rust(doc: ConstraintDoc, registry: Optional[dict] = None) -> str:
     # Enum unions: emit as Rust enum with variants flattened from the referenced enums.
     enum_by_name = {e.name: e for e in doc.enums}
     for u in doc.enum_unions:
+        out.append(f"/// Closed Rulespec values for `{u.name}`.")
         out.append("#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]")
         out.append(f"pub enum {u.name} {{")
         for ref in u.refs:
             if ref in enum_by_name:
                 for v in enum_by_name[ref].values:
                     variant = _pascal_after_colon(v)
+                    out.append(f"    /// Wire value `{v}`.")
                     out.append(f'    #[serde(rename = "{v}")]')
                     out.append(f"    {variant},")
         out.append("}")
@@ -679,15 +793,18 @@ def target_rust(doc: ConstraintDoc, registry: Optional[dict] = None) -> str:
         # consult that directly instead of re-scanning properties.
         type_value: Optional[str] = s.type_iri
 
+        out.append(f"/// Generated JSON-LD carrier for `{s.name}`.")
         out.append("#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]")
         out.append(f"pub struct {s.name} {{")
 
         # @type field — emit specially with default constructor reference
         if type_value is not None:
+            out.append("    /// JSON-LD resource type.")
             out.append(f'    #[serde(rename = "@type", default = "{s.name}::default_type")]')
-            out.append(f"    pub type_: String,")
+            out.append("    pub type_: String,")
 
         # @id field — always optional, always emitted (JSON-LD reserved key)
+        out.append("    /// Optional JSON-LD resource identifier.")
         out.append('    #[serde(rename = "@id", skip_serializing_if = "Option::is_none", default)]')
         out.append("    pub id: Option<String>,")
 
@@ -697,6 +814,7 @@ def target_rust(doc: ConstraintDoc, registry: Optional[dict] = None) -> str:
                 continue
             ty = _rust_type(p, local_enums=local_enums, registry=registry)
             field_name = _rust_field_clean(p.name)
+            out.append(f"    /// JSON-LD property `{p.name}`.")
             if p.optional:
                 out.append(
                     f'    #[serde(rename = "{p.name}", skip_serializing_if = "Option::is_none", default)]'
@@ -707,6 +825,7 @@ def target_rust(doc: ConstraintDoc, registry: Optional[dict] = None) -> str:
                 out.append(f"    pub {field_name}: {ty},")
 
         # Catch-all for unknown properties (preserves round-trip).
+        out.append("    /// Additional JSON-LD properties preserved during round trips.")
         out.append("    #[serde(flatten)]")
         out.append("    pub extra: BTreeMap<String, serde_json::Value>,")
         out.append("}")
@@ -830,6 +949,29 @@ def target_typescript(doc: ConstraintDoc) -> str:
         lits = " | ".join(f'"{v}"' for v in all_values)
         out.append(f"export type {u.name} = {lits};")
         out.append("")
+    has_date = any(
+        prop.string_format == "date"
+        for shape in doc.shapes
+        for prop in (
+            list(shape.properties)
+            + [
+                required
+                for conditional in shape.conditionals
+                for required in conditional.then_require
+            ]
+        )
+    )
+    if has_date:
+        out.extend(
+            [
+                "function isRkafDate(value: unknown): value is string {",
+                '  if (typeof value !== "string" || !/^\\d{4}-\\d{2}-\\d{2}$/.test(value)) return false;',
+                '  const parsed = new Date(`${value}T00:00:00.000Z`);',
+                "  return !Number.isNaN(parsed.getTime()) && parsed.toISOString().slice(0, 10) === value;",
+                "}",
+                "",
+            ]
+        )
     for s in doc.shapes:
         out.append(f"export interface {s.name} {{")
         for p in s.properties:
@@ -840,9 +982,74 @@ def target_typescript(doc: ConstraintDoc) -> str:
         out.append("")
         out.append(f"export function validate{s.name}(v: {s.name}): string[] {{")
         out.append("  const errs: string[] = [];")
+        if s.conditionals:
+            out.append(
+                "  const record = v as unknown as Record<string, unknown>;"
+            )
         for p in s.properties:
             if p.type_ref == "list" and p.list_min_items > 0 and not p.optional:
                 out.append(f'  if (!Array.isArray(v["{p.name}"]) || v["{p.name}"].length < {p.list_min_items}) errs.push("{p.name}: < {p.list_min_items} items");')
+            if p.pattern:
+                pattern = json.dumps(p.pattern)
+                if p.type_ref == "list":
+                    out.append(
+                        f'  if (v["{p.name}"] !== undefined && '
+                        f'!([] as string[]).concat(v["{p.name}"] as string[]).every'
+                        f'((value) => new RegExp({pattern}).test(value))) '
+                        f'errs.push("{p.name}: pattern mismatch");'
+                    )
+                else:
+                    out.append(
+                        f'  if (v["{p.name}"] !== undefined && '
+                        f'!new RegExp({pattern}).test(v["{p.name}"] as string)) '
+                        f'errs.push("{p.name}: pattern mismatch");'
+                    )
+            if p.string_format == "date":
+                out.append(
+                    f'  if (v["{p.name}"] !== undefined && '
+                    f'!isRkafDate(v["{p.name}"])) '
+                    f'errs.push("{p.name}: invalid date");'
+                )
+        for index, conditional in enumerate(s.conditionals):
+            when_name = f"condition{index + 1}"
+            when_value = f'record["{conditional.when_property}"]'
+            if conditional.when_equals is None:
+                expression = f"{when_value} !== undefined"
+            else:
+                expected = json.dumps(conditional.when_equals)
+                expression = (
+                    f"{when_value} === {expected} || "
+                    f"(Array.isArray({when_value}) && "
+                    f"{when_value}.includes({expected}))"
+                )
+            out.append(f"  const {when_name} = {expression};")
+            for requirement in conditional.then_require:
+                required_value = f'record["{requirement.name}"]'
+                out.append(
+                    f"  if ({when_name} && {required_value} === undefined) "
+                    f'errs.push("{requirement.name}: required by '
+                    f'{conditional.when_property}");'
+                )
+                if requirement.pattern:
+                    pattern = json.dumps(requirement.pattern)
+                    out.append(
+                        f"  if ({when_name} && {required_value} !== undefined && "
+                        f"(typeof {required_value} !== \"string\" || "
+                        f"!new RegExp({pattern}).test({required_value}))) "
+                        f'errs.push("{requirement.name}: pattern mismatch");'
+                    )
+                if requirement.string_format == "date":
+                    out.append(
+                        f"  if ({when_name} && {required_value} !== undefined && "
+                        f"!isRkafDate({required_value})) "
+                        f'errs.push("{requirement.name}: invalid date");'
+                    )
+        for order in s.orders:
+            out.append(
+                f'  if (v["{order.lower_property}"] > v["{order.upper_property}"]) '
+                f'errs.push("{order.lower_property}: must be on or before '
+                f'{order.upper_property}");'
+            )
         out.append("  return errs;")
         out.append("}")
         out.append("")
@@ -876,6 +1083,7 @@ def target_shacl(doc: ConstraintDoc) -> str:
         "@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .",
         "@prefix oa:   <http://www.w3.org/ns/oa#> .",
         "@prefix skos: <http://www.w3.org/2004/02/skos/core#> .",
+        "@prefix prov: <http://www.w3.org/ns/prov#> .",
         "@prefix dpv:  <https://w3id.org/dpv#> .",
         "@prefix rkaf: <https://rulespec.org/ns/v1#> .",
         "",
@@ -920,19 +1128,43 @@ def target_shacl(doc: ConstraintDoc) -> str:
                 values = " ".join(resolve_enum(p.list_inner_enum))
                 if values:
                     line += f" sh:in ( {values} ) ;"
+            if p.pattern:
+                line += f" sh:pattern {json.dumps(p.pattern)} ;"
+            if p.string_format == "date":
+                line += " sh:datatype xsd:date ;"
             line += " ] ;"
             out.append(line)
         # Conditional branches → Pattern C (sh:or with sh:not)
         for c in s.conditionals:
             out.append("  sh:or (")
-            out.append(f"    [ sh:property [ sh:path {c.when_property} ;")
-            out.append(f"        sh:not [ sh:hasValue {c.when_equals} ] ] ]")
+            out.append("    [ sh:not [ sh:property [")
+            if c.when_equals is None:
+                out.append(f"        sh:path {c.when_property} ; sh:minCount 1")
+            else:
+                out.append(
+                    f"        sh:path {c.when_property} ; sh:hasValue {c.when_equals}"
+                )
+            out.append("      ] ] ]")
             if c.then_require:
-                req = c.then_require[0].name
-                out.append(f"    [ sh:property [ sh:path {req} ; sh:minCount 1 ] ]")
+                requirement = c.then_require[0]
+                line = (
+                    f"    [ sh:property [ sh:path {requirement.name} ; "
+                    "sh:minCount 1 ;"
+                )
+                if requirement.pattern:
+                    line += f" sh:pattern {json.dumps(requirement.pattern)} ;"
+                if requirement.string_format == "date":
+                    line += " sh:datatype xsd:date ;"
+                line += " ] ]"
+                out.append(line)
             else:
                 out.append("    [ sh:property [ sh:path rkaf:_unsatisfiable ; sh:minCount 1 ] ]")
             out.append("  ) ;")
+        for order in s.orders:
+            out.append(
+                f"  sh:property [ sh:path {order.lower_property} ; "
+                f"sh:lessThanOrEquals {order.upper_property} ; ] ;"
+            )
         # Disjunctions → Pattern C
         for disj in s.disjunctions:
             out.append("  sh:or (")

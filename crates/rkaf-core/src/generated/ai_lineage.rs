@@ -6,28 +6,40 @@ use serde::{Deserialize, Serialize};
 
 use std::collections::BTreeMap;
 
+/// Generated JSON-LD carrier for `AILineage`.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct AILineage {
+    /// JSON-LD resource type.
     #[serde(rename = "@type", default = "AILineage::default_type")]
     pub type_: String,
+    /// Optional JSON-LD resource identifier.
     #[serde(rename = "@id", skip_serializing_if = "Option::is_none", default)]
     pub id: Option<String>,
+    /// JSON-LD property `rkaf:modelId`.
     #[serde(rename = "rkaf:modelId")]
     pub model_id: String,
+    /// JSON-LD property `rkaf:modelVersion`.
     #[serde(rename = "rkaf:modelVersion")]
     pub model_version: String,
+    /// JSON-LD property `rkaf:promptTemplateRef`.
     #[serde(rename = "rkaf:promptTemplateRef")]
     pub prompt_template_ref: String,
+    /// JSON-LD property `rkaf:temperature`.
     #[serde(rename = "rkaf:temperature")]
     pub temperature: f64,
+    /// JSON-LD property `rkaf:seed`.
     #[serde(rename = "rkaf:seed", skip_serializing_if = "Option::is_none", default)]
     pub seed: Option<i64>,
+    /// JSON-LD property `rkaf:inputContextHash`.
     #[serde(rename = "rkaf:inputContextHash")]
     pub input_context_hash: String,
+    /// JSON-LD property `rkaf:humanApprover`.
     #[serde(rename = "rkaf:humanApprover")]
     pub human_approver: String,
+    /// JSON-LD property `rkaf:humanRationale`.
     #[serde(rename = "rkaf:humanRationale", skip_serializing_if = "Option::is_none", default)]
     pub human_rationale: Option<String>,
+    /// Additional JSON-LD properties preserved during round trips.
     #[serde(flatten)]
     pub extra: BTreeMap<String, serde_json::Value>,
 }

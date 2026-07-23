@@ -4,44 +4,61 @@
 
 use serde::{Deserialize, Serialize};
 
+/// Closed Rulespec values for `RetentionTrigger`.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum RetentionTrigger {
+    /// Wire value `rkaf:creation`.
     #[serde(rename = "rkaf:creation")]
     Creation,
+    /// Wire value `rkaf:lastAccess`.
     #[serde(rename = "rkaf:lastAccess")]
     LastAccess,
+    /// Wire value `rkaf:lastModification`.
     #[serde(rename = "rkaf:lastModification")]
     LastModification,
+    /// Wire value `rkaf:lifecycleEvent`.
     #[serde(rename = "rkaf:lifecycleEvent")]
     LifecycleEvent,
 }
 
+/// Closed Rulespec values for `RetentionPostExpiry`.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum RetentionPostExpiry {
+    /// Wire value `rkaf:delete`.
     #[serde(rename = "rkaf:delete")]
     Delete,
+    /// Wire value `rkaf:anonymize`.
     #[serde(rename = "rkaf:anonymize")]
     Anonymize,
+    /// Wire value `rkaf:archive`.
     #[serde(rename = "rkaf:archive")]
     Archive,
+    /// Wire value `rkaf:legal-hold-on-trigger`.
     #[serde(rename = "rkaf:legal-hold-on-trigger")]
     LegalHoldOnTrigger,
 }
 
 use std::collections::BTreeMap;
 
+/// Generated JSON-LD carrier for `RetentionPolicy`.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct RetentionPolicy {
+    /// JSON-LD resource type.
     #[serde(rename = "@type", default = "RetentionPolicy::default_type")]
     pub type_: String,
+    /// Optional JSON-LD resource identifier.
     #[serde(rename = "@id", skip_serializing_if = "Option::is_none", default)]
     pub id: Option<String>,
+    /// JSON-LD property `rkaf:retentionDurationDays`.
     #[serde(rename = "rkaf:retentionDurationDays")]
     pub retention_duration_days: i64,
+    /// JSON-LD property `rkaf:retentionTrigger`.
     #[serde(rename = "rkaf:retentionTrigger")]
     pub retention_trigger: RetentionTrigger,
+    /// JSON-LD property `rkaf:retentionPostExpiry`.
     #[serde(rename = "rkaf:retentionPostExpiry")]
     pub retention_post_expiry: RetentionPostExpiry,
+    /// Additional JSON-LD properties preserved during round trips.
     #[serde(flatten)]
     pub extra: BTreeMap<String, serde_json::Value>,
 }

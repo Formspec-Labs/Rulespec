@@ -9,8 +9,10 @@
 | Term | IRI | Kind | Domain | Range | Cardinality | Required fixtures |
 |---|---|---|---|---|---|---|
 | rkaf:Artifact | https://rulespec.org/ns/v1#Artifact | Class | — | — | — | artifact-eli-positive, artifact-doi-positive, artifact-cid-positive, artifact-us-cfr-positive, artifact-us-usc-positive, artifact-us-frdoc-positive, artifact-us-regsgov-positive, artifact-us-pl-positive, artifact-us-eo-positive |
-| rkaf:hasArtifactIdentifier | https://rulespec.org/ns/v1#hasArtifactIdentifier | Property | rkaf:Artifact / rkaf:Proceeding | xsd:string \| IRI | 1..* | artifact-eli-positive, proceeding-us-rin-positive |
-| rkaf:artifactIdentifierScheme | https://rulespec.org/ns/v1#artifactIdentifierScheme | Property (closed enum) | rkaf:Artifact / rkaf:Proceeding | rkaf:ArtifactIdentifierScheme | 1..* | artifact-eli-positive, proceeding-us-rin-positive |
+| rkaf:hasArtifactIdentifier | https://rulespec.org/ns/v1#hasArtifactIdentifier | Property | rkaf:Artifact | IRI | 1..* | artifact-eli-positive |
+| rkaf:artifactIdentifierScheme | https://rulespec.org/ns/v1#artifactIdentifierScheme | Property (closed enum) | rkaf:Artifact | rkaf:ArtifactIdentifierScheme | 1..* | artifact-eli-positive |
+| rkaf:hasRegulatoryIdentifier | https://rulespec.org/ns/v1#hasRegulatoryIdentifier | Property | rkaf:Artifact | IRI | 0..1 | artifact-us-cfr-positive |
+| rkaf:regulatoryIdentifierScheme | https://rulespec.org/ns/v1#regulatoryIdentifierScheme | Property (closed enum) | rkaf:Artifact | rkaf:USRegulatoryIdentifierScheme | 0..1 | artifact-us-cfr-positive |
 | rkaf:SourceFragment | https://rulespec.org/ns/v1#SourceFragment | Class (rdfs:subClassOf oa:SpecificResource) | — | — | — | sourcefragment-oa-textquote-positive, sourcefragment-oa-xpath-positive, sourcefragment-aknt-eid-positive, sourcefragment-uslm-section-positive |
 | oa:hasSource | http://www.w3.org/ns/oa#hasSource | Property (OA 1.0 import) | rkaf:SourceFragment | rkaf:Artifact | 1 | sourcefragment-oa-textquote-positive |
 | oa:hasSelector | http://www.w3.org/ns/oa#hasSelector | Property (OA 1.0 import) | rkaf:SourceFragment | oa:Selector | 1..* | sourcefragment-oa-textquote-positive |
@@ -42,13 +44,20 @@ These terms are defined by `spec/rkaf-rulemaking.md`. Their status is Experiment
 | Term | IRI | Kind | Domain | Range | Cardinality | Required fixtures |
 |---|---|---|---|---|---|---|
 | rkaf:Proceeding | https://rulespec.org/ns/v1#Proceeding | Class | — | — | — | proceeding-us-rin-positive |
+| rkaf:hasProceedingIdentifier | https://rulespec.org/ns/v1#hasProceedingIdentifier | Property | rkaf:Proceeding | IRI | 1 | proceeding-us-rin-positive |
+| rkaf:proceedingIdentifierScheme | https://rulespec.org/ns/v1#proceedingIdentifierScheme | Property (closed enum) | rkaf:Proceeding | rkaf:ProceedingIdentifierScheme | 1 | proceeding-us-rin-positive |
+| rkaf:Docket | https://rulespec.org/ns/v1#Docket | Class | — | — | — | docket-us-regsgov-positive |
+| rkaf:hasDocketIdentifier | https://rulespec.org/ns/v1#hasDocketIdentifier | Property | rkaf:Docket | IRI | 1 | docket-us-regsgov-positive |
+| rkaf:docketIdentifierScheme | https://rulespec.org/ns/v1#docketIdentifierScheme | Property (closed enum) | rkaf:Docket | rkaf:DocketIdentifierScheme | 1 | docket-us-regsgov-positive |
+| rkaf:hasDocket | https://rulespec.org/ns/v1#hasDocket | Property | rkaf:Proceeding | rkaf:Docket | 0..* | proceeding-us-rin-positive |
 | rkaf:CommentPeriod | https://rulespec.org/ns/v1#CommentPeriod | Class | — | — | — | commentperiod-positive |
-| rkaf:proceedingStage | https://rulespec.org/ns/v1#proceedingStage | Property (closed enum) | rkaf:Proceeding | rkaf:ProceedingStage | 1 | proceeding-us-rin-positive |
+| rkaf:proceedingStage | https://rulespec.org/ns/v1#proceedingStage | Property (closed enum) | rkaf:Proceeding | rkaf:ProceedingStage | 0..1 | proceeding-us-rin-positive |
 | rkaf:proceedingAffects | https://rulespec.org/ns/v1#proceedingAffects | Property | rkaf:Proceeding | rkaf:Artifact | 0..* | proceeding-us-rin-positive |
 | rkaf:publishedInProceeding | https://rulespec.org/ns/v1#publishedInProceeding | Property | rkaf:Artifact | rkaf:Proceeding | 0..* | artifact-us-frdoc-positive |
 | rkaf:commentPeriodFor | https://rulespec.org/ns/v1#commentPeriodFor | Property | rkaf:CommentPeriod | rkaf:Proceeding | 1 | commentperiod-positive |
 | rkaf:commentPeriodStart | https://rulespec.org/ns/v1#commentPeriodStart | Property | rkaf:CommentPeriod | xsd:date | 1 | commentperiod-positive |
 | rkaf:commentPeriodEnd | https://rulespec.org/ns/v1#commentPeriodEnd | Property | rkaf:CommentPeriod | xsd:date | 1 | commentperiod-positive |
+| prov:wasDerivedFrom | http://www.w3.org/ns/prov#wasDerivedFrom | Property (PROV-O import) | rkaf:CommentPeriod | prov:Entity | 1..* | commentperiod-positive |
 
 `rkaf:proceedingStage` has six values: `rkaf:prerule`, `rkaf:proposed`, `rkaf:supplemental`, `rkaf:final`, `rkaf:withdrawn`, and `rkaf:longterm`.
 

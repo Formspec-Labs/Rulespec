@@ -6,16 +6,22 @@ use serde::{Deserialize, Serialize};
 
 use std::collections::BTreeMap;
 
+/// Generated JSON-LD carrier for `Workspace`.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Workspace {
+    /// JSON-LD resource type.
     #[serde(rename = "@type", default = "Workspace::default_type")]
     pub type_: String,
+    /// Optional JSON-LD resource identifier.
     #[serde(rename = "@id", skip_serializing_if = "Option::is_none", default)]
     pub id: Option<String>,
+    /// JSON-LD property `rkaf:workspaceId`.
     #[serde(rename = "rkaf:workspaceId")]
     pub workspace_id: String,
+    /// JSON-LD property `rkaf:workspaceTrustList`.
     #[serde(rename = "rkaf:workspaceTrustList", skip_serializing_if = "Option::is_none", default)]
     pub workspace_trust_list: Option<crate::OneOrMany<String>>,
+    /// Additional JSON-LD properties preserved during round trips.
     #[serde(flatten)]
     pub extra: BTreeMap<String, serde_json::Value>,
 }

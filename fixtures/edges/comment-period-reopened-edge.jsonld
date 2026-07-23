@@ -6,14 +6,20 @@
       "@type": "rkaf:CommentPeriod",
       "rkaf:commentPeriodFor": "urn:rkaf:fixture:proceeding:example-reopened",
       "rkaf:commentPeriodStart": "2025-01-10",
-      "rkaf:commentPeriodEnd": "2025-02-10"
+      "rkaf:commentPeriodEnd": "2025-02-10",
+      "prov:wasDerivedFrom": [
+        "urn:rkaf:fixture:evidence:comment-period-initial"
+      ]
     },
     {
       "@id": "urn:rkaf:fixture:edge:comment-period-reopened",
       "@type": "rkaf:CommentPeriod",
       "rkaf:commentPeriodFor": "urn:rkaf:fixture:proceeding:example-reopened",
       "rkaf:commentPeriodStart": "2025-03-03",
-      "rkaf:commentPeriodEnd": "2025-03-17"
+      "rkaf:commentPeriodEnd": "2025-03-17",
+      "prov:wasDerivedFrom": [
+        "urn:rkaf:fixture:evidence:comment-period-reopened"
+      ]
     }
   ]
 }

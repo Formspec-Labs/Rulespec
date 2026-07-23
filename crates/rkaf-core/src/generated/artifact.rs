@@ -4,62 +4,97 @@
 
 use serde::{Deserialize, Serialize};
 
+/// Closed Rulespec values for `ArtifactIdentifierScheme`.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum ArtifactIdentifierScheme {
+    /// Wire value `rkaf:eli`.
     #[serde(rename = "rkaf:eli")]
     Eli,
+    /// Wire value `rkaf:eli-dl`.
     #[serde(rename = "rkaf:eli-dl")]
     EliDl,
+    /// Wire value `rkaf:eli-i`.
     #[serde(rename = "rkaf:eli-i")]
     EliI,
+    /// Wire value `rkaf:uslm`.
     #[serde(rename = "rkaf:uslm")]
     Uslm,
+    /// Wire value `rkaf:aknt-eId`.
     #[serde(rename = "rkaf:aknt-eId")]
     AkntEId,
+    /// Wire value `rkaf:doi`.
     #[serde(rename = "rkaf:doi")]
     Doi,
+    /// Wire value `rkaf:isbn`.
     #[serde(rename = "rkaf:isbn")]
     Isbn,
+    /// Wire value `rkaf:issn`.
     #[serde(rename = "rkaf:issn")]
     Issn,
+    /// Wire value `rkaf:cid`.
     #[serde(rename = "rkaf:cid")]
     Cid,
+    /// Wire value `rkaf:hash-sha256`.
     #[serde(rename = "rkaf:hash-sha256")]
     HashSha256,
+    /// Wire value `rkaf:urn-persistent`.
     #[serde(rename = "rkaf:urn-persistent")]
     UrnPersistent,
+    /// Wire value `rkaf:partner-defined`.
     #[serde(rename = "rkaf:partner-defined")]
     PartnerDefined,
+}
+
+/// Closed Rulespec values for `USRegulatoryIdentifierScheme`.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub enum USRegulatoryIdentifierScheme {
+    /// Wire value `rkaf:us-cfr`.
     #[serde(rename = "rkaf:us-cfr")]
     UsCfr,
+    /// Wire value `rkaf:us-usc`.
     #[serde(rename = "rkaf:us-usc")]
     UsUsc,
-    #[serde(rename = "rkaf:us-rin")]
-    UsRin,
+    /// Wire value `rkaf:us-frdoc`.
     #[serde(rename = "rkaf:us-frdoc")]
     UsFrdoc,
+    /// Wire value `rkaf:us-regsgov`.
     #[serde(rename = "rkaf:us-regsgov")]
     UsRegsgov,
+    /// Wire value `rkaf:us-pl`.
     #[serde(rename = "rkaf:us-pl")]
     UsPl,
+    /// Wire value `rkaf:us-eo`.
     #[serde(rename = "rkaf:us-eo")]
     UsEo,
 }
 
 use std::collections::BTreeMap;
 
+/// Generated JSON-LD carrier for `Artifact`.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Artifact {
+    /// JSON-LD resource type.
     #[serde(rename = "@type", default = "Artifact::default_type")]
     pub type_: String,
+    /// Optional JSON-LD resource identifier.
     #[serde(rename = "@id", skip_serializing_if = "Option::is_none", default)]
     pub id: Option<String>,
+    /// JSON-LD property `rkaf:hasArtifactIdentifier`.
     #[serde(rename = "rkaf:hasArtifactIdentifier")]
-    pub has_artifact_identifier: crate::OneOrMany<serde_json::Value>,
+    pub has_artifact_identifier: crate::OneOrMany<String>,
+    /// JSON-LD property `rkaf:artifactIdentifierScheme`.
     #[serde(rename = "rkaf:artifactIdentifierScheme")]
     pub artifact_identifier_scheme: crate::OneOrMany<ArtifactIdentifierScheme>,
+    /// JSON-LD property `rkaf:hasRegulatoryIdentifier`.
+    #[serde(rename = "rkaf:hasRegulatoryIdentifier", skip_serializing_if = "Option::is_none", default)]
+    pub has_regulatory_identifier: Option<String>,
+    /// JSON-LD property `rkaf:regulatoryIdentifierScheme`.
+    #[serde(rename = "rkaf:regulatoryIdentifierScheme", skip_serializing_if = "Option::is_none", default)]
+    pub regulatory_identifier_scheme: Option<USRegulatoryIdentifierScheme>,
+    /// JSON-LD property `rkaf:publishedInProceeding`.
     #[serde(rename = "rkaf:publishedInProceeding", skip_serializing_if = "Option::is_none", default)]
     pub published_in_proceeding: Option<crate::OneOrMany<String>>,
+    /// Additional JSON-LD properties preserved during round trips.
     #[serde(flatten)]
     pub extra: BTreeMap<String, serde_json::Value>,
 }

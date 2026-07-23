@@ -2,6 +2,8 @@
   "@context": "../../context/rkaf-context.jsonld",
   "@id": "urn:rkaf:fixture:negative:artifact-us-usc",
   "@type": "rkaf:Artifact",
-  "rkaf:hasArtifactIdentifier": "urn:rkaf:us:usc:42:7411A",
-  "rkaf:artifactIdentifierScheme": "rkaf:us-usc"
+  "rkaf:hasArtifactIdentifier": "urn:rkaf:fixture:snapshot:artifact-us-usc",
+  "rkaf:artifactIdentifierScheme": "rkaf:partner-defined",
+  "rkaf:hasRegulatoryIdentifier": "urn:rkaf:us:usc:42:7411A",
+  "rkaf:regulatoryIdentifierScheme": "rkaf:us-usc"
 }

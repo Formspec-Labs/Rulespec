@@ -2,10 +2,9 @@
   "@context": "../context/rkaf-context.jsonld",
   "@id": "urn:rkaf:fixture:artifact:frdoc-2024-00366",
   "@type": "rkaf:Artifact",
-  "rkaf:hasArtifactIdentifier": [
-    "urn:rkaf:us:frdoc:2024-00366",
-    "https://www.federalregister.gov/d/2024-00366"
-  ],
-  "rkaf:artifactIdentifierScheme": "rkaf:us-frdoc",
+  "rkaf:hasArtifactIdentifier": "https://www.federalregister.gov/d/2024-00366",
+  "rkaf:artifactIdentifierScheme": "rkaf:urn-persistent",
+  "rkaf:hasRegulatoryIdentifier": "urn:rkaf:us:frdoc:2024-00366",
+  "rkaf:regulatoryIdentifierScheme": "rkaf:us-frdoc",
   "rkaf:publishedInProceeding": "urn:rkaf:fixture:proceeding:2060-AV16"
 }

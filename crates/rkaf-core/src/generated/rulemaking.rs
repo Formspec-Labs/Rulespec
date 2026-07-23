@@ -4,48 +4,105 @@
 
 use serde::{Deserialize, Serialize};
 
+/// Closed Rulespec values for `ProceedingIdentifierScheme`.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum ProceedingIdentifierScheme {
+    /// Wire value `rkaf:us-rin`.
     #[serde(rename = "rkaf:us-rin")]
     UsRin,
-    #[serde(rename = "rkaf:us-regsgov")]
-    UsRegsgov,
+    /// Wire value `rkaf:partner-defined`.
+    #[serde(rename = "rkaf:partner-defined")]
+    PartnerDefined,
 }
 
+/// Closed Rulespec values for `DocketIdentifierScheme`.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub enum DocketIdentifierScheme {
+    /// Wire value `rkaf:us-regsgov`.
+    #[serde(rename = "rkaf:us-regsgov")]
+    UsRegsgov,
+    /// Wire value `rkaf:partner-defined`.
+    #[serde(rename = "rkaf:partner-defined")]
+    PartnerDefined,
+}
+
+/// Closed Rulespec values for `ProceedingStage`.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum ProceedingStage {
+    /// Wire value `rkaf:prerule`.
     #[serde(rename = "rkaf:prerule")]
     Prerule,
+    /// Wire value `rkaf:proposed`.
     #[serde(rename = "rkaf:proposed")]
     Proposed,
+    /// Wire value `rkaf:supplemental`.
     #[serde(rename = "rkaf:supplemental")]
     Supplemental,
+    /// Wire value `rkaf:final`.
     #[serde(rename = "rkaf:final")]
     Final,
+    /// Wire value `rkaf:withdrawn`.
     #[serde(rename = "rkaf:withdrawn")]
     Withdrawn,
+    /// Wire value `rkaf:longterm`.
     #[serde(rename = "rkaf:longterm")]
     Longterm,
 }
 
 use std::collections::BTreeMap;
 
+/// Generated JSON-LD carrier for `Docket`.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-pub struct Proceeding {
-    #[serde(rename = "@type", default = "Proceeding::default_type")]
+pub struct Docket {
+    /// JSON-LD resource type.
+    #[serde(rename = "@type", default = "Docket::default_type")]
     pub type_: String,
+    /// Optional JSON-LD resource identifier.
     #[serde(rename = "@id", skip_serializing_if = "Option::is_none", default)]
     pub id: Option<String>,
-    #[serde(rename = "rkaf:hasArtifactIdentifier")]
-    pub has_artifact_identifier: crate::OneOrMany<String>,
-    #[serde(rename = "rkaf:artifactIdentifierScheme")]
-    pub artifact_identifier_scheme: crate::OneOrMany<ProceedingIdentifierScheme>,
-    #[serde(rename = "rkaf:proceedingStage")]
-    pub proceeding_stage: ProceedingStage,
+    /// JSON-LD property `rkaf:hasDocketIdentifier`.
+    #[serde(rename = "rkaf:hasDocketIdentifier")]
+    pub has_docket_identifier: String,
+    /// JSON-LD property `rkaf:docketIdentifierScheme`.
+    #[serde(rename = "rkaf:docketIdentifierScheme")]
+    pub docket_identifier_scheme: DocketIdentifierScheme,
+    /// Additional JSON-LD properties preserved during round trips.
+    #[serde(flatten)]
+    pub extra: BTreeMap<String, serde_json::Value>,
+}
+
+impl Docket {
+    fn default_type() -> String { "rkaf:Docket".into() }
+}
+
+/// Generated JSON-LD carrier for `Proceeding`.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct Proceeding {
+    /// JSON-LD resource type.
+    #[serde(rename = "@type", default = "Proceeding::default_type")]
+    pub type_: String,
+    /// Optional JSON-LD resource identifier.
+    #[serde(rename = "@id", skip_serializing_if = "Option::is_none", default)]
+    pub id: Option<String>,
+    /// JSON-LD property `rkaf:hasProceedingIdentifier`.
+    #[serde(rename = "rkaf:hasProceedingIdentifier")]
+    pub has_proceeding_identifier: String,
+    /// JSON-LD property `rkaf:proceedingIdentifierScheme`.
+    #[serde(rename = "rkaf:proceedingIdentifierScheme")]
+    pub proceeding_identifier_scheme: ProceedingIdentifierScheme,
+    /// JSON-LD property `rkaf:proceedingStage`.
+    #[serde(rename = "rkaf:proceedingStage", skip_serializing_if = "Option::is_none", default)]
+    pub proceeding_stage: Option<ProceedingStage>,
+    /// JSON-LD property `rkaf:hasAuthority`.
     #[serde(rename = "rkaf:hasAuthority")]
     pub has_authority: crate::OneOrMany<String>,
+    /// JSON-LD property `rkaf:hasDocket`.
+    #[serde(rename = "rkaf:hasDocket", skip_serializing_if = "Option::is_none", default)]
+    pub has_docket: Option<crate::OneOrMany<String>>,
+    /// JSON-LD property `rkaf:proceedingAffects`.
     #[serde(rename = "rkaf:proceedingAffects", skip_serializing_if = "Option::is_none", default)]
     pub proceeding_affects: Option<crate::OneOrMany<String>>,
+    /// Additional JSON-LD properties preserved during round trips.
     #[serde(flatten)]
     pub extra: BTreeMap<String, serde_json::Value>,
 }
@@ -54,18 +111,28 @@ impl Proceeding {
     fn default_type() -> String { "rkaf:Proceeding".into() }
 }
 
+/// Generated JSON-LD carrier for `CommentPeriod`.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct CommentPeriod {
+    /// JSON-LD resource type.
     #[serde(rename = "@type", default = "CommentPeriod::default_type")]
     pub type_: String,
+    /// Optional JSON-LD resource identifier.
     #[serde(rename = "@id", skip_serializing_if = "Option::is_none", default)]
     pub id: Option<String>,
+    /// JSON-LD property `rkaf:commentPeriodFor`.
     #[serde(rename = "rkaf:commentPeriodFor")]
     pub comment_period_for: String,
+    /// JSON-LD property `rkaf:commentPeriodStart`.
     #[serde(rename = "rkaf:commentPeriodStart")]
     pub comment_period_start: String,
+    /// JSON-LD property `rkaf:commentPeriodEnd`.
     #[serde(rename = "rkaf:commentPeriodEnd")]
     pub comment_period_end: String,
+    /// JSON-LD property `prov:wasDerivedFrom`.
+    #[serde(rename = "prov:wasDerivedFrom")]
+    pub was_derived_from: crate::OneOrMany<String>,
+    /// Additional JSON-LD properties preserved during round trips.
     #[serde(flatten)]
     pub extra: BTreeMap<String, serde_json::Value>,
 }
