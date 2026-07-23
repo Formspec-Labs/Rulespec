@@ -5,6 +5,21 @@ All notable changes to Rulespec are documented in this file.
 The format is loosely based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 adapted for a specification + shape + fixture project.
 
+## Unreleased — US regulatory identifiers, L0 conformance, and rulemaking module
+
+### Added
+
+- Seven closed `artifactIdentifierScheme` values for CFR, U.S. Code, RIN, Federal Register document, regulations.gov, public-law, and Executive-order identity, with normative URN grammars and SHACL normalization checks.
+- Positive and negative normalization fixtures for every new scheme, including real docket, document, and comment identifiers.
+- An L0 Vocabulary conformance path for non-JSON-LD carriers, a normative `yaml rkaf-l0-mapping` format, self-certification fields, and `tools/l0_mapping_audit.py`.
+- The Experimental `spec/rkaf-rulemaking.md` module with generated Proceeding and CommentPeriod types, proceeding-stage lifecycle values, CFR targets, published-document links, and authority-chain composition.
+- A curated EPA RIN `2060-AV16` reference corpus with source provenance and a dedicated validation gate.
+
+### Deferred by contract
+
+- `conformance/partners/spicy-regs.yaml` remains unfiled until spicy-regs ships both the `rule_targets` table and `docs/ontology.md` carrier mapping. Filing an L0 claim before those artifacts exist would be a false certification.
+- No version bump assigns these unreleased changes to `0.2.0-pre.6`; the design memo requires the existing `pre.7` consolidation to land first.
+
 ## Unreleased — SKOS predicate composition on Concept; prefLabel(1) enforced at L1 + L3 (PKA-2szi)
 
 The normative mandate at `spec/rkaf-concept-registry.md` for `skos:prefLabel (1)` on every `rkaf:RegisteredConcept` / `rkaf:LocalConcept` was previously unenforced — producers could omit the label and pass validation. This entry closes the gap with explicit L1 (CUE → JSON Schema) AND L3 (SHACL `sh:minCount 1`) enforcement, plus optional `skos:altLabel` / `skos:broader` / `skos:narrower` / `skos:related` composition.

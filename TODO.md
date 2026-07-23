@@ -15,12 +15,18 @@ Gate C (studio-profile CUE derivation) is **not** a projector gap — it's a Stu
 
 ## Conformance (Layer 6) — ratify current architecture
 
-The plan specified `rkaf-conformance` Rust binary + `suite.index.json` + `conformance/v0.2/levels/` docs. None of that was built. The current architecture (Python reporter + `rkaf-runtime-cli` + directory-walking) delivers L1–L4 gating with 238 fixtures, 0 divergences. Ratify it.
+The plan specified `rkaf-conformance` Rust binary + `suite.index.json` + `conformance/v0.2/levels/` docs. None of that was built. The current architecture (Python reporter + `rkaf-runtime-cli` + directory-walking) delivers L1–L4 gating with 268 fixtures, 0 core divergences. Ratify it.
 
 - [ ] Author `docs/conformance/partner-disclosure-howto.md` — step-by-step instructions for partners to produce a conformance disclosure YAML.
 - [ ] Fold any missing L1–L4 level detail into `spec/rkaf-conformance.md` (already has level descriptions at lines 106–118). Do not create separate `conformance/v0.2/levels/` files.
 - [ ] Rewrite the Layer 6 plan (`thoughts/plans/2026-05-12-rkaf-layer6-conformance-v0.2.md`) self-review checklist to match what actually shipped.
 - [ ] Consolidate unreleased CHANGELOG entries (Plans 7a–7e, ADR-0093) into a versioned `v0.2.0-pre.7` release. Bump `VERSION`.
+
+## US regulatory vocabulary and rulemaking follow-through
+
+- [ ] Land and tag the `v0.2.0-pre.7` consolidation before assigning the US identifier and L0 work to a release, as required by the design memo's sequencing.
+- [ ] File `conformance/partners/spicy-regs.yaml` only after spicy-regs ships both `rule_targets` and `docs/ontology.md`, then run `tools/l0_mapping_audit.py` against that real mapping.
+- [ ] Keep `spec/rkaf-rulemaking.md` Experimental until a full-corpus spicy-regs `proceedings` / `comment_periods` run publishes a friction report and a non-originating consumer completes review.
 
 ## Rust SDK (Layer 5) — umbrella crate
 
