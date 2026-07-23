@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 """Codegen drift audit — Rust canonical tree must match CUE source.
 
-Runs `tools/compile_all.sh` against current CUE source, then asserts that
-`crates/rkaf-core/src/generated/` has no git-modified or git-untracked
-files. A failure means: a CUE edit landed without its generated Rust
-counterpart, or someone hand-edited a generated file. Either is a
-release-gate failure.
+Snapshots `crates/rkaf-core/src/generated/`, runs `tools/compile_all.sh`
+against current CUE source, and compares the resulting bytes with the
+snapshot. A failure means a CUE edit has not been regenerated or a generated
+file was hand-edited. Legitimate uncommitted CUE plus generated changes pass
+when they are already in lock-step.
 
 Run from Rulespec repo root. Exits:
   0  generated tree matches CUE source — codegen is in lock-step
@@ -19,7 +19,6 @@ while drifting from CUE.
 
 from __future__ import annotations
 
-import shutil
 import subprocess
 import sys
 from pathlib import Path
@@ -28,46 +27,56 @@ GENERATED_TREE = Path("crates/rkaf-core/src/generated")
 DRIVER = Path("tools/compile_all.sh")
 
 
-def _run(cmd: list[str]) -> subprocess.CompletedProcess:
+def _run(cmd: list[str]) -> subprocess.CompletedProcess[str]:
     return subprocess.run(cmd, check=False, capture_output=True, text=True)
+
+
+def _snapshot() -> dict[Path, bytes]:
+    return {
+        path.relative_to(GENERATED_TREE): path.read_bytes()
+        for path in sorted(GENERATED_TREE.rglob("*"))
+        if path.is_file()
+    }
 
 
 def main() -> int:
     if not DRIVER.exists():
         print(f"ERROR: missing {DRIVER}", file=sys.stderr)
         return 2
-    if not shutil.which("git"):
-        print("ERROR: git not on PATH", file=sys.stderr)
-        return 2
     if not GENERATED_TREE.is_dir():
         print(f"ERROR: missing {GENERATED_TREE}", file=sys.stderr)
         return 2
 
+    before = _snapshot()
     drive = _run(["bash", str(DRIVER)])
     if drive.returncode != 0:
         print("ERROR: compile_all.sh failed:", file=sys.stderr)
         sys.stderr.write(drive.stderr)
         return 2
+    after = _snapshot()
 
-    status = _run(["git", "status", "--porcelain", str(GENERATED_TREE)])
-    if status.returncode != 0:
-        print("ERROR: git status failed:", file=sys.stderr)
-        sys.stderr.write(status.stderr)
-        return 2
-
-    drifted = status.stdout.strip()
-    if not drifted:
+    changed = sorted(
+        path
+        for path in set(before) | set(after)
+        if before.get(path) != after.get(path)
+    )
+    if not changed:
         print(f"OK: codegen lock-step ({GENERATED_TREE}, no drift)")
         return 0
 
     print("DRIFT DETECTED — generated Rust tree does not match CUE source.\n")
-    print("Files out of sync (git status --porcelain):")
-    print(drifted)
+    print("Files changed by regeneration:")
+    for path in changed:
+        if path not in before:
+            status = "A"
+        elif path not in after:
+            status = "D"
+        else:
+            status = "M"
+        print(f"{status} {GENERATED_TREE / path}")
     print()
-    print("Resolution: commit the regenerated files, OR identify why the")
-    print("compiler produced different output than the tracked version")
-    print("(usually: a CUE edit forgot to regen, or a generated file was")
-    print("hand-edited).")
+    print("Resolution: keep the regenerated files, review the diff, and rerun")
+    print("this audit. The second run should pass when source and output agree.")
     return 1
 
 
