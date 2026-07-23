@@ -93,6 +93,16 @@ administrative resource independently of the immutable Artifact edition.
 They never satisfy the required `rkaf:hasArtifactIdentifier` /
 `rkaf:artifactIdentifierScheme` pair.
 
+An Artifact represents one source posting. A document published in more than
+one registry — for example a Federal Register document that also appears as a
+regulations.gov docket document — is represented as one Artifact per posting,
+each carrying at most one regulatory-identifier pair. Producers MUST NOT merge
+postings into a single Artifact to carry a second pair, and SHOULD choose the
+scheme that names the cited resource most specifically (an Executive order's
+Federal Register posting carries `rkaf:us-eo`, not `rkaf:us-frdoc`). The
+normative cross-posting pattern, including how postings link to each other and
+to Proceedings, is defined in `spec/rkaf-rulemaking.md` §4.
+
 The US regulatory schemes use these canonical forms:
 
 | Scheme | Identifies | Canonical form and normalization |
@@ -118,6 +128,14 @@ For an official Federal Register document number outside the
 form. Producers MAY retain the source value in provenance metadata. This
 fallback preserves the source document without broadening the normalized
 `rkaf:us-frdoc` citation space.
+
+The same fallback discipline applies to `rkaf:us-regsgov`: an agency-issued
+identifier outside the canonical grammar — including a legacy value with a
+single lexical segment — keeps its permanent
+`https://www.regulations.gov/document/<source-value>` URL as
+`rkaf:hasArtifactIdentifier` with `rkaf:artifactIdentifierScheme:
+rkaf:urn-persistent`, and the producer MUST NOT label the source value
+`rkaf:us-regsgov`.
 
 `rkaf:Proceeding` and `rkaf:Docket` have distinct identity predicates in the
 experimental rulemaking module. Neither class reuses Artifact identity.

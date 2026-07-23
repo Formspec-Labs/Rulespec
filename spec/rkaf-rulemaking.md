@@ -33,7 +33,12 @@ Optional properties:
   `rkaf:prerule`, `rkaf:proposed`, `rkaf:supplemental`, `rkaf:final`,
   `rkaf:withdrawn`, `rkaf:longterm`. Absence means the current stage is
   unknown. Producers MUST NOT infer `rkaf:prerule`, `rkaf:withdrawn`, or any
-  other stage from missing evidence.
+  other stage from missing evidence. The unprefixed value IRIs are deliberate:
+  enum values are property-scoped, and `rkaf:proposed` is already shared by
+  `rkaf:adoptionStatus`, `rkaf:conceptStatus`, and the concept-mapping
+  lifecycle with the same generic-status reading. The corresponding
+  `rkaf:lifecycleEventKind` values are prefixed (`rkaf:proceedingProposed`)
+  because that enum spans several event families in one value space.
 - `rkaf:hasDocket` (0..*) — IRI of an associated `rkaf:Docket`. Docket
   membership never establishes proceeding identity.
 - `rkaf:proceedingAffects` (0..*) — IRI of a CFR-unit `rkaf:Artifact` that the proceeding amends or proposes to amend.
@@ -99,6 +104,29 @@ other source-preserved forms.
 
 The relation also applies to a Unified Agenda entry represented as an Artifact. Rulespec defines no Federal Register subclass and no Unified Agenda subclass.
 
+### 4.1 Cross-posted documents
+
+A rulemaking document routinely appears in more than one registry: the same
+proposed rule is a Federal Register document and a regulations.gov docket
+document. Each posting is a distinct immutable publication, so each posting is
+its own `rkaf:Artifact` (core §4.1):
+
+- The Federal Register posting uses its permanent federalregister.gov URL as
+  Artifact identity and MAY carry the `rkaf:us-frdoc` citation.
+- The regulations.gov posting uses its permanent
+  `https://www.regulations.gov/document/<id>` URL as Artifact identity and MAY
+  carry the `rkaf:us-regsgov` citation.
+
+A producer MUST NOT collapse the postings into one Artifact carrying two
+regulatory-identifier pairs. Postings of the same underlying document SHOULD
+be linked with `dcterms:hasFormat` / `dcterms:isFormatOf` in at least one
+direction. Every posting Artifact MAY assert `rkaf:publishedInProceeding`;
+consumers that need one node per document unify through the format links or at
+the Proceeding. Relations whose range is a specific edition — such as
+`rkaf:proceedingAffects` and `rkaf:derivesAuthorityFrom` — target whichever
+posting Artifact carries the edition being cited, not "the document" in the
+abstract.
+
 ## 5. Lifecycle events
 
 Proceeding stage transitions use `rkaf:LifecycleEvent`; this module defines no parallel event class. `rkaf:appliesTo` points to the Proceeding, and `rkaf:effectiveDate` records the transition time.
@@ -157,6 +185,19 @@ rules above. Condition 2 remains open. The curated corpus under
 `reference-corpora/us-rulemaking/` exercises the module but does not itself
 satisfy either condition. A fixture proves validation; it does not prove
 corpus-scale fitness.
+
+Agenda for the condition-2 review (items the 2026-07-23 architecture review
+flagged for an outside judgment):
+
+1. The §4.1 cross-posting pattern — is one-Artifact-per-posting with
+   `dcterms:hasFormat` links the right contract, or should the
+   regulatory-identifier pair become repeatable?
+2. The required `rkaf:hasAuthority` (1..*) on Proceeding — a proceeding whose
+   statutory basis is unknown is unrepresentable, asymmetric with the
+   explicitly optional unknown stage. The full-corpus run reported no
+   friction; confirm that holds outside Unified-Agenda-backed sources.
+3. The stage-value naming convention (§2) — unprefixed shared status IRIs
+   versus the prefixed lifecycle-event kinds.
 
 ## 9. Validation surface
 
