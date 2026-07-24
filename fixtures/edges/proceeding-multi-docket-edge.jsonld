@@ -4,8 +4,8 @@
     {
       "@id": "urn:rkaf:fixture:edge:proceeding-multi-docket",
       "@type": "rkaf:Proceeding",
-      "rkaf:hasProceedingIdentifier": "urn:rkaf:us:rin:2060-AV16",
-      "rkaf:proceedingIdentifierScheme": "rkaf:us-rin",
+      "rkaf:hasProceedingIdentifier": "urn:rkaf:partner:fixture:proceeding:multi-docket",
+      "rkaf:proceedingIdentifierScheme": "rkaf:partner-defined",
       "rkaf:hasDocket": [
         "urn:rkaf:fixture:docket:EPA-HQ-OAR-2021-0317",
         "urn:rkaf:fixture:docket:EPA-HQ-OAR-2025-0192"

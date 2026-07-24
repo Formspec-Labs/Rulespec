@@ -2,7 +2,7 @@
   "@context": "../context/rkaf-context.jsonld",
   "@id": "urn:rkaf:fixture:proceeding:authority-unknown",
   "@type": "rkaf:Proceeding",
-  "rkaf:hasProceedingIdentifier": "urn:rkaf:us:rin:2060-AV16",
-  "rkaf:proceedingIdentifierScheme": "rkaf:us-rin",
+  "rkaf:hasProceedingIdentifier": "urn:rkaf:partner:fixture:proceeding:authority-unknown",
+  "rkaf:proceedingIdentifierScheme": "rkaf:partner-defined",
   "rkaf:proceedingStage": "rkaf:proceedingProposed"
 }

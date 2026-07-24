@@ -1,9 +1,9 @@
 {
   "@context": "../../context/rkaf-context.jsonld",
-  "@id": "urn:rkaf:fixture:negative:proceeding-us-rin",
+  "@id": "urn:rkaf:fixture:negative:proceeding-rin-as-identity",
   "@type": "rkaf:Proceeding",
-  "rkaf:hasProceedingIdentifier": "urn:rkaf:us:rin:2060-av16",
-  "rkaf:proceedingIdentifierScheme": "rkaf:us-rin",
+  "rkaf:hasProceedingIdentifier": "urn:rkaf:us:rin:2060-AV16",
+  "rkaf:proceedingIdentifierScheme": "rkaf:partner-defined",
   "rkaf:proceedingStage": "rkaf:proceedingFinal",
   "rkaf:hasAuthority": "urn:rkaf:fixture:authority:clean-air-act-111"
 }

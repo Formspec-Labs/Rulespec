@@ -28,7 +28,7 @@ declared_levels:
 # `terms_used` is the unique set of full term IRIs in the mapping blocks.
 # carrier_mapping: "path/to/published-mapping.md"
 # terms_used:
-#   - "https://rulespec.org/ns/v1#hasProceedingIdentifier"
+#   - "https://rulespec.org/ns/v1#hasAgendaItemIdentifier"
 
 # Operational adoption depth — D0 cite / D1 overlay / D2 align / D3 derive /
 # D4 substrate / D5 sole. See source spec Appendix D. L0 declarations MUST

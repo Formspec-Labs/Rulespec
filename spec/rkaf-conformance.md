@@ -50,7 +50,7 @@ current `sha256:<64 lowercase hex>` contract digest. Every block in one
 document MUST use the same digest.
 
 ```yaml rkaf-l0-mapping
-rulespec_version: "sha256:ea9b899ba92955b83638ece811d7a4b744dd912f72e19290e32c97508674de1c"
+rulespec_version: "sha256:2aefd3fad7782a7b16a7fa8fc08e8ceb26b5db741e0371b8fa8a9ccc1982124d"
 mappings:
   - table: proceedings
     column: current_stage
@@ -229,9 +229,9 @@ The conformance test corpus lives under `fixtures/`. The §10.1 coverage target 
 
 | Coverage | Target | Current |
 |---|---|---|
-| Per-class positive fixtures | every embedded compiled schema type | 61 positive fixtures; `rkaf-validate` asserts coverage for all 35 embedded `@type` schemas |
-| Per-class negative fixtures | every codified class with required fields | 132 negative fixtures; `tools/validate_negatives.py` discovers and gates all of them |
-| Per-class edge fixtures | every codified class | 38 edge fixtures; `tools/l0_l3_coverage_audit.py` asserts coverage for all 35 compiled schema classes |
+| Per-class positive fixtures | every embedded compiled schema type | 74 positive fixtures; `rkaf-validate` asserts coverage for all 38 embedded `@type` schemas |
+| Per-class negative fixtures | every codified class with required fields | 143 negative fixtures; `tools/validate_negatives.py` discovers and gates all of them |
+| Per-class edge fixtures | every codified class | 39 edge fixtures; `tools/l0_l3_coverage_audit.py` asserts coverage for all 38 compiled schema classes |
 | Behavior fixtures | every L4 contract family and normative branch | 45 behavior fixtures |
 | Adversarial fixtures | ≥5 | 6 (in `fixtures/adversarial/`) |
 | AI-extraction adversarial fixtures | ≥3 | 3 (in `fixtures/ai-extraction/`) |
@@ -270,7 +270,7 @@ declared_levels: [L0]
 rulespec_version: "sha256:<current L0 contract digest>"
 carrier_mapping: "path/to/the/published-mapping.md"
 terms_used:
-  - "https://rulespec.org/ns/v1#hasProceedingIdentifier"
+  - "https://rulespec.org/ns/v1#hasAgendaItemIdentifier"
 test_corpus_version: "<immutable carrier corpus version>"
 results:
   L0: pass

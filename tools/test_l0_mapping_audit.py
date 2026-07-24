@@ -54,10 +54,10 @@ class L0MappingAuditTests(unittest.TestCase):
 
     def test_valid_mapping_checks_domain_kind_enum_and_identifier_sample(self) -> None:
         identifier = {
-            "table": "proceedings",
+            "table": "regulatory_agenda_items",
             "column": "rin",
-            "subject_type": f"{RKAF}Proceeding",
-            "term": f"{RKAF}hasProceedingIdentifier",
+            "subject_type": f"{RKAF}RegulatoryAgendaItem",
+            "term": f"{RKAF}hasAgendaItemIdentifier",
             "direction": "forward",
             "value_kind": "iri",
             "transform": {

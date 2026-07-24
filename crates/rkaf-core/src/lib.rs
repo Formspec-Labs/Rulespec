@@ -115,7 +115,10 @@ pub use generated::local_adoption::LocalAdoption;
 pub use generated::point_in_time_exception::PointInTimeException;
 pub use generated::registry_conflict::RegistryConflict;
 pub use generated::revalidation_event::{RevalidationClosureEvent, RevalidationEvent};
-pub use generated::rulemaking::{CommentPeriod, Proceeding};
+pub use generated::rulemaking::{
+    AgendaProceedingRelationship, CommentPeriod, Docket, Proceeding,
+    RegulatoryAgendaItem, RegulatoryAgendaObservation,
+};
 pub use generated::source_fragment::SourceFragment;
 pub use generated::warrant::Warrant;
 pub use generated::workspace::Workspace;

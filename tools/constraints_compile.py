@@ -19,6 +19,7 @@ constraints/ai-extraction/):
   - `if X["start"] > X["end"] { _|_ }`       → ordered-field invariant
   - `{...} | {...}`                          → disjunction branch
   - `list.MinItems(N)` / `[...#X] & list.MinItems(N)` → list cardinality
+  - `string & =~"..." & !~"..."`             → allowed + forbidden pattern
   - `time.Format("2006-01-02")`              → JSON Schema/SHACL date
 
 This is NOT a full CUE parser — it handles the regular patterns Rulespec uses.
@@ -72,6 +73,7 @@ class PropDef:
     optional: bool = False
     fixed_value: Optional[str] = None
     pattern: Optional[str] = None
+    forbidden_pattern: Optional[str] = None
     string_format: Optional[str] = None
     min_inclusive: Optional[float] = None
     max_inclusive: Optional[float] = None
@@ -117,7 +119,9 @@ class ConstraintDoc:
 
 # ---- Parser --------------------------------------------------------------
 
-ENUM_LINE_RE = re.compile(r'^#(\w+):\s*((?:"[^"]+"\s*\|\s*)+"[^"]+")\s*$')
+ENUM_LINE_RE = re.compile(
+    r'^#(\w+):\s*("[^"]+"(?:\s*\|\s*"[^"]+")*)\s*$'
+)
 ENUM_MULTI_RE = re.compile(r'"([^"]+)"')
 # Closed-enum-of-refs: `#Name: #A | #B | #C`
 ENUM_UNION_RE = re.compile(r'^#(\w+):\s*((?:#\w+\s*\|\s*)+#\w+)\s*$')
@@ -476,6 +480,16 @@ def parse_property_line(line: str) -> Optional[PropDef]:
     if rhs == "int":
         p.type_ref = "int"
         return p
+    # `string & =~"allowed" & !~"forbidden"`
+    pm_both = re.match(
+        r'^string\s*&\s*=~"([^"]+)"\s*&\s*!~"([^"]+)"$',
+        rhs,
+    )
+    if pm_both:
+        p.type_ref = "string"
+        p.pattern = _decode_cue_string(pm_both.group(1))
+        p.forbidden_pattern = _decode_cue_string(pm_both.group(2))
+        return p
     # `string & =~"pattern"`
     pm = re.match(r'^string\s*&\s*=~"([^"]+)"$', rhs)
     if pm:
@@ -766,6 +780,8 @@ def property_to_jsonschema(p: PropDef, doc: ConstraintDoc) -> dict:
     out = {"type": "string"}
     if p.pattern:
         out["pattern"] = p.pattern
+    if p.forbidden_pattern:
+        out["not"] = {"pattern": p.forbidden_pattern}
     if p.string_format:
         out["format"] = p.string_format
         if p.string_format == "date":
@@ -1042,6 +1058,21 @@ def target_typescript(doc: ConstraintDoc) -> str:
                         f'!new RegExp({pattern}).test(v["{p.name}"] as string)) '
                         f'errs.push("{p.name}: pattern mismatch");'
                     )
+            if p.forbidden_pattern:
+                pattern = json.dumps(p.forbidden_pattern)
+                if p.type_ref == "list":
+                    out.append(
+                        f'  if (v["{p.name}"] !== undefined && '
+                        f'!([] as string[]).concat(v["{p.name}"] as string[]).every'
+                        f'((value) => !new RegExp({pattern}).test(value))) '
+                        f'errs.push("{p.name}: forbidden pattern match");'
+                    )
+                else:
+                    out.append(
+                        f'  if (v["{p.name}"] !== undefined && '
+                        f'new RegExp({pattern}).test(v["{p.name}"] as string)) '
+                        f'errs.push("{p.name}: forbidden pattern match");'
+                    )
             if p.string_format == "date":
                 out.append(
                     f'  if (v["{p.name}"] !== undefined && '
@@ -1125,6 +1156,8 @@ def target_shacl(
         "@prefix oa:   <http://www.w3.org/ns/oa#> .",
         "@prefix skos: <http://www.w3.org/2004/02/skos/core#> .",
         "@prefix prov: <http://www.w3.org/ns/prov#> .",
+        "@prefix dcat: <http://www.w3.org/ns/dcat#> .",
+        "@prefix foaf: <http://xmlns.com/foaf/0.1/> .",
         "@prefix dcterms: <http://purl.org/dc/terms/> .",
         "@prefix dpv:  <https://w3id.org/dpv#> .",
         "@prefix rkaf: <https://rulespec.org/ns/v1#> .",
@@ -1175,6 +1208,11 @@ def target_shacl(
                     line += f" sh:in ( {values} ) ;"
             if p.pattern:
                 line += f" sh:pattern {json.dumps(p.pattern)} ;"
+            if p.forbidden_pattern:
+                line += (
+                    " sh:not [ sh:pattern "
+                    f"{json.dumps(p.forbidden_pattern)} ; ] ;"
+                )
             if p.string_format == "date":
                 line += " sh:datatype xsd:date ;"
             if reference_classes and (reference_class := reference_classes.get(p.name)):

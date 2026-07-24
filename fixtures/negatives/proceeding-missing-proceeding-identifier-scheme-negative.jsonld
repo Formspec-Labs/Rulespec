@@ -2,7 +2,7 @@
   "@context": "../../context/rkaf-context.jsonld",
   "@id": "urn:rkaf:fixture:negative:proceeding-missing-scheme",
   "@type": "rkaf:Proceeding",
-  "rkaf:hasProceedingIdentifier": "urn:rkaf:us:rin:2060-AV16",
+  "rkaf:hasProceedingIdentifier": "urn:rkaf:partner:fixture:proceeding:missing-scheme",
   "rkaf:proceedingStage": "rkaf:proceedingProposed",
   "rkaf:hasAuthority": "urn:rkaf:fixture:authority:clean-air-act-111"
 }

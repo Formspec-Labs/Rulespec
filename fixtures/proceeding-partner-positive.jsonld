@@ -4,16 +4,14 @@
     {
       "@id": "urn:rkaf:fixture:proceeding:2060-AV16",
       "@type": "rkaf:Proceeding",
-      "rkaf:hasProceedingIdentifier": "urn:rkaf:us:rin:2060-AV16",
-      "rkaf:proceedingIdentifierScheme": "rkaf:us-rin",
+      "rkaf:hasProceedingIdentifier": "urn:rkaf:partner:fixture:proceeding:EPA-HQ-OAR-2021-0317",
+      "rkaf:proceedingIdentifierScheme": "rkaf:partner-defined",
       "rkaf:proceedingStage": "rkaf:proceedingFinal",
       "rkaf:hasAuthority": "urn:rkaf:fixture:authority:clean-air-act-111",
       "rkaf:hasDocket": "urn:rkaf:fixture:docket:EPA-HQ-OAR-2021-0317",
       "rkaf:proceedingAffects": "urn:rkaf:fixture:artifact:cfr-40-60-pre-amendment",
       "rkaf:proceedingAffectsCitation": "urn:rkaf:us:cfr:40:60.5375a",
-      "rkaf:proceedingProduces": "urn:rkaf:fixture:artifact:cfr-40-60-result",
-      "rkaf:hasProceedingEvidenceIdentifier": "urn:rkaf:us:rin:2060-AV16",
-      "rkaf:proceedingEvidenceIdentifierScheme": "rkaf:us-rin"
+      "rkaf:proceedingProduces": "urn:rkaf:fixture:artifact:cfr-40-60-result"
     },
     {
       "@id": "urn:rkaf:fixture:authority:clean-air-act-111",

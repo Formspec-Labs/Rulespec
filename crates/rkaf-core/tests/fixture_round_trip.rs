@@ -90,6 +90,7 @@ fn round_trip_artifact_fixtures() {
     round_trip::<Artifact>("artifact-us-regsgov-positive", "rkaf:Artifact");
     round_trip::<Artifact>("artifact-us-pl-positive", "rkaf:Artifact");
     round_trip::<Artifact>("artifact-us-eo-positive", "rkaf:Artifact");
+    round_trip::<Artifact>("artifact-primary-topic-positive", "rkaf:Artifact");
 }
 
 #[test]
@@ -217,7 +218,20 @@ fn round_trip_lifecycle_event_fixture() {
 
 #[test]
 fn round_trip_rulemaking_fixtures() {
-    round_trip::<Proceeding>("proceeding-us-rin-positive", "rkaf:Proceeding");
+    round_trip::<RegulatoryAgendaItem>(
+        "agenda-item-ordinary-positive",
+        "rkaf:RegulatoryAgendaItem",
+    );
+    round_trip::<RegulatoryAgendaObservation>(
+        "agenda-observations-multiple-editions-positive",
+        "rkaf:RegulatoryAgendaObservation",
+    );
+    round_trip::<AgendaProceedingRelationship>(
+        "agenda-item-ordinary-positive",
+        "rkaf:AgendaProceedingRelationship",
+    );
+    round_trip::<Proceeding>("proceeding-partner-positive", "rkaf:Proceeding");
+    round_trip::<Docket>("docket-us-regsgov-positive", "rkaf:Docket");
     round_trip::<CommentPeriod>("commentperiod-positive", "rkaf:CommentPeriod");
 }
 

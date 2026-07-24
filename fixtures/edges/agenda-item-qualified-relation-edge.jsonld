@@ -1,0 +1,40 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@graph": [
+    {
+      "@id": "urn:rkaf:us:rin:9999-ZZ99",
+      "@type": "rkaf:RegulatoryAgendaItem",
+      "rkaf:hasAgendaItemIdentifier": "urn:rkaf:us:rin:9999-ZZ99",
+      "rkaf:agendaItemIdentifierScheme": "rkaf:us-rin",
+      "rkaf:agendaScopeStatus": "rkaf:agendaScopeUnresolved",
+      "dcat:qualifiedRelation": "urn:rkaf:fixture:edge:agenda-relationship"
+    },
+    {
+      "@id": "urn:rkaf:fixture:edge:agenda-observation",
+      "@type": "rkaf:RegulatoryAgendaObservation",
+      "rkaf:hasArtifactIdentifier": "urn:rkaf:fixture:edge:agenda-observation",
+      "rkaf:artifactIdentifierScheme": "rkaf:urn-persistent",
+      "foaf:primaryTopic": "urn:rkaf:us:rin:9999-ZZ99"
+    },
+    {
+      "@id": "urn:rkaf:fixture:edge:agenda-relationship",
+      "@type": "rkaf:AgendaProceedingRelationship",
+      "dcterms:relation": "urn:rkaf:fixture:edge:proceeding",
+      "dcat:hadRole": "rkaf:agendaTracksProceeding",
+      "prov:wasDerivedFrom": "urn:rkaf:fixture:edge:source",
+      "prov:wasGeneratedBy": "urn:rkaf:fixture:edge:activity",
+      "prov:wasAttributedTo": "urn:rkaf:fixture:edge:actor",
+      "prov:generatedAtTime": "2026-07-24T00:00:00Z"
+    },
+    {
+      "@id": "urn:rkaf:fixture:edge:proceeding",
+      "@type": "rkaf:Proceeding",
+      "rkaf:hasProceedingIdentifier": "urn:rkaf:partner:fixture:proceeding:edge",
+      "rkaf:proceedingIdentifierScheme": "rkaf:partner-defined"
+    },
+    {
+      "@id": "urn:rkaf:fixture:edge:source",
+      "@type": "prov:Entity"
+    }
+  ]
+}

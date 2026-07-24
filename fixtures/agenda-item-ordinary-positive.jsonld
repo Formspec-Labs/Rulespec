@@ -1,0 +1,33 @@
+{
+  "@context": "../context/rkaf-context.jsonld",
+  "@graph": [
+    {
+      "@id": "urn:rkaf:us:rin:0301-AA02",
+      "@type": "rkaf:RegulatoryAgendaItem",
+      "rkaf:hasAgendaItemIdentifier": "urn:rkaf:us:rin:0301-AA02",
+      "rkaf:agendaItemIdentifierScheme": "rkaf:us-rin",
+      "rkaf:agendaScopeStatus": "rkaf:agendaScopeSingleObserved",
+      "dcat:qualifiedRelation": "urn:rkaf:fixture:relationship:0301-AA02:1"
+    },
+    {
+      "@id": "urn:rkaf:fixture:relationship:0301-AA02:1",
+      "@type": "rkaf:AgendaProceedingRelationship",
+      "dcterms:relation": "urn:rkaf:fixture:proceeding:0301-AA02:1",
+      "dcat:hadRole": "rkaf:agendaTracksProceeding",
+      "prov:wasDerivedFrom": "https://www.reginfo.gov/public/do/eAgendaViewRule?RIN=0301-AA02&pubId=202510",
+      "prov:wasGeneratedBy": "urn:rkaf:fixture:activity:agenda-materialization",
+      "prov:wasAttributedTo": "urn:rkaf:fixture:actor:spicy-regs",
+      "prov:generatedAtTime": "2026-07-24T00:00:00Z"
+    },
+    {
+      "@id": "urn:rkaf:fixture:proceeding:0301-AA02:1",
+      "@type": "rkaf:Proceeding",
+      "rkaf:hasProceedingIdentifier": "urn:rkaf:partner:fixture:proceeding:0301-AA02:1",
+      "rkaf:proceedingIdentifierScheme": "rkaf:partner-defined"
+    },
+    {
+      "@id": "https://www.reginfo.gov/public/do/eAgendaViewRule?RIN=0301-AA02&pubId=202510",
+      "@type": "prov:Entity"
+    }
+  ]
+}

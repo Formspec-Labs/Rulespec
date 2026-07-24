@@ -64,8 +64,8 @@ COLLECTIONS = {"scalar", "json-list"}
 IDENTIFIER_TERMS = {
     "https://rulespec.org/ns/v1#hasArtifactIdentifier",
     "https://rulespec.org/ns/v1#hasRegulatoryIdentifier",
+    "https://rulespec.org/ns/v1#hasAgendaItemIdentifier",
     "https://rulespec.org/ns/v1#hasProceedingIdentifier",
-    "https://rulespec.org/ns/v1#hasProceedingEvidenceIdentifier",
     "https://rulespec.org/ns/v1#hasDocketIdentifier",
 }
 IDENTIFIER_SCHEME_TERMS = {
@@ -73,10 +73,10 @@ IDENTIFIER_SCHEME_TERMS = {
         "https://rulespec.org/ns/v1#artifactIdentifierScheme",
     "https://rulespec.org/ns/v1#hasRegulatoryIdentifier":
         "https://rulespec.org/ns/v1#regulatoryIdentifierScheme",
+    "https://rulespec.org/ns/v1#hasAgendaItemIdentifier":
+        "https://rulespec.org/ns/v1#agendaItemIdentifierScheme",
     "https://rulespec.org/ns/v1#hasProceedingIdentifier":
         "https://rulespec.org/ns/v1#proceedingIdentifierScheme",
-    "https://rulespec.org/ns/v1#hasProceedingEvidenceIdentifier":
-        "https://rulespec.org/ns/v1#proceedingEvidenceIdentifierScheme",
     "https://rulespec.org/ns/v1#hasDocketIdentifier":
         "https://rulespec.org/ns/v1#docketIdentifierScheme",
 }

@@ -91,6 +91,9 @@ pub struct Artifact {
     /// JSON-LD property `rkaf:regulatoryIdentifierScheme`.
     #[serde(rename = "rkaf:regulatoryIdentifierScheme", skip_serializing_if = "Option::is_none", default)]
     pub regulatory_identifier_scheme: Option<USRegulatoryIdentifierScheme>,
+    /// JSON-LD property `foaf:primaryTopic`.
+    #[serde(rename = "foaf:primaryTopic", skip_serializing_if = "Option::is_none", default)]
+    pub primary_topic: Option<String>,
     /// JSON-LD property `rkaf:publishedInProceeding`.
     #[serde(rename = "rkaf:publishedInProceeding", skip_serializing_if = "Option::is_none", default)]
     pub published_in_proceeding: Option<crate::OneOrMany<String>>,

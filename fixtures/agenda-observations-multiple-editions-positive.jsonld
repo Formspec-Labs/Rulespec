@@ -1,0 +1,32 @@
+{
+  "@context": "../context/rkaf-context.jsonld",
+  "@graph": [
+    {
+      "@id": "urn:rkaf:fixture:observation:2060-AV16:202404",
+      "@type": "rkaf:RegulatoryAgendaObservation",
+      "rkaf:hasArtifactIdentifier": "https://www.reginfo.gov/public/do/eAgendaViewRule?RIN=2060-AV16&pubId=202404",
+      "rkaf:artifactIdentifierScheme": "rkaf:urn-persistent",
+      "foaf:primaryTopic": "urn:rkaf:us:rin:2060-AV16",
+      "rkaf:agendaStage": "rkaf:agendaFinal",
+      "rkaf:agendaPriority": "rkaf:agendaPriorityOtherSignificant",
+      "rkaf:agendaAffectsCitation": "urn:rkaf:us:cfr:40:60",
+      "rkaf:agendaAuthorityCitation": "urn:rkaf:us:usc:42:7411"
+    },
+    {
+      "@id": "urn:rkaf:fixture:observation:2060-AV16:202510",
+      "@type": "rkaf:RegulatoryAgendaObservation",
+      "rkaf:hasArtifactIdentifier": "https://www.reginfo.gov/public/do/eAgendaViewRule?RIN=2060-AV16&pubId=202510",
+      "rkaf:artifactIdentifierScheme": "rkaf:urn-persistent",
+      "foaf:primaryTopic": "urn:rkaf:us:rin:2060-AV16",
+      "rkaf:agendaStage": "rkaf:agendaCompleted",
+      "rkaf:agendaPriority": "rkaf:agendaPriorityOtherSignificant"
+    },
+    {
+      "@id": "urn:rkaf:us:rin:2060-AV16",
+      "@type": "rkaf:RegulatoryAgendaItem",
+      "rkaf:hasAgendaItemIdentifier": "urn:rkaf:us:rin:2060-AV16",
+      "rkaf:agendaItemIdentifierScheme": "rkaf:us-rin",
+      "rkaf:agendaScopeStatus": "rkaf:agendaScopeSingleObserved"
+    }
+  ]
+}

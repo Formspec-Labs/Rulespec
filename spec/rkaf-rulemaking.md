@@ -3,7 +3,7 @@
 **Status:** Experimental.
 **Companion docs:** `spec/rkaf-core.md`, `spec/rkaf-vocabulary.md`, `spec/rkaf-conformance.md`.
 
-> Instability warning: these terms ship under the normal release-bound closed-taxonomy rules, but their shapes may change between pre-1.0 releases. The full-corpus consumer exercise has completed. The 2026-07-24 maintainer-operated adversarial simulation found a required repair batch and did not satisfy the non-originating-consumer gate. The module does not advance to pre-release normative status until the §8 requirements hold.
+> Instability warning: these terms ship under the normal release-bound closed-taxonomy rules, but their shapes may change between pre-1.0 releases. Full-corpus exercises have found required identity repairs, including the agenda-item distinction in this revision. The module does not advance to pre-release normative status until the §9 requirements hold.
 
 ## 0. Conformance language
 
@@ -11,11 +11,83 @@ RFC 2119 / RFC 8174 keywords are normative when uppercase.
 
 ## 1. Scope
 
-This module models the proceeding that produces a US federal regulation: its identity, current stage when known, public-comment intervals, published documents, affected CFR units, lifecycle events, and authority chain. It composes the universal Rulespec primitives instead of creating a second document, authority, or lifecycle system.
+This module models the US regulatory agenda item identified by a RIN and the
+distinct proceedings that produce federal regulations: their identity, current
+stage when known, public-comment intervals, published documents, affected CFR
+units, lifecycle events, and authority chains. It composes the universal
+Rulespec primitives instead of creating a second document, authority, or
+lifecycle system.
 
 The module does not model comment content, commenter identity, campaign detection, or descriptive topic tags.
 
-## 2. Proceeding
+## 2. Regulatory agenda item
+
+`rkaf:RegulatoryAgendaItem` represents the durable registry object identified
+by a Regulation Identifier Number. It is a rulemaking-profile specialization of
+`dcat:Resource`. The agenda item is distinct from every edition record,
+Proceeding, Docket, and publication associated with it.
+
+Required properties:
+
+- `rkaf:hasAgendaItemIdentifier` (1) — the canonical RIN IRI;
+- `rkaf:agendaItemIdentifierScheme` (1) — `rkaf:us-rin`.
+
+The canonical form is
+`urn:rkaf:us:rin:<four-digits>-<two-uppercase-letters><two-digits>`, for example
+`urn:rkaf:us:rin:2060-AV16`.
+
+`rkaf:agendaScopeStatus` (0..1) is an evidence-state classification:
+
+| Value | Meaning |
+|---|---|
+| `rkaf:agendaScopeRecurring` | An official source expressly supports a recurring family. |
+| `rkaf:agendaScopeSingleObserved` | Current action-specific evidence links exactly one Proceeding; this is not a closed-world claim. |
+| `rkaf:agendaScopeUnresolved` | Available evidence establishes neither one action nor an intentional recurring family. |
+
+Several Proceedings sharing a RIN MUST NOT, by itself, produce
+`rkaf:agendaScopeRecurring`. One observed Proceeding MUST NOT be described as
+proof that no later action exists.
+
+### 2.1 Editioned observations
+
+`rkaf:RegulatoryAgendaObservation` represents one agenda item in one Unified
+Agenda edition. It is a specialization of both `rkaf:Artifact` and
+`dcat:CatalogRecord`. Its immutable Artifact identity is the edition-specific
+source URL. `foaf:primaryTopic` (1) identifies the durable
+`rkaf:RegulatoryAgendaItem`.
+
+The optional observation properties are:
+
+- `rkaf:agendaStage` (0..1) — `rkaf:agendaPrerule`,
+  `rkaf:agendaProposed`, `rkaf:agendaFinal`, `rkaf:agendaLongterm`, or
+  `rkaf:agendaCompleted`;
+- `rkaf:agendaPriority` (0..1) — one normalized Unified Agenda priority;
+- `rkaf:agendaAffectsCitation` (0..*) — source-reported `rkaf:us-cfr`
+  citations;
+- `rkaf:agendaAuthorityCitation` (0..*) — source-reported `rkaf:us-usc` or
+  `rkaf:us-pl` citations.
+
+An observation's title, abstract, stage, priority, timetable, targets, and
+authority citations describe the agenda item in that edition. Producers MUST
+NOT copy them to a Proceeding without separate action-specific evidence.
+
+### 2.2 Qualified Proceeding relationships
+
+`dcat:qualifiedRelation` links an agenda item to zero or more
+`rkaf:AgendaProceedingRelationship` nodes. That class specializes
+`dcat:Relationship` and requires:
+
+- `dcterms:relation` (1) to one `rkaf:Proceeding`;
+- `dcat:hadRole` (1), fixed to `rkaf:agendaTracksProceeding`;
+- `prov:wasDerivedFrom` (1..*) for the action-specific evidence;
+- `prov:wasGeneratedBy` (1), `prov:wasAttributedTo` (1), and
+  `prov:generatedAtTime` (1).
+
+The role means that a source assigned the agenda item's RIN to the Proceeding
+or to an action-specific docket or publication used to construct it. The role
+does not establish Proceeding identity or recurring-series membership.
+
+## 3. Proceeding
 
 `rkaf:Proceeding` represents one rulemaking proceeding. It is distinct from a regulations.gov docket: a proceeding may span several dockets, and a docket may contain activity from several proceedings.
 
@@ -23,8 +95,8 @@ Required properties:
 
 - `rkaf:hasProceedingIdentifier` (1) — an IRI that identifies the proceeding,
   never a docket or published document.
-- `rkaf:proceedingIdentifierScheme` (1) — `rkaf:us-rin` or
-  `rkaf:official-registry` or `rkaf:partner-defined`. An
+- `rkaf:proceedingIdentifierScheme` (1) — `rkaf:official-registry` or
+  `rkaf:partner-defined`. An
   `rkaf:official-registry` identifier also requires
   `rkaf:identifierRegistry` (1), the IRI of the issuing registry.
 
@@ -48,12 +120,6 @@ Optional properties:
   authority chain.
 - `rkaf:hasDocket` (0..*) — IRI of an associated `rkaf:Docket`. Docket
   membership never establishes proceeding identity.
-- `rkaf:hasProceedingEvidenceIdentifier` (0..*) plus
-  `rkaf:proceedingEvidenceIdentifierScheme` (0..1) — repeatable non-identity
-  evidence, normally one or more `rkaf:us-rin` values, retained when the
-  Proceeding itself needs a partner or official-registry identifier. All
-  evidence values on one Proceeding use the declared common scheme; split
-  mixed-scheme evidence into separately typed assertions.
 - `rkaf:proceedingSupersedes` (0..*) — directional link to predecessor
   Proceedings after a merge, split, replacement, or identity repair. This
   relation preserves continuity and MUST NOT be replaced by listing predecessor
@@ -67,20 +133,31 @@ Optional properties:
 - `rkaf:proceedingProduces` (0..*) — IRI of an immutable resulting edition or
   publication Artifact produced by the proceeding.
 
-The canonical RIN form is
-`urn:rkaf:us:rin:<four-digits>-<two-uppercase-letters><two-digits>`, for example
-`urn:rkaf:us:rin:2060-AV16`. A producer that splits an action family because a
-RIN was reused MUST assign each resulting Proceeding a stable,
-partner-scoped persistent identifier instead of treating the reused RIN as a
-globally unique key. It MUST retain the RIN through
-`rkaf:hasProceedingEvidenceIdentifier`; a split never discards the evidence
-that motivated it.
-
 `rkaf:hasProceedingIdentifier` MUST NOT contain a
-`urn:rkaf:us:regsgov:*` value under any scheme. That value identifies a docket,
-document, or comment, never a Proceeding.
+`urn:rkaf:us:rin:*` or `urn:rkaf:us:regsgov:*` value under any scheme. The
+first identifies a RegulatoryAgendaItem. The second identifies a docket,
+document, or comment. Neither identifies a Proceeding.
 
-### 2.1 Docket
+A producer MUST give each Proceeding a stable partner or official-registry
+identifier. Shared RIN evidence is retained on
+`rkaf:AgendaProceedingRelationship`, never by collapsing the Proceedings.
+
+### 3.1 Legacy RIN migration
+
+A producer migrating a Proceeding previously identified by `rkaf:us-rin` MUST:
+
+1. retain or mint a stable partner or official-registry Proceeding identifier;
+2. mint the `rkaf:RegulatoryAgendaItem` identified by the RIN;
+3. create a qualified relationship only when action-specific evidence supports
+   it; and
+4. move Unified Agenda context to editioned
+   `rkaf:RegulatoryAgendaObservation` nodes.
+
+Legacy `rkaf:hasProceedingEvidenceIdentifier` values follow the same migration.
+Their context aliases remain decodable during this Experimental pre-release
+transition, but the properties no longer satisfy the current Proceeding shape.
+
+### 3.2 Docket
 
 `rkaf:Docket` represents a mutable administrative container. It is neither an
 immutable `rkaf:Artifact` nor a `rkaf:Proceeding`.
@@ -105,7 +182,7 @@ as FCC ECFS, FERC eLibrary, or SEC rulemaking from a partner-minted surrogate.
 It does not assert a universal grammar; `rkaf:identifierRegistry` names the
 issuer and the producer preserves the issuer's identifier exactly.
 
-## 3. Comment periods
+## 4. Comment periods
 
 `rkaf:CommentPeriod` represents one continuous interval during which the public may submit comments.
 
@@ -137,7 +214,7 @@ producer deriving a date from an instant MUST convert the instant into the
 governing timezone before truncating it to `xsd:date`; UTC truncation is
 non-conforming when it changes the source's calendar day.
 
-## 4. Published documents
+## 5. Published documents
 
 Federal Register documents remain ordinary `rkaf:Artifact` nodes.
 `rkaf:hasArtifactIdentifier` identifies the immutable publication, normally
@@ -154,9 +231,11 @@ rkaf:urn-persistent`, and the producer MUST NOT label the source value
 `rkaf:us-frdoc`. This is the normative fallback for legacy, correction, and
 other source-preserved forms.
 
-The relation also applies to a Unified Agenda entry represented as an Artifact. Rulespec defines no Federal Register subclass and no Unified Agenda subclass.
+Federal Register documents need no source-specific subclass. A Unified Agenda
+edition entry uses `rkaf:RegulatoryAgendaObservation`, the Artifact subclass
+defined in §2.1, because its edition grain and agenda-only state are normative.
 
-### 4.1 Cross-posted documents
+### 5.1 Cross-posted documents
 
 A rulemaking document routinely appears in more than one registry: the same
 proposed rule is a Federal Register document and a regulations.gov docket
@@ -184,7 +263,7 @@ Proceeding. Relations whose range is a specific edition — such as
 posting Artifact carries the edition being cited, not "the document" in the
 abstract.
 
-## 5. Lifecycle events
+## 6. Lifecycle events
 
 Proceeding stage transitions use `rkaf:LifecycleEvent`; this module defines no
 parallel event class. For the stage-family kinds, every `rkaf:appliesTo` value
@@ -228,7 +307,11 @@ with different kinds are conflicting evidence and MUST NOT yield a current
 stage. No lifecycle event means unknown, not prerule. A final-stage proceeding
 SHOULD carry the corresponding `rkaf:proceedingFinal` event.
 
-## 6. Targets and authority
+An agenda observation's `rkaf:agendaStage` is not a stage-family lifecycle
+event and MUST NOT determine `rkaf:proceedingStage`. This remains true when the
+agenda item has exactly one currently known Proceeding.
+
+## 7. Targets and authority
 
 `rkaf:proceedingAffectsCitation` is the producible citation-level relation for
 bulk sources. Its values use the `rkaf:us-cfr` grammar, including
@@ -263,34 +346,52 @@ profile MUST require `rkaf:hasAuthority` and MUST verify that every required
 chain resolves through edition-scoped Artifacts before relying on the
 Proceeding for a legal or eligibility decision.
 
-## 7. Composition
+`rkaf:agendaAffectsCitation` and `rkaf:agendaAuthorityCitation` expose what an
+editioned agenda record reports without asserting that every linked Proceeding
+has the same target or authority. A producer MAY promote one of those values to
+a Proceeding relation only when a docket, publication, or other
+action-specific source supports that promotion. The qualified relationship's
+provenance does not, by itself, qualify the separate target or authority edge.
+
+## 8. Composition
 
 ELI-DL is the EU draft-legislation analog for pre-enactment lifecycle. This
 module cites ELI-DL as a mode-4 architectural pattern; it imports no ELI-DL
 predicate. Promotion to an alignment row requires an EU-corpus consumer with a
 tested binding.
 
+DCAT 3 and FOAF move from deferred pattern citations to scoped mode-1 imports:
+
+- `foaf:primaryTopic` links any document-like Artifact to its one durable main
+  subject. The rulemaking profile requires a RegulatoryAgendaItem target for an
+  agenda observation.
+- `dcat:qualifiedRelation`, `dcat:Relationship`, `dcterms:relation`, and
+  `dcat:hadRole` carry the agenda-to-Proceeding relationship and its role.
+
+These are general catalog/document seams, not claims that every Rulespec
+Artifact is a dataset. `rkaf:RegulatoryAgendaItem` and `rkaf:Proceeding` are
+profile specializations of the DCAT resource extension point. The exact
+decision and public-ontology domain/range audit are recorded in
+`thoughts/specs/2026-07-24-rin-agenda-item-ontology-decision.md`.
+
 `dcterms:hasFormat` and `dcterms:isFormatOf` are mode-1 predicate imports for
 Artifact-to-Artifact cross-posting links. Rulespec does not redefine their
 meaning.
 
-## 8. Experimental stabilization gate
+## 9. Experimental stabilization gate
 
 The module remains Experimental until both conditions hold:
 
 1. A consumer runs `Proceeding`, `proceedingStage`, `CommentPeriod`, and `publishedInProceeding` across a full regulatory corpus and publishes a friction report covering multi-docket proceedings, reopened comment periods, and stage sequences.
 2. A non-originating consumer reviews the terms and shapes.
 
-The Spicy Regs full-corpus report dated 2026-07-23 satisfied condition 1 for
-the earlier contract and produced the identity, provenance,
-identifier-fallback, and unknown-stage rules above. The repaired contract
-repeated that exercise on 2026-07-24. Its paired receipt binds Rulespec commit
-`d81fb29e5673fd9459723fe36fdde4f16358c19c`, Spicy Regs commit
-`3a032d26138c0d99d518e1dbfca20fa1a6e4c0b2`, contract digest
-`sha256:ea9b899ba92955b83638ece811d7a4b744dd912f72e19290e32c97508674de1c`,
-and candidate snapshot `snapshot_04ebfb14969691c54af2c3cc31a28be4`.
-The paired build, corpus validation, and full repository gates passed, so
-condition 1 is satisfied for the repaired contract.
+The Spicy Regs full-corpus reports dated 2026-07-23 and 2026-07-24 satisfied
+condition 1 for their respective earlier contracts. The later run exposed the
+RIN referent problem that motivated this revision. Those receipts remain
+historical evidence; they do not validate the current agenda-item contract.
+Condition 1 for this revision requires a new receipt demonstrating ordinary,
+officially recurring, and unresolved RIN cases without RIN-only merges or
+agenda-context inheritance.
 
 A maintainer-operated adversarial simulated-consumer review dated 2026-07-24 is
 recorded in
@@ -301,8 +402,7 @@ module must not graduate as-is. Graduation requires the review's §5
 preconditions to land and a non-originating consumer to review the repaired
 contract or ratify the review against it.
 
-The simulation resolved the three agenda questions for the next Experimental
-revision:
+The simulation resolved three earlier agenda questions:
 
 1. Keep one Artifact per posting and the 0..1 regulatory-identifier pair, then
    harden cross-posting identity, format links, and cardinality enforcement.
@@ -319,7 +419,11 @@ is stable. The curated corpus under `reference-corpora/us-rulemaking/`
 exercises the module but does not itself satisfy either gate condition. A
 fixture proves validation; it does not prove corpus-scale fitness.
 
-## 9. Validation surface
+The RIN agenda-item revision additionally requires the source-of-truth CUE,
+generated targets, reference corpus, Spicy Regs L0 mapping, and a hermetic
+full-corpus receipt to agree before condition 1 is marked satisfied again.
+
+## 10. Validation surface
 
 - CUE source: `constraints/core/rulemaking.cue`
 - Generated JSON Schema, Rust, TypeScript, and SHACL: produced by

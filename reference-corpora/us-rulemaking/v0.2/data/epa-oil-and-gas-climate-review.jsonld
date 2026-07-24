@@ -2,19 +2,35 @@
   "@context": "../../../../context/rkaf-context.jsonld",
   "@graph": [
     {
+      "@id": "urn:rkaf:us:rin:2060-AV16",
+      "@type": "rkaf:RegulatoryAgendaItem",
+      "rkaf:hasAgendaItemIdentifier": "urn:rkaf:us:rin:2060-AV16",
+      "rkaf:agendaItemIdentifierScheme": "rkaf:us-rin",
+      "rkaf:agendaScopeStatus": "rkaf:agendaScopeSingleObserved",
+      "dcat:qualifiedRelation": "urn:rkaf:corpus:us-rulemaking:relationship:2060-AV16:EPA-HQ-OAR-2021-0317"
+    },
+    {
+      "@id": "urn:rkaf:corpus:us-rulemaking:relationship:2060-AV16:EPA-HQ-OAR-2021-0317",
+      "@type": "rkaf:AgendaProceedingRelationship",
+      "dcterms:relation": "urn:rkaf:corpus:us-rulemaking:proceeding:2060-AV16",
+      "dcat:hadRole": "rkaf:agendaTracksProceeding",
+      "prov:wasDerivedFrom": "urn:rkaf:corpus:us-rulemaking:artifact:frdoc-2021-24202",
+      "prov:wasGeneratedBy": "urn:rkaf:corpus:us-rulemaking:activity:reference-corpus-curation",
+      "prov:wasAttributedTo": "https://rulespec.org/",
+      "prov:generatedAtTime": "2026-07-24T00:00:00Z"
+    },
+    {
       "@id": "urn:rkaf:corpus:us-rulemaking:proceeding:2060-AV16",
       "@type": "rkaf:Proceeding",
       "dcterms:title": "Standards of Performance for New, Reconstructed, and Modified Sources and Emissions Guidelines for Existing Sources: Oil and Natural Gas Sector Climate Review",
-      "rkaf:hasProceedingIdentifier": "urn:rkaf:us:rin:2060-AV16",
-      "rkaf:proceedingIdentifierScheme": "rkaf:us-rin",
+      "rkaf:hasProceedingIdentifier": "urn:rkaf:partner:reference-corpus:proceeding:EPA-HQ-OAR-2021-0317",
+      "rkaf:proceedingIdentifierScheme": "rkaf:partner-defined",
       "rkaf:proceedingStage": "rkaf:proceedingFinal",
       "rkaf:hasAuthority": "urn:rkaf:corpus:us-rulemaking:authority:clean-air-act-section-111",
       "rkaf:hasDocket": "urn:rkaf:corpus:us-rulemaking:docket:EPA-HQ-OAR-2021-0317",
       "rkaf:proceedingAffects": "urn:rkaf:corpus:us-rulemaking:artifact:cfr-40-60-pre-amendment",
       "rkaf:proceedingAffectsCitation": "urn:rkaf:us:cfr:40:60.5375a",
-      "rkaf:proceedingProduces": "urn:rkaf:corpus:us-rulemaking:artifact:cfr-40-60-result",
-      "rkaf:hasProceedingEvidenceIdentifier": "urn:rkaf:us:rin:2060-AV16",
-      "rkaf:proceedingEvidenceIdentifierScheme": "rkaf:us-rin"
+      "rkaf:proceedingProduces": "urn:rkaf:corpus:us-rulemaking:artifact:cfr-40-60-result"
     },
     {
       "@id": "urn:rkaf:corpus:us-rulemaking:docket:EPA-HQ-OAR-2021-0317",
@@ -97,14 +113,18 @@
     },
     {
       "@id": "urn:rkaf:corpus:us-rulemaking:artifact:unified-agenda-202404-2060-AV16",
-      "@type": "rkaf:Artifact",
+      "@type": "rkaf:RegulatoryAgendaObservation",
       "dcterms:title": "April 2024 Unified Agenda entry for RIN 2060-AV16",
       "dcterms:source": {
         "@id": "https://www.reginfo.gov/public/do/eAgendaViewRule?RIN=2060-AV16&pubId=202404"
       },
-      "rkaf:hasArtifactIdentifier": "urn:rkaf:partner:reginfo:agenda:202404:2060-AV16",
-      "rkaf:artifactIdentifierScheme": "rkaf:partner-defined",
-      "rkaf:publishedInProceeding": "urn:rkaf:corpus:us-rulemaking:proceeding:2060-AV16"
+      "rkaf:hasArtifactIdentifier": "https://www.reginfo.gov/public/do/eAgendaViewRule?RIN=2060-AV16&pubId=202404",
+      "rkaf:artifactIdentifierScheme": "rkaf:urn-persistent",
+      "foaf:primaryTopic": "urn:rkaf:us:rin:2060-AV16",
+      "rkaf:agendaStage": "rkaf:agendaFinal",
+      "rkaf:agendaPriority": "rkaf:agendaPriorityOtherSignificant",
+      "rkaf:agendaAffectsCitation": "urn:rkaf:us:cfr:40:60",
+      "rkaf:agendaAuthorityCitation": "urn:rkaf:us:usc:42:7411"
     },
     {
       "@id": "urn:rkaf:corpus:us-rulemaking:artifact:cfr-40-60-pre-amendment",

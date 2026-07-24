@@ -2,6 +2,8 @@
   "@context": {
     "rkaf": "https://rulespec.org/ns/v1#",
     "prov": "http://www.w3.org/ns/prov#",
+    "dcat": "http://www.w3.org/ns/dcat#",
+    "foaf": "http://xmlns.com/foaf/0.1/",
     "oa": "http://www.w3.org/ns/oa#",
     "skos": "http://www.w3.org/2004/02/skos/core#",
     "dcterms": "http://purl.org/dc/terms/",
@@ -231,6 +233,24 @@
     "rkaf:Proceeding": {
       "@type": "@id"
     },
+    "rkaf:RegulatoryAgendaItem": {
+      "@type": "@id"
+    },
+    "rkaf:RegulatoryAgendaObservation": {
+      "@type": "@id"
+    },
+    "rkaf:AgendaProceedingRelationship": {
+      "@type": "@id"
+    },
+    "dcat:Resource": {
+      "@type": "@id"
+    },
+    "dcat:CatalogRecord": {
+      "@type": "@id"
+    },
+    "dcat:Relationship": {
+      "@type": "@id"
+    },
     "rkaf:CommentPeriod": {
       "@type": "@id"
     },
@@ -250,6 +270,42 @@
       "@type": "@id"
     },
     "rkaf:proceedingIdentifierScheme": {
+      "@type": "@vocab"
+    },
+    "rkaf:hasAgendaItemIdentifier": {
+      "@type": "@id"
+    },
+    "rkaf:agendaItemIdentifierScheme": {
+      "@type": "@vocab"
+    },
+    "rkaf:agendaScopeStatus": {
+      "@type": "@vocab"
+    },
+    "dcat:qualifiedRelation": {
+      "@type": "@id",
+      "@container": "@set"
+    },
+    "foaf:primaryTopic": {
+      "@type": "@id"
+    },
+    "rkaf:agendaStage": {
+      "@type": "@vocab"
+    },
+    "rkaf:agendaPriority": {
+      "@type": "@vocab"
+    },
+    "rkaf:agendaAffectsCitation": {
+      "@type": "@id",
+      "@container": "@set"
+    },
+    "rkaf:agendaAuthorityCitation": {
+      "@type": "@id",
+      "@container": "@set"
+    },
+    "dcterms:relation": {
+      "@type": "@id"
+    },
+    "dcat:hadRole": {
       "@type": "@vocab"
     },
     "rkaf:identifierRegistry": {
@@ -1091,10 +1147,12 @@
       "Added rkaf:AILineage with mandatory humanApprover",
       "Added rkaf:MappingState, rkaf:RetentionPolicy, rkaf:Workspace, rkaf:projectsTo, rkaf:llmHint (Studio-derived promotions)",
       "Added rkaf:anchoredBy / rkaf:anchorType (abstract anchoring contract, bindings live outside Rulespec)",
-      "Mode-1 direct predicate imports: prov:, oa:, skos:, eli:, dcterms:hasFormat, and dcterms:isFormatOf (§9.1). All carry term defs in this context.",
+      "Mode-1 direct predicate imports: prov:, oa:, skos:, eli:, foaf:primaryTopic, the DCAT qualified-relation quartet, dcterms:hasFormat, dcterms:isFormatOf, and dcterms:relation (§9.1). All carry term defs in this context.",
       "Mode-2/3 alignments (class-tag and URI-value composition): aknt:, uslm:, dpv:, odrl: (§9.2). External prefix declared; rkaf-namespaced predicates carry the external IRIs as values.",
       "See also (future-projection, no predicate import): lrml:, rrmv:, eco:, sepio:, cito:, and the unimported dcterms supersession predicates (§9.2.2). Promote to §9.2 Alignment when a partner consumer arrives with a named use case.",
-      "Dropped Cohort D dead-weight prefix declarations: dcat: (no Reference Corpora layer), nano: (pattern citation, not predicate import), schemaorg: (no SEO projector). Re-declare when the dependent layer ships."
+      "Reintroduced dcat: for the Experimental rulemaking module's named Spicy Regs carrier: dcat:qualifiedRelation, dcat:Relationship, and dcat:hadRole now have executable corpus and fixture coverage.",
+      "Dropped remaining Cohort D dead-weight prefix declarations: nano: (pattern citation, not predicate import) and schemaorg: (no SEO projector). Re-declare when the dependent layer ships.",
+      "Retained the legacy hasProceedingEvidenceIdentifier context aliases for Experimental pre-release decoding; they no longer occur in the current Proceeding shape."
     ],
     "note": "_meta is JSON-LD-safe: keys not in @context are ignored by JSON-LD processors."
   }

@@ -4,15 +4,15 @@
     {
       "@id": "urn:rkaf:fixture:proceeding:successor",
       "@type": "rkaf:Proceeding",
-      "rkaf:hasProceedingIdentifier": "urn:rkaf:us:rin:2060-AV99",
-      "rkaf:proceedingIdentifierScheme": "rkaf:us-rin",
+      "rkaf:hasProceedingIdentifier": "urn:rkaf:partner:fixture:proceeding:successor",
+      "rkaf:proceedingIdentifierScheme": "rkaf:partner-defined",
       "rkaf:proceedingSupersedes": "urn:rkaf:fixture:proceeding:predecessor"
     },
     {
       "@id": "urn:rkaf:fixture:proceeding:predecessor",
       "@type": "rkaf:Proceeding",
-      "rkaf:hasProceedingIdentifier": "urn:rkaf:us:rin:2060-AV16",
-      "rkaf:proceedingIdentifierScheme": "rkaf:us-rin"
+      "rkaf:hasProceedingIdentifier": "urn:rkaf:partner:fixture:proceeding:predecessor",
+      "rkaf:proceedingIdentifierScheme": "rkaf:partner-defined"
     }
   ]
 }

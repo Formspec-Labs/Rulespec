@@ -11,7 +11,7 @@ consumer conformance level or adoption depth.
 | Corpus | Domain | Identifier scheme | Validation |
 |--------|--------|-------------------|------------|
 | [model-cards](model-cards/) | AI model governance metadata | `urn:rkaf:corpus:model-cards:*` | Reference JSON-LD and SHACL gates |
-| [us-rulemaking](us-rulemaking/v0.2/) | US federal notice-and-comment rulemaking | `rkaf:us-rin`, `rkaf:us-regsgov`, `rkaf:us-frdoc`, `rkaf:us-cfr`, `rkaf:us-usc`, `rkaf:us-pl`, `rkaf:us-eo` | Reference JSON Schema and SHACL gates |
+| [us-rulemaking](us-rulemaking/v0.2/) | US federal notice-and-comment rulemaking; `us-rin` identifies a durable agenda item, not a Proceeding | `rkaf:us-rin`, `rkaf:us-regsgov`, `rkaf:us-frdoc`, `rkaf:us-cfr`, `rkaf:us-usc`, `rkaf:us-pl`, `rkaf:us-eo` | Reference JSON Schema and SHACL gates |
 
 To validate a corpus locally:
 ```bash

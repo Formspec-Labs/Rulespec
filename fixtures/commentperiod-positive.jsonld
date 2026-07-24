@@ -17,8 +17,8 @@
     {
       "@id": "urn:rkaf:fixture:proceeding:2060-AV16",
       "@type": "rkaf:Proceeding",
-      "rkaf:hasProceedingIdentifier": "urn:rkaf:us:rin:2060-AV16",
-      "rkaf:proceedingIdentifierScheme": "rkaf:us-rin"
+      "rkaf:hasProceedingIdentifier": "urn:rkaf:partner:fixture:proceeding:EPA-HQ-OAR-2021-0317",
+      "rkaf:proceedingIdentifierScheme": "rkaf:partner-defined"
     },
     {
       "@id": "urn:rkaf:fixture:docket:EPA-HQ-OAR-2021-0317",

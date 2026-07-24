@@ -13,6 +13,7 @@
 | rkaf:artifactIdentifierScheme | https://rulespec.org/ns/v1#artifactIdentifierScheme | Property (closed enum) | rkaf:Artifact | rkaf:ArtifactIdentifierScheme | 1..* | artifact-eli-positive |
 | rkaf:hasRegulatoryIdentifier | https://rulespec.org/ns/v1#hasRegulatoryIdentifier | Property | rkaf:Artifact | IRI | 0..1 | artifact-us-cfr-positive |
 | rkaf:regulatoryIdentifierScheme | https://rulespec.org/ns/v1#regulatoryIdentifierScheme | Property (closed enum) | rkaf:Artifact | rkaf:USRegulatoryIdentifierScheme | 0..1 | artifact-us-cfr-positive |
+| foaf:primaryTopic | http://xmlns.com/foaf/0.1/primaryTopic | Property (FOAF mode-1 import) | rkaf:Artifact | IRI | 0..1 | artifact-primary-topic-positive |
 | dcterms:hasFormat | http://purl.org/dc/terms/hasFormat | Property (DCTERMS mode-1 import) | rkaf:Artifact | rkaf:Artifact | 0..* | artifact-cross-posting-positive |
 | dcterms:isFormatOf | http://purl.org/dc/terms/isFormatOf | Property (DCTERMS mode-1 import) | rkaf:Artifact | rkaf:Artifact | 0..* | artifact-cross-posting-positive |
 | rkaf:SourceFragment | https://rulespec.org/ns/v1#SourceFragment | Class (rdfs:subClassOf oa:SpecificResource) | — | — | — | sourcefragment-oa-textquote-positive, sourcefragment-oa-xpath-positive, sourcefragment-aknt-eid-positive, sourcefragment-uslm-section-positive |
@@ -30,7 +31,7 @@
 | rkaf:hasWarrant | https://rulespec.org/ns/v1#hasWarrant | Property | rkaf:Assertion / rkaf:EvidenceBinding | rkaf:Warrant | 1..* | warrant-legal-positive |
 | rkaf:warrantKind | https://rulespec.org/ns/v1#warrantKind | Property (closed enum) | rkaf:Warrant | rkaf:WarrantKind | 1 | warrant-legal-positive |
 | rkaf:warrantFamily | https://rulespec.org/ns/v1#warrantFamily | Property (closed enum) | rkaf:Warrant | rkaf:WarrantFamily | 1 | warrant-legal-positive |
-| rkaf:hasAuthority | https://rulespec.org/ns/v1#hasAuthority | Property (legal specialization of hasWarrant) | rkaf:Assertion / rkaf:Proceeding | rkaf:Authority | 1..* on Assertion; 0..* on Proceeding | warrant-legal-positive, proceeding-us-rin-positive |
+| rkaf:hasAuthority | https://rulespec.org/ns/v1#hasAuthority | Property (legal specialization of hasWarrant) | rkaf:Assertion / rkaf:Proceeding | rkaf:Authority | 1..* on Assertion; 0..* on Proceeding | warrant-legal-positive, proceeding-partner-positive |
 | rkaf:ConfidenceRecord | https://rulespec.org/ns/v1#ConfidenceRecord | Class | — | — | — | confidencerecord-uncalibrated-positive, confidencerecord-calibrated-positive, confidencerecord-score-theater-negative |
 | rkaf:hasConfidence | https://rulespec.org/ns/v1#hasConfidence | Property | rkaf:Assertion | rkaf:ConfidenceRecord | 0..* | confidencerecord-uncalibrated-positive |
 | rkaf:confidenceMethod | https://rulespec.org/ns/v1#confidenceMethod | Property (closed enum) | rkaf:ConfidenceRecord | rkaf:ConfidenceMethod | 1 | confidencerecord-uncalibrated-positive |
@@ -45,22 +46,33 @@ These terms are defined by `spec/rkaf-rulemaking.md`. Their status is Experiment
 
 | Term | IRI | Kind | Domain | Range | Cardinality | Required fixtures |
 |---|---|---|---|---|---|---|
-| rkaf:Proceeding | https://rulespec.org/ns/v1#Proceeding | Class | — | — | — | proceeding-us-rin-positive |
-| rkaf:hasProceedingIdentifier | https://rulespec.org/ns/v1#hasProceedingIdentifier | Property | rkaf:Proceeding | IRI | 1 | proceeding-us-rin-positive |
-| rkaf:proceedingIdentifierScheme | https://rulespec.org/ns/v1#proceedingIdentifierScheme | Property (closed enum) | rkaf:Proceeding | rkaf:ProceedingIdentifierScheme | 1 | proceeding-us-rin-positive |
+| rkaf:RegulatoryAgendaItem | https://rulespec.org/ns/v1#RegulatoryAgendaItem | Class (rulemaking-profile specialization of dcat:Resource) | — | — | — | agenda-item-ordinary-positive, agenda-item-coast-guard-recurring-positive, agenda-item-faa-recurring-positive, agenda-item-repeated-unresolved-positive |
+| rkaf:hasAgendaItemIdentifier | https://rulespec.org/ns/v1#hasAgendaItemIdentifier | Property | rkaf:RegulatoryAgendaItem | IRI | 1 | agenda-item-ordinary-positive |
+| rkaf:agendaItemIdentifierScheme | https://rulespec.org/ns/v1#agendaItemIdentifierScheme | Property (closed enum) | rkaf:RegulatoryAgendaItem | rkaf:AgendaItemIdentifierScheme | 1 | agenda-item-ordinary-positive |
+| rkaf:agendaScopeStatus | https://rulespec.org/ns/v1#agendaScopeStatus | Property (closed enum) | rkaf:RegulatoryAgendaItem | rkaf:AgendaScopeStatus | 0..1 | agenda-item-coast-guard-recurring-positive, agenda-item-repeated-unresolved-positive |
+| rkaf:RegulatoryAgendaObservation | https://rulespec.org/ns/v1#RegulatoryAgendaObservation | Class (rdfs:subClassOf rkaf:Artifact and dcat:CatalogRecord) | — | — | — | agenda-observations-multiple-editions-positive |
+| rkaf:agendaStage | https://rulespec.org/ns/v1#agendaStage | Property (closed enum) | rkaf:RegulatoryAgendaObservation | rkaf:AgendaStage | 0..1 | agenda-observations-multiple-editions-positive |
+| rkaf:agendaPriority | https://rulespec.org/ns/v1#agendaPriority | Property (closed enum) | rkaf:RegulatoryAgendaObservation | rkaf:AgendaPriority | 0..1 | agenda-observations-multiple-editions-positive |
+| rkaf:agendaAffectsCitation | https://rulespec.org/ns/v1#agendaAffectsCitation | Property | rkaf:RegulatoryAgendaObservation | `rkaf:us-cfr` IRI | 0..* | agenda-observations-multiple-editions-positive |
+| rkaf:agendaAuthorityCitation | https://rulespec.org/ns/v1#agendaAuthorityCitation | Property | rkaf:RegulatoryAgendaObservation | `rkaf:us-usc` or `rkaf:us-pl` IRI | 0..* | agenda-observations-multiple-editions-positive |
+| rkaf:AgendaProceedingRelationship | https://rulespec.org/ns/v1#AgendaProceedingRelationship | Class (rdfs:subClassOf dcat:Relationship) | — | — | — | agenda-item-ordinary-positive |
+| dcat:qualifiedRelation | http://www.w3.org/ns/dcat#qualifiedRelation | Property (DCAT 3 mode-1 import) | rkaf:RegulatoryAgendaItem | rkaf:AgendaProceedingRelationship | 0..* | agenda-item-ordinary-positive |
+| dcterms:relation | http://purl.org/dc/terms/relation | Property (DCAT qualified-relation composition) | rkaf:AgendaProceedingRelationship | rkaf:Proceeding | 1 | agenda-item-ordinary-positive |
+| dcat:hadRole | http://www.w3.org/ns/dcat#hadRole | Property (DCAT 3 mode-1 import; fixed role `rkaf:agendaTracksProceeding`) | rkaf:AgendaProceedingRelationship | dcat:Role | 1 | agenda-item-ordinary-positive |
+| rkaf:Proceeding | https://rulespec.org/ns/v1#Proceeding | Class (rulemaking-profile specialization of dcat:Resource) | — | — | — | proceeding-partner-positive |
+| rkaf:hasProceedingIdentifier | https://rulespec.org/ns/v1#hasProceedingIdentifier | Property | rkaf:Proceeding | IRI | 1 | proceeding-partner-positive |
+| rkaf:proceedingIdentifierScheme | https://rulespec.org/ns/v1#proceedingIdentifierScheme | Property (closed enum) | rkaf:Proceeding | rkaf:ProceedingIdentifierScheme | 1 | proceeding-partner-positive |
 | rkaf:identifierRegistry | https://rulespec.org/ns/v1#identifierRegistry | Property | rkaf:Proceeding / rkaf:Docket | IRI | 1 when identity scheme is `official-registry`; otherwise 0..1 | proceeding-official-registry-positive |
 | rkaf:Docket | https://rulespec.org/ns/v1#Docket | Class | — | — | — | docket-us-regsgov-positive |
 | rkaf:hasDocketIdentifier | https://rulespec.org/ns/v1#hasDocketIdentifier | Property | rkaf:Docket | IRI | 1 | docket-us-regsgov-positive |
 | rkaf:docketIdentifierScheme | https://rulespec.org/ns/v1#docketIdentifierScheme | Property (closed enum) | rkaf:Docket | rkaf:DocketIdentifierScheme | 1 | docket-us-regsgov-positive |
-| rkaf:hasDocket | https://rulespec.org/ns/v1#hasDocket | Property | rkaf:Proceeding | rkaf:Docket | 0..* | proceeding-us-rin-positive |
+| rkaf:hasDocket | https://rulespec.org/ns/v1#hasDocket | Property | rkaf:Proceeding | rkaf:Docket | 0..* | proceeding-partner-positive |
 | rkaf:CommentPeriod | https://rulespec.org/ns/v1#CommentPeriod | Class | — | — | — | commentperiod-positive |
-| rkaf:proceedingStage | https://rulespec.org/ns/v1#proceedingStage | Property (closed enum) | rkaf:Proceeding | rkaf:ProceedingStage | 0..1 | proceeding-us-rin-positive |
+| rkaf:proceedingStage | https://rulespec.org/ns/v1#proceedingStage | Property (closed enum) | rkaf:Proceeding | rkaf:ProceedingStage | 0..1 | proceeding-partner-positive |
 | rkaf:proceedingTerminationCause | https://rulespec.org/ns/v1#proceedingTerminationCause | Property (closed enum) | rkaf:Proceeding | rkaf:ProceedingTerminationCause | 1 when stage is `proceedingConcluded`; otherwise 0..1 | proceeding-concluded-positive |
-| rkaf:proceedingAffects | https://rulespec.org/ns/v1#proceedingAffects | Property | rkaf:Proceeding | rkaf:Artifact | 0..* | proceeding-us-rin-positive |
-| rkaf:proceedingAffectsCitation | https://rulespec.org/ns/v1#proceedingAffectsCitation | Property | rkaf:Proceeding | `rkaf:us-cfr` IRI | 0..* | proceeding-us-rin-positive |
-| rkaf:proceedingProduces | https://rulespec.org/ns/v1#proceedingProduces | Property | rkaf:Proceeding | rkaf:Artifact | 0..* | proceeding-us-rin-positive |
-| rkaf:hasProceedingEvidenceIdentifier | https://rulespec.org/ns/v1#hasProceedingEvidenceIdentifier | Property | rkaf:Proceeding | IRI | 0..* | proceeding-evidence-identifier-positive |
-| rkaf:proceedingEvidenceIdentifierScheme | https://rulespec.org/ns/v1#proceedingEvidenceIdentifierScheme | Property (closed enum) | rkaf:Proceeding | rkaf:ProceedingIdentifierScheme | 1 when evidence identifier is present; otherwise 0..1 | proceeding-evidence-identifier-positive |
+| rkaf:proceedingAffects | https://rulespec.org/ns/v1#proceedingAffects | Property | rkaf:Proceeding | rkaf:Artifact | 0..* | proceeding-partner-positive |
+| rkaf:proceedingAffectsCitation | https://rulespec.org/ns/v1#proceedingAffectsCitation | Property | rkaf:Proceeding | `rkaf:us-cfr` IRI | 0..* | proceeding-partner-positive |
+| rkaf:proceedingProduces | https://rulespec.org/ns/v1#proceedingProduces | Property | rkaf:Proceeding | rkaf:Artifact | 0..* | proceeding-partner-positive |
 | rkaf:proceedingSupersedes | https://rulespec.org/ns/v1#proceedingSupersedes | Property | rkaf:Proceeding | rkaf:Proceeding | 0..* | proceeding-continuity-positive |
 | rkaf:publishedInProceeding | https://rulespec.org/ns/v1#publishedInProceeding | Property | rkaf:Artifact | rkaf:Proceeding | 0..* | artifact-us-frdoc-positive |
 | rkaf:commentPeriodFor | https://rulespec.org/ns/v1#commentPeriodFor | Property | rkaf:CommentPeriod | rkaf:Proceeding | 0..*; at least one Proceeding or Docket anchor | commentperiod-positive |
@@ -68,7 +80,7 @@ These terms are defined by `spec/rkaf-rulemaking.md`. Their status is Experiment
 | rkaf:commentPeriodOpenedBy | https://rulespec.org/ns/v1#commentPeriodOpenedBy | Property | rkaf:CommentPeriod | rkaf:Artifact | 0..* | commentperiod-positive |
 | rkaf:commentPeriodStart | https://rulespec.org/ns/v1#commentPeriodStart | Property | rkaf:CommentPeriod | xsd:date | 1 | commentperiod-positive |
 | rkaf:commentPeriodEnd | https://rulespec.org/ns/v1#commentPeriodEnd | Property | rkaf:CommentPeriod | xsd:date | 1 | commentperiod-positive |
-| prov:wasDerivedFrom | http://www.w3.org/ns/prov#wasDerivedFrom | Property (PROV-O import) | rkaf:CommentPeriod | prov:Entity | 1..* | commentperiod-positive |
+| prov:wasDerivedFrom | http://www.w3.org/ns/prov#wasDerivedFrom | Property (PROV-O import) | rkaf:CommentPeriod / rkaf:AgendaProceedingRelationship | prov:Entity | 1..* | commentperiod-positive, agenda-item-ordinary-positive |
 
 `rkaf:proceedingStage` uses the seven stage-family lifecycle IRIs:
 `rkaf:proceedingPrerule`, `rkaf:proceedingProposed`,

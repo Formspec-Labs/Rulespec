@@ -115,6 +115,39 @@ import "time"
             shacl,
             r"sh:path rkaf:commentPeriodFor ;[^\n]*sh:class rkaf:Proceeding",
         )
+        self.assertIn("@prefix dcat: <http://www.w3.org/ns/dcat#> .", shacl)
+        self.assertIn("@prefix foaf: <http://xmlns.com/foaf/0.1/> .", shacl)
+
+    def test_forbidden_pattern_projects_to_all_shape_validators(self) -> None:
+        root = Path(__file__).resolve().parent.parent
+        source = root / "constraints" / "core" / "rulemaking.cue"
+        document = parse_cue_file(source)
+        agenda_identifier_scheme = next(
+            enum for enum in document.enums
+            if enum.name == "AgendaItemIdentifierScheme"
+        )
+        self.assertEqual(agenda_identifier_scheme.values, ["rkaf:us-rin"])
+
+        schema = json.loads(target_json_schema(document))
+        identifier = schema["$defs"]["Proceeding"]["properties"][
+            "rkaf:hasProceedingIdentifier"
+        ]
+        self.assertEqual(
+            identifier["not"]["pattern"],
+            r"^urn:rkaf:us:(rin|regsgov):",
+        )
+
+        shacl = target_shacl(document)
+        self.assertIn(
+            'sh:not [ sh:pattern "^urn:rkaf:us:(rin|regsgov):" ; ]',
+            shacl,
+        )
+
+        typescript = target_typescript(document)
+        self.assertIn(
+            'rkaf:hasProceedingIdentifier: forbidden pattern match',
+            typescript,
+        )
 
     def test_optional_nonempty_list_is_absent_or_nonempty(self) -> None:
         root = Path(__file__).resolve().parent.parent

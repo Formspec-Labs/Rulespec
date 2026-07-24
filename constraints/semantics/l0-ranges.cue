@@ -4,6 +4,8 @@ package semantics
 // come directly from the CUE shapes in constraints/core/.
 #L0RangeRegistry: {
 	"rkaf:publishedInProceeding": "rkaf:Proceeding"
+	"dcat:qualifiedRelation":      "rkaf:AgendaProceedingRelationship"
+	"dcterms:relation":            "rkaf:Proceeding"
 	"rkaf:hasAuthority":           "rkaf:Authority"
 	"rkaf:hasDocket":              "rkaf:Docket"
 	"rkaf:proceedingAffects":      "rkaf:Artifact"

@@ -82,6 +82,16 @@ Federal Register document URL, and a producer-scoped snapshot URN. A current
 eCFR URL, an unversioned U.S. Code locator, or a citation such as “40 CFR
 60.1” does not establish Artifact identity.
 
+An Artifact MAY use `foaf:primaryTopic` (0..1) to name its one durable main
+subject. This is the general document-to-subject seam: it applies equally to a
+report about a watershed, a catalog record about a dataset, or a Unified
+Agenda observation about an agenda item. The topic IRI identifies the thing
+the document is chiefly about; it never becomes an Artifact identifier and
+never implies that two Artifacts with the same topic are editions of one
+document. Domain profiles MAY constrain the topic class more narrowly. The
+experimental US rulemaking profile does so for agenda observations in
+`spec/rkaf-rulemaking.md`.
+
 An Artifact MAY also carry one US regulatory citation or agency identifier:
 
 - `rkaf:hasRegulatoryIdentifier` (0..1) — canonical identifier IRI from the
@@ -341,6 +351,8 @@ This table lists only ontologies composed at mode 1: predicate declared in `cont
 | **W3C SKOS** | `skos:` | Concept relations (`closeMatch`, `exactMatch`, `broader`, `narrower`, `related`, `mappingRelation`) for the Concept Registry (`spec/rkaf-concept-registry.md`). |
 | **ELI** (European Legislation Identifier) | `eli:` | Rulespec v0.2 composes **ELI 1.5 core** (2024 release; namespace `http://data.europa.eu/eli/ontology#`, stable across v1.0 → v1.5). Use ELI URIs as the canonical Artifact identifier scheme for EU legal sources (§4.1). Do not duplicate ELI's URI structure or metadata model; compose. For multi-predecessor consolidation edges (one consolidated text incorporating multiple prior versions or amending acts), compose `eli:consolidates` (and inverse `eli:consolidated_by`) directly — both predicates are non-functional in ELI 1.5 and explicitly designed for repeated use. Consolidation is semantically distinct from supersession: `eli:consolidates` denotes editorial restatement that incorporates predecessors which remain legally extant; `rkaf:supersedesAssertion` (§6, Lifecycle primitives) denotes replacement where predecessors become historical. Use both together when appropriate. Breaking changes in a future ELI 2.0 trigger an alignment-row re-evaluation: Rulespec declines L1/L3 constraints over `eli:*` predicates by design (partners conform to ELI's own domain/range), so migration policy must be documented at the alignment layer. |
 | **Dublin Core Terms** | `dcterms:` | `dcterms:hasFormat` and `dcterms:isFormatOf` are direct Artifact-to-Artifact imports for registry cross-postings. Rulespec constrains their class range but does not redefine Dublin Core format semantics; the canonical US rulemaking direction is defined in `spec/rkaf-rulemaking.md` §4.1. |
+| **FOAF 0.99** | `foaf:` | `foaf:primaryTopic` is the general, functional document-to-main-subject relation on `rkaf:Artifact`. Domain profiles may constrain the topic class; sharing a topic does not merge document identity. |
+| **DCAT 3** | `dcat:` | `dcat:qualifiedRelation`, `dcat:Relationship`, and `dcat:hadRole`, composed with `dcterms:relation`, provide the general qualified-relation pattern when a bare edge cannot carry role and provenance. The Experimental US rulemaking profile specializes this pattern for agenda-item-to-Proceeding assertions. Rulespec does not require a subject to be a `dcat:Dataset`. |
 | **ELI-DL** | (sub-namespace) | Compose ELI-DL identifiers + metadata for assertions over draft/pending legislation. Lifecycle packets carry ELI-DL state transitions natively. |
 | **ELI-I** (Legal Impacts) | (sub-namespace) | Canonical model for fragment-continuity resolution under amendment in EU legal sources. Rulespec implementations targeting EU legal sources SHOULD compose ELI-I edges into supersession traversal (§4.2). |
 | **JSON-LD 1.1** | (carrier) | Primary serialization. Layer 4 projector target. |
@@ -430,6 +442,8 @@ This is greenfield. v0.1.x served as the editorial baseline; v0.2 is the contrac
 - W3C Web Annotation Ontology — `oa:` selector vocabulary.
 - W3C PROV-O — provenance.
 - W3C SKOS — concept relations.
+- FOAF 0.99 — document-to-primary-topic relation.
+- W3C DCAT 3 — resources, catalog records, and qualified relationships.
 - ELI / ELI-DL / ELI-I — EU legal-resource identifiers.
 - USLM — US legislative markup.
 - Akoma Ntoso / LegalDocML — legal-document XML structure.
@@ -448,7 +462,7 @@ This is greenfield. v0.1.x served as the editorial baseline; v0.2 is the contrac
 - RRMV — reporting requirement metadata (Cohort C per §9.2.2).
 - CiTO — citation typing (Cohort C per §9.2.2).
 - Nanopublications — overlay shape pattern citation (Cohort D — pattern reference only; no namespace claim per §9.2.2).
-- DCAT / VoID — dataset catalog metadata (Cohort D; prefix dropped from context until Reference Corpora layer ships).
+- VoID — linked-dataset description (no current carrier requirement).
 - Schema.org/Legislation — public-discovery markup (Cohort D; prefix dropped from context until SEO projector ships).
 - HL7 FHIR, NIEM IEPDs — projector partner formats.
 - Lynx Legal Knowledge Graph (H2020), LKIF, EuroVoc/ESCO, Toulmin/AIF, Wikidata/Wikibase — reference / influence (studied but not imported).

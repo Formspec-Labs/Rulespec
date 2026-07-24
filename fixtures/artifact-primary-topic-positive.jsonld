@@ -1,0 +1,17 @@
+{
+  "@context": "../context/rkaf-context.jsonld",
+  "@graph": [
+    {
+      "@id": "https://example.org/reports/2026-water-quality",
+      "@type": "rkaf:Artifact",
+      "rkaf:hasArtifactIdentifier": "https://example.org/reports/2026-water-quality",
+      "rkaf:artifactIdentifierScheme": "rkaf:urn-persistent",
+      "foaf:primaryTopic": "https://example.org/watersheds/potomac"
+    },
+    {
+      "@id": "https://example.org/watersheds/potomac",
+      "@type": "skos:Concept",
+      "skos:prefLabel": "Potomac River watershed"
+    }
+  ]
+}

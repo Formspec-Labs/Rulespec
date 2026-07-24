@@ -4,12 +4,79 @@
 
 use serde::{Deserialize, Serialize};
 
-/// Closed Rulespec values for `ProceedingIdentifierScheme`.
+/// Closed Rulespec values for `AgendaItemIdentifierScheme`.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-pub enum ProceedingIdentifierScheme {
+pub enum AgendaItemIdentifierScheme {
     /// Wire value `rkaf:us-rin`.
     #[serde(rename = "rkaf:us-rin")]
     UsRin,
+}
+
+/// Closed Rulespec values for `AgendaObservationIdentifierScheme`.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub enum AgendaObservationIdentifierScheme {
+    /// Wire value `rkaf:urn-persistent`.
+    #[serde(rename = "rkaf:urn-persistent")]
+    UrnPersistent,
+}
+
+/// Closed Rulespec values for `AgendaScopeStatus`.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub enum AgendaScopeStatus {
+    /// Wire value `rkaf:agendaScopeRecurring`.
+    #[serde(rename = "rkaf:agendaScopeRecurring")]
+    AgendaScopeRecurring,
+    /// Wire value `rkaf:agendaScopeSingleObserved`.
+    #[serde(rename = "rkaf:agendaScopeSingleObserved")]
+    AgendaScopeSingleObserved,
+    /// Wire value `rkaf:agendaScopeUnresolved`.
+    #[serde(rename = "rkaf:agendaScopeUnresolved")]
+    AgendaScopeUnresolved,
+}
+
+/// Closed Rulespec values for `AgendaStage`.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub enum AgendaStage {
+    /// Wire value `rkaf:agendaPrerule`.
+    #[serde(rename = "rkaf:agendaPrerule")]
+    AgendaPrerule,
+    /// Wire value `rkaf:agendaProposed`.
+    #[serde(rename = "rkaf:agendaProposed")]
+    AgendaProposed,
+    /// Wire value `rkaf:agendaFinal`.
+    #[serde(rename = "rkaf:agendaFinal")]
+    AgendaFinal,
+    /// Wire value `rkaf:agendaLongterm`.
+    #[serde(rename = "rkaf:agendaLongterm")]
+    AgendaLongterm,
+    /// Wire value `rkaf:agendaCompleted`.
+    #[serde(rename = "rkaf:agendaCompleted")]
+    AgendaCompleted,
+}
+
+/// Closed Rulespec values for `AgendaPriority`.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub enum AgendaPriority {
+    /// Wire value `rkaf:agendaPriorityEconomicallySignificant`.
+    #[serde(rename = "rkaf:agendaPriorityEconomicallySignificant")]
+    AgendaPriorityEconomicallySignificant,
+    /// Wire value `rkaf:agendaPriorityOtherSignificant`.
+    #[serde(rename = "rkaf:agendaPriorityOtherSignificant")]
+    AgendaPriorityOtherSignificant,
+    /// Wire value `rkaf:agendaPrioritySubstantiveNonsignificant`.
+    #[serde(rename = "rkaf:agendaPrioritySubstantiveNonsignificant")]
+    AgendaPrioritySubstantiveNonsignificant,
+    /// Wire value `rkaf:agendaPriorityRoutineFrequent`.
+    #[serde(rename = "rkaf:agendaPriorityRoutineFrequent")]
+    AgendaPriorityRoutineFrequent,
+    /// Wire value `rkaf:agendaPriorityInfoAdminOther`.
+    #[serde(rename = "rkaf:agendaPriorityInfoAdminOther")]
+    AgendaPriorityInfoAdminOther,
+}
+
+/// Closed Rulespec values for `ProceedingIdentifierScheme`.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub enum ProceedingIdentifierScheme {
     /// Wire value `rkaf:official-registry`.
     #[serde(rename = "rkaf:official-registry")]
     OfficialRegistry,
@@ -77,6 +144,111 @@ pub enum ProceedingTerminationCause {
 
 use std::collections::BTreeMap;
 
+/// Generated JSON-LD carrier for `RegulatoryAgendaItem`.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct RegulatoryAgendaItem {
+    /// JSON-LD resource type.
+    #[serde(rename = "@type", default = "RegulatoryAgendaItem::default_type")]
+    pub type_: String,
+    /// Optional JSON-LD resource identifier.
+    #[serde(rename = "@id", skip_serializing_if = "Option::is_none", default)]
+    pub id: Option<String>,
+    /// JSON-LD property `rkaf:hasAgendaItemIdentifier`.
+    #[serde(rename = "rkaf:hasAgendaItemIdentifier")]
+    pub has_agenda_item_identifier: String,
+    /// JSON-LD property `rkaf:agendaItemIdentifierScheme`.
+    #[serde(rename = "rkaf:agendaItemIdentifierScheme")]
+    pub agenda_item_identifier_scheme: AgendaItemIdentifierScheme,
+    /// JSON-LD property `rkaf:agendaScopeStatus`.
+    #[serde(rename = "rkaf:agendaScopeStatus", skip_serializing_if = "Option::is_none", default)]
+    pub agenda_scope_status: Option<AgendaScopeStatus>,
+    /// JSON-LD property `dcat:qualifiedRelation`.
+    #[serde(rename = "dcat:qualifiedRelation", skip_serializing_if = "Option::is_none", default)]
+    pub qualified_relation: Option<crate::OneOrMany<String>>,
+    /// Additional JSON-LD properties preserved during round trips.
+    #[serde(flatten)]
+    pub extra: BTreeMap<String, serde_json::Value>,
+}
+
+impl RegulatoryAgendaItem {
+    fn default_type() -> String { "rkaf:RegulatoryAgendaItem".into() }
+}
+
+/// Generated JSON-LD carrier for `RegulatoryAgendaObservation`.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct RegulatoryAgendaObservation {
+    /// JSON-LD resource type.
+    #[serde(rename = "@type", default = "RegulatoryAgendaObservation::default_type")]
+    pub type_: String,
+    /// Optional JSON-LD resource identifier.
+    #[serde(rename = "@id", skip_serializing_if = "Option::is_none", default)]
+    pub id: Option<String>,
+    /// JSON-LD property `rkaf:hasArtifactIdentifier`.
+    #[serde(rename = "rkaf:hasArtifactIdentifier")]
+    pub has_artifact_identifier: crate::OneOrMany<String>,
+    /// JSON-LD property `rkaf:artifactIdentifierScheme`.
+    #[serde(rename = "rkaf:artifactIdentifierScheme")]
+    pub artifact_identifier_scheme: crate::OneOrMany<AgendaObservationIdentifierScheme>,
+    /// JSON-LD property `foaf:primaryTopic`.
+    #[serde(rename = "foaf:primaryTopic")]
+    pub primary_topic: String,
+    /// JSON-LD property `rkaf:agendaStage`.
+    #[serde(rename = "rkaf:agendaStage", skip_serializing_if = "Option::is_none", default)]
+    pub agenda_stage: Option<AgendaStage>,
+    /// JSON-LD property `rkaf:agendaPriority`.
+    #[serde(rename = "rkaf:agendaPriority", skip_serializing_if = "Option::is_none", default)]
+    pub agenda_priority: Option<AgendaPriority>,
+    /// JSON-LD property `rkaf:agendaAffectsCitation`.
+    #[serde(rename = "rkaf:agendaAffectsCitation", skip_serializing_if = "Option::is_none", default)]
+    pub agenda_affects_citation: Option<crate::OneOrMany<String>>,
+    /// JSON-LD property `rkaf:agendaAuthorityCitation`.
+    #[serde(rename = "rkaf:agendaAuthorityCitation", skip_serializing_if = "Option::is_none", default)]
+    pub agenda_authority_citation: Option<crate::OneOrMany<String>>,
+    /// Additional JSON-LD properties preserved during round trips.
+    #[serde(flatten)]
+    pub extra: BTreeMap<String, serde_json::Value>,
+}
+
+impl RegulatoryAgendaObservation {
+    fn default_type() -> String { "rkaf:RegulatoryAgendaObservation".into() }
+}
+
+/// Generated JSON-LD carrier for `AgendaProceedingRelationship`.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct AgendaProceedingRelationship {
+    /// JSON-LD resource type.
+    #[serde(rename = "@type", default = "AgendaProceedingRelationship::default_type")]
+    pub type_: String,
+    /// Optional JSON-LD resource identifier.
+    #[serde(rename = "@id", skip_serializing_if = "Option::is_none", default)]
+    pub id: Option<String>,
+    /// JSON-LD property `dcterms:relation`.
+    #[serde(rename = "dcterms:relation")]
+    pub relation: String,
+    /// JSON-LD property `dcat:hadRole`.
+    #[serde(rename = "dcat:hadRole")]
+    pub had_role: String,
+    /// JSON-LD property `prov:wasDerivedFrom`.
+    #[serde(rename = "prov:wasDerivedFrom")]
+    pub was_derived_from: crate::OneOrMany<String>,
+    /// JSON-LD property `prov:wasGeneratedBy`.
+    #[serde(rename = "prov:wasGeneratedBy")]
+    pub was_generated_by: String,
+    /// JSON-LD property `prov:wasAttributedTo`.
+    #[serde(rename = "prov:wasAttributedTo")]
+    pub was_attributed_to: String,
+    /// JSON-LD property `prov:generatedAtTime`.
+    #[serde(rename = "prov:generatedAtTime")]
+    pub generated_at_time: String,
+    /// Additional JSON-LD properties preserved during round trips.
+    #[serde(flatten)]
+    pub extra: BTreeMap<String, serde_json::Value>,
+}
+
+impl AgendaProceedingRelationship {
+    fn default_type() -> String { "rkaf:AgendaProceedingRelationship".into() }
+}
+
 /// Generated JSON-LD carrier for `Docket`.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Docket {
@@ -143,12 +315,6 @@ pub struct Proceeding {
     /// JSON-LD property `rkaf:proceedingProduces`.
     #[serde(rename = "rkaf:proceedingProduces", skip_serializing_if = "Option::is_none", default)]
     pub proceeding_produces: Option<crate::OneOrMany<String>>,
-    /// JSON-LD property `rkaf:hasProceedingEvidenceIdentifier`.
-    #[serde(rename = "rkaf:hasProceedingEvidenceIdentifier", skip_serializing_if = "Option::is_none", default)]
-    pub has_proceeding_evidence_identifier: Option<crate::OneOrMany<String>>,
-    /// JSON-LD property `rkaf:proceedingEvidenceIdentifierScheme`.
-    #[serde(rename = "rkaf:proceedingEvidenceIdentifierScheme", skip_serializing_if = "Option::is_none", default)]
-    pub proceeding_evidence_identifier_scheme: Option<ProceedingIdentifierScheme>,
     /// JSON-LD property `rkaf:proceedingSupersedes`.
     #[serde(rename = "rkaf:proceedingSupersedes", skip_serializing_if = "Option::is_none", default)]
     pub proceeding_supersedes: Option<crate::OneOrMany<String>>,

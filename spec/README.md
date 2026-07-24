@@ -18,7 +18,11 @@ Defines the two conformance paths: L0 vocabulary fidelity for non-JSON-LD carrie
 
 ### `rkaf-rulemaking.md`
 
-Experimental US notice-and-comment rulemaking module. Defines Proceeding, CommentPeriod, proceeding-stage values and lifecycle events, published-document links, CFR targets, and composition with existing authority chains.
+Experimental US notice-and-comment rulemaking module. Specializes the general
+Artifact-to-subject and qualified-relation patterns for durable
+RegulatoryAgendaItems, editioned RegulatoryAgendaObservations, independently
+identified Proceedings, CommentPeriods, published-document links, CFR targets,
+and authority chains.
 
 ### `rkaf-concept-registry.md`
 

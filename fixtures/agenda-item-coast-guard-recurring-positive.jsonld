@@ -1,0 +1,56 @@
+{
+  "@context": "../context/rkaf-context.jsonld",
+  "@graph": [
+    {
+      "@id": "urn:rkaf:us:rin:1625-AA00",
+      "@type": "rkaf:RegulatoryAgendaItem",
+      "rkaf:hasAgendaItemIdentifier": "urn:rkaf:us:rin:1625-AA00",
+      "rkaf:agendaItemIdentifierScheme": "rkaf:us-rin",
+      "rkaf:agendaScopeStatus": "rkaf:agendaScopeRecurring",
+      "dcat:qualifiedRelation": [
+        "urn:rkaf:fixture:relationship:1625-AA00:1",
+        "urn:rkaf:fixture:relationship:1625-AA00:2"
+      ]
+    },
+    {
+      "@id": "urn:rkaf:fixture:relationship:1625-AA00:1",
+      "@type": "rkaf:AgendaProceedingRelationship",
+      "dcterms:relation": "urn:rkaf:fixture:proceeding:1625-AA00:queens-cup",
+      "dcat:hadRole": "rkaf:agendaTracksProceeding",
+      "prov:wasDerivedFrom": "https://www.federalregister.gov/d/2013-14414",
+      "prov:wasGeneratedBy": "urn:rkaf:fixture:activity:agenda-materialization",
+      "prov:wasAttributedTo": "urn:rkaf:fixture:actor:spicy-regs",
+      "prov:generatedAtTime": "2026-07-24T00:00:00Z"
+    },
+    {
+      "@id": "urn:rkaf:fixture:relationship:1625-AA00:2",
+      "@type": "rkaf:AgendaProceedingRelationship",
+      "dcterms:relation": "urn:rkaf:fixture:proceeding:1625-AA00:harbor-safety",
+      "dcat:hadRole": "rkaf:agendaTracksProceeding",
+      "prov:wasDerivedFrom": "https://www.reginfo.gov/public/do/eAgendaViewRule?RIN=1625-AA00&pubId=202510",
+      "prov:wasGeneratedBy": "urn:rkaf:fixture:activity:agenda-materialization",
+      "prov:wasAttributedTo": "urn:rkaf:fixture:actor:spicy-regs",
+      "prov:generatedAtTime": "2026-07-24T00:00:00Z"
+    },
+    {
+      "@id": "urn:rkaf:fixture:proceeding:1625-AA00:queens-cup",
+      "@type": "rkaf:Proceeding",
+      "rkaf:hasProceedingIdentifier": "urn:rkaf:partner:fixture:proceeding:1625-AA00:queens-cup",
+      "rkaf:proceedingIdentifierScheme": "rkaf:partner-defined"
+    },
+    {
+      "@id": "urn:rkaf:fixture:proceeding:1625-AA00:harbor-safety",
+      "@type": "rkaf:Proceeding",
+      "rkaf:hasProceedingIdentifier": "urn:rkaf:partner:fixture:proceeding:1625-AA00:harbor-safety",
+      "rkaf:proceedingIdentifierScheme": "rkaf:partner-defined"
+    },
+    {
+      "@id": "https://www.federalregister.gov/d/2013-14414",
+      "@type": "prov:Entity"
+    },
+    {
+      "@id": "https://www.reginfo.gov/public/do/eAgendaViewRule?RIN=1625-AA00&pubId=202510",
+      "@type": "prov:Entity"
+    }
+  ]
+}
