@@ -283,9 +283,14 @@ The module remains Experimental until both conditions hold:
 
 The Spicy Regs full-corpus report dated 2026-07-23 satisfied condition 1 for
 the earlier contract and produced the identity, provenance,
-identifier-fallback, and unknown-stage rules above. The repaired contract must
-repeat the corpus gate against a manifest-addressed generation before
-graduation.
+identifier-fallback, and unknown-stage rules above. The repaired contract
+repeated that exercise on 2026-07-24. Its paired receipt binds Rulespec commit
+`d81fb29e5673fd9459723fe36fdde4f16358c19c`, Spicy Regs commit
+`3a032d26138c0d99d518e1dbfca20fa1a6e4c0b2`, contract digest
+`sha256:ea9b899ba92955b83638ece811d7a4b744dd912f72e19290e32c97508674de1c`,
+and candidate snapshot `snapshot_04ebfb14969691c54af2c3cc31a28be4`.
+The paired build, corpus validation, and full repository gates passed, so
+condition 1 is satisfied for the repaired contract.
 
 A maintainer-operated adversarial simulated-consumer review dated 2026-07-24 is
 recorded in

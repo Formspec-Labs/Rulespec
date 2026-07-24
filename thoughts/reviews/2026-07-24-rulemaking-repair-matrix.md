@@ -1,6 +1,6 @@
 # US rulemaking stabilization repair matrix
 
-**Status:** Repair implementation complete; clean paired corpus receipt pending  
+**Status:** Repair and clean paired corpus receipt complete; human gates pending
 **Source review:** `2026-07-24-rulemaking-condition2-adversarial-review.md`  
 **Contract digest:** `sha256:ea9b899ba92955b83638ece811d7a4b744dd912f72e19290e32c97508674de1c`
 
@@ -50,17 +50,17 @@ and excluded counts and fail any projected nonmember. This is deliberately not
 a lexical “drop invalid values” escape hatch.
 
 Spicy Regs uses that rule for `documents.fr_doc_num` against
-`federal_register.document_number`. Its final paired receipt is the corpus
-evidence for the mapping, including every artifact hash, source/prior-state
-hash, exclusion count, and gate log digest.
+`federal_register.document_number`. The final paired receipt passed against
+Rulespec commit `d81fb29e5673fd9459723fe36fdde4f16358c19c`, Spicy Regs
+commit `3a032d26138c0d99d518e1dbfca20fa1a6e4c0b2`, and candidate
+snapshot `snapshot_04ebfb14969691c54af2c3cc31a28be4`. It records every
+artifact hash, source/prior-state hash, exclusion count, and gate log digest;
+all carrier and repository failure counts are zero.
 
 ## Remaining gates
 
-- A clean paired receipt must bind the repaired Rulespec commit and digest, the
-  Spicy Regs implementation commit, identical baseline/candidate inputs, all
-  seven candidate artifacts, and the full gate sweep.
 - A Rulespec maintainer must choose and publish the release.
 - A non-originating consumer must review the repaired contract or ratify the
   simulated review against it.
 
-Until all three hold, the module remains Experimental.
+Until both hold, the module remains Experimental.
