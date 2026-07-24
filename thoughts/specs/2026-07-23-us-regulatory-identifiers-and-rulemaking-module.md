@@ -1,10 +1,9 @@
 # US Regulatory Identifiers, L0 Vocabulary Tier, and Rulemaking-Process Module
 
 - **Date:** 2026-07-23
-- **Status:** Implemented with architecture-review, full-corpus consumer, and
-  2026-07-23 post-implementation review corrections (cross-posting pattern,
-  `us-regsgov` legacy fallback, full-scheme corpus); independent review
-  remains pending
+- **Status:** Implemented through the full-corpus consumer exercise; the
+  2026-07-24 maintainer-operated adversarial simulation found a repair batch
+  and did not satisfy the pending non-originating-consumer gate
 - **Type:** Design memo (`thoughts/specs/`), targeting normative changes in `spec/`
 - **Companion:** spicy-regs `docs/superpowers/specs/2026-07-23-metadata-ontology-layer-design.md` (spec 1 of this pair — the consumer this memo serves)
 
@@ -90,11 +89,12 @@ otherwise untouched.
 
 New spec doc `spec/rkaf-rulemaking.md`, **Status: Experimental** — terms ship
 in a release (closed-taxonomy discipline applies), and the doc carries an
-explicit instability warning until an independent consumer reviews the
-full-corpus-corrected shapes. Spicy Regs completed the first stabilization gate
-on 2026-07-23. This is deliberate sequencing: vocabulary stabilizes *after* a
-real consumer proves it (the inverse of how the rest of Rulespec was built, and
-the lesson of it).
+explicit instability warning until the 2026-07-24 adversarial review's repair
+batch lands and a non-originating consumer reviews the repaired contract or
+ratifies that review against it. Spicy Regs completed the first stabilization
+gate on 2026-07-23. This is deliberate sequencing: vocabulary stabilizes
+*after* a real consumer proves it (the inverse of how the rest of Rulespec was
+built, and the lesson of it).
 
 Entities, composing existing primitives rather than duplicating them:
 
@@ -136,7 +136,14 @@ Spicy Regs ran `Proceeding`, `proceedingStage`, `CommentPeriod`, and
 partner-scoped identity for reused RINs, a normative permanent-URL fallback for
 non-`YYYY-NNNNN` Federal Register numbers, qualified CommentPeriod evidence,
 and an optional unknown stage. Those corrections are now part of the contract.
-Independent consumer review remains required.
+
+The maintainer-operated adversarial simulated-consumer review dated 2026-07-24
+is recorded in
+`thoughts/reviews/2026-07-24-rulemaking-condition2-adversarial-review.md`. It
+resolved the three agenda questions but concluded **do not graduate as-is**.
+Because no non-originating consumer operated or ratified the review, it does
+not satisfy the second gate. The repair preconditions and independent review or
+ratification remain required.
 
 **Validation-contract cost:** new class + relation fixtures, supplied from the reference corpus (Deliverable D). Budget ~15 fixtures.
 
@@ -154,12 +161,13 @@ This is the falsifiability loop closing in both directions: Rulespec's §10 vali
 2. **Release N+1 (small):** Deliverable A (enum extension + fixtures) and Deliverable B (L0 tier + audit tool). These are spicy-regs spec 1's prerequisites; spec 1's delivery order blocks on them and nothing else. If N+1 slips, spec 1 proceeds on provisional `x-` prefixed local terms with a committed rename after release — the enum, not the calendar, is the contract.
 3. **Spicy-regs builds** `rule_targets` / `authority_edges` against N+1. Friction found here feeds back before C freezes anything.
 4. **Release N+2:** Deliverable C (rulemaking module, experimental) shaped by step 3's experience, plus Deliverable D (partner YAML + reference corpus).
-5. **Stabilization of C** (experimental → pre-release normative) after at
-   least one non-Spicy Regs consumer review. The Spicy Regs full-corpus
-   `proceedings`/`comment_periods` gate completed on 2026-07-23. Candidate
-   reviewer: the Axiom Foundation corpus pipeline, which keys on the same
-   identifier space as Deliverable A and is the natural third consumer of the
-   schemes.
+5. **Stabilization of C** (experimental → pre-release normative) after the
+   2026-07-24 repair preconditions land and at least one non-Spicy Regs consumer
+   reviews the repaired contract or ratifies the simulated review against it.
+   The Spicy Regs full-corpus `proceedings`/`comment_periods` gate completed on
+   2026-07-23. Candidate reviewer: the Axiom Foundation corpus pipeline, which
+   keys on the same identifier space as Deliverable A and is the natural third
+   consumer of the schemes.
 
 ## 8. Explicit non-changes
 

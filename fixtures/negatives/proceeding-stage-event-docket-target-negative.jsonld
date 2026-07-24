@@ -1,0 +1,19 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@graph": [
+    {
+      "@id": "urn:rkaf:fixture:negative:event:docket-target",
+      "@type": "rkaf:LifecycleEvent",
+      "rkaf:lifecycleEventKind": "rkaf:proceedingFinal",
+      "rkaf:effectiveDate": "2026-05-01T00:00:00Z",
+      "rkaf:emittedBy": "urn:rkaf:actor:agency:example",
+      "rkaf:appliesTo": "urn:rkaf:fixture:negative:docket:event-target"
+    },
+    {
+      "@id": "urn:rkaf:fixture:negative:docket:event-target",
+      "@type": "rkaf:Docket",
+      "rkaf:hasDocketIdentifier": "urn:rkaf:us:regsgov:EPA-HQ-OAR-2021-0317",
+      "rkaf:docketIdentifierScheme": "rkaf:us-regsgov"
+    }
+  ]
+}

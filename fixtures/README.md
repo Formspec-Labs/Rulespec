@@ -14,11 +14,11 @@ Current reference counts:
 
 | Corpus | Count | Gate |
 |---|---:|---|
-| Positive fixtures | 60 | `tools/ci_validate.py`, `rkaf-validate` |
-| Negative fixtures | 126 | `tools/validate_negatives.py`, `tools/conformance_report.py` |
-| Edge fixtures | 37 | `tools/conformance_report.py` visibility only |
+| Positive fixtures | 69 | `tools/ci_validate.py`, `rkaf-validate` |
+| Negative fixtures | 140 | `tools/validate_negatives.py`, `tools/conformance_report.py` |
+| Edge fixtures | 38 | `tools/conformance_report.py` visibility only |
 | Behavior fixtures | 45 | `rkaf-behavior-validate`, `tools/conformance_report.py` L4 |
-| Total L1-L4 corpus | 268 | `tools/conformance_report.py` |
+| Total L1-L4 corpus | 292 | `tools/conformance_report.py` |
 
 ## Validating
 
@@ -40,13 +40,15 @@ via the `@context` field. There is no separate fixture-prep copy under
 
 ## Cross-fixture `@id` references
 
-A fixture's `@graph` is **not** required to be self-contained. Properties
-typed `@id` (e.g. `rkaf:detectedBy`, `rkaf:subject`, `rkaf:targets`) may
-reference IRIs defined in sibling fixtures. JSON-LD treats unresolved `@id`s
-as opaque IRIs; SHACL shapes validate the *structure* of references, not
-their resolvability. Where a fixture exercises an isolated node (e.g. a
-`Finding` not paired with the originating `BridgeValidationResult`), add a
-top-level `_comment` key noting the intent.
+A fixture's `@graph` need not be wholly self-contained. Properties typed
+`@id` without a registered class range (for example `rkaf:detectedBy`,
+`rkaf:subject`, and `rkaf:targets`) may reference opaque IRIs defined in
+sibling fixtures. A property listed in
+`constraints/semantics/l0-ranges.cue`, however, compiles to `sh:class`; its
+referenced node MUST carry the declared type in the same validation graph.
+This includes the rulemaking relationships and `prov:wasDerivedFrom`.
+Where a fixture exercises an isolated node and the relationship is
+incidental, add a top-level `_comment` key noting the intent.
 
 Inline the referenced node when the fixture's primary purpose is to
 exercise the relationship itself (e.g., an Attestation→Finding waiver

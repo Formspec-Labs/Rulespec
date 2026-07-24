@@ -11,7 +11,10 @@ package rkaf
 	"rkaf:conceptLifecycle" | "rkaf:promotion" | "rkaf:demotion" |
 	"rkaf:proceedingPrerule" | "rkaf:proceedingProposed" |
 	"rkaf:proceedingSupplemental" | "rkaf:proceedingFinal" |
-	"rkaf:proceedingWithdrawn" | "rkaf:proceedingLongterm"
+	"rkaf:proceedingWithdrawn" | "rkaf:proceedingLongterm" |
+	"rkaf:proceedingConcluded" | "rkaf:proceedingVacated" |
+	"rkaf:proceedingStayed" | "rkaf:proceedingRemanded" |
+	"rkaf:proceedingReinstated" | "rkaf:proceedingDisapproved"
 
 #LifecycleEvent: {
 	"@type":                          "rkaf:LifecycleEvent"

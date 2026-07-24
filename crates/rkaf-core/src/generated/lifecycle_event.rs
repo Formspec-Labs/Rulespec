@@ -55,6 +55,24 @@ pub enum LifecycleEventKind {
     /// Wire value `rkaf:proceedingLongterm`.
     #[serde(rename = "rkaf:proceedingLongterm")]
     ProceedingLongterm,
+    /// Wire value `rkaf:proceedingConcluded`.
+    #[serde(rename = "rkaf:proceedingConcluded")]
+    ProceedingConcluded,
+    /// Wire value `rkaf:proceedingVacated`.
+    #[serde(rename = "rkaf:proceedingVacated")]
+    ProceedingVacated,
+    /// Wire value `rkaf:proceedingStayed`.
+    #[serde(rename = "rkaf:proceedingStayed")]
+    ProceedingStayed,
+    /// Wire value `rkaf:proceedingRemanded`.
+    #[serde(rename = "rkaf:proceedingRemanded")]
+    ProceedingRemanded,
+    /// Wire value `rkaf:proceedingReinstated`.
+    #[serde(rename = "rkaf:proceedingReinstated")]
+    ProceedingReinstated,
+    /// Wire value `rkaf:proceedingDisapproved`.
+    #[serde(rename = "rkaf:proceedingDisapproved")]
+    ProceedingDisapproved,
 }
 
 use std::collections::BTreeMap;

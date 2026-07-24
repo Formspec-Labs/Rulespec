@@ -1,0 +1,7 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@id": "urn:rkaf:fixture:negative:proceeding-official-registry",
+  "@type": "rkaf:Proceeding",
+  "rkaf:hasProceedingIdentifier": "urn:ferc:proceeding:RM24-1",
+  "rkaf:proceedingIdentifierScheme": "rkaf:official-registry"
+}

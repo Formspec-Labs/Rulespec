@@ -105,3 +105,126 @@ rkaf:BridgeValidationResultRejectedRemediationShape a sh:NodeShape ;
     [ sh:property [ sh:path rkaf:noRemediationReason  ; sh:minCount 1 ] ]
   ) ;
   sh:message "BridgeValidationResult with result=rkaf:rejected MUST carry suggestedRemediation OR noRemediationReason (§5.2)." .
+
+# ---------------------------------------------------------------------------
+# Rulemaking §2 — a regulations.gov identifier never identifies a Proceeding.
+# Partner-defined is an escape hatch for a stable proceeding identifier, not a
+# way to relabel a docket identifier.
+# ---------------------------------------------------------------------------
+rkaf:ProceedingIdentifierBoundaryShape a sh:NodeShape ;
+  sh:targetClass rkaf:Proceeding ;
+  sh:property [
+    sh:path rkaf:hasProceedingIdentifier ;
+    sh:not [ sh:pattern "^urn:rkaf:us:regsgov:" ]
+  ] ;
+  sh:message "A Proceeding identifier MUST NOT be a regulations.gov docket, document, or comment identifier (rulemaking §2)." .
+
+# ---------------------------------------------------------------------------
+# Rulemaking §3 — a CommentPeriod needs at least one semantic anchor. A
+# docket-only interval remains publishable while Proceeding identity is
+# unresolved; a joint interval may name multiple anchors.
+# ---------------------------------------------------------------------------
+rkaf:CommentPeriodAnchorShape a sh:NodeShape ;
+  sh:targetClass rkaf:CommentPeriod ;
+  sh:or (
+    [ sh:property [ sh:path rkaf:commentPeriodFor ; sh:minCount 1 ] ]
+    [ sh:property [ sh:path rkaf:commentPeriodDocket ; sh:minCount 1 ] ]
+  ) ;
+  sh:message "CommentPeriod MUST name at least one Proceeding or Docket anchor (rulemaking §3)." .
+
+# ---------------------------------------------------------------------------
+# Rulemaking §§2 and 5 — stage is a Proceeding-only property.
+# ---------------------------------------------------------------------------
+rkaf:ProceedingStageDomainShape a sh:NodeShape ;
+  sh:targetSubjectsOf rkaf:proceedingStage ;
+  sh:class rkaf:Proceeding ;
+  sh:message "rkaf:proceedingStage may appear only on rkaf:Proceeding nodes (rulemaking §§2, 5)." .
+
+# Agency stage-family events seed only Proceedings. Judicial/congressional
+# events use the separate shape below because they may additionally scope a
+# partial action to affected Artifacts.
+rkaf:ProceedingStageEventTargetShape a sh:NodeShape ;
+  sh:targetClass rkaf:LifecycleEvent ;
+  sh:or (
+    [ sh:property [
+        sh:path rkaf:lifecycleEventKind ;
+        sh:not [ sh:in (
+          rkaf:proceedingPrerule rkaf:proceedingProposed
+          rkaf:proceedingSupplemental rkaf:proceedingFinal
+          rkaf:proceedingWithdrawn rkaf:proceedingLongterm
+          rkaf:proceedingConcluded
+        ) ]
+      ] ]
+    [ sh:property [ sh:path rkaf:appliesTo ; sh:class rkaf:Proceeding ] ]
+  ) ;
+  sh:message "A proceeding stage-family LifecycleEvent MUST apply only to rkaf:Proceeding nodes (rulemaking §5)." .
+
+rkaf:ProceedingExternalLegalEventTargetShape a sh:NodeShape ;
+  sh:targetClass rkaf:LifecycleEvent ;
+  sh:or (
+    [ sh:property [
+        sh:path rkaf:lifecycleEventKind ;
+        sh:not [ sh:in (
+          rkaf:proceedingVacated rkaf:proceedingStayed
+          rkaf:proceedingRemanded rkaf:proceedingReinstated
+          rkaf:proceedingDisapproved
+        ) ]
+      ] ]
+    [
+      sh:property [
+        sh:path rkaf:appliesTo ;
+        sh:or (
+          [ sh:class rkaf:Proceeding ]
+          [ sh:class rkaf:Artifact ]
+        )
+      ] ;
+      sh:property [
+        sh:path rkaf:appliesTo ;
+        sh:qualifiedValueShape [ sh:class rkaf:Proceeding ] ;
+        sh:qualifiedMinCount 1
+      ]
+    ]
+  ) ;
+  sh:message "A judicial or congressional proceeding event MUST apply to a Proceeding and MAY also name affected Artifacts (rulemaking §5)." .
+
+# When a graph carries both a current stage and stage-family events, the current
+# value must equal the latest dated event kind. Equal-date disagreement is a
+# violation because no unique latest state exists.
+rkaf:ProceedingLatestStageAgreementShape a sh:NodeShape ;
+  sh:targetClass rkaf:Proceeding ;
+  sh:sparql [
+    a sh:SPARQLConstraint ;
+    sh:message "proceedingStage MUST equal the latest stage-family LifecycleEvent kind (rulemaking §5)." ;
+    sh:select """
+      PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+      PREFIX rkaf: <https://rulespec.org/ns/v1#>
+      SELECT $this
+      WHERE {
+        $this rkaf:proceedingStage ?stage .
+        ?event rdf:type rkaf:LifecycleEvent ;
+               rkaf:appliesTo $this ;
+               rkaf:lifecycleEventKind ?kind ;
+               rkaf:effectiveDate ?date .
+        FILTER (?kind IN (
+          rkaf:proceedingPrerule, rkaf:proceedingProposed,
+          rkaf:proceedingSupplemental, rkaf:proceedingFinal,
+          rkaf:proceedingWithdrawn, rkaf:proceedingLongterm,
+          rkaf:proceedingConcluded
+        ))
+        FILTER NOT EXISTS {
+          ?later rdf:type rkaf:LifecycleEvent ;
+                 rkaf:appliesTo $this ;
+                 rkaf:lifecycleEventKind ?laterKind ;
+                 rkaf:effectiveDate ?laterDate .
+          FILTER (?laterKind IN (
+            rkaf:proceedingPrerule, rkaf:proceedingProposed,
+            rkaf:proceedingSupplemental, rkaf:proceedingFinal,
+            rkaf:proceedingWithdrawn, rkaf:proceedingLongterm,
+            rkaf:proceedingConcluded
+          ))
+          FILTER (?laterDate > ?date)
+        }
+        FILTER (?stage != ?kind)
+      }
+    """
+  ] .

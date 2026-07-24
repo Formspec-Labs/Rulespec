@@ -1,0 +1,19 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@graph": [
+    {
+      "@id": "urn:rkaf:fixture:negative:event:vacatur-without-proceeding",
+      "@type": "rkaf:LifecycleEvent",
+      "rkaf:lifecycleEventKind": "rkaf:proceedingVacated",
+      "rkaf:effectiveDate": "2026-05-01T00:00:00Z",
+      "rkaf:emittedBy": "urn:rkaf:actor:court:example",
+      "rkaf:appliesTo": "urn:rkaf:fixture:negative:artifact:vacated"
+    },
+    {
+      "@id": "urn:rkaf:fixture:negative:artifact:vacated",
+      "@type": "rkaf:Artifact",
+      "rkaf:hasArtifactIdentifier": "urn:rkaf:fixture:negative:artifact:vacated",
+      "rkaf:artifactIdentifierScheme": "rkaf:urn-persistent"
+    }
+  ]
+}

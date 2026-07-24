@@ -3,6 +3,6 @@
   "@id": "urn:rkaf:fixture:negative:proceeding-missing-identifier",
   "@type": "rkaf:Proceeding",
   "rkaf:proceedingIdentifierScheme": "rkaf:us-rin",
-  "rkaf:proceedingStage": "rkaf:proposed",
+  "rkaf:proceedingStage": "rkaf:proceedingProposed",
   "rkaf:hasAuthority": "urn:rkaf:fixture:authority:clean-air-act-111"
 }

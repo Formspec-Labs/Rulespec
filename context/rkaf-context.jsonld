@@ -40,6 +40,14 @@
       "@type": "@id",
       "@container": "@set"
     },
+    "dcterms:hasFormat": {
+      "@type": "@id",
+      "@container": "@set"
+    },
+    "dcterms:isFormatOf": {
+      "@type": "@id",
+      "@container": "@set"
+    },
     "rkaf:SourceFragment": {
       "@type": "@id"
     },
@@ -244,7 +252,13 @@
     "rkaf:proceedingIdentifierScheme": {
       "@type": "@vocab"
     },
+    "rkaf:identifierRegistry": {
+      "@type": "@id"
+    },
     "rkaf:proceedingStage": {
+      "@type": "@vocab"
+    },
+    "rkaf:proceedingTerminationCause": {
       "@type": "@vocab"
     },
     "rkaf:hasAuthority": {
@@ -255,12 +269,40 @@
       "@type": "@id",
       "@container": "@set"
     },
+    "rkaf:proceedingAffectsCitation": {
+      "@type": "@id",
+      "@container": "@set"
+    },
+    "rkaf:proceedingProduces": {
+      "@type": "@id",
+      "@container": "@set"
+    },
+    "rkaf:hasProceedingEvidenceIdentifier": {
+      "@type": "@id",
+      "@container": "@set"
+    },
+    "rkaf:proceedingEvidenceIdentifierScheme": {
+      "@type": "@vocab"
+    },
+    "rkaf:proceedingSupersedes": {
+      "@type": "@id",
+      "@container": "@set"
+    },
     "rkaf:hasDocket": {
       "@type": "@id",
       "@container": "@set"
     },
     "rkaf:commentPeriodFor": {
-      "@type": "@id"
+      "@type": "@id",
+      "@container": "@set"
+    },
+    "rkaf:commentPeriodDocket": {
+      "@type": "@id",
+      "@container": "@set"
+    },
+    "rkaf:commentPeriodOpenedBy": {
+      "@type": "@id",
+      "@container": "@set"
     },
     "rkaf:commentPeriodStart": {
       "@type": "xsd:date"
@@ -1049,9 +1091,9 @@
       "Added rkaf:AILineage with mandatory humanApprover",
       "Added rkaf:MappingState, rkaf:RetentionPolicy, rkaf:Workspace, rkaf:projectsTo, rkaf:llmHint (Studio-derived promotions)",
       "Added rkaf:anchoredBy / rkaf:anchorType (abstract anchoring contract, bindings live outside Rulespec)",
-      "Mode-1 direct predicate imports: prov:, oa:, skos:, eli: (§9.1). All carry term defs in this context.",
+      "Mode-1 direct predicate imports: prov:, oa:, skos:, eli:, dcterms:hasFormat, and dcterms:isFormatOf (§9.1). All carry term defs in this context.",
       "Mode-2/3 alignments (class-tag and URI-value composition): aknt:, uslm:, dpv:, odrl: (§9.2). External prefix declared; rkaf-namespaced predicates carry the external IRIs as values.",
-      "See also (future-projection, no predicate import): lrml:, rrmv:, eco:, sepio:, cito:, dcterms: (§9.2.2). Promote to §9.2 Alignment when a partner consumer arrives with a named use case.",
+      "See also (future-projection, no predicate import): lrml:, rrmv:, eco:, sepio:, cito:, and the unimported dcterms supersession predicates (§9.2.2). Promote to §9.2 Alignment when a partner consumer arrives with a named use case.",
       "Dropped Cohort D dead-weight prefix declarations: dcat: (no Reference Corpora layer), nano: (pattern citation, not predicate import), schemaorg: (no SEO projector). Re-declare when the dependent layer ships."
     ],
     "note": "_meta is JSON-LD-safe: keys not in @context are ignored by JSON-LD processors."

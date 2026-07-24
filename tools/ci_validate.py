@@ -66,6 +66,13 @@ def validate_one(fixture_path, shapes_paths):
         meta_shacl=False,
     )
 
+    if not hasattr(report_graph, "subjects"):
+        return {
+            "error": f"SHACL engine rejected the shape graph: {report_graph}",
+            "triples": len(data_graph),
+            "violations": -1,
+        }
+
     SH = rdflib.Namespace("http://www.w3.org/ns/shacl#")
     violations = list(report_graph.subjects(rdflib.RDF.type, SH.ValidationResult))
 

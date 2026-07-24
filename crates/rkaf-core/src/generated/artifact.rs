@@ -94,6 +94,12 @@ pub struct Artifact {
     /// JSON-LD property `rkaf:publishedInProceeding`.
     #[serde(rename = "rkaf:publishedInProceeding", skip_serializing_if = "Option::is_none", default)]
     pub published_in_proceeding: Option<crate::OneOrMany<String>>,
+    /// JSON-LD property `dcterms:hasFormat`.
+    #[serde(rename = "dcterms:hasFormat", skip_serializing_if = "Option::is_none", default)]
+    pub has_format: Option<crate::OneOrMany<String>>,
+    /// JSON-LD property `dcterms:isFormatOf`.
+    #[serde(rename = "dcterms:isFormatOf", skip_serializing_if = "Option::is_none", default)]
+    pub is_format_of: Option<crate::OneOrMany<String>>,
     /// Additional JSON-LD properties preserved during round trips.
     #[serde(flatten)]
     pub extra: BTreeMap<String, serde_json::Value>,

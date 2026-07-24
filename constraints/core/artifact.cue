@@ -16,13 +16,15 @@ import "list"
 	"rkaf:artifactIdentifierScheme": [...#ArtifactIdentifierScheme] & list.MinItems(1)
 	"rkaf:hasRegulatoryIdentifier"?: string & =~"^[A-Za-z][A-Za-z0-9+.-]*:[^\\s]+$"
 	"rkaf:regulatoryIdentifierScheme"?: #USRegulatoryIdentifierScheme
-	"rkaf:publishedInProceeding"?:   [...(string & =~"^[A-Za-z][A-Za-z0-9+.-]*:[^\\s]+$")]
+	"rkaf:publishedInProceeding"?:   [...(string & =~"^[A-Za-z][A-Za-z0-9+.-]*:[^\\s]+$")] & list.MinItems(1)
+	"dcterms:hasFormat"?:            [...(string & =~"^[A-Za-z][A-Za-z0-9+.-]*:[^\\s]+$")] & list.MinItems(1)
+	"dcterms:isFormatOf"?:           [...(string & =~"^[A-Za-z][A-Za-z0-9+.-]*:[^\\s]+$")] & list.MinItems(1)
 
 	if A["rkaf:hasRegulatoryIdentifier"] != _|_ {
 		"rkaf:regulatoryIdentifierScheme": #USRegulatoryIdentifierScheme
 	}
 	if A["rkaf:regulatoryIdentifierScheme"] == "rkaf:us-cfr" {
-		"rkaf:hasRegulatoryIdentifier": string & =~"^urn:rkaf:us:cfr:[1-9][0-9]*:[0-9]+(\\.[0-9]+)?$"
+		"rkaf:hasRegulatoryIdentifier": string & =~"^urn:rkaf:us:cfr:[1-9][0-9]*:[0-9]+(\\.[0-9]+[a-z]{0,3}(-[0-9a-z]+)*)?$"
 	}
 	if A["rkaf:regulatoryIdentifierScheme"] == "rkaf:us-usc" {
 		"rkaf:hasRegulatoryIdentifier": string & =~"^urn:rkaf:us:usc:[1-9][0-9]*:[1-9][0-9]*[a-z]*(-[0-9a-z]+)*$"
@@ -31,7 +33,7 @@ import "list"
 		"rkaf:hasRegulatoryIdentifier": string & =~"^urn:rkaf:us:frdoc:[0-9]{4}-[0-9]{5}$"
 	}
 	if A["rkaf:regulatoryIdentifierScheme"] == "rkaf:us-regsgov" {
-		"rkaf:hasRegulatoryIdentifier": string & =~"^urn:rkaf:us:regsgov:[A-Z0-9]+(-[A-Z0-9]+)+$"
+		"rkaf:hasRegulatoryIdentifier": string & =~"^urn:rkaf:us:regsgov:[A-Z0-9]+([-_][A-Z0-9]+)*$"
 	}
 	if A["rkaf:regulatoryIdentifierScheme"] == "rkaf:us-pl" {
 		"rkaf:hasRegulatoryIdentifier": string & =~"^urn:rkaf:us:pl:[1-9][0-9]*-[1-9][0-9]*$"

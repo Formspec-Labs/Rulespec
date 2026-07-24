@@ -1,0 +1,23 @@
+{
+  "@context": "../context/rkaf-context.jsonld",
+  "@graph": [
+    {
+      "@id": "urn:rkaf:fixture:comment-period:docket-only",
+      "@type": "rkaf:CommentPeriod",
+      "rkaf:commentPeriodDocket": "urn:rkaf:fixture:docket:docket-only",
+      "rkaf:commentPeriodStart": "2026-01-10",
+      "rkaf:commentPeriodEnd": "2026-02-09",
+      "prov:wasDerivedFrom": "urn:rkaf:fixture:evidence:docket-only"
+    },
+    {
+      "@id": "urn:rkaf:fixture:docket:docket-only",
+      "@type": "rkaf:Docket",
+      "rkaf:hasDocketIdentifier": "urn:rkaf:us:regsgov:EPA_FRDOC_0001",
+      "rkaf:docketIdentifierScheme": "rkaf:us-regsgov"
+    },
+    {
+      "@id": "urn:rkaf:fixture:evidence:docket-only",
+      "@type": "prov:Entity"
+    }
+  ]
+}

@@ -1,0 +1,31 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@graph": [
+    {
+      "@id": "urn:rkaf:fixture:negative:proceeding:wrong-docket-class",
+      "@type": "rkaf:Proceeding",
+      "rkaf:hasProceedingIdentifier": "urn:rkaf:fixture:negative:proceeding:wrong-docket-class",
+      "rkaf:proceedingIdentifierScheme": "rkaf:partner-defined",
+      "rkaf:hasDocket": "urn:rkaf:fixture:negative:artifact:not-a-docket"
+    },
+    {
+      "@id": "urn:rkaf:fixture:negative:artifact:not-a-docket",
+      "@type": "rkaf:Artifact",
+      "rkaf:hasArtifactIdentifier": "urn:rkaf:fixture:negative:artifact:not-a-docket",
+      "rkaf:artifactIdentifierScheme": "rkaf:urn-persistent"
+    },
+    {
+      "@id": "urn:rkaf:fixture:negative:artifact:wrong-proceeding-class",
+      "@type": "rkaf:Artifact",
+      "rkaf:hasArtifactIdentifier": "urn:rkaf:fixture:negative:artifact:wrong-proceeding-class",
+      "rkaf:artifactIdentifierScheme": "rkaf:urn-persistent",
+      "rkaf:publishedInProceeding": "urn:rkaf:fixture:negative:docket:not-a-proceeding"
+    },
+    {
+      "@id": "urn:rkaf:fixture:negative:docket:not-a-proceeding",
+      "@type": "rkaf:Docket",
+      "rkaf:hasDocketIdentifier": "urn:rkaf:us:regsgov:EPA-HQ-OAR-2021-0317",
+      "rkaf:docketIdentifierScheme": "rkaf:us-regsgov"
+    }
+  ]
+}

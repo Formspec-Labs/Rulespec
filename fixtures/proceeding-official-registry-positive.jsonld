@@ -1,0 +1,19 @@
+{
+  "@context": "../context/rkaf-context.jsonld",
+  "@graph": [
+    {
+      "@id": "urn:rkaf:fixture:proceeding:ferc-rm24-1",
+      "@type": "rkaf:Proceeding",
+      "rkaf:hasProceedingIdentifier": "urn:ferc:proceeding:RM24-1",
+      "rkaf:proceedingIdentifierScheme": "rkaf:official-registry",
+      "rkaf:identifierRegistry": "https://elibrary.ferc.gov/"
+    },
+    {
+      "@id": "urn:rkaf:fixture:docket:fcc-22-69",
+      "@type": "rkaf:Docket",
+      "rkaf:hasDocketIdentifier": "urn:fcc:proceeding:22-69",
+      "rkaf:docketIdentifierScheme": "rkaf:official-registry",
+      "rkaf:identifierRegistry": "https://www.fcc.gov/ecfs/"
+    }
+  ]
+}

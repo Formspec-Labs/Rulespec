@@ -1,0 +1,8 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@id": "urn:rkaf:fixture:negative:docket:stage",
+  "@type": "rkaf:Docket",
+  "rkaf:hasDocketIdentifier": "urn:rkaf:us:regsgov:EPA-HQ-OAR-2021-0317",
+  "rkaf:docketIdentifierScheme": "rkaf:us-regsgov",
+  "rkaf:proceedingStage": "rkaf:proceedingFinal"
+}

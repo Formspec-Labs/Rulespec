@@ -47,8 +47,8 @@ class L0MappingAuditTests(unittest.TestCase):
             "direction": "forward",
             "value_kind": "vocab",
             "enum_map": {
-                "proposed": f"{RKAF}proposed",
-                "final": f"{RKAF}final",
+                "proposed": f"{RKAF}proceedingProposed",
+                "final": f"{RKAF}proceedingFinal",
             },
         }
 
@@ -79,6 +79,133 @@ class L0MappingAuditTests(unittest.TestCase):
         self.assertEqual(result.blocks, 1)
         self.assertEqual(result.entries, 2)
         self.assertEqual(result.versions, {self.registry.contract_version})
+
+    def test_artifact_identifier_accepts_declared_scheme(self) -> None:
+        mapping = {
+            "table": "documents",
+            "column": "document_id",
+            "subject_type": f"{RKAF}Artifact",
+            "term": f"{RKAF}hasArtifactIdentifier",
+            "direction": "forward",
+            "value_kind": "iri",
+            "transform": {
+                "template": "https://www.regulations.gov/document/{document_id}",
+                "identifier_scheme": f"{RKAF}urn-persistent",
+            },
+            "samples": [
+                {
+                    "input": {"document_id": "EPA-HQ-OAR-2021-0317-0001"},
+                    "output": (
+                        "https://www.regulations.gov/document/"
+                        "EPA-HQ-OAR-2021-0317-0001"
+                    ),
+                }
+            ],
+        }
+        result = audit_mapping_text(
+            self.mapping_markdown([mapping]),
+            registry=self.registry,
+        )
+        self.assertEqual(result.issues, ())
+
+    def test_same_column_may_project_distinct_predicates(self) -> None:
+        artifact_identity = {
+            "table": "documents",
+            "column": "document_id",
+            "subject_type": f"{RKAF}Artifact",
+            "term": f"{RKAF}hasArtifactIdentifier",
+            "direction": "forward",
+            "value_kind": "iri",
+            "transform": {
+                "template": "https://www.regulations.gov/document/{document_id}",
+                "identifier_scheme": f"{RKAF}urn-persistent",
+            },
+            "samples": [
+                {
+                    "input": {"document_id": "EPA-HQ-OAR-2021-0317-0001"},
+                    "output": (
+                        "https://www.regulations.gov/document/"
+                        "EPA-HQ-OAR-2021-0317-0001"
+                    ),
+                }
+            ],
+        }
+        regulatory_identity = {
+            **artifact_identity,
+            "term": f"{RKAF}hasRegulatoryIdentifier",
+            "transform": {
+                "template": "urn:rkaf:us:regsgov:{document_id}",
+                "identifier_scheme": f"{RKAF}us-regsgov",
+            },
+            "samples": [
+                {
+                    "input": {"document_id": "EPA-HQ-OAR-2021-0317-0001"},
+                    "output": "urn:rkaf:us:regsgov:EPA-HQ-OAR-2021-0317-0001",
+                }
+            ],
+        }
+        result = audit_mapping_text(
+            self.mapping_markdown([artifact_identity, regulatory_identity]),
+            registry=self.registry,
+        )
+        self.assertEqual(result.issues, ())
+
+        duplicate = audit_mapping_text(
+            self.mapping_markdown([artifact_identity, artifact_identity]),
+            registry=self.registry,
+        )
+        self.assertTrue(any("duplicate mapping" in issue for issue in duplicate.issues))
+
+    def test_source_membership_declares_evidence_qualified_projection(self) -> None:
+        mapping = {
+            "table": "documents",
+            "column": "fr_doc_num",
+            "subject_type": f"{RKAF}Artifact",
+            "term": "http://purl.org/dc/terms/isFormatOf",
+            "direction": "forward",
+            "object_type": f"{RKAF}Artifact",
+            "value_kind": "iri",
+            "source_membership": {
+                "table": "federal_register",
+                "column": "document_number",
+            },
+            "transform": {
+                "template": "https://www.federalregister.gov/d/{fr_doc_num}",
+            },
+            "samples": [
+                {
+                    "input": {"fr_doc_num": "2024-00366"},
+                    "output": "https://www.federalregister.gov/d/2024-00366",
+                }
+            ],
+        }
+        result = audit_mapping_text(
+            self.mapping_markdown([mapping]),
+            registry=self.registry,
+        )
+        self.assertEqual(result.issues, ())
+
+        mapping["source_membership"] = {
+            "table": "federal_register",
+            "column": "",
+            "unexpected": "value",
+        }
+        result = audit_mapping_text(
+            self.mapping_markdown([mapping]),
+            registry=self.registry,
+        )
+        self.assertTrue(
+            any(
+                "source_membership has unknown keys" in issue
+                for issue in result.issues
+            )
+        )
+        self.assertTrue(
+            any(
+                "source_membership column MUST be a non-empty string" in issue
+                for issue in result.issues
+            )
+        )
 
     def test_inverse_relation_declares_domain_and_range(self) -> None:
         inverse = {

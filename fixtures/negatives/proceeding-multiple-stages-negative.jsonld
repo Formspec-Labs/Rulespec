@@ -1,0 +1,11 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@id": "urn:rkaf:fixture:negative:proceeding:multiple-stages",
+  "@type": "rkaf:Proceeding",
+  "rkaf:hasProceedingIdentifier": "urn:rkaf:fixture:negative:proceeding:multiple-stages",
+  "rkaf:proceedingIdentifierScheme": "rkaf:partner-defined",
+  "rkaf:proceedingStage": [
+    "rkaf:proceedingProposed",
+    "rkaf:proceedingFinal"
+  ]
+}

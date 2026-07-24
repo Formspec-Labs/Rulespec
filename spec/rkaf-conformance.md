@@ -50,7 +50,7 @@ current `sha256:<64 lowercase hex>` contract digest. Every block in one
 document MUST use the same digest.
 
 ```yaml rkaf-l0-mapping
-rulespec_version: "sha256:836968b28f3b86283f53c57ae5c9ab8ebd77e96531cd4751476f1a5ee3d296f2"
+rulespec_version: "sha256:ea9b899ba92955b83638ece811d7a4b744dd912f72e19290e32c97508674de1c"
 mappings:
   - table: proceedings
     column: current_stage
@@ -59,8 +59,8 @@ mappings:
     direction: forward
     value_kind: vocab
     enum_map:
-      proposed: https://rulespec.org/ns/v1#proposed
-      final: https://rulespec.org/ns/v1#final
+      proposed: https://rulespec.org/ns/v1#proceedingProposed
+      final: https://rulespec.org/ns/v1#proceedingFinal
   - table: proceedings
     column: fr_document_numbers_json
     subject_type: https://rulespec.org/ns/v1#Proceeding
@@ -84,6 +84,8 @@ Each entry has these rules:
   `subject_type` and `term` MUST be full registered HTTP(S) IRIs.
 - Exactly one of `column` or `columns` is required. `columns` is a non-empty,
   duplicate-free list for transforms that compose several fields.
+- One carrier column MAY project multiple distinct predicates or directions.
+  Only an exact repeat of table, column set, term, and direction is a duplicate.
 - `direction` is `forward` or `inverse`. Forward emits
   `subject --term--> transformed value`. Inverse emits the transformed related
   node as the RDF subject pointing to the carrier subject. `object_type`
@@ -97,6 +99,14 @@ Each entry has these rules:
   registered value allowed for that property.
 - `transform` contains either `template`, or `pattern` plus `replacement`.
   Identifier predicates also require `identifier_scheme`.
+- `source_membership`, when present, contains exactly `table` and `column`.
+  It is valid only on a one-column mapping. A scalar value, or each item of a
+  `json-list`, participates in that mapping only when the exact non-null value
+  occurs in the named carrier column. Nonmembers remain preserved in the source
+  carrier but MUST NOT be projected through that entry. A corpus-level receipt
+  MUST report the projected and excluded counts and MUST fail if a projected
+  value lacks the declared membership evidence. This is an evidence filter, not
+  permission to discard a value merely because it fails a lexical grammar.
 - A transform requires a non-empty `samples` list. Each sample has exactly an
   `input` mapping and expected `output`; the audit executes it and checks the
   declared value kind.

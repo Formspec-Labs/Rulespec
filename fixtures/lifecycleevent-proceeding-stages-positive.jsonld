@@ -48,6 +48,24 @@
       "rkaf:effectiveDate": "2025-06-01T00:00:00Z",
       "rkaf:emittedBy": "urn:rkaf:actor:agency:example",
       "rkaf:appliesTo": "urn:rkaf:fixture:proceeding:longterm"
+    },
+    {
+      "@id": "urn:rkaf:fixture:proceeding:2060-AV16",
+      "@type": "rkaf:Proceeding",
+      "rkaf:hasProceedingIdentifier": "urn:rkaf:us:rin:2060-AV16",
+      "rkaf:proceedingIdentifierScheme": "rkaf:us-rin"
+    },
+    {
+      "@id": "urn:rkaf:fixture:proceeding:withdrawn",
+      "@type": "rkaf:Proceeding",
+      "rkaf:hasProceedingIdentifier": "urn:rkaf:fixture:proceeding:withdrawn",
+      "rkaf:proceedingIdentifierScheme": "rkaf:partner-defined"
+    },
+    {
+      "@id": "urn:rkaf:fixture:proceeding:longterm",
+      "@type": "rkaf:Proceeding",
+      "rkaf:hasProceedingIdentifier": "urn:rkaf:fixture:proceeding:longterm",
+      "rkaf:proceedingIdentifierScheme": "rkaf:partner-defined"
     }
   ]
 }

@@ -6,6 +6,7 @@ import unittest
 from pathlib import Path
 
 from tools.constraints_compile import (
+    _scan_reference_class_registry,
     parse_cue_file,
     target_json_schema,
     target_shacl,
@@ -53,6 +54,10 @@ import "time"
                 "date",
             )
             self.assertEqual(
+                interval["properties"]["rkaf:start"]["pattern"],
+                r"^\d{4}-\d{2}-\d{2}$",
+            )
+            self.assertEqual(
                 interval["x-rkaf-order"],
                 [{"lower": "rkaf:start", "upper": "rkaf:end"}],
             )
@@ -81,6 +86,7 @@ import "time"
                 shacl,
             )
             self.assertIn("sh:path rkaf:scheme ; sh:minCount 1", shacl)
+            self.assertIn("sh:path rkaf:scheme ; sh:maxCount 1", shacl)
             self.assertIn("sh:path rkaf:identifier ; sh:minCount 1", shacl)
 
             typescript = target_typescript(document)
@@ -94,6 +100,39 @@ import "time"
                 'rkaf:identifier: required by rkaf:scheme',
                 typescript,
             )
+
+    def test_reference_ranges_project_to_shacl_classes(self) -> None:
+        root = Path(__file__).resolve().parent.parent
+        source = root / "constraints" / "core" / "rulemaking.cue"
+        document = parse_cue_file(source)
+        ranges = _scan_reference_class_registry(source)
+        shacl = target_shacl(document, reference_classes=ranges)
+        self.assertRegex(
+            shacl,
+            r"sh:path rkaf:hasDocket ;[^\n]*sh:class rkaf:Docket",
+        )
+        self.assertRegex(
+            shacl,
+            r"sh:path rkaf:commentPeriodFor ;[^\n]*sh:class rkaf:Proceeding",
+        )
+
+    def test_optional_nonempty_list_is_absent_or_nonempty(self) -> None:
+        root = Path(__file__).resolve().parent.parent
+        source = root / "constraints" / "core" / "rulemaking.cue"
+        document = parse_cue_file(source)
+        schema = json.loads(target_json_schema(document))
+        proceeding = schema["$defs"]["Proceeding"]
+        has_authority = proceeding["properties"]["rkaf:hasAuthority"]
+
+        self.assertNotIn("rkaf:hasAuthority", proceeding["required"])
+        self.assertEqual(has_authority["anyOf"][1]["minItems"], 1)
+
+        shacl = target_shacl(document)
+        has_authority_line = next(
+            line for line in shacl.splitlines()
+            if "sh:path rkaf:hasAuthority" in line
+        )
+        self.assertNotIn("sh:minCount", has_authority_line)
 
 
 if __name__ == "__main__":

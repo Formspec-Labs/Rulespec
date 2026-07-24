@@ -1,0 +1,20 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@graph": [
+    {
+      "@id": "urn:rkaf:fixture:negative:proceeding:stage-mismatch",
+      "@type": "rkaf:Proceeding",
+      "rkaf:hasProceedingIdentifier": "urn:rkaf:fixture:negative:proceeding:stage-mismatch",
+      "rkaf:proceedingIdentifierScheme": "rkaf:partner-defined",
+      "rkaf:proceedingStage": "rkaf:proceedingFinal"
+    },
+    {
+      "@id": "urn:rkaf:fixture:negative:event:stage-mismatch",
+      "@type": "rkaf:LifecycleEvent",
+      "rkaf:lifecycleEventKind": "rkaf:proceedingProposed",
+      "rkaf:effectiveDate": "2026-05-01T00:00:00Z",
+      "rkaf:emittedBy": "urn:rkaf:actor:agency:example",
+      "rkaf:appliesTo": "urn:rkaf:fixture:negative:proceeding:stage-mismatch"
+    }
+  ]
+}

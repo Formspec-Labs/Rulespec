@@ -55,21 +55,28 @@ ALLOWED_ENTRY_KEYS = {
     "enum_map",
     "transform",
     "samples",
+    "source_membership",
 }
 REQUIRED_ENTRY_KEYS = {"table", "subject_type", "term", "direction", "value_kind"}
 VALUE_KINDS = {"iri", "vocab", "literal", "number", "date"}
 DIRECTIONS = {"forward", "inverse"}
 COLLECTIONS = {"scalar", "json-list"}
 IDENTIFIER_TERMS = {
+    "https://rulespec.org/ns/v1#hasArtifactIdentifier",
     "https://rulespec.org/ns/v1#hasRegulatoryIdentifier",
     "https://rulespec.org/ns/v1#hasProceedingIdentifier",
+    "https://rulespec.org/ns/v1#hasProceedingEvidenceIdentifier",
     "https://rulespec.org/ns/v1#hasDocketIdentifier",
 }
 IDENTIFIER_SCHEME_TERMS = {
+    "https://rulespec.org/ns/v1#hasArtifactIdentifier":
+        "https://rulespec.org/ns/v1#artifactIdentifierScheme",
     "https://rulespec.org/ns/v1#hasRegulatoryIdentifier":
         "https://rulespec.org/ns/v1#regulatoryIdentifierScheme",
     "https://rulespec.org/ns/v1#hasProceedingIdentifier":
         "https://rulespec.org/ns/v1#proceedingIdentifierScheme",
+    "https://rulespec.org/ns/v1#hasProceedingEvidenceIdentifier":
+        "https://rulespec.org/ns/v1#proceedingEvidenceIdentifierScheme",
     "https://rulespec.org/ns/v1#hasDocketIdentifier":
         "https://rulespec.org/ns/v1#docketIdentifierScheme",
 }
@@ -80,6 +87,7 @@ ALLOWED_TRANSFORM_KEYS = {
     "identifier_scheme",
 }
 ALLOWED_SAMPLE_KEYS = {"input", "output"}
+ALLOWED_SOURCE_MEMBERSHIP_KEYS = {"table", "column"}
 
 
 @dataclass(frozen=True)
@@ -440,6 +448,38 @@ def _validate_transform(
     return transform if valid else None
 
 
+def _validate_source_membership(
+    source_membership: Any,
+    *,
+    columns: tuple[str, ...],
+    location: str,
+    issues: list[str],
+) -> None:
+    if len(columns) != 1:
+        issues.append(
+            f"{location}: source_membership requires exactly one mapped source column"
+        )
+    if not isinstance(source_membership, dict):
+        issues.append(f"{location}: source_membership MUST be a mapping")
+        return
+    missing = ALLOWED_SOURCE_MEMBERSHIP_KEYS - set(source_membership)
+    extra = set(source_membership) - ALLOWED_SOURCE_MEMBERSHIP_KEYS
+    if missing:
+        issues.append(
+            f"{location}: source_membership is missing keys {sorted(missing)}"
+        )
+    if extra:
+        issues.append(
+            f"{location}: source_membership has unknown keys {sorted(extra)}"
+        )
+    for key in sorted(ALLOWED_SOURCE_MEMBERSHIP_KEYS):
+        value = source_membership.get(key)
+        if not isinstance(value, str) or not value.strip():
+            issues.append(
+                f"{location}: source_membership {key} MUST be a non-empty string"
+            )
+
+
 def _source_values(
     sample_input: dict[str, Any],
     *,
@@ -586,7 +626,7 @@ def audit_mapping_text(
     blocks, issues = extract_mapping_blocks(text)
     terms: set[str] = set()
     versions: set[str] = set()
-    seen_columns: set[tuple[str, tuple[str, ...]]] = set()
+    seen_mappings: set[tuple[str, tuple[str, ...], str, str]] = set()
     entry_count = 0
 
     for start_line, block in blocks:
@@ -648,12 +688,13 @@ def audit_mapping_text(
             columns = _mapping_columns(entry, location=location, issues=issues)
             if columns is None:
                 continue
-            column_key = (table, columns)
-            if column_key in seen_columns:
+            mapping_key = (table, columns, str(term), str(entry["direction"]))
+            if mapping_key in seen_mappings:
                 issues.append(
-                    f"{location}: duplicate mapping for {table}.{'+'.join(columns)}"
+                    f"{location}: duplicate mapping for {table}.{'+'.join(columns)} "
+                    f"to {term} ({entry['direction']})"
                 )
-            seen_columns.add(column_key)
+            seen_mappings.add(mapping_key)
 
             if not isinstance(term, str) or not FULL_IRI.fullmatch(term):
                 issues.append(f"{location}: term MUST be a full HTTP(S) IRI: {term!r}")
@@ -743,7 +784,15 @@ def audit_mapping_text(
 
             transform = entry.get("transform")
             samples = entry.get("samples")
+            source_membership = entry.get("source_membership")
             checked_transform = None
+            if source_membership is not None:
+                _validate_source_membership(
+                    source_membership,
+                    columns=columns,
+                    location=location,
+                    issues=issues,
+                )
             if transform is not None:
                 checked_transform = _validate_transform(
                     transform,

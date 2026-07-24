@@ -1,0 +1,28 @@
+{
+  "@context": "../context/rkaf-context.jsonld",
+  "@graph": [
+    {
+      "@id": "urn:rkaf:fixture:event:partial-vacatur",
+      "@type": "rkaf:LifecycleEvent",
+      "rkaf:lifecycleEventKind": "rkaf:proceedingVacated",
+      "rkaf:effectiveDate": "2026-05-01T00:00:00Z",
+      "rkaf:emittedBy": "urn:rkaf:actor:court:example",
+      "rkaf:appliesTo": [
+        "urn:rkaf:fixture:proceeding:partial-vacatur",
+        "urn:rkaf:fixture:artifact:vacated-provision"
+      ]
+    },
+    {
+      "@id": "urn:rkaf:fixture:proceeding:partial-vacatur",
+      "@type": "rkaf:Proceeding",
+      "rkaf:hasProceedingIdentifier": "urn:rkaf:fixture:proceeding:partial-vacatur",
+      "rkaf:proceedingIdentifierScheme": "rkaf:partner-defined"
+    },
+    {
+      "@id": "urn:rkaf:fixture:artifact:vacated-provision",
+      "@type": "rkaf:Artifact",
+      "rkaf:hasArtifactIdentifier": "urn:rkaf:fixture:artifact:vacated-provision",
+      "rkaf:artifactIdentifierScheme": "rkaf:urn-persistent"
+    }
+  ]
+}

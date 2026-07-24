@@ -28,7 +28,33 @@ The plan specified `rkaf-conformance` Rust binary + `suite.index.json` + `confor
 - [ ] Decide the release shape before tagging: the memo prescribed two releases (N+1: identifiers + L0; N+2: rulemaking module + corpus), but all four deliverables sit together in Unreleased. Either cut them as two tags or record in the memo why one combined release preserves the sequencing intent (2026-07-23 architecture review, FINDING 2).
 - [ ] Regenerate `conformance/partners/rulespec-reference.yaml` via `tools/conformance_report.py --self-certify` at the release cut — it is pinned to `0.2.0-pre.6` with a 2026-05-17 corpus run and predates the US-identifier fixtures (2026-07-23 architecture review, FINDING 6).
 - [ ] File `conformance/partners/spicy-regs.yaml` only after spicy-regs ships both `rule_targets` and `docs/ontology.md`, then run `tools/l0_mapping_audit.py` against that real mapping.
-- [ ] Keep `spec/rkaf-rulemaking.md` Experimental until a full-corpus spicy-regs `proceedings` / `comment_periods` run publishes a friction report and a non-originating consumer completes review, working the §8 condition-2 agenda (cross-posting pattern, required `hasAuthority`, stage-value naming).
+- [x] Record the 2026-07-24 maintainer-operated adversarial simulated-consumer review and its three agenda decisions. The simulation is evidence, not a non-originating review.
+- [ ] Keep `spec/rkaf-rulemaking.md` Experimental until the repair batch below lands and a non-originating consumer reviews the repaired contract or ratifies the simulated review against it.
+
+### Rulemaking stabilization repair batch
+
+Source:
+`thoughts/reviews/2026-07-24-rulemaking-condition2-adversarial-review.md`.
+Its verdict is **do not graduate as-is**.
+F-5, F-11, F-12, and F-14 were refuted and require no implementation work.
+
+- [ ] Enforce declared graph invariants (F-21, F-24, agenda item 1): teach the projector reference-class constraints; emit `sh:maxCount` for every 1 and 0..1 property; constrain stage subjects and proceeding-event targets; preserve the Docket/Proceeding boundary; add the reproduced attack graphs as negative fixtures.
+- [ ] Make rule targets producible and unambiguous (F-8, F-15, F-16): add a citation-level target or a documented unresolved-edition path; support letter-suffixed CFR sections; define pre-amendment target direction and optional produced-edition semantics; update the reference corpus.
+- [ ] Preserve complete comment-period evidence (F-9, F-17, F-20): support Proceeding or Docket anchors with an at-least-one constraint; name the opening Artifact separately from provenance; define inclusive dates in the governing timezone; add joint, docket-only, reopening, and datetime-conversion fixtures.
+- [ ] Represent terminal and external legal events (F-1, F-2, F-3, F-4): define honest terminal-state semantics; add judicial and congressional event kinds; state that proceeding stage does not assert legal operativeness; support partial-vacatur target scope.
+- [ ] Preserve identity evidence and continuity (F-6, F-7): add a repeatable non-identity Proceeding evidence-identifier pair with `us-rin`; add a directional merge, split, or supersession relation that does not misuse cascade-seeding `appliesTo`.
+- [ ] Implement all three agenda decisions: keep and harden per-posting cross-posting, promote `dcterms:hasFormat`/`isFormatOf` as a mode-1 import (F-19), make Proceeding `hasAuthority` optional with a no-placeholder rule, and replace all six bare stage IRIs.
+- [ ] Close grammar and tooling gaps (F-22, F-23, F-18, F-10): widen `us-regsgov` or document its fallback; state and test JSON Schema's date/order limits; add `hasArtifactIdentifier` to the L0 identifier tables and fixtures; implement an official-registry scheme or explicitly defer it with FCC/FERC/SEC named.
+- [x] Amend §8 to disclose that the simulated review did not satisfy the non-originating-consumer gate and to keep that gate open.
+- [ ] Record F-13 as a non-blocking vocabulary trigger: add `commentPeriodKind` only when an in-scope corpus or consumer supplies the distinction.
+- [ ] Regenerate every affected projection and SDK type, run `make compile` and `make test`, publish a review-to-change matrix, and rerun the adversarial fixtures.
+- [ ] Coordinate the paired spicy-regs migration: remove agency-stub authority placeholders; update stage enum maps; retain docket-anchored periods; publish RIN evidence and continuity; project citation-level targets; update the L0 map, contract digest, corpus report, and partner certificate.
+- [ ] Require the paired gate receipt to bind the Rulespec commit and contract digest, spicy-regs commit, candidate corpus snapshot id, every artifact hash, and every gate result. Do not accept unbound command output as corpus evidence.
+
+**Done when:** Every §5 graduation precondition has a normative decision,
+generated enforcement, positive and negative coverage, and corpus evidence;
+both repositories pass their full gates against the same released contract; and
+a non-originating consumer reviews or ratifies the repaired module.
 
 ## Rust SDK (Layer 5) — umbrella crate
 

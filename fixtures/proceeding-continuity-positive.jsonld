@@ -1,0 +1,18 @@
+{
+  "@context": "../context/rkaf-context.jsonld",
+  "@graph": [
+    {
+      "@id": "urn:rkaf:fixture:proceeding:successor",
+      "@type": "rkaf:Proceeding",
+      "rkaf:hasProceedingIdentifier": "urn:rkaf:us:rin:2060-AV99",
+      "rkaf:proceedingIdentifierScheme": "rkaf:us-rin",
+      "rkaf:proceedingSupersedes": "urn:rkaf:fixture:proceeding:predecessor"
+    },
+    {
+      "@id": "urn:rkaf:fixture:proceeding:predecessor",
+      "@type": "rkaf:Proceeding",
+      "rkaf:hasProceedingIdentifier": "urn:rkaf:us:rin:2060-AV16",
+      "rkaf:proceedingIdentifierScheme": "rkaf:us-rin"
+    }
+  ]
+}

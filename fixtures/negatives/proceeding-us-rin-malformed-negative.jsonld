@@ -4,6 +4,6 @@
   "@type": "rkaf:Proceeding",
   "rkaf:hasProceedingIdentifier": "urn:rkaf:us:rin:2060-av16",
   "rkaf:proceedingIdentifierScheme": "rkaf:us-rin",
-  "rkaf:proceedingStage": "rkaf:final",
+  "rkaf:proceedingStage": "rkaf:proceedingFinal",
   "rkaf:hasAuthority": "urn:rkaf:fixture:authority:clean-air-act-111"
 }

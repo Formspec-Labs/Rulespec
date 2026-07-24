@@ -1,0 +1,8 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@id": "urn:rkaf:fixture:negative:proceeding-concluded-no-cause",
+  "@type": "rkaf:Proceeding",
+  "rkaf:hasProceedingIdentifier": "urn:rkaf:fixture:proceeding:concluded-no-cause",
+  "rkaf:proceedingIdentifierScheme": "rkaf:partner-defined",
+  "rkaf:proceedingStage": "rkaf:proceedingConcluded"
+}

@@ -1,11 +1,52 @@
 {
   "@context": "../context/rkaf-context.jsonld",
-  "@id": "urn:rkaf:fixture:proceeding:2060-AV16",
-  "@type": "rkaf:Proceeding",
-  "rkaf:hasProceedingIdentifier": "urn:rkaf:us:rin:2060-AV16",
-  "rkaf:proceedingIdentifierScheme": "rkaf:us-rin",
-  "rkaf:proceedingStage": "rkaf:final",
-  "rkaf:hasAuthority": "urn:rkaf:fixture:authority:clean-air-act-111",
-  "rkaf:hasDocket": "urn:rkaf:fixture:docket:regsgov",
-  "rkaf:proceedingAffects": "urn:rkaf:fixture:artifact:cfr-40-60"
+  "@graph": [
+    {
+      "@id": "urn:rkaf:fixture:proceeding:2060-AV16",
+      "@type": "rkaf:Proceeding",
+      "rkaf:hasProceedingIdentifier": "urn:rkaf:us:rin:2060-AV16",
+      "rkaf:proceedingIdentifierScheme": "rkaf:us-rin",
+      "rkaf:proceedingStage": "rkaf:proceedingFinal",
+      "rkaf:hasAuthority": "urn:rkaf:fixture:authority:clean-air-act-111",
+      "rkaf:hasDocket": "urn:rkaf:fixture:docket:EPA-HQ-OAR-2021-0317",
+      "rkaf:proceedingAffects": "urn:rkaf:fixture:artifact:cfr-40-60-pre-amendment",
+      "rkaf:proceedingAffectsCitation": "urn:rkaf:us:cfr:40:60.5375a",
+      "rkaf:proceedingProduces": "urn:rkaf:fixture:artifact:cfr-40-60-result",
+      "rkaf:hasProceedingEvidenceIdentifier": "urn:rkaf:us:rin:2060-AV16",
+      "rkaf:proceedingEvidenceIdentifierScheme": "rkaf:us-rin"
+    },
+    {
+      "@id": "urn:rkaf:fixture:authority:clean-air-act-111",
+      "@type": "rkaf:Authority",
+      "rkaf:authorityKind": "rkaf:statutory"
+    },
+    {
+      "@id": "urn:rkaf:fixture:docket:EPA-HQ-OAR-2021-0317",
+      "@type": "rkaf:Docket",
+      "rkaf:hasDocketIdentifier": "urn:rkaf:us:regsgov:EPA-HQ-OAR-2021-0317",
+      "rkaf:docketIdentifierScheme": "rkaf:us-regsgov"
+    },
+    {
+      "@id": "urn:rkaf:fixture:artifact:cfr-40-60-pre-amendment",
+      "@type": "rkaf:Artifact",
+      "rkaf:hasArtifactIdentifier": "urn:rkaf:fixture:artifact:cfr-40-60-pre-amendment",
+      "rkaf:artifactIdentifierScheme": "rkaf:urn-persistent",
+      "rkaf:hasRegulatoryIdentifier": "urn:rkaf:us:cfr:40:60.5375a",
+      "rkaf:regulatoryIdentifierScheme": "rkaf:us-cfr"
+    },
+    {
+      "@id": "urn:rkaf:fixture:artifact:cfr-40-60-result",
+      "@type": "rkaf:Artifact",
+      "rkaf:hasArtifactIdentifier": "urn:rkaf:fixture:artifact:cfr-40-60-result",
+      "rkaf:artifactIdentifierScheme": "rkaf:urn-persistent"
+    },
+    {
+      "@id": "urn:rkaf:fixture:lifecycle:2060-AV16-final",
+      "@type": "rkaf:LifecycleEvent",
+      "rkaf:lifecycleEventKind": "rkaf:proceedingFinal",
+      "rkaf:effectiveDate": "2024-03-08T00:00:00Z",
+      "rkaf:emittedBy": "urn:rkaf:actor:agency:epa",
+      "rkaf:appliesTo": "urn:rkaf:fixture:proceeding:2060-AV16"
+    }
+  ]
 }

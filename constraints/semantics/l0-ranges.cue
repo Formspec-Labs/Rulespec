@@ -7,6 +7,12 @@ package semantics
 	"rkaf:hasAuthority":           "rkaf:Authority"
 	"rkaf:hasDocket":              "rkaf:Docket"
 	"rkaf:proceedingAffects":      "rkaf:Artifact"
+	"rkaf:proceedingProduces":     "rkaf:Artifact"
+	"rkaf:proceedingSupersedes":   "rkaf:Proceeding"
 	"rkaf:commentPeriodFor":       "rkaf:Proceeding"
+	"rkaf:commentPeriodDocket":    "rkaf:Docket"
+	"rkaf:commentPeriodOpenedBy":  "rkaf:Artifact"
+	"dcterms:hasFormat":            "rkaf:Artifact"
+	"dcterms:isFormatOf":           "rkaf:Artifact"
 	"prov:wasDerivedFrom":         "prov:Entity"
 }

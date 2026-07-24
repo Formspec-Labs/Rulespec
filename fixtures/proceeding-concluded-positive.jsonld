@@ -1,0 +1,21 @@
+{
+  "@context": "../context/rkaf-context.jsonld",
+  "@graph": [
+    {
+      "@id": "urn:rkaf:fixture:proceeding:concluded",
+      "@type": "rkaf:Proceeding",
+      "rkaf:hasProceedingIdentifier": "urn:rkaf:fixture:proceeding:concluded",
+      "rkaf:proceedingIdentifierScheme": "rkaf:partner-defined",
+      "rkaf:proceedingStage": "rkaf:proceedingConcluded",
+      "rkaf:proceedingTerminationCause": "rkaf:administrativeConclusion"
+    },
+    {
+      "@id": "urn:rkaf:fixture:event:concluded",
+      "@type": "rkaf:LifecycleEvent",
+      "rkaf:lifecycleEventKind": "rkaf:proceedingConcluded",
+      "rkaf:effectiveDate": "2026-06-30T00:00:00Z",
+      "rkaf:emittedBy": "urn:rkaf:actor:agency:example",
+      "rkaf:appliesTo": "urn:rkaf:fixture:proceeding:concluded"
+    }
+  ]
+}

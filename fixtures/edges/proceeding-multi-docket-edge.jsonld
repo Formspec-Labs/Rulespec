@@ -1,18 +1,49 @@
 {
   "@context": "../../context/rkaf-context.jsonld",
-  "@id": "urn:rkaf:fixture:edge:proceeding-multi-docket",
-  "@type": "rkaf:Proceeding",
-  "rkaf:hasProceedingIdentifier": "urn:rkaf:us:rin:2060-AV16",
-  "rkaf:proceedingIdentifierScheme": "rkaf:us-rin",
-  "rkaf:hasDocket": [
-    "urn:rkaf:fixture:docket:EPA-HQ-OAR-2021-0317",
-    "urn:rkaf:fixture:docket:EPA-HQ-OAR-2025-0192"
-  ],
-  "rkaf:hasAuthority": [
-    "urn:rkaf:fixture:authority:clean-air-act-111"
-  ],
-  "rkaf:proceedingAffects": [
-    "urn:rkaf:fixture:artifact:cfr-40-60",
-    "urn:rkaf:fixture:artifact:cfr-40-63"
+  "@graph": [
+    {
+      "@id": "urn:rkaf:fixture:edge:proceeding-multi-docket",
+      "@type": "rkaf:Proceeding",
+      "rkaf:hasProceedingIdentifier": "urn:rkaf:us:rin:2060-AV16",
+      "rkaf:proceedingIdentifierScheme": "rkaf:us-rin",
+      "rkaf:hasDocket": [
+        "urn:rkaf:fixture:docket:EPA-HQ-OAR-2021-0317",
+        "urn:rkaf:fixture:docket:EPA-HQ-OAR-2025-0192"
+      ],
+      "rkaf:hasAuthority": "urn:rkaf:fixture:authority:clean-air-act-111",
+      "rkaf:proceedingAffects": [
+        "urn:rkaf:fixture:artifact:cfr-40-60",
+        "urn:rkaf:fixture:artifact:cfr-40-63"
+      ]
+    },
+    {
+      "@id": "urn:rkaf:fixture:docket:EPA-HQ-OAR-2021-0317",
+      "@type": "rkaf:Docket",
+      "rkaf:hasDocketIdentifier": "urn:rkaf:us:regsgov:EPA-HQ-OAR-2021-0317",
+      "rkaf:docketIdentifierScheme": "rkaf:us-regsgov"
+    },
+    {
+      "@id": "urn:rkaf:fixture:docket:EPA-HQ-OAR-2025-0192",
+      "@type": "rkaf:Docket",
+      "rkaf:hasDocketIdentifier": "urn:rkaf:us:regsgov:EPA-HQ-OAR-2025-0192",
+      "rkaf:docketIdentifierScheme": "rkaf:us-regsgov"
+    },
+    {
+      "@id": "urn:rkaf:fixture:authority:clean-air-act-111",
+      "@type": "rkaf:Authority",
+      "rkaf:authorityKind": "rkaf:statutory"
+    },
+    {
+      "@id": "urn:rkaf:fixture:artifact:cfr-40-60",
+      "@type": "rkaf:Artifact",
+      "rkaf:hasArtifactIdentifier": "urn:rkaf:fixture:artifact:cfr-40-60",
+      "rkaf:artifactIdentifierScheme": "rkaf:urn-persistent"
+    },
+    {
+      "@id": "urn:rkaf:fixture:artifact:cfr-40-63",
+      "@type": "rkaf:Artifact",
+      "rkaf:hasArtifactIdentifier": "urn:rkaf:fixture:artifact:cfr-40-63",
+      "rkaf:artifactIdentifierScheme": "rkaf:urn-persistent"
+    }
   ]
 }

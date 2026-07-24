@@ -1,12 +1,43 @@
 {
   "@context": "../context/rkaf-context.jsonld",
-  "@id": "urn:rkaf:fixture:comment-period:2060-AV16-proposal",
-  "@type": "rkaf:CommentPeriod",
-  "rkaf:commentPeriodFor": "urn:rkaf:fixture:proceeding:2060-AV16",
-  "rkaf:commentPeriodStart": "2021-11-15",
-  "rkaf:commentPeriodEnd": "2022-01-31",
-  "prov:wasDerivedFrom": [
-    "https://www.federalregister.gov/d/2021-24202",
-    "https://www.federalregister.gov/d/2021-27312"
+  "@graph": [
+    {
+      "@id": "urn:rkaf:fixture:comment-period:2060-AV16-proposal",
+      "@type": "rkaf:CommentPeriod",
+      "rkaf:commentPeriodFor": "urn:rkaf:fixture:proceeding:2060-AV16",
+      "rkaf:commentPeriodDocket": "urn:rkaf:fixture:docket:EPA-HQ-OAR-2021-0317",
+      "rkaf:commentPeriodOpenedBy": "https://www.federalregister.gov/d/2021-24202",
+      "rkaf:commentPeriodStart": "2021-11-15",
+      "rkaf:commentPeriodEnd": "2022-01-31",
+      "prov:wasDerivedFrom": [
+        "https://www.federalregister.gov/d/2021-24202",
+        "https://www.federalregister.gov/d/2021-27312"
+      ]
+    },
+    {
+      "@id": "urn:rkaf:fixture:proceeding:2060-AV16",
+      "@type": "rkaf:Proceeding",
+      "rkaf:hasProceedingIdentifier": "urn:rkaf:us:rin:2060-AV16",
+      "rkaf:proceedingIdentifierScheme": "rkaf:us-rin"
+    },
+    {
+      "@id": "urn:rkaf:fixture:docket:EPA-HQ-OAR-2021-0317",
+      "@type": "rkaf:Docket",
+      "rkaf:hasDocketIdentifier": "urn:rkaf:us:regsgov:EPA-HQ-OAR-2021-0317",
+      "rkaf:docketIdentifierScheme": "rkaf:us-regsgov"
+    },
+    {
+      "@id": "https://www.federalregister.gov/d/2021-24202",
+      "@type": [
+        "rkaf:Artifact",
+        "prov:Entity"
+      ],
+      "rkaf:hasArtifactIdentifier": "https://www.federalregister.gov/d/2021-24202",
+      "rkaf:artifactIdentifierScheme": "rkaf:urn-persistent"
+    },
+    {
+      "@id": "https://www.federalregister.gov/d/2021-27312",
+      "@type": "prov:Entity"
+    }
   ]
 }

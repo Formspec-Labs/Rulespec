@@ -1,0 +1,10 @@
+{
+  "@context": "../context/rkaf-context.jsonld",
+  "@id": "urn:rkaf:fixture:proceeding:official-with-rin-evidence",
+  "@type": "rkaf:Proceeding",
+  "rkaf:hasProceedingIdentifier": "urn:ferc:proceeding:RM24-1",
+  "rkaf:proceedingIdentifierScheme": "rkaf:official-registry",
+  "rkaf:identifierRegistry": "https://elibrary.ferc.gov/",
+  "rkaf:hasProceedingEvidenceIdentifier": "urn:rkaf:us:rin:1902-AF79",
+  "rkaf:proceedingEvidenceIdentifierScheme": "rkaf:us-rin"
+}

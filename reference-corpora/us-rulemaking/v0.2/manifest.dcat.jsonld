@@ -13,8 +13,8 @@
   ],
   "@id": "urn:rkaf:corpus:us-rulemaking:v0.2",
   "dcterms:title": "Rulespec Reference Corpus — US Rulemaking v0.2",
-  "dcterms:description": "One RIN-bounded EPA notice-and-comment proceeding, including its docket, Federal Register documents, the cross-posted regulations.gov proposed rule, Unified Agenda entry, CFR target, statutory authority chain to its enacting public law, referenced Executive order, comment periods, and stage transitions.",
-  "dcterms:issued": "2026-07-23",
+  "dcterms:description": "One RIN-bounded EPA notice-and-comment proceeding, including its docket, Federal Register documents, the cross-posted regulations.gov proposed rule, Unified Agenda entry, pre-amendment and resulting CFR editions, statutory authority chain to its enacting public law, referenced Executive order, comment periods, and stage transitions.",
+  "dcterms:issued": "2026-07-24",
   "dcterms:license": "https://creativecommons.org/publicdomain/zero/1.0/",
   "dcterms:publisher": {
     "@type": "foaf:Organization",
@@ -68,23 +68,23 @@
     }
   ],
   "dcterms:relation": {
-    "@id": "urn:rkaf:corpus:us-rulemaking:validation:2026-07-23",
+    "@id": "urn:rkaf:corpus:us-rulemaking:validation:2026-07-24",
     "@type": "prov:Entity",
     "dcterms:title": "US rulemaking reference-corpus validation result",
     "dcterms:description": "Passed the reference JSON Schema and SHACL fixture gates; this is validation evidence, not a consumer conformance declaration.",
     "prov:value": "pass",
     "prov:wasGeneratedBy": {
-      "@id": "urn:rkaf:corpus:us-rulemaking:validation-activity:2026-07-23",
+      "@id": "urn:rkaf:corpus:us-rulemaking:validation-activity:2026-07-24",
       "@type": "prov:Activity",
       "prov:used": [
         {
-          "@id": "urn:rulespec:contract:sha256:836968b28f3b86283f53c57ae5c9ab8ebd77e96531cd4751476f1a5ee3d296f2"
+          "@id": "urn:rulespec:contract:sha256:ea9b899ba92955b83638ece811d7a4b744dd912f72e19290e32c97508674de1c"
         },
         {
           "@id": "data/epa-oil-and-gas-climate-review.jsonld"
         }
       ],
-      "dcterms:date": "2026-07-23"
+      "dcterms:date": "2026-07-24"
     }
   }
 }

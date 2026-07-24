@@ -102,7 +102,7 @@ FIXTURE_BINDINGS: list[tuple[str, str, str, str]] = [
     ("rulemaking", "Proceeding", "fixtures/negatives/proceeding-missing-has-proceeding-identifier-negative.jsonld", "FAIL"),
     ("rulemaking", "Proceeding", "fixtures/negatives/proceeding-missing-proceeding-identifier-scheme-negative.jsonld", "FAIL"),
     ("rulemaking", "Proceeding", "fixtures/edges/proceeding-multi-docket-edge.jsonld", "PASS"),
-    ("rulemaking", "Proceeding", "fixtures/negatives/proceeding-missing-has-authority-negative.jsonld", "FAIL"),
+    ("rulemaking", "Proceeding", "fixtures/proceeding-unknown-authority-positive.jsonld", "PASS"),
     ("rulemaking", "Proceeding", "fixtures/negatives/proceeding-us-rin-malformed-negative.jsonld", "FAIL"),
     ("rulemaking", "CommentPeriod", "fixtures/commentperiod-positive.jsonld", "PASS"),
     ("rulemaking", "CommentPeriod", "fixtures/negatives/comment-period-missing-comment-period-for-negative.jsonld", "FAIL"),

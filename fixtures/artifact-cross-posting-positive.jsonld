@@ -1,0 +1,23 @@
+{
+  "@context": "../context/rkaf-context.jsonld",
+  "@graph": [
+    {
+      "@id": "https://www.federalregister.gov/d/2024-00366",
+      "@type": "rkaf:Artifact",
+      "rkaf:hasArtifactIdentifier": "https://www.federalregister.gov/d/2024-00366",
+      "rkaf:artifactIdentifierScheme": "rkaf:urn-persistent",
+      "rkaf:hasRegulatoryIdentifier": "urn:rkaf:us:frdoc:2024-00366",
+      "rkaf:regulatoryIdentifierScheme": "rkaf:us-frdoc",
+      "dcterms:hasFormat": "https://www.regulations.gov/document/EPA-HQ-OAR-2021-0317-1461"
+    },
+    {
+      "@id": "https://www.regulations.gov/document/EPA-HQ-OAR-2021-0317-1461",
+      "@type": "rkaf:Artifact",
+      "rkaf:hasArtifactIdentifier": "https://www.regulations.gov/document/EPA-HQ-OAR-2021-0317-1461",
+      "rkaf:artifactIdentifierScheme": "rkaf:urn-persistent",
+      "rkaf:hasRegulatoryIdentifier": "urn:rkaf:us:regsgov:EPA-HQ-OAR-2021-0317-1461",
+      "rkaf:regulatoryIdentifierScheme": "rkaf:us-regsgov",
+      "dcterms:isFormatOf": "https://www.federalregister.gov/d/2024-00366"
+    }
+  ]
+}
