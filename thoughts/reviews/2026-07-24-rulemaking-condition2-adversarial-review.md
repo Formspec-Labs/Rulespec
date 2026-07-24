@@ -5,6 +5,11 @@
 **Terms under review:** `rkaf:Proceeding`, `rkaf:Docket`, `rkaf:CommentPeriod`, `rkaf:hasDocket`, `rkaf:publishedInProceeding`, `rkaf:proceedingAffects`, `rkaf:proceedingStage`, and the six `proceeding-*` `lifecycleEventKind` values
 **Status:** Complete. Verdict: **do not graduate as-is; graduation is achievable after the preconditions in §5 land.**
 
+> Follow-up: the temporary F-6 proposal in this review is superseded by
+> `thoughts/specs/2026-07-24-rin-agenda-item-ontology-decision.md`. The accepted
+> model gives a RIN its own durable `RegulatoryAgendaItem` and places each
+> provenance-bearing association to a Proceeding on a qualified relationship.
+
 ---
 
 ## HONESTY DISCLOSURE

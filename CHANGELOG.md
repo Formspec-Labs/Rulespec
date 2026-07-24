@@ -29,6 +29,13 @@ adapted for a specification + shape + fixture project.
   composition.
 - A curated EPA RIN `2060-AV16` reference corpus with source provenance,
   validation-result metadata, and a dedicated validation gate.
+- A durable `RegulatoryAgendaItem` identified by each RIN, an editioned
+  `RegulatoryAgendaObservation`, and a provenance-bearing qualified
+  agenda-item-to-Proceeding relationship. RIN equality never establishes
+  Proceeding identity.
+- FOAF `primaryTopic` and the scoped DCAT 3 qualified-relation pattern as
+  public-ontology seams for document-to-subject and qualified relationship
+  modeling.
 
 ### Changed
 
@@ -51,6 +58,15 @@ adapted for a specification + shape + fixture project.
   contract digests embedded in the L0 conformance example and the corpus
   manifest re-pin with the compile instead of by hand-edited follow-up
   commits.
+- Replaced the temporary RIN-as-Proceeding-evidence model. Proceedings now use
+  independent partner or official-registry identity; Unified Agenda stage,
+  priority, target, and authority context remains on the editioned observation.
+- Added a legacy migration from RIN-identified Proceedings and
+  `hasProceedingEvidenceIdentifier` to agenda-item identity plus
+  evidence-qualified relationships.
+- Completed a local paired Spicy Regs corpus exercise and deterministic rerun.
+  The candidate remains unpublished and Experimental pending a release,
+  refreshed conformance declarations, and non-originating consumer review.
 
 ### Deferred by contract
 

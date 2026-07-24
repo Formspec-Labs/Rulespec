@@ -2,7 +2,10 @@
 
 *Making rules legible to software.*
 
-**Version** `0.2.0-pre.6` · **Bridge contract** `rkaf-bridge/1.0` · **Conformance** 268 L1-L4 fixtures plus L0 carrier-mapping and vocabulary audits, 0 core divergences
+**Released version** `0.2.0-pre.7` · **Working tree** Unreleased US
+rulemaking candidate · **Bridge contract** `rkaf-bridge/1.0` ·
+**Conformance corpus** 301 L1-L4 fixtures plus L0 carrier-mapping and vocabulary
+audits
 
 ---
 

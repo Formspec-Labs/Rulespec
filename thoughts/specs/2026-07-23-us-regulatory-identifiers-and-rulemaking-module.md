@@ -1,9 +1,9 @@
 # US Regulatory Identifiers, L0 Vocabulary Tier, and Rulemaking-Process Module
 
 - **Date:** 2026-07-23
-- **Status:** Implemented through the full-corpus consumer exercise; the
-  2026-07-24 maintainer-operated adversarial simulation found a repair batch
-  and did not satisfy the pending non-originating-consumer gate
+- **Status:** Superseded for RIN/Proceeding identity by
+  `2026-07-24-rin-agenda-item-ontology-decision.md`; retained as the design
+  history for the L0 tier and the remaining US identifier schemes
 - **Type:** Design memo (`thoughts/specs/`), targeting normative changes in `spec/`
 - **Companion:** spicy-regs `docs/superpowers/specs/2026-07-23-metadata-ontology-layer-design.md` (spec 1 of this pair — the consumer this memo serves)
 
@@ -44,7 +44,7 @@ New enum values and canonical identifier templates:
 | --- | --- | --- | --- |
 | `rkaf:us-cfr` | A CFR unit (title, part, optional section) | `urn:rkaf:us:cfr:40:60.1` (`:40:60` at part level) | `rkaf:regulatoryIdentifierScheme`; the Artifact still needs an edition-scoped GovInfo URI, hash, or snapshot identity. |
 | `rkaf:us-usc` | A U.S. Code unit (title, section) | `urn:rkaf:us:usc:42:7401` | `rkaf:regulatoryIdentifierScheme`; distinct from the `rkaf:uslm-section` selector. |
-| `rkaf:us-rin` | A Regulation Identifier Number | `urn:rkaf:us:rin:2060-AV12` | `rkaf:proceedingIdentifierScheme`; a reused RIN cannot be the unique key for split Proceedings. |
+| `rkaf:us-rin` | A durable Unified Agenda item | `urn:rkaf:us:rin:2060-AV12` | `rkaf:agendaItemIdentifierScheme`; it never establishes Proceeding or document identity. |
 | `rkaf:us-frdoc` | A Federal Register document | `urn:rkaf:us:frdoc:2017-07442` | `rkaf:regulatoryIdentifierScheme`; the strict grammar is `YYYY-NNNNN`. Other official forms use the permanent federalregister.gov URL as Artifact identity and MUST NOT be labeled `rkaf:us-frdoc`. |
 | `rkaf:us-regsgov` | A regulations.gov docket, document, or comment | `urn:rkaf:us:regsgov:EPA-HQ-OAR-2021-0317` (docket); document/comment ids follow the same scheme | `rkaf:docketIdentifierScheme` for mutable Dockets; `rkaf:regulatoryIdentifierScheme` for document/comment Artifacts. |
 | `rkaf:us-pl` | A public law | `urn:rkaf:us:pl:117-58` | `rkaf:regulatoryIdentifierScheme`; the Artifact also identifies the immutable publication. |

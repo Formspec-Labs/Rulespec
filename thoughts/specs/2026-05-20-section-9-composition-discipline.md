@@ -44,7 +44,9 @@ When evaluating a §9 alignment claim against the user-value × debt-reduction m
 
 **Treatment:** land predicate-level composition. Decline L1/L3 constraints over the external predicate's range (partner producers conform to the external ontology's own domain/range). Pin the external ontology's version in the §9 alignment row. Same shape as the ELI precedent.
 
-**Precedent:** `eli:consolidates` (ADR-0149). Next: `dpv:` into `rkaf:AccessScope` (PKA-* DPV ticket).
+**Precedent:** `eli:consolidates` (ADR-0149), `dpv:` into
+`rkaf:AccessScope`, and the 2026-07-24 promotion of `foaf:primaryTopic` plus
+DCAT 3 qualified relations for the named Spicy Regs document/agenda consumer.
 
 ### Cohort B — Clarify existing right answer
 
@@ -68,7 +70,11 @@ When evaluating a §9 alignment claim against the user-value × debt-reduction m
 
 **Treatment:** remove the prefix from `context/rkaf-context.jsonld`. If the alignment is a pattern citation (mode 4), keep the §9.2 prose row as architectural prior-art without a namespace claim. Re-declare when the layer that needs it ships.
 
-**Precedent (post-PKA-03og):** `dcat:` (Reference Corpora not built), `nano:` (pattern citation, not predicate import), `schemaorg:` (SEO projector not built).
+**Historical precedent (post-PKA-03og):** `dcat:` was initially dropped while
+no Reference Corpora consumer existed; it moved to Cohort A on 2026-07-24 when
+Spicy Regs supplied a concrete qualified-relation carrier and corpus.
+`nano:` (pattern citation, not predicate import) and `schemaorg:` (SEO
+projector not built) remain current examples.
 
 ## 4. Audit findings — what landed where
 
@@ -76,10 +82,10 @@ The 2026-05-20 audit pass classified each of the 17 cross-namespace prefixes aga
 
 | Cohort | Prefixes | Status |
 |---|---|---|
-| **A — Compose** | `prov:` (already, partial — F-comp-2 to complete via PROV-O activity composition, post-v1.0), `eli:` (landed in ADR-0149), `oa:` (landing via PKA-ehze + PKA-f03y), `skos:` (landing via PKA-2szi), `dpv:` (next, see below) | Active migrations |
+| **A — Compose** | `prov:`, `eli:`, `oa:`, `skos:`, `dpv:`, `foaf:primaryTopic`, scoped DCAT 3 qualified relations | Active imports with named consumers |
 | **B — Clarify** | `odrl:` (overlay-projector pattern) | Spec edit in PKA-03og |
 | **C — Demote** | `lrml:`, `rrmv:`, `eco:`, `sepio:`, `cito:`, `dcterms:` | Spec edit in PKA-03og |
-| **D — Drop** | `dcat:`, `nano:` (as prefix), `schemaorg:` | Spec edit + context cleanup in PKA-03og |
+| **D — Drop** | `nano:` (as prefix), `schemaorg:` | Spec edit + context cleanup in PKA-03og; `dcat:` promoted to A on 2026-07-24 |
 
 `aknt:` and `uslm:` are special: their integration *exists* but is renamespaced under rkaf-namespaced enum strings (`rkaf:aknt-eId`, `rkaf:uslm-section`, `rkaf:uslm`) — mode 2/3 composition with the foreign prefix declared for forward compatibility. PKA-03og treats them as keep-with-explicit-note.
 
@@ -103,7 +109,9 @@ When a new alignment candidate is proposed (e.g., a partner asks "can PKAF compo
 2. **What's the user-value evidence?** Real consumer demand or theoretical future fit?
 3. **What's the debt shape?** Does composition reduce net debt (replace overclaim, verify interop) or accrue net debt (untested binding, closed-taxonomy commitment)?
 4. **Which cohort does it fall into?** A/B/C/D per §3 above.
-5. **What's the precedent?** Cite ELI (A), ODRL (B), CITO/LegalRuleML (C), DCAT (D) as the established treatments.
+5. **What's the precedent?** Cite ELI or the scoped DCAT/FOAF promotion (A),
+   ODRL (B), CITO/LegalRuleML (C), and Nano/Schema.org (D) as the established
+   treatments.
 
 Cohort A landings should match the ELI shape: predicate-level imports in context, L1/L3 decline to constrain external range, alignment row pins the external ontology's version. Cohort B/C/D are spec edits, not implementation work.
 
