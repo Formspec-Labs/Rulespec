@@ -23,8 +23,17 @@
 rkaf:Authority rdfs:subClassOf rkaf:Warrant .
 
 # RelationshipAssertion is the proposition-bearing Assertion specialization
-# restored in Core §2.1. Its generated shape repeats the generic envelope until
-# the projector supports CUE shape inheritance.
+# restored in Core §2.1. Its generated shape now inherits the generic envelope
+# through CUE composition (`#RelationshipAssertion` embeds `#AssertionEnvelope`
+# from constraints/core/assertion.cue), so the envelope has one source instead
+# of a forked copy. The few envelope fields that reappear in
+# relationship-assertion.cue are deliberate narrowings (plain string → absolute
+# IRI), not duplication; the projector unifies them facet by facet.
+# This subclass axiom stays hand-authored because it is a class-level ontology
+# statement, not a shape constraint: both classes compose the same envelope
+# definition, so no CUE expression names `rkaf:Assertion` as the parent class
+# for codegen to project. Emitting it would require a class-hierarchy carrier
+# in the CUE source, which Layer 2 does not define.
 rkaf:RelationshipAssertion rdfs:subClassOf rkaf:Assertion .
 
 # Assertion-level Pattern-C requirement: an Assertion whose assertionOrigin is

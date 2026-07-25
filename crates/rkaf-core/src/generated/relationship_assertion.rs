@@ -29,18 +29,6 @@ pub struct RelationshipAssertion {
     /// JSON-LD property `rkaf:assertionOrigin`.
     #[serde(rename = "rkaf:assertionOrigin")]
     pub assertion_origin: crate::generated::assertion::AssertionOrigin,
-    /// JSON-LD property `rkaf:assertsSubject`.
-    #[serde(rename = "rkaf:assertsSubject")]
-    pub asserts_subject: String,
-    /// JSON-LD property `rkaf:assertsPredicate`.
-    #[serde(rename = "rkaf:assertsPredicate")]
-    pub asserts_predicate: String,
-    /// JSON-LD property `rkaf:assertsObject`.
-    #[serde(rename = "rkaf:assertsObject")]
-    pub asserts_object: String,
-    /// JSON-LD property `rkaf:assertionPolarity`.
-    #[serde(rename = "rkaf:assertionPolarity")]
-    pub assertion_polarity: AssertionPolarity,
     /// JSON-LD property `rkaf:usageEligibility`.
     #[serde(rename = "rkaf:usageEligibility", skip_serializing_if = "Option::is_none", default)]
     pub usage_eligibility: Option<crate::generated::usage_eligibility::UsageEligibility>,
@@ -62,6 +50,18 @@ pub struct RelationshipAssertion {
     /// JSON-LD property `rkaf:consumerLifecycleState`.
     #[serde(rename = "rkaf:consumerLifecycleState", skip_serializing_if = "Option::is_none", default)]
     pub consumer_lifecycle_state: Option<crate::generated::generated_work_product::ConsumerLifecycleState>,
+    /// JSON-LD property `rkaf:assertsSubject`.
+    #[serde(rename = "rkaf:assertsSubject")]
+    pub asserts_subject: String,
+    /// JSON-LD property `rkaf:assertsPredicate`.
+    #[serde(rename = "rkaf:assertsPredicate")]
+    pub asserts_predicate: String,
+    /// JSON-LD property `rkaf:assertsObject`.
+    #[serde(rename = "rkaf:assertsObject")]
+    pub asserts_object: String,
+    /// JSON-LD property `rkaf:assertionPolarity`.
+    #[serde(rename = "rkaf:assertionPolarity")]
+    pub assertion_polarity: AssertionPolarity,
     /// Additional JSON-LD properties preserved during round trips.
     #[serde(flatten)]
     pub extra: BTreeMap<String, serde_json::Value>,

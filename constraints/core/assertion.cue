@@ -8,20 +8,23 @@ package rkaf
 #AssertionOriginAITouched: "rkaf:aiSuggested" | "rkaf:aiPromoted" |
 	"rkaf:humanQualified" | "rkaf:humanRevalidation"
 
-#Assertion: {
-	"@type":                "rkaf:Assertion"
+// The generic Assertion envelope, minus the JSON-LD `@type` discriminator.
+// Assertion specializations embed this definition rather than restating it, so
+// the envelope has exactly one source and cannot drift between classes. The
+// projector flattens the composition into every target.
+#AssertionEnvelope: envelope={
 	"rkaf:assertionOrigin": #AssertionOrigin
 	// AI-touched assertionOrigin REQUIRES hasAILineage (§5.3).
-	if "rkaf:assertionOrigin" == "rkaf:aiSuggested" {
+	if envelope["rkaf:assertionOrigin"] == "rkaf:aiSuggested" {
 		"rkaf:hasAILineage": string
 	}
-	if "rkaf:assertionOrigin" == "rkaf:aiPromoted" {
+	if envelope["rkaf:assertionOrigin"] == "rkaf:aiPromoted" {
 		"rkaf:hasAILineage": string
 	}
-	if "rkaf:assertionOrigin" == "rkaf:humanQualified" {
+	if envelope["rkaf:assertionOrigin"] == "rkaf:humanQualified" {
 		"rkaf:hasAILineage": string
 	}
-	if "rkaf:assertionOrigin" == "rkaf:humanRevalidation" {
+	if envelope["rkaf:assertionOrigin"] == "rkaf:humanRevalidation" {
 		"rkaf:hasAILineage": string
 	}
 	// L4 reducer inputs (rkaf-behavior.md §1.2). The reducer reads
@@ -33,4 +36,9 @@ package rkaf
 	"rkaf:hasAuthority"?:             string // IRI; legal-family Warrant or Authority
 	"prov:wasDerivedFrom"?:           [...(string & =~"^[A-Za-z][A-Za-z0-9+.-]*:[^\\s]+$")]
 	"rkaf:consumerLifecycleState"?:   #ConsumerLifecycleState
+}
+
+#Assertion: {
+	#AssertionEnvelope
+	"@type": "rkaf:Assertion"
 }

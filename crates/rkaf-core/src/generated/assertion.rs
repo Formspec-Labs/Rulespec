@@ -46,6 +46,41 @@ pub enum AssertionOriginAITouched {
 
 use std::collections::BTreeMap;
 
+/// Generated JSON-LD carrier for `AssertionEnvelope`.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct AssertionEnvelope {
+    /// Optional JSON-LD resource identifier.
+    #[serde(rename = "@id", skip_serializing_if = "Option::is_none", default)]
+    pub id: Option<String>,
+    /// JSON-LD property `rkaf:assertionOrigin`.
+    #[serde(rename = "rkaf:assertionOrigin")]
+    pub assertion_origin: AssertionOrigin,
+    /// JSON-LD property `rkaf:usageEligibility`.
+    #[serde(rename = "rkaf:usageEligibility", skip_serializing_if = "Option::is_none", default)]
+    pub usage_eligibility: Option<crate::generated::usage_eligibility::UsageEligibility>,
+    /// JSON-LD property `rkaf:hasApplicability`.
+    #[serde(rename = "rkaf:hasApplicability", skip_serializing_if = "Option::is_none", default)]
+    pub has_applicability: Option<String>,
+    /// JSON-LD property `rkaf:hasJustification`.
+    #[serde(rename = "rkaf:hasJustification", skip_serializing_if = "Option::is_none", default)]
+    pub has_justification: Option<String>,
+    /// JSON-LD property `rkaf:hasWarrant`.
+    #[serde(rename = "rkaf:hasWarrant", skip_serializing_if = "Option::is_none", default)]
+    pub has_warrant: Option<String>,
+    /// JSON-LD property `rkaf:hasAuthority`.
+    #[serde(rename = "rkaf:hasAuthority", skip_serializing_if = "Option::is_none", default)]
+    pub has_authority: Option<String>,
+    /// JSON-LD property `prov:wasDerivedFrom`.
+    #[serde(rename = "prov:wasDerivedFrom", skip_serializing_if = "Option::is_none", default)]
+    pub was_derived_from: Option<crate::OneOrMany<String>>,
+    /// JSON-LD property `rkaf:consumerLifecycleState`.
+    #[serde(rename = "rkaf:consumerLifecycleState", skip_serializing_if = "Option::is_none", default)]
+    pub consumer_lifecycle_state: Option<crate::generated::generated_work_product::ConsumerLifecycleState>,
+    /// Additional JSON-LD properties preserved during round trips.
+    #[serde(flatten)]
+    pub extra: BTreeMap<String, serde_json::Value>,
+}
+
 /// Generated JSON-LD carrier for `Assertion`.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Assertion {

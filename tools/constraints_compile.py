@@ -15,12 +15,21 @@ constraints/ai-extraction/):
 
   - `#Name: "lit" | "lit" | "lit"`          → closed enum
   - `#Name: { "field": #TypeRef, ... }`     → shape with typed properties
+  - `#Name: { #Base, ... }`                  → shape composed from `#Base`
+  - `#Name: #Base & { ... }`                 → shape composed from `#Base`
+  - `#Name: (#Base & {...}) | (#Base & {...})` → composed disjunction
   - `if X["x"] == "v" { "y": T }`           → conditional branch
   - `if X["start"] > X["end"] { _|_ }`       → ordered-field invariant
   - `{...} | {...}`                          → disjunction branch
   - `list.MinItems(N)` / `[...#X] & list.MinItems(N)` → list cardinality
   - `string & =~"..." & !~"..."`             → allowed + forbidden pattern
   - `time.Format("2006-01-02")`              → JSON Schema/SHACL date
+
+Composed shapes are flattened before any emitter runs, unifying the base with
+the derived body facet by facet (see "Shape composition" below). Composition may
+de-duplicate but never loosen: an unresolvable base, a composition cycle, or a
+facet conflict the flat AST cannot carry is a compile error (exit 1), never a
+silently weaker target.
 
 This is NOT a full CUE parser — it handles the regular patterns Rulespec uses.
 The CUE source is the authoritative spec; this compiler is a deterministic
@@ -43,7 +52,7 @@ import argparse
 import json
 import re
 import sys
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from pathlib import Path
 from typing import Optional
 
@@ -107,6 +116,11 @@ class ShapeDef:
     conditionals: list[ConditionalBranch] = field(default_factory=list)
     orders: list[OrderConstraint] = field(default_factory=list)
     disjunctions: list[list[DisjunctionBranch]] = field(default_factory=list)
+    # Names of shapes this shape is composed from (`#Base` embedded in the
+    # body, or `#Base & {...}`). Resolved into `properties` / `conditionals` /
+    # `orders` / `disjunctions` by `_resolve_shape_compositions` so that every
+    # emitter sees one flat, fully-composed shape.
+    base_refs: list[str] = field(default_factory=list)
 
 
 @dataclass
@@ -128,7 +142,25 @@ ENUM_UNION_RE = re.compile(r'^#(\w+):\s*((?:#\w+\s*\|\s*)+#\w+)\s*$')
 ENUM_UNION_REFS_RE = re.compile(r'#(\w+)')
 
 
-def parse_cue_file(path: Path) -> ConstraintDoc:
+# Shape composition spellings. `#Name: {` + an embedded `#Base` line is handled
+# by `parse_shape_body`; these two cover the expression forms.
+SHAPE_CONJUNCTION_RE = re.compile(r"^#(\w+):\s*#(\w+)\s*&\s*(?:\w+=)?\{$")
+COMPOSED_DISJUNCTION_OPEN_RE = re.compile(
+    r"^#(\w+):\s*\(\s*#(\w+)\s*&\s*(?:\w+=)?\{$"
+)
+COMPOSED_DISJUNCTION_NEXT_RE = re.compile(
+    r"^\}\)\s*\|\s*\(\s*#(\w+)\s*&\s*(?:\w+=)?\{$"
+)
+EMBEDDED_BASE_RE = re.compile(r"^#(\w+)$")
+
+
+def parse_cue_file(path: Path, *, resolve_composition: bool = True) -> ConstraintDoc:
+    """Parse one CUE constraint file into the projector's flat AST.
+
+    `resolve_composition=False` returns shapes with their `base_refs` still
+    unresolved. It exists so the cross-file shape registry can be built without
+    recursing back into composition resolution.
+    """
     src = path.read_text()
 
     doc = ConstraintDoc(package=path.stem)
@@ -231,18 +263,69 @@ def parse_cue_file(path: Path) -> ConstraintDoc:
             doc.shapes.append(shape)
             idx += 1 + consumed
             continue
-        # Shape composition: `#Name: (#Other & {...}) | (#Other & {...})`
-        # We capture these as a degenerate shape (just the name, no constraints)
-        # so the codegen has something to emit; the disjunction itself is
-        # source-only and not projected to JSON Schema.
-        cm = re.match(r"^#(\w+):\s*\(", line)
-        if cm:
-            doc.shapes.append(ShapeDef(name=cm.group(1), type_iri=None))
-            idx += 1
+        # Shape composition by conjunction: `#Name: #Base & { ... }`.
+        cj = SHAPE_CONJUNCTION_RE.match(line)
+        if cj:
+            shape, consumed = parse_shape_body(joined_lines, idx + 1)
+            shape.name = cj.group(1)
+            shape.base_refs.insert(0, cj.group(2))
+            doc.shapes.append(shape)
+            idx += 1 + consumed
+            continue
+        # Shape composition by disjunction:
+        #   `#Name: (#Base & {...}) | (#Base & {...})`
+        # The shared base is composed into the shape; each parenthesized
+        # overlay becomes one alternative of a single disjunction group.
+        cd = COMPOSED_DISJUNCTION_OPEN_RE.match(line)
+        if cd:
+            shape = ShapeDef(name=cd.group(1), type_iri=None)
+            shape.base_refs.append(cd.group(2))
+            branches, consumed = parse_composed_disjunction(
+                joined_lines, idx + 1, shape
+            )
+            if branches:
+                shape.disjunctions.append(branches)
+            doc.shapes.append(shape)
+            idx += 1 + consumed
             continue
         idx += 1
 
+    if resolve_composition:
+        _resolve_shape_compositions(doc, path)
     return doc
+
+
+def parse_composed_disjunction(
+    lines: list[tuple[int, str]], start: int, shape: ShapeDef
+) -> tuple[list[DisjunctionBranch], int]:
+    """Parse the alternatives of `(#Base & {...}) | (#Base & {...})`.
+
+    `start` is the first line inside the opening alternative. Returns the
+    branches and the number of lines consumed; base references discovered on
+    later alternatives are appended to `shape.base_refs`.
+    """
+    branches: list[DisjunctionBranch] = []
+    current: list[PropDef] = []
+    i = start
+    while i < len(lines):
+        line = lines[i][1].strip()
+        nxt = COMPOSED_DISJUNCTION_NEXT_RE.match(line)
+        if nxt:
+            branches.append(DisjunctionBranch(properties=current))
+            current = []
+            if nxt.group(1) not in shape.base_refs:
+                shape.base_refs.append(nxt.group(1))
+            i += 1
+            continue
+        if line == "})":
+            branches.append(DisjunctionBranch(properties=current))
+            i += 1
+            break
+        prop = parse_property_line(line)
+        if prop:
+            current.append(prop)
+        i += 1
+    return branches, i - start
 
 
 def parse_shape_body(lines: list[tuple[int, str]], start: int) -> tuple[ShapeDef, int]:
@@ -368,6 +451,14 @@ def parse_shape_body(lines: list[tuple[int, str]], start: int) -> tuple[ShapeDef
             if branches:
                 shape.disjunctions.append(branches)
             i = j
+            continue
+        # Embedded base shape: a bare `#Base` line composes `#Base` into this
+        # shape (CUE struct embedding). Recorded now, merged after parsing.
+        embed = EMBEDDED_BASE_RE.match(line)
+        if embed:
+            if embed.group(1) not in shape.base_refs:
+                shape.base_refs.append(embed.group(1))
+            i += 1
             continue
         # Property line
         p = parse_property_line(line)
@@ -528,6 +619,265 @@ def parse_property_line(line: str) -> Optional[PropDef]:
     return p
 
 
+# ---- Shape composition ---------------------------------------------------
+#
+# CUE composes shapes by unification; the projector composes them by flattening
+# the base into the derived shape before any target emitter runs. Every target
+# therefore sees one complete shape, and the ontology never has to duplicate an
+# envelope to work around a projector limitation.
+#
+# Governing rule: composition may DE-DUPLICATE, never LOOSEN. Whatever `cue vet`
+# enforces on a composed shape must still be enforced by every compiled target.
+# Anything the projector cannot express faithfully is a `CompileError`, never a
+# silently weaker artifact.
+
+# Sibling CUE files parsed with composition left unresolved. Building the shape
+# registry re-reads every file under `constraints/`; the cache keeps the
+# repeated scans (one per target per primitive) cheap.
+_UNRESOLVED_DOC_CACHE: dict[Path, ConstraintDoc] = {}
+
+
+class CompileError(Exception):
+    """A CUE source the projector cannot project without losing semantics.
+
+    Raised in place of a silent degradation: dropping an unresolvable base, a
+    file that failed to parse, or a conflicting facet would make the compiled
+    JSON Schema / SHACL / Rust / TypeScript accept values that `cue vet`
+    rejects. Surfacing the failure keeps the carriers honest.
+    """
+
+
+def _constraints_root(source_file: Path) -> Optional[Path]:
+    resolved = source_file.resolve()
+    for ancestor in (resolved.parent, *resolved.parents):
+        if ancestor.name == "constraints":
+            return ancestor
+    return None
+
+
+def _shape_registry(source_file: Path) -> dict[str, ShapeDef]:
+    """Every shape defined under `constraints/`, keyed by CUE definition name.
+
+    Composition crosses files — `#RelationshipAssertion` composes the
+    `#AssertionEnvelope` declared in `assertion.cue` — so bases resolve the same
+    way cross-file enum references already do.
+
+    A sibling file that fails to parse is fatal: skipping it shrinks the
+    registry, and a base declared in the skipped file would then resolve to
+    "missing" and drop the constraints it carries.
+    """
+    registry: dict[str, ShapeDef] = {}
+    root = _constraints_root(source_file)
+    if root is None:
+        return registry
+    for cue_file in sorted(root.rglob("*.cue")):
+        key = cue_file.resolve()
+        doc = _UNRESOLVED_DOC_CACHE.get(key)
+        if doc is None:
+            try:
+                doc = parse_cue_file(cue_file, resolve_composition=False)
+            except Exception as exc:  # noqa: BLE001 — re-raised as CompileError
+                raise CompileError(
+                    f"cannot build the shape registry for {source_file}: "
+                    f"sibling constraint file {cue_file} failed to parse "
+                    f"({type(exc).__name__}: {exc}). Any base shape it declares "
+                    "would be silently lost from every compiled target."
+                ) from exc
+            _UNRESOLVED_DOC_CACHE[key] = doc
+        for shape in doc.shapes:
+            registry.setdefault(shape.name, shape)
+    return registry
+
+
+# Facets a property declaration can carry, with the value the parser leaves in
+# place when the CUE text does not declare that facet. "Declared" means "differs
+# from the default", which is what lets unification tell a derived narrowing
+# (adds a facet) apart from a derived restatement (declares nothing new).
+_PROPERTY_FACET_DEFAULTS: dict[str, object] = {
+    "type_ref": "string",
+    "enum_ref": None,
+    "list_inner_enum": None,
+    "list_min_items": 0,
+    "list_of_string": False,
+    "fixed_value": None,
+    "pattern": None,
+    "forbidden_pattern": None,
+    "string_format": None,
+    "min_inclusive": None,
+    "max_inclusive": None,
+    "inline_enum_values": None,
+    "enum_union_refs": None,
+}
+
+# Facets whose conjunction IS expressible in the flat AST, so two differing
+# declarations narrow instead of raising: a bound unified with another bound is
+# just the tighter bound, which every target already emits. Every other facet
+# (pattern, enum ref, format, fixed value…) would need a real conjunction the
+# flat PropDef cannot carry, so a genuine conflict there is a hard error.
+_NARROWING_FACETS = {
+    "min_inclusive": max,
+    "list_min_items": max,
+    "max_inclusive": min,
+}
+
+
+def _copy_property(prop: PropDef) -> PropDef:
+    """Detached copy, so composing a base never mutates the registry entry."""
+    return replace(prop)
+
+
+def _unify_property(
+    base: PropDef, derived: PropDef, shape_name: str
+) -> PropDef:
+    """Unify two declarations of the same property, the way CUE would.
+
+    Facet by facet: the merged property keeps the base's facet unless the
+    derived declares that same facet, in which case the derived value narrows
+    it. Required-ness is the OR of both — CUE unification cannot widen, so a
+    base-required field stays required even if the derived spells it `?`.
+
+    Two DIFFERENT values for the same facet unify conjunctively where the flat
+    AST can carry the conjunction (numeric and cardinality bounds collapse to
+    the tighter bound). Anything else — two patterns, two enum refs, two fixed
+    values, two formats — would need a real conjunction PropDef cannot hold, so
+    it raises rather than silently keeping one of them.
+    """
+    merged = PropDef(name=base.name, type_ref=base.type_ref)
+    for facet, default in _PROPERTY_FACET_DEFAULTS.items():
+        base_value = getattr(base, facet)
+        derived_value = getattr(derived, facet)
+        base_declared = base_value != default
+        derived_declared = derived_value != default
+        if base_declared and derived_declared and base_value != derived_value:
+            narrow = _NARROWING_FACETS.get(facet)
+            if narrow is None:
+                raise CompileError(
+                    f"unsupported composition in shape #{shape_name}: property "
+                    f'"{base.name}" declares conflicting {facet} values '
+                    f"({base_value!r} in the base, {derived_value!r} in the "
+                    "derived body). CUE would unify these conjunctively; the "
+                    "flat projector cannot carry both, and picking one would "
+                    "loosen or contradict the source."
+                )
+            setattr(merged, facet, narrow(base_value, derived_value))
+            continue
+        setattr(merged, facet, derived_value if derived_declared else base_value)
+    # Unification narrows: a field required by either declaration is required.
+    merged.optional = base.optional and derived.optional
+    return merged
+
+
+def _upsert_property(
+    properties: list[PropDef], prop: PropDef, shape_name: str
+) -> None:
+    """Unify `prop` into `properties`, keeping its inherited position."""
+    for index, existing in enumerate(properties):
+        if existing.name == prop.name:
+            properties[index] = _unify_property(existing, prop, shape_name)
+            return
+    properties.append(_copy_property(prop))
+
+
+def _unify_conditional(
+    base: ConditionalBranch, derived: ConditionalBranch, shape_name: str
+) -> ConditionalBranch:
+    """Unify two branches guarded by the same condition.
+
+    Same rule as properties: the merged branch requires the union of both
+    requirement sets, and a property required by both is unified facet by facet
+    so a derived restatement cannot drop the base's pattern.
+    """
+    then_require = [_copy_property(prop) for prop in base.then_require]
+    for prop in derived.then_require:
+        _upsert_property(then_require, prop, shape_name)
+    return ConditionalBranch(
+        when_property=base.when_property,
+        when_equals=base.when_equals,
+        then_require=then_require,
+    )
+
+
+def _append_conditional(
+    branches: list[ConditionalBranch],
+    branch: ConditionalBranch,
+    shape_name: str,
+) -> None:
+    key = (branch.when_property, branch.when_equals)
+    for index, existing in enumerate(branches):
+        if (existing.when_property, existing.when_equals) == key:
+            branches[index] = _unify_conditional(existing, branch, shape_name)
+            return
+    branches.append(
+        ConditionalBranch(
+            when_property=branch.when_property,
+            when_equals=branch.when_equals,
+            then_require=[_copy_property(p) for p in branch.then_require],
+        )
+    )
+
+
+def _compose_shape(
+    shape: ShapeDef,
+    registry: dict[str, ShapeDef],
+    stack: tuple[str, ...] = (),
+) -> ShapeDef:
+    """Return `shape` with every `base_refs` entry flattened into it.
+
+    Bases contribute first (so inherited properties keep their declaration
+    order); the derived body then unifies over them, narrowing inherited
+    properties in place and appending its own.
+    """
+    if shape.name in stack:
+        raise CompileError(
+            "cyclic CUE shape composition: "
+            + " -> ".join([*stack, shape.name])
+            + ". Composing a cycle would emit partial, asymmetric shapes that "
+            "differ per entry point."
+        )
+    if not shape.base_refs:
+        return shape
+    stack = (*stack, shape.name)
+    merged = ShapeDef(name=shape.name, type_iri=None)
+    for ref in shape.base_refs:
+        base = registry.get(ref)
+        if base is None:
+            raise CompileError(
+                f"shape #{shape.name} composes #{ref}, which no CUE file under "
+                "constraints/ defines. Compiling it as-is would silently drop "
+                "every constraint the base carries from the generated targets."
+            )
+        base = _compose_shape(base, registry, stack)
+        for prop in base.properties:
+            _upsert_property(merged.properties, prop, shape.name)
+        for branch in base.conditionals:
+            _append_conditional(merged.conditionals, branch, shape.name)
+        merged.orders.extend(base.orders)
+        merged.disjunctions.extend(base.disjunctions)
+    # `type_iri` is deliberately NOT inherited. A shape's `@type` binds the
+    # generated artifacts to an RDF class: inheriting it would make the derived
+    # shape emit a second SHACL NodeShape targeting the base's class (colliding
+    # with the hand-authored normative shape for that class) and a duplicate
+    # `@type` const across two JSON Schema `$defs`. Composition reuses the
+    # base's fields; it must not re-bind the base's class identity.
+    merged.type_iri = shape.type_iri
+    for prop in shape.properties:
+        _upsert_property(merged.properties, prop, shape.name)
+    for branch in shape.conditionals:
+        _append_conditional(merged.conditionals, branch, shape.name)
+    merged.orders.extend(shape.orders)
+    merged.disjunctions.extend(shape.disjunctions)
+    return merged
+
+
+def _resolve_shape_compositions(doc: ConstraintDoc, source_file: Path) -> None:
+    if not any(shape.base_refs for shape in doc.shapes):
+        return
+    registry = _shape_registry(source_file)
+    for shape in doc.shapes:
+        registry[shape.name] = shape  # definitions in this file win
+    doc.shapes = [_compose_shape(shape, registry) for shape in doc.shapes]
+
+
 # ---- JSON Schema target --------------------------------------------------
 
 def _scan_global_enum_registry(source_file: Path) -> dict:
@@ -548,6 +898,10 @@ def _scan_global_enum_registry(source_file: Path) -> dict:
     for cue_file in constraints_root.rglob("*.cue"):
         try:
             sibling = parse_cue_file(cue_file)
+        except CompileError:
+            # A composition the projector cannot project faithfully is a hard
+            # error everywhere, including while scanning siblings.
+            raise
         except Exception:
             continue
         package = cue_file.stem  # e.g. "usage-eligibility"
@@ -1340,27 +1694,34 @@ def main() -> int:
         print(f"ERROR: source {args.input} missing", file=sys.stderr)
         return 2
 
-    doc = parse_cue_file(args.input)
+    # A `CompileError` means the source carries semantics this projector cannot
+    # emit faithfully. Exit 1 (compile error) rather than writing a target that
+    # is quietly weaker than the CUE.
+    try:
+        doc = parse_cue_file(args.input)
 
-    # Build a global enum registry by scanning sibling CUE files. Used by the
-    # JSON Schema target to inline cross-file enum definitions (so each
-    # emitted schema is self-contained) and by the Rust target to resolve
-    # cross-file enum names to fully-qualified module paths.
-    enum_registry = _scan_global_enum_registry(args.input)
-    reference_classes = _scan_reference_class_registry(args.input)
+        # Build a global enum registry by scanning sibling CUE files. Used by
+        # the JSON Schema target to inline cross-file enum definitions (so each
+        # emitted schema is self-contained) and by the Rust target to resolve
+        # cross-file enum names to fully-qualified module paths.
+        enum_registry = _scan_global_enum_registry(args.input)
+        reference_classes = _scan_reference_class_registry(args.input)
 
-    if args.target == "cue":
-        out = target_cue(doc, args.input)
-    elif args.target == "json-schema":
-        out = target_json_schema(doc, registry=enum_registry)
-    elif args.target == "rust":
-        out = target_rust(doc, registry=enum_registry)
-    elif args.target == "typescript":
-        out = target_typescript(doc, registry=enum_registry)
-    elif args.target == "shacl":
-        out = target_shacl(doc, reference_classes=reference_classes)
-    else:
-        out = TARGETS[args.target](doc)
+        if args.target == "cue":
+            out = target_cue(doc, args.input)
+        elif args.target == "json-schema":
+            out = target_json_schema(doc, registry=enum_registry)
+        elif args.target == "rust":
+            out = target_rust(doc, registry=enum_registry)
+        elif args.target == "typescript":
+            out = target_typescript(doc, registry=enum_registry)
+        elif args.target == "shacl":
+            out = target_shacl(doc, reference_classes=reference_classes)
+        else:
+            out = TARGETS[args.target](doc)
+    except CompileError as exc:
+        print(f"ERROR: {exc}", file=sys.stderr)
+        return 1
 
     if args.out:
         args.out.parent.mkdir(parents=True, exist_ok=True)

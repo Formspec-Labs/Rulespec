@@ -7,8 +7,15 @@
 #
 # Spec anchors:
 #   §3.5 — Assertion AI-lineage symmetry
-#   §4.4 — Warrant family/kind agreement (also CUE #WarrantFamilyKindAgreement,
-#                                          which doesn't compile to JSON Schema)
+#   §4.4 — Warrant family/kind agreement. CUE #WarrantFamilyKindAgreement now
+#          compiles its composed #Warrant fields into every target, but the
+#          projector emits NO SHACL NodeShape for it: the definition declares
+#          no `@type` of its own and composition does not inherit #Warrant's,
+#          precisely so nothing generated re-binds rkaf:Warrant and collides
+#          with rkaf:WarrantFamilyKindAgreementShape below. The generated
+#          JSON Schema `anyOf` is the only generated agreement check; the
+#          generated Rust/TypeScript carriers enforce nothing. This
+#          hand-authored shape is therefore the sole SHACL enforcement of §4.4.
 #   §5.2 — BridgeValidationResult rejected → remediation required
 
 @prefix sh:    <http://www.w3.org/ns/shacl#> .

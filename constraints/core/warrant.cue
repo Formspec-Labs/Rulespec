@@ -35,6 +35,21 @@ package rkaf
 // Family/kind agreement (§4.4): a warrant's family MUST agree with its kind's family.
 // The chain-level cross-family transition warning is runtime-enforced
 // in rkaf-constraints-runtime (not at compile time).
+//
+// PROJECTION NOTE — what the generated carriers do and do not enforce:
+//   - JSON Schema is the ONLY generated target that checks the agreement. It
+//     emits the disjunction as `allOf: [{anyOf: [...]}]`.
+//   - The generated Rust struct and TypeScript interface are inert CARRIERS.
+//     They reproduce the composed #Warrant fields so the shape round-trips;
+//     they carry NO family/kind agreement enforcement whatsoever. Constructing
+//     a `WarrantFamilyKindAgreement` with `warrantKind: rkaf:legal` and
+//     `warrantFamily: rkaf:scientific` compiles and serializes cleanly.
+//   - No SHACL NodeShape is generated for this definition. It declares no
+//     `@type` of its own, and the projector deliberately does not inherit
+//     #Warrant's `@type` — doing so would emit a second NodeShape targeting
+//     rkaf:Warrant that collides with the hand-authored normative shape in
+//     shapes/rkaf-shapes-pattern-c.ttl. That hand-authored shape is the SHACL
+//     enforcement for §4.4.
 #WarrantFamilyKindAgreement: (#Warrant & {
 	"rkaf:warrantKind":   #WarrantKindLegal
 	"rkaf:warrantFamily": "rkaf:legal"

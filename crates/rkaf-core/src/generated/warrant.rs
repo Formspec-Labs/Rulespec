@@ -232,6 +232,18 @@ pub struct WarrantFamilyKindAgreement {
     /// Optional JSON-LD resource identifier.
     #[serde(rename = "@id", skip_serializing_if = "Option::is_none", default)]
     pub id: Option<String>,
+    /// JSON-LD property `rkaf:warrantKind`.
+    #[serde(rename = "rkaf:warrantKind")]
+    pub warrant_kind: WarrantKind,
+    /// JSON-LD property `rkaf:warrantFamily`.
+    #[serde(rename = "rkaf:warrantFamily")]
+    pub warrant_family: WarrantFamily,
+    /// JSON-LD property `rkaf:hasPredecessor`.
+    #[serde(rename = "rkaf:hasPredecessor", skip_serializing_if = "Option::is_none", default)]
+    pub has_predecessor: Option<crate::OneOrMany<String>>,
+    /// JSON-LD property `rkaf:defeasible`.
+    #[serde(rename = "rkaf:defeasible", skip_serializing_if = "Option::is_none", default)]
+    pub defeasible: Option<bool>,
     /// Additional JSON-LD properties preserved during round trips.
     #[serde(flatten)]
     pub extra: BTreeMap<String, serde_json::Value>,
