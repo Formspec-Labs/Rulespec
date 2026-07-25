@@ -1,0 +1,10 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@id": "urn:rkaf:fixture:negative:relationship-assertion:ai-missing-lineage",
+  "@type": "rkaf:RelationshipAssertion",
+  "rkaf:assertionOrigin": "rkaf:aiSuggested",
+  "rkaf:assertsSubject": "urn:rkaf:fixture:policy:emergency-amendment",
+  "rkaf:assertsPredicate": "urn:rkaf:fixture:predicate:appliesTo",
+  "rkaf:assertsObject": "urn:rkaf:fixture:group:airworthiness-resources",
+  "rkaf:assertionPolarity": "rkaf:denied"
+}

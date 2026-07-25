@@ -22,6 +22,11 @@
 # Authority is now a specialization of Warrant (§4.4).
 rkaf:Authority rdfs:subClassOf rkaf:Warrant .
 
+# RelationshipAssertion is the proposition-bearing Assertion specialization
+# restored in Core §2.1. Its generated shape repeats the generic envelope until
+# the projector supports CUE shape inheritance.
+rkaf:RelationshipAssertion rdfs:subClassOf rkaf:Assertion .
+
 # Assertion-level Pattern-C requirement: an Assertion whose assertionOrigin is
 # in the AI-touched set MUST carry rkaf:hasAILineage (§5.3).
 rkaf:AssertionAILineageShape a sh:NodeShape ;

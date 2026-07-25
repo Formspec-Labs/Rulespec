@@ -117,6 +117,18 @@ fn round_trip_evidence_binding_fixtures() {
     );
 }
 
+#[test]
+fn round_trip_relationship_assertion_fixtures() {
+    round_trip::<RelationshipAssertion>(
+        "relationshipassertion-affirmed-positive",
+        "rkaf:RelationshipAssertion",
+    );
+    round_trip::<RelationshipAssertion>(
+        "relationshipassertion-denied-positive",
+        "rkaf:RelationshipAssertion",
+    );
+}
+
 // === Vocabulary backlog round-trip coverage ===
 
 #[test]

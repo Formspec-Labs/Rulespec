@@ -47,6 +47,7 @@ CONSTRAINTS: dict[str, tuple[str, str]] = {
     "concept-registry":        "core",
     "rulemaking":              "core",
     "assertion":               "core",
+    "relationship-assertion":  "core",
     "conditional-silent-pass": "adversarial",
     "cross-property-coupling": "adversarial",
     "enum-drift":              "adversarial",
@@ -137,6 +138,24 @@ FIXTURE_BINDINGS: list[tuple[str, str, str, str]] = [
     ("evidence-binding",  "EvidenceBinding",  "fixtures/evidencebinding-positive.jsonld", "PASS"),
     ("evidence-binding",  "EvidenceBinding",  "fixtures/evidencebinding-no-evidence-reason-positive.jsonld", "PASS"),
     ("evidence-binding",  "EvidenceBinding",  "fixtures/evidencebinding-missing-negative.jsonld", "FAIL"),
+    ("relationship-assertion", "RelationshipAssertion",
+     "fixtures/relationshipassertion-denied-positive.jsonld", "PASS"),
+    ("relationship-assertion", "RelationshipAssertion",
+     "fixtures/relationshipassertion-affirmed-positive.jsonld", "PASS"),
+    ("relationship-assertion", "RelationshipAssertion",
+     "fixtures/negatives/relationship-assertion-missing-subject-negative.jsonld", "FAIL"),
+    ("relationship-assertion", "RelationshipAssertion",
+     "fixtures/negatives/relationship-assertion-missing-origin-negative.jsonld", "FAIL"),
+    ("relationship-assertion", "RelationshipAssertion",
+     "fixtures/negatives/relationship-assertion-missing-predicate-negative.jsonld", "FAIL"),
+    ("relationship-assertion", "RelationshipAssertion",
+     "fixtures/negatives/relationship-assertion-missing-object-negative.jsonld", "FAIL"),
+    ("relationship-assertion", "RelationshipAssertion",
+     "fixtures/negatives/relationship-assertion-missing-polarity-negative.jsonld", "FAIL"),
+    ("relationship-assertion", "RelationshipAssertion",
+     "fixtures/negatives/relationship-assertion-invalid-polarity-negative.jsonld", "FAIL"),
+    ("relationship-assertion", "RelationshipAssertion",
+     "fixtures/negatives/relationship-assertion-ai-missing-lineage-negative.jsonld", "FAIL"),
     # Adversarial — evaluator-class regressions
     ("conditional-silent-pass", "ConsensusEvidencePermissionShape",
      "fixtures/adversarial/conditional-silent-pass-positive.jsonld", "PASS"),
@@ -240,8 +259,13 @@ def structural_parity_rust(constraint: str) -> bool:
     schema = json.loads(js)
     for name in schema.get("$defs", {}):
         # Each $defs entry must appear in the Rust output as either `pub enum {name}`
-        # (for closed enums) or `pub struct {name}` (for shapes).
-        if f"pub enum {name}" not in rs and f"pub struct {name}" not in rs:
+        # (for closed enums), `pub struct {name}` (for shapes), or a
+        # fully-qualified cross-module reference ending in `::{name}`.
+        if (
+            f"pub enum {name}" not in rs
+            and f"pub struct {name}" not in rs
+            and f"::{name}" not in rs
+        ):
             return False
     return True
 
@@ -252,7 +276,11 @@ def structural_parity_typescript(constraint: str) -> bool:
     ts  = (ROOT / "compiled" / "typescript"  / subdir / f"{constraint}.ts").read_text()
     schema = json.loads(js)
     for name in schema.get("$defs", {}):
-        if f"export type {name}" not in ts and f"export interface {name}" not in ts:
+        if (
+            f"export type {name}" not in ts
+            and f"export interface {name}" not in ts
+            and f"import type {{ {name} }}" not in ts
+        ):
             return False
     return True
 

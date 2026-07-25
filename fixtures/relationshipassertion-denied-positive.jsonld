@@ -1,0 +1,11 @@
+{
+  "@context": "../context/rkaf-context.jsonld",
+  "@id": "urn:rkaf:fixture:relationship-assertion:observed-denial",
+  "@type": "rkaf:RelationshipAssertion",
+  "rkaf:assertionOrigin": "rkaf:imported",
+  "rkaf:assertsSubject": "urn:rkaf:fixture:policy:emergency-amendment",
+  "rkaf:assertsPredicate": "urn:rkaf:fixture:predicate:appliesTo",
+  "rkaf:assertsObject": "urn:rkaf:fixture:group:airworthiness-resources",
+  "rkaf:assertionPolarity": "rkaf:denied",
+  "rkaf:hasApplicability": "urn:rkaf:fixture:scope:aviation-cybersecurity"
+}

@@ -1,0 +1,9 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@id": "urn:rkaf:fixture:negative:relationship-assertion:missing-subject",
+  "@type": "rkaf:RelationshipAssertion",
+  "rkaf:assertionOrigin": "rkaf:imported",
+  "rkaf:assertsPredicate": "urn:rkaf:fixture:predicate:appliesTo",
+  "rkaf:assertsObject": "urn:rkaf:fixture:group:airworthiness-resources",
+  "rkaf:assertionPolarity": "rkaf:denied"
+}

@@ -1,0 +1,9 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@id": "urn:rkaf:fixture:relationship-assertion:missing-object",
+  "@type": "rkaf:RelationshipAssertion",
+  "rkaf:assertionOrigin": "rkaf:imported",
+  "rkaf:assertsSubject": "urn:rkaf:fixture:policy:emergency-amendment",
+  "rkaf:assertsPredicate": "urn:rkaf:fixture:predicate:appliesTo",
+  "rkaf:assertionPolarity": "rkaf:denied"
+}

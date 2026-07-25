@@ -6,6 +6,7 @@ import unittest
 from pathlib import Path
 
 from tools.constraints_compile import (
+    _scan_global_enum_registry,
     _scan_reference_class_registry,
     parse_cue_file,
     target_json_schema,
@@ -15,6 +16,89 @@ from tools.constraints_compile import (
 
 
 class ConstraintCompilerTests(unittest.TestCase):
+    def test_relationship_assertion_preserves_generic_envelope(self) -> None:
+        root = Path(__file__).resolve().parent.parent
+        assertion_doc = parse_cue_file(
+            root / "constraints" / "core" / "assertion.cue"
+        )
+        relationship_doc = parse_cue_file(
+            root
+            / "constraints"
+            / "core"
+            / "relationship-assertion.cue"
+        )
+        assertion = next(
+            shape
+            for shape in assertion_doc.shapes
+            if shape.name == "Assertion"
+        )
+        relationship = next(
+            shape
+            for shape in relationship_doc.shapes
+            if shape.name == "RelationshipAssertion"
+        )
+
+        assertion_fields = {
+            prop.name for prop in assertion.properties
+        }
+        relationship_fields = {
+            prop.name for prop in relationship.properties
+        }
+        self.assertLessEqual(
+            assertion_fields,
+            relationship_fields,
+            "RelationshipAssertion drifted from the generic Assertion envelope",
+        )
+        self.assertTrue(
+            {
+                "rkaf:assertsSubject",
+                "rkaf:assertsPredicate",
+                "rkaf:assertsObject",
+                "rkaf:assertionPolarity",
+            }
+            <= relationship_fields
+        )
+
+        assertion_conditions = {
+            (
+                condition.when_property,
+                condition.when_equals,
+                tuple(prop.name for prop in condition.then_require),
+            )
+            for condition in assertion.conditionals
+        }
+        relationship_conditions = {
+            (
+                condition.when_property,
+                condition.when_equals,
+                tuple(prop.name for prop in condition.then_require),
+            )
+            for condition in relationship.conditionals
+        }
+        self.assertEqual(
+            assertion_conditions,
+            relationship_conditions,
+            "RelationshipAssertion AI-lineage rules drifted from Assertion",
+        )
+        registry = _scan_global_enum_registry(
+            root
+            / "constraints"
+            / "core"
+            / "relationship-assertion.cue"
+        )
+        typescript = target_typescript(
+            relationship_doc,
+            registry=registry,
+        )
+        self.assertIn(
+            'import type { AssertionOrigin } from "./assertion";',
+            typescript,
+        )
+        self.assertIn(
+            'import type { UsageEligibility } from "./usage-eligibility";',
+            typescript,
+        )
+
     def test_patterns_dates_and_order_project_from_aliased_shape(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             source = Path(temporary) / "interval.cue"

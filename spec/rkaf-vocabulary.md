@@ -41,6 +41,11 @@
 | rkaf:AccessScope | https://rulespec.org/ns/v1#AccessScope | Class | — | — | — | accessscope-public-positive, accessscope-organizationVisible-positive, accessscope-leak-negative |
 | rkaf:hasAccessScope | https://rulespec.org/ns/v1#hasAccessScope | Property | rkaf:Assertion / rkaf:Attestation / rkaf:EvidenceBinding / rkaf:SourceFragment | rkaf:AccessScope | 0..1 | accessscope-public-positive |
 | rkaf:accessScopeKind | https://rulespec.org/ns/v1#accessScopeKind | Property (closed enum) | rkaf:AccessScope | rkaf:AccessScopeKind | 1 | accessscope-public-positive |
+| rkaf:RelationshipAssertion | https://rulespec.org/ns/v1#RelationshipAssertion | Class (specialization of rkaf:Assertion) | — | — | — | relationshipassertion-denied-positive, relationshipassertion-affirmed-positive |
+| rkaf:assertsSubject | https://rulespec.org/ns/v1#assertsSubject | Property | rkaf:RelationshipAssertion | IRI | 1 | relationshipassertion-denied-positive |
+| rkaf:assertsPredicate | https://rulespec.org/ns/v1#assertsPredicate | Property | rkaf:RelationshipAssertion | IRI | 1 | relationshipassertion-denied-positive |
+| rkaf:assertsObject | https://rulespec.org/ns/v1#assertsObject | Property | rkaf:RelationshipAssertion | IRI | 1 | relationshipassertion-denied-positive |
+| rkaf:assertionPolarity | https://rulespec.org/ns/v1#assertionPolarity | Property (closed enum) | rkaf:RelationshipAssertion | rkaf:AssertionPolarity | 1 | relationshipassertion-denied-positive, relationshipassertion-affirmed-positive |
 
 ## Experimental US rulemaking-process module
 
@@ -120,6 +125,7 @@ Beyond the v0.2 normative tier in §5, the following terms are codified as CUE c
 | Term | CUE | Fixture | Purpose |
 |---|---|---|---|
 | `rkaf:Authority` | `authority.cue` | `authority-positive.jsonld` | Legal-family specialization of Warrant (Core §2). Carries `authorityKind` (hop-local), optional applicability + effective period, chain predecessors. |
+| `rkaf:RelationshipAssertion` | `relationship-assertion.cue` | `relationshipassertion-denied-positive.jsonld` | Proposition-bearing Assertion specialization with required subject, predicate, IRI object, explicit polarity, and no stored global state (Core §2.1). |
 | `rkaf:Attestation` | `attestation.cue` | `attestation-positive.jsonld` | Scoped multi-target attestation by a named attestor (Core §3.1). Closed decision + attestor-kind enums. |
 | `rkaf:LocalAdoption` | `local-adoption.cue` | `localadoption-positive.jsonld` | Workspace-scoped authorization of an Assertion (Core §3.2). Restricted `adoptionAuthorityKind` per §2.5 invariant. |
 | `rkaf:ApplicabilityScope` | `applicability-scope.cue` | `applicabilityscope-positive.jsonld` | Where/to-whom/when a Warrant applies. ELI / ISO 3166 / agency-code IRIs. |
@@ -151,6 +157,7 @@ Beyond the v0.2 normative tier in §5, the following terms are codified as CUE c
 **Closed enums and lattices** (referenced by the classes above):
 
 - `rkaf:usageEligibility` — 7-level lattice from `notEligible` (lowest) to `officialUse` (highest). Consumers MAY narrow; only LocalAdoption MAY broaden within its declared scope.
+- `rkaf:assertionPolarity` — `rkaf:affirmed` or `rkaf:denied`; applies to the canonical affirmative predicate carried by a `RelationshipAssertion`.
 - `rkaf:hasTrustZone` — `rkaf:Z0` through `rkaf:Z8`. Structural property (kind of object).
 - `rkaf:hasSafetyLabel` — `D0` / `S1` / `R2` / `A3` / `P4` plus advisory + authority-critical refinements. Operational property (what the consumer may do).
 - `rkaf:authorityKind` — 8-value closed enum, hop-local. Federation refuses unsupported kinds.

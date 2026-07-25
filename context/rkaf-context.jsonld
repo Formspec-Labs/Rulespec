@@ -536,6 +536,9 @@
     "rkaf:assertsObject": {
       "@type": "@id"
     },
+    "rkaf:assertionPolarity": {
+      "@type": "@vocab"
+    },
     "rkaf:hasTrustZone": {
       "@type": "@id"
     },

@@ -1,0 +1,9 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@id": "urn:rkaf:fixture:relationship-assertion:missing-predicate",
+  "@type": "rkaf:RelationshipAssertion",
+  "rkaf:assertionOrigin": "rkaf:imported",
+  "rkaf:assertsSubject": "urn:rkaf:fixture:policy:emergency-amendment",
+  "rkaf:assertsObject": "urn:rkaf:fixture:group:airworthiness-resources",
+  "rkaf:assertionPolarity": "rkaf:denied"
+}

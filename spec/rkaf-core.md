@@ -39,6 +39,32 @@ Every Rulespec assertion is positioned on three orthogonal axes:
 
 Implementations MUST preserve all three axes through retrieval, projection, summarization, federation, and AI-assisted consumption.
 
+### 2.1 Proposition-bearing relationship assertions
+
+`rkaf:RelationshipAssertion` is the proposition-bearing specialization of
+`rkaf:Assertion`. It restores the mechanically validated shape already defined
+by Rulespec v0.1 while leaving the generic `rkaf:Assertion` envelope
+backward-compatible during the v0.2 migration.
+
+A `rkaf:RelationshipAssertion` MUST contain exactly one IRI-valued
+`rkaf:assertsSubject`, `rkaf:assertsPredicate`, and `rkaf:assertsObject`, plus
+exactly one `rkaf:assertionPolarity` from the closed set `rkaf:affirmed` or
+`rkaf:denied`. Predicates remain affirmative; polarity records whether the
+source-backed assertion affirms or denies that canonical relationship.
+
+Expected and observed are roles assigned by an explicit comparison. They are
+not intrinsic assertion modes. Rulespec does not store global assertion state:
+approval, rejection, dispute, and revocation remain scoped and temporal
+`rkaf:Attestation` records. Evidence remains a separate
+`rkaf:EvidenceBinding`; confidence remains a separate
+`rkaf:ConfidenceRecord`.
+
+The first v0.2 carrier intentionally restricts relationship objects to IRIs.
+Typed-literal objects require a coordinated JSON-LD, CUE, and projector
+migration. Formal deontic operators such as permission, prohibition, and duty
+belong in domain profiles aligned with ODRL or LegalRuleML rather than a
+universal ordered “force” field.
+
 ## 3. Closed-taxonomy discipline [Normative]
 
 Every enum defined in this spec is **closed within a release**. Extending an enum requires a new release with a declared URI. Producers MUST NOT mint unregistered enum values. Consumers MUST reject unrecognized enum values from the closed sets defined below.
@@ -324,6 +350,7 @@ Generalizes Studio's `wosTarget` projection pattern.
 Inherited name-for-name from `spec/rkaf-core-v0.1.md`:
 
 - **Assertion model:** `rkaf:Assertion`, `rkaf:assertsSubject`, `rkaf:assertsPredicate`, `rkaf:assertsObject`, `rkaf:hasApplicability`, `rkaf:effectivePeriod`.
+- **Relationship assertion specialization:** `rkaf:RelationshipAssertion`, `rkaf:assertionPolarity`.
 - **Attestation / adoption:** `rkaf:Attestation`, `rkaf:LocalAdoption`, `rkaf:adoptionAuthorityKind`, `rkaf:adoptionStatus`.
 - **Justification:** `rkaf:Justification`, `rkaf:hasJustification`, `rkaf:justifiedByAssertion`, `rkaf:GeneratedWorkProduct`.
 - **Authority (now specialization of Warrant):** `rkaf:Authority`, `rkaf:hasAuthority`, `rkaf:derivesAuthorityFrom`, `rkaf:DelegationInstrument`.

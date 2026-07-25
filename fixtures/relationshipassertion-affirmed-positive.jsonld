@@ -1,0 +1,12 @@
+{
+  "@context": "../context/rkaf-context.jsonld",
+  "@id": "urn:rkaf:fixture:relationship-assertion:expected-baseline",
+  "@type": "rkaf:RelationshipAssertion",
+  "rkaf:assertionOrigin": "rkaf:humanAsserted",
+  "rkaf:assertsSubject": "urn:rkaf:fixture:policy:emergency-amendment",
+  "rkaf:assertsPredicate": "urn:rkaf:fixture:predicate:appliesTo",
+  "rkaf:assertsObject": "urn:rkaf:fixture:group:airworthiness-resources",
+  "rkaf:assertionPolarity": "rkaf:affirmed",
+  "rkaf:hasApplicability": "urn:rkaf:fixture:scope:aviation-cybersecurity",
+  "rkaf:hasWarrant": "urn:rkaf:fixture:warrant:approved-comparator"
+}
