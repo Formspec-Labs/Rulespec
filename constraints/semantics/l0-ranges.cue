@@ -16,5 +16,6 @@ package semantics
 	"rkaf:commentPeriodOpenedBy":  "rkaf:Artifact"
 	"dcterms:hasFormat":            "rkaf:Artifact"
 	"dcterms:isFormatOf":           "rkaf:Artifact"
+	"prov:wasRevisionOf":           "rkaf:Artifact"
 	"prov:wasDerivedFrom":         "prov:Entity"
 }

@@ -114,6 +114,26 @@ Federal Register posting carries `rkaf:us-eo`, not `rkaf:us-frdoc`). The
 normative cross-posting pattern, including how postings link to each other and
 to Proceedings, is defined in `spec/rkaf-rulemaking.md` §4.
 
+Artifact version and revision identity composes Dublin Core and PROV-O:
+
+- `dcterms:isVersionOf` (0..*) links an immutable Artifact to a stable
+  resource of which it is a substantive version, edition, or adaptation.
+  Rulespec does not mint a universal document-work class; the referenced
+  resource MAY use ELI, BIBFRAME, Schema.org, or another profile-owned public
+  type.
+- `prov:wasRevisionOf` (0..*) links a later Artifact to the exact earlier
+  Artifact from which it derives substantial content. Every referenced
+  revision MUST identify an immutable source state.
+- `dcterms:hasFormat` and `dcterms:isFormatOf` remain the relations for
+  substantially identical content in another format or registry posting.
+
+Producers MUST NOT infer either version relation from a shared title, topic,
+identifier fragment, embedding score, or retrieval rank. A legal profile
+SHOULD use ELI's native LegalResource and LegalExpression relations when ELI
+owns the resource model. Publication, effective, and observation times remain
+separate profile or provenance properties; a revision link alone establishes
+no legal effect.
+
 The US regulatory schemes use these canonical forms:
 
 | Scheme | Identifies | Canonical form and normalization |

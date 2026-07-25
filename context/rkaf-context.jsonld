@@ -50,6 +50,14 @@
       "@type": "@id",
       "@container": "@set"
     },
+    "dcterms:isVersionOf": {
+      "@type": "@id",
+      "@container": "@set"
+    },
+    "prov:wasRevisionOf": {
+      "@type": "@id",
+      "@container": "@set"
+    },
     "rkaf:SourceFragment": {
       "@type": "@id"
     },

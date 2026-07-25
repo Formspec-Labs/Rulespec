@@ -36,6 +36,9 @@ adapted for a specification + shape + fixture project.
 - FOAF `primaryTopic` and the scoped DCAT 3 qualified-relation pattern as
   public-ontology seams for document-to-subject and qualified relationship
   modeling.
+- Dublin Core `isVersionOf` and PROV-O `wasRevisionOf` on immutable Artifacts,
+  with a cross-target lineage fixture. The generic core composes public version
+  lineage instead of minting Work or Expression classes.
 
 ### Changed
 

@@ -16,6 +16,8 @@
 | foaf:primaryTopic | http://xmlns.com/foaf/0.1/primaryTopic | Property (FOAF mode-1 import) | rkaf:Artifact | IRI | 0..1 | artifact-primary-topic-positive |
 | dcterms:hasFormat | http://purl.org/dc/terms/hasFormat | Property (DCTERMS mode-1 import) | rkaf:Artifact | rkaf:Artifact | 0..* | artifact-cross-posting-positive |
 | dcterms:isFormatOf | http://purl.org/dc/terms/isFormatOf | Property (DCTERMS mode-1 import) | rkaf:Artifact | rkaf:Artifact | 0..* | artifact-cross-posting-positive |
+| dcterms:isVersionOf | http://purl.org/dc/terms/isVersionOf | Property (DCTERMS mode-1 import) | rkaf:Artifact | IRI | 0..* | artifact-version-lineage-positive |
+| prov:wasRevisionOf | http://www.w3.org/ns/prov#wasRevisionOf | Property (PROV-O mode-1 import) | rkaf:Artifact | rkaf:Artifact | 0..* | artifact-version-lineage-positive |
 | rkaf:SourceFragment | https://rulespec.org/ns/v1#SourceFragment | Class (rdfs:subClassOf oa:SpecificResource) | — | — | — | sourcefragment-oa-textquote-positive, sourcefragment-oa-xpath-positive, sourcefragment-aknt-eid-positive, sourcefragment-uslm-section-positive |
 | oa:hasSource | http://www.w3.org/ns/oa#hasSource | Property (OA 1.0 import) | rkaf:SourceFragment | rkaf:Artifact | 1 | sourcefragment-oa-textquote-positive |
 | oa:hasSelector | http://www.w3.org/ns/oa#hasSelector | Property (OA 1.0 import) | rkaf:SourceFragment | oa:Selector | 1..* | sourcefragment-oa-textquote-positive |

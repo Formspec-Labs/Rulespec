@@ -115,6 +115,17 @@ import "time"
             shacl,
             r"sh:path rkaf:commentPeriodFor ;[^\n]*sh:class rkaf:Proceeding",
         )
+        artifact_source = root / "constraints" / "core" / "artifact.cue"
+        artifact_document = parse_cue_file(artifact_source)
+        artifact_ranges = _scan_reference_class_registry(artifact_source)
+        artifact_shacl = target_shacl(
+            artifact_document,
+            reference_classes=artifact_ranges,
+        )
+        self.assertRegex(
+            artifact_shacl,
+            r"sh:path prov:wasRevisionOf ;[^\n]*sh:class rkaf:Artifact",
+        )
         self.assertIn("@prefix dcat: <http://www.w3.org/ns/dcat#> .", shacl)
         self.assertIn("@prefix foaf: <http://xmlns.com/foaf/0.1/> .", shacl)
 

@@ -91,6 +91,7 @@ fn round_trip_artifact_fixtures() {
     round_trip::<Artifact>("artifact-us-pl-positive", "rkaf:Artifact");
     round_trip::<Artifact>("artifact-us-eo-positive", "rkaf:Artifact");
     round_trip::<Artifact>("artifact-primary-topic-positive", "rkaf:Artifact");
+    round_trip::<Artifact>("artifact-version-lineage-positive", "rkaf:Artifact");
 }
 
 #[test]

@@ -103,6 +103,12 @@ pub struct Artifact {
     /// JSON-LD property `dcterms:isFormatOf`.
     #[serde(rename = "dcterms:isFormatOf", skip_serializing_if = "Option::is_none", default)]
     pub is_format_of: Option<crate::OneOrMany<String>>,
+    /// JSON-LD property `dcterms:isVersionOf`.
+    #[serde(rename = "dcterms:isVersionOf", skip_serializing_if = "Option::is_none", default)]
+    pub is_version_of: Option<crate::OneOrMany<String>>,
+    /// JSON-LD property `prov:wasRevisionOf`.
+    #[serde(rename = "prov:wasRevisionOf", skip_serializing_if = "Option::is_none", default)]
+    pub was_revision_of: Option<crate::OneOrMany<String>>,
     /// Additional JSON-LD properties preserved during round trips.
     #[serde(flatten)]
     pub extra: BTreeMap<String, serde_json::Value>,

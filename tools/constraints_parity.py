@@ -87,6 +87,7 @@ FIXTURE_BINDINGS: list[tuple[str, str, str, str]] = [
     ("artifact", "Artifact", "fixtures/artifact-us-pl-positive.jsonld", "PASS"),
     ("artifact", "Artifact", "fixtures/artifact-us-eo-positive.jsonld", "PASS"),
     ("artifact", "Artifact", "fixtures/artifact-primary-topic-positive.jsonld", "PASS"),
+    ("artifact", "Artifact", "fixtures/artifact-version-lineage-positive.jsonld", "PASS"),
     ("artifact", "Artifact", "fixtures/negatives/artifact-regulatory-identifier-missing-scheme-negative.jsonld", "FAIL"),
     ("artifact", "Artifact", "fixtures/negatives/artifact-regulatory-scheme-missing-identifier-negative.jsonld", "FAIL"),
     ("artifact", "Artifact", "fixtures/negatives/artifact-us-cfr-malformed-negative.jsonld", "FAIL"),

@@ -20,6 +20,8 @@ import "list"
 	"rkaf:publishedInProceeding"?:   [...(string & =~"^[A-Za-z][A-Za-z0-9+.-]*:[^\\s]+$")] & list.MinItems(1)
 	"dcterms:hasFormat"?:            [...(string & =~"^[A-Za-z][A-Za-z0-9+.-]*:[^\\s]+$")] & list.MinItems(1)
 	"dcterms:isFormatOf"?:           [...(string & =~"^[A-Za-z][A-Za-z0-9+.-]*:[^\\s]+$")] & list.MinItems(1)
+	"dcterms:isVersionOf"?:          [...(string & =~"^[A-Za-z][A-Za-z0-9+.-]*:[^\\s]+$")] & list.MinItems(1)
+	"prov:wasRevisionOf"?:           [...(string & =~"^[A-Za-z][A-Za-z0-9+.-]*:[^\\s]+$")] & list.MinItems(1)
 
 	if A["rkaf:hasRegulatoryIdentifier"] != _|_ {
 		"rkaf:regulatoryIdentifierScheme": #USRegulatoryIdentifierScheme

@@ -1,0 +1,20 @@
+{
+  "@context": "../context/rkaf-context.jsonld",
+  "@graph": [
+    {
+      "@id": "urn:example:document:air-quality-plan:2026-07-25",
+      "@type": "rkaf:Artifact",
+      "rkaf:hasArtifactIdentifier": "urn:example:document:air-quality-plan:2026-07-25",
+      "rkaf:artifactIdentifierScheme": "rkaf:partner-defined",
+      "dcterms:isVersionOf": "urn:example:work:air-quality-plan",
+      "prov:wasRevisionOf": "urn:example:document:air-quality-plan:2025-07-25"
+    },
+    {
+      "@id": "urn:example:document:air-quality-plan:2025-07-25",
+      "@type": "rkaf:Artifact",
+      "rkaf:hasArtifactIdentifier": "urn:example:document:air-quality-plan:2025-07-25",
+      "rkaf:artifactIdentifierScheme": "rkaf:partner-defined",
+      "dcterms:isVersionOf": "urn:example:work:air-quality-plan"
+    }
+  ]
+}
