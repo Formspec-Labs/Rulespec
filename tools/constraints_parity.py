@@ -53,6 +53,9 @@ CONSTRAINTS: dict[str, str] = {
     "concept-registry":        "core",
     "assertion":               "core",
     "relationship-assertion":  "core",
+    "value-assertion":         "core",
+    "source-claimant":         "core",
+    "extraction-activity":     "core",
     "lifecycle-event":         "core",
     "rulemaking":              "profiles/us-rulemaking",
     "us-regulatory-artifact":  "profiles/us-rulemaking",
@@ -207,6 +210,81 @@ FIXTURE_BINDINGS: list[tuple[str, str, str, str]] = [
      "fixtures/negatives/relationship-assertion-invalid-polarity-negative.jsonld", "FAIL"),
     ("relationship-assertion", "RelationshipAssertion",
      "fixtures/negatives/relationship-assertion-ai-missing-lineage-negative.jsonld", "FAIL"),
+    # ValueAssertion — the typed-literal proposition form (Core §2.2). The
+    # datatype rows are the ones that matter: they prove the JSON Schema
+    # `@type` enum and the SHACL `sh:datatype` alternatives close over the SAME
+    # set. A datatype the CUE does not declare must be rejected by BOTH, or the
+    # RDF side and the JSON side disagree about what "typed" means.
+    ("value-assertion", "ValueAssertion",
+     "fixtures/valueassertion-date-positive.jsonld", "PASS"),
+    ("value-assertion", "ValueAssertion",
+     "fixtures/valueassertion-denied-integer-positive.jsonld", "PASS"),
+    ("value-assertion", "ValueAssertion",
+     "fixtures/valueassertion-ai-suggested-positive.jsonld", "PASS"),
+    ("value-assertion", "ValueAssertion",
+     "fixtures/edges/value-assertion-boolean-edge.jsonld", "PASS"),
+    ("value-assertion", "ValueAssertion",
+     "fixtures/negatives/value-assertion-unregistered-datatype-negative.jsonld", "FAIL"),
+    # The value object must be CLOSED on both sides. A language-tagged literal
+    # is the case that corrupts RDF rather than merely differing on the wire:
+    # `{"@value","@type","@language"}` expands to a plain language-tagged
+    # literal with the declared datatype GONE, so SHACL's `sh:datatype`
+    # alternatives reject it. Before the value object emitted
+    # `additionalProperties: false`, JSON Schema accepted the same document —
+    # this row is the divergence that hole produced.
+    ("value-assertion", "ValueAssertion",
+     "fixtures/negatives/value-assertion-language-tagged-negative.jsonld", "FAIL"),
+    ("value-assertion", "ValueAssertion",
+     "fixtures/negatives/value-assertion-missing-asserts-value-negative.jsonld", "FAIL"),
+    ("value-assertion", "ValueAssertion",
+     "fixtures/negatives/value-assertion-missing-asserts-subject-negative.jsonld", "FAIL"),
+    ("value-assertion", "ValueAssertion",
+     "fixtures/negatives/value-assertion-missing-asserts-predicate-negative.jsonld", "FAIL"),
+    ("value-assertion", "ValueAssertion",
+     "fixtures/negatives/value-assertion-missing-assertion-polarity-negative.jsonld", "FAIL"),
+    ("value-assertion", "ValueAssertion",
+     "fixtures/negatives/value-assertion-missing-assertion-origin-negative.jsonld", "FAIL"),
+    ("value-assertion", "ValueAssertion",
+     "fixtures/negatives/value-assertion-ai-missing-lineage-negative.jsonld", "FAIL"),
+    # SourceClaimant — who the SOURCE says asserts it (Core §2.4). The
+    # named-without-text row is the semantic one: a record may not claim the
+    # document names a claimant while withholding the naming text.
+    ("source-claimant", "SourceClaimant",
+     "fixtures/sourceclaimant-named-positive.jsonld", "PASS"),
+    ("source-claimant", "SourceClaimant",
+     "fixtures/sourceclaimant-issuer-positive.jsonld", "PASS"),
+    ("source-claimant", "SourceClaimant",
+     "fixtures/edges/source-claimant-not-stated-edge.jsonld", "PASS"),
+    ("source-claimant", "SourceClaimant",
+     "fixtures/negatives/source-claimant-named-without-text-negative.jsonld", "FAIL"),
+    ("source-claimant", "SourceClaimant",
+     "fixtures/negatives/source-claimant-missing-claims-assertion-negative.jsonld", "FAIL"),
+    ("source-claimant", "SourceClaimant",
+     "fixtures/negatives/source-claimant-missing-claimant-attribution-negative.jsonld", "FAIL"),
+    # ExtractionActivity — which run produced the candidate (Core §2.4).
+    # The model-without-model-ref row proves a run cannot claim a model
+    # produced it while leaving that model unauditable; the malformed-digest
+    # row proves the request-contract digest is a digest, not a free string.
+    ("extraction-activity", "ExtractionActivity",
+     "fixtures/extractionactivity-model-positive.jsonld", "PASS"),
+    ("extraction-activity", "ExtractionActivity",
+     "fixtures/extractionactivity-deterministic-positive.jsonld", "PASS"),
+    ("extraction-activity", "ExtractionActivity",
+     "fixtures/edges/extraction-activity-retry-edge.jsonld", "PASS"),
+    ("extraction-activity", "ExtractionActivity",
+     "fixtures/negatives/extraction-activity-model-without-model-ref-negative.jsonld", "FAIL"),
+    ("extraction-activity", "ExtractionActivity",
+     "fixtures/negatives/extraction-activity-malformed-request-digest-negative.jsonld", "FAIL"),
+    ("extraction-activity", "ExtractionActivity",
+     "fixtures/negatives/extraction-activity-missing-extraction-run-negative.jsonld", "FAIL"),
+    ("extraction-activity", "ExtractionActivity",
+     "fixtures/negatives/extraction-activity-missing-extracted-by-negative.jsonld", "FAIL"),
+    ("extraction-activity", "ExtractionActivity",
+     "fixtures/negatives/extraction-activity-missing-extractor-version-negative.jsonld", "FAIL"),
+    ("extraction-activity", "ExtractionActivity",
+     "fixtures/negatives/extraction-activity-missing-request-contract-digest-negative.jsonld", "FAIL"),
+    ("extraction-activity", "ExtractionActivity",
+     "fixtures/negatives/extraction-activity-missing-extraction-method-negative.jsonld", "FAIL"),
     # Adversarial — evaluator-class regressions
     ("conditional-silent-pass", "ConsensusEvidencePermissionShape",
      "fixtures/adversarial/conditional-silent-pass-positive.jsonld", "PASS"),

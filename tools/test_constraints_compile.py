@@ -7,6 +7,8 @@ import unittest
 import unittest.mock
 from pathlib import Path
 
+from jsonschema import Draft202012Validator
+
 from tools import conformance_lib
 from tools.constraints_compile import (
     CompileError,
@@ -51,15 +53,46 @@ KERNEL_EXTENSION_POINT_PROPERTIES = ("rkaf:lifecycleEventKind",)
 # therefore allowed to restate an envelope field in order to NARROW it (see
 # RELATIONSHIP_ASSERTION_NARROWINGS below); what it may not do is arrive at a
 # weaker compiled artifact than the CUE source enforces.
+#
+# The list is grouped the way constraints/core/assertion.cue is: the first two
+# entries arrive from `#ConsumerDisposition`, the mutable consumer-scoped half
+# the envelope composes; the rest are the envelope's own. `#AssertionProposition`
+# — subject, predicate, polarity — is NOT here, and that absence is the point of
+# Core §2.3: proposition content is composed by the proposition-bearing forms,
+# never by the envelope.
 ASSERTION_ENVELOPE_FIELDS = (
-    "rkaf:assertionOrigin",
     "rkaf:usageEligibility",
+    "rkaf:consumerLifecycleState",
+    "rkaf:hasAccessScope",
+    "rkaf:assertionOrigin",
     "rkaf:hasApplicability",
     "rkaf:hasJustification",
     "rkaf:hasWarrant",
     "rkaf:hasAuthority",
     "prov:wasDerivedFrom",
+    "rkaf:hasSourceClaimant",
+    "rkaf:hasExtractionProvenance",
+    "rkaf:hasConfidence",
+    "rkaf:supersedesAssertion",
+    "rkaf:assertedAt",
+)
+
+# Immutable proposition content (constraints/core/assertion.cue,
+# `#AssertionProposition`). Shared by RelationshipAssertion and ValueAssertion;
+# the object slot is form-specific and therefore not listed.
+ASSERTION_PROPOSITION_FIELDS = (
+    "rkaf:assertsSubject",
+    "rkaf:assertsPredicate",
+    "rkaf:assertionPolarity",
+)
+
+# The mutable consumer-scoped disposition (`#ConsumerDisposition`). Core §2.3
+# requires these to be structurally separate from the proposition core: an
+# assertion's identity never includes them.
+CONSUMER_DISPOSITION_FIELDS = (
+    "rkaf:usageEligibility",
     "rkaf:consumerLifecycleState",
+    "rkaf:hasAccessScope",
 )
 
 AI_TOUCHED_ORIGINS = (
@@ -940,12 +973,16 @@ class ConstraintCompilerTests(unittest.TestCase):
 
         # The Rego target is closed-enum only by design (module docstring), so
         # it carries no inherited properties; assert it still projects the
-        # composed document's local enum rather than failing on it.
+        # composed document rather than failing on it. `#AssertionPolarity`
+        # now lives in assertion.cue with the rest of the proposition core —
+        # ValueAssertion closes over the same two values — so the value set is
+        # emitted by THAT module's Rego, and this one legitimately carries no
+        # enum of its own.
         rego = target_rego(relationship_doc)
         self.assertIn("package rkaf.relationship_assertion", rego)
         self.assertIn(
             'assertion_polarity_values := ["rkaf:affirmed", "rkaf:denied"]',
-            rego,
+            target_rego(assertion_doc),
         )
 
     def test_relationship_assertion_narrowings_reach_every_target(self) -> None:
@@ -2531,6 +2568,477 @@ class SchemaBindingCollisionTests(unittest.TestCase):
             "Binding it to the kernel would leave every lifecycle-event kind "
             "unchecked, because the kernel carrier is deliberately open on it.",
         )
+
+
+class TypedLiteralCarriageTests(unittest.TestCase):
+    """The ValueAssertion object slot must survive to EVERY target as a typed
+    literal — not as "some object" on one side and "some literal" on the other.
+
+    Shape parity alone would not catch the failure that matters here. JSON
+    Schema sees a nested object with an `@type` member; SHACL sees a single
+    expanded RDF literal with a datatype. Those are different views of the same
+    value, and they agree only if the CLOSED SET is the same on both sides. A
+    datatype added to the CUE enum but lost in one emitter would leave one gate
+    accepting a value the other rejects, with every fixture still green.
+    """
+
+    def setUp(self) -> None:
+        self.source = REPO_ROOT / "constraints" / "core" / "value-assertion.cue"
+        self.document = parse_cue_file(self.source)
+        self.registry = _scan_global_enum_registry(self.source)
+        self.datatypes = next(
+            enum.values
+            for enum in self.document.enums
+            if enum.name == "ValueDatatype"
+        )
+
+    def test_json_schema_carries_value_and_datatype(self) -> None:
+        composed = json.loads(
+            target_json_schema(self.document, registry=self.registry)
+        )
+        value = composed["$defs"]["ValueAssertion"]["properties"]["rkaf:assertsValue"]
+        self.assertEqual(value["type"], "object")
+        self.assertEqual(value["properties"]["@value"], {"type": "string"})
+        self.assertEqual(
+            value["properties"]["@type"], {"$ref": "#/$defs/ValueDatatype"}
+        )
+        self.assertEqual(sorted(value["required"]), ["@type", "@value"])
+        self.assertIs(
+            value["additionalProperties"],
+            False,
+            "the value object must be CLOSED. The CUE struct is closed, so "
+            "`cue vet` rejects an extra member; an open JSON Schema object "
+            "would accept documents CUE and SHACL reject.",
+        )
+        self.assertEqual(
+            composed["$defs"]["ValueDatatype"]["enum"],
+            self.datatypes,
+            "the JSON Schema datatype closure drifted from the CUE enum",
+        )
+        self.assertIn("rkaf:assertsValue", composed["$defs"]["ValueAssertion"]["required"])
+
+    def test_shacl_closes_the_same_datatype_set(self) -> None:
+        shacl = target_shacl(
+            self.document,
+            reference_classes=_scan_reference_class_registry(self.source),
+            source_file=self.source,
+            registry=self.registry,
+        )
+        self.assertIn("sh:path rkaf:assertsValue ;", shacl)
+        self.assertIn("sh:nodeKind sh:Literal ;", shacl)
+        emitted = set(re.findall(r"sh:datatype (\S+) \]", shacl))
+        self.assertEqual(
+            emitted,
+            set(self.datatypes),
+            "SHACL and JSON Schema must close the value object's datatype over "
+            "the SAME set; a difference means one gate accepts what the other "
+            "rejects",
+        )
+
+    def test_rust_and_typescript_carry_the_typed_literal(self) -> None:
+        rust = target_rust(
+            self.document, registry=self.registry, source_file=self.source
+        )
+        self.assertIn(
+            "pub asserts_value: crate::TypedLiteral<ValueDatatype>,",
+            rust,
+            "the Rust carrier must type the literal, not degrade it to String",
+        )
+        typescript = target_typescript(
+            self.document, registry=self.registry, source_file=self.source
+        )
+        self.assertIn(
+            '"rkaf:assertsValue": { "@value": string; "@type": ValueDatatype };',
+            typescript,
+        )
+        # Not just the type — a runtime check that the datatype is in the set.
+        self.assertIn("@type outside the closed datatype set", typescript)
+        for datatype in self.datatypes:
+            self.assertIn(f'"{datatype}"', typescript)
+
+    def test_value_object_rejects_members_outside_json_ld(self) -> None:
+        """The compiled value object is CLOSED, so JSON Schema rejects exactly
+        what `cue vet` rejects.
+
+        Two members matter, for different reasons:
+
+          * `@language` — the RDF-corrupting one. A language-tagged literal
+            expands with the declared datatype DROPPED, so SHACL's
+            `sh:datatype` alternatives reject it. An open object left JSON
+            Schema accepting a document SHACL rejected, which is the exact
+            disagreement §2.2's closed datatype set exists to prevent. The
+            corpus negative
+            `fixtures/negatives/value-assertion-language-tagged-negative.jsonld`
+            pins this end to end across both gates.
+          * an arbitrary member (`rkaf:bogus`) — a WIRE-FORM-only divergence.
+            JSON-LD expansion silently drops it, so the RDF is a well-formed
+            typed literal and SHACL passes. That is why it is asserted HERE and
+            not as a corpus negative: `tools/validate_negatives.py` requires
+            every negative fixture to produce a SHACL violation, which this
+            document by construction cannot. JSON Schema is the only gate that
+            can catch it, so JSON Schema is where it is pinned.
+        """
+        composed = json.loads(
+            target_json_schema(self.document, registry=self.registry)
+        )
+        target = composed["$defs"]["ValueAssertion"]
+        target["$defs"] = composed["$defs"]
+        base = {
+            "@id": "urn:rkaf:test:value-assertion",
+            "@type": "rkaf:ValueAssertion",
+            "rkaf:assertionOrigin": "rkaf:humanAsserted",
+            "rkaf:assertsSubject": "urn:rkaf:test:subject",
+            "rkaf:assertsPredicate": "urn:rkaf:test:predicate",
+            "rkaf:assertionPolarity": "rkaf:affirmed",
+        }
+        validator = Draft202012Validator(target)
+        self.assertEqual(
+            list(
+                validator.iter_errors(
+                    {**base, "rkaf:assertsValue": {"@value": "x", "@type": "xsd:string"}}
+                )
+            ),
+            [],
+            "a bare value object must still validate",
+        )
+        for extra in ({"@language": "en"}, {"rkaf:bogus": "y"}):
+            with self.subTest(extra=extra):
+                node = {
+                    **base,
+                    "rkaf:assertsValue": {
+                        "@value": "x",
+                        "@type": "xsd:string",
+                        **extra,
+                    },
+                }
+                self.assertTrue(
+                    list(validator.iter_errors(node)),
+                    f"the value object must reject the extra member {extra}",
+                )
+
+    def test_value_object_without_closed_datatype_enum_is_a_compile_error(
+        self,
+    ) -> None:
+        """A value object whose `@type` is not a closed enum must raise.
+
+        This is the guardrail that DOES exist. The fixture below declares
+        `@value`, so it IS a value object; what it lacks is a closed datatype
+        enum on `@type`. Without one, SHACL has no datatype set to close over
+        and every compiled target would accept any datatype IRI — a silently
+        weaker artifact, which is what `CompileError` exists to prevent.
+
+        Note this test does NOT cover the not-a-value-object case; that case
+        does not raise. See
+        `test_non_value_object_nested_struct_hoists_and_is_documented_lossy`.
+        """
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp) / "constraints" / "core"
+            root.mkdir(parents=True)
+            (root / "bad.cue").write_text(
+                "package rkaf\n\n"
+                "#Bad: {\n"
+                '\t"@type": "rkaf:Bad"\n'
+                '\t"rkaf:nested": {\n'
+                '\t\t"@value": string\n'
+                '\t\t"@type":  "xsd:date"\n'
+                "\t}\n"
+                "}\n"
+            )
+            with self.assertRaises(CompileError) as raised:
+                parse_cue_file(root / "bad.cue")
+            self.assertIn("closed datatype enum", str(raised.exception))
+
+    def test_non_value_object_nested_struct_hoists_and_is_documented_lossy(
+        self,
+    ) -> None:
+        """A nested struct WITHOUT `@value` does not raise — it hoists, lossily.
+
+        This pins a KNOWN DEGRADATION, not desired behavior. The projector
+        flattens the inner fields onto the outer shape and types the outer
+        property as a plain string. Because the hoist is field-wise, an inner
+        `"@type"` OVERWRITES the outer shape's class discriminator: `#Bad`
+        below compiles to a schema asserting `@type == "rkaf:Inner"`, so a
+        binding minted from it would validate the wrong class.
+
+        The behavior is preserved deliberately —
+        `constraints/adversarial/access-scope-leakage.cue` is authored against
+        it — but it was previously documented as a `CompileError` in three
+        places while doing the opposite. Asserting it explicitly means a future
+        tightening shows up as a deliberate change to this test rather than a
+        silent behavior swap.
+        """
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp) / "constraints" / "core"
+            root.mkdir(parents=True)
+            (root / "bad.cue").write_text(
+                "package rkaf\n\n"
+                "#Bad: {\n"
+                '\t"@type": "rkaf:Bad"\n'
+                '\t"rkaf:nested": {\n'
+                '\t\t"rkaf:inner": string\n'
+                '\t\t"@type":      "rkaf:Inner"\n'
+                "\t}\n"
+                "}\n"
+            )
+            # No CompileError: the not-a-value-object case falls through.
+            document = parse_cue_file(root / "bad.cue")
+            composed = json.loads(target_json_schema(document))
+            shape = composed["$defs"]["Bad"]
+            self.assertEqual(
+                shape["properties"]["@type"],
+                {"const": "rkaf:Inner"},
+                "KNOWN DEGRADATION: the nested `@type` overwrote the outer "
+                "class discriminator, which should have stayed `rkaf:Bad`. If "
+                "this assertion starts failing, the hoist was tightened — "
+                "update the comments in tools/constraints_compile.py and the "
+                "CHANGELOG entry that describe it.",
+            )
+            # The inner field was hoisted onto the OUTER shape, and the nested
+            # property degraded to an unconstrained string.
+            self.assertEqual(shape["properties"]["rkaf:inner"], {"type": "string"})
+            self.assertEqual(shape["properties"]["rkaf:nested"], {"type": "string"})
+
+
+class PropositionSeparationTests(unittest.TestCase):
+    """Core §2.3 — immutable proposition content stays structurally separate
+    from acceptance, disposition, confidence, and attestation.
+
+    The vision's rule is that an assertion's identity never includes mutable
+    state. That is only checkable if the two halves are NAMED, which is why
+    `#AssertionProposition` and `#ConsumerDisposition` exist as separate CUE
+    definitions rather than as comments over one flat struct. These tests pin
+    the boundary so a later edit cannot quietly move a field across it.
+    """
+
+    def setUp(self) -> None:
+        self.source = REPO_ROOT / "constraints" / "core" / "assertion.cue"
+        self.document = parse_cue_file(self.source)
+        self.shapes = {shape.name: shape for shape in self.document.shapes}
+
+    def _fields(self, name: str) -> set[str]:
+        return {prop.name for prop in self.shapes[name].properties}
+
+    def test_proposition_and_disposition_are_disjoint(self) -> None:
+        proposition = self._fields("AssertionProposition")
+        disposition = self._fields("ConsumerDisposition")
+        self.assertEqual(proposition, set(ASSERTION_PROPOSITION_FIELDS))
+        self.assertEqual(disposition, set(CONSUMER_DISPOSITION_FIELDS))
+        self.assertEqual(
+            proposition & disposition,
+            set(),
+            "a field may not be both proposition content and consumer state",
+        )
+
+    def test_envelope_carries_no_proposition_content(self) -> None:
+        envelope = self._fields("AssertionEnvelope")
+        self.assertEqual(
+            envelope & set(ASSERTION_PROPOSITION_FIELDS),
+            set(),
+            "the envelope is context for a proposition, never the proposition",
+        )
+        self.assertLessEqual(
+            set(CONSUMER_DISPOSITION_FIELDS),
+            envelope,
+            "the envelope composes the consumer-disposition half",
+        )
+
+    def test_both_proposition_forms_compose_both_halves(self) -> None:
+        for name in ("relationship-assertion", "value-assertion"):
+            with self.subTest(form=name):
+                document = parse_cue_file(
+                    REPO_ROOT / "constraints" / "core" / f"{name}.cue"
+                )
+                shape = next(iter(document.shapes))
+                fields = {prop.name for prop in shape.properties}
+                self.assertLessEqual(set(ASSERTION_PROPOSITION_FIELDS), fields)
+                self.assertLessEqual(set(ASSERTION_ENVELOPE_FIELDS), fields)
+
+    def test_neither_form_stores_an_acceptance_decision(self) -> None:
+        """Approval, rejection, dispute, and revocation live on Attestation.
+
+        A proposition-bearing assertion that carried any of them would make its
+        own content depend on a social judgment — exactly the conflation Core
+        §2.1 and §2.3 forbid.
+        """
+        attestation = parse_cue_file(
+            REPO_ROOT / "constraints" / "core" / "attestation.cue"
+        )
+        decision_terms = {
+            prop.name
+            for shape in attestation.shapes
+            for prop in shape.properties
+        } - {"@type", "rkaf:hasEffectivePeriod", "rkaf:lastVerifiedAt",
+             "rkaf:verifiedBy", "rkaf:hasAccessScope"}
+        for name in ("relationship-assertion", "value-assertion", "assertion"):
+            with self.subTest(form=name):
+                document = parse_cue_file(
+                    REPO_ROOT / "constraints" / "core" / f"{name}.cue"
+                )
+                fields = {
+                    prop.name
+                    for shape in document.shapes
+                    for prop in shape.properties
+                }
+                self.assertEqual(
+                    fields & decision_terms,
+                    set(),
+                    "an assertion must not carry an Attestation's decision "
+                    "fields; acceptance is a separate, scoped, temporal record",
+                )
+
+
+class ProvenanceRoleSeparationTests(unittest.TestCase):
+    """Core §2.4 — four provenance roles, four records, no conflation.
+
+    source claimant / extraction provenance / model derivation lineage / human
+    approval each answer a different question. The failure this guards against
+    is one record answering two of them, which is how an extractor starts
+    looking like an authority and how an unreviewed candidate starts looking
+    approved.
+    """
+
+    def _document(self, stem: str):
+        return parse_cue_file(REPO_ROOT / "constraints" / "core" / f"{stem}.cue")
+
+    def _required(self, stem: str, shape_name: str) -> set[str]:
+        document = self._document(stem)
+        shape = next(s for s in document.shapes if s.name == shape_name)
+        return {prop.name for prop in shape.properties if not prop.optional}
+
+    def test_extraction_activity_requires_no_approver(self) -> None:
+        """An unreviewed model candidate must be representable.
+
+        rkaf:AILineage requires rkaf:humanApprover; that is the REVIEWED
+        derivation record. ExtractionActivity is the run record, and requiring
+        an approver here would make "a model produced this and nobody has
+        looked at it yet" unsayable — which the vision names as a thing the
+        system must be able to say.
+        """
+        document = self._document("extraction-activity")
+        shape = next(s for s in document.shapes if s.name == "ExtractionActivity")
+        fields = {prop.name for prop in shape.properties}
+        conditional_fields = {
+            prop.name
+            for branch in shape.conditionals
+            for prop in branch.then_require
+        }
+        for approval_term in (
+            "rkaf:humanApprover",
+            "rkaf:humanRationale",
+            "rkaf:decision",
+            "rkaf:attestor",
+            "rkaf:attestedAt",
+        ):
+            self.assertNotIn(approval_term, fields | conditional_fields)
+
+    def test_extraction_activity_names_no_provider_type(self) -> None:
+        """Provider neutrality is a property of the SOURCE, not of prose.
+
+        Every reference is a Rulespec-owned IRI, a version string, or an opaque
+        digest. A vendor name reaching the kernel would make the contract's
+        identity depend on someone else's response shape.
+        """
+        # Declarations only. The prose deliberately NAMES what it excludes
+        # ("no provider request object, response object, SDK type…"); scanning
+        # comments would flag the exclusion itself.
+        source = (
+            REPO_ROOT / "constraints" / "core" / "extraction-activity.cue"
+        ).read_text()
+        text = "\n".join(
+            line.split("//")[0] for line in source.splitlines()
+        ).lower()
+        for vendor_token in (
+            "openai", "anthropic", "azure", "bedrock", "vertex", "cohere",
+            "huggingface", "ollama", "sdk", "chatcompletion", "sentence_transformers",
+        ):
+            self.assertNotIn(vendor_token, text)
+
+    def test_claimant_attribution_has_no_uncertainty_value(self) -> None:
+        """`#ClaimantAttribution` describes the DOCUMENT, never the extractor.
+
+        Every member states something about how the source attributed the
+        claim, including `rkaf:claimantNotStated` ("the source made no
+        attribution"). A carrier whose own attribution taxonomy carries an
+        `unclear` case therefore has no landing spot here, and §2.4 resolves
+        that normatively: OMIT the record; put extractor uncertainty in a
+        `rkaf:ConfidenceRecord` or an `rkaf:ExtractionActivity`.
+
+        Pinned so that adding an uncertainty value becomes a deliberate edit to
+        both the enum and the spec sentence, not a quiet widening that lets an
+        extractor's doubt masquerade as a statement about the document.
+        """
+        values = next(
+            enum.values
+            for enum in self._document("source-claimant").enums
+            if enum.name == "ClaimantAttribution"
+        )
+        self.assertEqual(
+            values,
+            [
+                "rkaf:claimantNamedInSource",
+                "rkaf:claimantImpliedBySource",
+                "rkaf:claimantIsDocumentIssuer",
+                "rkaf:claimantNotStated",
+            ],
+        )
+        for token in ("unclear", "unknown", "ambiguous", "uncertain", "undetermined"):
+            for value in values:
+                self.assertNotIn(
+                    token,
+                    value.lower(),
+                    f"`{value}` reads as extractor uncertainty. §2.4 requires "
+                    "the record to be OMITTED in that case; if this set is "
+                    "widened, the spec sentence must change with it.",
+                )
+
+    def test_claimant_and_extractor_share_no_terms(self) -> None:
+        claimant = {
+            prop.name
+            for shape in self._document("source-claimant").shapes
+            for prop in shape.properties
+        } - {"@type"}
+        extractor = {
+            prop.name
+            for shape in self._document("extraction-activity").shapes
+            for prop in shape.properties
+        } - {"@type"}
+        self.assertEqual(
+            claimant & extractor,
+            set(),
+            "who the source says asserts it and which run extracted it are "
+            "different questions; sharing a term would let one answer stand in "
+            "for the other",
+        )
+
+    def test_envelope_links_each_role_by_its_own_edge(self) -> None:
+        envelope = {
+            prop.name
+            for shape in self._document("assertion").shapes
+            if shape.name == "AssertionEnvelope"
+            for prop in shape.properties
+        }
+        for edge in (
+            "rkaf:hasSourceClaimant",       # source claimant
+            "rkaf:hasExtractionProvenance", # extraction run
+            "prov:wasDerivedFrom",          # derivation chain
+        ):
+            self.assertIn(edge, envelope)
+        # Model-derivation lineage arrives through the AI-touched conditionals,
+        # not as an unconditional field: lineage is REQUIRED for AI-touched
+        # origins and forbidden otherwise (§5.3, §3.5).
+        conditional_fields = {
+            prop.name
+            for shape in self._document("assertion").shapes
+            if shape.name == "AssertionEnvelope"
+            for branch in shape.conditionals
+            for prop in branch.then_require
+        }
+        self.assertIn("rkaf:hasAILineage", conditional_fields)
+        # Human approval is NOT an envelope edge. It is an Attestation whose
+        # target is the assertion, so the assertion does not change when a
+        # reviewer decides.
+        self.assertNotIn("rkaf:hasApproval", envelope)
+        self.assertNotIn("rkaf:decision", envelope)
 
 
 if __name__ == "__main__":

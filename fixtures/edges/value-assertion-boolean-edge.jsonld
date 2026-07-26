@@ -1,0 +1,13 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@id": "urn:rkaf:fixture:value-assertion:boolean-edge",
+  "@type": "rkaf:ValueAssertion",
+  "rkaf:assertionOrigin": "rkaf:humanAsserted",
+  "rkaf:assertsSubject": "urn:rkaf:fixture:policy:emergency-amendment",
+  "rkaf:assertsPredicate": "urn:rkaf:fixture:predicate:isCurrentAtEvaluation",
+  "rkaf:assertsValue": {
+    "@value": "false",
+    "@type": "xsd:boolean"
+  },
+  "rkaf:assertionPolarity": "rkaf:affirmed"
+}

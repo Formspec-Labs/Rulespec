@@ -1,0 +1,17 @@
+{
+  "@context": "../context/rkaf-context.jsonld",
+  "@id": "urn:rkaf:fixture:extraction-activity:model-run",
+  "@type": "rkaf:ExtractionActivity",
+  "rkaf:extractionMethod": "rkaf:modelExtraction",
+  "rkaf:extractionRun": "urn:rkaf:fixture:run:relation-v3-0042",
+  "rkaf:extractedBy": "urn:rkaf:fixture:extractor:relation-candidate-stage",
+  "rkaf:extractorVersion": "3.1.0",
+  "rkaf:requestContractDigest": "sha256:9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08",
+  "rkaf:extractionModelRef": "urn:rkaf:fixture:model:text-extractor",
+  "rkaf:extractionPromptRef": "urn:rkaf:prompt-template:extract-warrant-chain/v3",
+  "rkaf:hasAILineage": "urn:rkaf:fixture:ail-pos:l1",
+  "rkaf:inputDigest": ["sha256:2c624232cdd221771294dfbb310aca000a0df6ac8b66b696d90ef06fdefb64a3"],
+  "prov:startedAtTime": "2026-03-04T09:00:00Z",
+  "prov:endedAtTime": "2026-03-04T09:00:12Z",
+  "rkaf:extractionAttempt": 1
+}

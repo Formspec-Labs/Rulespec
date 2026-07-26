@@ -539,8 +539,70 @@
     "rkaf:assertsObject": {
       "@type": "@id"
     },
+    "rkaf:assertsValue": {
+      "@id": "https://rulespec.org/ns/v1#assertsValue"
+    },
     "rkaf:assertionPolarity": {
       "@type": "@vocab"
+    },
+    "rkaf:assertedAt": {
+      "@type": "xsd:dateTime"
+    },
+    "rkaf:hasSourceClaimant": {
+      "@type": "@id"
+    },
+    "rkaf:hasExtractionProvenance": {
+      "@type": "@id"
+    },
+    "rkaf:claimsAssertion": {
+      "@type": "@id"
+    },
+    "rkaf:claimantAttribution": {
+      "@type": "@vocab"
+    },
+    "rkaf:claimantText": {
+      "@type": "xsd:string"
+    },
+    "rkaf:claimantIdentity": {
+      "@type": "@id"
+    },
+    "rkaf:attributedInFragment": {
+      "@type": "@id",
+      "@container": "@set"
+    },
+    "rkaf:extractionMethod": {
+      "@type": "@vocab"
+    },
+    "rkaf:extractionRun": {
+      "@type": "@id"
+    },
+    "rkaf:extractedBy": {
+      "@type": "@id"
+    },
+    "rkaf:extractorVersion": {
+      "@type": "xsd:string"
+    },
+    "rkaf:requestContractDigest": {
+      "@type": "xsd:string"
+    },
+    "rkaf:extractionModelRef": {
+      "@type": "@id"
+    },
+    "rkaf:extractionPromptRef": {
+      "@type": "@id"
+    },
+    "rkaf:inputDigest": {
+      "@type": "xsd:string",
+      "@container": "@set"
+    },
+    "rkaf:extractionAttempt": {
+      "@type": "xsd:integer"
+    },
+    "prov:startedAtTime": {
+      "@type": "xsd:dateTime"
+    },
+    "prov:endedAtTime": {
+      "@type": "xsd:dateTime"
     },
     "rkaf:hasTrustZone": {
       "@type": "@id"

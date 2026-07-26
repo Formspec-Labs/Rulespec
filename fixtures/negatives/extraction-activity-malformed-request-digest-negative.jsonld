@@ -1,0 +1,10 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@id": "urn:rkaf:fixture:extraction-activity:malformed-digest",
+  "@type": "rkaf:ExtractionActivity",
+  "rkaf:extractionMethod": "rkaf:ruleBasedExtraction",
+  "rkaf:extractionRun": "urn:rkaf:fixture:run:rule-pass-0011",
+  "rkaf:extractedBy": "urn:rkaf:fixture:extractor:rule-engine",
+  "rkaf:extractorVersion": "2.0.0",
+  "rkaf:requestContractDigest": "md5:9f86d081884c7d659a2feaa0c55ad015"
+}

@@ -1,0 +1,7 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@id": "urn:rkaf:fixture:source-claimant:document-issuer",
+  "@type": "rkaf:SourceClaimant",
+  "rkaf:claimsAssertion": "urn:rkaf:fixture:value-assertion:effective-date",
+  "rkaf:claimantIdentity": "urn:rkaf:fixture:organization:faa"
+}

@@ -1,0 +1,17 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@id": "urn:rkaf:fixture:value-assertion:ai-suggested-label",
+  "@type": "rkaf:ValueAssertion",
+  "rkaf:assertionOrigin": "rkaf:aiSuggested",
+  "rkaf:assertsSubject": "urn:rkaf:fixture:policy:emergency-amendment",
+  "rkaf:assertsValue": {
+    "@value": "final-rule",
+    "@type": "xsd:token"
+  },
+  "rkaf:assertionPolarity": "rkaf:affirmed",
+  "rkaf:hasAILineage": "urn:rkaf:fixture:ail-pos:l1",
+  "rkaf:hasExtractionProvenance": "urn:rkaf:fixture:extraction-activity:model-run",
+  "rkaf:supersedesAssertion": [
+    "urn:rkaf:fixture:value-assertion:effective-date"
+  ]
+}

@@ -60,6 +60,35 @@ impl<T> OneOrMany<T> {
     }
 }
 
+/// A JSON-LD value object — the wire form of a typed literal.
+///
+/// `rkaf:ValueAssertion` states a proposition whose object is a literal rather
+/// than an IRI (Core §2.2). On the wire that literal is a JSON-LD value object:
+/// `{"@value": "2026-03-01", "@type": "xsd:date"}`. `T` is the compiled closed
+/// datatype enum for the property, so a datatype outside the CUE-declared set
+/// fails to deserialize here exactly as it fails the compiled JSON Schema
+/// `enum` and the compiled SHACL `sh:datatype` alternatives.
+///
+/// The lexical form stays a `String`: RDF literals are lexical-form-plus-
+/// datatype, and parsing `"42"^^xsd:integer` into an `i64` here would lose the
+/// round-trip fidelity every other generated carrier preserves.
+///
+/// `deny_unknown_fields` closes the object, matching the closed CUE struct and
+/// the `additionalProperties: false` the compiler emits for the same slot.
+/// Without it this carrier would ACCEPT `{"@value","@type","@language"}` and
+/// silently drop the `@language` on re-serialize — a round-trip divergence on
+/// the one member that also destroys the RDF datatype.
+#[derive(Debug, Clone, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct TypedLiteral<T> {
+    /// Lexical form of the literal (JSON-LD `@value`).
+    #[serde(rename = "@value")]
+    pub value: String,
+    /// Datatype IRI of the literal (JSON-LD `@type`).
+    #[serde(rename = "@type")]
+    pub datatype: T,
+}
+
 #[rustfmt::skip]
 pub mod generated {
     pub mod access_scope                 { include!("generated/access_scope.rs"); }
@@ -80,6 +109,7 @@ pub mod generated {
     pub mod effective_period                   { include!("generated/effective_period.rs"); }
     pub mod evaluation_anchor                  { include!("generated/evaluation_anchor.rs"); }
     pub mod evidence_binding                   { include!("generated/evidence_binding.rs"); }
+    pub mod extraction_activity                { include!("generated/extraction_activity.rs"); }
     pub mod finding                            { include!("generated/finding.rs"); }
     pub mod generated_work_product             { include!("generated/generated_work_product.rs"); }
     pub mod justification                      { include!("generated/justification.rs"); }
@@ -91,9 +121,11 @@ pub mod generated {
     pub mod retention_policy                   { include!("generated/retention_policy.rs"); }
     pub mod revalidation_event                 { include!("generated/revalidation_event.rs"); }
     pub mod relationship_assertion             { include!("generated/relationship_assertion.rs"); }
+    pub mod source_claimant                    { include!("generated/source_claimant.rs"); }
     pub mod source_fragment                    { include!("generated/source_fragment.rs"); }
     pub mod trust_and_safety                   { include!("generated/trust_and_safety.rs"); }
     pub mod usage_eligibility                  { include!("generated/usage_eligibility.rs"); }
+    pub mod value_assertion                    { include!("generated/value_assertion.rs"); }
     pub mod warrant                            { include!("generated/warrant.rs"); }
     pub mod workspace                          { include!("generated/workspace.rs"); }
 
@@ -127,6 +159,7 @@ pub use generated::confidence_record::ConfidenceRecord;
 pub use generated::consumer_effective_declaration::ConsumerEffectiveDeclaration;
 pub use generated::effective_period::EffectivePeriod;
 pub use generated::evidence_binding::EvidenceBinding;
+pub use generated::extraction_activity::ExtractionActivity;
 pub use generated::finding::Finding;
 pub use generated::generated_work_product::GeneratedWorkProduct;
 pub use generated::justification::Justification;
@@ -153,6 +186,8 @@ pub use generated::profiles::us_rulemaking::us_lifecycle_event::{
     ComposedLifecycleEventKind, USLifecycleEvent, USProceedingLifecycleEventKind,
 };
 pub use generated::profiles::us_rulemaking::us_regulatory_artifact::USRegulatoryArtifact;
+pub use generated::source_claimant::SourceClaimant;
 pub use generated::source_fragment::SourceFragment;
+pub use generated::value_assertion::ValueAssertion;
 pub use generated::warrant::Warrant;
 pub use generated::workspace::Workspace;

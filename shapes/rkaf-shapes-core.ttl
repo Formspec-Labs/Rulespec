@@ -36,6 +36,12 @@ rkaf:Authority rdfs:subClassOf rkaf:Warrant .
 # in the CUE source, which Layer 2 does not define.
 rkaf:RelationshipAssertion rdfs:subClassOf rkaf:Assertion .
 
+# ValueAssertion is the second proposition-bearing specialization (Core §2.2).
+# It differs from RelationshipAssertion in the object slot alone — a typed
+# literal instead of an IRI — and composes the same envelope, so it inherits
+# the same parent for the same reason and by the same hand-authored route.
+rkaf:ValueAssertion rdfs:subClassOf rkaf:Assertion .
+
 # Assertion-level Pattern-C requirement: an Assertion whose assertionOrigin is
 # in the AI-touched set MUST carry rkaf:hasAILineage (§5.3).
 rkaf:AssertionAILineageShape a sh:NodeShape ;

@@ -1,0 +1,15 @@
+{
+  "@context": "../context/rkaf-context.jsonld",
+  "@id": "urn:rkaf:fixture:value-assertion:comment-count-denied",
+  "@type": "rkaf:ValueAssertion",
+  "rkaf:assertionOrigin": "rkaf:imported",
+  "rkaf:assertsSubject": "urn:rkaf:fixture:policy:emergency-amendment",
+  "rkaf:assertsPredicate": "urn:rkaf:fixture:predicate:commentCount",
+  "rkaf:assertsValue": {
+    "@value": "412",
+    "@type": "xsd:integer"
+  },
+  "rkaf:assertionPolarity": "rkaf:denied",
+  "rkaf:hasSourceClaimant": "urn:rkaf:fixture:source-claimant:agency-statement",
+  "rkaf:hasConfidence": ["urn:rkaf:fixture:confidence:uncalibrated-baseline"]
+}

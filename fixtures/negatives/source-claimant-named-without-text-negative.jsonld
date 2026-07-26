@@ -1,0 +1,8 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@id": "urn:rkaf:fixture:source-claimant:named-without-text",
+  "@type": "rkaf:SourceClaimant",
+  "rkaf:claimsAssertion": "urn:rkaf:fixture:relationship-assertion:expected-baseline",
+  "rkaf:claimantAttribution": "rkaf:claimantNamedInSource",
+  "rkaf:claimantIdentity": "urn:rkaf:fixture:organization:faa"
+}

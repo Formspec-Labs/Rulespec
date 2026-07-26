@@ -1,0 +1,9 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@id": "urn:rkaf:fixture:extraction-activity:deterministic-run",
+  "@type": "rkaf:ExtractionActivity",
+  "rkaf:extractionMethod": "rkaf:deterministicParse",
+  "rkaf:extractionRun": "urn:rkaf:fixture:run:citation-parse-0007",
+  "rkaf:extractedBy": "urn:rkaf:fixture:extractor:citation-parser",
+  "rkaf:extractorVersion": "1.4.2"
+}

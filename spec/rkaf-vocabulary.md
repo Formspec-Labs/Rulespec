@@ -40,10 +40,32 @@
 | rkaf:hasAccessScope | https://rulespec.org/ns/v1#hasAccessScope | Property | rkaf:Assertion / rkaf:Attestation / rkaf:EvidenceBinding / rkaf:SourceFragment | rkaf:AccessScope | 0..1 | accessscope-public-positive |
 | rkaf:accessScopeKind | https://rulespec.org/ns/v1#accessScopeKind | Property (closed enum) | rkaf:AccessScope | rkaf:AccessScopeKind | 1 | accessscope-public-positive |
 | rkaf:RelationshipAssertion | https://rulespec.org/ns/v1#RelationshipAssertion | Class (specialization of rkaf:Assertion) | — | — | — | relationshipassertion-denied-positive, relationshipassertion-affirmed-positive |
-| rkaf:assertsSubject | https://rulespec.org/ns/v1#assertsSubject | Property | rkaf:RelationshipAssertion | IRI | 1 | relationshipassertion-denied-positive |
-| rkaf:assertsPredicate | https://rulespec.org/ns/v1#assertsPredicate | Property | rkaf:RelationshipAssertion | IRI | 1 | relationshipassertion-denied-positive |
+| rkaf:assertsSubject | https://rulespec.org/ns/v1#assertsSubject | Property | rkaf:RelationshipAssertion / rkaf:ValueAssertion | IRI | 1 | relationshipassertion-denied-positive, valueassertion-date-positive |
+| rkaf:assertsPredicate | https://rulespec.org/ns/v1#assertsPredicate | Property | rkaf:RelationshipAssertion / rkaf:ValueAssertion | IRI | 1 | relationshipassertion-denied-positive, valueassertion-date-positive |
 | rkaf:assertsObject | https://rulespec.org/ns/v1#assertsObject | Property | rkaf:RelationshipAssertion | IRI | 1 | relationshipassertion-denied-positive |
-| rkaf:assertionPolarity | https://rulespec.org/ns/v1#assertionPolarity | Property (closed enum) | rkaf:RelationshipAssertion | rkaf:AssertionPolarity | 1 | relationshipassertion-denied-positive, relationshipassertion-affirmed-positive |
+| rkaf:assertionPolarity | https://rulespec.org/ns/v1#assertionPolarity | Property (closed enum) | rkaf:RelationshipAssertion / rkaf:ValueAssertion | rkaf:AssertionPolarity | 1 | relationshipassertion-denied-positive, relationshipassertion-affirmed-positive |
+| rkaf:ValueAssertion | https://rulespec.org/ns/v1#ValueAssertion | Class (specialization of rkaf:Assertion) | — | — | — | valueassertion-date-positive, valueassertion-denied-integer-positive, valueassertion-ai-suggested-positive |
+| rkaf:assertsValue | https://rulespec.org/ns/v1#assertsValue | Property (typed literal) | rkaf:ValueAssertion | JSON-LD value object over rkaf:ValueDatatype | 1 | valueassertion-date-positive |
+| rkaf:assertedAt | https://rulespec.org/ns/v1#assertedAt | Property | rkaf:Assertion / rkaf:Justification | xsd:dateTime | 0..1 | valueassertion-date-positive |
+| rkaf:supersedesAssertion | https://rulespec.org/ns/v1#supersedesAssertion | Property | rkaf:Assertion | rkaf:Assertion | 0..* | valueassertion-ai-suggested-positive |
+| rkaf:SourceClaimant | https://rulespec.org/ns/v1#SourceClaimant | Class | — | — | — | sourceclaimant-named-positive, sourceclaimant-issuer-positive |
+| rkaf:hasSourceClaimant | https://rulespec.org/ns/v1#hasSourceClaimant | Property | rkaf:Assertion | rkaf:SourceClaimant | 0..1 | valueassertion-denied-integer-positive |
+| rkaf:claimsAssertion | https://rulespec.org/ns/v1#claimsAssertion | Property | rkaf:SourceClaimant | rkaf:Assertion | 1 | sourceclaimant-named-positive |
+| rkaf:claimantAttribution | https://rulespec.org/ns/v1#claimantAttribution | Property (closed enum) | rkaf:SourceClaimant | rkaf:ClaimantAttribution | 1 | sourceclaimant-named-positive, sourceclaimant-issuer-positive |
+| rkaf:claimantText | https://rulespec.org/ns/v1#claimantText | Property | rkaf:SourceClaimant | xsd:string | 0..1 (1 when claimantNamedInSource) | sourceclaimant-named-positive |
+| rkaf:claimantIdentity | https://rulespec.org/ns/v1#claimantIdentity | Property | rkaf:SourceClaimant | IRI | 0..1 | sourceclaimant-named-positive |
+| rkaf:attributedInFragment | https://rulespec.org/ns/v1#attributedInFragment | Property | rkaf:SourceClaimant | rkaf:SourceFragment | 0..* | sourceclaimant-named-positive |
+| rkaf:ExtractionActivity | https://rulespec.org/ns/v1#ExtractionActivity | Class | — | — | — | extractionactivity-model-positive, extractionactivity-deterministic-positive |
+| rkaf:hasExtractionProvenance | https://rulespec.org/ns/v1#hasExtractionProvenance | Property | rkaf:Assertion | rkaf:ExtractionActivity | 0..1 | valueassertion-ai-suggested-positive |
+| rkaf:extractionMethod | https://rulespec.org/ns/v1#extractionMethod | Property (closed enum) | rkaf:ExtractionActivity | rkaf:ExtractionMethod | 1 | extractionactivity-model-positive |
+| rkaf:extractionRun | https://rulespec.org/ns/v1#extractionRun | Property | rkaf:ExtractionActivity | IRI | 1 | extractionactivity-model-positive |
+| rkaf:extractedBy | https://rulespec.org/ns/v1#extractedBy | Property | rkaf:ExtractionActivity | IRI | 1 | extractionactivity-model-positive |
+| rkaf:extractorVersion | https://rulespec.org/ns/v1#extractorVersion | Property | rkaf:ExtractionActivity | xsd:string | 1 | extractionactivity-model-positive |
+| rkaf:requestContractDigest | https://rulespec.org/ns/v1#requestContractDigest | Property | rkaf:ExtractionActivity | xsd:string (`sha256:<64 hex>`) | 1 | extractionactivity-model-positive |
+| rkaf:extractionModelRef | https://rulespec.org/ns/v1#extractionModelRef | Property | rkaf:ExtractionActivity | IRI | 0..1 (1 when modelExtraction) | extractionactivity-model-positive |
+| rkaf:extractionPromptRef | https://rulespec.org/ns/v1#extractionPromptRef | Property | rkaf:ExtractionActivity | IRI | 0..1 | extractionactivity-model-positive |
+| rkaf:inputDigest | https://rulespec.org/ns/v1#inputDigest | Property | rkaf:ExtractionActivity | xsd:string (`sha256:<64 hex>`) | 0..* | extractionactivity-model-positive |
+| rkaf:extractionAttempt | https://rulespec.org/ns/v1#extractionAttempt | Property | rkaf:ExtractionActivity | xsd:integer (>= 1) | 0..1 | extractionactivity-model-positive |
 
 ## Experimental US rulemaking-process module
 
@@ -128,6 +150,9 @@ Beyond the v0.2 normative tier in §5, the following terms are codified as CUE c
 |---|---|---|---|
 | `rkaf:Authority` | `authority.cue` | `authority-positive.jsonld` | Legal-family specialization of Warrant (Core §2). Carries `authorityKind` (hop-local), optional applicability + effective period, chain predecessors. |
 | `rkaf:RelationshipAssertion` | `relationship-assertion.cue` | `relationshipassertion-denied-positive.jsonld` | Proposition-bearing Assertion specialization with required subject, predicate, IRI object, explicit polarity, and no stored global state (Core §2.1). |
+| `rkaf:ValueAssertion` | `value-assertion.cue` | `valueassertion-date-positive.jsonld` | Proposition-bearing Assertion specialization whose object is a typed literal rather than an IRI (Core §2.2). Closed `rkaf:ValueDatatype` set. |
+| `rkaf:SourceClaimant` | `source-claimant.cue` | `sourceclaimant-named-positive.jsonld` | Who the SOURCE says asserts a proposition (Core §2.4). Distinct from the extraction system, the model, and the approver. |
+| `rkaf:ExtractionActivity` | `extraction-activity.cue` | `extractionactivity-model-positive.jsonld` | Which run produced an assertion candidate (Core §2.4). Provider-neutral, opaque digests, and no approver — an unreviewed candidate is representable. |
 | `rkaf:Attestation` | `attestation.cue` | `attestation-positive.jsonld` | Scoped multi-target attestation by a named attestor (Core §3.1). Closed decision + attestor-kind enums. |
 | `rkaf:LocalAdoption` | `local-adoption.cue` | `localadoption-positive.jsonld` | Workspace-scoped authorization of an Assertion (Core §3.2). Restricted `adoptionAuthorityKind` per §2.5 invariant. |
 | `rkaf:ApplicabilityScope` | `applicability-scope.cue` | `applicabilityscope-positive.jsonld` | Where/to-whom/when a Warrant applies. ELI / ISO 3166 / agency-code IRIs. |
@@ -159,12 +184,15 @@ Beyond the v0.2 normative tier in §5, the following terms are codified as CUE c
 **Closed enums and lattices** (referenced by the classes above):
 
 - `rkaf:usageEligibility` — 7-level lattice from `notEligible` (lowest) to `officialUse` (highest). Consumers MAY narrow; only LocalAdoption MAY broaden within its declared scope.
-- `rkaf:assertionPolarity` — `rkaf:affirmed` or `rkaf:denied`; applies to the canonical affirmative predicate carried by a `RelationshipAssertion`.
+- `rkaf:assertionPolarity` — `rkaf:affirmed` or `rkaf:denied`; applies to the canonical affirmative predicate carried by a `RelationshipAssertion` or `ValueAssertion`.
 - `rkaf:hasTrustZone` — `rkaf:Z0` through `rkaf:Z8`. Structural property (kind of object).
 - `rkaf:hasSafetyLabel` — `D0` / `S1` / `R2` / `A3` / `P4` plus advisory + authority-critical refinements. Operational property (what the consumer may do).
 - `rkaf:authorityKind` — 8-value closed enum, hop-local. Federation refuses unsupported kinds.
 - `rkaf:lifecycleEventKind` — closed enum ASSEMBLED from per-module parts. The kernel (`lifecycle-event.cue`) owns ten universal values: revalidation, revalidation closure, amendment, supersession, rescission, material and editorial revision, concept lifecycle, promotion, demotion. The Experimental US rulemaking module (`profiles/us-rulemaking/us-lifecycle-event.cue`) contributes twelve more — seven proceeding-stage transitions and five judicial/congressional proceeding events — giving a 22-value closed set on the composed artifact. The compiler assembles the union at build time; `LifecycleKindOwnershipTests` in `tools/test_constraints_compile.py` proves every value has exactly one declaring module and that the assembled set equals kernel + sum(profiles).
 - `rkaf:mappingPredicate` — SKOS-aligned (`skos:exactMatch` / `closeMatch` / `broadMatch` / `narrowMatch` / `relatedMatch`).
+- `rkaf:ValueDatatype` — 11-member closed set of XSD datatypes a `ValueAssertion` object may carry: `xsd:string`, `xsd:token`, `xsd:boolean`, `xsd:integer`, `xsd:decimal`, `xsd:double`, `xsd:date`, `xsd:dateTime`, `xsd:time`, `xsd:duration`, `xsd:anyURI`. Deliberately narrow — an open datatype IRI would make "typed" mean nothing (Core §2.2).
+- `rkaf:claimantAttribution` — 4-value closed set describing how the SOURCE attributes a claim: `rkaf:claimantNamedInSource`, `rkaf:claimantImpliedBySource`, `rkaf:claimantIsDocumentIssuer`, `rkaf:claimantNotStated`. Every value states something about the document, so there is no value for extractor uncertainty; Core §2.4 requires the record to be omitted in that case.
+- `rkaf:extractionMethod` — 5-value closed set naming how a run produced a candidate: `rkaf:deterministicParse`, `rkaf:ruleBasedExtraction`, `rkaf:modelExtraction`, `rkaf:humanExtraction`, `rkaf:importedRecord`. `rkaf:modelExtraction` requires a model reference (Core §2.4).
 
 **Predicates** (declared in `context/rkaf-context.jsonld` for graph traversal):
 

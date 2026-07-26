@@ -17,6 +17,8 @@ constraints/ai-extraction/):
   - `#Whole: #PartA | #PartB`                → closed enum assembled from parts
                                                that may live in other files
   - `#Name: { "field": #TypeRef, ... }`     → shape with typed properties
+  - `"field": { "@value": string, "@type": #D }` → JSON-LD value object
+                                               (typed literal; see below)
   - `#Name: { #Base, ... }`                  → shape composed from `#Base`
   - `#Name: #Base & { ... }`                 → shape composed from `#Base`
   - `#Name: (#Base & {...}) | (#Base & {...})` → composed disjunction
@@ -90,6 +92,11 @@ class PropDef:
     max_inclusive: Optional[float] = None
     inline_enum_values: Optional[list[str]] = None
     enum_union_refs: Optional[list[str]] = None
+    # Members of an inline nested object (`type_ref == "value_object"`). The
+    # only nested object the projector carries is a JSON-LD value object — a
+    # struct declaring `@value` — because that is the wire form of a typed
+    # literal. See `_validate_value_object`.
+    object_properties: Optional[list["PropDef"]] = None
 
 
 @dataclass
@@ -154,6 +161,14 @@ COMPOSED_DISJUNCTION_NEXT_RE = re.compile(
     r"^\}\)\s*\|\s*\(\s*#(\w+)\s*&\s*(?:\w+=)?\{$"
 )
 EMBEDDED_BASE_RE = re.compile(r"^#(\w+)$")
+
+# `"rkaf:assertsValue": {` — a property whose value is an inline nested struct.
+NESTED_OBJECT_OPEN_RE = re.compile(r'^"([^"]+)"(\?)?:\s*\{$')
+
+# JSON-LD reserves exactly these members for a value object (JSON-LD 1.1
+# §4.2.1). `@value` is what MAKES a struct a value object, so the projector
+# recognizes the nested struct by that member rather than by a marker name.
+VALUE_OBJECT_MEMBERS = {"@value", "@type", "@language"}
 
 
 def parse_cue_file(path: Path, *, resolve_composition: bool = True) -> ConstraintDoc:
@@ -454,6 +469,62 @@ def parse_shape_body(lines: list[tuple[int, str]], start: int) -> tuple[ShapeDef
                 shape.disjunctions.append(branches)
             i = j
             continue
+        # Inline nested object: `"name"?: {` … `}`. The projector carries one
+        # nested-object kind FAITHFULLY — the JSON-LD value object, i.e. the
+        # wire form of a typed literal — because that is the only nested struct
+        # whose meaning every target can express (object schema, `sh:datatype`
+        # closure, typed Rust/TypeScript carrier).
+        #
+        # A value object whose `@type` is not a closed enum is a `CompileError`
+        # (see `_validate_value_object`): without a closed set SHACL would have
+        # nothing to close over.
+        #
+        # Any OTHER nested struct is NOT rejected. It keeps the pre-existing
+        # lossy hoist described at the fall-through below, which is a known
+        # degradation, not a guardrail — see
+        # `test_non_value_object_nested_struct_hoists_and_is_documented_lossy`.
+        nested = NESTED_OBJECT_OPEN_RE.match(line)
+        if nested:
+            inner: list[PropDef] = []
+            j = i + 1
+            while j < len(lines):
+                _, l2_raw = lines[j]
+                l2 = l2_raw.strip()
+                if l2 == "}":
+                    break
+                inner_prop = parse_property_line(l2)
+                if inner_prop:
+                    inner.append(inner_prop)
+                j += 1
+            if any(member.name == "@value" for member in inner):
+                prop = PropDef(
+                    name=nested.group(1),
+                    type_ref="value_object",
+                    optional=nested.group(2) == "?",
+                    object_properties=inner,
+                )
+                _validate_value_object(prop)
+                shape.properties.append(prop)
+                i = j + 1
+                continue
+            # Not a value object. Fall through to the pre-existing handling,
+            # which hoists the inner fields onto the outer shape and types the
+            # outer property as a plain string. That projection is lossy, but
+            # it is the behavior the adversarial corpus was authored against
+            # (constraints/adversarial/access-scope-leakage.cue), so tightening
+            # it belongs to whichever change re-authors those sources — not to
+            # the one adding typed literals.
+            #
+            # KNOWN HAZARD, not a guardrail. The hoist is field-wise, so an
+            # inner `"@type"` OVERWRITES the outer shape's class discriminator:
+            # a `#Bad` carrying a nested `{"@type": "rkaf:Inner"}` compiles to a
+            # schema whose `@type` is `const: "rkaf:Inner"`, and a binding
+            # minted from it would validate the WRONG CLASS. Anyone inlining a
+            # struct here (an inline EvidenceBinding, an inline selector) gets a
+            # silently wrong artifact. Pinned by
+            # `test_non_value_object_nested_struct_hoists_and_is_documented_lossy`
+            # so a future tightening surfaces as a test change, not a silent
+            # behavior swap.
         # Embedded base shape: a bare `#Base` line composes `#Base` into this
         # shape (CUE struct embedding). Recorded now, merged after parsing.
         embed = EMBEDDED_BASE_RE.match(line)
@@ -621,6 +692,49 @@ def parse_property_line(line: str) -> Optional[PropDef]:
     return p
 
 
+def _validate_value_object(prop: PropDef) -> None:
+    """Reject an inline nested object that is not a JSON-LD value object.
+
+    A value object is a struct whose `@value` holds the lexical form and whose
+    `@type` names the datatype IRI. That is the ONE nested shape every target
+    can carry faithfully: JSON Schema as an object schema, SHACL as a literal
+    with a closed `sh:datatype` set, Rust/TypeScript as a typed carrier. Any
+    other nested struct would have to degrade to "some JSON", which is exactly
+    the silent weakening `CompileError` exists to prevent.
+    """
+    members = [inner.name for inner in prop.object_properties or []]
+    if "@value" not in members:
+        raise CompileError(
+            f'property "{prop.name}" declares an inline nested object that does '
+            "not carry `@value`. The projector carries JSON-LD value objects "
+            "(typed literals) only; any other nested struct would compile to an "
+            "unconstrained object in JSON Schema and to nothing at all in SHACL."
+        )
+    unknown = sorted(set(members) - VALUE_OBJECT_MEMBERS)
+    if unknown:
+        raise CompileError(
+            f'value object "{prop.name}" declares non-JSON-LD member(s) '
+            f"{unknown}. A JSON-LD value object holds only @value, @type, and "
+            "@language; other members would not survive JSON-LD expansion, so "
+            "no constraint on them could be enforced on the RDF side."
+        )
+    datatype = _value_object_member(prop, "@type")
+    if datatype is None or datatype.enum_ref is None:
+        raise CompileError(
+            f'value object "{prop.name}" does not type its `@type` member with a '
+            "closed datatype enum. Without one, SHACL has no datatype set to "
+            "close over and the compiled targets would accept any datatype IRI."
+        )
+
+
+def _value_object_member(prop: PropDef, name: str) -> Optional[PropDef]:
+    """The `@value` / `@type` / `@language` member of a value-object property."""
+    for inner in prop.object_properties or []:
+        if inner.name == name:
+            return inner
+    return None
+
+
 # ---- Shape composition ---------------------------------------------------
 #
 # CUE composes shapes by unification; the projector composes them by flattening
@@ -709,6 +823,7 @@ _PROPERTY_FACET_DEFAULTS: dict[str, object] = {
     "max_inclusive": None,
     "inline_enum_values": None,
     "enum_union_refs": None,
+    "object_properties": None,
 }
 
 # Facets whose conjunction IS expressible in the flat AST, so two differing
@@ -1112,6 +1227,10 @@ def target_json_schema(doc: ConstraintDoc, registry: Optional[dict] = None) -> s
                     _inline_cross_file(p.enum_ref)
                 if p.type_ref == "list" and p.list_inner_enum:
                     _inline_cross_file(p.list_inner_enum)
+                if p.type_ref == "value_object":
+                    for inner in p.object_properties or []:
+                        if inner.type_ref == "enum" and inner.enum_ref:
+                            _inline_cross_file(inner.enum_ref)
             for c in s.conditionals:
                 for tp in c.then_require:
                     if tp.type_ref == "enum" and tp.enum_ref:
@@ -1212,6 +1331,29 @@ def target_json_schema(doc: ConstraintDoc, registry: Optional[dict] = None) -> s
 def property_to_jsonschema(
     p: PropDef, doc: ConstraintDoc, registry: Optional[dict] = None
 ) -> dict:
+    if p.type_ref == "value_object":
+        # JSON-LD value object. `@value` carries the lexical form, `@type` the
+        # datatype IRI drawn from the closed set — the same set the SHACL
+        # target closes over with `sh:datatype`, so the two agree on every
+        # document.
+        obj_props: dict = {}
+        obj_required: list[str] = []
+        for inner in p.object_properties or []:
+            obj_props[inner.name] = property_to_jsonschema(inner, doc, registry)
+            if not inner.optional:
+                obj_required.append(inner.name)
+        out: dict = {"type": "object", "properties": obj_props}
+        if obj_required:
+            out["required"] = obj_required
+        # Close the VALUE OBJECT (not the class that carries it). The CUE
+        # struct is closed, so `cue vet` rejects `@language` and any other
+        # extra member; leaving the emitted object open would let JSON Schema
+        # accept a document CUE and SHACL reject. The `@language` case is the
+        # one that corrupts RDF: a language-tagged literal drops the declared
+        # datatype on expansion, which is precisely what §2.2's closed
+        # datatype set exists to prevent.
+        out["additionalProperties"] = False
+        return out
     if p.fixed_value is not None:
         return {"const": p.fixed_value}
     if p.inline_enum_values:
@@ -1464,6 +1606,18 @@ def _rust_type(p: PropDef, local_enums: Optional[set] = None,
                registry: Optional[dict] = None) -> str:
     if p.fixed_value is not None:
         return "String"
+    if p.type_ref == "value_object":
+        # `crate::TypedLiteral<T>` is the hand-written JSON-LD value-object
+        # carrier in rkaf-core (same role `crate::OneOrMany<T>` plays for the
+        # scalar-or-array wire shorthand). `T` is the closed datatype enum, so
+        # the Rust layer rejects a datatype outside the CUE set at parse time.
+        datatype = _value_object_member(p, "@type")
+        name = (datatype.enum_ref if datatype else None) or "String"
+        if local_enums is not None and name not in local_enums and registry is not None:
+            fq = _cross_file_enum_path(name, registry)
+            if fq:
+                name = fq
+        return f"crate::TypedLiteral<{name}>"
     if p.type_ref == "enum":
         name = p.enum_ref or "String"
         if local_enums is not None and name not in local_enums and registry is not None:
@@ -1535,15 +1689,20 @@ def target_typescript(
     local_enums = {e.name for e in doc.enums} | {
         union.name for union in doc.enum_unions
     }
+    def _referenced_enums(prop: PropDef) -> tuple[Optional[str], ...]:
+        """Enum names a property names directly or through a value object."""
+        if prop.type_ref == "value_object":
+            return tuple(
+                inner.enum_ref for inner in prop.object_properties or []
+            )
+        return (prop.enum_ref, prop.list_inner_enum)
+
     external_enums = sorted(
         {
             enum_name
             for shape in doc.shapes
             for prop in shape.properties
-            for enum_name in (
-                prop.enum_ref,
-                prop.list_inner_enum,
-            )
+            for enum_name in _referenced_enums(prop)
             if enum_name
             and enum_name not in local_enums
             and registry is not None
@@ -1645,6 +1804,30 @@ def target_typescript(
                     f'!isRkafDate(v["{p.name}"])) '
                     f'errs.push("{p.name}: invalid date");'
                 )
+            if p.type_ref == "value_object":
+                # Carry the typed literal's MEANING, not just its shape: the
+                # lexical form must be a string and the datatype must be inside
+                # the same closed set the JSON Schema `enum` and the SHACL
+                # `sh:datatype` alternatives close over.
+                datatype = _value_object_member(p, "@type")
+                values = (
+                    _resolve_enum_values(datatype.enum_ref, doc, registry)
+                    if datatype and datatype.enum_ref
+                    else []
+                )
+                literal = f'(v["{p.name}"] as Record<string, unknown> | undefined)'
+                out.append(
+                    f"  if ({literal} !== undefined && "
+                    f'typeof {literal}!["@value"] !== "string") '
+                    f'errs.push("{p.name}: @value must be the lexical form");'
+                )
+                if values:
+                    allowed = json.dumps(values)
+                    out.append(
+                        f"  if ({literal} !== undefined && "
+                        f'!{allowed}.includes({literal}!["@type"] as string)) '
+                        f'errs.push("{p.name}: @type outside the closed datatype set");'
+                    )
         for index, conditional in enumerate(s.conditionals):
             when_name = f"condition{index + 1}"
             when_value = f'record["{conditional.when_property}"]'
@@ -1694,6 +1877,12 @@ def target_typescript(
 def _ts_type(p: PropDef) -> str:
     if p.fixed_value is not None:
         return f'"{p.fixed_value}"'
+    if p.type_ref == "value_object":
+        members = [
+            f'"{inner.name}"{"?" if inner.optional else ""}: {_ts_type(inner)}'
+            for inner in p.object_properties or []
+        ]
+        return "{ " + "; ".join(members) + " }"
     if p.type_ref == "enum":
         return p.enum_ref or "string"
     if p.type_ref == "list":
@@ -1787,6 +1976,24 @@ def target_shacl(
                 values = " ".join(resolve_enum(p.list_inner_enum))
                 if values:
                     line += f" sh:in ( {values} ) ;"
+            if p.type_ref == "value_object":
+                # A JSON-LD value object expands to ONE typed literal, so the
+                # RDF-side closure is over the literal's datatype rather than
+                # over an `@type` node. `sh:in` cannot express that; a
+                # `sh:datatype` alternative per permitted datatype can, and it
+                # rejects exactly the datatypes the JSON Schema `enum` rejects.
+                line += " sh:nodeKind sh:Literal ;"
+                datatype = _value_object_member(p, "@type")
+                values_list = (
+                    resolve_enum(datatype.enum_ref)
+                    if datatype and datatype.enum_ref
+                    else []
+                )
+                if values_list:
+                    alternatives = " ".join(
+                        f"[ sh:datatype {value} ]" for value in values_list
+                    )
+                    line += f" sh:or ( {alternatives} ) ;"
             if p.pattern:
                 line += f" sh:pattern {json.dumps(p.pattern)} ;"
             if p.forbidden_pattern:

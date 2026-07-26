@@ -286,3 +286,64 @@ fn round_trip_registry_conflict_fixture() {
 fn round_trip_justification_fixture() {
     round_trip::<Justification>("justification-positive", "rkaf:Justification");
 }
+
+#[test]
+fn round_trip_value_assertion_fixtures() {
+    round_trip::<ValueAssertion>("valueassertion-date-positive", "rkaf:ValueAssertion");
+    round_trip::<ValueAssertion>(
+        "valueassertion-denied-integer-positive",
+        "rkaf:ValueAssertion",
+    );
+    round_trip::<ValueAssertion>(
+        "valueassertion-ai-suggested-positive",
+        "rkaf:ValueAssertion",
+    );
+}
+
+#[test]
+fn round_trip_source_claimant_fixtures() {
+    round_trip::<SourceClaimant>("sourceclaimant-named-positive", "rkaf:SourceClaimant");
+    round_trip::<SourceClaimant>("sourceclaimant-issuer-positive", "rkaf:SourceClaimant");
+}
+
+#[test]
+fn round_trip_extraction_activity_fixtures() {
+    round_trip::<ExtractionActivity>(
+        "extractionactivity-deterministic-positive",
+        "rkaf:ExtractionActivity",
+    );
+    round_trip::<ExtractionActivity>(
+        "extractionactivity-model-positive",
+        "rkaf:ExtractionActivity",
+    );
+}
+
+/// The value object is CLOSED in every other target, and it must be closed
+/// here too.
+///
+/// `TypedLiteral<T>` is the one hand-written carrier in this change, and it is
+/// the only one without the generated `#[serde(flatten)] extra` catch-all. Left
+/// open, it would ACCEPT `@language` and drop it on re-serialize — a silent
+/// round-trip divergence on the exact member that also destroys the RDF
+/// datatype (a language-tagged literal expands with no datatype at all, which
+/// is why SHACL rejects it). `deny_unknown_fields` makes Rust reject what the
+/// compiled JSON Schema, SHACL, and `cue vet` reject.
+#[test]
+fn typed_literal_rejects_members_outside_value_and_type() {
+    use rkaf_core::generated::value_assertion::ValueDatatype;
+
+    let ok: TypedLiteral<ValueDatatype> =
+        serde_json::from_value(serde_json::json!({"@value": "x", "@type": "xsd:string"}))
+            .expect("a bare value object must deserialize");
+    assert_eq!(ok.value, "x");
+
+    for extra in [
+        serde_json::json!({"@value": "x", "@type": "xsd:string", "@language": "en"}),
+        serde_json::json!({"@value": "x", "@type": "xsd:string", "rkaf:bogus": "y"}),
+    ] {
+        assert!(
+            serde_json::from_value::<TypedLiteral<ValueDatatype>>(extra.clone()).is_err(),
+            "TypedLiteral must reject the extra member in {extra}"
+        );
+    }
+}

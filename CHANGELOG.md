@@ -9,6 +9,70 @@ adapted for a specification + shape + fixture project.
 
 ### Added
 
+- `rkaf:ValueAssertion`, the second proposition-bearing Assertion
+  specialization, whose object is a typed literal rather than an IRI. Core
+  §2.1 deferred typed-literal objects pending "a coordinated JSON-LD, CUE, and
+  projector migration"; §2.2 is that migration and lifts the deferral. The
+  object is a JSON-LD value object (`@value` lexical form plus `@type`
+  datatype) closed over the eleven-member `rkaf:ValueDatatype` set, and the
+  same set is enforced by every target: JSON Schema `enum`, one SHACL
+  `sh:datatype` alternative per member under `sh:nodeKind sh:Literal`,
+  `crate::TypedLiteral<ValueDatatype>` in Rust, and a generated membership
+  check in TypeScript.
+- Value-object support in the constraint compiler. An inline nested struct
+  declaring `@value` — JSON-LD's own definition of a value object — projects
+  to all six targets, with the value object emitted CLOSED on every target
+  (`additionalProperties: false` in JSON Schema, `deny_unknown_fields` on
+  `TypedLiteral`) so a language-tagged literal is rejected everywhere `cue vet`
+  rejects it. A value object whose `@type` is not a closed enum is a
+  `CompileError` rather than a silently weaker artifact.
+
+  A nested struct that is NOT a value object is unchanged: it keeps the
+  pre-existing lossy hoist (inner fields flattened onto the outer shape, outer
+  property typed as a plain string), which the adversarial corpus is authored
+  against. That hoist is a known degradation, not a guardrail — an inner
+  `"@type"` overwrites the outer shape's class discriminator, so a schema
+  minted from such a source would validate the wrong class. Tightening it
+  belongs to whichever change re-authors those sources.
+- `rkaf:SourceClaimant` (Core §2.4) — who the SOURCE says asserts a
+  proposition, with a closed `rkaf:claimantAttribution` set, separate verbatim
+  claimant text and resolved identity, and attribution fragments distinct from
+  the assertion's own evidence. A claimant named in the source must carry the
+  naming text.
+- `rkaf:ExtractionActivity` (Core §2.4) — which run produced an assertion
+  candidate. Provider-neutral by construction: every field is a Rulespec-owned
+  IRI, a version string, or an opaque `sha256:` digest, including a single
+  `rkaf:requestContractDigest` over the whole secret-free request contract. It
+  requires no approver, so an unreviewed model candidate is representable; a
+  model extraction must name its model.
+- Assertion envelope edges for the separated records: `rkaf:hasSourceClaimant`,
+  `rkaf:hasExtractionProvenance`, `rkaf:hasConfidence`, `rkaf:hasAccessScope`,
+  `rkaf:supersedesAssertion`, and `rkaf:assertedAt`. All optional and additive.
+
+### Changed
+
+- `constraints/core/assertion.cue` now names the two halves of an assertion
+  separately: `#AssertionProposition` (subject, predicate, polarity —
+  immutable) and `#ConsumerDisposition` (usage eligibility, consumer lifecycle
+  state, access scope — mutable and consumer-scoped). The envelope composes
+  the disposition and never the proposition; both proposition-bearing forms
+  compose both. Core §2.3 states the rule normatively. No wire change: the
+  compiled targets carry the same fields they carried before.
+- `#AssertionPolarity` moved from `relationship-assertion.cue` to
+  `assertion.cue`, beside the proposition core it belongs to, because
+  `rkaf:ValueAssertion` closes over the same two values. The definition name
+  and its values are unchanged.
+
+### Known issue
+
+- `rkaf:AILineage` still requires `rkaf:humanApprover` while the AI-touched
+  `rkaf:assertionOrigin` values — including `rkaf:aiSuggested`, meaning
+  *unreviewed candidate* — still require `rkaf:hasAILineage`. Together they
+  force an approver onto an unreviewed candidate. `rkaf:ExtractionActivity`
+  provides the approval-free run record, but resolving the requirement itself
+  flips two negative fixtures and is left to a separate change. See Core §2.4,
+  "Open conflict".
+
 - Six closed US regulatory-identifier values for CFR, U.S. Code, Federal
   Register document, regulations.gov document/comment, public-law, and
   Executive-order citations. They are separate from immutable Artifact

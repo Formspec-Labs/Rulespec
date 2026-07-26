@@ -1,0 +1,10 @@
+{
+  "@context": "../context/rkaf-context.jsonld",
+  "@id": "urn:rkaf:fixture:source-claimant:agency-statement",
+  "@type": "rkaf:SourceClaimant",
+  "rkaf:claimsAssertion": "urn:rkaf:fixture:relationship-assertion:expected-baseline",
+  "rkaf:claimantAttribution": "rkaf:claimantNamedInSource",
+  "rkaf:claimantText": "the Federal Aviation Administration",
+  "rkaf:claimantIdentity": "urn:rkaf:fixture:organization:faa",
+  "rkaf:attributedInFragment": ["urn:rkaf:fixture:fragment:oa-textquote"]
+}

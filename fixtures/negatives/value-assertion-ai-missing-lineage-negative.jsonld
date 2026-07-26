@@ -1,0 +1,13 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@id": "urn:rkaf:fixture:value-assertion:ai-missing-lineage",
+  "@type": "rkaf:ValueAssertion",
+  "rkaf:assertionOrigin": "rkaf:aiSuggested",
+  "rkaf:assertsSubject": "urn:rkaf:fixture:policy:emergency-amendment",
+  "rkaf:assertsPredicate": "urn:rkaf:fixture:predicate:documentState",
+  "rkaf:assertsValue": {
+    "@value": "final-rule",
+    "@type": "xsd:token"
+  },
+  "rkaf:assertionPolarity": "rkaf:affirmed"
+}

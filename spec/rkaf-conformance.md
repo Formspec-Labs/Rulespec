@@ -51,7 +51,7 @@ current `sha256:<64 lowercase hex>` contract digest. Every block in one
 document MUST use the same digest.
 
 ```yaml rkaf-l0-mapping
-rulespec_version: "sha256:ce795eab28a16c9eebedfa7a963f40ebb99d559644fa591caf4d50bc39e8139c"
+rulespec_version: "sha256:4ae3c77b03f8021723b89397e0aa44bef4aa4462e8e23542e63983da3d3d0f82"
 mappings:
   - table: proceedings
     column: current_stage

@@ -59,11 +59,188 @@ approval, rejection, dispute, and revocation remain scoped and temporal
 `rkaf:EvidenceBinding`; confidence remains a separate
 `rkaf:ConfidenceRecord`.
 
-The first v0.2 carrier intentionally restricts relationship objects to IRIs.
-Typed-literal objects require a coordinated JSON-LD, CUE, and projector
-migration. Formal deontic operators such as permission, prohibition, and duty
-belong in domain profiles aligned with ODRL or LegalRuleML rather than a
-universal ordered “force” field.
+`rkaf:RelationshipAssertion` objects are IRIs and only IRIs. A proposition
+whose object is a literal is a `rkaf:ValueAssertion` (§2.2), not a relationship
+assertion with a stringified object. Formal deontic operators such as
+permission, prohibition, and duty belong in domain profiles aligned with ODRL
+or LegalRuleML rather than a universal ordered “force” field.
+
+### 2.2 Value assertions [Normative]
+
+`rkaf:ValueAssertion` is the second proposition-bearing specialization of
+`rkaf:Assertion`. It carries the coordinated JSON-LD, CUE, and projector
+migration that v0.2's first carrier deferred, and it supersedes that deferral.
+
+A `rkaf:ValueAssertion` MUST contain exactly one IRI-valued
+`rkaf:assertsSubject` and `rkaf:assertsPredicate`, exactly one
+`rkaf:assertionPolarity` from the same closed set §2.1 defines, and exactly one
+`rkaf:assertsValue`.
+
+`rkaf:assertsValue` MUST be a JSON-LD value object: a `@value` member holding
+the literal's lexical form as a string, and a `@type` member holding the
+datatype IRI. Both members are REQUIRED. The datatype MUST be a member of the
+closed `rkaf:ValueDatatype` set:
+
+`xsd:string`, `xsd:token`, `xsd:boolean`, `xsd:integer`, `xsd:decimal`,
+`xsd:double`, `xsd:date`, `xsd:dateTime`, `xsd:time`, `xsd:duration`,
+`xsd:anyURI`.
+
+The lexical form stays a string on the wire in every datatype, including the
+numeric and boolean ones. RDF literals are lexical-form-plus-datatype;
+promoting `"42"` to a JSON number would discard the distinction between
+`"42"^^xsd:integer` and `"42"^^xsd:decimal` and would not round-trip.
+
+Producers MUST NOT declare a term definition for `rkaf:assertsValue` in a
+JSON-LD context that coerces its `@type`. `context/rkaf-context.jsonld`
+deliberately defines the term with `@id` alone: any `@type` coercion would
+collapse every ValueAssertion in the document to one datatype and silently
+discard the declared one.
+
+Consumers MUST reject a datatype outside the closed set. Every compiled target
+enforces the same set from the same CUE source: the JSON Schema `@type` enum,
+one SHACL `sh:datatype` alternative per member under `sh:nodeKind sh:Literal`,
+the generated Rust `crate::TypedLiteral<ValueDatatype>`, and the generated
+TypeScript membership check.
+
+Language-tagged literals are NOT part of the v0.2 `rkaf:ValueAssertion`
+carrier. A JSON-LD value object carrying `@language` expands to a literal with
+no datatype, which no `sh:datatype` closure can constrain; admitting it would
+leave SHACL and JSON Schema disagreeing about the same document. Language-
+tagged meaning belongs on concepts, where `skos:prefLabel` and `skos:altLabel`
+already carry it (`spec/rkaf-concept-registry.md`).
+
+### 2.3 Proposition content and consumer state [Normative]
+
+An assertion's proposition content is immutable and consists of exactly:
+`rkaf:assertsSubject`, `rkaf:assertsPredicate`, the form-specific object slot
+(`rkaf:assertsObject` or `rkaf:assertsValue`), and `rkaf:assertionPolarity`.
+
+Proposition identity MUST NOT include mutable state. Acceptance, rejection,
+dispute, qualification, revocation, consumer eligibility, confidence, and
+lifecycle position are all mutable, all scoped, and all separate records or
+separate envelope fields. An implementation that content-addresses an assertion
+MUST address the proposition content alone; including consumer state would mint
+a new assertion identity every time a consumer changed its mind, which
+destroys supersession history and breaks every evidence and attestation edge
+pointing at the old identifier.
+
+The separation is structural in the source, not editorial. `constraints/core/`
+`assertion.cue` declares two named definitions:
+
+| Definition | Holds | Mutability |
+| --- | --- | --- |
+| `#AssertionProposition` | subject, predicate, polarity | immutable |
+| `#ConsumerDisposition` | `rkaf:usageEligibility`, `rkaf:consumerLifecycleState`, `rkaf:hasAccessScope` | mutable, consumer-scoped |
+
+`#AssertionEnvelope` composes `#ConsumerDisposition` and does NOT compose
+`#AssertionProposition`: the envelope is context for a proposition, never the
+proposition. `#RelationshipAssertion` and `#ValueAssertion` compose both and
+supply their own object slot. The generic `rkaf:Assertion` remains an
+envelope-only carrier for v0.2 backward compatibility and states no
+proposition at all.
+
+Attestation decisions never appear on an assertion. `rkaf:Attestation` targets
+the assertion IRI, so a reviewer's decision changes the attestation record and
+leaves the proposition byte-identical.
+
+### 2.4 Provenance roles [Normative]
+
+Five questions have five answers, and no record answers two of them:
+
+| Question | Record | Edge from the assertion |
+| --- | --- | --- |
+| Who does the SOURCE say asserts this? | `rkaf:SourceClaimant` | `rkaf:hasSourceClaimant` |
+| Which run produced this candidate? | `rkaf:ExtractionActivity` | `rkaf:hasExtractionProvenance` |
+| Which model derivation produced it, as reviewed? | `rkaf:AILineage` | `rkaf:hasAILineage` (§5.3) |
+| Who accepted, rejected, or revoked it? | `rkaf:Attestation` | none — the Attestation targets the assertion |
+| What was it derived from? | PROV-O | `prov:wasDerivedFrom` |
+
+**Source claimant.** `rkaf:SourceClaimant` records the party the DOCUMENT
+attributes a claim to. It MUST carry exactly one `rkaf:claimsAssertion` and
+exactly one `rkaf:claimantAttribution` from the closed set
+`rkaf:claimantNamedInSource`, `rkaf:claimantImpliedBySource`,
+`rkaf:claimantIsDocumentIssuer`, `rkaf:claimantNotStated`. When the attribution
+is `rkaf:claimantNamedInSource`, `rkaf:claimantText` is REQUIRED: a record may
+not assert that the source names a claimant while withholding the naming text.
+`rkaf:claimantNotStated` is a complete, honest answer, not a failure.
+
+Every value in the set is a statement about the DOCUMENT, so the set has no
+value for extractor uncertainty. When the extractor cannot determine how the
+source attributes a claim, it MUST omit the `rkaf:SourceClaimant` record.
+`rkaf:claimantNotStated` asserts that the source made no attribution and MUST
+NOT be used to record extractor uncertainty; that uncertainty belongs in a
+`rkaf:ConfidenceRecord` or an `rkaf:ExtractionActivity`.
+
+`rkaf:claimantText` (what the document says) and `rkaf:claimantIdentity` (the
+resolved party, when the workspace can resolve it) are separate because a
+source may name a claimant no registry knows. `rkaf:attributedInFragment`
+points at the source regions carrying the attribution, which are not
+necessarily the regions supporting the claim — those stay in the assertion's
+own `rkaf:EvidenceBinding`.
+
+**Extraction provenance.** `rkaf:ExtractionActivity` records the run. It MUST
+carry `rkaf:extractionMethod` (closed set: `rkaf:deterministicParse`,
+`rkaf:ruleBasedExtraction`, `rkaf:modelExtraction`, `rkaf:humanExtraction`,
+`rkaf:importedRecord`), `rkaf:extractionRun`, `rkaf:extractedBy`,
+`rkaf:extractorVersion`, and `rkaf:requestContractDigest`.
+
+`rkaf:requestContractDigest` MUST be a lowercase `sha256:<64 hex>` digest of
+the complete, secret-free request contract — instructions, schema, model
+configuration, and input payload hashed together. One digest, because the
+question a consumer asks is whether a candidate came from the contract they
+audited, and that question has a single answer only if the whole contract is
+covered. Schema descriptions and LLM hints are part of the contract; they do
+not substitute for it.
+
+When `rkaf:extractionMethod` is `rkaf:modelExtraction`,
+`rkaf:extractionModelRef` is REQUIRED. A record that says a model produced a
+candidate while leaving the model unnamed is not provenance.
+
+`rkaf:ExtractionActivity` MUST NOT require a human approver, and the kernel
+declares none. An unreviewed model candidate is representable exactly as it
+is: an extraction happened, and no `rkaf:Attestation` targets it yet. Asking a
+model to review its own answer produces another opinion, not an approval.
+
+Provider neutrality is structural. Every `rkaf:ExtractionActivity` field is a
+Rulespec-owned IRI, a version string, or an opaque digest. No provider request
+object, response object, SDK type, billing record, or configuration blob
+appears in the kernel or is referenced by a kernel shape.
+
+**Model derivation lineage.** `rkaf:AILineage` (§5.3) is retained unchanged and
+is NOT duplicated by `rkaf:ExtractionActivity`. It records the REVIEWED
+derivation — model id, version, prompt template, temperature, seed, input
+context hash, and the human approver that review implies — and remains
+REQUIRED for AI-touched `rkaf:assertionOrigin` values. `rkaf:ExtractionActivity`
+may link it via `rkaf:hasAILineage` when both exist; the two fields
+`rkaf:extractionModelRef` and `rkaf:extractionPromptRef` are opaque references
+for a run that may never be reviewed, not a second lineage record.
+
+> **Open conflict.** `rkaf:AILineage` requires `rkaf:humanApprover`, and the
+> AI-touched `rkaf:assertionOrigin` values — including `rkaf:aiSuggested`,
+> which means *unreviewed candidate* — require `rkaf:hasAILineage`. Together
+> these still force an approver onto an unreviewed candidate, which the target
+> architecture forbids. Resolving it means making `rkaf:humanApprover`
+> optional and letting the AI-touched conditional be satisfied by
+> `rkaf:hasExtractionProvenance`, which flips the verdict of
+> `fixtures/ailineage-missing-approver-negative.jsonld` and of
+> `fixtures/negatives/a-i-lineage-missing-human-approver-negative.jsonld`.
+> That is a deliberate contract change with its own migration, not a side
+> effect of adding these records, and it is left to a separate change.
+
+**Human approval.** Approval has no dedicated contract because
+`rkaf:Attestation` (§3.1) already is one: it carries the attestor, the attestor
+kind, the decision, the scope, the time, the optional effective period, and the
+revocation marker. Minting a parallel approval record would create two places
+to look for the same fact. A reviewer approving an extraction records an
+`rkaf:Attestation` whose `rkaf:targets` includes the assertion IRI.
+
+**Confidence, evidence, applicability, time, access scope.** Each remains its
+own record, reached by its own edge: `rkaf:hasConfidence` (0..*, to
+`rkaf:ConfidenceRecord`), `rkaf:EvidenceBinding` (which points AT the assertion
+via `rkaf:bindsAssertion`, so the assertion does not change when evidence is
+added), `rkaf:hasApplicability`, `rkaf:assertedAt`, and `rkaf:hasAccessScope`.
+`rkaf:supersedesAssertion` appends supersession history rather than rewriting
+the predecessor.
 
 ## 3. Closed-taxonomy discipline [Normative]
 
@@ -81,6 +258,9 @@ The closed enums introduced by v0.2 are:
 - `rkaf:accessScopeKind` and `rkaf:regulatoryClass` (§4.6)
 - `rkaf:mappingState` (§5.1)
 - `rkaf:retentionTrigger` and `rkaf:retentionPostExpiry` (§5.2)
+- `rkaf:ValueDatatype` (§2.2)
+- `rkaf:claimantAttribution` (§2.4)
+- `rkaf:extractionMethod` (§2.4)
 
 The experimental US rulemaking module adds
 `rkaf:proceedingIdentifierScheme`, `rkaf:docketIdentifierScheme`, and
@@ -348,7 +528,7 @@ This table lists only ontologies composed at mode 1: predicate declared in `cont
 
 | Ontology | Prefix | Role |
 |---|---|---|
-| **W3C PROV-O** | `prov:` | Provenance vocabulary. `prov:wasGeneratedBy`, `prov:wasAttributedTo`, `prov:wasDerivedFrom`, `prov:generatedAtTime` compose with cryptographic anchoring (§7) and AI lineage records (§5.3). |
+| **W3C PROV-O** | `prov:` | Provenance vocabulary. `prov:wasGeneratedBy`, `prov:wasAttributedTo`, `prov:wasDerivedFrom`, `prov:generatedAtTime` compose with cryptographic anchoring (§7) and AI lineage records (§5.3). `prov:startedAtTime` and `prov:endedAtTime` carry activity timing on `rkaf:ExtractionActivity` (§2.4) — imported rather than re-minted, because PROV-O already names the start and end of an activity. |
 | **W3C Web Annotation Ontology (OA)** | `oa:` | Rulespec v0.2 composes **OA 1.0** (W3C Recommendation 2017-02-23; namespace `http://www.w3.org/ns/oa#`, stable). Predicate-level imports: `oa:hasSource` (parent-resource edge on a SpecificResource), `oa:hasSelector` (selector attachment), `oa:exact` / `oa:prefix` / `oa:suffix` (TextQuoteSelector payload). `rkaf:SourceFragment rdfs:subClassOf oa:SpecificResource`. Foundational selector kinds (`oa:FragmentSelector`, `oa:TextQuoteSelector`, `oa:TextPositionSelector`, `oa:RangeSelector`, `oa:XPathSelector`, `oa:CssSelector`) MUST be supported by every Rulespec implementation handling source fragments. Rulespec declines L1/L3 constraints over OA predicate ranges; partner producers conform to OA's own domain/range. Breaking changes in a future OA 2.0 trigger an alignment-row re-evaluation. |
 | **W3C SKOS** | `skos:` | Concept relations (`closeMatch`, `exactMatch`, `broader`, `narrower`, `related`, `mappingRelation`) for the Concept Registry (`spec/rkaf-concept-registry.md`). |
 | **ELI** (European Legislation Identifier) | `eli:` | Rulespec v0.2 composes **ELI 1.5 core** (2024 release; namespace `http://data.europa.eu/eli/ontology#`, stable across v1.0 → v1.5). Use ELI URIs as the canonical Artifact identifier scheme for EU legal sources (§4.1). Do not duplicate ELI's URI structure or metadata model; compose. For multi-predecessor consolidation edges (one consolidated text incorporating multiple prior versions or amending acts), compose `eli:consolidates` (and inverse `eli:consolidated_by`) directly — both predicates are non-functional in ELI 1.5 and explicitly designed for repeated use. Consolidation is semantically distinct from supersession: `eli:consolidates` denotes editorial restatement that incorporates predecessors which remain legally extant; `rkaf:supersedesAssertion` (§6, Lifecycle primitives) denotes replacement where predecessors become historical. Use both together when appropriate. Breaking changes in a future ELI 2.0 trigger an alignment-row re-evaluation: Rulespec declines L1/L3 constraints over `eli:*` predicates by design (partners conform to ELI's own domain/range), so migration policy must be documented at the alignment layer. |

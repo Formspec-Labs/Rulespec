@@ -1,0 +1,13 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@id": "urn:rkaf:fixture:value-assertion:unregistered-datatype",
+  "@type": "rkaf:ValueAssertion",
+  "rkaf:assertionOrigin": "rkaf:humanAsserted",
+  "rkaf:assertsSubject": "urn:rkaf:fixture:policy:emergency-amendment",
+  "rkaf:assertsPredicate": "urn:rkaf:fixture:predicate:effectiveDate",
+  "rkaf:assertsValue": {
+    "@value": "2026",
+    "@type": "xsd:gYear"
+  },
+  "rkaf:assertionPolarity": "rkaf:affirmed"
+}

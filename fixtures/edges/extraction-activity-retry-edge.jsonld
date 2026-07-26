@@ -1,0 +1,11 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@id": "urn:rkaf:fixture:extraction-activity:retry-edge",
+  "@type": "rkaf:ExtractionActivity",
+  "rkaf:extractionMethod": "rkaf:humanExtraction",
+  "rkaf:extractionRun": "urn:rkaf:fixture:run:manual-pass-0003",
+  "rkaf:extractedBy": "urn:rkaf:fixture:actor:reviewer:alice-r",
+  "rkaf:extractorVersion": "n/a",
+  "rkaf:requestContractDigest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "rkaf:extractionAttempt": 3
+}
