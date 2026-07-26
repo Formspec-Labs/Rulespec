@@ -76,8 +76,16 @@ Carrier evidence: the corpus receipts and evaluation records linked from that
 backlog. This contract must release before Spicy Regs publishes relationship,
 value, or concept data under it.
 
-- [ ] Move U.S. identifiers, `publishedInProceeding`, and domain lifecycle
+- [x] Move U.S. identifiers, `publishedInProceeding`, and domain lifecycle
       values out of the universal kernel into explicit profiles.
+      Done 2026-07-25: commits `2cdf3ee` (US identifiers,
+      `publishedInProceeding`, and the rulemaking module into
+      `constraints/profiles/us-rulemaking/` with overlay-wins bindings and
+      duplicate-collision hard errors) and `fcd8ba6` (profile-extended
+      lifecycle closure per the decision below, ownership audit across all
+      compiled sinks, cross-file enum projection restored). Both
+      adversarially reviewed; gates green at digest `sha256:ce795eab…`,
+      315 conformance fixtures, 0 divergences.
       Maintainer decision 2026-07-25 for the lifecycle half: keep one
       `rkaf:LifecycleEvent` class (`spec/rkaf-rulemaking.md` §6 stands) and
       adopt profile-extended closure — the kernel CUE owns only the 10
@@ -95,23 +103,43 @@ value, or concept data under it.
       `#AssertionEnvelope` extracted and composed by `#Assertion` and
       `#RelationshipAssertion` with deliberate narrowings; adversarially
       reviewed; all gates green at digest `sha256:4b5d224c…`).
-- [ ] Define `AssertionEnvelope` with distinct `RelationshipAssertion` and
+- [x] Define `AssertionEnvelope` with distinct `RelationshipAssertion` and
       typed-literal `ValueAssertion`; keep immutable proposition content
       separate from acceptance, disposition, confidence, attestation, and
-      mutable consumer state.
-- [ ] Separate source claimant, extraction provenance, model derivation, and
-      human approval.
-- [ ] Finish immutable Artifact version and revision identity; stabilize
+      mutable consumer state. Done 2026-07-25: commit `85f6cbb`
+      (ValueAssertion with closed typed-literal carriage on all six
+      targets; AssertionProposition/ConsumerDisposition split; chained
+      adversarial review, 343 fixtures, 0 divergences).
+- [x] Separate source claimant, extraction provenance, model derivation, and
+      human approval. Done 2026-07-25: commit `85f6cbb` (SourceClaimant,
+      ExtractionActivity, mapped AILineage/Attestation roles; open
+      conflict on AILineage's required humanApprover recorded in
+      `spec/rkaf-core.md` §2.4 pending its own task).
+- [x] Finish immutable Artifact version and revision identity; stabilize
       `SourceFragment` identity with exact artifact, selector,
-      coordinate-system, and content-digest bindings.
-- [ ] Add `ConceptScheme`, SKOS-compatible concepts and mappings, and
+      coordinate-system, and content-digest bindings. Done 2026-07-25:
+      commit `177ace3` (evidence-or-nothing lineage, typed OA selectors
+      with required coordinate system, content digests; chained
+      adversarial review, 392 fixtures, 0 divergences).
+- [x] Add `ConceptScheme`, SKOS-compatible concepts and mappings, and
       evidence-bearing `ConceptAssignment` for Artifacts and SourceFragments.
-- [ ] Place relation changes, comparison contexts, resolver proofs, and
+      Done 2026-07-25: commit `177ace3` (ConceptScheme, SKOS *Match trio,
+      required skos:inScheme, ConceptAssignment composing the shared
+      assertion envelope with same-artifact evidence enforcement).
+- [x] Place relation changes, comparison contexts, resolver proofs, and
       neutral findings outside the kernel; keep `ClosureClaim` Experimental
-      and disabled.
-- [ ] Regenerate normative prose, CUE, context, vocabulary, SHACL, SDK types,
+      and disabled. Done 2026-07-26: commit `f01391d` — constraints/analysis/ module, five contracts,
+      four-mechanism ClosureClaim disablement, omission unrepresentable;
+      chained adversarial review, 420 fixtures, 0 divergences.
+- [x] Regenerate normative prose, CUE, context, vocabulary, SHACL, SDK types,
       runtime behavior, fixtures, and reference corpora; add semantic carrier
-      tests; run all gates from a clean checkout.
+      tests; run all gates from a clean checkout. Done 2026-07-26: commit
+      `56686d9` (cross-surface completeness sweep; 30-test semantic carrier
+      suite over the seven mandated categories, mutation-verified; runtime
+      and reference-corpora decisions documented). Clean-checkout record
+      2026-07-26: detached worktree at `56686d9`, cold `make compile`
+      reproduces the committed pins (`sha256:5f287a1e…`), `make test`
+      exit 0, 420 conformance fixtures, 0 divergences.
 - [ ] Complete the non-originating-consumer review, then cut one reviewed
       pre-1.0 release with an immutable contract digest (maintainer
       authorization required).
