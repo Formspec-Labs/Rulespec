@@ -123,9 +123,7 @@ impl Validator {
             })
             .collect();
         for order in self.orders.get(type_iri).into_iter().flatten() {
-            let lower = node.get(&order.lower).and_then(Value::as_str);
-            let upper = node.get(&order.upper).and_then(Value::as_str);
-            if lower.is_some_and(|value| upper.is_some_and(|end| value > end)) {
+            if violates_order(node.get(&order.lower), node.get(&order.upper)) {
                 errors.push(ValidationError {
                     type_iri: type_iri.to_string(),
                     pointer: format!("/{}", order.lower.replace('~', "~0").replace('/', "~1")),
@@ -167,6 +165,31 @@ impl Validator {
     /// Return the vocabulary type IRIs known to this validator.
     pub fn known_type_iris(&self) -> impl Iterator<Item = &str> {
         self.compiled.keys().map(String::as_str)
+    }
+}
+
+/// True when a same-typed ordered pair is inverted.
+///
+/// `x-rkaf-order` carries a CUE ordering branch, and the branch is
+/// type-agnostic: the same expression guards `rkaf:commentPeriodStart` (an ISO
+/// date string) and `oa:start` (an integer offset). Comparing only strings
+/// enforced the date intervals and silently skipped every numeric one, leaving
+/// this validator weaker than the SHACL `sh:lessThanOrEquals` compiled from the
+/// same source line.
+///
+/// Mixed types are NOT compared: two values of different JSON types have no
+/// meaningful order here, and inventing one would produce a verdict the CUE
+/// never stated.
+fn violates_order(lower: Option<&Value>, upper: Option<&Value>) -> bool {
+    match (lower, upper) {
+        (Some(Value::String(low)), Some(Value::String(high))) => low > high,
+        (Some(Value::Number(low)), Some(Value::Number(high))) => {
+            match (low.as_f64(), high.as_f64()) {
+                (Some(low), Some(high)) => low > high,
+                _ => false,
+            }
+        }
+        _ => false,
     }
 }
 

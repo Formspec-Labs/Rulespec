@@ -4,5 +4,6 @@
   "@type": "rkaf:RegisteredConcept",
   "rkaf:managedByRegistry": "urn:rkaf:fixture:registry:fns-snap-canonical",
   "rkaf:conceptScope": "fns/snap/eligibility/income",
-  "rkaf:conceptStatus": "rkaf:active"
+  "rkaf:conceptStatus": "rkaf:active",
+  "skos:inScheme": "urn:rkaf:fixture:scheme:fns-snap-topic"
 }

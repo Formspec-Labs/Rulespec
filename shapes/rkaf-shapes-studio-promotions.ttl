@@ -43,8 +43,14 @@ rkaf:AILineageShape a sh:NodeShape ;
     sh:message "AILineage MUST declare temperature (§5.3)." ; ] ;
   sh:property [ sh:path rkaf:inputContextHash ; sh:minCount 1 ; sh:maxCount 1 ; sh:datatype xsd:string ;
     sh:message "AILineage MUST declare inputContextHash (§5.3)." ; ] ;
-  sh:property [ sh:path rkaf:humanApprover ; sh:minCount 1 ; sh:maxCount 1 ; sh:nodeKind sh:IRI ;
-    sh:message "AILineage MUST declare humanApprover IRI (§5.3)." ; ] .
+  # humanApprover is OPTIONAL (§2.4, §5.3). An unreviewed model candidate must
+  # be representable: a model produced it and nobody has looked at it yet.
+  # Approval is a separate rkaf:Attestation targeting the assertion. This row
+  # keeps the node-kind check only; the compiled shape
+  # (compiled/shacl/core/ai-lineage.ttl) carries the Pattern-C rule that a
+  # lineage claiming a humanRationale MUST name the humanApprover it came from.
+  sh:property [ sh:path rkaf:humanApprover ; sh:maxCount 1 ; sh:nodeKind sh:IRI ;
+    sh:message "AILineage humanApprover, when present, MUST be an IRI (§5.3)." ; ] .
 
 # --- Workspace (§5.5) ---
 rkaf:WorkspaceShape a sh:NodeShape ;

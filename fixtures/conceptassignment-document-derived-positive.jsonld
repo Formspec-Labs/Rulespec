@@ -1,0 +1,82 @@
+{
+  "@context": "../context/rkaf-context.jsonld",
+  "@graph": [
+    {
+      "@id": "urn:rkaf:fixture:ca:artifact",
+      "@type": "rkaf:Artifact",
+      "rkaf:hasArtifactIdentifier": "urn:rkaf:fixture:ca:artifact",
+      "rkaf:artifactIdentifierScheme": "rkaf:partner-defined",
+      "rkaf:hasContentDigest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    {
+      "@id": "urn:rkaf:fixture:ca:fragment:sec-3a",
+      "@type": "rkaf:SourceFragment",
+      "oa:hasSource": "urn:rkaf:fixture:ca:artifact",
+      "oa:hasSelector": {
+        "@type": "oa:TextQuoteSelector",
+        "oa:exact": "Countable household income includes wages, salaries, and self-employment earnings."
+      },
+      "rkaf:selectorKind": "oa:TextQuoteSelector",
+      "rkaf:sourceArtifactDigest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "rkaf:fragmentContentDigest": "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
+    },
+    {
+      "@id": "urn:rkaf:fixture:ca:fragment:sec-7b",
+      "@type": "rkaf:SourceFragment",
+      "oa:hasSource": "urn:rkaf:fixture:ca:artifact",
+      "oa:hasSelector": {
+        "@type": "oa:TextQuoteSelector",
+        "oa:exact": "Income verification documents must be retained for three years."
+      },
+      "rkaf:selectorKind": "oa:TextQuoteSelector",
+      "rkaf:sourceArtifactDigest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "rkaf:fragmentContentDigest": "sha256:eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
+    },
+    {
+      "@id": "urn:rkaf:fixture:ca:seg:sec-3a-income",
+      "@type": "rkaf:ConceptAssignment",
+      "rkaf:assignmentSubject": "urn:rkaf:fixture:ca:fragment:sec-3a",
+      "rkaf:assignmentSubjectType": "rkaf:SourceFragment",
+      "rkaf:assignedConcept": "urn:rkaf:fixture:concept:household-income",
+      "skos:inScheme": "urn:rkaf:fixture:scheme:fns-snap-topic",
+      "rkaf:assignmentRole": "rkaf:assignmentSubstantive",
+      "rkaf:assignmentDerivation": "rkaf:directAssignment",
+      "rkaf:assignmentEvidence": [
+        "urn:rkaf:fixture:ca:fragment:sec-3a"
+      ],
+      "rkaf:assertionOrigin": "rkaf:humanAsserted"
+    },
+    {
+      "@id": "urn:rkaf:fixture:ca:seg:sec-7b-income",
+      "@type": "rkaf:ConceptAssignment",
+      "rkaf:assignmentSubject": "urn:rkaf:fixture:ca:fragment:sec-7b",
+      "rkaf:assignmentSubjectType": "rkaf:SourceFragment",
+      "rkaf:assignedConcept": "urn:rkaf:fixture:concept:household-income",
+      "skos:inScheme": "urn:rkaf:fixture:scheme:fns-snap-topic",
+      "rkaf:assignmentRole": "rkaf:assignmentMention",
+      "rkaf:assignmentDerivation": "rkaf:directAssignment",
+      "rkaf:assignmentEvidence": [
+        "urn:rkaf:fixture:ca:fragment:sec-7b"
+      ],
+      "rkaf:assertionOrigin": "rkaf:humanAsserted"
+    },
+    {
+      "@id": "urn:rkaf:fixture:ca:doc:income",
+      "@type": "rkaf:ConceptAssignment",
+      "rkaf:assignmentSubject": "urn:rkaf:fixture:ca:artifact",
+      "rkaf:assignmentSubjectType": "rkaf:Artifact",
+      "rkaf:assignedConcept": "urn:rkaf:fixture:concept:household-income",
+      "skos:inScheme": "urn:rkaf:fixture:scheme:fns-snap-topic",
+      "rkaf:assignmentRole": "rkaf:assignmentPrimary",
+      "rkaf:assignmentDerivation": "rkaf:derivedAssignment",
+      "rkaf:supportingAssignment": [
+        "urn:rkaf:fixture:ca:seg:sec-3a-income",
+        "urn:rkaf:fixture:ca:seg:sec-7b-income"
+      ],
+      "rkaf:assignmentPolicyVersion": "snap-topic-aggregation/2.1.0",
+      "rkaf:assertionOrigin": "rkaf:humanAsserted",
+      "rkaf:assertedAt": "2026-07-25T14:05:00Z"
+    }
+  ],
+  "_comment": "ConceptAssignment §4.7, document case, and the whole directional rule in one graph. Two accepted segment assignments — each with its own local evidence — are combined by a NAMED policy version into one document assignment. The document assignment cites the segment assignments, never the segments' text: aggregation proves the document tag, and the document tag proves nothing back."
+}

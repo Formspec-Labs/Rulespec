@@ -34,8 +34,8 @@ pub struct AILineage {
     #[serde(rename = "rkaf:inputContextHash")]
     pub input_context_hash: String,
     /// JSON-LD property `rkaf:humanApprover`.
-    #[serde(rename = "rkaf:humanApprover")]
-    pub human_approver: String,
+    #[serde(rename = "rkaf:humanApprover", skip_serializing_if = "Option::is_none", default)]
+    pub human_approver: Option<String>,
     /// JSON-LD property `rkaf:humanRationale`.
     #[serde(rename = "rkaf:humanRationale", skip_serializing_if = "Option::is_none", default)]
     pub human_rationale: Option<String>,

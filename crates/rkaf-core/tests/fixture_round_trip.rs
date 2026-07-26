@@ -347,3 +347,31 @@ fn typed_literal_rejects_members_outside_value_and_type() {
         );
     }
 }
+
+#[test]
+fn round_trip_concept_scheme_fixtures() {
+    round_trip::<ConceptScheme>("conceptscheme-registry-positive", "rkaf:ConceptScheme");
+    round_trip::<ConceptScheme>("conceptscheme-local-positive", "rkaf:ConceptScheme");
+}
+
+#[test]
+fn round_trip_concept_assignment_fixtures() {
+    round_trip::<ConceptAssignment>(
+        "conceptassignment-fragment-direct-positive",
+        "rkaf:ConceptAssignment",
+    );
+    round_trip::<ConceptAssignment>(
+        "conceptassignment-document-derived-positive",
+        "rkaf:ConceptAssignment",
+    );
+}
+
+#[test]
+fn round_trip_source_fragment_identity_fixtures() {
+    round_trip::<SourceFragment>(
+        "sourcefragment-position-selector-positive",
+        "rkaf:SourceFragment",
+    );
+    round_trip::<Artifact>("artifact-content-digest-positive", "rkaf:Artifact");
+    round_trip::<Artifact>("artifact-version-lineage-positive", "rkaf:Artifact");
+}

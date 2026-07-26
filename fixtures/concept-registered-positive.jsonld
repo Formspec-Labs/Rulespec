@@ -3,6 +3,7 @@
   "@id": "urn:rkaf:fixture:concept:household-income",
   "@type": "rkaf:RegisteredConcept",
   "skos:prefLabel": "Household income evidence",
+  "skos:inScheme": "urn:rkaf:fixture:scheme:fns-snap-topic",
   "rkaf:managedByRegistry": "urn:rkaf:fixture:registry:fns-snap-canonical",
   "rkaf:conceptScope": "fns/snap/eligibility/income",
   "rkaf:conceptStatus": "rkaf:active"

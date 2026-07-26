@@ -3,7 +3,7 @@
   "@id": "urn:rkaf:fixture:beh:cmc:case1",
   "@type": "rkaf:BehaviorTestCase",
   "rkaf:behaviorContract": "rkaf:ConceptResolutionWithConflict",
-  "rkaf:rationale": "Two trusted registries map local-concept X to different canonical concepts. Resolver MUST surface a RegistryConflict with operationalConflict severity per \u00a75 of rkaf-behavior.md + \u00a76.",
+  "rkaf:rationale": "Two trusted registries map local-concept X to different canonical concepts. Resolver MUST surface a RegistryConflict with operationalConflict severity per §5 of rkaf-behavior.md + §6.",
   "rkaf:input": {
     "@graph": [
       {
@@ -12,7 +12,8 @@
         "rkaf:definedInScope": "urn:rkaf:scope:test",
         "rkaf:conceptScope": "urn:rkaf:scope:test",
         "rkaf:conceptStatus": "rkaf:active",
-        "skos:prefLabel": "X"
+        "skos:prefLabel": "X",
+        "skos:inScheme": "urn:rkaf:scheme:test-topic"
       },
       {
         "@id": "m1",

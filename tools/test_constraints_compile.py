@@ -2038,14 +2038,29 @@ class USRulemakingProfileTests(unittest.TestCase):
         declared = {prop.name for prop in artifact.properties}
         for term in self.US_TERMS:
             self.assertNotIn(term, declared)
-        self.assertEqual([], artifact.conditionals)
+        # The kernel DOES carry conditionals — §4.1's version-lineage rules are
+        # universal. What it must never carry is a JURISDICTION grammar, so the
+        # check is on the terms those conditionals mention, not on their count.
+        # Asserting "no conditionals at all" would have made every future
+        # universal cross-property rule look like a profile leak.
+        conditional_terms = {
+            branch.when_property for branch in artifact.conditionals
+        } | {
+            prop.name
+            for branch in artifact.conditionals
+            for prop in branch.then_require
+        }
+        for term in self.US_TERMS:
+            self.assertNotIn(term, conditional_terms)
 
         schema = json.loads(target_json_schema(document))
         kernel = schema["$defs"]["Artifact"]
         for term in self.US_TERMS:
             self.assertNotIn(term, kernel["properties"])
-        self.assertNotIn("allOf", kernel)
         self.assertNotIn("USRegulatoryIdentifierScheme", schema["$defs"])
+        self.assertNotIn(
+            "USRegulatoryIdentifierScheme", json.dumps(kernel.get("allOf", []))
+        )
 
         shacl = target_shacl(document)
         for term in self.US_TERMS:
@@ -3039,6 +3054,938 @@ class ProvenanceRoleSeparationTests(unittest.TestCase):
         # reviewer decides.
         self.assertNotIn("rkaf:hasApproval", envelope)
         self.assertNotIn("rkaf:decision", envelope)
+
+
+class SourceFragmentIdentityTests(unittest.TestCase):
+    """Core §4.2 — a SourceFragment names ONE region of ONE Artifact state.
+
+    Fragment identity is three REQUIRED bindings — the exact artifact, the
+    selector, and the kind of selector it is — plus the coordinate system, which
+    is required ON the offset-bearing selector rather than on the fragment.
+    `rkaf:sourceArtifactDigest` is the separate STATE binding: RECOMMENDED in
+    general, obligatory for evidence, and deliberately not required by
+    cardinality (§4.2 says so normatively, and five positives depend on it).
+
+    These tests pin each binding to the compiled artifacts, because every one of
+    them was a comment before it was a constraint, and a comment does not stop a
+    producer from shipping a fragment that names a region only by luck. The
+    cross-node rule that stops the selector contract being opt-in is hand
+    authored; `CrossNodeAgreementShapeTests` exercises it.
+    """
+
+    def setUp(self) -> None:
+        self.source = REPO_ROOT / "constraints" / "core" / "source-fragment.cue"
+        self.document = parse_cue_file(self.source)
+        self.shapes = {shape.name: shape for shape in self.document.shapes}
+        self.shacl = (
+            REPO_ROOT / "compiled" / "shacl" / "core" / "source-fragment.ttl"
+        ).read_text()
+        self.schema = json.loads(
+            (
+                REPO_ROOT
+                / "compiled"
+                / "json-schema"
+                / "core"
+                / "source-fragment.schema.json"
+            ).read_text()
+        )
+
+    def _property(self, shape: str, name: str):
+        return next(
+            prop for prop in self.shapes[shape].properties if prop.name == name
+        )
+
+    def test_artifact_binding_is_an_iri_with_a_class_range(self) -> None:
+        """`oa:hasSource` names an Artifact, not any IRI at all.
+
+        Before this change the field was a bare `string`: a fragment could
+        point at a workspace, a proceeding, a free-text label, or nothing
+        resolvable, and every target accepted it. The lexical floor lives in
+        the CUE; the class range lives in the range registry and reaches SHACL
+        as `sh:class`, which is the only target that can follow a reference.
+
+        This is the ONE exception to §9.1's "Rulespec declines L1/L3
+        constraints over OA predicate ranges", and §9.1's OA row names it as
+        such — a fragment of a workspace or an actor addresses no document
+        region at all.
+        """
+        prop = self._property("SourceFragment", "oa:hasSource")
+        self.assertFalse(prop.optional)
+        self.assertEqual(prop.pattern, IRI_PATTERN)
+        ranges = _scan_reference_class_registry(self.source)
+        self.assertEqual(ranges.get("oa:hasSource"), "rkaf:Artifact")
+        self.assertRegex(
+            self.shacl,
+            r"sh:path oa:hasSource ;[^\n]*sh:class rkaf:Artifact",
+        )
+        self.assertEqual(
+            self.schema["$defs"]["SourceFragment"]["properties"]["oa:hasSource"][
+                "pattern"
+            ],
+            IRI_PATTERN,
+        )
+
+    def test_position_selector_declares_its_coordinate_system(self) -> None:
+        """An offset with no declared unit is not a coordinate.
+
+        `4180` names three different positions depending on whether the
+        producer counted Unicode code points, UTF-8 bytes, or UTF-16 code
+        units, and they diverge at the first non-ASCII character. The unit is
+        required on the SELECTOR rather than on the fragment because it belongs
+        to whatever counts in it — a fragment carrying a quote selector and a
+        position selector has exactly one coordinate system, and it is the
+        position selector's.
+        """
+        prop = self._property("TextPositionSelector", "rkaf:coordinateSystem")
+        self.assertFalse(prop.optional, "the unit is not optional on offsets")
+        self.assertEqual(prop.enum_ref, "CoordinateSystem")
+        values = next(
+            enum.values
+            for enum in self.document.enums
+            if enum.name == "CoordinateSystem"
+        )
+        self.assertIn("rkaf:unicode-codepoint", values)
+        self.assertIn("rkaf:utf8-byte", values)
+        self.assertIn("rkaf:utf16-code-unit", values)
+        self.assertRegex(
+            self.shacl,
+            r"sh:path rkaf:coordinateSystem ; sh:minCount 1 ;[^\n]*sh:in \(",
+        )
+        # The fragment does NOT carry the unit: a second declaration there
+        # would let a fragment and its selector disagree about what an offset
+        # means, with no rule to break the tie.
+        self.assertNotIn(
+            "rkaf:coordinateSystem",
+            {prop.name for prop in self.shapes["SourceFragment"].properties},
+        )
+
+    def test_position_selector_rejects_an_inverted_range(self) -> None:
+        """A region whose end precedes its start selects nothing."""
+        orders = self.shapes["TextPositionSelector"].orders
+        self.assertEqual(
+            [(order.lower_property, order.upper_property) for order in orders],
+            [("oa:start", "oa:end")],
+        )
+        self.assertIn("sh:lessThanOrEquals oa:end", self.shacl)
+        self.assertEqual(
+            self.schema["$defs"]["TextPositionSelector"]["x-rkaf-order"],
+            [{"lower": "oa:start", "upper": "oa:end"}],
+        )
+
+    def test_both_digest_bindings_are_digests(self) -> None:
+        """The state binding and the region binding are sha256, not free text.
+
+        `rkaf:sourceArtifactDigest` pins the Artifact state the coordinates
+        address; `rkaf:fragmentContentDigest` pins the region text they select.
+        A digest that is not lexically a digest cannot be compared against
+        `rkaf:hasContentDigest` on the Artifact, so it detects nothing.
+        """
+        digest_pattern = r"^sha256:[0-9a-f]{64}$"
+        for name in ("rkaf:sourceArtifactDigest", "rkaf:fragmentContentDigest"):
+            with self.subTest(property=name):
+                prop = self._property("SourceFragment", name)
+                self.assertTrue(prop.optional)
+                self.assertEqual(prop.pattern, digest_pattern)
+                self.assertIn(f'sh:path {name} ; sh:maxCount 1 ; sh:pattern "{digest_pattern}"', self.shacl)
+
+
+class ArtifactVersionIdentityTests(unittest.TestCase):
+    """Core §4.1 — version lineage must be cited, never inferred.
+
+    The vision forbids inferring lineage from a shared title, topic, RIN,
+    identifier fragment, embedding score, or retrieval rank. A prohibition no
+    schema can check is one producers discover in review, so the CUE turns it
+    into two conditionals: a version or revision claim MUST cite the source
+    regions that state it, and a cited claim MUST come from a digest-addressable
+    state.
+    """
+
+    def setUp(self) -> None:
+        self.source = REPO_ROOT / "constraints" / "core" / "artifact.cue"
+        self.document = parse_cue_file(self.source)
+        self.shape = next(
+            shape for shape in self.document.shapes if shape.name == "Artifact"
+        )
+        self.shacl = (
+            REPO_ROOT / "compiled" / "shacl" / "core" / "artifact.ttl"
+        ).read_text()
+        self.schema = json.loads(
+            (
+                REPO_ROOT / "compiled" / "json-schema" / "core" / "artifact.schema.json"
+            ).read_text()
+        )["$defs"]["Artifact"]
+
+    def _guards(self) -> dict[str, set[str]]:
+        return {
+            branch.when_property: {prop.name for prop in branch.then_require}
+            for branch in self.shape.conditionals
+        }
+
+    def test_both_lineage_predicates_require_cited_evidence(self) -> None:
+        guards = self._guards()
+        for predicate in ("dcterms:isVersionOf", "prov:wasRevisionOf"):
+            with self.subTest(predicate=predicate):
+                self.assertIn(predicate, guards)
+                self.assertIn("rkaf:versionLineageEvidence", guards[predicate])
+
+    def test_cited_lineage_requires_a_content_digest(self) -> None:
+        guards = self._guards()
+        self.assertIn("rkaf:versionLineageEvidence", guards)
+        self.assertIn("rkaf:hasContentDigest", guards["rkaf:versionLineageEvidence"])
+
+    def test_lineage_evidence_resolves_to_source_regions(self) -> None:
+        """"Evidence" means a SourceFragment, not any IRI.
+
+        A version claim citing an actor, a score, or a bare label would satisfy
+        a presence check while proving nothing. The class range is what makes
+        the citation resolve to exact coordinates in an actual document.
+        """
+        ranges = _scan_reference_class_registry(self.source)
+        self.assertEqual(
+            ranges.get("rkaf:versionLineageEvidence"), "rkaf:SourceFragment"
+        )
+        self.assertRegex(
+            self.shacl,
+            r"sh:path rkaf:versionLineageEvidence ;[^\n]*sh:class rkaf:SourceFragment",
+        )
+
+    def test_format_siblings_are_not_a_version_claim(self) -> None:
+        """Cross-posting must NOT trip the lineage rules.
+
+        `dcterms:hasFormat` / `isFormatOf` relate two renderings of the SAME
+        state. Guarding on them would force every registry cross-posting to
+        invent lineage evidence for a version relation it never asserted.
+        """
+        guards = self._guards()
+        self.assertNotIn("dcterms:hasFormat", guards)
+        self.assertNotIn("dcterms:isFormatOf", guards)
+
+    def test_no_universal_work_class_is_minted(self) -> None:
+        """`dcterms:isVersionOf` keeps NO class range, deliberately.
+
+        §4.1 declines to mint a universal Rulespec Work / Expression /
+        Manifestation hierarchy: the stable resource keeps whatever public type
+        owns it. A class range here would be that hierarchy arriving through
+        the range registry instead of through the spec, and it would reject
+        every producer composing ELI, BIBFRAME, or Schema.org.
+        """
+        ranges = _scan_reference_class_registry(self.source)
+        self.assertNotIn("dcterms:isVersionOf", ranges)
+        self.assertNotIn(
+            "sh:path dcterms:isVersionOf ; sh:class", self.shacl.replace("\n", " ")
+        )
+        self.assertNotRegex(
+            self.shacl,
+            r"sh:path dcterms:isVersionOf ;[^\n]*sh:class",
+        )
+
+
+class AILineageApprovalSeparationTests(unittest.TestCase):
+    """Core §2.4, §5.3 — lineage records derivation, never approval.
+
+    `rkaf:aiSuggested` MEANS "unreviewed candidate". While `rkaf:AILineage`
+    required `rkaf:humanApprover`, every such assertion had to name a reviewer,
+    so the only way to record an honest candidate was to invent one. These
+    tests pin the resolution from both sides: the approver is optional, and a
+    lineage carrying the traces of a review still has to name the reviewer.
+    """
+
+    def setUp(self) -> None:
+        self.source = REPO_ROOT / "constraints" / "core" / "ai-lineage.cue"
+        self.document = parse_cue_file(self.source)
+        self.shape = next(
+            shape for shape in self.document.shapes if shape.name == "AILineage"
+        )
+        self.properties = {prop.name: prop for prop in self.shape.properties}
+        self.schema = json.loads(
+            (
+                REPO_ROOT
+                / "compiled"
+                / "json-schema"
+                / "core"
+                / "ai-lineage.schema.json"
+            ).read_text()
+        )["$defs"]["AILineage"]
+        self.shacl = (
+            REPO_ROOT / "compiled" / "shacl" / "core" / "ai-lineage.ttl"
+        ).read_text()
+
+    def test_an_unreviewed_candidate_is_representable(self) -> None:
+        self.assertTrue(self.properties["rkaf:humanApprover"].optional)
+        self.assertNotIn("rkaf:humanApprover", self.schema.get("required", []))
+        # The UNCONDITIONAL property row must carry no `sh:minCount`. The
+        # rationale guard below legitimately emits one inside its Pattern-C
+        # branch, so a bare substring search would pass whether the approver
+        # were required or not; anchor on the top-level row instead.
+        rows = re.findall(
+            r"^  sh:property \[ sh:path rkaf:humanApprover ;(.*)$",
+            self.shacl,
+            re.MULTILINE,
+        )
+        self.assertEqual(len(rows), 1)
+        self.assertNotIn("sh:minCount", rows[0])
+        self.assertIn("sh:maxCount 1", rows[0])
+
+    def test_the_ai_touched_conditional_accepts_an_approver_free_lineage(
+        self,
+    ) -> None:
+        """The envelope requires LINEAGE, not approval.
+
+        If the AI-touched guard had been rewritten to demand an approver — or
+        if it required a second record alongside the lineage — the resolution
+        would be cosmetic: an unreviewed candidate would still be unsayable.
+        """
+        envelope = next(
+            shape
+            for shape in parse_cue_file(
+                REPO_ROOT / "constraints" / "core" / "assertion.cue"
+            ).shapes
+            if shape.name == "AssertionEnvelope"
+        )
+        guarded = {
+            branch.when_equals: {prop.name for prop in branch.then_require}
+            for branch in envelope.conditionals
+        }
+        for origin in AI_TOUCHED_ORIGINS:
+            with self.subTest(origin=origin):
+                self.assertEqual(guarded[origin], {"rkaf:hasAILineage"})
+
+    def test_a_stated_rationale_still_names_its_human(self) -> None:
+        """A review attributed to nobody is worse than no review.
+
+        `rkaf:humanRationale` is a human's stated reason for accepting the
+        output. Carried without `rkaf:humanApprover`, the record READS as
+        approved while leaving no one accountable — a strictly worse failure
+        than an honest unreviewed candidate.
+        """
+        guards = {
+            branch.when_property: {prop.name for prop in branch.then_require}
+            for branch in self.shape.conditionals
+        }
+        self.assertEqual(
+            guards.get("rkaf:humanRationale"), {"rkaf:humanApprover"}
+        )
+        self.assertIn("sh:path rkaf:humanRationale ; sh:minCount 1", self.shacl)
+
+    def test_the_input_context_hash_is_a_digest(self) -> None:
+        self.assertEqual(
+            self.properties["rkaf:inputContextHash"].pattern,
+            r"^sha256:[0-9a-f]{64}$",
+        )
+
+    def test_lineage_carries_no_approval_decision(self) -> None:
+        """Approval lives on Attestation, and only there."""
+        for approval_term in (
+            "rkaf:decision",
+            "rkaf:attestor",
+            "rkaf:attestorKind",
+            "rkaf:attestedAt",
+            "rkaf:attestationScope",
+            "rkaf:revokedAt",
+        ):
+            self.assertNotIn(approval_term, self.properties)
+
+
+class ConceptAssignmentTests(unittest.TestCase):
+    """Core §4.7 — assignments are evidence-bearing, and the flow is one-way.
+
+    Two properties carry the whole design. First, exactly two kinds of thing
+    are taggable and they are not interchangeable. Second, evidence flows UP
+    from segments to documents and never back down: a document tag may
+    shortlist candidates for a segment and can never prove one. Without the
+    second rule a single mistaken document tag propagates to every segment and
+    the segments then confirm the document.
+    """
+
+    def setUp(self) -> None:
+        self.source = REPO_ROOT / "constraints" / "core" / "concept-assignment.cue"
+        self.document = parse_cue_file(self.source)
+        self.shape = next(
+            shape
+            for shape in self.document.shapes
+            if shape.name == "ConceptAssignment"
+        )
+        self.properties = {prop.name: prop for prop in self.shape.properties}
+        self.shacl = (
+            REPO_ROOT / "compiled" / "shacl" / "core" / "concept-assignment.ttl"
+        ).read_text()
+        self.schema = json.loads(
+            (
+                REPO_ROOT
+                / "compiled"
+                / "json-schema"
+                / "core"
+                / "concept-assignment.schema.json"
+            ).read_text()
+        )["$defs"]["ConceptAssignment"]
+
+    def _guards(self) -> dict[tuple[str, str | None], set[str]]:
+        return {
+            (branch.when_property, branch.when_equals): {
+                prop.name for prop in branch.then_require
+            }
+            for branch in self.shape.conditionals
+        }
+
+    def test_exactly_two_subject_kinds_are_taggable(self) -> None:
+        values = next(
+            enum.values
+            for enum in self.document.enums
+            if enum.name == "AssignmentSubjectType"
+        )
+        self.assertEqual(values, ["rkaf:Artifact", "rkaf:SourceFragment"])
+        self.assertIn(
+            "sh:path rkaf:assignmentSubjectType ; sh:minCount 1 ; sh:maxCount 1 ; "
+            "sh:in ( rkaf:Artifact rkaf:SourceFragment )",
+            self.shacl,
+        )
+        for name in ("rkaf:assignmentSubject", "rkaf:assignmentSubjectType"):
+            self.assertFalse(self.properties[name].optional)
+
+    def test_a_segment_tag_needs_evidence_from_that_segment(self) -> None:
+        """The rule that stops a document tag from confirming itself."""
+        guards = self._guards()
+        self.assertEqual(
+            guards.get(("rkaf:assignmentSubjectType", "rkaf:SourceFragment")),
+            {"rkaf:assignmentEvidence"},
+        )
+        self.assertIn(
+            "sh:path rkaf:assignmentSubjectType ; sh:hasValue rkaf:SourceFragment",
+            self.shacl,
+        )
+
+    def test_direct_and_derived_carry_different_obligations(self) -> None:
+        guards = self._guards()
+        self.assertEqual(
+            guards.get(("rkaf:assignmentDerivation", "rkaf:directAssignment")),
+            {"rkaf:assignmentEvidence"},
+        )
+        self.assertEqual(
+            guards.get(("rkaf:assignmentDerivation", "rkaf:derivedAssignment")),
+            {"rkaf:supportingAssignment"},
+        )
+
+    def test_aggregation_names_the_documented_rule(self) -> None:
+        """"A documented rule may combine segment tags" needs WHICH rule."""
+        guards = self._guards()
+        self.assertEqual(
+            guards.get(("rkaf:supportingAssignment", None)),
+            {"rkaf:assignmentPolicyVersion"},
+        )
+
+    def test_evidence_and_supports_resolve_to_real_records(self) -> None:
+        ranges = _scan_reference_class_registry(self.source)
+        self.assertEqual(
+            ranges.get("rkaf:assignmentEvidence"), "rkaf:SourceFragment"
+        )
+        self.assertEqual(
+            ranges.get("rkaf:supportingAssignment"), "rkaf:ConceptAssignment"
+        )
+        self.assertRegex(
+            self.shacl,
+            r"sh:path rkaf:assignmentEvidence ;[^\n]*sh:class rkaf:SourceFragment",
+        )
+        self.assertRegex(
+            self.shacl,
+            r"sh:path rkaf:supportingAssignment ;[^\n]*sh:class rkaf:ConceptAssignment",
+        )
+
+    def test_the_envelope_is_composed_not_restated(self) -> None:
+        """Trust context has one home, and the assignment reuses it.
+
+        A parallel `rkaf:assignmentConfidence` or `rkaf:assignmentApprover`
+        would create a second place to look for the same fact and a second
+        place to forget to look.
+        """
+        for field in ASSERTION_ENVELOPE_FIELDS:
+            with self.subTest(field=field):
+                self.assertIn(field, self.properties)
+        for invented in (
+            "rkaf:assignmentConfidence",
+            "rkaf:assignmentApprover",
+            "rkaf:assignmentDecision",
+            "rkaf:assignmentLineage",
+        ):
+            self.assertNotIn(invented, self.properties)
+
+    def test_no_proposition_core_is_composed(self) -> None:
+        """An assignment's proposition is the subject-concept pair.
+
+        Composing `#AssertionProposition` would demand an
+        `rkaf:assertsPredicate` that every assignment fills with the same
+        placeholder — a required field carrying no information.
+        """
+        for field in ASSERTION_PROPOSITION_FIELDS:
+            with self.subTest(field=field):
+                self.assertNotIn(field, self.properties)
+
+    def test_derivation_is_orthogonal_to_construction_origin(self) -> None:
+        """`assignmentDerivation` and `assertionOrigin` answer different
+        questions: how the RECORD was structured versus what CONSTRUCTED it. A
+        model may propose a direct assignment; a deterministic rule may compute
+        a derived one. Collapsing them would make "a model said so" and "it was
+        aggregated" the same fact."""
+        derivation = next(
+            enum.values
+            for enum in self.document.enums
+            if enum.name == "AssignmentDerivation"
+        )
+        origins = next(
+            enum.values
+            for enum in parse_cue_file(
+                REPO_ROOT / "constraints" / "core" / "assertion.cue"
+            ).enums
+            if enum.name == "AssertionOrigin"
+        )
+        self.assertEqual(set(derivation) & set(origins), set())
+
+
+class ConceptSchemeTests(unittest.TestCase):
+    """Core §4.7.1 — SKOS owns scheme semantics; Rulespec adds facet and owner."""
+
+    def setUp(self) -> None:
+        self.source = REPO_ROOT / "constraints" / "core" / "concept.cue"
+        self.document = parse_cue_file(self.source)
+        self.shapes = {shape.name: shape for shape in self.document.shapes}
+        self.shacl = (
+            REPO_ROOT / "compiled" / "shacl" / "core" / "concept.ttl"
+        ).read_text()
+
+    def _properties(self, shape: str) -> dict:
+        return {prop.name: prop for prop in self.shapes[shape].properties}
+
+    def test_a_scheme_declares_which_facet_it_controls(self) -> None:
+        """Facets merge when nothing says which one a scheme answers.
+
+        Topic, industry, organization, place, document role, and legal status
+        all hold terms; only the declared facet tells them apart. The facet is
+        an IRI rather than a kernel enum because Rulespec has no standing to
+        own a universal facet taxonomy.
+        """
+        facet = self._properties("ConceptScheme")["rkaf:schemeFacet"]
+        self.assertFalse(facet.optional)
+        self.assertEqual(facet.pattern, IRI_PATTERN)
+        self.assertIsNone(facet.enum_ref)
+        self.assertIsNone(facet.inline_enum_values)
+
+    def test_a_scheme_is_registry_governed_or_workspace_defined(self) -> None:
+        branches = self.shapes["ConceptScheme"].disjunctions
+        self.assertEqual(len(branches), 1)
+        self.assertEqual(
+            [
+                {prop.name for prop in branch.properties}
+                for branch in branches[0]
+            ],
+            [{"rkaf:managedByRegistry"}, {"rkaf:definedInScope"}],
+        )
+        self.assertIn("sh:path rkaf:managedByRegistry ; sh:minCount 1", self.shacl)
+        self.assertIn("sh:path rkaf:definedInScope ; sh:minCount 1", self.shacl)
+
+    def test_both_concept_flavors_carry_a_scheme(self) -> None:
+        for shape in ("RegisteredConcept", "LocalConcept"):
+            with self.subTest(shape=shape):
+                in_scheme = self._properties(shape)["skos:inScheme"]
+                self.assertFalse(in_scheme.optional)
+
+    def test_skos_membership_keeps_no_rulespec_class_range(self) -> None:
+        """A concept may live in an external thesaurus.
+
+        `skos:inScheme` and `rkaf:assignedConcept` are deliberately absent from
+        the range registry: constraining them to `rkaf:ConceptScheme` /
+        `rkaf:RegisteredConcept` would reject every producer composing an
+        external SKOS vocabulary, which is the composition §9.4 requires.
+        """
+        ranges = _scan_reference_class_registry(self.source)
+        self.assertNotIn("skos:inScheme", ranges)
+        self.assertNotIn("rkaf:assignedConcept", ranges)
+
+    def test_promotion_requires_a_written_definition(self) -> None:
+        for shape in ("RegisteredConcept", "LocalConcept"):
+            with self.subTest(shape=shape):
+                guards = {
+                    (branch.when_property, branch.when_equals): {
+                        prop.name for prop in branch.then_require
+                    }
+                    for branch in self.shapes[shape].conditionals
+                }
+                self.assertEqual(
+                    guards.get(("rkaf:conceptStatus", "rkaf:promoted")),
+                    {"skos:definition"},
+                )
+
+    def test_skos_mapping_properties_are_available_and_nothing_was_removed(
+        self,
+    ) -> None:
+        """SKOS separates in-scheme relations from cross-scheme mappings.
+
+        Without the `*Match` half a producer aligning to an external thesaurus
+        had to reach for `skos:broader` and misstate the alignment as if both
+        concepts lived in one vocabulary. The three earlier in-scheme values
+        stay legal: this is an addition, and every mapping valid before the
+        change is still valid.
+        """
+        values = next(
+            enum.values
+            for enum in parse_cue_file(
+                REPO_ROOT / "constraints" / "core" / "concept-mapping.cue"
+            ).enums
+            if enum.name == "SkosMappingPredicate"
+        )
+        for added in ("skos:broadMatch", "skos:narrowMatch", "skos:relatedMatch"):
+            self.assertIn(added, values)
+        for preserved in (
+            "skos:closeMatch",
+            "skos:exactMatch",
+            "skos:broader",
+            "skos:narrower",
+            "skos:related",
+            "skos:mappingRelation",
+        ):
+            self.assertIn(preserved, values)
+
+    def test_the_hand_authored_shape_closes_the_same_mapping_set(self) -> None:
+        """SHACL is conjunctive, so the two lists must agree exactly.
+
+        `shapes/rkaf-shapes-conceptregistry.ttl` and the compiled shape both
+        emit `sh:in` over `rkaf:mappingRelation`. A value present in one and
+        absent from the other is rejected by the merged suite no matter what
+        the compiled artifact says, which would make the CUE source a lie.
+        """
+        authored = (
+            REPO_ROOT / "shapes" / "rkaf-shapes-conceptregistry.ttl"
+        ).read_text()
+        closure = re.search(
+            r"sh:path rkaf:mappingRelation ;.*?sh:in \((.*?)\) ;",
+            authored,
+            re.DOTALL,
+        )
+        self.assertIsNotNone(closure)
+        authored_values = set(closure.group(1).split())
+        cue_values = set(
+            next(
+                enum.values
+                for enum in parse_cue_file(
+                    REPO_ROOT / "constraints" / "core" / "concept-mapping.cue"
+                ).enums
+                if enum.name == "SkosMappingPredicate"
+            )
+        )
+        self.assertEqual(authored_values, cue_values)
+
+
+TURTLE_PREAMBLE = """
+@prefix rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+@prefix oa:   <http://www.w3.org/ns/oa#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix rkaf: <https://rulespec.org/ns/v1#> .
+@prefix ex:   <urn:rkaf:test:> .
+"""
+
+
+class CrossNodeAgreementShapeTests(unittest.TestCase):
+    """Hand-authored rules that compare ONE node's value to ANOTHER node's class.
+
+    Layer 2 emits per-property constraints. A rule of the form "the thing this
+    IRI resolves to must be a Y" or "these two nodes must agree" has no carrier
+    there, so three of them live in `shapes/rkaf-shapes-core.ttl` beside the
+    subclass axioms. Each one closes an evasion that passed every compiled
+    target, so these tests run the shapes rather than reading them: a shape that
+    parses but never fires would satisfy a text assertion and satisfy nothing
+    else.
+
+    Each case is paired — the evasion is rejected AND the honest record that
+    differs from it by one fact is accepted. An over-broad shape fails the
+    second half.
+    """
+
+    @classmethod
+    def setUpClass(cls) -> None:
+        import rdflib
+
+        cls.rdflib = rdflib
+        cls.shapes = rdflib.Graph()
+        cls.shapes.parse(
+            str(REPO_ROOT / "shapes" / "rkaf-shapes-core.ttl"), format="turtle"
+        )
+        for name in ("source-fragment", "concept-assignment", "artifact"):
+            cls.shapes.parse(
+                str(REPO_ROOT / "compiled" / "shacl" / "core" / f"{name}.ttl"),
+                format="turtle",
+            )
+
+    def _conforms(self, turtle: str) -> bool:
+        from pyshacl import validate
+
+        data = self.rdflib.Graph()
+        data.parse(data=TURTLE_PREAMBLE + turtle, format="turtle")
+        conforms, _, _ = validate(
+            data_graph=data,
+            shacl_graph=self.shapes,
+            inference="rdfs",
+            advanced=True,
+            meta_shacl=False,
+        )
+        return conforms
+
+    # ---------------------------------------------------------------- §4.2
+
+    _ARTIFACT = """
+    ex:artifact a rkaf:Artifact ;
+      rkaf:hasArtifactIdentifier "urn:rkaf:test:artifact" ;
+      rkaf:artifactIdentifierScheme rkaf:partner-defined .
+    """
+
+    def test_a_declared_position_selector_must_be_a_typed_one(self) -> None:
+        """Declaring the kind and attaching nothing typed is the evasion.
+
+        `rkaf:coordinateSystem` and the offset ordering are required by
+        `rkaf:TextPositionSelectorShape`, which targets `oa:TextPositionSelector`
+        — so both fire only on a node the producer chose to type. Omitting the
+        `@type` left an unreproducible region passing every target.
+        """
+        evasion = (
+            self._ARTIFACT
+            + """
+            ex:fragment a rkaf:SourceFragment ;
+              oa:hasSource ex:artifact ;
+              oa:hasSelector ex:selector ;
+              rkaf:selectorKind oa:TextPositionSelector .
+            ex:selector oa:start 4180 ; oa:end 4222 .
+            """
+        )
+        self.assertFalse(
+            self._conforms(evasion),
+            "an untyped node carrying offsets satisfied the position-selector "
+            "declaration",
+        )
+
+        honest = (
+            self._ARTIFACT
+            + """
+            ex:fragment a rkaf:SourceFragment ;
+              oa:hasSource ex:artifact ;
+              oa:hasSelector ex:selector ;
+              rkaf:selectorKind oa:TextPositionSelector .
+            ex:selector a oa:TextPositionSelector ;
+              oa:start 4180 ; oa:end 4222 ;
+              rkaf:coordinateSystem rkaf:unicode-codepoint .
+            """
+        )
+        self.assertTrue(self._conforms(honest))
+
+    def test_other_selector_kinds_keep_their_bare_value_form(self) -> None:
+        """The rule is SCOPED, and the scope is load-bearing.
+
+        `sourcefragment-with-freshness-positive` attaches the bare string
+        "§ 273.2" under `rkaf:uslm-section`. A blanket "every declared kind
+        needs a typed selector" rule would reject it, so widening the shape has
+        to fail here before it reaches the fixture gate.
+        """
+        self.assertTrue(
+            self._conforms(
+                self._ARTIFACT
+                + """
+                ex:fragment a rkaf:SourceFragment ;
+                  oa:hasSource ex:artifact ;
+                  oa:hasSelector "§ 273.2" ;
+                  rkaf:selectorKind rkaf:uslm-section .
+                """
+            )
+        )
+
+    # -------------------------------------------------------------- §4.7.3
+
+    _FRAGMENT = """
+    ex:fragment a rkaf:SourceFragment ;
+      oa:hasSource ex:artifact ;
+      oa:hasSelector ex:selector ;
+      rkaf:selectorKind oa:TextQuoteSelector .
+    ex:selector a oa:TextQuoteSelector ; oa:exact "countable household income" .
+    """
+
+    @staticmethod
+    def _assignment(subject: str, subject_type: str, tail: str) -> str:
+        return f"""
+        ex:assignment a rkaf:ConceptAssignment ;
+          rkaf:assignmentSubject {subject} ;
+          rkaf:assignmentSubjectType {subject_type} ;
+          rkaf:assignedConcept ex:concept ;
+          skos:inScheme ex:scheme ;
+          rkaf:assignmentRole rkaf:assignmentSubstantive ;
+          rkaf:assignmentDerivation rkaf:derivedAssignment ;
+          rkaf:supportingAssignment ex:other-assignment ;
+          rkaf:assignmentPolicyVersion "test/1.0.0" ;
+          rkaf:assertionOrigin rkaf:humanAsserted ;
+          {tail}
+        ex:other-assignment a rkaf:ConceptAssignment ;
+          rkaf:assignmentSubject ex:artifact ;
+          rkaf:assignmentSubjectType rkaf:Artifact ;
+          rkaf:assignedConcept ex:concept ;
+          skos:inScheme ex:scheme ;
+          rkaf:assignmentRole rkaf:assignmentPrimary ;
+          rkaf:assignmentDerivation rkaf:directAssignment ;
+          rkaf:assignmentEvidence ex:fragment ;
+          rkaf:assertionOrigin rkaf:humanAsserted .
+        """
+
+    def test_a_mislabelled_fragment_subject_still_needs_evidence(self) -> None:
+        """The subject-type conditional keys on a literal the producer writes.
+
+        Changing one enum value from `rkaf:SourceFragment` to `rkaf:Artifact`
+        bought a segment assignment the document-tag treatment while its subject
+        IRI still resolved to a fragment — so the document tag proved the
+        section tag, which §4.7.3 forbids outright.
+        """
+        self.assertFalse(
+            self._conforms(
+                self._ARTIFACT
+                + self._FRAGMENT
+                + self._assignment("ex:fragment", "rkaf:Artifact", ".")
+            ),
+            "relabelling the subject type evaded the local-evidence rule",
+        )
+        self.assertTrue(
+            self._conforms(
+                self._ARTIFACT
+                + self._FRAGMENT
+                + self._assignment(
+                    "ex:fragment",
+                    "rkaf:SourceFragment",
+                    "rkaf:assignmentEvidence ex:fragment .",
+                )
+            )
+        )
+
+    def test_an_absent_subject_node_is_not_an_accusation(self) -> None:
+        """A standalone assignment document must validate as it always did.
+
+        The rule is written as "the subject does not resolve to a fragment OR
+        evidence is present", so a graph that simply does not contain the
+        subject node stays silent. Written the other way round it would reject
+        every assignment shipped without its subject.
+        """
+        self.assertTrue(
+            self._conforms(
+                self._ARTIFACT
+                + self._FRAGMENT
+                + self._assignment("ex:absent-subject", "rkaf:Artifact", ".")
+            )
+        )
+
+    def test_cited_evidence_must_name_the_subject_artifact(self) -> None:
+        """"Some fragment somewhere" is not local evidence.
+
+        The class range is satisfied by any `rkaf:SourceFragment` at all, so one
+        preamble sentence in an unrelated handbook could carry every segment tag
+        in a corpus — the self-confirming loop the evidence rule exists to
+        break.
+        """
+        other_document = """
+        ex:artifact-b a rkaf:Artifact ;
+          rkaf:hasArtifactIdentifier "urn:rkaf:test:artifact-b" ;
+          rkaf:artifactIdentifierScheme rkaf:partner-defined .
+        ex:fragment-b a rkaf:SourceFragment ;
+          oa:hasSource ex:artifact-b ;
+          oa:hasSelector ex:selector-b ;
+          rkaf:selectorKind oa:TextQuoteSelector .
+        ex:selector-b a oa:TextQuoteSelector ; oa:exact "unrelated preamble" .
+        """
+        self.assertFalse(
+            self._conforms(
+                self._ARTIFACT
+                + self._FRAGMENT
+                + other_document
+                + self._assignment(
+                    "ex:fragment",
+                    "rkaf:SourceFragment",
+                    "rkaf:assignmentEvidence ex:fragment-b .",
+                )
+            ),
+            "evidence from another Artifact satisfied the local-evidence rule",
+        )
+        self.assertTrue(
+            self._conforms(
+                self._ARTIFACT
+                + self._FRAGMENT
+                + other_document
+                + self._assignment(
+                    "ex:fragment",
+                    "rkaf:SourceFragment",
+                    "rkaf:assignmentEvidence ex:fragment .",
+                )
+            )
+        )
+
+
+class L2DispatchPrefixTests(unittest.TestCase):
+    """Both L2 dispatchers bind the SAME set of `@type` prefixes.
+
+    Core §4.2 compiles class shapes for two OA selector classes. Filtering the
+    embedded registry on `rkaf:` left both unbound, so the shipped Rust
+    validator and the conformance reporter each reported `pass` on a selector
+    with an inverted range or no declared unit — and the only numeric
+    `x-rkaf-order` in the repo was in a class neither of them registered, which
+    made the numeric ordering branch dead code.
+
+    The two dispatchers are independent implementations, so nothing but a test
+    keeps them agreeing.
+    """
+
+    def test_the_python_registry_binds_both_selector_classes(self) -> None:
+        bindings = conformance_lib.schema_bindings()
+        self.assertEqual(
+            bindings["oa:TextPositionSelector"].class_name, "TextPositionSelector"
+        )
+        self.assertEqual(
+            bindings["oa:TextQuoteSelector"].class_name, "TextQuoteSelector"
+        )
+
+    def test_the_rust_build_script_binds_the_same_prefixes(self) -> None:
+        build_rs = (
+            REPO_ROOT / "crates" / "rkaf-validate" / "build.rs"
+        ).read_text()
+        filter_line = re.search(
+            r"if !\((?P<test>.*?starts_with.*?)\)\s*\{\s*continue;",
+            build_rs,
+            re.DOTALL,
+        )
+        self.assertIsNotNone(
+            filter_line, "build.rs no longer filters `@type` by prefix"
+        )
+        rust_prefixes = set(re.findall(r'starts_with\("([^"]+)"\)', filter_line["test"]))
+        self.assertEqual(rust_prefixes, set(conformance_lib.L2_TYPE_PREFIXES))
+
+    def test_the_only_numeric_ordering_class_is_dispatched(self) -> None:
+        """The numeric branch of the ordering check must be reachable.
+
+        `x-rkaf-order` is type-agnostic — the same CUE expression guards an ISO
+        date interval and an integer offset pair. If every class carrying a
+        NUMERIC order were unbound, the numeric comparison would be untested
+        code claiming to enforce something.
+        """
+        numeric_ordered = set()
+        for path in conformance_lib.compiled_json_schema_paths():
+            for class_name, class_schema in json.loads(
+                path.read_text()
+            ).get("$defs", {}).items():
+                if not isinstance(class_schema, dict):
+                    continue
+                properties = class_schema.get("properties", {})
+                for order in class_schema.get("x-rkaf-order", []):
+                    lower = properties.get(order["lower"], {})
+                    if lower.get("type") in ("integer", "number"):
+                        numeric_ordered.add(
+                            properties.get("@type", {}).get("const", class_name)
+                        )
+        self.assertTrue(
+            numeric_ordered, "no class carries a numeric x-rkaf-order any more"
+        )
+        bound = set(conformance_lib.schema_bindings())
+        self.assertTrue(
+            numeric_ordered <= bound,
+            f"numeric-ordered classes are not L2-dispatched: {numeric_ordered - bound}",
+        )
 
 
 if __name__ == "__main__":

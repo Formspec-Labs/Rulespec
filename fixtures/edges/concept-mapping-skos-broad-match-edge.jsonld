@@ -1,0 +1,10 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@id": "urn:rkaf:fixture:cm-broadmatch:m1",
+  "@type": "rkaf:ConceptMapping",
+  "rkaf:sourceConcept": "urn:rkaf:fixture:local-concept:tx-grossEarnedIncome",
+  "rkaf:targetConcept": "urn:rkaf:fixture:concept:household-income",
+  "rkaf:mappingRelation": "skos:broadMatch",
+  "rkaf:lifecycleState": "rkaf:proposed",
+  "_comment": "Edge: a CROSS-SCHEME alignment. SKOS separates in-scheme semantic relations (broader/narrower/related) from the mapping properties used between schemes (*Match); v0.2 adds broadMatch, narrowMatch, and relatedMatch so an alignment to an external thesaurus no longer has to borrow the in-scheme relation and misstate itself."
+}

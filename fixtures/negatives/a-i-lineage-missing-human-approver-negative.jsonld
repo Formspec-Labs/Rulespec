@@ -8,5 +8,6 @@
   "rkaf:temperature": 0.1,
   "rkaf:seed": 42,
   "rkaf:inputContextHash": "sha256:9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08",
-  "rkaf:humanRationale": "Manual review of extracted statutory chain; all hops verified against ELI source."
+  "rkaf:humanRationale": "Manual review of extracted statutory chain; all hops verified against ELI source.",
+  "_comment": "Negative (§5.3): a lineage carrying the TRACES of a review with no reviewer. rkaf:humanApprover is optional as of v0.2 — an unreviewed model candidate is representable — but rkaf:humanRationale is a human's stated reason for accepting the output, and a rationale attributed to nobody reads as approved while naming no one accountable. Drop the rationale and this becomes a legal unreviewed candidate; keep it and the approver is required."
 }

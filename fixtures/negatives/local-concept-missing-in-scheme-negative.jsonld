@@ -1,0 +1,9 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@id": "urn:rkaf:fixture:local-concept:tx-grossEarnedIncome",
+  "@type": "rkaf:LocalConcept",
+  "skos:prefLabel": "Gross earned income (TX-HHSC)",
+  "rkaf:definedInScope": "urn:rkaf:scope:tx-hhsc-snap",
+  "rkaf:conceptScope": "tx-hhsc/snap/income",
+  "rkaf:conceptStatus": "rkaf:active"
+}

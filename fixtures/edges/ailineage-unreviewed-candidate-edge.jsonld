@@ -1,0 +1,23 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@graph": [
+    {
+      "@id": "urn:rkaf:fixture:edge:ail-unreviewed:lineage",
+      "@type": "rkaf:AILineage",
+      "rkaf:modelId": "gpt-x-2026",
+      "rkaf:modelVersion": "2026.05.01",
+      "rkaf:promptTemplateRef": "urn:rkaf:prompt-template:extract-warrant-chain/v3",
+      "rkaf:temperature": 0.0,
+      "rkaf:seed": 7,
+      "rkaf:inputContextHash": "sha256:9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08"
+    },
+    {
+      "@id": "urn:rkaf:fixture:edge:ail-unreviewed:assertion",
+      "@type": "rkaf:Assertion",
+      "rkaf:assertionOrigin": "rkaf:aiSuggested",
+      "rkaf:hasAILineage": "urn:rkaf:fixture:edge:ail-unreviewed:lineage",
+      "rkaf:usageEligibility": "rkaf:reviewQueueOnly"
+    }
+  ],
+  "_comment": "Edge (§2.4, §5.3): an unreviewed model candidate. rkaf:aiSuggested MEANS unreviewed, so its lineage names a model, a prompt, a temperature, a seed, and an input-context digest — and no human approver, because no human has looked at it. No rkaf:Attestation targets the assertion yet; when one does, that record carries the approval. The AI-touched conditional is satisfied by the approver-free lineage."
+}

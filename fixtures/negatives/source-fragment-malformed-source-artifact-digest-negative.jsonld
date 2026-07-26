@@ -1,0 +1,23 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@graph": [
+    {
+      "@id": "urn:rkaf:fixture:sf-baddigest:artifact",
+      "@type": "rkaf:Artifact",
+      "rkaf:hasArtifactIdentifier": "urn:rkaf:fixture:sf-baddigest:artifact",
+      "rkaf:artifactIdentifierScheme": "rkaf:partner-defined"
+    },
+    {
+      "@id": "urn:rkaf:fixture:sf-baddigest:fragment",
+      "@type": "rkaf:SourceFragment",
+      "oa:hasSource": "urn:rkaf:fixture:sf-baddigest:artifact",
+      "oa:hasSelector": {
+        "@type": "oa:TextQuoteSelector",
+        "oa:exact": "each covered facility shall report annually"
+      },
+      "rkaf:selectorKind": "oa:TextQuoteSelector",
+      "rkaf:sourceArtifactDigest": "md5:9e107d9d372bb6826bd81d3542a419d6"
+    }
+  ],
+  "_comment": "Negative: the state binding is not a sha256 digest. A digest in another algorithm cannot be compared against rkaf:hasContentDigest on the Artifact, so it cannot detect the substitution the binding exists to detect."
+}

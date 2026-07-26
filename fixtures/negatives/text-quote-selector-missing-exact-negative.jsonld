@@ -1,0 +1,25 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@graph": [
+    {
+      "@id": "urn:rkaf:fixture:sf-noexact:artifact",
+      "@type": "rkaf:Artifact",
+      "rkaf:hasArtifactIdentifier": "urn:rkaf:fixture:sf-noexact:artifact",
+      "rkaf:artifactIdentifierScheme": "rkaf:partner-defined"
+    },
+    {
+      "@id": "urn:rkaf:fixture:sf-noexact:fragment",
+      "@type": "rkaf:SourceFragment",
+      "oa:hasSource": "urn:rkaf:fixture:sf-noexact:artifact",
+      "oa:hasSelector": "urn:rkaf:fixture:sf-noexact:selector",
+      "rkaf:selectorKind": "oa:TextQuoteSelector"
+    },
+    {
+      "@id": "urn:rkaf:fixture:sf-noexact:selector",
+      "@type": "oa:TextQuoteSelector",
+      "oa:prefix": "Beginning 1 January 2027, ",
+      "oa:suffix": " to the Administrator."
+    }
+  ],
+  "_comment": "Negative: context anchors with nothing between them. oa:exact is the quoted region; prefix and suffix only say where it sits. A quote selector without it names a neighbourhood, not a region, so it cannot be the exact source an accepted assertion resolves back to (§4.2)."
+}

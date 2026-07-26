@@ -1,0 +1,9 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@id": "urn:example:document:permit-decision:2026-03-02",
+  "@type": "rkaf:Artifact",
+  "rkaf:hasArtifactIdentifier": "urn:example:document:permit-decision:2026-03-02",
+  "rkaf:artifactIdentifierScheme": "rkaf:partner-defined",
+  "rkaf:hasContentDigest": "sha256:DEADBEEF",
+  "_comment": "Negative: a content digest that is not one. Uppercase and short — the lexical contract is lowercase sha256:<64 hex>, and a digest that cannot be compared byte-for-byte proves nothing about immutability."
+}

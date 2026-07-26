@@ -3,7 +3,10 @@
   "@id": "urn:rkaf:fixture:edge:registered-concept:promoted",
   "@type": "rkaf:RegisteredConcept",
   "skos:prefLabel": "SNAP household income (promoted to canonical registry)",
+  "skos:inScheme": "urn:rkaf:fixture:scheme:fns-snap-topic",
+  "skos:definition": "Total earned and unearned income attributable to a SNAP household in the certification period, before deductions.",
   "rkaf:managedByRegistry": "urn:rkaf:registry:fns-canonical",
   "rkaf:conceptScope": "fns/snap/income",
-  "rkaf:conceptStatus": "rkaf:promoted"
+  "rkaf:conceptStatus": "rkaf:promoted",
+  "_comment": "Edge: a promoted concept. Promotion is rare and requires a written meaning (§4.7), so rkaf:promoted forces skos:definition — otherwise the record states the OUTCOME of a review whose central artifact was never written down."
 }

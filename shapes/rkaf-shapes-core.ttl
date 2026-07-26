@@ -6,6 +6,7 @@
 @prefix sh:    <http://www.w3.org/ns/shacl#> .
 @prefix owl:   <http://www.w3.org/2002/07/owl#> .
 @prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix oa:    <http://www.w3.org/ns/oa#> .
 @prefix rkaf:  <https://rulespec.org/ns/v1#> .
 
 <https://rulespec.org/shapes/core>
@@ -42,6 +43,15 @@ rkaf:RelationshipAssertion rdfs:subClassOf rkaf:Assertion .
 # the same parent for the same reason and by the same hand-authored route.
 rkaf:ValueAssertion rdfs:subClassOf rkaf:Assertion .
 
+# ConceptAssignment composes the same `#AssertionEnvelope` (Core §4.7): it
+# carries construction origin, AI lineage, extraction provenance, confidence,
+# supersession, and consumer disposition from one source rather than restating
+# them. It does NOT compose `#AssertionProposition` — its proposition is the
+# subject/concept pair, not a subject/predicate/object triple — so the subclass
+# axiom is hand-authored here for the same reason the two above are: no CUE
+# expression names a parent class for codegen to project.
+rkaf:ConceptAssignment rdfs:subClassOf rkaf:Assertion .
+
 # Assertion-level Pattern-C requirement: an Assertion whose assertionOrigin is
 # in the AI-touched set MUST carry rkaf:hasAILineage (§5.3).
 rkaf:AssertionAILineageShape a sh:NodeShape ;
@@ -53,3 +63,95 @@ rkaf:AssertionAILineageShape a sh:NodeShape ;
     [ sh:property [ sh:path rkaf:hasAILineage ; sh:minCount 1 ] ]
   ) ;
   sh:message "Assertion with AI-touched assertionOrigin MUST carry rkaf:hasAILineage (§5.3)." .
+
+# §4.2 — a declared selector kind must be backed by a selector of that type.
+#
+# The compiled shapes bind `rkaf:coordinateSystem` to `oa:TextPositionSelector`
+# and `oa:hasSelector` to "at least one value of any kind". Neither reaches
+# ACROSS the edge: a fragment could declare `rkaf:selectorKind
+# oa:TextPositionSelector` and then attach a dangling IRI, or an untyped blob
+# carrying `oa:start` / `oa:end` and no unit, and every compiled target accepted
+# it — the selector shape only ever fires on a node the producer voluntarily
+# typed. Dropping one JSON key defeated both position-selector negatives.
+#
+# The rule is hand-authored for the same reason the subclass axioms above are:
+# it is a statement about the AGREEMENT between one node's literal and another
+# node's class, and Layer 2 emits per-property constraints only.
+#
+# Scoped to `oa:TextPositionSelector` deliberately. That is the kind whose
+# reproducibility Rulespec actually constrains (offsets plus a declared unit);
+# the other kinds carry no Rulespec-side selector contract, and a blanket rule
+# would reject the legitimate bare-string form
+# (`sourcefragment-with-freshness-positive` attaches "§ 273.2" under
+# `rkaf:uslm-section`).
+rkaf:SourceFragmentSelectorKindAgreementShape a sh:NodeShape ;
+  sh:targetClass rkaf:SourceFragment ;
+  sh:or (
+    [ sh:not [ sh:property [
+        sh:path rkaf:selectorKind ; sh:hasValue oa:TextPositionSelector ] ] ]
+    [ sh:property [ sh:path oa:hasSelector ;
+        sh:qualifiedValueShape [ sh:class oa:TextPositionSelector ] ;
+        sh:qualifiedMinCount 1 ] ]
+  ) ;
+  sh:message "A fragment declaring selectorKind oa:TextPositionSelector MUST attach a typed oa:TextPositionSelector (§4.2)." .
+
+# §4.7.3 — the directional rule keys on what the subject IS, not on what the
+# record SAYS it is.
+#
+# `rkaf:assignmentSubjectType` is a self-declared literal in a closed enum, and
+# the compiled conditional that requires local evidence fires on that literal
+# alone. Relabelling one segment assignment `rkaf:Artifact` therefore bought a
+# producer the document-tag treatment for a fragment subject: the document tag
+# proved the section tag, which is exactly the self-confirming loop §4.7.3
+# forbids. This shape re-keys the obligation on the subject node's own
+# `rdf:type`, so the label cannot buy anything.
+#
+# The two rules are complementary, not redundant: the compiled conditional
+# still catches an HONEST record with a fragment subject and no evidence, and
+# this one catches a MISLABELLED one. Written as "the subject does not resolve
+# to a SourceFragment OR evidence is present", it stays silent when the subject
+# node is absent from the graph, so a standalone assignment document validates
+# exactly as it did before.
+rkaf:ConceptAssignmentFragmentSubjectEvidenceShape a sh:NodeShape ;
+  sh:targetClass rkaf:ConceptAssignment ;
+  sh:or (
+    [ sh:property [ sh:path rkaf:assignmentSubject ;
+        sh:not [ sh:class rkaf:SourceFragment ] ] ]
+    [ sh:property [ sh:path rkaf:assignmentEvidence ; sh:minCount 1 ] ]
+  ) ;
+  sh:message "An assignment whose subject resolves to a rkaf:SourceFragment MUST carry rkaf:assignmentEvidence, whatever rkaf:assignmentSubjectType declares (§4.7.3)." .
+
+# §4.7.3 — cited evidence must come from the same Artifact as the subject.
+#
+# The compiled conditional requires only that SOME class-ranged SourceFragment
+# be named. A producer could satisfy every segment in a corpus by citing one
+# fragment of an unrelated document, which restores the self-confirming loop the
+# evidence requirement exists to break. `oa:hasSource` equality is the strongest
+# check a shape can make: whether the cited region is the subject's OWN region
+# needs selector arithmetic across coordinate systems, which no SHACL profile
+# expresses. Core §4.7.3 states the residual as a producer obligation rather
+# than claiming it is checked.
+#
+# Both `oa:hasSource` values must be present for the constraint to fire, so an
+# assignment whose fragments live in another document validates unchanged.
+rkaf:ConceptAssignmentEvidenceSameArtifactShape a sh:NodeShape ;
+  sh:targetClass rkaf:ConceptAssignment ;
+  sh:sparql [
+    a sh:SPARQLConstraint ;
+    sh:message "rkaf:assignmentEvidence MUST cite a region of the SAME Artifact as the subject fragment (§4.7.3)." ;
+    sh:select """
+      PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+      PREFIX oa: <http://www.w3.org/ns/oa#>
+      PREFIX rkaf: <https://rulespec.org/ns/v1#>
+      SELECT $this
+      WHERE {
+        $this rkaf:assignmentSubject ?subject ;
+              rkaf:assignmentEvidence ?evidence .
+        ?subject rdf:type rkaf:SourceFragment ;
+                 oa:hasSource ?subjectArtifact .
+        ?evidence rdf:type rkaf:SourceFragment ;
+                  oa:hasSource ?evidenceArtifact .
+        FILTER (?evidenceArtifact != ?subjectArtifact)
+      }
+    """ ;
+  ] .

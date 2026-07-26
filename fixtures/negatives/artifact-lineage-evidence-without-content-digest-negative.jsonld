@@ -1,0 +1,32 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@graph": [
+    {
+      "@id": "urn:example:document:air-quality-plan:2026-07-25",
+      "@type": "rkaf:Artifact",
+      "rkaf:hasArtifactIdentifier": "urn:example:document:air-quality-plan:2026-07-25",
+      "rkaf:artifactIdentifierScheme": "rkaf:partner-defined",
+      "prov:wasRevisionOf": "urn:example:document:air-quality-plan:2025-07-25",
+      "rkaf:versionLineageEvidence": [
+        "urn:example:fragment:2026-plan:revision-note"
+      ]
+    },
+    {
+      "@id": "urn:example:document:air-quality-plan:2025-07-25",
+      "@type": "rkaf:Artifact",
+      "rkaf:hasArtifactIdentifier": "urn:example:document:air-quality-plan:2025-07-25",
+      "rkaf:artifactIdentifierScheme": "rkaf:partner-defined"
+    },
+    {
+      "@id": "urn:example:fragment:2026-plan:revision-note",
+      "@type": "rkaf:SourceFragment",
+      "oa:hasSource": "urn:example:document:air-quality-plan:2026-07-25",
+      "oa:hasSelector": {
+        "@type": "oa:TextQuoteSelector",
+        "oa:exact": "This edition supersedes the plan issued 25 July 2025."
+      },
+      "rkaf:selectorKind": "oa:TextQuoteSelector"
+    }
+  ],
+  "_comment": "Negative: cited lineage over an Artifact that is not digest-addressable. Comparison evidence must resolve to an immutable source state AND a content digest (§4.1); without rkaf:hasContentDigest the cited claim cannot be replayed against the bytes it was read from."
+}

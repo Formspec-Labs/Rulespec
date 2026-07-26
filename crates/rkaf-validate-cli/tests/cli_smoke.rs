@@ -33,10 +33,15 @@ fn cli_passes_positive_fixture() {
     );
 }
 
+// `ailineage-missing-approver-negative` was retired when Core §2.4 made
+// `rkaf:humanApprover` optional: an unreviewed model candidate must be
+// representable, so a missing approver stopped being a defect. Its
+// replacement catches one that is still real — an input-context hash that
+// is not a digest.
 #[test]
 fn cli_fails_negative_fixture_with_diagnostic() {
     let out = Command::new(bin())
-        .arg(fixture("ailineage-missing-approver-negative"))
+        .arg(fixture("ailineage-malformed-input-context-hash-negative"))
         .output()
         .unwrap();
     assert_eq!(out.status.code(), Some(1));
@@ -44,6 +49,51 @@ fn cli_fails_negative_fixture_with_diagnostic() {
     assert!(
         stderr.contains("FAIL"),
         "stderr did not mention FAIL: {stderr}"
+    );
+}
+
+// The selector contract has to reach the SHIPPED validator, not only the SHACL
+// gate. `oa:TextPositionSelector` is the only class in the repo with a NUMERIC
+// `x-rkaf-order`, so until it was registered the numeric branch of
+// `violates_order` was unreachable and this binary returned exit 0 on a region
+// whose end precedes its start.
+#[test]
+fn cli_fails_on_an_inverted_position_selector() {
+    let out = Command::new(bin())
+        .arg(fixture(
+            "negatives/text-position-selector-inverted-offsets-negative",
+        ))
+        .output()
+        .unwrap();
+    assert_eq!(
+        out.status.code(),
+        Some(1),
+        "stderr={}",
+        String::from_utf8_lossy(&out.stderr)
+    );
+    let stderr = String::from_utf8_lossy(&out.stderr);
+    assert!(
+        stderr.contains("oa:start"),
+        "diagnostic did not name the inverted pair: {stderr}"
+    );
+}
+
+// The same registration is what makes a missing coordinate system an L2
+// failure. An offset with no declared unit is not a coordinate, and the
+// required-property check is the one JSON Schema can make about it.
+#[test]
+fn cli_fails_on_a_position_selector_with_no_coordinate_system() {
+    let out = Command::new(bin())
+        .arg(fixture(
+            "negatives/text-position-selector-missing-coordinate-system-negative",
+        ))
+        .output()
+        .unwrap();
+    assert_eq!(
+        out.status.code(),
+        Some(1),
+        "stderr={}",
+        String::from_utf8_lossy(&out.stderr)
     );
 }
 
@@ -66,7 +116,7 @@ fn cli_json_mode_emits_structured_report() {
 fn cli_json_mode_emits_error_array_on_failure() {
     let out = Command::new(bin())
         .arg("--json")
-        .arg(fixture("ailineage-missing-approver-negative"))
+        .arg(fixture("ailineage-malformed-input-context-hash-negative"))
         .output()
         .unwrap();
     assert_eq!(out.status.code(), Some(1));

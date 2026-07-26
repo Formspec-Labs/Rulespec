@@ -4,5 +4,6 @@
   "@type": "rkaf:LocalConcept",
   "rkaf:definedInScope": "urn:rkaf:scope:tx-hhsc-snap",
   "rkaf:conceptScope": "tx-hhsc/snap/income",
-  "rkaf:conceptStatus": "rkaf:active"
+  "rkaf:conceptStatus": "rkaf:active",
+  "skos:inScheme": "urn:rkaf:fixture:scheme:fns-snap-topic"
 }

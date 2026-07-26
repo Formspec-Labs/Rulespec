@@ -1,0 +1,10 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@id": "urn:example:document:air-quality-plan:2026-07-25",
+  "@type": "rkaf:Artifact",
+  "rkaf:hasArtifactIdentifier": "urn:example:document:air-quality-plan:2026-07-25",
+  "rkaf:artifactIdentifierScheme": "rkaf:partner-defined",
+  "dcterms:isVersionOf": "urn:example:work:air-quality-plan",
+  "rkaf:hasContentDigest": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+  "_comment": "Negative: a stable-resource link with no cited source. Grouping documents under one work by shared topic is the same inference §4.1 forbids, so dcterms:isVersionOf carries the same evidence requirement prov:wasRevisionOf does."
+}

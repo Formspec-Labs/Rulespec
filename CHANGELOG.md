@@ -9,6 +9,100 @@ adapted for a specification + shape + fixture project.
 
 ### Added
 
+- `rkaf:ConceptScheme` (Core §4.7.1) — one facet, one controlled category
+  system, compatible with `skos:ConceptScheme`. SKOS owns scheme semantics and
+  this shape restates none of them; it adds the two things SKOS leaves open and
+  Rulespec must check: `rkaf:schemeFacet` (WHICH facet the scheme controls, as a
+  producer- or profile-owned IRI, deliberately not a kernel enum) and an
+  ownership disjunction — a scheme is governed by a registry or defined in a
+  workspace scope, the same seam `RegisteredConcept` / `LocalConcept` already
+  draw for concepts.
+- `rkaf:ConceptAssignment` (Core §4.7.3) — an evidence-bearing, versioned record
+  that one Artifact or one SourceFragment is associated with one concept. It
+  composes `#AssertionEnvelope`, so construction origin, AI lineage, extraction
+  provenance, source claimant, confidence, consumer disposition, supersession,
+  and assertion time have one home each rather than a parallel set of
+  assignment-shaped copies. Approval stays an `rkaf:Attestation` targeting the
+  record. `#AssertionProposition` is deliberately NOT composed: an assignment's
+  proposition is the subject-concept pair, and composing the triple core would
+  demand an `rkaf:assertsPredicate` every assignment fills with a placeholder.
+
+  Four conditionals carry the directional rule the carrier evidence turns on: a
+  `rkaf:SourceFragment` subject REQUIRES `rkaf:assignmentEvidence`; a
+  `rkaf:directAssignment` REQUIRES the same; a `rkaf:derivedAssignment`
+  REQUIRES `rkaf:supportingAssignment`; and naming supporting assignments
+  REQUIRES `rkaf:assignmentPolicyVersion`. Segment evidence may support a
+  document tag; a document tag may shortlist candidates for a segment and can
+  never prove one. Without that asymmetry one mistaken document tag propagates
+  to every segment and the segments then confirm the document.
+
+  Two hand-authored shapes in `shapes/rkaf-shapes-core.ttl` close what those
+  per-property conditionals cannot reach.
+  `rkaf:ConceptAssignmentFragmentSubjectEvidenceShape` re-keys the evidence
+  obligation on the subject node's own `rdf:type`: the compiled conditional
+  fires on the self-declared `rkaf:assignmentSubjectType` literal, so
+  relabelling one segment assignment `rkaf:Artifact` bought the document-tag
+  treatment for a fragment subject and let the document tag prove the section
+  tag. `rkaf:ConceptAssignmentEvidenceSameArtifactShape` requires every cited
+  evidence fragment to name the same `oa:hasSource` Artifact as the subject
+  fragment; the class range alone was satisfied by one fragment of any
+  document, which would have let a single unrelated preamble carry every
+  segment tag in a corpus. That the cited region is the subject's OWN region
+  needs selector arithmetic across coordinate systems, so Core §4.7.3 states it
+  as a producer obligation rather than claiming it is checked.
+- Artifact version identity enforcement (Core §4.1). `rkaf:hasContentDigest`
+  (lowercase `sha256:<64 hex>`) and `rkaf:versionLineageEvidence` (range
+  `rkaf:SourceFragment`), plus three conditionals that make the existing
+  prohibition checkable instead of advisory: declaring `dcterms:isVersionOf` or
+  `prov:wasRevisionOf` REQUIRES cited lineage evidence, and cited lineage
+  REQUIRES a content digest. Neither rule asserts a lineage claim is true; they
+  make it resolve to exact coordinates in an actual source, held by a state that
+  is addressable by content — which a shared title, a RIN, an embedding score,
+  or a retrieval rank never is. `dcterms:hasFormat` / `isFormatOf` are
+  deliberately NOT guarded: two renderings of one state are not a version claim.
+
+  `dcterms:isVersionOf` keeps NO class range, and a test pins that absence.
+  Rulespec still declines to mint a universal Work / Expression / Manifestation
+  hierarchy; a range here would be that hierarchy arriving through the range
+  registry instead of through the spec.
+- SourceFragment identity bindings (Core §4.2). `oa:hasSource` is now an
+  absolute IRI with range `rkaf:Artifact` — it was a bare `string`, so a
+  fragment could name a workspace, a label, or nothing resolvable and every
+  target accepted it. Added `rkaf:sourceArtifactDigest` (which STATE of the
+  Artifact the coordinates address) and `rkaf:fragmentContentDigest` (the exact
+  region text they select), both `sha256:<64 hex>`.
+- `oa:TextPositionSelector` as a typed selector contract, with the OA offset
+  predicates `oa:start` / `oa:end` (xsd:integer, >= 0), an ordering rule that
+  rejects an inverted range, and a REQUIRED `rkaf:coordinateSystem` from a
+  closed six-value set. An offset with no declared unit is not a coordinate:
+  `4180` names three different positions depending on whether the producer
+  counted Unicode code points, UTF-8 bytes, or UTF-16 code units, and the three
+  diverge at the first non-ASCII character. The unit sits on the SELECTOR, not
+  the fragment, because a fragment carrying both a quote and a position selector
+  has exactly one coordinate system and it is the position selector's.
+
+  `rkaf:SourceFragmentSelectorKindAgreementShape`
+  (`shapes/rkaf-shapes-core.ttl`) binds the fragment's declared
+  `rkaf:selectorKind` to a selector actually typed `oa:TextPositionSelector`.
+  Without it the whole selector contract was opt-in: the offset and unit rules
+  fire only on a node the producer voluntarily typed, so a dangling selector
+  IRI, or an untyped node carrying `oa:start` / `oa:end` and no unit, passed
+  every target. Scoped to the position selector, because that is the kind whose
+  reproducibility Rulespec constrains; the bare-value forms other kinds use
+  stay legal.
+- Both OA selector classes are now registered with the L2 dispatchers. Core
+  §4.2 compiles shapes for `oa:TextQuoteSelector` and
+  `oa:TextPositionSelector`, but `crates/rkaf-validate/build.rs` and
+  `tools/conformance_lib.py` bound only `rkaf:`-prefixed `@type`s, so neither
+  class was ever embedded: `rkaf-validate` returned exit 0 on an inverted range
+  and on offsets with no declared unit, and `tools/conformance_report.py`
+  reported those negatives as L2 = pass. `oa:TextPositionSelector` is also the
+  only class in the repo with a NUMERIC `x-rkaf-order`, so the numeric branch of
+  the ordering check was unreachable in `rkaf-validate` — the entry below was
+  true of `tools/constraints_parity.py` alone. Both dispatchers now walk a
+  shared prefix set, and `crates/rkaf-validate-cli/tests/cli_smoke.rs` pins the
+  exit code. Residual, stated in Core §4.2: both dispatchers walk the root and
+  the top-level `@graph` only, so an INLINE selector is not an L2 target.
 - `rkaf:ValueAssertion`, the second proposition-bearing Assertion
   specialization, whose object is a typed literal rather than an IRI. Core
   §2.1 deferred typed-literal objects pending "a coordinated JSON-LD, CUE, and
@@ -51,6 +145,67 @@ adapted for a specification + shape + fixture project.
 
 ### Changed
 
+- **`rkaf:AILineage` no longer requires `rkaf:humanApprover`** (Core §2.4,
+  §5.3). This resolves the open conflict recorded in the previous entry. The
+  AI-touched `rkaf:assertionOrigin` values still REQUIRE `rkaf:hasAILineage`,
+  and that requirement is now satisfied by an approver-free lineage — so
+  `rkaf:aiSuggested`, whose entire meaning is *unreviewed candidate*, no longer
+  forces the producer to name a reviewer who does not exist. Approval is where
+  it always belonged: an `rkaf:Attestation` targeting the assertion.
+
+  The shape still refuses a review attributed to nobody. When
+  `rkaf:humanRationale` is present, `rkaf:humanApprover` is REQUIRED: a stated
+  human reason with no human named reads as approved while leaving no one
+  accountable, which is a worse record than an honest unreviewed candidate.
+
+  Two negative fixtures were affected, and no coverage was lost.
+  `fixtures/negatives/a-i-lineage-missing-human-approver-negative.jsonld` keeps
+  its verdict and its name — it states a rationale, so it now fails the rule
+  above. `fixtures/ailineage-missing-approver-negative.jsonld` no longer
+  described a defect and was replaced by
+  `fixtures/ailineage-malformed-input-context-hash-negative.jsonld`.
+- `rkaf:inputContextHash` is now a digest rather than a free string: lowercase
+  `sha256:<64 hex>`, the lexical contract `rkaf:requestContractDigest` and
+  `rkaf:inputDigest` already use. A hash that cannot be compared across runs
+  makes a derivation unreplayable, which is the only thing the field is for.
+  `fixtures/modelcard-minimal-positive.jsonld` carried a 32-hex placeholder and
+  was corrected; its verdict is unchanged.
+- `skos:inScheme` is REQUIRED (1) on `rkaf:RegisteredConcept` and
+  `rkaf:LocalConcept`, and `skos:definition` is REQUIRED when
+  `rkaf:conceptStatus` is `rkaf:promoted`. A facet-free concept is exactly the
+  term that later merges with a same-spelled term from another facet, and a
+  promoted concept with no definition records the outcome of a review whose
+  central artifact was never written down. Rulespec declares no class range over
+  `skos:inScheme` — the scheme may be an external `skos:ConceptScheme`.
+- `#SkosMappingPredicate` gains SKOS's three remaining mapping properties:
+  `skos:broadMatch`, `skos:narrowMatch`, `skos:relatedMatch`. SKOS separates
+  in-scheme semantic relations (`broader` / `narrower` / `related`) from the
+  cross-scheme mapping properties, and the earlier set carried only the former,
+  so aligning to an external thesaurus meant borrowing an in-scheme relation and
+  misstating the alignment. Purely additive: no value was removed and every
+  existing mapping stays valid. `shapes/rkaf-shapes-conceptregistry.ttl` mirrors
+  the set, and a test pins the two lists identical — SHACL is conjunctive, so a
+  value in one and not the other is rejected outright.
+- Ordered-field enforcement now compares numbers as numbers, in every gate that
+  reads `x-rkaf-order`. The keyword is the type-agnostic carrier for a CUE
+  ordering branch, but `tools/constraints_parity.py` and `rkaf-validate`
+  compared string values only, so date intervals were enforced and every numeric
+  interval was silently skipped — leaving those targets weaker than the
+  `sh:lessThanOrEquals` compiled from the same source line. Mixed types are
+  still not compared; inventing an order across JSON types would produce a
+  verdict the CUE never stated.
+
+  `tools/conformance_report.py` did not read the keyword at all. It is a JSON
+  Schema EXTENSION, so `jsonschema` ignores it and the reporter's L2 column read
+  `pass` on an inverted pair that both other gates rejected. The reporter now
+  applies it, and the single Python implementation lives in
+  `tools/conformance_lib.violates_order` rather than in a private copy per
+  caller; `crates/rkaf-validate/src/lib.rs` carries the Rust twin.
+- `shapes/rkaf-shapes-studio-promotions.ttl` relaxes its hand-authored
+  `rkaf:humanApprover` row to `sh:maxCount 1` plus the node-kind check. It
+  merges by IRI with the compiled `rkaf:AILineageShape`, so leaving `sh:minCount
+  1` there would have kept the removed requirement in force through the back
+  door.
 - `constraints/core/assertion.cue` now names the two halves of an assertion
   separately: `#AssertionProposition` (subject, predicate, polarity —
   immutable) and `#ConsumerDisposition` (usage eligibility, consumer lifecycle
@@ -63,15 +218,7 @@ adapted for a specification + shape + fixture project.
   `rkaf:ValueAssertion` closes over the same two values. The definition name
   and its values are unchanged.
 
-### Known issue
-
-- `rkaf:AILineage` still requires `rkaf:humanApprover` while the AI-touched
-  `rkaf:assertionOrigin` values — including `rkaf:aiSuggested`, meaning
-  *unreviewed candidate* — still require `rkaf:hasAILineage`. Together they
-  force an approver onto an unreviewed candidate. `rkaf:ExtractionActivity`
-  provides the approval-free run record, but resolving the requirement itself
-  flips two negative fixtures and is left to a separate change. See Core §2.4,
-  "Open conflict".
+### Added — US regulatory identifiers, L0 conformance, and the rulemaking module
 
 - Six closed US regulatory-identifier values for CFR, U.S. Code, Federal
   Register document, regulations.gov document/comment, public-law, and

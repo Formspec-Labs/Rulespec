@@ -39,10 +39,12 @@ from conformance_lib import (
     FIXTURES_DIR,
     fixture_name,
     fixture_paths,
+    is_dispatched_type,
     iter_nodes,
     load_json,
     schema_bindings,
     shacl_shape_paths,
+    violates_order,
 )
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -87,9 +89,23 @@ def _load_schema(path: Path) -> Optional[dict]:
 
 
 def l2_validate(doc: dict) -> tuple[bool, list[str]]:
-    """L2 gate: walk every node (root or in @graph) with an @type starting
-    with `rkaf:`, look up the schema, validate against `$defs.<ClassName>`.
-    Returns (passed, error_messages)."""
+    """L2 gate: walk every node (root or in @graph) whose `@type` names a
+    codified class, look up the schema, validate against `$defs.<ClassName>`.
+    Returns (passed, error_messages).
+
+    "Codified" is `conformance_lib.L2_TYPE_PREFIXES`, not `rkaf:` — Core §4.2
+    compiles shapes for the two OA selector classes as well.
+
+    `x-rkaf-order` is applied alongside the schema. It is a JSON Schema
+    EXTENSION keyword, so `jsonschema` ignores it: reporting L2 from the
+    validator alone made this gate weaker than `rkaf-validate` and
+    `tools/constraints_parity.py`, which both apply it, and an inverted pair
+    was reported as an L2 pass.
+
+    Known residual: `iter_nodes` walks the root and the top-level `@graph` only,
+    so a selector attached INLINE inside a fragment is not an L2 target. Core
+    §4.2 states that limit normatively; SHACL sees inline selectors either way,
+    because RDF has no notion of nesting."""
     try:
         import jsonschema
     except ImportError:
@@ -101,11 +117,11 @@ def l2_validate(doc: dict) -> tuple[bool, list[str]]:
     errs: list[str] = []
     for node in nodes:
         type_iri = node.get("@type")
-        if not isinstance(type_iri, str) or not type_iri.startswith("rkaf:"):
+        if not is_dispatched_type(type_iri):
             continue
         binding = bindings.get(type_iri)
         if binding is None:
-            continue  # unknown rkaf:* class — pass silently per L2 spec
+            continue  # unknown codified class — pass silently per L2 spec
         schema = _load_schema(binding.schema_path)
         if schema is None:
             errs.append(f"schema missing for {type_iri}")
@@ -120,6 +136,13 @@ def l2_validate(doc: dict) -> tuple[bool, list[str]]:
             jsonschema.Draft202012Validator(wrapper).validate(node)
         except jsonschema.ValidationError as e:
             errs.append(f"{type_iri}: {e.message}")
+        class_schema = schema.get("$defs", {}).get(binding.class_name, {})
+        for order in class_schema.get("x-rkaf-order", []):
+            if violates_order(node.get(order["lower"]), node.get(order["upper"])):
+                errs.append(
+                    f"{type_iri}: {order['lower']} must be less than or equal "
+                    f"to {order['upper']}"
+                )
     return (not errs), errs
 
 

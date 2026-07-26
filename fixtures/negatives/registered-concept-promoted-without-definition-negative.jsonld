@@ -1,0 +1,11 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@id": "urn:rkaf:fixture:edge:registered-concept:promoted",
+  "@type": "rkaf:RegisteredConcept",
+  "skos:prefLabel": "SNAP household income (promoted to canonical registry)",
+  "skos:inScheme": "urn:rkaf:fixture:scheme:fns-snap-topic",
+  "rkaf:managedByRegistry": "urn:rkaf:registry:fns-canonical",
+  "rkaf:conceptScope": "fns/snap/income",
+  "rkaf:conceptStatus": "rkaf:promoted",
+  "_comment": "Negative: promoted with no definition. Promotion requires a definition, scope, examples, counterexamples, mappings, usage evidence, lineage, steward, approver, and rationale; the definition is the one piece the shape can check, and its absence means the shared vocabulary gained a term nobody wrote down."
+}

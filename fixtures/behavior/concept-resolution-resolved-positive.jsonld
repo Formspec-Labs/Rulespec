@@ -12,7 +12,8 @@
         "rkaf:definedInScope": "urn:rkaf:scope:test",
         "rkaf:conceptScope": "urn:rkaf:scope:test",
         "rkaf:conceptStatus": "rkaf:active",
-        "skos:prefLabel": "X"
+        "skos:prefLabel": "X",
+        "skos:inScheme": "urn:rkaf:scheme:test-topic"
       },
       {
         "@id": "canon:A",
@@ -20,7 +21,8 @@
         "rkaf:managedByRegistry": "urn:rkaf:registry:canonical",
         "rkaf:conceptScope": "urn:rkaf:scope:canonical",
         "rkaf:conceptStatus": "rkaf:active",
-        "skos:prefLabel": "Canon A"
+        "skos:prefLabel": "Canon A",
+        "skos:inScheme": "urn:rkaf:scheme:canonical-topic"
       },
       {
         "@id": "m1",

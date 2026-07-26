@@ -64,9 +64,19 @@ fn expected_kind(path: &Path) -> Option<&'static str> {
     }
 }
 
+/// Collect the `@type` IRIs of every dispatchable node in a document.
+///
+/// The prefix set mirrors `build.rs`: `rkaf:` plus the two OA selector classes
+/// Core §4.2 compiles shapes for. Collecting `rkaf:` alone would have made
+/// `positive_fixtures_cover_every_embedded_schema_type` fail open the moment
+/// those classes were embedded — it would report them uncovered rather than
+/// prove a positive fixture exercises them.
+///
+/// Like the validator itself, this walks the root and `@graph` members only;
+/// a selector attached inline inside a fragment is not a covered node.
 fn collect_types(value: &Value, types: &mut BTreeSet<String>) {
     if let Some(type_iri) = value.get("@type").and_then(Value::as_str) {
-        if type_iri.starts_with("rkaf:") {
+        if type_iri.starts_with("rkaf:") || type_iri.starts_with("oa:") {
             types.insert(type_iri.to_string());
         }
     }

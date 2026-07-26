@@ -1,0 +1,24 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@graph": [
+    {
+      "@id": "urn:rkaf:fixture:sf-untyped:artifact",
+      "@type": "rkaf:Artifact",
+      "rkaf:hasArtifactIdentifier": "urn:rkaf:fixture:sf-untyped:artifact",
+      "rkaf:artifactIdentifierScheme": "rkaf:partner-defined"
+    },
+    {
+      "@id": "urn:rkaf:fixture:sf-untyped:fragment",
+      "@type": "rkaf:SourceFragment",
+      "oa:hasSource": "urn:rkaf:fixture:sf-untyped:artifact",
+      "oa:hasSelector": "urn:rkaf:fixture:sf-untyped:selector",
+      "rkaf:selectorKind": "oa:TextPositionSelector"
+    },
+    {
+      "@id": "urn:rkaf:fixture:sf-untyped:selector",
+      "oa:start": 4222,
+      "oa:end": 4180
+    }
+  ],
+  "_comment": "Negative: offsets on an untyped node. The selector carries an inverted pair and no coordinate system, and both of those rules live on rkaf:TextPositionSelectorShape — which fires only on a node typed oa:TextPositionSelector. Omitting the @type made an unreproducible, inverted region pass every target; §4.2 binds the fragment's declared selectorKind to a TYPED selector so the omission is the violation."
+}

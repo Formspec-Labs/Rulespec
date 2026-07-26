@@ -32,9 +32,13 @@ Local concepts use `rkaf:LocalConcept` typed nodes, with `rkaf:definedInScope` (
 
 The mapping relation MUST use a SKOS predicate from the closed set:
 
-`skos:closeMatch`, `skos:exactMatch`, `skos:broader`, `skos:narrower`, `skos:related`, `skos:mappingRelation`.
+`skos:exactMatch`, `skos:closeMatch`, `skos:broadMatch`, `skos:narrowMatch`, `skos:relatedMatch`, `skos:broader`, `skos:narrower`, `skos:related`, `skos:mappingRelation`.
+
+v0.2 ADDS `skos:broadMatch`, `skos:narrowMatch`, and `skos:relatedMatch`; no value was removed, and every mapping valid before this release stays valid. SKOS draws a real line the earlier set collapsed: `skos:broader` / `skos:narrower` / `skos:related` are semantic relations WITHIN one scheme, while the `*Match` properties are the mapping properties used BETWEEN schemes (SKOS Reference §10). Aligning a local concept to an external thesaurus needs the `*Match` half; without it a producer had to reach for the in-scheme relation and misstate the alignment as if both concepts lived in one vocabulary.
 
 This replaces v0.1.2's bespoke `rkaf:mappingRelation` enum. SKOS owns this vocabulary; do not duplicate.
+
+The closed set is declared twice — `#SkosMappingPredicate` in `constraints/core/concept-mapping.cue` and the `sh:in` list in `shapes/rkaf-shapes-conceptregistry.ttl` — and the two MUST stay identical. SHACL is conjunctive: a value present in one list and absent from the other is rejected by the merged shape suite regardless of what the compiled artifact says.
 
 A `rkaf:ConceptMapping` is a `rkaf:RelationshipAssertion` whose `assertsPredicate` is one of the SKOS predicates above and whose subject/object are concept IRIs. It inherits the full assertion model — evidence, attestation, scope, adoption, lifecycle — from `spec/rkaf-core.md` §6.
 
@@ -54,6 +58,40 @@ URN scheme: `urn:rkaf:workspace:<workspaceId>/<localConceptId>` resolves within 
 
 A `rkaf:ConceptMapping` MAY carry a `rkaf:hasJustification` whose `rkaf:Justification` carries `rkaf:hasWarrant` (warrant kind from any family, not only legal). v0.1.2's `rkaf:hasAuthority` remains valid as the legal-family specialization (`rkaf:Authority rdfs:subClassOf rkaf:Warrant`).
 
+### 2.6 rkaf:ConceptScheme and facets
+
+A `rkaf:ConceptScheme` is one facet's controlled category system, compatible with `skos:ConceptScheme`. Its normative shape is defined in `spec/rkaf-core.md` §4.7.1 and is not restated here.
+
+Two rules matter to the registry:
+
+1. Every `rkaf:RegisteredConcept` and `rkaf:LocalConcept` MUST carry `skos:inScheme` (1). A facet-free concept is the term that later merges with a same-spelled term from another facet.
+2. A scheme MUST declare `rkaf:schemeFacet` and MUST be owned — either `rkaf:managedByRegistry` (federation-shared) or `rkaf:definedInScope` (workspace-local). That disjunction is the same seam this section already draws between registered and local concepts, applied to their container.
+
+SKOS owns scheme membership, top concepts, labels, and definitions. Rulespec adds the facet declaration and the ownership rule and nothing else; in particular it declares no class range over `skos:inScheme`, so a concept MAY belong to an external `skos:ConceptScheme`.
+
+### 2.7 Promotion
+
+The normal path from retrieval candidate to shared vocabulary is:
+
+```text
+retrieval candidate
+  -> LocalConcept
+  -> evidence-backed assignments
+  -> measured usefulness and quality
+  -> human-reviewed promotion packet
+  -> RegisteredConcept
+```
+
+Promotion is rare. It requires a definition, scope, examples, counterexamples, mappings, usage evidence, conflicts, lineage, a steward, a human approver, and a rationale. Of those, `skos:definition` is the one a shape can check, and it is REQUIRED when `rkaf:conceptStatus` is `rkaf:promoted` (`spec/rkaf-core.md` §4.7.2).
+
+Model confidence, query popularity, and click counts MAY guide review. They never establish meaning and MUST NOT promote a concept. Promotion creates a separate reviewed record; it does not rewrite the local history that produced it.
+
+### 2.8 rkaf:ConceptAssignment
+
+Assignments of concepts to Artifacts and SourceFragments are normatively defined in `spec/rkaf-core.md` §4.7.3. They are registry-adjacent rather than registry-owned: an assignment cites a concept, and the concept's governance stays with its scheme and registry.
+
+The registry-relevant consequence is that a `rkaf:LocalConcept` accumulates evidence-backed assignments before it is eligible for the promotion packet above, and those assignments are themselves append-only, evidence-bearing records — not counters.
+
 ## 3. Conflict resolution
 
 (Inherited from v0.1.2 §3.)
@@ -70,7 +108,7 @@ Concept lifecycle events — `rkaf:registered`, `rkaf:deprecated`, `rkaf:superse
 
 Validated by `shapes/rkaf-shapes-conceptregistry.ttl` (new) **plus** the inherited `shapes/rkaf-shapes-conceptregistry-v0.1.ttl` (lifecycle and applicability rules).
 
-`skos:prefLabel(1)` is enforced at **L1** (CUE → `constraints/core/concept.cue` → `compiled/json-schema/core/concept.schema.json`) and **L3** (`compiled/shacl/core/concept.ttl` — `sh:property [ sh:path skos:prefLabel ; sh:minCount 1 ]` on both `rkaf:RegisteredConceptShape` and `rkaf:LocalConceptShape`). Producers omitting `skos:prefLabel` are rejected at both validation layers.
+`skos:prefLabel(1)` and `skos:inScheme(1)` are enforced at **L1** (CUE → `constraints/core/concept.cue` → `compiled/json-schema/core/concept.schema.json`) and **L3** (`compiled/shacl/core/concept.ttl` — `sh:property [ sh:path skos:prefLabel ; sh:minCount 1 ]` and `sh:property [ sh:path skos:inScheme ; sh:minCount 1 ; sh:maxCount 1 ]`, both on `rkaf:RegisteredConceptShape` and `rkaf:LocalConceptShape`). Producers omitting either are rejected at both validation layers. The `sh:maxCount 1` on `skos:inScheme` is a deliberate Rulespec narrowing of an unrestricted SKOS predicate — one concept, one facet; see Core §4.7.2.
 
 ## 6. Compatibility
 

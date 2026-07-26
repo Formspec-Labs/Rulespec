@@ -59,6 +59,12 @@ pub struct USRegulatoryArtifact {
     /// JSON-LD property `prov:wasRevisionOf`.
     #[serde(rename = "prov:wasRevisionOf", skip_serializing_if = "Option::is_none", default)]
     pub was_revision_of: Option<crate::OneOrMany<String>>,
+    /// JSON-LD property `rkaf:hasContentDigest`.
+    #[serde(rename = "rkaf:hasContentDigest", skip_serializing_if = "Option::is_none", default)]
+    pub has_content_digest: Option<String>,
+    /// JSON-LD property `rkaf:versionLineageEvidence`.
+    #[serde(rename = "rkaf:versionLineageEvidence", skip_serializing_if = "Option::is_none", default)]
+    pub version_lineage_evidence: Option<crate::OneOrMany<String>>,
     /// JSON-LD property `rkaf:hasRegulatoryIdentifier`.
     #[serde(rename = "rkaf:hasRegulatoryIdentifier", skip_serializing_if = "Option::is_none", default)]
     pub has_regulatory_identifier: Option<String>,

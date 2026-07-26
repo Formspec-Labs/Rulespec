@@ -1,0 +1,40 @@
+{
+  "@context": "../context/rkaf-context.jsonld",
+  "@graph": [
+    {
+      "@id": "urn:rkaf:fixture:sf-pos:artifact",
+      "@type": "rkaf:Artifact",
+      "rkaf:hasArtifactIdentifier": "urn:rkaf:fixture:sf-pos:artifact",
+      "rkaf:artifactIdentifierScheme": "rkaf:hash-sha256",
+      "rkaf:hasContentDigest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    {
+      "@id": "urn:rkaf:fixture:sf-pos:fragment",
+      "@type": "rkaf:SourceFragment",
+      "oa:hasSource": "urn:rkaf:fixture:sf-pos:artifact",
+      "oa:hasSelector": [
+        "urn:rkaf:fixture:sf-pos:selector",
+        {
+          "@type": "oa:TextQuoteSelector",
+          "oa:exact": "each covered facility shall report annually",
+          "oa:prefix": "Beginning 1 January 2027, ",
+          "oa:suffix": " to the Administrator."
+        }
+      ],
+      "rkaf:selectorKind": [
+        "oa:TextPositionSelector",
+        "oa:TextQuoteSelector"
+      ],
+      "rkaf:sourceArtifactDigest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "rkaf:fragmentContentDigest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+    },
+    {
+      "@id": "urn:rkaf:fixture:sf-pos:selector",
+      "@type": "oa:TextPositionSelector",
+      "oa:start": 4180,
+      "oa:end": 4222,
+      "rkaf:coordinateSystem": "rkaf:unicode-codepoint"
+    }
+  ],
+  "_comment": "SourceFragment identity §4.2, all four bindings present: the exact Artifact (oa:hasSource, class-ranged), the region (two selectors), the coordinate system on the offset-bearing selector, and both digests — the Artifact state the offsets were taken against and the exact region text they select."
+}

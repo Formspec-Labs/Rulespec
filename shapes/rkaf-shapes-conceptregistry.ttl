@@ -7,10 +7,18 @@
 @prefix rkaf:  <https://rulespec.org/ns/v1#> .
 
 # ConceptMapping uses SKOS predicates only (concept-registry-v0.2 §2.2).
+# The set now carries SKOS's three cross-scheme mapping properties
+# (broadMatch / narrowMatch / relatedMatch) alongside the in-scheme semantic
+# relations it already allowed. Keep this list identical to
+# `#SkosMappingPredicate` in constraints/core/concept-mapping.cue: SHACL is
+# conjunctive, so a value present in one list and absent from the other is
+# rejected by the merged shape set no matter what the compiled shape says.
 rkaf:ConceptMappingShape a sh:NodeShape ;
   sh:targetClass rkaf:ConceptMapping ;
   sh:property [ sh:path rkaf:mappingRelation ; sh:minCount 1 ; sh:maxCount 1 ;
-    sh:in ( skos:closeMatch skos:exactMatch skos:broader skos:narrower
+    sh:in ( skos:closeMatch skos:exactMatch
+            skos:broadMatch skos:narrowMatch skos:relatedMatch
+            skos:broader skos:narrower
             skos:related skos:mappingRelation ) ;
     sh:message "ConceptMapping mappingRelation MUST be a SKOS predicate (concept-registry-v0.2 §2.2)." ;
   ] .

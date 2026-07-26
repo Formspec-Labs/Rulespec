@@ -1,0 +1,24 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@graph": [
+    {
+      "@id": "urn:rkaf:fixture:sf-bare-quote:artifact",
+      "@type": "rkaf:Artifact",
+      "rkaf:hasArtifactIdentifier": "urn:rkaf:fixture:sf-bare-quote:artifact",
+      "rkaf:artifactIdentifierScheme": "rkaf:partner-defined"
+    },
+    {
+      "@id": "urn:rkaf:fixture:sf-bare-quote:fragment",
+      "@type": "rkaf:SourceFragment",
+      "oa:hasSource": "urn:rkaf:fixture:sf-bare-quote:artifact",
+      "oa:hasSelector": "urn:rkaf:fixture:sf-bare-quote:selector",
+      "rkaf:selectorKind": "oa:TextQuoteSelector"
+    },
+    {
+      "@id": "urn:rkaf:fixture:sf-bare-quote:selector",
+      "@type": "oa:TextQuoteSelector",
+      "oa:exact": "as provided in this section"
+    }
+  ],
+  "_comment": "Edge: a quote with no context anchors. OA 1.0 makes oa:prefix and oa:suffix OPTIONAL and Rulespec does not narrow that, so a phrase that recurs in the Artifact resolves ambiguously and the record is still accepted. This pins the accepted looseness: anchoring a repeated quote is a producer obligation, not a shape check. Compare the position selector, whose unit IS required — there Rulespec adds the predicate OA lacks."
+}

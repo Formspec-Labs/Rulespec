@@ -29,6 +29,8 @@ import rdflib
 from jsonschema import Draft202012Validator, FormatChecker
 from pyshacl import validate as shacl_validate
 
+from conformance_lib import violates_order
+
 ROOT = Path(__file__).resolve().parent.parent
 
 # Constraint name → subdir under constraints/ (and therefore under
@@ -51,6 +53,9 @@ CONSTRAINTS: dict[str, str] = {
     "workspace":               "core",
     "mapping-state":           "core",
     "concept-registry":        "core",
+    "concept":                 "core",
+    "concept-assignment":      "core",
+    "concept-mapping":         "core",
     "assertion":               "core",
     "relationship-assertion":  "core",
     "value-assertion":         "core",
@@ -95,6 +100,24 @@ FIXTURE_BINDINGS: list[tuple[str, str, str, str]] = [
     ("artifact", "Artifact", "fixtures/artifact-cid-positive.jsonld", "PASS"),
     ("artifact", "Artifact", "fixtures/artifact-primary-topic-positive.jsonld", "PASS"),
     ("artifact", "Artifact", "fixtures/artifact-version-lineage-positive.jsonld", "PASS"),
+    ("artifact", "Artifact", "fixtures/artifact-content-digest-positive.jsonld", "PASS"),
+    # Version identity (§4.1). A format sibling is NOT a version claim, so the
+    # cross-posting edge must stay PASS while every row below it FAILs — that
+    # contrast is the whole point of guarding on the two lineage predicates
+    # rather than on "this Artifact points at another Artifact".
+    ("artifact", "Artifact",
+     "fixtures/edges/artifact-format-sibling-not-a-version-edge.jsonld", "PASS"),
+    ("artifact", "Artifact",
+     "fixtures/negatives/artifact-revision-without-lineage-evidence-negative.jsonld",
+     "FAIL"),
+    ("artifact", "Artifact",
+     "fixtures/negatives/artifact-is-version-of-without-lineage-evidence-negative.jsonld",
+     "FAIL"),
+    ("artifact", "Artifact",
+     "fixtures/negatives/artifact-lineage-evidence-without-content-digest-negative.jsonld",
+     "FAIL"),
+    ("artifact", "Artifact",
+     "fixtures/negatives/artifact-malformed-content-digest-negative.jsonld", "FAIL"),
     # The kernel Artifact is open at the carrier level: a document carrying US
     # profile terms is UNCONSTRAINED by the kernel schema/shape rather than
     # rejected by it. These two rows pin that semantics — the same malformed
@@ -177,6 +200,49 @@ FIXTURE_BINDINGS: list[tuple[str, str, str, str]] = [
     ("rulemaking", "CommentPeriod", "fixtures/negatives/comment-period-missing-provenance-negative.jsonld", "FAIL"),
     ("rulemaking", "CommentPeriod", "fixtures/negatives/comment-period-malformed-date-negative.jsonld", "FAIL"),
     ("rulemaking", "CommentPeriod", "fixtures/negatives/comment-period-end-before-start-negative.jsonld", "FAIL"),
+    # SourceFragment identity (§4.2). Three REQUIRED bindings — exact artifact,
+    # selector, selector kind — plus the coordinate system, which the SELECTOR
+    # carries. The TextPositionSelector rows are bound to the selector shape
+    # rather than the fragment shape for exactly that reason: that is where the
+    # offsets and their unit live. The state binding
+    # (`rkaf:sourceArtifactDigest`) is RECOMMENDED, not required, so it has a
+    # malformed-value row and no missing-value row.
+    ("source-fragment", "SourceFragment",
+     "fixtures/sourcefragment-oa-textquote-positive.jsonld", "PASS"),
+    ("source-fragment", "SourceFragment",
+     "fixtures/sourcefragment-position-selector-positive.jsonld", "PASS"),
+    ("source-fragment", "TextPositionSelector",
+     "fixtures/sourcefragment-position-selector-positive.jsonld", "PASS"),
+    ("source-fragment", "TextPositionSelector",
+     "fixtures/edges/text-position-selector-zero-length-edge.jsonld", "PASS"),
+    ("source-fragment", "TextPositionSelector",
+     "fixtures/negatives/text-position-selector-missing-coordinate-system-negative.jsonld",
+     "FAIL"),
+    ("source-fragment", "TextPositionSelector",
+     "fixtures/negatives/text-position-selector-inverted-offsets-negative.jsonld",
+     "FAIL"),
+    ("source-fragment", "SourceFragment",
+     "fixtures/negatives/source-fragment-malformed-source-artifact-digest-negative.jsonld",
+     "FAIL"),
+    # The quote-selector contract, exercised on nodes attached BY REFERENCE.
+    # Both L2 dispatchers walk the root and the top-level `@graph` only, so a
+    # referenced selector is the form they can see; an inline one reaches SHACL
+    # alone (Core §4.2).
+    ("source-fragment", "SourceFragment",
+     "fixtures/sourcefragment-referenced-quote-selector-positive.jsonld", "PASS"),
+    ("source-fragment", "TextQuoteSelector",
+     "fixtures/sourcefragment-referenced-quote-selector-positive.jsonld", "PASS"),
+    ("source-fragment", "TextQuoteSelector",
+     "fixtures/edges/text-quote-selector-no-context-anchors-edge.jsonld", "PASS"),
+    ("source-fragment", "TextQuoteSelector",
+     "fixtures/negatives/text-quote-selector-missing-exact-negative.jsonld",
+     "FAIL"),
+    ("source-fragment", "TextPositionSelector",
+     "fixtures/negatives/text-position-selector-missing-start-negative.jsonld",
+     "FAIL"),
+    ("source-fragment", "TextPositionSelector",
+     "fixtures/negatives/text-position-selector-missing-end-negative.jsonld",
+     "FAIL"),
     ("warrant",  "Warrant",  "fixtures/warrant-legal-positive.jsonld", "PASS"),
     ("warrant",  "Warrant",  "fixtures/warrant-scientific-positive.jsonld", "PASS"),
     ("confidence-record", "ConfidenceRecord", "fixtures/confidencerecord-uncalibrated-positive.jsonld", "PASS"),
@@ -186,7 +252,16 @@ FIXTURE_BINDINGS: list[tuple[str, str, str, str]] = [
     ("access-scope",      "AccessScope",      "fixtures/accessscope-organizationVisible-positive.jsonld", "PASS"),
     ("access-scope",      "AccessScope",      "fixtures/accessscope-leak-negative.jsonld", "FAIL"),
     ("ai-lineage",        "AILineage",        "fixtures/ailineage-positive.jsonld", "PASS"),
-    ("ai-lineage",        "AILineage",        "fixtures/ailineage-missing-approver-negative.jsonld", "FAIL"),
+    # §2.4 / §5.3 resolution: an approver-free lineage is the HONEST record of
+    # an unreviewed model candidate, so it PASSes. What still fails is a
+    # lineage carrying a human rationale with no human, and an input-context
+    # hash that is not a digest.
+    ("ai-lineage",        "AILineage",
+     "fixtures/edges/ailineage-unreviewed-candidate-edge.jsonld", "PASS"),
+    ("ai-lineage",        "AILineage",
+     "fixtures/negatives/a-i-lineage-missing-human-approver-negative.jsonld", "FAIL"),
+    ("ai-lineage",        "AILineage",
+     "fixtures/ailineage-malformed-input-context-hash-negative.jsonld", "FAIL"),
     ("retention-policy",  "RetentionPolicy",  "fixtures/retentionpolicy-positive.jsonld", "PASS"),
     ("workspace",         "Workspace",        "fixtures/workspace-positive.jsonld", "PASS"),
     ("evidence-binding",  "EvidenceBinding",  "fixtures/evidencebinding-positive.jsonld", "PASS"),
@@ -285,6 +360,104 @@ FIXTURE_BINDINGS: list[tuple[str, str, str, str]] = [
      "fixtures/negatives/extraction-activity-missing-request-contract-digest-negative.jsonld", "FAIL"),
     ("extraction-activity", "ExtractionActivity",
      "fixtures/negatives/extraction-activity-missing-extraction-method-negative.jsonld", "FAIL"),
+    # ConceptScheme and SKOS-compatible concepts (§4.7). The facet row is the
+    # semantic one: a scheme that never declares which facet it controls is
+    # how topic, industry, and organization vocabularies merge.
+    ("concept", "ConceptScheme",
+     "fixtures/conceptscheme-registry-positive.jsonld", "PASS"),
+    ("concept", "ConceptScheme",
+     "fixtures/conceptscheme-local-positive.jsonld", "PASS"),
+    ("concept", "ConceptScheme",
+     "fixtures/negatives/concept-scheme-missing-scheme-facet-negative.jsonld", "FAIL"),
+    ("concept", "ConceptScheme",
+     "fixtures/negatives/concept-scheme-missing-pref-label-negative.jsonld", "FAIL"),
+    ("concept", "ConceptScheme",
+     "fixtures/negatives/concept-scheme-missing-concept-status-negative.jsonld", "FAIL"),
+    ("concept", "ConceptScheme",
+     "fixtures/negatives/concept-scheme-unowned-negative.jsonld", "FAIL"),
+    ("concept", "RegisteredConcept",
+     "fixtures/concept-registered-positive.jsonld", "PASS"),
+    ("concept", "RegisteredConcept",
+     "fixtures/edges/registered-concept-promoted-edge.jsonld", "PASS"),
+    ("concept", "RegisteredConcept",
+     "fixtures/negatives/registered-concept-missing-in-scheme-negative.jsonld", "FAIL"),
+    ("concept", "RegisteredConcept",
+     "fixtures/negatives/registered-concept-promoted-without-definition-negative.jsonld",
+     "FAIL"),
+    ("concept", "LocalConcept",
+     "fixtures/localconcept-positive.jsonld", "PASS"),
+    ("concept", "LocalConcept",
+     "fixtures/negatives/local-concept-missing-in-scheme-negative.jsonld", "FAIL"),
+    # SKOS mapping properties. The added *Match members must be accepted by
+    # BOTH the compiled closure and the hand-authored conceptregistry shape —
+    # SHACL is conjunctive, so a value in one list and not the other is
+    # rejected no matter what the compiled artifact says.
+    ("concept-mapping", "ConceptMapping",
+     "fixtures/conceptmapping-positive.jsonld", "PASS"),
+    ("concept-mapping", "ConceptMapping",
+     "fixtures/edges/concept-mapping-skos-broad-match-edge.jsonld", "PASS"),
+    ("concept-mapping", "ConceptMapping",
+     "fixtures/edges/concept-mapping-skos-broader-edge.jsonld", "PASS"),
+    # ConceptAssignment (§4.7). The directional rows carry the rule the carrier
+    # evidence turns on: a segment tag needs evidence from that segment, and a
+    # document tag aggregated from segment tags must name them and the policy.
+    ("concept-assignment", "ConceptAssignment",
+     "fixtures/conceptassignment-fragment-direct-positive.jsonld", "PASS"),
+    ("concept-assignment", "ConceptAssignment",
+     "fixtures/conceptassignment-document-derived-positive.jsonld", "PASS"),
+    ("concept-assignment", "ConceptAssignment",
+     "fixtures/edges/concept-assignment-unreviewed-ai-candidate-edge.jsonld", "PASS"),
+    ("concept-assignment", "ConceptAssignment",
+     "fixtures/negatives/concept-assignment-fragment-without-local-evidence-negative.jsonld",
+     "FAIL"),
+    ("concept-assignment", "ConceptAssignment",
+     "fixtures/negatives/concept-assignment-direct-without-evidence-negative.jsonld",
+     "FAIL"),
+    ("concept-assignment", "ConceptAssignment",
+     "fixtures/negatives/concept-assignment-derived-without-supporting-negative.jsonld",
+     "FAIL"),
+    ("concept-assignment", "ConceptAssignment",
+     "fixtures/negatives/concept-assignment-supporting-without-policy-version-negative.jsonld",
+     "FAIL"),
+    # NOTE — no parity row for the class-range negatives
+    # (concept-assignment-evidence-not-a-fragment-negative,
+    # source-fragment-source-not-an-artifact-negative,
+    # artifact-lineage-evidence-not-a-fragment-negative). A `sh:class`
+    # violation is a statement about the node an IRI RESOLVES TO, and JSON
+    # Schema has no way to follow a reference, so the two targets cannot agree
+    # by construction. Those fixtures are gated by tools/validate_negatives.py
+    # against the full shape suite, the same route
+    # `rulemaking-reference-class-confusion-negative` already takes.
+    #
+    # NOTE — no parity row for the cross-node agreement negatives either
+    # (source-fragment-selector-kind-without-typed-selector-negative,
+    # source-fragment-untyped-position-selector-negative,
+    # concept-assignment-fragment-subject-mislabeled-as-artifact-negative,
+    # concept-assignment-evidence-from-another-artifact-negative). Each is
+    # caught by a hand-authored shape in `shapes/rkaf-shapes-core.ttl` that
+    # compares one node's value against ANOTHER node's class or property, which
+    # is the same reference-following JSON Schema cannot do. Same gate, same
+    # reason.
+    ("concept-assignment", "ConceptAssignment",
+     "fixtures/negatives/concept-assignment-missing-assignment-subject-negative.jsonld",
+     "FAIL"),
+    ("concept-assignment", "ConceptAssignment",
+     "fixtures/negatives/concept-assignment-missing-assignment-subject-type-negative.jsonld",
+     "FAIL"),
+    ("concept-assignment", "ConceptAssignment",
+     "fixtures/negatives/concept-assignment-missing-assigned-concept-negative.jsonld",
+     "FAIL"),
+    ("concept-assignment", "ConceptAssignment",
+     "fixtures/negatives/concept-assignment-missing-in-scheme-negative.jsonld", "FAIL"),
+    ("concept-assignment", "ConceptAssignment",
+     "fixtures/negatives/concept-assignment-missing-assignment-role-negative.jsonld",
+     "FAIL"),
+    ("concept-assignment", "ConceptAssignment",
+     "fixtures/negatives/concept-assignment-missing-assignment-derivation-negative.jsonld",
+     "FAIL"),
+    ("concept-assignment", "ConceptAssignment",
+     "fixtures/negatives/concept-assignment-missing-assertion-origin-negative.jsonld",
+     "FAIL"),
     # Adversarial — evaluator-class regressions
     ("conditional-silent-pass", "ConsensusEvidencePermissionShape",
      "fixtures/adversarial/conditional-silent-pass-positive.jsonld", "PASS"),
@@ -339,9 +512,7 @@ def run_jsonschema(constraint: str, shape: str, fixture_path: Path) -> str:
             ).iter_errors(node)
         )
         for order in target_schema.get("x-rkaf-order", []):
-            lower = node.get(order["lower"])
-            upper = node.get(order["upper"])
-            if isinstance(lower, str) and isinstance(upper, str) and lower > upper:
+            if violates_order(node.get(order["lower"]), node.get(order["upper"])):
                 errs.append(
                     ValueError(
                         f"{order['lower']} must be less than or equal to {order['upper']}"

@@ -1,0 +1,28 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@graph": [
+    {
+      "@id": "urn:example:document:air-quality-plan:2026-07-25",
+      "@type": "rkaf:Artifact",
+      "rkaf:hasArtifactIdentifier": "urn:example:document:air-quality-plan:2026-07-25",
+      "rkaf:artifactIdentifierScheme": "rkaf:partner-defined",
+      "rkaf:hasContentDigest": "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+      "dcterms:isVersionOf": "urn:example:document:air-quality-plan:2025-07-25",
+      "rkaf:versionLineageEvidence": [
+        "urn:example:authority:state-air-board"
+      ]
+    },
+    {
+      "@id": "urn:example:document:air-quality-plan:2025-07-25",
+      "@type": "rkaf:Artifact",
+      "rkaf:hasArtifactIdentifier": "urn:example:document:air-quality-plan:2025-07-25",
+      "rkaf:artifactIdentifierScheme": "rkaf:partner-defined"
+    },
+    {
+      "@id": "urn:example:authority:state-air-board",
+      "@type": "rkaf:Authority",
+      "rkaf:authorityKind": "rkaf:regulatory"
+    }
+  ],
+  "_comment": "Negative: 'lineage evidence' that is not a source region. rkaf:versionLineageEvidence is class-ranged to rkaf:SourceFragment (§4.1); pointing it at the issuing authority names who would know rather than WHERE the document says so, and a version claim that resolves to no coordinates is exactly the inferred lineage the citation rule replaces."
+}

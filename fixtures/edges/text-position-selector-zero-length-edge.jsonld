@@ -1,0 +1,26 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@graph": [
+    {
+      "@id": "urn:rkaf:fixture:sf-zero:artifact",
+      "@type": "rkaf:Artifact",
+      "rkaf:hasArtifactIdentifier": "urn:rkaf:fixture:sf-zero:artifact",
+      "rkaf:artifactIdentifierScheme": "rkaf:partner-defined"
+    },
+    {
+      "@id": "urn:rkaf:fixture:sf-zero:fragment",
+      "@type": "rkaf:SourceFragment",
+      "oa:hasSource": "urn:rkaf:fixture:sf-zero:artifact",
+      "oa:hasSelector": "urn:rkaf:fixture:sf-zero:selector",
+      "rkaf:selectorKind": "oa:TextPositionSelector"
+    },
+    {
+      "@id": "urn:rkaf:fixture:sf-zero:selector",
+      "@type": "oa:TextPositionSelector",
+      "oa:start": 512,
+      "oa:end": 512,
+      "rkaf:coordinateSystem": "rkaf:utf8-byte"
+    }
+  ],
+  "_comment": "Edge: a zero-length position selector. start == end is a legal insertion point, not an inverted range, so the ordering rule admits it. The coordinate system is still required — 512 bytes and 512 code points are different places."
+}

@@ -6,5 +6,6 @@
   "rkaf:modelVersion": "2026.05.01",
   "rkaf:promptTemplateRef": "urn:rkaf:prompt-template:extract-warrant-chain/v3",
   "rkaf:temperature": 0.1,
-  "rkaf:inputContextHash": "sha256:9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08"
+  "rkaf:inputContextHash": "context-hash-pending",
+  "_comment": "Negative: the input-context hash is a placeholder, not a digest. §5.3 requires lowercase sha256:<64 hex> — a hash that cannot be compared across runs makes the derivation unreplayable, which is the only thing the field is for."
 }

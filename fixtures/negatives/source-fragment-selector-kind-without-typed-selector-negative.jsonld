@@ -1,0 +1,19 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@graph": [
+    {
+      "@id": "urn:rkaf:fixture:sf-dangling:artifact",
+      "@type": "rkaf:Artifact",
+      "rkaf:hasArtifactIdentifier": "urn:rkaf:fixture:sf-dangling:artifact",
+      "rkaf:artifactIdentifierScheme": "rkaf:partner-defined"
+    },
+    {
+      "@id": "urn:rkaf:fixture:sf-dangling:fragment",
+      "@type": "rkaf:SourceFragment",
+      "oa:hasSource": "urn:rkaf:fixture:sf-dangling:artifact",
+      "oa:hasSelector": "urn:rkaf:fixture:sf-dangling:selector-that-does-not-exist",
+      "rkaf:selectorKind": "oa:TextPositionSelector"
+    }
+  ],
+  "_comment": "Negative: a declared position selector that is never attached. The fragment says its region is addressed by offsets, and oa:hasSelector names an IRI that resolves to no node at all — so no offsets, no unit, and no region. Requiring the coordinate system on the SELECTOR only catches a producer who types the selector node; §4.2 binds the declared kind to a selector of that kind so dropping the node cannot evade it."
+}

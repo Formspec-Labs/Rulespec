@@ -3,7 +3,7 @@
   "@id": "urn:rkaf:fixture:beh:cmac:case1",
   "@type": "rkaf:BehaviorTestCase",
   "rkaf:behaviorContract": "rkaf:ConceptResolutionWithConflict",
-  "rkaf:rationale": "publication-blocking conflict AND one of the approved mappings is in a registry the consumer trusts at L4 authority level. \u00a76.1 upgrades severity to authorityCritical.",
+  "rkaf:rationale": "publication-blocking conflict AND one of the approved mappings is in a registry the consumer trusts at L4 authority level. §6.1 upgrades severity to authorityCritical.",
   "rkaf:input": {
     "@graph": [
       {
@@ -12,7 +12,8 @@
         "rkaf:definedInScope": "urn:rkaf:scope:test",
         "rkaf:conceptScope": "urn:rkaf:scope:test",
         "rkaf:conceptStatus": "rkaf:active",
-        "skos:prefLabel": "X"
+        "skos:prefLabel": "X",
+        "skos:inScheme": "urn:rkaf:scheme:test-topic"
       },
       {
         "@id": "m1",

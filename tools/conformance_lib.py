@@ -15,6 +15,53 @@ COMPILED_PROFILE_JSON_SCHEMA_ROOT = ROOT / "compiled" / "json-schema" / "profile
 COMPILED_PROFILE_SHACL_ROOT = ROOT / "compiled" / "shacl" / "profiles"
 HAND_AUTHORED_SHACL_DIR = ROOT / "shapes"
 
+# Which `@type` prefixes the L2 dispatchers bind to a compiled class schema.
+#
+# `rkaf:` alone was wrong. Core §4.2 codifies two OA selector classes —
+# `oa:TextQuoteSelector` and `oa:TextPositionSelector` — with compiled shapes of
+# their own: required payload, offset ordering, and the coordinate system an
+# offset counts in. Binding only `rkaf:` left both unregistered, so every L2
+# gate reported `pass` on a selector with an inverted range or no declared unit
+# and the SHACL layer was the only thing catching them. The set is deliberately
+# explicit rather than "any prefix with a compiled schema": a class enters L2
+# dispatch when Rulespec compiles a shape for it, and that is a decision to
+# record here, not to infer.
+L2_TYPE_PREFIXES: tuple[str, ...] = ("rkaf:", "oa:")
+
+
+def is_dispatched_type(type_iri: object) -> bool:
+    """True when `type_iri` names a class the L2 gates validate."""
+    return isinstance(type_iri, str) and type_iri.startswith(L2_TYPE_PREFIXES)
+
+
+def violates_order(lower: object, upper: object) -> bool:
+    """True when a same-typed ordered pair is inverted.
+
+    `x-rkaf-order` is the compiler's carrier for a CUE ordering branch, and the
+    branch is type-agnostic: it guards `rkaf:commentPeriodStart` (an ISO date
+    string) and `oa:start` (an integer offset) with the same expression. A
+    string-only comparison therefore enforced the date intervals and silently
+    skipped every numeric one, which made the JSON Schema target weaker than
+    the SHACL `sh:lessThanOrEquals` compiled from the SAME source line.
+
+    Mixed types are NOT compared: two values of different JSON types have no
+    meaningful order here, and guessing one would invent a verdict the CUE does
+    not state. Booleans are excluded explicitly because Python treats them as
+    integers.
+
+    This lives here rather than in one caller because the keyword is a JSON
+    Schema EXTENSION: `jsonschema` ignores it, so every Python L2 gate has to
+    apply it separately, and three private copies would drift. The Rust twin is
+    `violates_order` in `crates/rkaf-validate/src/lib.rs`.
+    """
+    if isinstance(lower, str) and isinstance(upper, str):
+        return lower > upper
+    if isinstance(lower, bool) or isinstance(upper, bool):
+        return False
+    if isinstance(lower, (int, float)) and isinstance(upper, (int, float)):
+        return lower > upper
+    return False
+
 
 def compiled_json_schema_paths() -> list[Path]:
     """Kernel schemas first, then each domain profile's overlay schemas.
@@ -133,7 +180,7 @@ def schema_bindings() -> dict[str, SchemaBinding]:
                 .get("@type", {})
                 .get("const")
             )
-            if not isinstance(type_iri, str) or not type_iri.startswith("rkaf:"):
+            if not is_dispatched_type(type_iri):
                 continue
             binding = SchemaBinding(
                 type_iri=type_iri,

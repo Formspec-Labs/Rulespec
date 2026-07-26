@@ -102,6 +102,7 @@ pub mod generated {
     pub mod bridge_issue_attestation_contract  { include!("generated/bridge_issue_attestation_contract.rs"); }
     pub mod bridge_validation_result           { include!("generated/bridge_validation_result.rs"); }
     pub mod concept                            { include!("generated/concept.rs"); }
+    pub mod concept_assignment                 { include!("generated/concept_assignment.rs"); }
     pub mod concept_mapping                    { include!("generated/concept_mapping.rs"); }
     pub mod concept_resolution_result          { include!("generated/concept_resolution_result.rs"); }
     pub mod confidence_record                  { include!("generated/confidence_record.rs"); }
@@ -153,6 +154,8 @@ pub use generated::authority::Authority;
 pub use generated::bridge_consumer_registration::BridgeConsumerRegistration;
 pub use generated::bridge_issue_attestation_contract::BridgeIssueAttestationContract;
 pub use generated::bridge_validation_result::BridgeValidationResult;
+pub use generated::concept::ConceptScheme;
+pub use generated::concept_assignment::ConceptAssignment;
 pub use generated::concept_mapping::ConceptMapping;
 pub use generated::concept_resolution_result::ConceptResolutionResult;
 pub use generated::confidence_record::ConfidenceRecord;

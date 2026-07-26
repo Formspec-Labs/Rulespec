@@ -1,0 +1,25 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@graph": [
+    {
+      "@id": "urn:rkaf:fixture:sf-nostart:artifact",
+      "@type": "rkaf:Artifact",
+      "rkaf:hasArtifactIdentifier": "urn:rkaf:fixture:sf-nostart:artifact",
+      "rkaf:artifactIdentifierScheme": "rkaf:partner-defined"
+    },
+    {
+      "@id": "urn:rkaf:fixture:sf-nostart:fragment",
+      "@type": "rkaf:SourceFragment",
+      "oa:hasSource": "urn:rkaf:fixture:sf-nostart:artifact",
+      "oa:hasSelector": "urn:rkaf:fixture:sf-nostart:selector",
+      "rkaf:selectorKind": "oa:TextPositionSelector"
+    },
+    {
+      "@id": "urn:rkaf:fixture:sf-nostart:selector",
+      "@type": "oa:TextPositionSelector",
+      "oa:end": 4222,
+      "rkaf:coordinateSystem": "rkaf:unicode-codepoint"
+    }
+  ],
+  "_comment": "Negative: a region with an end and no beginning. Both offsets are REQUIRED (§4.2): one endpoint plus a unit says where the region stops and nothing about where it starts, so no second reader lands on the same text."
+}

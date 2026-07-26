@@ -12,7 +12,8 @@
         "rkaf:definedInScope": "urn:rkaf:scope:test",
         "rkaf:conceptScope": "urn:rkaf:scope:test",
         "rkaf:conceptStatus": "rkaf:active",
-        "skos:prefLabel": "X"
+        "skos:prefLabel": "X",
+        "skos:inScheme": "urn:rkaf:scheme:test-topic"
       },
       {
         "@id": "m1",

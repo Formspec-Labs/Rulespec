@@ -1,0 +1,25 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@graph": [
+    {
+      "@id": "urn:rkaf:fixture:sf-nocs:artifact",
+      "@type": "rkaf:Artifact",
+      "rkaf:hasArtifactIdentifier": "urn:rkaf:fixture:sf-nocs:artifact",
+      "rkaf:artifactIdentifierScheme": "rkaf:partner-defined"
+    },
+    {
+      "@id": "urn:rkaf:fixture:sf-nocs:fragment",
+      "@type": "rkaf:SourceFragment",
+      "oa:hasSource": "urn:rkaf:fixture:sf-nocs:artifact",
+      "oa:hasSelector": "urn:rkaf:fixture:sf-nocs:selector",
+      "rkaf:selectorKind": "oa:TextPositionSelector"
+    },
+    {
+      "@id": "urn:rkaf:fixture:sf-nocs:selector",
+      "@type": "oa:TextPositionSelector",
+      "oa:start": 4180,
+      "oa:end": 4222
+    }
+  ],
+  "_comment": "Negative: offsets with no declared unit. 4180 names three different positions depending on whether the producer counted Unicode code points, UTF-8 bytes, or UTF-16 code units, and §4.2 requires the selector to say which."
+}

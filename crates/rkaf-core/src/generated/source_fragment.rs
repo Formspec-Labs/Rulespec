@@ -45,6 +45,29 @@ pub enum SelectorKind {
     PartnerDefined,
 }
 
+/// Closed Rulespec values for `CoordinateSystem`.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub enum CoordinateSystem {
+    /// Wire value `rkaf:unicode-codepoint`.
+    #[serde(rename = "rkaf:unicode-codepoint")]
+    UnicodeCodepoint,
+    /// Wire value `rkaf:utf8-byte`.
+    #[serde(rename = "rkaf:utf8-byte")]
+    Utf8Byte,
+    /// Wire value `rkaf:utf16-code-unit`.
+    #[serde(rename = "rkaf:utf16-code-unit")]
+    Utf16CodeUnit,
+    /// Wire value `rkaf:xml-node-path`.
+    #[serde(rename = "rkaf:xml-node-path")]
+    XmlNodePath,
+    /// Wire value `rkaf:page-region`.
+    #[serde(rename = "rkaf:page-region")]
+    PageRegion,
+    /// Wire value `rkaf:partner-defined`.
+    #[serde(rename = "rkaf:partner-defined")]
+    PartnerDefined,
+}
+
 use std::collections::BTreeMap;
 
 /// Generated JSON-LD carrier for `TextQuoteSelector`.
@@ -74,6 +97,33 @@ impl TextQuoteSelector {
     fn default_type() -> String { "oa:TextQuoteSelector".into() }
 }
 
+/// Generated JSON-LD carrier for `TextPositionSelector`.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct TextPositionSelector {
+    /// JSON-LD resource type.
+    #[serde(rename = "@type", default = "TextPositionSelector::default_type")]
+    pub type_: String,
+    /// Optional JSON-LD resource identifier.
+    #[serde(rename = "@id", skip_serializing_if = "Option::is_none", default)]
+    pub id: Option<String>,
+    /// JSON-LD property `oa:start`.
+    #[serde(rename = "oa:start")]
+    pub start: i64,
+    /// JSON-LD property `oa:end`.
+    #[serde(rename = "oa:end")]
+    pub end: i64,
+    /// JSON-LD property `rkaf:coordinateSystem`.
+    #[serde(rename = "rkaf:coordinateSystem")]
+    pub coordinate_system: CoordinateSystem,
+    /// Additional JSON-LD properties preserved during round trips.
+    #[serde(flatten)]
+    pub extra: BTreeMap<String, serde_json::Value>,
+}
+
+impl TextPositionSelector {
+    fn default_type() -> String { "oa:TextPositionSelector".into() }
+}
+
 /// Generated JSON-LD carrier for `SourceFragment`.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct SourceFragment {
@@ -92,6 +142,12 @@ pub struct SourceFragment {
     /// JSON-LD property `rkaf:selectorKind`.
     #[serde(rename = "rkaf:selectorKind")]
     pub selector_kind: crate::OneOrMany<SelectorKind>,
+    /// JSON-LD property `rkaf:sourceArtifactDigest`.
+    #[serde(rename = "rkaf:sourceArtifactDigest", skip_serializing_if = "Option::is_none", default)]
+    pub source_artifact_digest: Option<String>,
+    /// JSON-LD property `rkaf:fragmentContentDigest`.
+    #[serde(rename = "rkaf:fragmentContentDigest", skip_serializing_if = "Option::is_none", default)]
+    pub fragment_content_digest: Option<String>,
     /// JSON-LD property `rkaf:lastVerifiedAt`.
     #[serde(rename = "rkaf:lastVerifiedAt", skip_serializing_if = "Option::is_none", default)]
     pub last_verified_at: Option<String>,

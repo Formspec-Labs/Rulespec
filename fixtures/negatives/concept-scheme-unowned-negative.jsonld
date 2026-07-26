@@ -1,0 +1,9 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@id": "urn:rkaf:fixture:scheme:unowned",
+  "@type": "rkaf:ConceptScheme",
+  "skos:prefLabel": "Unowned scheme",
+  "rkaf:schemeFacet": "urn:rkaf:facet:topic",
+  "rkaf:conceptStatus": "rkaf:draft",
+  "_comment": "Negative: a scheme governed by nobody. §4.7 requires either rkaf:managedByRegistry (federation-shared) or rkaf:definedInScope (workspace-local) — the same seam RegisteredConcept and LocalConcept draw for concepts, applied to their container."
+}

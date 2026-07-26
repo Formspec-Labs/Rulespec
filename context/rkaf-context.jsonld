@@ -58,6 +58,13 @@
       "@type": "@id",
       "@container": "@set"
     },
+    "rkaf:hasContentDigest": {
+      "@type": "xsd:string"
+    },
+    "rkaf:versionLineageEvidence": {
+      "@type": "@id",
+      "@container": "@set"
+    },
     "rkaf:SourceFragment": {
       "@type": "@id"
     },
@@ -76,8 +83,23 @@
     "oa:suffix": {
       "@type": "xsd:string"
     },
+    "oa:start": {
+      "@type": "xsd:integer"
+    },
+    "oa:end": {
+      "@type": "xsd:integer"
+    },
     "rkaf:selectorKind": {
       "@type": "@vocab"
+    },
+    "rkaf:coordinateSystem": {
+      "@type": "@vocab"
+    },
+    "rkaf:sourceArtifactDigest": {
+      "@type": "xsd:string"
+    },
+    "rkaf:fragmentContentDigest": {
+      "@type": "xsd:string"
     },
     "rkaf:EvidenceBinding": {
       "@type": "@id"
@@ -1153,6 +1175,51 @@
       "@type": "@id",
       "@container": "@set"
     },
+    "skos:definition": {
+      "@type": "xsd:string"
+    },
+    "skos:inScheme": {
+      "@type": "@id"
+    },
+    "skos:hasTopConcept": {
+      "@type": "@id",
+      "@container": "@set"
+    },
+    "rkaf:ConceptScheme": {
+      "@type": "@id"
+    },
+    "rkaf:schemeFacet": {
+      "@type": "@id"
+    },
+    "rkaf:ConceptAssignment": {
+      "@type": "@id"
+    },
+    "rkaf:assignmentSubject": {
+      "@type": "@id"
+    },
+    "rkaf:assignmentSubjectType": {
+      "@type": "@vocab"
+    },
+    "rkaf:assignedConcept": {
+      "@type": "@id"
+    },
+    "rkaf:assignmentRole": {
+      "@type": "@vocab"
+    },
+    "rkaf:assignmentDerivation": {
+      "@type": "@vocab"
+    },
+    "rkaf:assignmentEvidence": {
+      "@type": "@id",
+      "@container": "@set"
+    },
+    "rkaf:supportingAssignment": {
+      "@type": "@id",
+      "@container": "@set"
+    },
+    "rkaf:assignmentPolicyVersion": {
+      "@type": "xsd:string"
+    },
     "rkaf:capturedAt": {
       "@type": "xsd:dateTime"
     },
@@ -1223,7 +1290,9 @@
       "Added rkaf:definedInScope as @type:@id (was missing, treated as string literal in v0.1)",
       "Added rkaf:Artifact, rkaf:SourceFragment, rkaf:EvidenceBinding, rkaf:Warrant, rkaf:ConfidenceRecord, rkaf:AccessScope as first-class primitives",
       "Added rkaf:hasWarrant universal grounding predicate (rkaf:hasAuthority becomes legal-family specialization)",
-      "Added rkaf:AILineage with mandatory humanApprover",
+      "Added rkaf:AILineage; rkaf:humanApprover is OPTIONAL as of the v0.2 provenance-role split — an unreviewed model candidate must be representable, and approval is an rkaf:Attestation (spec/rkaf-core.md §2.4)",
+      "Added Artifact and SourceFragment identity bindings: rkaf:hasContentDigest, rkaf:versionLineageEvidence, rkaf:sourceArtifactDigest, rkaf:fragmentContentDigest, rkaf:coordinateSystem, and the OA offset predicates oa:start / oa:end",
+      "Added rkaf:ConceptScheme and evidence-bearing rkaf:ConceptAssignment, with skos:inScheme, skos:definition, and skos:hasTopConcept as mode-1 SKOS imports",
       "Added rkaf:MappingState, rkaf:RetentionPolicy, rkaf:Workspace, rkaf:projectsTo, rkaf:llmHint (Studio-derived promotions)",
       "Added rkaf:anchoredBy / rkaf:anchorType (abstract anchoring contract, bindings live outside Rulespec)",
       "Mode-1 direct predicate imports: prov:, oa:, skos:, eli:, foaf:primaryTopic, the DCAT qualified-relation quartet, dcterms:hasFormat, dcterms:isFormatOf, and dcterms:relation (§9.1). All carry term defs in this context.",

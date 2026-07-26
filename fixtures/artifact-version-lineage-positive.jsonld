@@ -7,14 +7,45 @@
       "rkaf:hasArtifactIdentifier": "urn:example:document:air-quality-plan:2026-07-25",
       "rkaf:artifactIdentifierScheme": "rkaf:partner-defined",
       "dcterms:isVersionOf": "urn:example:work:air-quality-plan",
-      "prov:wasRevisionOf": "urn:example:document:air-quality-plan:2025-07-25"
+      "prov:wasRevisionOf": "urn:example:document:air-quality-plan:2025-07-25",
+      "rkaf:hasContentDigest": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+      "rkaf:versionLineageEvidence": [
+        "urn:example:fragment:2026-plan:revision-note"
+      ]
     },
     {
       "@id": "urn:example:document:air-quality-plan:2025-07-25",
       "@type": "rkaf:Artifact",
       "rkaf:hasArtifactIdentifier": "urn:example:document:air-quality-plan:2025-07-25",
       "rkaf:artifactIdentifierScheme": "rkaf:partner-defined",
-      "dcterms:isVersionOf": "urn:example:work:air-quality-plan"
+      "dcterms:isVersionOf": "urn:example:work:air-quality-plan",
+      "rkaf:hasContentDigest": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+      "rkaf:versionLineageEvidence": [
+        "urn:example:fragment:2025-plan:masthead"
+      ]
+    },
+    {
+      "@id": "urn:example:fragment:2026-plan:revision-note",
+      "@type": "rkaf:SourceFragment",
+      "oa:hasSource": "urn:example:document:air-quality-plan:2026-07-25",
+      "oa:hasSelector": {
+        "@type": "oa:TextQuoteSelector",
+        "oa:exact": "This edition supersedes the plan issued 25 July 2025."
+      },
+      "rkaf:selectorKind": "oa:TextQuoteSelector",
+      "rkaf:sourceArtifactDigest": "sha256:1111111111111111111111111111111111111111111111111111111111111111"
+    },
+    {
+      "@id": "urn:example:fragment:2025-plan:masthead",
+      "@type": "rkaf:SourceFragment",
+      "oa:hasSource": "urn:example:document:air-quality-plan:2025-07-25",
+      "oa:hasSelector": {
+        "@type": "oa:TextQuoteSelector",
+        "oa:exact": "Regional Air Quality Plan — 2025 edition"
+      },
+      "rkaf:selectorKind": "oa:TextQuoteSelector",
+      "rkaf:sourceArtifactDigest": "sha256:2222222222222222222222222222222222222222222222222222222222222222"
     }
-  ]
+  ],
+  "_comment": "Version identity §4.1. Both version relations are CITED: each Artifact naming a lineage relation carries rkaf:versionLineageEvidence pointing at the exact region that states it, and each such Artifact is digest-addressable. dcterms:isVersionOf points at a stable resource that carries NO Rulespec class — Rulespec declines to mint a universal Work class."
 }

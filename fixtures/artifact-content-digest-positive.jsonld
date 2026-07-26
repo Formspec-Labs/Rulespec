@@ -1,0 +1,9 @@
+{
+  "@context": "../context/rkaf-context.jsonld",
+  "@id": "urn:example:document:permit-decision:2026-03-02",
+  "@type": "rkaf:Artifact",
+  "rkaf:hasArtifactIdentifier": "urn:example:document:permit-decision:2026-03-02",
+  "rkaf:artifactIdentifierScheme": "rkaf:partner-defined",
+  "rkaf:hasContentDigest": "sha256:3333333333333333333333333333333333333333333333333333333333333333",
+  "_comment": "An Artifact used as comparison evidence resolves to one immutable source state AND a content digest (§4.1). No version claim is made here, so no lineage evidence is required — the digest alone is what makes the state addressable."
+}

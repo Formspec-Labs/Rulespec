@@ -16,13 +16,20 @@
 | dcterms:isFormatOf | http://purl.org/dc/terms/isFormatOf | Property (DCTERMS mode-1 import) | rkaf:Artifact | rkaf:Artifact | 0..* | artifact-cross-posting-positive |
 | dcterms:isVersionOf | http://purl.org/dc/terms/isVersionOf | Property (DCTERMS mode-1 import) | rkaf:Artifact | IRI | 0..* | artifact-version-lineage-positive |
 | prov:wasRevisionOf | http://www.w3.org/ns/prov#wasRevisionOf | Property (PROV-O mode-1 import) | rkaf:Artifact | rkaf:Artifact | 0..* | artifact-version-lineage-positive |
-| rkaf:SourceFragment | https://rulespec.org/ns/v1#SourceFragment | Class (rdfs:subClassOf oa:SpecificResource) | — | — | — | sourcefragment-oa-textquote-positive, sourcefragment-oa-xpath-positive, sourcefragment-aknt-eid-positive, sourcefragment-uslm-section-positive |
+| rkaf:hasContentDigest | https://rulespec.org/ns/v1#hasContentDigest | Property | rkaf:Artifact | xsd:string (`sha256:<64 hex>`) | 0..1 (1 when versionLineageEvidence present) | artifact-content-digest-positive, artifact-version-lineage-positive |
+| rkaf:versionLineageEvidence | https://rulespec.org/ns/v1#versionLineageEvidence | Property | rkaf:Artifact | rkaf:SourceFragment | 0..* (1..* when dcterms:isVersionOf or prov:wasRevisionOf present) | artifact-version-lineage-positive |
+| rkaf:SourceFragment | https://rulespec.org/ns/v1#SourceFragment | Class (rdfs:subClassOf oa:SpecificResource) | — | — | — | sourcefragment-oa-textquote-positive, sourcefragment-oa-xpath-positive, sourcefragment-aknt-eid-positive, sourcefragment-uslm-section-positive, sourcefragment-position-selector-positive |
 | oa:hasSource | http://www.w3.org/ns/oa#hasSource | Property (OA 1.0 import) | rkaf:SourceFragment | rkaf:Artifact | 1 | sourcefragment-oa-textquote-positive |
 | oa:hasSelector | http://www.w3.org/ns/oa#hasSelector | Property (OA 1.0 import) | rkaf:SourceFragment | oa:Selector | 1..* | sourcefragment-oa-textquote-positive |
 | oa:exact | http://www.w3.org/ns/oa#exact | Property (OA 1.0 import) | oa:TextQuoteSelector | xsd:string | 1 (on TextQuoteSelector) | sourcefragment-oa-textquote-positive |
 | oa:prefix | http://www.w3.org/ns/oa#prefix | Property (OA 1.0 import) | oa:TextQuoteSelector | xsd:string | 0..1 | sourcefragment-oa-textquote-positive |
 | oa:suffix | http://www.w3.org/ns/oa#suffix | Property (OA 1.0 import) | oa:TextQuoteSelector | xsd:string | 0..1 | sourcefragment-oa-textquote-positive |
+| oa:start | http://www.w3.org/ns/oa#start | Property (OA 1.0 import) | oa:TextPositionSelector | xsd:integer (>= 0) | 1 (on TextPositionSelector) | sourcefragment-position-selector-positive |
+| oa:end | http://www.w3.org/ns/oa#end | Property (OA 1.0 import) | oa:TextPositionSelector | xsd:integer (>= 0) | 1 (on TextPositionSelector) | sourcefragment-position-selector-positive |
 | rkaf:selectorKind | https://rulespec.org/ns/v1#selectorKind | Property (closed enum) | rkaf:SourceFragment | rkaf:SelectorKind | 1..* | sourcefragment-oa-textquote-positive |
+| rkaf:coordinateSystem | https://rulespec.org/ns/v1#coordinateSystem | Property (closed enum) | oa:TextPositionSelector | rkaf:CoordinateSystem | 1 (on TextPositionSelector) | sourcefragment-position-selector-positive |
+| rkaf:sourceArtifactDigest | https://rulespec.org/ns/v1#sourceArtifactDigest | Property | rkaf:SourceFragment | xsd:string (`sha256:<64 hex>`) | 0..1 | sourcefragment-position-selector-positive |
+| rkaf:fragmentContentDigest | https://rulespec.org/ns/v1#fragmentContentDigest | Property | rkaf:SourceFragment | xsd:string (`sha256:<64 hex>`) | 0..1 | sourcefragment-position-selector-positive |
 | rkaf:EvidenceBinding | https://rulespec.org/ns/v1#EvidenceBinding | Class | — | — | — | evidencebinding-positive, evidencebinding-no-evidence-reason-positive, evidencebinding-missing-negative |
 | rkaf:bindsAssertion | https://rulespec.org/ns/v1#bindsAssertion | Property | rkaf:EvidenceBinding | rkaf:Assertion | 1 | evidencebinding-positive |
 | rkaf:bindsSourceFragment | https://rulespec.org/ns/v1#bindsSourceFragment | Property | rkaf:EvidenceBinding | rkaf:SourceFragment | 0..* | evidencebinding-positive |
@@ -66,6 +73,32 @@
 | rkaf:extractionPromptRef | https://rulespec.org/ns/v1#extractionPromptRef | Property | rkaf:ExtractionActivity | IRI | 0..1 | extractionactivity-model-positive |
 | rkaf:inputDigest | https://rulespec.org/ns/v1#inputDigest | Property | rkaf:ExtractionActivity | xsd:string (`sha256:<64 hex>`) | 0..* | extractionactivity-model-positive |
 | rkaf:extractionAttempt | https://rulespec.org/ns/v1#extractionAttempt | Property | rkaf:ExtractionActivity | xsd:integer (>= 1) | 0..1 | extractionactivity-model-positive |
+
+## v0.2 concept vocabulary and assignments (§4.7 of `spec/rkaf-core.md`)
+
+SKOS owns concept-scheme semantics. The rows below add only what SKOS leaves
+open and Rulespec must check mechanically: which facet a scheme controls, who
+governs the scheme, and the evidence an assignment stands on. `skos:inScheme`,
+`skos:definition`, and `skos:hasTopConcept` are mode-1 SKOS imports used with
+their own semantics; Rulespec declares no class range over them, because a
+concept or scheme may live in an external thesaurus.
+
+| Term | IRI | Kind | Domain | Range | Cardinality | Required fixtures |
+|---|---|---|---|---|---|---|
+| rkaf:ConceptScheme | https://rulespec.org/ns/v1#ConceptScheme | Class (skos:ConceptScheme-compatible) | — | — | — | conceptscheme-registry-positive, conceptscheme-local-positive |
+| rkaf:schemeFacet | https://rulespec.org/ns/v1#schemeFacet | Property | rkaf:ConceptScheme | IRI | 1 | conceptscheme-registry-positive |
+| skos:inScheme | http://www.w3.org/2004/02/skos/core#inScheme | Property (SKOS mode-1 import) | rkaf:RegisteredConcept / rkaf:LocalConcept / rkaf:ConceptAssignment | IRI of a concept scheme | 1 | concept-registered-positive, localconcept-positive, conceptassignment-fragment-direct-positive |
+| skos:definition | http://www.w3.org/2004/02/skos/core#definition | Property (SKOS mode-1 import) | rkaf:RegisteredConcept / rkaf:LocalConcept / rkaf:ConceptScheme | xsd:string | 0..1 (1 when conceptStatus is rkaf:promoted) | conceptscheme-registry-positive |
+| skos:hasTopConcept | http://www.w3.org/2004/02/skos/core#hasTopConcept | Property (SKOS mode-1 import) | rkaf:ConceptScheme | IRI | 0..* | conceptscheme-registry-positive |
+| rkaf:ConceptAssignment | https://rulespec.org/ns/v1#ConceptAssignment | Class (composes the Assertion envelope) | — | — | — | conceptassignment-fragment-direct-positive, conceptassignment-document-derived-positive |
+| rkaf:assignmentSubject | https://rulespec.org/ns/v1#assignmentSubject | Property | rkaf:ConceptAssignment | rkaf:Artifact or rkaf:SourceFragment | 1 | conceptassignment-fragment-direct-positive |
+| rkaf:assignmentSubjectType | https://rulespec.org/ns/v1#assignmentSubjectType | Property (closed enum) | rkaf:ConceptAssignment | rkaf:AssignmentSubjectType | 1 | conceptassignment-fragment-direct-positive, conceptassignment-document-derived-positive |
+| rkaf:assignedConcept | https://rulespec.org/ns/v1#assignedConcept | Property | rkaf:ConceptAssignment | IRI of a concept | 1 | conceptassignment-fragment-direct-positive |
+| rkaf:assignmentRole | https://rulespec.org/ns/v1#assignmentRole | Property (closed enum) | rkaf:ConceptAssignment | rkaf:ConceptAssignmentRole | 1 | conceptassignment-document-derived-positive |
+| rkaf:assignmentDerivation | https://rulespec.org/ns/v1#assignmentDerivation | Property (closed enum) | rkaf:ConceptAssignment | rkaf:AssignmentDerivation | 1 | conceptassignment-fragment-direct-positive, conceptassignment-document-derived-positive |
+| rkaf:assignmentEvidence | https://rulespec.org/ns/v1#assignmentEvidence | Property | rkaf:ConceptAssignment | rkaf:SourceFragment | 0..* (1..* when subject is a SourceFragment, and when derivation is direct) | conceptassignment-fragment-direct-positive |
+| rkaf:supportingAssignment | https://rulespec.org/ns/v1#supportingAssignment | Property | rkaf:ConceptAssignment | rkaf:ConceptAssignment | 0..* (1..* when derivation is derived) | conceptassignment-document-derived-positive |
+| rkaf:assignmentPolicyVersion | https://rulespec.org/ns/v1#assignmentPolicyVersion | Property | rkaf:ConceptAssignment | xsd:string | 0..1 (1 when supportingAssignment present) | conceptassignment-document-derived-positive |
 
 ## Experimental US rulemaking-process module
 
@@ -123,8 +156,10 @@ These terms are defined by `spec/rkaf-rulemaking.md` and codified under `constra
 
 | Term | IRI | Kind | Domain | Range | Cardinality | Required fixtures |
 |---|---|---|---|---|---|---|
-| rkaf:AILineage | https://rulespec.org/ns/v1#AILineage | Class | — | — | — | ailineage-positive, ailineage-missing-approver-negative |
-| rkaf:hasAILineage | https://rulespec.org/ns/v1#hasAILineage | Property | rkaf:Assertion | rkaf:AILineage | 0..1 (REQUIRED if assertionOrigin AI-touched) | ailineage-positive |
+| rkaf:AILineage | https://rulespec.org/ns/v1#AILineage | Class | — | — | — | ailineage-positive, ailineage-malformed-input-context-hash-negative |
+| rkaf:hasAILineage | https://rulespec.org/ns/v1#hasAILineage | Property | rkaf:Assertion / rkaf:ConceptAssignment | rkaf:AILineage | 0..1 (REQUIRED if assertionOrigin AI-touched) | ailineage-positive |
+| rkaf:humanApprover | https://rulespec.org/ns/v1#humanApprover | Property | rkaf:AILineage | IRI | 0..1 (1 when humanRationale present) | ailineage-positive |
+| rkaf:inputContextHash | https://rulespec.org/ns/v1#inputContextHash | Property | rkaf:AILineage | xsd:string (`sha256:<64 hex>`) | 1 | ailineage-positive |
 | rkaf:MappingState | https://rulespec.org/ns/v1#MappingState | Class (closed enum carrier) | — | — | — | mappingstate-positive |
 | rkaf:mappingState | https://rulespec.org/ns/v1#mappingState | Property (closed enum) | any mapping-bearing | rkaf:MappingState | 1 | mappingstate-positive |
 | rkaf:RetentionPolicy | https://rulespec.org/ns/v1#RetentionPolicy | Class | — | — | — | retentionpolicy-positive |
@@ -158,8 +193,10 @@ Beyond the v0.2 normative tier in §5, the following terms are codified as CUE c
 | `rkaf:ApplicabilityScope` | `applicability-scope.cue` | `applicabilityscope-positive.jsonld` | Where/to-whom/when a Warrant applies. ELI / ISO 3166 / agency-code IRIs. |
 | `rkaf:EffectivePeriod` | `effective-period.cue` | `effectiveperiod-positive.jsonld` | Temporal window. Start required; end / sunset / retroactive optional. |
 | `rkaf:LifecycleEvent` | `lifecycle-event.cue` | `lifecycleevent-positive.jsonld` | Audit-trail event for assertion, concept, and proceeding-stage transitions. |
-| `rkaf:RegisteredConcept` | `concept.cue` | `concept-registered-positive.jsonld` | Federation-shared Concept minted by a `rkaf:ConceptMintingAuthority`. Requires `skos:prefLabel(1)`. |
-| `rkaf:LocalConcept` | `concept.cue` | `localconcept-positive.jsonld` | Workspace-defined Concept, candidate for federation promotion. Requires `skos:prefLabel(1)`. |
+| `rkaf:RegisteredConcept` | `concept.cue` | `concept-registered-positive.jsonld` | Federation-shared Concept minted by a `rkaf:ConceptMintingAuthority`. Requires `skos:prefLabel(1)` and `skos:inScheme(1)`. |
+| `rkaf:LocalConcept` | `concept.cue` | `localconcept-positive.jsonld` | Workspace-defined Concept, candidate for federation promotion. Requires `skos:prefLabel(1)` and `skos:inScheme(1)`. |
+| `rkaf:ConceptScheme` | `concept.cue` | `conceptscheme-registry-positive.jsonld` | One facet, one controlled category system (Core §4.7). Requires a declared `rkaf:schemeFacet` and either a governing registry or a defining workspace scope. |
+| `rkaf:ConceptAssignment` | `concept-assignment.cue` | `conceptassignment-fragment-direct-positive.jsonld` | Evidence-bearing, versioned record that one Artifact or one SourceFragment is associated with one concept (Core §4.7). Composes the Assertion envelope; a segment assignment requires evidence from that segment. |
 | `skos:prefLabel` | `http://www.w3.org/2004/02/skos/core#prefLabel` | Property (SKOS 2.0 import) | `rkaf:RegisteredConcept`, `rkaf:LocalConcept` | `xsd:string` | **1** (required) | `concept-registered-positive.jsonld`, `localconcept-positive.jsonld` |
 | `skos:altLabel` | `http://www.w3.org/2004/02/skos/core#altLabel` | Property (SKOS 2.0 import) | `rkaf:RegisteredConcept`, `rkaf:LocalConcept` | `xsd:string` | 0..* | — |
 | `skos:broader` | `http://www.w3.org/2004/02/skos/core#broader` | Property (SKOS 2.0 import) | `rkaf:RegisteredConcept`, `rkaf:LocalConcept` | IRI | 0..1 | — |
@@ -189,7 +226,11 @@ Beyond the v0.2 normative tier in §5, the following terms are codified as CUE c
 - `rkaf:hasSafetyLabel` — `D0` / `S1` / `R2` / `A3` / `P4` plus advisory + authority-critical refinements. Operational property (what the consumer may do).
 - `rkaf:authorityKind` — 8-value closed enum, hop-local. Federation refuses unsupported kinds.
 - `rkaf:lifecycleEventKind` — closed enum ASSEMBLED from per-module parts. The kernel (`lifecycle-event.cue`) owns ten universal values: revalidation, revalidation closure, amendment, supersession, rescission, material and editorial revision, concept lifecycle, promotion, demotion. The Experimental US rulemaking module (`profiles/us-rulemaking/us-lifecycle-event.cue`) contributes twelve more — seven proceeding-stage transitions and five judicial/congressional proceeding events — giving a 22-value closed set on the composed artifact. The compiler assembles the union at build time; `LifecycleKindOwnershipTests` in `tools/test_constraints_compile.py` proves every value has exactly one declaring module and that the assembled set equals kernel + sum(profiles).
-- `rkaf:mappingPredicate` — SKOS-aligned (`skos:exactMatch` / `closeMatch` / `broadMatch` / `narrowMatch` / `relatedMatch`).
+- `rkaf:mappingRelation` — 9-value closed set of SKOS predicates: the five cross-scheme mapping properties (`skos:exactMatch`, `skos:closeMatch`, `skos:broadMatch`, `skos:narrowMatch`, `skos:relatedMatch`), the three in-scheme semantic relations SKOS distinguishes from them (`skos:broader`, `skos:narrower`, `skos:related`), and the generic `skos:mappingRelation`. v0.2 ADDED the three `*Match` members; none was removed. The list is mirrored by `shapes/rkaf-shapes-conceptregistry.ttl`, and the two MUST stay identical — SHACL is conjunctive, so a value present in one and absent from the other is rejected outright.
+- `rkaf:CoordinateSystem` — 6-value closed set naming the unit an offset-bearing selector counts in: `rkaf:unicode-codepoint`, `rkaf:utf8-byte`, `rkaf:utf16-code-unit`, `rkaf:xml-node-path`, `rkaf:page-region`, `rkaf:partner-defined`. Required on `oa:TextPositionSelector`; an offset with no declared unit names three different regions (Core §4.2).
+- `rkaf:AssignmentSubjectType` — 2-value closed set: `rkaf:Artifact`, `rkaf:SourceFragment`. Exactly two kinds of thing are taggable, and they are not interchangeable (Core §4.7).
+- `rkaf:ConceptAssignmentRole` — 4-value closed set: `rkaf:assignmentPrimary`, `rkaf:assignmentSubstantive`, `rkaf:assignmentMention`, `rkaf:assignmentContextual`. Editorial ordering only; nothing in Rulespec compares two roles.
+- `rkaf:AssignmentDerivation` — 2-value closed set: `rkaf:directAssignment` (read off the subject's own text, MUST cite exact regions) and `rkaf:derivedAssignment` (computed from accepted assignments, MUST name them and the policy version that combined them). Orthogonal to `rkaf:assertionOrigin`, which records what CONSTRUCTED the record (Core §4.7).
 - `rkaf:ValueDatatype` — 11-member closed set of XSD datatypes a `ValueAssertion` object may carry: `xsd:string`, `xsd:token`, `xsd:boolean`, `xsd:integer`, `xsd:decimal`, `xsd:double`, `xsd:date`, `xsd:dateTime`, `xsd:time`, `xsd:duration`, `xsd:anyURI`. Deliberately narrow — an open datatype IRI would make "typed" mean nothing (Core §2.2).
 - `rkaf:claimantAttribution` — 4-value closed set describing how the SOURCE attributes a claim: `rkaf:claimantNamedInSource`, `rkaf:claimantImpliedBySource`, `rkaf:claimantIsDocumentIssuer`, `rkaf:claimantNotStated`. Every value states something about the document, so there is no value for extractor uncertainty; Core §2.4 requires the record to be omitted in that case.
 - `rkaf:extractionMethod` — 5-value closed set naming how a run produced a candidate: `rkaf:deterministicParse`, `rkaf:ruleBasedExtraction`, `rkaf:modelExtraction`, `rkaf:humanExtraction`, `rkaf:importedRecord`. `rkaf:modelExtraction` requires a model reference (Core §2.4).

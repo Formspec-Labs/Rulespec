@@ -1,0 +1,20 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@graph": [
+    {
+      "@id": "urn:example:document:air-quality-plan:2026-07-25",
+      "@type": "rkaf:Artifact",
+      "rkaf:hasArtifactIdentifier": "urn:example:document:air-quality-plan:2026-07-25",
+      "rkaf:artifactIdentifierScheme": "rkaf:partner-defined",
+      "prov:wasRevisionOf": "urn:example:document:air-quality-plan:2025-07-25",
+      "rkaf:hasContentDigest": "sha256:1111111111111111111111111111111111111111111111111111111111111111"
+    },
+    {
+      "@id": "urn:example:document:air-quality-plan:2025-07-25",
+      "@type": "rkaf:Artifact",
+      "rkaf:hasArtifactIdentifier": "urn:example:document:air-quality-plan:2025-07-25",
+      "rkaf:artifactIdentifierScheme": "rkaf:partner-defined"
+    }
+  ],
+  "_comment": "Negative: a revision claim with no cited source. The two documents share a title and a producer-scoped identifier stem, which is exactly the similarity a producer must NOT turn into version history (§4.1). rkaf:versionLineageEvidence is absent, so nothing says WHERE the supersession was read."
+}

@@ -82,7 +82,14 @@ fn main() {
             let Some(type_iri) = type_iri else {
                 continue;
             };
-            if !type_iri.starts_with("rkaf:") {
+            // `rkaf:` is not the whole codified vocabulary. Core §4.2 gives
+            // `oa:TextQuoteSelector` and `oa:TextPositionSelector` compiled
+            // shapes of their own — required payload, offset ordering, and the
+            // coordinate system an offset counts in. Filtering on the `rkaf:`
+            // prefix left both unregistered, so this validator returned exit 0
+            // on an inverted range and on offsets with no declared unit, and
+            // the only numeric `x-rkaf-order` in the repo was never reached.
+            if !(type_iri.starts_with("rkaf:") || type_iri.starts_with("oa:")) {
                 continue;
             }
             if is_profile {

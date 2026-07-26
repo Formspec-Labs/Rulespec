@@ -1,20 +1,30 @@
 {
   "@context": "../../context/rkaf-context.jsonld",
-  "@id": "urn:rkaf:fixture:sf-mix:f1",
-  "@type": "rkaf:SourceFragment",
-  "oa:hasSource": "urn:rkaf:fixture:sf-mix:art1",
-  "oa:hasSelector": [
+  "@graph": [
     {
-      "@type": "oa:TextQuoteSelector",
-      "oa:exact": "section 4(a)"
+      "@id": "urn:rkaf:fixture:sf-mix:art1",
+      "@type": "rkaf:Artifact",
+      "rkaf:hasArtifactIdentifier": "urn:rkaf:fixture:sf-mix:art1",
+      "rkaf:artifactIdentifierScheme": "rkaf:uslm"
     },
     {
-      "@type": "rkaf:USLMSectionSelector",
-      "rdf:value": "/us/usc/t7/s2017"
+      "@id": "urn:rkaf:fixture:sf-mix:f1",
+      "@type": "rkaf:SourceFragment",
+      "oa:hasSource": "urn:rkaf:fixture:sf-mix:art1",
+      "oa:hasSelector": [
+        {
+          "@type": "oa:TextQuoteSelector",
+          "oa:exact": "section 4(a)"
+        },
+        {
+          "@type": "rkaf:USLMSectionSelector",
+          "rdf:value": "/us/usc/t7/s2017"
+        }
+      ],
+      "rkaf:selectorKind": [
+        "oa:TextQuoteSelector",
+        "rkaf:USLMSectionSelector"
+      ]
     }
-  ],
-  "rkaf:selectorKind": [
-    "oa:TextQuoteSelector",
-    "rkaf:USLMSectionSelector"
   ]
 }

@@ -13,6 +13,15 @@ pub enum SkosMappingPredicate {
     /// Wire value `skos:exactMatch`.
     #[serde(rename = "skos:exactMatch")]
     ExactMatch,
+    /// Wire value `skos:broadMatch`.
+    #[serde(rename = "skos:broadMatch")]
+    BroadMatch,
+    /// Wire value `skos:narrowMatch`.
+    #[serde(rename = "skos:narrowMatch")]
+    NarrowMatch,
+    /// Wire value `skos:relatedMatch`.
+    #[serde(rename = "skos:relatedMatch")]
+    RelatedMatch,
     /// Wire value `skos:broader`.
     #[serde(rename = "skos:broader")]
     Broader,

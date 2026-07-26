@@ -1,0 +1,24 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@graph": [
+    {
+      "@id": "urn:rkaf:fixture:sf-badsrc:workspace",
+      "@type": "rkaf:Workspace",
+      "rkaf:workspaceId": "county-benefits",
+      "rkaf:workspaceTrustList": [
+        "urn:rkaf:workspace:state-benefits"
+      ]
+    },
+    {
+      "@id": "urn:rkaf:fixture:sf-badsrc:fragment",
+      "@type": "rkaf:SourceFragment",
+      "oa:hasSource": "urn:rkaf:fixture:sf-badsrc:workspace",
+      "oa:hasSelector": {
+        "@type": "oa:TextQuoteSelector",
+        "oa:exact": "each covered facility shall report annually"
+      },
+      "rkaf:selectorKind": "oa:TextQuoteSelector"
+    }
+  ],
+  "_comment": "Negative: the fragment's parent is not an Artifact. oa:hasSource is class-ranged to rkaf:Artifact (§4.2) — a fragment of a workspace, a proceeding, or an actor addresses no document region at all."
+}

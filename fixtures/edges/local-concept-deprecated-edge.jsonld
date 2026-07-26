@@ -3,6 +3,7 @@
   "@id": "urn:rkaf:fixture:edge:local-concept:deprecated",
   "@type": "rkaf:LocalConcept",
   "skos:prefLabel": "Household income (deprecated local definition)",
+  "skos:inScheme": "urn:rkaf:fixture:scheme:fns-snap-topic",
   "rkaf:definedInScope": "urn:rkaf:scope:county-benefits",
   "rkaf:conceptScope": "county-benefits/income",
   "rkaf:conceptStatus": "rkaf:deprecated"

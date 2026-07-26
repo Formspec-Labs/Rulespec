@@ -1,0 +1,26 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@graph": [
+    {
+      "@id": "urn:rkaf:fixture:sf-inv:artifact",
+      "@type": "rkaf:Artifact",
+      "rkaf:hasArtifactIdentifier": "urn:rkaf:fixture:sf-inv:artifact",
+      "rkaf:artifactIdentifierScheme": "rkaf:partner-defined"
+    },
+    {
+      "@id": "urn:rkaf:fixture:sf-inv:fragment",
+      "@type": "rkaf:SourceFragment",
+      "oa:hasSource": "urn:rkaf:fixture:sf-inv:artifact",
+      "oa:hasSelector": "urn:rkaf:fixture:sf-inv:selector",
+      "rkaf:selectorKind": "oa:TextPositionSelector"
+    },
+    {
+      "@id": "urn:rkaf:fixture:sf-inv:selector",
+      "@type": "oa:TextPositionSelector",
+      "oa:start": 4222,
+      "oa:end": 4180,
+      "rkaf:coordinateSystem": "rkaf:unicode-codepoint"
+    }
+  ],
+  "_comment": "Negative: an inverted offset pair. A region whose end precedes its start selects nothing, so it cannot be the exact source region an accepted assertion resolves back to."
+}

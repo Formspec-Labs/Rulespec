@@ -1,0 +1,14 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@id": "urn:rkaf:fixture:scheme:legacy-county-topic",
+  "@type": "rkaf:ConceptScheme",
+  "skos:prefLabel": "County topic scheme (retired)",
+  "rkaf:schemeFacet": "urn:rkaf:facet:topic",
+  "rkaf:conceptStatus": "rkaf:retired",
+  "skos:definition": "Retired in favour of the FNS SNAP topic scheme. Retained so historical assignments keep resolving.",
+  "skos:hasTopConcept": [
+    "urn:rkaf:fixture:concept:household-income"
+  ],
+  "rkaf:definedInScope": "urn:rkaf:scope:county-benefits",
+  "_comment": "Edge: a retired scheme. Concept and assignment history is append-only (§4.7), so retirement is a status change and never a deletion — every assignment that ever named this scheme must still resolve, which is why the record keeps its facet, its label, and its top concepts."
+}

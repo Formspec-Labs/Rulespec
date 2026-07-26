@@ -1,0 +1,9 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@id": "urn:rkaf:fixture:scheme:fns-snap-topic",
+  "@type": "rkaf:ConceptScheme",
+  "skos:prefLabel": "FNS SNAP topic scheme",
+  "rkaf:conceptStatus": "rkaf:active",
+  "rkaf:managedByRegistry": "urn:rkaf:fixture:registry:fns-snap-canonical",
+  "_comment": "Negative: a scheme that never says which facet it controls. That silence is how topic, industry, organization, and legal-status vocabularies merge — every one of them holds terms, and only the declared facet distinguishes them (§4.7)."
+}

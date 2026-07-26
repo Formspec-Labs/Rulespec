@@ -8,7 +8,18 @@ package rkaf
 // allowed on `rkaf:mappingRelation`. The hand-authored conceptregistry shape
 // (`shapes/rkaf-shapes-conceptregistry.ttl`) is the canonical reference for
 // this enum; CUE mirrors it.
+//
+// v0.2 ADDS SKOS's three remaining mapping properties — `skos:broadMatch`,
+// `skos:narrowMatch`, `skos:relatedMatch` — which the original set omitted even
+// though the comment above claimed them. SKOS draws a real line here:
+// `skos:broader` / `skos:narrower` / `skos:related` are semantic relations
+// WITHIN one scheme, while the `*Match` properties are the cross-scheme mapping
+// properties (SKOS Reference §10). Alignment to an external thesaurus needs the
+// `*Match` half, and without it a producer had to reach for the in-scheme
+// relation and misstate the alignment. No value is removed: the three in-scheme
+// relations stay legal on a mapping, and every existing mapping stays valid.
 #SkosMappingPredicate: "skos:closeMatch" | "skos:exactMatch" |
+	"skos:broadMatch" | "skos:narrowMatch" | "skos:relatedMatch" |
 	"skos:broader" | "skos:narrower" | "skos:related" | "skos:mappingRelation"
 
 #ConceptMappingLifecycleState: "rkaf:proposed" | "rkaf:underReview" |

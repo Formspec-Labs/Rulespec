@@ -1,0 +1,25 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@graph": [
+    {
+      "@id": "urn:rkaf:fixture:sf-noend:artifact",
+      "@type": "rkaf:Artifact",
+      "rkaf:hasArtifactIdentifier": "urn:rkaf:fixture:sf-noend:artifact",
+      "rkaf:artifactIdentifierScheme": "rkaf:partner-defined"
+    },
+    {
+      "@id": "urn:rkaf:fixture:sf-noend:fragment",
+      "@type": "rkaf:SourceFragment",
+      "oa:hasSource": "urn:rkaf:fixture:sf-noend:artifact",
+      "oa:hasSelector": "urn:rkaf:fixture:sf-noend:selector",
+      "rkaf:selectorKind": "oa:TextPositionSelector"
+    },
+    {
+      "@id": "urn:rkaf:fixture:sf-noend:selector",
+      "@type": "oa:TextPositionSelector",
+      "oa:start": 4180,
+      "rkaf:coordinateSystem": "rkaf:unicode-codepoint"
+    }
+  ],
+  "_comment": "Negative: a region with a beginning and no end. The mirror of the missing-start case — an open-ended offset selects everything from 4180 onward, which is a position, not the bounded region §4.2 requires."
+}

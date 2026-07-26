@@ -9,7 +9,7 @@
       "rkaf:promptTemplateRef": "urn:rkaf:prompt-template:classify-eligibility/v2",
       "rkaf:temperature": 0.0,
       "rkaf:seed": 42,
-      "rkaf:inputContextHash": "sha256:aabbccddee0011223344556677889900",
+      "rkaf:inputContextHash": "sha256:7777777777777777777777777777777777777777777777777777777777777777",
       "rkaf:humanApprover": "urn:rkaf:fixture:mc:actor:model-approver",
       "rkaf:humanRationale": "Model card approved for SNAP eligibility classification; deterministic temperature (0.0) required."
     },
@@ -27,8 +27,12 @@
     {
       "@id": "urn:rkaf:fixture:mc:applic:snap-classifier",
       "@type": "rkaf:ApplicabilityScope",
-      "rkaf:appliesInJurisdiction": ["urn:iso:3166:US"],
-      "rkaf:appliesToSubject": ["urn:rkaf:type:SNAPCase"],
+      "rkaf:appliesInJurisdiction": [
+        "urn:iso:3166:US"
+      ],
+      "rkaf:appliesToSubject": [
+        "urn:rkaf:type:SNAPCase"
+      ],
       "rkaf:hasEffectivePeriod": "urn:rkaf:fixture:mc:eff:q2-2026"
     },
     {
@@ -47,7 +51,9 @@
       "@id": "urn:rkaf:fixture:mc:just:benchmark-eval",
       "@type": "rkaf:Justification",
       "rkaf:hasWarrant": "urn:rkaf:fixture:mc:warrant:benchmark-methodology",
-      "rkaf:basedOnEvidence": ["urn:rkaf:fixture:mc:conf:f1-score"],
+      "rkaf:basedOnEvidence": [
+        "urn:rkaf:fixture:mc:conf:f1-score"
+      ],
       "rkaf:assertedAt": "2026-05-01T07:00:00Z"
     },
     {
@@ -65,7 +71,9 @@
       "@type": "rkaf:Attestation",
       "rkaf:attestor": "urn:rkaf:fixture:mc:actor:model-approver",
       "rkaf:attestorKind": "rkaf:formalReviewer",
-      "rkaf:targets": ["urn:rkaf:fixture:mc:assert:snap-llm-classifier"],
+      "rkaf:targets": [
+        "urn:rkaf:fixture:mc:assert:snap-llm-classifier"
+      ],
       "rkaf:decision": "rkaf:approvedWithConditions",
       "rkaf:attestationScope": "urn:rkaf:fixture:scope:snap-classifier-q2-2026",
       "rkaf:attestedAt": "2026-05-01T08:00:00Z",
