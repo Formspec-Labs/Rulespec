@@ -9,6 +9,132 @@ adapted for a specification + shape + fixture project.
 
 ### Added
 
+- **The document-analysis module** (`spec/rkaf-analysis.md`, CUE under
+  `constraints/analysis/`) — generic, jurisdiction-free contracts for comparing
+  relations across document versions. It is a THIRD tree beside the kernel and
+  the profiles, compiling to the same six targets under an `analysis` sub-path
+  (`compiled/<target>/analysis/`, `crates/rkaf-core/src/generated/analysis/`).
+  The dependency direction is kernel <- analysis <- profiles, and every arrow
+  is one-way: the kernel references no analysis shape and declares no analysis
+  term, the module composes kernel shapes and mentions no jurisdiction, and a
+  profile may depend on it. `AnalysisModuleTests` in
+  `tools/test_constraints_compile.py` fails the build on any of those arrows
+  reversing.
+
+  It exists because comparison is a *process* over the kernel primitives, with
+  its own policy versions, detector versions, resolver protocols, and
+  snapshots. A consumer that stores and exchanges assertions does not
+  automatically run comparisons and must not inherit a vocabulary it never
+  produces.
+
+  - `rkaf:RelationChangeEvent` (Analysis §2) — a source-stated
+    `rkaf:relationAdoption`, `rkaf:relationRemoval`, `rkaf:relationSuspension`,
+    or `rkaf:relationReplacement`, with a stage, the source's own event time,
+    and an intended effect time held apart from `rkaf:assertedAt`. It composes
+    `#AssertionEnvelope` and deliberately NOT `#AssertionProposition`, so
+    **polarity is structurally absent**: "the Secretary removes the
+    designation" does not assert the designation never held, and recording it
+    as a denied assertion destroys the difference between *never true* and
+    *stopped being true* — the difference every later comparison rests on.
+    `rkaf:RelationChangeEventNoPolarityShape` rejects a record that carries the
+    proposition predicates anyway, because the compiled carriers are open-world
+    and absence in CUE is not enforcement. It is also not an
+    `rkaf:LifecycleEvent`: that records what happened to a RESOURCE and seeds
+    `CascadeClosureV1`; this records what a source says about a RELATION, may
+    be merely proposed, and seeds nothing. Two conditionals: an
+    `rkaf:changeEffective` stage REQUIRES an effective time (otherwise the
+    record cannot be ordered against a baseline), and an
+    `rkaf:relationReplacement` REQUIRES `rkaf:replacementRelationObject` (a
+    replacement that does not name the successor is a removal wearing another
+    label). `rkaf:changeStageUnclear` is a first-class value, not a gap.
+  - `rkaf:RelationComparisonContext` (Analysis §3) — the immutable record of
+    ONE comparison: artifact pair, baseline assertion, consumer, scope,
+    evaluation time, policy version, detector and detector version, snapshot,
+    and outcome. Changing any input produces a DIFFERENT comparison, not an
+    update. `rkaf:comparisonOutcome` is closed over five values —
+    `satisfied`, `affirmedDeniedDiscrepancy`, `conflict`, `notComparable`,
+    `unknown` — where `notComparable` is a gate result and never a negative
+    fact about a source, and `unknown` never becomes a failure. The outcome
+    lives on the CONTEXT rather than on the finding so that "checked, nothing
+    found" stays representable and distinguishable from "never checked"; only
+    the discrepancy case also produces a finding. No AI model may produce a
+    comparison outcome. `rkaf:comparisonProofRecord` is REQUIRED for every
+    outcome except `unknown`.
+  - `rkaf:ResolverProofRecord` and `rkaf:ResolverProofIssuer` (Analysis §4) —
+    content-bound gate decisions. Six proof types, one per active resolver
+    protocol; outcomes are the union of `rkaf:gatePass` / `gateFail` /
+    `gateUnknown` and the six scope relations, because a scope comparator
+    returns a RELATION and collapsing `rkaf:scopeOverlaps` onto pass/fail
+    throws away the containment direction that decides whether an expectation
+    applies at all. **An opaque string is not proof**: `rkaf:proofInput`
+    (≥1), optional `rkaf:proofInputDigest`, a REQUIRED
+    `rkaf:proofRecordDigest`, a REQUIRED `rkaf:proofComparisonContext`, a
+    REQUIRED non-empty rationale, and both an evaluation time and a snapshot.
+    Requiring `rkaf:proofComparisonContext` only DECLARES the binding, so
+    `rkaf:ResolverProofComparisonBindingShape` enforces it across nodes: a
+    context whose `rkaf:comparisonProofRecord` names a proof issued for some
+    other comparison fails validation. That is the stale-pass replay the
+    property exists to prevent, and `rkaf:proofRecordDigest` cannot see it —
+    the proof record is unedited; the CITATION is what is false.
+    The issuer is a separate node referenced by IRI, for the same reason
+    Rulespec keeps one `rkaf:ConfidenceRecord`: a resolver version that changes
+    must change in one place.
+  - `rkaf:RelationFinding` (Analysis §5) — **neutral**. It says exactly one
+    thing: under the named comparison, accepted assertions disagreed about the
+    same relation. `rkaf:relationFindingKind` has ONE value,
+    `rkaf:affirmedDeniedDiscrepancy`, because every other evidence situation
+    has its own representation. It binds its comparison context, at least TWO
+    compared assertions (one assertion cannot disagree with itself), and at
+    least one proof record.
+    `rkaf:RelationFindingContextOutcomeAgreementShape` closes the cross-node
+    gap per-property SHACL cannot reach: a discrepancy finding may not be
+    attached to a comparison that came back `satisfied`. The module declares NO
+    legal-effect vocabulary at all — no policy exclusion, no rescission, no
+    severity ladder — and `AnalysisModuleTests` fails the build if one appears.
+    Domain interpretation belongs to a profile, after that profile's own
+    authority, applicability, deontic, source, and closure rules pass.
+- `rkaf:ClosureClaim` (Analysis §6) — **EXPERIMENTAL AND DISABLED**. A bounded
+  claim that a named process completely enumerated a relation family in named
+  regions of one Artifact version, under a declared profile version, with a
+  content digest over the accepted member set. Closure is always local and
+  revocable; `rkaf:closureRegion` is REQUIRED with ≥1 member so that a claim
+  about a whole document is not expressible.
+
+  It MUST NOT be produced or consumed as evidence for any finding. Four
+  independent mechanisms enforce that, so no single edit can quietly enable it:
+  (1) `rkaf:closureClaimStatus` is REQUIRED and closed over the single value
+  `rkaf:closureClaimDisabled` on every compiled target, so enabling moves the
+  contract digest and forces every pinned consumer to re-accept; (2)
+  `#ResolverProofType` declares no closure, coverage, or lineage proof type, so
+  a closure decision cannot be minted and cited; (3)
+  `rkaf:ClosureClaimNotFindingEvidenceShape` fails any graph in which a
+  `rkaf:RelationFinding` REACHES a claim — directly, or TRANSITIVELY at any
+  depth through its context, the proofs it or its context cite, the assertions
+  it compared, and the records those lean on — because "disabled" must mean
+  unreachable rather than un-named, and not "un-named at distance one" either:
+  `rkaf:proofSupportingRecord` is unranged and a proof may cite another proof,
+  so any fixed hop count is walked around by interposing one more record; and
+  (4) `AnalysisModuleTests` fails the build if the status enum grows a value,
+  if any property in any range registry is class-ranged to
+  `rkaf:ClosureClaim`, if a closure proof type appears, if an omission finding
+  kind appears, or if any fixture other than the two negatives proving the
+  shape fires (at depth 1 and depth 2) contains both a ClosureClaim and a
+  RelationFinding — matched on the EXPANDED type IRI, so an expanded or
+  aliased spelling cannot slip past the scan. Mechanisms 1, 2, and 4 are
+  cross-target; mechanism 3 is SHACL-path only, because reachability is a
+  statement about a path between nodes that no JSON Schema, Rust type, or Rego
+  value set can express (Analysis §6.4).
+
+  `rkaf:ClosureClaimNoPolarityShape` additionally rejects a claim carrying
+  `rkaf:assertionPolarity` or the proposition predicates, mirroring
+  `rkaf:RelationChangeEventNoPolarityShape`: without it a DISABLED record could
+  be published as a denied assertion about a triple.
+
+  There is deliberately no `expected_relation_not_observed` — not as a
+  comparison outcome, not as a finding kind. Omission is only meaningful inside
+  a proven closure boundary; outside one, silence is `rkaf:comparisonUnknown`.
+  Closure stays disabled until a frozen real dataset measures closure precision
+  and recall separately from extraction.
 - `rkaf:ConceptScheme` (Core §4.7.1) — one facet, one controlled category
   system, compatible with `skos:ConceptScheme`. SKOS owns scheme semantics and
   this shape restates none of them; it adds the two things SKOS leaves open and

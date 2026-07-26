@@ -11,6 +11,8 @@ ROOT = Path(__file__).resolve().parent.parent
 FIXTURES_DIR = ROOT / "fixtures"
 COMPILED_JSON_SCHEMA_DIR = ROOT / "compiled" / "json-schema" / "core"
 COMPILED_SHACL_DIR = ROOT / "compiled" / "shacl" / "core"
+COMPILED_ANALYSIS_JSON_SCHEMA_DIR = ROOT / "compiled" / "json-schema" / "analysis"
+COMPILED_ANALYSIS_SHACL_DIR = ROOT / "compiled" / "shacl" / "analysis"
 COMPILED_PROFILE_JSON_SCHEMA_ROOT = ROOT / "compiled" / "json-schema" / "profiles"
 COMPILED_PROFILE_SHACL_ROOT = ROOT / "compiled" / "shacl" / "profiles"
 HAND_AUTHORED_SHACL_DIR = ROOT / "shapes"
@@ -64,22 +66,34 @@ def violates_order(lower: object, upper: object) -> bool:
 
 
 def compiled_json_schema_paths() -> list[Path]:
-    """Kernel schemas first, then each domain profile's overlay schemas.
+    """Kernel schemas, then the analysis module, then each profile's overlays.
 
     Order is load-bearing: `schema_bindings()` resolves one schema per JSON-LD
     `@type`, and a profile overlay is a SUPERSET of the kernel shape it
     composes (it restates every kernel property and adds its own), so the more
     specific shape must win. See `schema_bindings`.
+
+    The analysis module (`compiled/*/analysis/`) sits between them because it
+    is neither: it declares its OWN classes and overlays nothing, so it can
+    never displace a kernel binding, and a profile that later overlays an
+    analysis class must still win. Grouping it with the kernel rather than with
+    the profiles is what keeps the profile-collision rule meaningful — two
+    analysis files binding one `@type` is a repo-shape bug, not a legitimate
+    overlay.
     """
     paths = sorted(COMPILED_JSON_SCHEMA_DIR.glob("*.schema.json"))
+    if COMPILED_ANALYSIS_JSON_SCHEMA_DIR.is_dir():
+        paths.extend(sorted(COMPILED_ANALYSIS_JSON_SCHEMA_DIR.glob("*.schema.json")))
     if COMPILED_PROFILE_JSON_SCHEMA_ROOT.is_dir():
         paths.extend(sorted(COMPILED_PROFILE_JSON_SCHEMA_ROOT.glob("*/*.schema.json")))
     return paths
 
 
 def compiled_shacl_paths() -> list[Path]:
-    """Every compiled SHACL file: kernel shapes plus every profile overlay."""
+    """Every compiled SHACL file: kernel, analysis module, profile overlays."""
     paths = sorted(COMPILED_SHACL_DIR.glob("*.ttl"))
+    if COMPILED_ANALYSIS_SHACL_DIR.is_dir():
+        paths.extend(sorted(COMPILED_ANALYSIS_SHACL_DIR.glob("*.ttl")))
     if COMPILED_PROFILE_SHACL_ROOT.is_dir():
         paths.extend(sorted(COMPILED_PROFILE_SHACL_ROOT.glob("*/*.ttl")))
     return paths

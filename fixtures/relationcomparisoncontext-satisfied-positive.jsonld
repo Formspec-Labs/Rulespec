@@ -1,0 +1,62 @@
+{
+  "@context": "../context/rkaf-context.jsonld",
+  "@graph": [
+    {
+      "@id": "urn:rkaf:fixture:analysis:sat:artifact:baseline",
+      "@type": "rkaf:Artifact",
+      "rkaf:hasArtifactIdentifier": "urn:rkaf:fixture:analysis:sat:artifact:baseline",
+      "rkaf:artifactIdentifierScheme": "rkaf:partner-defined",
+      "rkaf:hasContentDigest": "sha256:3333333333333333333333333333333333333333333333333333333333333333"
+    },
+    {
+      "@id": "urn:rkaf:fixture:analysis:sat:artifact:observed",
+      "@type": "rkaf:Artifact",
+      "rkaf:hasArtifactIdentifier": "urn:rkaf:fixture:analysis:sat:artifact:observed",
+      "rkaf:artifactIdentifierScheme": "rkaf:partner-defined",
+      "rkaf:hasContentDigest": "sha256:4444444444444444444444444444444444444444444444444444444444444444"
+    },
+    {
+      "@id": "urn:rkaf:fixture:analysis:sat:issuer:predicate-catalog",
+      "@type": "rkaf:ResolverProofIssuer",
+      "rkaf:proofResolver": "urn:rkaf:fixture:analysis:resolver:predicate-catalog",
+      "rkaf:proofResolverVersion": "relation-comparison-v1",
+      "rkaf:proofPolicy": "urn:rkaf:fixture:analysis:policy:canonical-relation",
+      "rkaf:proofPolicyVersion": "relation-comparison-v1"
+    },
+    {
+      "@id": "urn:rkaf:fixture:analysis:sat:proof:predicate-catalog",
+      "@type": "rkaf:ResolverProofRecord",
+      "rkaf:proofType": "rkaf:predicateCatalogProof",
+      "rkaf:proofIssuer": "urn:rkaf:fixture:analysis:sat:issuer:predicate-catalog",
+      "rkaf:proofComparisonContext": "urn:rkaf:fixture:analysis:sat:comparison:renewal-window",
+      "rkaf:proofOutcome": "rkaf:gatePass",
+      "rkaf:proofRationale": "The observed assertion names the same canonical subject, predicate, and object as the expected baseline.",
+      "rkaf:proofInput": [
+        "urn:rkaf:fixture:analysis:sat:assertion:expected",
+        "urn:rkaf:fixture:analysis:sat:assertion:observed"
+      ],
+      "rkaf:proofEvaluatedAt": "2026-06-02T09:30:00Z",
+      "rkaf:proofSnapshot": "urn:rkaf:fixture:analysis:snapshot:2026-06-02",
+      "rkaf:proofRecordDigest": "sha256:cccc333333333333333333333333333333333333333333333333333333333333"
+    },
+    {
+      "@id": "urn:rkaf:fixture:analysis:sat:comparison:renewal-window",
+      "@type": "rkaf:RelationComparisonContext",
+      "rkaf:comparisonBaselineArtifact": "urn:rkaf:fixture:analysis:sat:artifact:baseline",
+      "rkaf:comparisonObservedArtifact": "urn:rkaf:fixture:analysis:sat:artifact:observed",
+      "rkaf:comparisonExpectedAssertion": "urn:rkaf:fixture:analysis:sat:assertion:expected",
+      "rkaf:comparisonConsumer": "urn:rkaf:fixture:analysis:consumer:permits-desk",
+      "rkaf:comparisonScope": "urn:rkaf:fixture:analysis:scope:renewals",
+      "rkaf:comparisonEvaluationTime": "2026-06-02T09:30:00Z",
+      "rkaf:comparisonPolicyVersion": "relation-comparison-v1",
+      "rkaf:comparisonDetector": "urn:rkaf:fixture:analysis:detector:relation-comparator",
+      "rkaf:comparisonDetectorVersion": "1.4.0",
+      "rkaf:comparisonSnapshot": "urn:rkaf:fixture:analysis:snapshot:2026-06-02",
+      "rkaf:comparisonOutcome": "rkaf:comparisonSatisfied",
+      "rkaf:comparisonProofRecord": [
+        "urn:rkaf:fixture:analysis:sat:proof:predicate-catalog"
+      ]
+    }
+  ],
+  "_comment": "Analysis 3. A comparison that found no discrepancy still writes a record, and that record carries its proofs. This is the difference between 'checked, nothing found' and 'never checked' — the reason the outcome lives on the context rather than on the finding, which only ever exists for the discrepancy case."
+}

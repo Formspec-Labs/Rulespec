@@ -1,0 +1,6 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@id": "urn:rkaf:fixture:analysis:neg:event:bare",
+  "@type": "rkaf:RelationChangeEvent",
+  "_comment": "Negative. Every required slot absent: assertionOrigin, the three relation slots, operation, stage, and cited evidence. A change event with no subject, no operation, and no source region names nothing and proves nothing (spec/rkaf-analysis.md 2)."
+}

@@ -130,6 +130,18 @@ pub mod generated {
     pub mod warrant                            { include!("generated/warrant.rs"); }
     pub mod workspace                          { include!("generated/workspace.rs"); }
 
+    /// The document-analysis module. Generated from `constraints/analysis/`:
+    /// generic, jurisdiction-free relation-change, comparison, proof, and
+    /// neutral-finding contracts. It may compose kernel shapes; no kernel
+    /// module above depends on it, and it depends on no profile.
+    pub mod analysis {
+        pub mod closure_claim               { include!("generated/analysis/closure_claim.rs"); }
+        pub mod relation_change_event       { include!("generated/analysis/relation_change_event.rs"); }
+        pub mod relation_comparison_context { include!("generated/analysis/relation_comparison_context.rs"); }
+        pub mod relation_finding            { include!("generated/analysis/relation_finding.rs"); }
+        pub mod resolver_proof_record       { include!("generated/analysis/resolver_proof_record.rs"); }
+    }
+
     /// Domain profiles. Each submodule is generated from
     /// `constraints/profiles/<profile>/` and may compose kernel shapes; no
     /// kernel module above depends on anything below this line.
@@ -172,6 +184,22 @@ pub use generated::point_in_time_exception::PointInTimeException;
 pub use generated::registry_conflict::RegistryConflict;
 pub use generated::revalidation_event::{RevalidationClosureEvent, RevalidationEvent};
 pub use generated::relationship_assertion::RelationshipAssertion;
+// Document-analysis module (spec/rkaf-analysis.md). Generic comparison and
+// change contracts; `ClosureClaim` is Experimental and DISABLED — its only
+// legal `rkaf:closureClaimStatus` is `rkaf:closureClaimDisabled`, and no
+// finding may cite one.
+pub use generated::analysis::closure_claim::{ClosureClaim, ClosureClaimStatus};
+pub use generated::analysis::relation_change_event::{
+    RelationChangeEvent, RelationChangeOperation, RelationChangeStage,
+};
+pub use generated::analysis::relation_comparison_context::{
+    RelationComparisonContext, RelationComparisonOutcome,
+};
+pub use generated::analysis::relation_finding::{RelationFinding, RelationFindingKind};
+pub use generated::analysis::resolver_proof_record::{
+    GateStatus, ResolverProofIssuer, ResolverProofOutcome, ResolverProofRecord,
+    ResolverProofType, ScopeRelation,
+};
 // US rulemaking profile. These types moved from the kernel into
 // `generated::profiles::us_rulemaking`; the crate-root re-exports are kept so
 // existing consumers keep compiling against the same paths.

@@ -1,0 +1,42 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@graph": [
+    {
+      "@id": "urn:rkaf:fixture:analysis:neg:ccp:artifact:schedule-2026",
+      "@type": "rkaf:Artifact",
+      "rkaf:hasArtifactIdentifier": "urn:rkaf:fixture:analysis:neg:ccp:artifact:schedule-2026",
+      "rkaf:artifactIdentifierScheme": "rkaf:partner-defined",
+      "rkaf:hasContentDigest": "sha256:6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a"
+    },
+    {
+      "@id": "urn:rkaf:fixture:analysis:neg:ccp:fragment:table-3",
+      "@type": "rkaf:SourceFragment",
+      "oa:hasSource": "urn:rkaf:fixture:analysis:neg:ccp:artifact:schedule-2026",
+      "oa:hasSelector": {
+        "@type": "oa:TextQuoteSelector",
+        "oa:exact": "Table 3 — Designated testing standards, complete list."
+      },
+      "rkaf:selectorKind": "oa:TextQuoteSelector",
+      "rkaf:sourceArtifactDigest": "sha256:6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a",
+      "rkaf:fragmentContentDigest": "sha256:6b6b6b6b6b6b6b6b6b6b6b6b6b6b6b6b6b6b6b6b6b6b6b6b6b6b6b6b6b6b6b6b"
+    },
+    {
+      "@id": "urn:rkaf:fixture:analysis:neg:ccp:claim:table-3-standards",
+      "@type": "rkaf:ClosureClaim",
+      "rkaf:closureClaimStatus": "rkaf:closureClaimDisabled",
+      "rkaf:closureArtifact": "urn:rkaf:fixture:analysis:neg:ccp:artifact:schedule-2026",
+      "rkaf:closureRegion": [
+        "urn:rkaf:fixture:analysis:neg:ccp:fragment:table-3"
+      ],
+      "rkaf:closurePredicateFamily": "urn:rkaf:fixture:analysis:predicate-family:designated-standards",
+      "rkaf:closureProfileVersion": "analysis-closure-experiment-v0",
+      "rkaf:closureMemberDigest": "sha256:6c6c6c6c6c6c6c6c6c6c6c6c6c6c6c6c6c6c6c6c6c6c6c6c6c6c6c6c6c6c6c6c",
+      "rkaf:assertionOrigin": "rkaf:humanAsserted",
+      "rkaf:assertionPolarity": "rkaf:denied",
+      "rkaf:assertsSubject": "urn:rkaf:fixture:analysis:subject:permit-class-b",
+      "rkaf:assertsPredicate": "urn:rkaf:fixture:analysis:predicate:requiresInspection",
+      "rkaf:assertsObject": "urn:rkaf:fixture:analysis:object:annual-inspection"
+    }
+  ],
+  "_comment": "Negative. A DISABLED closure claim dressed up as a denied assertion about a triple. #ClosureClaim composes #AssertionEnvelope and deliberately NOT #AssertionProposition, but absence from the CUE shape is not enforcement: the compiled JSON Schema emits no additionalProperties:false and RDF is open-world, so without a shape this validates and the record that is supposed to carry no weight at all becomes a denial. Caught by rkaf:ClosureClaimNoPolarityShape, the mirror of rkaf:RelationChangeEventNoPolarityShape (spec/rkaf-analysis.md 6.1)."
+}

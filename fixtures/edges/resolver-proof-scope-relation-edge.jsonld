@@ -1,0 +1,62 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@graph": [
+    {
+      "@id": "urn:rkaf:fixture:analysis:scope:artifact:baseline",
+      "@type": "rkaf:Artifact",
+      "rkaf:hasArtifactIdentifier": "urn:rkaf:fixture:analysis:scope:artifact:baseline",
+      "rkaf:artifactIdentifierScheme": "rkaf:partner-defined",
+      "rkaf:hasContentDigest": "sha256:3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c"
+    },
+    {
+      "@id": "urn:rkaf:fixture:analysis:scope:artifact:observed",
+      "@type": "rkaf:Artifact",
+      "rkaf:hasArtifactIdentifier": "urn:rkaf:fixture:analysis:scope:artifact:observed",
+      "rkaf:artifactIdentifierScheme": "rkaf:partner-defined",
+      "rkaf:hasContentDigest": "sha256:3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d"
+    },
+    {
+      "@id": "urn:rkaf:fixture:analysis:scope:issuer:declared-scope",
+      "@type": "rkaf:ResolverProofIssuer",
+      "rkaf:proofResolver": "urn:rkaf:fixture:analysis:resolver:declared-scope",
+      "rkaf:proofResolverVersion": "relation-comparison-v1",
+      "rkaf:proofPolicy": "urn:rkaf:fixture:analysis:policy:scope-comparison",
+      "rkaf:proofPolicyVersion": "relation-comparison-v1"
+    },
+    {
+      "@id": "urn:rkaf:fixture:analysis:scope:proof:overlaps",
+      "@type": "rkaf:ResolverProofRecord",
+      "rkaf:proofType": "rkaf:scopeComparisonProof",
+      "rkaf:proofIssuer": "urn:rkaf:fixture:analysis:scope:issuer:declared-scope",
+      "rkaf:proofComparisonContext": "urn:rkaf:fixture:analysis:scope:comparison:partial-overlap",
+      "rkaf:proofOutcome": "rkaf:scopeOverlaps",
+      "rkaf:proofRationale": "The expected and observed applicability scopes share two of five declared jurisdictions and neither contains the other.",
+      "rkaf:proofInput": [
+        "urn:rkaf:fixture:analysis:scope:expected-scope",
+        "urn:rkaf:fixture:analysis:scope:observed-scope"
+      ],
+      "rkaf:proofEvaluatedAt": "2026-06-05T11:00:00Z",
+      "rkaf:proofSnapshot": "urn:rkaf:fixture:analysis:snapshot:2026-06-05",
+      "rkaf:proofRecordDigest": "sha256:0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c"
+    },
+    {
+      "@id": "urn:rkaf:fixture:analysis:scope:comparison:partial-overlap",
+      "@type": "rkaf:RelationComparisonContext",
+      "rkaf:comparisonBaselineArtifact": "urn:rkaf:fixture:analysis:scope:artifact:baseline",
+      "rkaf:comparisonObservedArtifact": "urn:rkaf:fixture:analysis:scope:artifact:observed",
+      "rkaf:comparisonExpectedAssertion": "urn:rkaf:fixture:analysis:scope:assertion:expected",
+      "rkaf:comparisonConsumer": "urn:rkaf:fixture:analysis:consumer:permits-desk",
+      "rkaf:comparisonScope": "urn:rkaf:fixture:analysis:scope:expected-scope",
+      "rkaf:comparisonEvaluationTime": "2026-06-05T11:00:00Z",
+      "rkaf:comparisonPolicyVersion": "relation-comparison-v1",
+      "rkaf:comparisonDetector": "urn:rkaf:fixture:analysis:detector:relation-comparator",
+      "rkaf:comparisonDetectorVersion": "1.4.0",
+      "rkaf:comparisonSnapshot": "urn:rkaf:fixture:analysis:snapshot:2026-06-05",
+      "rkaf:comparisonOutcome": "rkaf:comparisonNotComparable",
+      "rkaf:comparisonProofRecord": [
+        "urn:rkaf:fixture:analysis:scope:proof:overlaps"
+      ]
+    }
+  ],
+  "_comment": "Edge. A scope comparator does not return a gate status: rkaf:scopeOverlaps is neither a pass nor a failure, and flattening the six scope relations onto pass/fail would throw away the direction of containment that decides whether an expectation applies to the observed version at all. Both halves of #ResolverProofOutcome write into one slot; this fixture is the scope half. The comparison it belongs to ends rkaf:comparisonNotComparable \u2014 a FAILED ELIGIBILITY GATE, not a negative fact about either source, and not a finding."
+}

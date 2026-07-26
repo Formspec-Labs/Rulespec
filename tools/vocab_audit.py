@@ -21,8 +21,10 @@ ROOT = Path(__file__).resolve().parent.parent
 TERM_DOC = ROOT / "spec" / "rkaf-vocabulary.md"
 FIXTURE_DIR = ROOT / "fixtures"
 CUE_DIR = ROOT / "constraints" / "core"
+ANALYSIS_CUE_DIR = ROOT / "constraints" / "analysis"
 PROFILES_CUE_DIR = ROOT / "constraints" / "profiles"
 COMPILED_JSON_SCHEMA_DIR = ROOT / "compiled" / "json-schema" / "core"
+COMPILED_ANALYSIS_JSON_SCHEMA_DIR = ROOT / "compiled" / "json-schema" / "analysis"
 COMPILED_PROFILE_JSON_SCHEMA_ROOT = ROOT / "compiled" / "json-schema" / "profiles"
 
 # Enum/property-only schemas do not emit concrete JSON-LD @type constants.
@@ -39,9 +41,12 @@ def _kebab_to_titlecase(name: str) -> str:
 def constraint_sources() -> list[tuple[str, Path, Path]]:
     """(label, cue path, compiled JSON Schema path) for every codified source.
 
-    The kernel plus every domain profile. A profile's terms are still Rulespec
-    vocabulary — they just live in the profile's section of
-    `spec/rkaf-vocabulary.md` rather than the universal-primitives table.
+    The kernel, the document-analysis module, and every domain profile. Terms
+    from the latter two are still Rulespec vocabulary — they just live in their
+    own section of `spec/rkaf-vocabulary.md` rather than the
+    universal-primitives table. Leaving either tree out of this walk would let a
+    class ship with no vocabulary row and no required fixture, which is the one
+    thing this audit exists to prevent.
     """
     sources: list[tuple[str, Path, Path]] = [
         (
@@ -51,6 +56,15 @@ def constraint_sources() -> list[tuple[str, Path, Path]]:
         )
         for cue in sorted(CUE_DIR.glob("*.cue"))
     ]
+    if ANALYSIS_CUE_DIR.is_dir():
+        sources.extend(
+            (
+                f"constraints/analysis/{cue.name}",
+                cue,
+                COMPILED_ANALYSIS_JSON_SCHEMA_DIR / f"{cue.stem}.schema.json",
+            )
+            for cue in sorted(ANALYSIS_CUE_DIR.glob("*.cue"))
+        )
     if PROFILES_CUE_DIR.is_dir():
         for cue in sorted(PROFILES_CUE_DIR.glob("*/*.cue")):
             profile = cue.parent.name

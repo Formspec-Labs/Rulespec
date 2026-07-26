@@ -1,0 +1,39 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@graph": [
+    {
+      "@id": "urn:rkaf:fixture:analysis:neg:pol:artifact",
+      "@type": "rkaf:Artifact",
+      "rkaf:hasArtifactIdentifier": "urn:rkaf:fixture:analysis:neg:pol:artifact",
+      "rkaf:artifactIdentifierScheme": "rkaf:partner-defined",
+      "rkaf:hasContentDigest": "sha256:3a3a3a3a3a3a3a3a3a3a3a3a3a3a3a3a3a3a3a3a3a3a3a3a3a3a3a3a3a3a3a3a"
+    },
+    {
+      "@id": "urn:rkaf:fixture:analysis:neg:pol:fragment",
+      "@type": "rkaf:SourceFragment",
+      "oa:hasSource": "urn:rkaf:fixture:analysis:neg:pol:artifact",
+      "oa:hasSelector": {
+        "@type": "oa:TextQuoteSelector",
+        "oa:exact": "The requirement is removed."
+      },
+      "rkaf:selectorKind": "oa:TextQuoteSelector",
+      "rkaf:sourceArtifactDigest": "sha256:3a3a3a3a3a3a3a3a3a3a3a3a3a3a3a3a3a3a3a3a3a3a3a3a3a3a3a3a3a3a3a3a",
+      "rkaf:fragmentContentDigest": "sha256:3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b"
+    },
+    {
+      "@id": "urn:rkaf:fixture:analysis:neg:pol:event",
+      "@type": "rkaf:RelationChangeEvent",
+      "rkaf:changeSubject": "urn:rkaf:fixture:analysis:subject:permit-class-b",
+      "rkaf:changePredicate": "urn:rkaf:fixture:analysis:predicate:requiresInspection",
+      "rkaf:changeObject": "urn:rkaf:fixture:analysis:object:annual-inspection",
+      "rkaf:relationChangeOperation": "rkaf:relationRemoval",
+      "rkaf:relationChangeStage": "rkaf:changeProposed",
+      "rkaf:changeEvidence": [
+        "urn:rkaf:fixture:analysis:neg:pol:fragment"
+      ],
+      "rkaf:assertionOrigin": "rkaf:humanAsserted",
+      "rkaf:assertionPolarity": "rkaf:denied"
+    }
+  ],
+  "_comment": "Negative. A structurally complete change event that also carries rkaf:assertionPolarity. A proposal cannot carry polarity: recording a proposed removal as a denial says the relation was never true and erases the difference every later comparison depends on. Caught by rkaf:RelationChangeEventNoPolarityShape, since the open-world compiled carriers ignore a property the CUE shape merely omits."
+}

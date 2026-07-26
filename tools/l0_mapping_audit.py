@@ -41,6 +41,7 @@ except ModuleNotFoundError:  # Imported as tools.l0_mapping_audit in unit tests.
 ROOT = Path(__file__).resolve().parent.parent
 CONSTRAINTS_ROOT = ROOT / "constraints"
 CUE_DIR = ROOT / "constraints" / "core"
+ANALYSIS_DIR = ROOT / "constraints" / "analysis"
 PROFILES_DIR = ROOT / "constraints" / "profiles"
 CONTEXT_PATH = ROOT / "context" / "rkaf-context.jsonld"
 RANGE_PATH = ROOT / "constraints" / "semantics" / "l0-ranges.cue"
@@ -55,25 +56,36 @@ _UNSET: Any = object()
 
 
 def shape_source_paths(
-    *, cue_dir: Path | None = None, profiles_dir: Path | None = _UNSET
+    *,
+    cue_dir: Path | None = None,
+    profiles_dir: Path | None = _UNSET,
+    analysis_dir: Path | None = _UNSET,
 ) -> list[Path]:
     """Every CUE file that declares vocabulary-bearing shapes.
 
-    The kernel plus every domain profile. Profiles own jurisdiction-specific
-    terms (US regulatory identifiers, `rkaf:publishedInProceeding`, the
-    rulemaking classes); an L0 mapping that cites one of those terms is still
-    citing the Rulespec contract, so the registry and the contract digest cover
-    both trees. Range registries live in their own `semantics/` package
-    directory and are handled separately.
+    The kernel, the document-analysis module, and every domain profile. The
+    analysis module owns the generic comparison contracts (relation changes,
+    comparison contexts, resolver proofs, neutral findings, the disabled
+    closure claim); profiles own jurisdiction-specific terms (US regulatory
+    identifiers, `rkaf:publishedInProceeding`, the rulemaking classes). An L0
+    mapping that cites a term from either is still citing the Rulespec
+    contract, so the registry and the CONTRACT DIGEST have to cover all three
+    trees — a tree left out here is a tree a consumer can pin without pinning.
+    Range registries live in their own `semantics/` package directory and are
+    handled separately.
 
-    `profiles_dir` defaults to `cue_dir`'s own `../profiles` sibling, so
-    redirecting `cue_dir` redirects both. Pass `profiles_dir=None` to scan the
-    kernel alone.
+    `profiles_dir` and `analysis_dir` default to `cue_dir`'s own siblings, so
+    redirecting `cue_dir` redirects all three. Pass `None` explicitly to scan
+    the kernel alone.
     """
     cue_dir = CUE_DIR if cue_dir is None else cue_dir
     if profiles_dir is _UNSET:
         profiles_dir = cue_dir.parent / "profiles"
+    if analysis_dir is _UNSET:
+        analysis_dir = cue_dir.parent / "analysis"
     paths = sorted(cue_dir.glob("*.cue"))
+    if analysis_dir is not None and analysis_dir.is_dir():
+        paths.extend(sorted(analysis_dir.glob("*.cue")))
     if profiles_dir is not None and profiles_dir.is_dir():
         paths.extend(sorted(profiles_dir.glob("*/*.cue")))
     return paths
@@ -227,6 +239,7 @@ def load_vocabulary_registry(
     context_path: Path = CONTEXT_PATH,
     range_path: Path = _UNSET,
     profiles_dir: Path | None = _UNSET,
+    analysis_dir: Path | None = _UNSET,
 ) -> VocabularyRegistry:
     # Both sibling paths derive from `cue_dir` unless named explicitly, so a
     # caller pointing `cue_dir` at a synthetic tree gets that tree's profiles
@@ -240,7 +253,9 @@ def load_vocabulary_registry(
         for key, value in context.items()
         if ":" not in key and isinstance(value, str)
     }
-    shape_paths = shape_source_paths(cue_dir=cue_dir, profiles_dir=profiles_dir)
+    shape_paths = shape_source_paths(
+        cue_dir=cue_dir, profiles_dir=profiles_dir, analysis_dir=analysis_dir
+    )
     # `range_path` names the KERNEL registry; the contract is the union of every
     # `l0-ranges.cue` beneath the same `constraints/` root, so a profile's
     # ranges are covered without a second parameter.

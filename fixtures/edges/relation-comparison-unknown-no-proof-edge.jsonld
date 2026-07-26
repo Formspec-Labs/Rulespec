@@ -1,0 +1,35 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@graph": [
+    {
+      "@id": "urn:rkaf:fixture:analysis:unk:artifact:baseline",
+      "@type": "rkaf:Artifact",
+      "rkaf:hasArtifactIdentifier": "urn:rkaf:fixture:analysis:unk:artifact:baseline",
+      "rkaf:artifactIdentifierScheme": "rkaf:partner-defined",
+      "rkaf:hasContentDigest": "sha256:0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a"
+    },
+    {
+      "@id": "urn:rkaf:fixture:analysis:unk:artifact:observed",
+      "@type": "rkaf:Artifact",
+      "rkaf:hasArtifactIdentifier": "urn:rkaf:fixture:analysis:unk:artifact:observed",
+      "rkaf:artifactIdentifierScheme": "rkaf:partner-defined",
+      "rkaf:hasContentDigest": "sha256:0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b"
+    },
+    {
+      "@id": "urn:rkaf:fixture:analysis:unk:comparison:unresolved-snapshot",
+      "@type": "rkaf:RelationComparisonContext",
+      "rkaf:comparisonBaselineArtifact": "urn:rkaf:fixture:analysis:unk:artifact:baseline",
+      "rkaf:comparisonObservedArtifact": "urn:rkaf:fixture:analysis:unk:artifact:observed",
+      "rkaf:comparisonExpectedAssertion": "urn:rkaf:fixture:analysis:unk:assertion:expected",
+      "rkaf:comparisonConsumer": "urn:rkaf:fixture:analysis:consumer:permits-desk",
+      "rkaf:comparisonScope": "urn:rkaf:fixture:analysis:scope:permits-class-b",
+      "rkaf:comparisonEvaluationTime": "2026-06-04T07:15:00Z",
+      "rkaf:comparisonPolicyVersion": "relation-comparison-v1",
+      "rkaf:comparisonDetector": "urn:rkaf:fixture:analysis:detector:relation-comparator",
+      "rkaf:comparisonDetectorVersion": "1.4.0",
+      "rkaf:comparisonSnapshot": "urn:rkaf:fixture:analysis:snapshot:2026-06-04",
+      "rkaf:comparisonOutcome": "rkaf:comparisonUnknown"
+    }
+  ],
+  "_comment": "Edge. rkaf:comparisonUnknown is the ONE outcome that does not require proof records: an unknown can arise before any resolver could be consulted at all. Every other outcome is a claim about evidence and must show its proofs. Unknown never becomes fail, and a comparison that could not run is not a comparison that failed."
+}

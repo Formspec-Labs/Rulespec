@@ -1,0 +1,6 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@id": "urn:rkaf:fixture:analysis:neg:claim:bare",
+  "@type": "rkaf:ClosureClaim",
+  "_comment": "Negative. Every required slot absent, including rkaf:closureClaimStatus. A claim with no bounded artifact, no named region, no predicate family, no profile version, and no member digest is exactly the unbounded 'this document is complete' assertion the record must be incapable of expressing (spec/rkaf-analysis.md 6)."
+}

@@ -1,0 +1,6 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@id": "urn:rkaf:fixture:analysis:neg:finding:bare",
+  "@type": "rkaf:RelationFinding",
+  "_comment": "Negative. Every required slot absent: kind, comparison context, compared assertions, proof records, detection time, and rationale. A finding with no comparison and no proofs is an unsourced assertion of disagreement (spec/rkaf-analysis.md 5)."
+}

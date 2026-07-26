@@ -1,0 +1,35 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@graph": [
+    {
+      "@id": "urn:rkaf:fixture:analysis:neg:sat:artifact:baseline",
+      "@type": "rkaf:Artifact",
+      "rkaf:hasArtifactIdentifier": "urn:rkaf:fixture:analysis:neg:sat:artifact:baseline",
+      "rkaf:artifactIdentifierScheme": "rkaf:partner-defined",
+      "rkaf:hasContentDigest": "sha256:6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a"
+    },
+    {
+      "@id": "urn:rkaf:fixture:analysis:neg:sat:artifact:observed",
+      "@type": "rkaf:Artifact",
+      "rkaf:hasArtifactIdentifier": "urn:rkaf:fixture:analysis:neg:sat:artifact:observed",
+      "rkaf:artifactIdentifierScheme": "rkaf:partner-defined",
+      "rkaf:hasContentDigest": "sha256:6b6b6b6b6b6b6b6b6b6b6b6b6b6b6b6b6b6b6b6b6b6b6b6b6b6b6b6b6b6b6b6b"
+    },
+    {
+      "@id": "urn:rkaf:fixture:analysis:neg:sat:comparison",
+      "@type": "rkaf:RelationComparisonContext",
+      "rkaf:comparisonBaselineArtifact": "urn:rkaf:fixture:analysis:neg:sat:artifact:baseline",
+      "rkaf:comparisonObservedArtifact": "urn:rkaf:fixture:analysis:neg:sat:artifact:observed",
+      "rkaf:comparisonExpectedAssertion": "urn:rkaf:fixture:analysis:neg:sat:assertion:expected",
+      "rkaf:comparisonConsumer": "urn:rkaf:fixture:analysis:consumer:permits-desk",
+      "rkaf:comparisonScope": "urn:rkaf:fixture:analysis:scope:permits-class-b",
+      "rkaf:comparisonEvaluationTime": "2026-06-07T09:00:00Z",
+      "rkaf:comparisonPolicyVersion": "relation-comparison-v1",
+      "rkaf:comparisonDetector": "urn:rkaf:fixture:analysis:detector:relation-comparator",
+      "rkaf:comparisonDetectorVersion": "1.4.0",
+      "rkaf:comparisonSnapshot": "urn:rkaf:fixture:analysis:snapshot:2026-06-07",
+      "rkaf:comparisonOutcome": "rkaf:comparisonSatisfied"
+    }
+  ],
+  "_comment": "Negative. A satisfied comparison with no proof records. Every outcome except rkaf:comparisonUnknown is a claim about evidence; an unproved 'satisfied' is indistinguishable from a comparison that never ran, and an opaque assurance is not proof (spec/rkaf-analysis.md 3, 4)."
+}

@@ -1,0 +1,75 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@graph": [
+    {
+      "@id": "urn:rkaf:fixture:analysis:neg:one:artifact:baseline",
+      "@type": "rkaf:Artifact",
+      "rkaf:hasArtifactIdentifier": "urn:rkaf:fixture:analysis:neg:one:artifact:baseline",
+      "rkaf:artifactIdentifierScheme": "rkaf:partner-defined",
+      "rkaf:hasContentDigest": "sha256:7a7a7a7a7a7a7a7a7a7a7a7a7a7a7a7a7a7a7a7a7a7a7a7a7a7a7a7a7a7a7a7a"
+    },
+    {
+      "@id": "urn:rkaf:fixture:analysis:neg:one:artifact:observed",
+      "@type": "rkaf:Artifact",
+      "rkaf:hasArtifactIdentifier": "urn:rkaf:fixture:analysis:neg:one:artifact:observed",
+      "rkaf:artifactIdentifierScheme": "rkaf:partner-defined",
+      "rkaf:hasContentDigest": "sha256:7b7b7b7b7b7b7b7b7b7b7b7b7b7b7b7b7b7b7b7b7b7b7b7b7b7b7b7b7b7b7b7b"
+    },
+    {
+      "@id": "urn:rkaf:fixture:analysis:neg:one:issuer",
+      "@type": "rkaf:ResolverProofIssuer",
+      "rkaf:proofResolver": "urn:rkaf:fixture:analysis:resolver:assertion-state",
+      "rkaf:proofResolverVersion": "relation-comparison-v1",
+      "rkaf:proofPolicy": "urn:rkaf:fixture:analysis:policy:accepted-current",
+      "rkaf:proofPolicyVersion": "relation-comparison-v1"
+    },
+    {
+      "@id": "urn:rkaf:fixture:analysis:neg:one:proof",
+      "@type": "rkaf:ResolverProofRecord",
+      "rkaf:proofType": "rkaf:assertionStateProof",
+      "rkaf:proofIssuer": "urn:rkaf:fixture:analysis:neg:one:issuer",
+      "rkaf:proofComparisonContext": "urn:rkaf:fixture:analysis:neg:one:comparison",
+      "rkaf:proofOutcome": "rkaf:gatePass",
+      "rkaf:proofRationale": "The baseline assertion is accepted for the named consumer and scope.",
+      "rkaf:proofInput": [
+        "urn:rkaf:fixture:analysis:neg:one:assertion:baseline"
+      ],
+      "rkaf:proofEvaluatedAt": "2026-06-09T10:00:00Z",
+      "rkaf:proofSnapshot": "urn:rkaf:fixture:analysis:snapshot:2026-06-09",
+      "rkaf:proofRecordDigest": "sha256:7c7c7c7c7c7c7c7c7c7c7c7c7c7c7c7c7c7c7c7c7c7c7c7c7c7c7c7c7c7c7c7c"
+    },
+    {
+      "@id": "urn:rkaf:fixture:analysis:neg:one:comparison",
+      "@type": "rkaf:RelationComparisonContext",
+      "rkaf:comparisonBaselineArtifact": "urn:rkaf:fixture:analysis:neg:one:artifact:baseline",
+      "rkaf:comparisonObservedArtifact": "urn:rkaf:fixture:analysis:neg:one:artifact:observed",
+      "rkaf:comparisonExpectedAssertion": "urn:rkaf:fixture:analysis:neg:one:assertion:baseline",
+      "rkaf:comparisonConsumer": "urn:rkaf:fixture:analysis:consumer:permits-desk",
+      "rkaf:comparisonScope": "urn:rkaf:fixture:analysis:scope:permits-class-b",
+      "rkaf:comparisonEvaluationTime": "2026-06-09T10:00:00Z",
+      "rkaf:comparisonPolicyVersion": "relation-comparison-v1",
+      "rkaf:comparisonDetector": "urn:rkaf:fixture:analysis:detector:relation-comparator",
+      "rkaf:comparisonDetectorVersion": "1.4.0",
+      "rkaf:comparisonSnapshot": "urn:rkaf:fixture:analysis:snapshot:2026-06-09",
+      "rkaf:comparisonOutcome": "rkaf:comparisonAffirmedDeniedDiscrepancy",
+      "rkaf:comparisonProofRecord": [
+        "urn:rkaf:fixture:analysis:neg:one:proof"
+      ]
+    },
+    {
+      "@id": "urn:rkaf:fixture:analysis:neg:one:finding",
+      "@type": "rkaf:RelationFinding",
+      "rkaf:relationFindingKind": "rkaf:affirmedDeniedDiscrepancy",
+      "rkaf:findingComparisonContext": "urn:rkaf:fixture:analysis:neg:one:comparison",
+      "rkaf:findingComparedAssertion": [
+        "urn:rkaf:fixture:analysis:neg:one:assertion:baseline"
+      ],
+      "rkaf:findingProofRecord": [
+        "urn:rkaf:fixture:analysis:neg:one:proof"
+      ],
+      "rkaf:findingDetectedAt": "2026-06-09T10:00:02Z",
+      "rkaf:findingRationale": "Claims a discrepancy while naming only the baseline assertion."
+    }
+  ],
+  "_comment": "Negative. A discrepancy finding that names ONE compared assertion. One assertion cannot disagree with itself; a finding with a single record is a unilateral claim wearing a comparison's label (spec/rkaf-analysis.md 5)."
+}

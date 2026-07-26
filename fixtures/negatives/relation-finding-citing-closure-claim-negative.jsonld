@@ -1,0 +1,105 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@graph": [
+    {
+      "@id": "urn:rkaf:fixture:analysis:neg:cc:artifact:baseline",
+      "@type": "rkaf:Artifact",
+      "rkaf:hasArtifactIdentifier": "urn:rkaf:fixture:analysis:neg:cc:artifact:baseline",
+      "rkaf:artifactIdentifierScheme": "rkaf:partner-defined",
+      "rkaf:hasContentDigest": "sha256:9a9a9a9a9a9a9a9a9a9a9a9a9a9a9a9a9a9a9a9a9a9a9a9a9a9a9a9a9a9a9a9a"
+    },
+    {
+      "@id": "urn:rkaf:fixture:analysis:neg:cc:artifact:observed",
+      "@type": "rkaf:Artifact",
+      "rkaf:hasArtifactIdentifier": "urn:rkaf:fixture:analysis:neg:cc:artifact:observed",
+      "rkaf:artifactIdentifierScheme": "rkaf:partner-defined",
+      "rkaf:hasContentDigest": "sha256:9b9b9b9b9b9b9b9b9b9b9b9b9b9b9b9b9b9b9b9b9b9b9b9b9b9b9b9b9b9b9b9b"
+    },
+    {
+      "@id": "urn:rkaf:fixture:analysis:neg:cc:fragment",
+      "@type": "rkaf:SourceFragment",
+      "oa:hasSource": "urn:rkaf:fixture:analysis:neg:cc:artifact:observed",
+      "oa:hasSelector": {
+        "@type": "oa:TextQuoteSelector",
+        "oa:exact": "Table 3 \u2014 Designated testing standards, complete list."
+      },
+      "rkaf:selectorKind": "oa:TextQuoteSelector",
+      "rkaf:sourceArtifactDigest": "sha256:9b9b9b9b9b9b9b9b9b9b9b9b9b9b9b9b9b9b9b9b9b9b9b9b9b9b9b9b9b9b9b9b",
+      "rkaf:fragmentContentDigest": "sha256:9c9c9c9c9c9c9c9c9c9c9c9c9c9c9c9c9c9c9c9c9c9c9c9c9c9c9c9c9c9c9c9c"
+    },
+    {
+      "@id": "urn:rkaf:fixture:analysis:neg:cc:claim",
+      "@type": "rkaf:ClosureClaim",
+      "rkaf:closureClaimStatus": "rkaf:closureClaimDisabled",
+      "rkaf:closureArtifact": "urn:rkaf:fixture:analysis:neg:cc:artifact:observed",
+      "rkaf:closureRegion": [
+        "urn:rkaf:fixture:analysis:neg:cc:fragment"
+      ],
+      "rkaf:closurePredicateFamily": "urn:rkaf:fixture:analysis:predicate-family:designated-standards",
+      "rkaf:closureProfileVersion": "analysis-closure-experiment-v0",
+      "rkaf:closureMemberDigest": "sha256:9d9d9d9d9d9d9d9d9d9d9d9d9d9d9d9d9d9d9d9d9d9d9d9d9d9d9d9d9d9d9d9d",
+      "rkaf:assertionOrigin": "rkaf:humanAsserted"
+    },
+    {
+      "@id": "urn:rkaf:fixture:analysis:neg:cc:issuer",
+      "@type": "rkaf:ResolverProofIssuer",
+      "rkaf:proofResolver": "urn:rkaf:fixture:analysis:resolver:assertion-state",
+      "rkaf:proofResolverVersion": "relation-comparison-v1",
+      "rkaf:proofPolicy": "urn:rkaf:fixture:analysis:policy:accepted-current",
+      "rkaf:proofPolicyVersion": "relation-comparison-v1"
+    },
+    {
+      "@id": "urn:rkaf:fixture:analysis:neg:cc:proof",
+      "@type": "rkaf:ResolverProofRecord",
+      "rkaf:proofType": "rkaf:assertionStateProof",
+      "rkaf:proofIssuer": "urn:rkaf:fixture:analysis:neg:cc:issuer",
+      "rkaf:proofComparisonContext": "urn:rkaf:fixture:analysis:neg:cc:comparison",
+      "rkaf:proofOutcome": "rkaf:gatePass",
+      "rkaf:proofRationale": "Leans on a closure claim to argue the observed enumeration was complete.",
+      "rkaf:proofInput": [
+        "urn:rkaf:fixture:analysis:neg:cc:assertion:expected",
+        "urn:rkaf:fixture:analysis:neg:cc:assertion:observed"
+      ],
+      "rkaf:proofSupportingRecord": [
+        "urn:rkaf:fixture:analysis:neg:cc:claim"
+      ],
+      "rkaf:proofEvaluatedAt": "2026-06-11T10:00:00Z",
+      "rkaf:proofSnapshot": "urn:rkaf:fixture:analysis:snapshot:2026-06-11",
+      "rkaf:proofRecordDigest": "sha256:9e9e9e9e9e9e9e9e9e9e9e9e9e9e9e9e9e9e9e9e9e9e9e9e9e9e9e9e9e9e9e9e"
+    },
+    {
+      "@id": "urn:rkaf:fixture:analysis:neg:cc:comparison",
+      "@type": "rkaf:RelationComparisonContext",
+      "rkaf:comparisonBaselineArtifact": "urn:rkaf:fixture:analysis:neg:cc:artifact:baseline",
+      "rkaf:comparisonObservedArtifact": "urn:rkaf:fixture:analysis:neg:cc:artifact:observed",
+      "rkaf:comparisonExpectedAssertion": "urn:rkaf:fixture:analysis:neg:cc:assertion:expected",
+      "rkaf:comparisonConsumer": "urn:rkaf:fixture:analysis:consumer:permits-desk",
+      "rkaf:comparisonScope": "urn:rkaf:fixture:analysis:scope:permits-class-b",
+      "rkaf:comparisonEvaluationTime": "2026-06-11T10:00:00Z",
+      "rkaf:comparisonPolicyVersion": "relation-comparison-v1",
+      "rkaf:comparisonDetector": "urn:rkaf:fixture:analysis:detector:relation-comparator",
+      "rkaf:comparisonDetectorVersion": "1.4.0",
+      "rkaf:comparisonSnapshot": "urn:rkaf:fixture:analysis:snapshot:2026-06-11",
+      "rkaf:comparisonOutcome": "rkaf:comparisonAffirmedDeniedDiscrepancy",
+      "rkaf:comparisonProofRecord": [
+        "urn:rkaf:fixture:analysis:neg:cc:proof"
+      ]
+    },
+    {
+      "@id": "urn:rkaf:fixture:analysis:neg:cc:finding",
+      "@type": "rkaf:RelationFinding",
+      "rkaf:relationFindingKind": "rkaf:affirmedDeniedDiscrepancy",
+      "rkaf:findingComparisonContext": "urn:rkaf:fixture:analysis:neg:cc:comparison",
+      "rkaf:findingComparedAssertion": [
+        "urn:rkaf:fixture:analysis:neg:cc:assertion:expected",
+        "urn:rkaf:fixture:analysis:neg:cc:assertion:observed"
+      ],
+      "rkaf:findingProofRecord": [
+        "urn:rkaf:fixture:analysis:neg:cc:proof"
+      ],
+      "rkaf:findingDetectedAt": "2026-06-11T10:00:06Z",
+      "rkaf:findingRationale": "Reaches a closure claim through a cited proof record's supporting records."
+    }
+  ],
+  "_comment": "Negative, and the one that proves the disabling actually holds. The finding never names the closure claim directly \u2014 it reaches it through rkaf:findingProofRecord and then rkaf:proofSupportingRecord. 'Disabled' has to mean UNREACHABLE rather than un-named, or omission gets enabled by indirection. Caught by rkaf:ClosureClaimNotFindingEvidenceShape (spec/rkaf-analysis.md 6). This is the ONLY class of fixture permitted to contain a ClosureClaim and a RelationFinding together, and it must fail."
+}

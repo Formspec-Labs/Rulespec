@@ -1,0 +1,123 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@graph": [
+    {
+      "@id": "urn:rkaf:fixture:analysis:neg:cci:artifact:baseline",
+      "@type": "rkaf:Artifact",
+      "rkaf:hasArtifactIdentifier": "urn:rkaf:fixture:analysis:neg:cci:artifact:baseline",
+      "rkaf:artifactIdentifierScheme": "rkaf:partner-defined",
+      "rkaf:hasContentDigest": "sha256:8a8a8a8a8a8a8a8a8a8a8a8a8a8a8a8a8a8a8a8a8a8a8a8a8a8a8a8a8a8a8a8a"
+    },
+    {
+      "@id": "urn:rkaf:fixture:analysis:neg:cci:artifact:observed",
+      "@type": "rkaf:Artifact",
+      "rkaf:hasArtifactIdentifier": "urn:rkaf:fixture:analysis:neg:cci:artifact:observed",
+      "rkaf:artifactIdentifierScheme": "rkaf:partner-defined",
+      "rkaf:hasContentDigest": "sha256:8b8b8b8b8b8b8b8b8b8b8b8b8b8b8b8b8b8b8b8b8b8b8b8b8b8b8b8b8b8b8b8b"
+    },
+    {
+      "@id": "urn:rkaf:fixture:analysis:neg:cci:fragment",
+      "@type": "rkaf:SourceFragment",
+      "oa:hasSource": "urn:rkaf:fixture:analysis:neg:cci:artifact:observed",
+      "oa:hasSelector": {
+        "@type": "oa:TextQuoteSelector",
+        "oa:exact": "Table 3 — Designated testing standards, complete list."
+      },
+      "rkaf:selectorKind": "oa:TextQuoteSelector",
+      "rkaf:sourceArtifactDigest": "sha256:8b8b8b8b8b8b8b8b8b8b8b8b8b8b8b8b8b8b8b8b8b8b8b8b8b8b8b8b8b8b8b8b",
+      "rkaf:fragmentContentDigest": "sha256:8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c"
+    },
+    {
+      "@id": "urn:rkaf:fixture:analysis:neg:cci:claim",
+      "@type": "rkaf:ClosureClaim",
+      "rkaf:closureClaimStatus": "rkaf:closureClaimDisabled",
+      "rkaf:closureArtifact": "urn:rkaf:fixture:analysis:neg:cci:artifact:observed",
+      "rkaf:closureRegion": [
+        "urn:rkaf:fixture:analysis:neg:cci:fragment"
+      ],
+      "rkaf:closurePredicateFamily": "urn:rkaf:fixture:analysis:predicate-family:designated-standards",
+      "rkaf:closureProfileVersion": "analysis-closure-experiment-v0",
+      "rkaf:closureMemberDigest": "sha256:8d8d8d8d8d8d8d8d8d8d8d8d8d8d8d8d8d8d8d8d8d8d8d8d8d8d8d8d8d8d8d8d",
+      "rkaf:assertionOrigin": "rkaf:humanAsserted"
+    },
+    {
+      "@id": "urn:rkaf:fixture:analysis:neg:cci:issuer",
+      "@type": "rkaf:ResolverProofIssuer",
+      "rkaf:proofResolver": "urn:rkaf:fixture:analysis:resolver:assertion-state",
+      "rkaf:proofResolverVersion": "relation-comparison-v1",
+      "rkaf:proofPolicy": "urn:rkaf:fixture:analysis:policy:accepted-current",
+      "rkaf:proofPolicyVersion": "relation-comparison-v1"
+    },
+    {
+      "@id": "urn:rkaf:fixture:analysis:neg:cci:proof:cited",
+      "@type": "rkaf:ResolverProofRecord",
+      "rkaf:proofType": "rkaf:assertionStateProof",
+      "rkaf:proofIssuer": "urn:rkaf:fixture:analysis:neg:cci:issuer",
+      "rkaf:proofComparisonContext": "urn:rkaf:fixture:analysis:neg:cci:comparison",
+      "rkaf:proofOutcome": "rkaf:gatePass",
+      "rkaf:proofRationale": "Both assertions are accepted for the named consumer and scope at the evaluation time.",
+      "rkaf:proofInput": [
+        "urn:rkaf:fixture:analysis:neg:cci:assertion:expected",
+        "urn:rkaf:fixture:analysis:neg:cci:assertion:observed"
+      ],
+      "rkaf:proofSupportingRecord": [
+        "urn:rkaf:fixture:analysis:neg:cci:proof:interposed"
+      ],
+      "rkaf:proofEvaluatedAt": "2026-06-11T10:00:00Z",
+      "rkaf:proofSnapshot": "urn:rkaf:fixture:analysis:snapshot:2026-06-11",
+      "rkaf:proofRecordDigest": "sha256:8e8e8e8e8e8e8e8e8e8e8e8e8e8e8e8e8e8e8e8e8e8e8e8e8e8e8e8e8e8e8e8e"
+    },
+    {
+      "@id": "urn:rkaf:fixture:analysis:neg:cci:proof:interposed",
+      "@type": "rkaf:ResolverProofRecord",
+      "rkaf:proofType": "rkaf:assertionStateProof",
+      "rkaf:proofIssuer": "urn:rkaf:fixture:analysis:neg:cci:issuer",
+      "rkaf:proofComparisonContext": "urn:rkaf:fixture:analysis:neg:cci:comparison",
+      "rkaf:proofOutcome": "rkaf:gatePass",
+      "rkaf:proofRationale": "A legitimate assertion-state proof whose only purpose here is to add one hop of indirection.",
+      "rkaf:proofInput": [
+        "urn:rkaf:fixture:analysis:neg:cci:assertion:expected"
+      ],
+      "rkaf:proofSupportingRecord": [
+        "urn:rkaf:fixture:analysis:neg:cci:claim"
+      ],
+      "rkaf:proofEvaluatedAt": "2026-06-11T10:00:01Z",
+      "rkaf:proofSnapshot": "urn:rkaf:fixture:analysis:snapshot:2026-06-11",
+      "rkaf:proofRecordDigest": "sha256:8f8f8f8f8f8f8f8f8f8f8f8f8f8f8f8f8f8f8f8f8f8f8f8f8f8f8f8f8f8f8f8f"
+    },
+    {
+      "@id": "urn:rkaf:fixture:analysis:neg:cci:comparison",
+      "@type": "rkaf:RelationComparisonContext",
+      "rkaf:comparisonBaselineArtifact": "urn:rkaf:fixture:analysis:neg:cci:artifact:baseline",
+      "rkaf:comparisonObservedArtifact": "urn:rkaf:fixture:analysis:neg:cci:artifact:observed",
+      "rkaf:comparisonExpectedAssertion": "urn:rkaf:fixture:analysis:neg:cci:assertion:expected",
+      "rkaf:comparisonConsumer": "urn:rkaf:fixture:analysis:consumer:permits-desk",
+      "rkaf:comparisonScope": "urn:rkaf:fixture:analysis:scope:permits-class-b",
+      "rkaf:comparisonEvaluationTime": "2026-06-11T10:00:00Z",
+      "rkaf:comparisonPolicyVersion": "relation-comparison-v1",
+      "rkaf:comparisonDetector": "urn:rkaf:fixture:analysis:detector:relation-comparator",
+      "rkaf:comparisonDetectorVersion": "1.4.0",
+      "rkaf:comparisonSnapshot": "urn:rkaf:fixture:analysis:snapshot:2026-06-11",
+      "rkaf:comparisonOutcome": "rkaf:comparisonAffirmedDeniedDiscrepancy",
+      "rkaf:comparisonProofRecord": [
+        "urn:rkaf:fixture:analysis:neg:cci:proof:cited"
+      ]
+    },
+    {
+      "@id": "urn:rkaf:fixture:analysis:neg:cci:finding",
+      "@type": "rkaf:RelationFinding",
+      "rkaf:relationFindingKind": "rkaf:affirmedDeniedDiscrepancy",
+      "rkaf:findingComparisonContext": "urn:rkaf:fixture:analysis:neg:cci:comparison",
+      "rkaf:findingComparedAssertion": [
+        "urn:rkaf:fixture:analysis:neg:cci:assertion:expected",
+        "urn:rkaf:fixture:analysis:neg:cci:assertion:observed"
+      ],
+      "rkaf:findingProofRecord": [
+        "urn:rkaf:fixture:analysis:neg:cci:proof:cited"
+      ],
+      "rkaf:findingDetectedAt": "2026-06-11T10:00:06Z",
+      "rkaf:findingRationale": "Reaches a closure claim at depth two, through one proof record's supporting record and then another's."
+    }
+  ],
+  "_comment": "Negative, and the one that proves the disabling holds at DEPTH rather than at a fixed number of hops. The finding cites one proof record, that proof record's rkaf:proofSupportingRecord names a second, entirely legitimate, assertion-state proof, and only THAT one names the closure claim. Every hop on the chain is a legal edge carrying a legal proof type, so nothing per-property objects; an earlier four-branch one-hop form of rkaf:ClosureClaimNotFindingEvidenceShape let this document validate, which meant omission could be enabled by interposing one extra proof record. Caught by rkaf:ClosureClaimNotFindingEvidenceShape (spec/rkaf-analysis.md 6.4 mechanism 3). This is one of only two fixtures permitted to contain a ClosureClaim and a RelationFinding together, and it must fail."
+}

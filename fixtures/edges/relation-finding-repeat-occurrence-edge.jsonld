@@ -1,0 +1,78 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@graph": [
+    {
+      "@id": "urn:rkaf:fixture:analysis:rpt:artifact:baseline",
+      "@type": "rkaf:Artifact",
+      "rkaf:hasArtifactIdentifier": "urn:rkaf:fixture:analysis:rpt:artifact:baseline",
+      "rkaf:artifactIdentifierScheme": "rkaf:partner-defined",
+      "rkaf:hasContentDigest": "sha256:1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a"
+    },
+    {
+      "@id": "urn:rkaf:fixture:analysis:rpt:artifact:observed-v3",
+      "@type": "rkaf:Artifact",
+      "rkaf:hasArtifactIdentifier": "urn:rkaf:fixture:analysis:rpt:artifact:observed-v3",
+      "rkaf:artifactIdentifierScheme": "rkaf:partner-defined",
+      "rkaf:hasContentDigest": "sha256:1b1b1b1b1b1b1b1b1b1b1b1b1b1b1b1b1b1b1b1b1b1b1b1b1b1b1b1b1b1b1b1b"
+    },
+    {
+      "@id": "urn:rkaf:fixture:analysis:rpt:issuer:evidence",
+      "@type": "rkaf:ResolverProofIssuer",
+      "rkaf:proofResolver": "urn:rkaf:fixture:analysis:resolver:bound-evidence",
+      "rkaf:proofResolverVersion": "relation-comparison-v1",
+      "rkaf:proofPolicy": "urn:rkaf:fixture:analysis:policy:exact-source-evidence",
+      "rkaf:proofPolicyVersion": "relation-comparison-v1"
+    },
+    {
+      "@id": "urn:rkaf:fixture:analysis:rpt:proof:evidence",
+      "@type": "rkaf:ResolverProofRecord",
+      "rkaf:proofType": "rkaf:evidenceBindingProof",
+      "rkaf:proofIssuer": "urn:rkaf:fixture:analysis:rpt:issuer:evidence",
+      "rkaf:proofComparisonContext": "urn:rkaf:fixture:analysis:rpt:comparison:v3",
+      "rkaf:proofOutcome": "rkaf:gatePass",
+      "rkaf:proofRationale": "Each compared assertion cites an exact region of the artifact version it is attributed to.",
+      "rkaf:proofInput": [
+        "urn:rkaf:fixture:analysis:rpt:assertion:expected",
+        "urn:rkaf:fixture:analysis:rpt:assertion:observed"
+      ],
+      "rkaf:proofEvaluatedAt": "2026-06-06T14:00:00Z",
+      "rkaf:proofSnapshot": "urn:rkaf:fixture:analysis:snapshot:2026-06-06",
+      "rkaf:proofRecordDigest": "sha256:1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c"
+    },
+    {
+      "@id": "urn:rkaf:fixture:analysis:rpt:comparison:v3",
+      "@type": "rkaf:RelationComparisonContext",
+      "rkaf:comparisonBaselineArtifact": "urn:rkaf:fixture:analysis:rpt:artifact:baseline",
+      "rkaf:comparisonObservedArtifact": "urn:rkaf:fixture:analysis:rpt:artifact:observed-v3",
+      "rkaf:comparisonExpectedAssertion": "urn:rkaf:fixture:analysis:rpt:assertion:expected",
+      "rkaf:comparisonConsumer": "urn:rkaf:fixture:analysis:consumer:permits-desk",
+      "rkaf:comparisonScope": "urn:rkaf:fixture:analysis:scope:permits-class-b",
+      "rkaf:comparisonEvaluationTime": "2026-06-06T14:00:00Z",
+      "rkaf:comparisonPolicyVersion": "relation-comparison-v1",
+      "rkaf:comparisonDetector": "urn:rkaf:fixture:analysis:detector:relation-comparator",
+      "rkaf:comparisonDetectorVersion": "1.5.0",
+      "rkaf:comparisonSnapshot": "urn:rkaf:fixture:analysis:snapshot:2026-06-06",
+      "rkaf:comparisonOutcome": "rkaf:comparisonAffirmedDeniedDiscrepancy",
+      "rkaf:comparisonProofRecord": [
+        "urn:rkaf:fixture:analysis:rpt:proof:evidence"
+      ]
+    },
+    {
+      "@id": "urn:rkaf:fixture:analysis:rpt:finding:third-occurrence",
+      "@type": "rkaf:RelationFinding",
+      "rkaf:relationFindingKind": "rkaf:affirmedDeniedDiscrepancy",
+      "rkaf:findingComparisonContext": "urn:rkaf:fixture:analysis:rpt:comparison:v3",
+      "rkaf:findingComparedAssertion": [
+        "urn:rkaf:fixture:analysis:rpt:assertion:expected",
+        "urn:rkaf:fixture:analysis:rpt:assertion:observed"
+      ],
+      "rkaf:findingProofRecord": [
+        "urn:rkaf:fixture:analysis:rpt:proof:evidence"
+      ],
+      "rkaf:findingDetectedAt": "2026-06-06T14:00:03Z",
+      "rkaf:findingRationale": "The same conceptual gap reappears against the third observed version under a newer detector version.",
+      "rkaf:findingFingerprint": "permit-class-b|requiresInspection|annual-inspection"
+    }
+  ],
+  "_comment": "Edge. A NEW detector occurrence of a gap already observed elsewhere: different observed version, different detector version, therefore a different finding. The shared rkaf:findingFingerprint lets a consumer group the occurrences without merging them — changing any comparison input creates a new occurrence, never an update to an old one."
+}

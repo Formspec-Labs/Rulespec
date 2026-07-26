@@ -1,0 +1,38 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@graph": [
+    {
+      "@id": "urn:rkaf:fixture:analysis:neg:en:artifact",
+      "@type": "rkaf:Artifact",
+      "rkaf:hasArtifactIdentifier": "urn:rkaf:fixture:analysis:neg:en:artifact",
+      "rkaf:artifactIdentifierScheme": "rkaf:partner-defined",
+      "rkaf:hasContentDigest": "sha256:aeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeae"
+    },
+    {
+      "@id": "urn:rkaf:fixture:analysis:neg:en:fragment",
+      "@type": "rkaf:SourceFragment",
+      "oa:hasSource": "urn:rkaf:fixture:analysis:neg:en:artifact",
+      "oa:hasSelector": {
+        "@type": "oa:TextQuoteSelector",
+        "oa:exact": "Table 3 \u2014 Designated testing standards, complete list."
+      },
+      "rkaf:selectorKind": "oa:TextQuoteSelector",
+      "rkaf:sourceArtifactDigest": "sha256:aeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeae",
+      "rkaf:fragmentContentDigest": "sha256:afafafafafafafafafafafafafafafafafafafafafafafafafafafafafafafaf"
+    },
+    {
+      "@id": "urn:rkaf:fixture:analysis:neg:en:claim",
+      "@type": "rkaf:ClosureClaim",
+      "rkaf:closureClaimStatus": "rkaf:closureClaimEnabled",
+      "rkaf:closureArtifact": "urn:rkaf:fixture:analysis:neg:en:artifact",
+      "rkaf:closureRegion": [
+        "urn:rkaf:fixture:analysis:neg:en:fragment"
+      ],
+      "rkaf:closurePredicateFamily": "urn:rkaf:fixture:analysis:predicate-family:designated-standards",
+      "rkaf:closureProfileVersion": "analysis-closure-experiment-v0",
+      "rkaf:closureMemberDigest": "sha256:b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0",
+      "rkaf:assertionOrigin": "rkaf:humanAsserted"
+    }
+  ],
+  "_comment": "Negative. A producer declaring its own closure claim ENABLED. rkaf:closureClaimStatus is closed over exactly one value, rkaf:closureClaimDisabled, in every compiled target \u2014 so enabling closure is a CUE edit that moves the contract digest and forces every pinned consumer to re-accept, not a string a producer chooses (spec/rkaf-analysis.md 6)."
+}

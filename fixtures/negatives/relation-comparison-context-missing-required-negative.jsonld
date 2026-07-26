@@ -1,0 +1,6 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@id": "urn:rkaf:fixture:analysis:neg:comparison:bare",
+  "@type": "rkaf:RelationComparisonContext",
+  "_comment": "Negative. Every required slot absent. A comparison record that names no artifact pair, no consumer, no scope, no evaluation time, no policy or detector version, no snapshot, and no outcome is not reproducible by anyone (spec/rkaf-analysis.md 3)."
+}

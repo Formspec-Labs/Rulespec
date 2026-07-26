@@ -1,6 +1,6 @@
 # Rulespec Specifications
 
-This directory holds the active normative specifications. The CUE source under `constraints/core/` (universal kernel) and `constraints/profiles/` (domain profiles) is the source of truth for shape; `tools/constraints_compile.py` projects each CUE file to JSON Schema, SHACL, TypeScript, and Rust targets. The spec markdown files in this directory describe vocabulary, normative behavior, and the layered architecture.
+This directory holds the active normative specifications. The CUE source under `constraints/core/` (universal kernel), `constraints/analysis/` (the generic document-analysis module), and `constraints/profiles/` (domain profiles) is the source of truth for shape; `tools/constraints_compile.py` projects each CUE file to JSON Schema, SHACL, TypeScript, and Rust targets. The spec markdown files in this directory describe vocabulary, normative behavior, and the layered architecture.
 
 ## Documents
 
@@ -15,6 +15,10 @@ Enumerates every codified Rulespec class and predicate, with the CUE source file
 ### `rkaf-conformance.md`
 
 Defines the two conformance paths: L0 vocabulary fidelity for non-JSON-LD carriers, and the cumulative L1–L4 JSON-LD parse, shape, constraint, and behavior levels. It also specifies the L0 carrier-mapping block and partner self-certification formats.
+
+### `rkaf-analysis.md`
+
+The document-analysis module — generic, jurisdiction-free contracts for comparing relations across document versions. Defines `RelationChangeEvent` (source-stated adoption, removal, suspension, replacement, with polarity structurally absent), `RelationComparisonContext` (the immutable frame and the five closed comparison outcomes), `ResolverProofRecord` / `ResolverProofIssuer` (content-bound gate decisions, `pass`/`fail`/`unknown` plus the six scope relations), the neutral `RelationFinding`, and the Experimental, **disabled** `ClosureClaim`. It sits between the kernel and the profiles: the kernel never depends on it, it may compose kernel shapes, and profiles may depend on it. Domain interpretation — legal effect, policy exclusion, rescission — belongs to profiles, never here.
 
 ### `rkaf-rulemaking.md`
 

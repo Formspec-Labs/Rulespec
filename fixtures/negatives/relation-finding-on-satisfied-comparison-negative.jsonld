@@ -1,0 +1,77 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@graph": [
+    {
+      "@id": "urn:rkaf:fixture:analysis:neg:agree:artifact:baseline",
+      "@type": "rkaf:Artifact",
+      "rkaf:hasArtifactIdentifier": "urn:rkaf:fixture:analysis:neg:agree:artifact:baseline",
+      "rkaf:artifactIdentifierScheme": "rkaf:partner-defined",
+      "rkaf:hasContentDigest": "sha256:8a8a8a8a8a8a8a8a8a8a8a8a8a8a8a8a8a8a8a8a8a8a8a8a8a8a8a8a8a8a8a8a"
+    },
+    {
+      "@id": "urn:rkaf:fixture:analysis:neg:agree:artifact:observed",
+      "@type": "rkaf:Artifact",
+      "rkaf:hasArtifactIdentifier": "urn:rkaf:fixture:analysis:neg:agree:artifact:observed",
+      "rkaf:artifactIdentifierScheme": "rkaf:partner-defined",
+      "rkaf:hasContentDigest": "sha256:8b8b8b8b8b8b8b8b8b8b8b8b8b8b8b8b8b8b8b8b8b8b8b8b8b8b8b8b8b8b8b8b"
+    },
+    {
+      "@id": "urn:rkaf:fixture:analysis:neg:agree:issuer",
+      "@type": "rkaf:ResolverProofIssuer",
+      "rkaf:proofResolver": "urn:rkaf:fixture:analysis:resolver:predicate-catalog",
+      "rkaf:proofResolverVersion": "relation-comparison-v1",
+      "rkaf:proofPolicy": "urn:rkaf:fixture:analysis:policy:canonical-relation",
+      "rkaf:proofPolicyVersion": "relation-comparison-v1"
+    },
+    {
+      "@id": "urn:rkaf:fixture:analysis:neg:agree:proof",
+      "@type": "rkaf:ResolverProofRecord",
+      "rkaf:proofType": "rkaf:predicateCatalogProof",
+      "rkaf:proofIssuer": "urn:rkaf:fixture:analysis:neg:agree:issuer",
+      "rkaf:proofComparisonContext": "urn:rkaf:fixture:analysis:neg:agree:comparison",
+      "rkaf:proofOutcome": "rkaf:gatePass",
+      "rkaf:proofRationale": "Expected and observed name the same canonical relation, both affirmed.",
+      "rkaf:proofInput": [
+        "urn:rkaf:fixture:analysis:neg:agree:assertion:expected",
+        "urn:rkaf:fixture:analysis:neg:agree:assertion:observed"
+      ],
+      "rkaf:proofEvaluatedAt": "2026-06-10T10:00:00Z",
+      "rkaf:proofSnapshot": "urn:rkaf:fixture:analysis:snapshot:2026-06-10",
+      "rkaf:proofRecordDigest": "sha256:8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c"
+    },
+    {
+      "@id": "urn:rkaf:fixture:analysis:neg:agree:comparison",
+      "@type": "rkaf:RelationComparisonContext",
+      "rkaf:comparisonBaselineArtifact": "urn:rkaf:fixture:analysis:neg:agree:artifact:baseline",
+      "rkaf:comparisonObservedArtifact": "urn:rkaf:fixture:analysis:neg:agree:artifact:observed",
+      "rkaf:comparisonExpectedAssertion": "urn:rkaf:fixture:analysis:neg:agree:assertion:expected",
+      "rkaf:comparisonConsumer": "urn:rkaf:fixture:analysis:consumer:permits-desk",
+      "rkaf:comparisonScope": "urn:rkaf:fixture:analysis:scope:permits-class-b",
+      "rkaf:comparisonEvaluationTime": "2026-06-10T10:00:00Z",
+      "rkaf:comparisonPolicyVersion": "relation-comparison-v1",
+      "rkaf:comparisonDetector": "urn:rkaf:fixture:analysis:detector:relation-comparator",
+      "rkaf:comparisonDetectorVersion": "1.4.0",
+      "rkaf:comparisonSnapshot": "urn:rkaf:fixture:analysis:snapshot:2026-06-10",
+      "rkaf:comparisonOutcome": "rkaf:comparisonSatisfied",
+      "rkaf:comparisonProofRecord": [
+        "urn:rkaf:fixture:analysis:neg:agree:proof"
+      ]
+    },
+    {
+      "@id": "urn:rkaf:fixture:analysis:neg:agree:finding",
+      "@type": "rkaf:RelationFinding",
+      "rkaf:relationFindingKind": "rkaf:affirmedDeniedDiscrepancy",
+      "rkaf:findingComparisonContext": "urn:rkaf:fixture:analysis:neg:agree:comparison",
+      "rkaf:findingComparedAssertion": [
+        "urn:rkaf:fixture:analysis:neg:agree:assertion:expected",
+        "urn:rkaf:fixture:analysis:neg:agree:assertion:observed"
+      ],
+      "rkaf:findingProofRecord": [
+        "urn:rkaf:fixture:analysis:neg:agree:proof"
+      ],
+      "rkaf:findingDetectedAt": "2026-06-10T10:00:04Z",
+      "rkaf:findingRationale": "Claims a discrepancy over a comparison whose recorded outcome is satisfied."
+    }
+  ],
+  "_comment": "Negative. The finding claims a discrepancy over a comparison whose recorded outcome is rkaf:comparisonSatisfied. Every per-property constraint passes; the contradiction is BETWEEN two nodes, which is why rkaf:RelationFindingContextOutcomeAgreementShape exists (spec/rkaf-analysis.md 5)."
+}

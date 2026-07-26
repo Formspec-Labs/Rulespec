@@ -1,0 +1,6 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@id": "urn:rkaf:fixture:analysis:neg:proof:bare",
+  "@type": "rkaf:ResolverProofRecord",
+  "_comment": "Negative. Every required slot absent: proof type, issuer, comparison, outcome, rationale, inputs, evaluation time, snapshot, and record digest. This is exactly the opaque string the resolver contract refuses to accept as proof (spec/rkaf-analysis.md 4)."
+}

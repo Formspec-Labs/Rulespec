@@ -28,15 +28,23 @@ fn main() {
         .parent()
         .and_then(Path::parent)
         .expect("rkaf-validate lives under crates/");
-    // Kernel schemas, then every domain profile's overlay schemas. A profile
-    // overlay composes the kernel shape it extends, so it is a superset:
-    // binding a class to the overlay keeps every kernel constraint and adds
-    // the profile's. Profiles are collected AFTER the kernel and override, so
-    // shipping the US rulemaking profile does not silently stop checking the
-    // regulatory-identifier grammars.
+    // Kernel schemas, then the document-analysis module, then every domain
+    // profile's overlay schemas. A profile overlay composes the kernel shape it
+    // extends, so it is a superset: binding a class to the overlay keeps every
+    // kernel constraint and adds the profile's. Profiles are collected AFTER
+    // the kernel and override, so shipping the US rulemaking profile does not
+    // silently stop checking the regulatory-identifier grammars.
+    //
+    // The analysis module overlays nothing — it declares its own classes — so
+    // it is collected with the kernel rather than with the profiles. Treating
+    // it as a profile would let it "displace" a kernel binding it never
+    // composes, and would spend the one-overlay-per-`@type` budget the
+    // collision check protects.
     let schema_dir = repo_root.join("compiled/json-schema/core");
+    let analysis_dir = repo_root.join("compiled/json-schema/analysis");
     let profile_root = repo_root.join("compiled/json-schema/profiles");
     println!("cargo:rerun-if-changed={}", schema_dir.display());
+    println!("cargo:rerun-if-changed={}", analysis_dir.display());
     println!("cargo:rerun-if-changed={}", profile_root.display());
 
     let mut entries: BTreeMap<String, (String, PathBuf)> = BTreeMap::new();
@@ -49,6 +57,11 @@ fn main() {
     let mut profile_bound: BTreeMap<String, PathBuf> = BTreeMap::new();
     let mut schema_paths = read_schema_dir(&schema_dir);
     schema_paths.sort();
+    if analysis_dir.is_dir() {
+        let mut analysis_paths = read_schema_dir(&analysis_dir);
+        analysis_paths.sort();
+        schema_paths.extend(analysis_paths);
+    }
     let mut profile_dirs: Vec<PathBuf> = fs::read_dir(&profile_root)
         .map(|dir| {
             dir.map(|entry| entry.expect("read profile directory entry").path())

@@ -1,0 +1,38 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@graph": [
+    {
+      "@id": "urn:rkaf:fixture:analysis:neg:eff:artifact",
+      "@type": "rkaf:Artifact",
+      "rkaf:hasArtifactIdentifier": "urn:rkaf:fixture:analysis:neg:eff:artifact",
+      "rkaf:artifactIdentifierScheme": "rkaf:partner-defined",
+      "rkaf:hasContentDigest": "sha256:5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a"
+    },
+    {
+      "@id": "urn:rkaf:fixture:analysis:neg:eff:fragment",
+      "@type": "rkaf:SourceFragment",
+      "oa:hasSource": "urn:rkaf:fixture:analysis:neg:eff:artifact",
+      "oa:hasSelector": {
+        "@type": "oa:TextQuoteSelector",
+        "oa:exact": "The designation is hereby suspended."
+      },
+      "rkaf:selectorKind": "oa:TextQuoteSelector",
+      "rkaf:sourceArtifactDigest": "sha256:5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a",
+      "rkaf:fragmentContentDigest": "sha256:5b5b5b5b5b5b5b5b5b5b5b5b5b5b5b5b5b5b5b5b5b5b5b5b5b5b5b5b5b5b5b5b"
+    },
+    {
+      "@id": "urn:rkaf:fixture:analysis:neg:eff:event",
+      "@type": "rkaf:RelationChangeEvent",
+      "rkaf:changeSubject": "urn:rkaf:fixture:analysis:subject:site-designation",
+      "rkaf:changePredicate": "urn:rkaf:fixture:analysis:predicate:designatedUnder",
+      "rkaf:changeObject": "urn:rkaf:fixture:analysis:object:program-c",
+      "rkaf:relationChangeOperation": "rkaf:relationSuspension",
+      "rkaf:relationChangeStage": "rkaf:changeEffective",
+      "rkaf:changeEvidence": [
+        "urn:rkaf:fixture:analysis:neg:eff:fragment"
+      ],
+      "rkaf:assertionOrigin": "rkaf:humanAsserted"
+    }
+  ],
+  "_comment": "Negative. A change the source says is ALREADY in effect, with no rkaf:changeIntendedEffectiveTime. An unanchored 'effective' cannot be ordered against a baseline, so any comparison using it would have to guess whether the change precedes or follows the state it compares (spec/rkaf-analysis.md 2)."
+}

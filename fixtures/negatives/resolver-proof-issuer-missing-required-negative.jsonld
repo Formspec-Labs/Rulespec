@@ -1,0 +1,6 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@id": "urn:rkaf:fixture:analysis:neg:issuer:bare",
+  "@type": "rkaf:ResolverProofIssuer",
+  "_comment": "Negative. An issuer with no resolver, no policy, and no versions for either. 'Issued under version 3' has to resolve to something; an unversioned issuer makes every proof it stamps unattributable (spec/rkaf-analysis.md 4)."
+}

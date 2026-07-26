@@ -1,0 +1,40 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@graph": [
+    {
+      "@id": "urn:rkaf:fixture:analysis:ccu:artifact:appendix-2026",
+      "@type": "rkaf:Artifact",
+      "rkaf:hasArtifactIdentifier": "urn:rkaf:fixture:analysis:ccu:artifact:appendix-2026",
+      "rkaf:artifactIdentifierScheme": "rkaf:partner-defined",
+      "rkaf:hasContentDigest": "sha256:2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a"
+    },
+    {
+      "@id": "urn:rkaf:fixture:analysis:ccu:fragment:appendix-a",
+      "@type": "rkaf:SourceFragment",
+      "oa:hasSource": "urn:rkaf:fixture:analysis:ccu:artifact:appendix-2026",
+      "oa:hasSelector": {
+        "@type": "oa:TextQuoteSelector",
+        "oa:exact": "Appendix A — Referenced authorities."
+      },
+      "rkaf:selectorKind": "oa:TextQuoteSelector",
+      "rkaf:sourceArtifactDigest": "sha256:2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a",
+      "rkaf:fragmentContentDigest": "sha256:2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b"
+    },
+    {
+      "@id": "urn:rkaf:fixture:analysis:ccu:claim:appendix-a-authorities",
+      "@type": "rkaf:ClosureClaim",
+      "rkaf:closureClaimStatus": "rkaf:closureClaimDisabled",
+      "rkaf:closureArtifact": "urn:rkaf:fixture:analysis:ccu:artifact:appendix-2026",
+      "rkaf:closureRegion": [
+        "urn:rkaf:fixture:analysis:ccu:fragment:appendix-a"
+      ],
+      "rkaf:closurePredicateFamily": "urn:rkaf:fixture:analysis:predicate-family:referenced-authorities",
+      "rkaf:closureProfileVersion": "analysis-closure-experiment-v0",
+      "rkaf:closureMemberDigest": "sha256:2c2c2c2c2c2c2c2c2c2c2c2c2c2c2c2c2c2c2c2c2c2c2c2c2c2c2c2c2c2c2c2c",
+      "rkaf:assertionOrigin": "rkaf:aiSuggested",
+      "rkaf:hasAILineage": "urn:rkaf:fixture:analysis:ccu:lineage:appendix-enumeration",
+      "rkaf:hasExtractionProvenance": "urn:rkaf:fixture:analysis:ccu:run:appendix-enumeration"
+    }
+  ],
+  "_comment": "Edge, and the honest one. A model-suggested closure claim that nobody has reviewed: no rkaf:closureReviewedAt, and no rkaf:Attestation. Closure is local and revocable, so an unreviewed claim must be representable AS unreviewed rather than back-dated. It is still disabled — rkaf:closureClaimDisabled is the only legal status, and no finding may cite it."
+}

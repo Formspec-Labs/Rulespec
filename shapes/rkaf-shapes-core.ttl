@@ -18,7 +18,8 @@
     <https://rulespec.org/shapes/confidence> ,
     <https://rulespec.org/shapes/accessscope> ,
     <https://rulespec.org/shapes/studio-promotions> ,
-    <https://rulespec.org/shapes/conceptregistry> .
+    <https://rulespec.org/shapes/conceptregistry> ,
+    <https://rulespec.org/shapes/analysis> .
 
 # Authority is now a specialization of Warrant (§4.4).
 rkaf:Authority rdfs:subClassOf rkaf:Warrant .

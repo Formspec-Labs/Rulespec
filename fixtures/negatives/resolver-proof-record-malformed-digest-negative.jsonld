@@ -1,0 +1,29 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@graph": [
+    {
+      "@id": "urn:rkaf:fixture:analysis:neg:dig:issuer",
+      "@type": "rkaf:ResolverProofIssuer",
+      "rkaf:proofResolver": "urn:rkaf:fixture:analysis:resolver:baseline-warrant",
+      "rkaf:proofResolverVersion": "relation-comparison-v1",
+      "rkaf:proofPolicy": "urn:rkaf:fixture:analysis:policy:eligible-baseline",
+      "rkaf:proofPolicyVersion": "relation-comparison-v1"
+    },
+    {
+      "@id": "urn:rkaf:fixture:analysis:neg:dig:proof",
+      "@type": "rkaf:ResolverProofRecord",
+      "rkaf:proofType": "rkaf:baselineWarrantProof",
+      "rkaf:proofIssuer": "urn:rkaf:fixture:analysis:neg:dig:issuer",
+      "rkaf:proofComparisonContext": "urn:rkaf:fixture:analysis:neg:dig:comparison",
+      "rkaf:proofOutcome": "rkaf:gateUnknown",
+      "rkaf:proofRationale": "The baseline warrant could not be resolved at evaluation time.",
+      "rkaf:proofInput": [
+        "urn:rkaf:fixture:analysis:neg:dig:assertion"
+      ],
+      "rkaf:proofEvaluatedAt": "2026-06-08T10:00:00Z",
+      "rkaf:proofSnapshot": "urn:rkaf:fixture:analysis:snapshot:2026-06-08",
+      "rkaf:proofRecordDigest": "SHA256:NOTAHEXDIGEST"
+    }
+  ],
+  "_comment": "Negative. The record digest is not a lowercase sha256:<64 hex> value, so the proof is named but not content-bound: a consumer cannot recompute it and therefore cannot tell whether the proof was edited after the result that cites it was published (spec/rkaf-analysis.md 4)."
+}

@@ -18,6 +18,14 @@
 # The sub-path keeps the dependency direction legible: a profile may compose a
 # kernel shape, never the reverse.
 #
+# The document-analysis module under constraints/analysis/ compiles the same
+# way, under an `analysis` sub-path:
+#   compiled/json-schema/analysis/relation-finding.schema.json
+#   crates/rkaf-core/src/generated/analysis/relation_finding.rs
+# It is NOT a profile: it declares generic, jurisdiction-free contracts that a
+# profile may depend on. The dependency direction is kernel <- analysis <-
+# profiles; the kernel never depends on either.
+#
 # Idempotent. Run from Rulespec repo root.
 #
 # Used by:
@@ -39,6 +47,7 @@ compile_one() {
     base=$(basename "$src" .cue)
 
     if [[ "$src" == constraints/core/* ]]; then sub="core"
+    elif [[ "$src" == constraints/analysis/* ]]; then sub="analysis"
     elif [[ "$src" == constraints/adversarial/* ]]; then sub="adversarial"
     elif [[ "$src" == constraints/ai-extraction/* ]]; then sub="ai-extraction"
     elif [[ "$src" == constraints/profiles/*/*.cue ]]; then
@@ -70,10 +79,12 @@ compile_one() {
             outpath="$outdir/$base.rego"
             ;;
         rust)
-            # core/ primitives and profiles/ overlays feed into the Rust
-            # workspace. adversarial/ and ai-extraction/ are CUE-only.
+            # core/ primitives, analysis/ contracts, and profiles/ overlays
+            # feed into the Rust workspace. adversarial/ and ai-extraction/ are
+            # CUE-only.
             case "$sub" in
                 core)        outdir="crates/rkaf-core/src/generated" ;;
+                analysis)    outdir="crates/rkaf-core/src/generated/analysis" ;;
                 profiles/*)  outdir="crates/rkaf-core/src/generated/profiles/$(snake_case "${sub#profiles/}")" ;;
                 *)           return 0 ;;
             esac
@@ -92,6 +103,7 @@ compile_one() {
 main() {
     local sources=(
         constraints/core/*.cue
+        constraints/analysis/*.cue
         constraints/adversarial/*.cue
         constraints/ai-extraction/*.cue
         constraints/profiles/*/*.cue

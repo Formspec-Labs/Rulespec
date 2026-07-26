@@ -1,0 +1,41 @@
+{
+  "@context": "../context/rkaf-context.jsonld",
+  "@graph": [
+    {
+      "@id": "urn:rkaf:fixture:analysis:rcr:artifact:amendment-2026",
+      "@type": "rkaf:Artifact",
+      "rkaf:hasArtifactIdentifier": "urn:rkaf:fixture:analysis:rcr:artifact:amendment-2026",
+      "rkaf:artifactIdentifierScheme": "rkaf:partner-defined",
+      "rkaf:hasContentDigest": "sha256:7777777777777777777777777777777777777777777777777777777777777777"
+    },
+    {
+      "@id": "urn:rkaf:fixture:analysis:rcr:fragment:clause-2",
+      "@type": "rkaf:SourceFragment",
+      "oa:hasSource": "urn:rkaf:fixture:analysis:rcr:artifact:amendment-2026",
+      "oa:hasSelector": {
+        "@type": "oa:TextQuoteSelector",
+        "oa:exact": "The reference to the 2019 testing standard is replaced by a reference to the 2026 testing standard."
+      },
+      "rkaf:selectorKind": "oa:TextQuoteSelector",
+      "rkaf:sourceArtifactDigest": "sha256:7777777777777777777777777777777777777777777777777777777777777777",
+      "rkaf:fragmentContentDigest": "sha256:8888888888888888888888888888888888888888888888888888888888888888"
+    },
+    {
+      "@id": "urn:rkaf:fixture:analysis:rcr:event:standard-replaced",
+      "@type": "rkaf:RelationChangeEvent",
+      "rkaf:changeSubject": "urn:rkaf:fixture:analysis:subject:permit-class-b",
+      "rkaf:changePredicate": "urn:rkaf:fixture:analysis:predicate:appliesStandard",
+      "rkaf:changeObject": "urn:rkaf:fixture:analysis:object:testing-standard-2019",
+      "rkaf:replacementRelationObject": "urn:rkaf:fixture:analysis:object:testing-standard-2026",
+      "rkaf:relationChangeOperation": "rkaf:relationReplacement",
+      "rkaf:relationChangeStage": "rkaf:changeEffective",
+      "rkaf:relationChangeTime": "2026-04-15T00:00:00Z",
+      "rkaf:changeIntendedEffectiveTime": "2026-04-15T00:00:00Z",
+      "rkaf:changeEvidence": [
+        "urn:rkaf:fixture:analysis:rcr:fragment:clause-2"
+      ],
+      "rkaf:assertionOrigin": "rkaf:humanAsserted"
+    }
+  ],
+  "_comment": "Analysis 2, both conditionals in one record. A replacement names the successor object, because a replacement that does not is a removal wearing another label; and a change the source says is already in effect names when it took effect, because otherwise the record cannot be ordered against any baseline."
+}

@@ -41,6 +41,11 @@ ROOT = Path(__file__).resolve().parent.parent
 # and add jurisdiction-specific terms. Running their fixtures through the
 # PROFILE schema and the PROFILE SHACL file — never the kernel's — is what
 # proves the profile, not the kernel, now carries those constraints.
+#
+# `analysis` entries are the document-analysis module (spec/rkaf-analysis.md):
+# generic comparison contracts that overlay nothing and mention no
+# jurisdiction. They compile to the same six targets under an `analysis`
+# sub-path and are exercised here exactly like a kernel primitive.
 CONSTRAINTS: dict[str, str] = {
     "artifact":                "core",
     "source-fragment":         "core",
@@ -62,6 +67,11 @@ CONSTRAINTS: dict[str, str] = {
     "source-claimant":         "core",
     "extraction-activity":     "core",
     "lifecycle-event":         "core",
+    "relation-change-event":       "analysis",
+    "relation-comparison-context": "analysis",
+    "resolver-proof-record":       "analysis",
+    "relation-finding":            "analysis",
+    "closure-claim":               "analysis",
     "rulemaking":              "profiles/us-rulemaking",
     "us-regulatory-artifact":  "profiles/us-rulemaking",
     "us-lifecycle-event":      "profiles/us-rulemaking",
@@ -458,6 +468,85 @@ FIXTURE_BINDINGS: list[tuple[str, str, str, str]] = [
     ("concept-assignment", "ConceptAssignment",
      "fixtures/negatives/concept-assignment-missing-assertion-origin-negative.jsonld",
      "FAIL"),
+    # Document-analysis module (spec/rkaf-analysis.md).
+    ("relation-change-event", "RelationChangeEvent",
+     "fixtures/relationchangeevent-removal-positive.jsonld", "PASS"),
+    ("relation-change-event", "RelationChangeEvent",
+     "fixtures/relationchangeevent-replacement-positive.jsonld", "PASS"),
+    ("relation-change-event", "RelationChangeEvent",
+     "fixtures/edges/relation-change-event-stage-unclear-edge.jsonld", "PASS"),
+    ("relation-change-event", "RelationChangeEvent",
+     "fixtures/negatives/relation-change-event-missing-required-negative.jsonld",
+     "FAIL"),
+    ("relation-change-event", "RelationChangeEvent",
+     "fixtures/negatives/relation-change-event-replacement-without-successor-negative.jsonld",
+     "FAIL"),
+    ("relation-change-event", "RelationChangeEvent",
+     "fixtures/negatives/relation-change-event-effective-without-time-negative.jsonld",
+     "FAIL"),
+    ("relation-comparison-context", "RelationComparisonContext",
+     "fixtures/relationcomparisoncontext-satisfied-positive.jsonld", "PASS"),
+    ("relation-comparison-context", "RelationComparisonContext",
+     "fixtures/relationfinding-discrepancy-positive.jsonld", "PASS"),
+    ("relation-comparison-context", "RelationComparisonContext",
+     "fixtures/edges/relation-comparison-unknown-no-proof-edge.jsonld", "PASS"),
+    ("relation-comparison-context", "RelationComparisonContext",
+     "fixtures/edges/resolver-proof-scope-relation-edge.jsonld", "PASS"),
+    ("relation-comparison-context", "RelationComparisonContext",
+     "fixtures/negatives/relation-comparison-context-missing-required-negative.jsonld",
+     "FAIL"),
+    ("relation-comparison-context", "RelationComparisonContext",
+     "fixtures/negatives/relation-comparison-satisfied-without-proof-negative.jsonld",
+     "FAIL"),
+    ("resolver-proof-record", "ResolverProofIssuer",
+     "fixtures/relationfinding-discrepancy-positive.jsonld", "PASS"),
+    ("resolver-proof-record", "ResolverProofIssuer",
+     "fixtures/negatives/resolver-proof-issuer-missing-required-negative.jsonld",
+     "FAIL"),
+    ("resolver-proof-record", "ResolverProofRecord",
+     "fixtures/relationfinding-discrepancy-positive.jsonld", "PASS"),
+    ("resolver-proof-record", "ResolverProofRecord",
+     "fixtures/edges/resolver-proof-scope-relation-edge.jsonld", "PASS"),
+    ("resolver-proof-record", "ResolverProofRecord",
+     "fixtures/negatives/resolver-proof-record-missing-required-negative.jsonld",
+     "FAIL"),
+    ("resolver-proof-record", "ResolverProofRecord",
+     "fixtures/negatives/resolver-proof-record-malformed-digest-negative.jsonld",
+     "FAIL"),
+    ("relation-finding", "RelationFinding",
+     "fixtures/relationfinding-discrepancy-positive.jsonld", "PASS"),
+    ("relation-finding", "RelationFinding",
+     "fixtures/edges/relation-finding-repeat-occurrence-edge.jsonld", "PASS"),
+    ("relation-finding", "RelationFinding",
+     "fixtures/negatives/relation-finding-missing-required-negative.jsonld", "FAIL"),
+    ("relation-finding", "RelationFinding",
+     "fixtures/negatives/relation-finding-single-compared-assertion-negative.jsonld",
+     "FAIL"),
+    ("closure-claim", "ClosureClaim",
+     "fixtures/closureclaim-disabled-positive.jsonld", "PASS"),
+    ("closure-claim", "ClosureClaim",
+     "fixtures/edges/closure-claim-unreviewed-edge.jsonld", "PASS"),
+    ("closure-claim", "ClosureClaim",
+     "fixtures/negatives/closure-claim-missing-required-negative.jsonld", "FAIL"),
+    # The experimental gate, proved at the target level: `rkaf:closureClaimDisabled`
+    # is the ONLY value both compiled targets accept, so enabling closure cannot
+    # be done from a document.
+    ("closure-claim", "ClosureClaim",
+     "fixtures/negatives/closure-claim-enabled-status-negative.jsonld", "FAIL"),
+    # NOTE — no parity rows for the six analysis negatives caught by
+    # `shapes/rkaf-shapes-analysis.ttl`:
+    # relation-change-event-polarity-negative and
+    # closure-claim-assertion-polarity-negative (properties that must be
+    # ABSENT), relation-finding-on-satisfied-comparison-negative,
+    # relation-finding-citing-closure-claim-negative,
+    # relation-finding-citing-closure-claim-indirect-negative, and
+    # resolver-proof-foreign-comparison-negative (all compare one node's
+    # value against ANOTHER node's class or property, the last two across an
+    # unbounded citation chain). Every per-property constraint in both compiled
+    # targets passes on all six by construction, so a FAIL row would be a
+    # manufactured divergence rather than a measured one. They are gated by
+    # `tools/validate_negatives.py` against the full shape suite, the same route
+    # the concept-assignment cross-node negatives already take.
     # Adversarial — evaluator-class regressions
     ("conditional-silent-pass", "ConsensusEvidencePermissionShape",
      "fixtures/adversarial/conditional-silent-pass-positive.jsonld", "PASS"),
@@ -487,6 +576,8 @@ def rust_module_path(constraint: str) -> Path:
     if subdir.startswith("profiles/"):
         profile = subdir.split("/", 1)[1].replace("-", "_")
         return base / "profiles" / profile / f"{snake}.rs"
+    if subdir == "analysis":
+        return base / "analysis" / f"{snake}.rs"
     return base / f"{snake}.rs"
 
 
@@ -558,10 +649,11 @@ def structural_parity_rust(constraint: str) -> bool:
     subdir = CONSTRAINTS[constraint]
     js = (ROOT / "compiled" / "json-schema" / subdir / f"{constraint}.schema.json").read_text()
     # Canonical Rust sink is crates/rkaf-core/src/generated/<snake>.rs for the
-    # kernel and .../generated/profiles/<profile>/<snake>.rs for a domain
+    # kernel, .../generated/analysis/<snake>.rs for the document-analysis
+    # module, and .../generated/profiles/<profile>/<snake>.rs for a domain
     # profile. adversarial/ + ai-extraction/ constraints are not compiled to
     # Rust (Plan 7a-7c restriction); skip parity for those.
-    if subdir != "core" and not subdir.startswith("profiles/"):
+    if subdir not in {"core", "analysis"} and not subdir.startswith("profiles/"):
         return True
     rs_path = rust_module_path(constraint)
     if not rs_path.exists():

@@ -3918,6 +3918,912 @@ class CrossNodeAgreementShapeTests(unittest.TestCase):
         )
 
 
+class AnalysisModuleTests(unittest.TestCase):
+    """The document-analysis module (spec/rkaf-analysis.md).
+
+    Three things this module promises are ABSENCES, and an absence is exactly
+    what review habit fails to keep:
+
+      * the kernel does not depend on this module;
+      * this module declares no legal-effect and no jurisdiction vocabulary;
+        and
+      * `rkaf:ClosureClaim` is disabled — no second status value, no
+        class-ranged edge into it, no closure proof type, no omission finding
+        kind, and no fixture that treats one as finding evidence.
+
+    Each test below fails the build on the smallest edit that would undo one of
+    those, so enabling closure or admitting a domain reading has to be a
+    deliberate, reviewed contract change rather than a plausible-looking
+    one-line addition.
+    """
+
+    KERNEL_DIR = REPO_ROOT / "constraints" / "core"
+    ANALYSIS_DIR = REPO_ROOT / "constraints" / "analysis"
+    PROFILES_DIR = REPO_ROOT / "constraints" / "profiles"
+    CONSTRAINTS_DIR = REPO_ROOT / "constraints"
+    FIXTURES_DIR = REPO_ROOT / "fixtures"
+    SHIPPED_CONTEXT = REPO_ROOT / "context" / "rkaf-context.jsonld"
+    RKAF_NS = "https://rulespec.org/ns/v1#"
+
+    # Every analysis CUE file, parsed once. The module is small and the parse
+    # is the same one the compiler runs, so a shape that stopped compiling
+    # fails here before it fails anywhere subtler.
+    @classmethod
+    def setUpClass(cls) -> None:
+        cls.sources = sorted(cls.ANALYSIS_DIR.glob("*.cue"))
+        assert cls.sources, "constraints/analysis/ has no CUE files"
+        cls.documents = {path.name: parse_cue_file(path) for path in cls.sources}
+        cls.schemas = {
+            name: json.loads(target_json_schema(doc))
+            for name, doc in cls.documents.items()
+        }
+
+    @staticmethod
+    def _declared_terms(documents) -> set[str]:
+        """Every `rkaf:` class, property, and enum value the docs DECLARE."""
+        terms: set[str] = set()
+        for doc in documents:
+            for shape in doc.shapes:
+                terms.add(f"rkaf:{shape.name}")
+                terms.update(
+                    prop.name for prop in shape.properties if prop.name.startswith("rkaf:")
+                )
+            for enum in doc.enums:
+                terms.update(value for value in enum.values if value.startswith("rkaf:"))
+        return terms
+
+    def _definition_names(self, root: Path) -> set[str]:
+        names: set[str] = set()
+        for cue in sorted(root.rglob("*.cue")):
+            for match in re.finditer(r"^#(\w+):", cue.read_text(), re.MULTILINE):
+                names.add(match.group(1))
+        return names
+
+    # -------------------------------------------------- JSON-LD type expansion
+    #
+    # The fixture scans below must recognise a class by its EXPANDED IRI, not by
+    # the alias a document happens to spell it with. Matching the literal text
+    # `"rkaf:ClosureClaim"` is evaded by writing the type out in full, or by
+    # aliasing it in an inline `@context` — and an evasion of the gate that
+    # keeps closure disabled is exactly the edit these tests exist to catch.
+
+    @staticmethod
+    def _term_iris(context: dict) -> dict[str, str]:
+        """`prefix`/`alias` -> IRI, from one JSON-LD context object."""
+        terms: dict[str, str] = {}
+        for key, value in context.items():
+            if isinstance(value, str):
+                terms[key] = value
+            elif isinstance(value, dict) and isinstance(value.get("@id"), str):
+                terms[key] = value["@id"]
+        return terms
+
+    @classmethod
+    def _shipped_terms(cls) -> dict[str, str]:
+        return cls._term_iris(json.loads(cls.SHIPPED_CONTEXT.read_text())["@context"])
+
+    @classmethod
+    def _expand_iri(cls, term: str, terms: dict[str, str], depth: int = 0) -> str:
+        """Expand a JSON-LD type token to an absolute IRI, following aliases."""
+        if depth > 4:
+            return term
+        target = terms.get(term)
+        if target is not None and target != term:
+            return cls._expand_iri(target, terms, depth + 1)
+        prefix, sep, suffix = term.partition(":")
+        if sep and not suffix.startswith("//") and prefix in terms:
+            return terms[prefix] + suffix
+        return term
+
+    @classmethod
+    def _collect_type_tokens(cls, node, out: list[str]) -> None:
+        if isinstance(node, dict):
+            declared = node.get("@type")
+            if isinstance(declared, str):
+                out.append(declared)
+            elif isinstance(declared, list):
+                out.extend(v for v in declared if isinstance(v, str))
+            for key, value in node.items():
+                if key not in ("@type", "@context"):
+                    cls._collect_type_tokens(value, out)
+        elif isinstance(node, list):
+            for value in node:
+                cls._collect_type_tokens(value, out)
+
+    @classmethod
+    def _expanded_types(cls, doc) -> set[str]:
+        """Every `@type` in a JSON-LD document, as absolute IRIs."""
+        terms = dict(cls._shipped_terms())
+        context = doc.get("@context") if isinstance(doc, dict) else None
+        entries = context if isinstance(context, list) else [context]
+        for entry in entries:
+            if isinstance(entry, dict):
+                terms.update(cls._term_iris(entry))
+        tokens: list[str] = []
+        cls._collect_type_tokens(doc, tokens)
+        return {cls._expand_iri(token, terms) for token in tokens}
+
+    def _fixture_types(self, path: Path) -> set[str]:
+        return self._expanded_types(json.loads(path.read_text()))
+
+    # ------------------------------------------------------------ §1 purity
+
+    def test_kernel_never_references_an_analysis_shape(self) -> None:
+        """kernel <- analysis, one way.
+
+        The mirror of `KernelProfileBoundaryTests`: that class keeps profile
+        shapes out of the kernel, this one keeps analysis shapes out. Without
+        it, a kernel primitive could quietly compose `#ResolverProofRecord` and
+        drag the whole comparison vocabulary into the shallow-adoption surface.
+        """
+        analysis_names = self._definition_names(self.ANALYSIS_DIR)
+        self.assertIn(
+            "RelationComparisonContext",
+            analysis_names,
+            "the analysis scan found no module shapes — this test is not "
+            "actually looking at constraints/analysis/",
+        )
+        kernel_names = self._definition_names(self.KERNEL_DIR)
+        # A name declared in BOTH trees is a kernel name the kernel may use.
+        # Only names owned solely by the analysis module count as a leak.
+        analysis_only = analysis_names - kernel_names
+        for cue in sorted(self.KERNEL_DIR.rglob("*.cue")):
+            referenced = set(re.findall(r"#(\w+)", cue.read_text()))
+            leaked = sorted(referenced & analysis_only)
+            self.assertEqual(
+                [],
+                leaked,
+                f"constraints/core/{cue.name} references analysis shape(s) "
+                f"{leaked}. The kernel MUST NOT depend on the document-"
+                "analysis module (spec/rkaf-analysis.md §1); move the consumer "
+                "into constraints/analysis/ instead.",
+            )
+
+    def test_kernel_declares_no_analysis_term(self) -> None:
+        """No kernel file may mention an analysis-owned `rkaf:` term.
+
+        Shape references are the loud leak; a bare term string in an enum, a
+        pattern, or a comment is the quiet one. Both make the kernel carry
+        vocabulary a shallow adopter never produces.
+        """
+        # A term is ANALYSIS-OWNED only if the kernel does not declare it
+        # itself. `#RelationChangeEvent` and `#ClosureClaim` compose
+        # `#AssertionEnvelope`, so `rkaf:assertedAt` and its twelve siblings
+        # appear on analysis shapes while remaining kernel property — finding
+        # them in `constraints/core/assertion.cue` is composition working, not
+        # a leak.
+        #
+        # Both sides are read from the PARSED shapes rather than from file
+        # text, so a kernel file that merely mentions an analysis term in a
+        # comment, a pattern, or an enum it does not own is still caught.
+        kernel_terms = self._declared_terms(
+            parse_cue_file(path) for path in sorted(self.KERNEL_DIR.glob("*.cue"))
+        )
+        analysis_terms = self._declared_terms(self.documents.values()) - kernel_terms
+        self.assertIn("rkaf:comparisonOutcome", analysis_terms)
+        self.assertIn("rkaf:closureClaimDisabled", analysis_terms)
+        self.assertNotIn("rkaf:assertedAt", analysis_terms)
+        for cue in sorted(self.KERNEL_DIR.rglob("*.cue")):
+            text = cue.read_text()
+            leaked = sorted(
+                term for term in analysis_terms if re.search(rf"{re.escape(term)}\b", text)
+            )
+            self.assertEqual(
+                [],
+                leaked,
+                f"constraints/core/{cue.name} mentions analysis term(s) "
+                f"{leaked}. Those belong to constraints/analysis/.",
+            )
+
+    def test_kernel_shape_file_names_analysis_only_as_an_umbrella_import(self) -> None:
+        """The one sanctioned kernel -> analysis reference, pinned.
+
+        `shapes/rkaf-shapes-core.ttl` is an UMBRELLA: an `owl:Ontology` whose
+        `owl:imports` list aggregates every shipped v0.2 shape graph, alongside
+        `studio-promotions` and `conceptregistry`. `<https://rulespec.org/shapes/
+        analysis>` is on that list, and that is the one place a kernel-side file
+        may name this module — spec/rkaf-analysis.md §1.1 records the exemption
+        and why it is not a dependency (the aggregate declares membership, not
+        composition, and `conformance_lib.shacl_shape_paths()` globs the
+        directory rather than resolving imports).
+
+        The purity tests above scan `constraints/core/**/*.cue` only, so nothing
+        watched the SHAPE side of that arrow. This closes it from both ends: the
+        aggregate import is the ONLY mention of the analysis graph, and no
+        analysis-owned `rkaf:` term appears in the kernel shape file at all. A
+        kernel shape that started targeting `rkaf:RelationFinding`, or a second
+        reference smuggled in under the cover of the sanctioned one, fails here.
+        """
+        core_shapes = REPO_ROOT / "shapes" / "rkaf-shapes-core.ttl"
+        text = core_shapes.read_text()
+        mentions = [
+            line.strip()
+            for line in text.splitlines()
+            if "analysis" in line and not line.lstrip().startswith("#")
+        ]
+        self.assertEqual(
+            ["<https://rulespec.org/shapes/analysis> ."],
+            mentions,
+            "shapes/rkaf-shapes-core.ttl references the analysis shape graph "
+            f"somewhere other than its owl:imports aggregate: {mentions}. The "
+            "umbrella may DECLARE membership; the kernel may not depend on the "
+            "module (spec/rkaf-analysis.md §1.1).",
+        )
+        kernel_terms = self._declared_terms(
+            parse_cue_file(path) for path in sorted(self.KERNEL_DIR.glob("*.cue"))
+        )
+        analysis_terms = self._declared_terms(self.documents.values()) - kernel_terms
+        self.assertIn("rkaf:RelationFinding", analysis_terms)
+        leaked = sorted(
+            term for term in analysis_terms if re.search(rf"{re.escape(term)}\b", text)
+        )
+        self.assertEqual(
+            [],
+            leaked,
+            f"shapes/rkaf-shapes-core.ttl mentions analysis term(s) {leaked}. "
+            "Those belong to shapes/rkaf-shapes-analysis.ttl.",
+        )
+
+    def test_analysis_module_never_references_a_profile_shape(self) -> None:
+        """analysis <- profiles, one way.
+
+        A profile may depend on this module. The moment the module composes a
+        profile shape, the arrow reverses and the "generic" claim is false.
+        """
+        profile_names = self._definition_names(self.PROFILES_DIR)
+        self.assertIn("USRegulatoryArtifact", profile_names)
+        own_and_kernel = self._definition_names(
+            self.ANALYSIS_DIR
+        ) | self._definition_names(self.KERNEL_DIR)
+        for cue in self.sources:
+            referenced = set(re.findall(r"#(\w+)", cue.read_text()))
+            leaked = sorted((referenced & profile_names) - own_and_kernel)
+            self.assertEqual(
+                [],
+                leaked,
+                f"constraints/analysis/{cue.name} references profile shape(s) "
+                f"{leaked}. The analysis module is generic; a domain reading "
+                "belongs to the profile (spec/rkaf-analysis.md §7).",
+            )
+
+    def test_analysis_module_declares_no_jurisdiction_term(self) -> None:
+        """Generic means generic: no US scheme, no citation grammar, no
+        proceeding, in an enum, a pattern, or a comment."""
+        for cue in self.sources:
+            text = cue.read_text()
+            self.assertEqual(
+                [],
+                sorted(set(re.findall(r'"(rkaf:us-[\w-]+)"', text))),
+                f"constraints/analysis/{cue.name} declares a US identifier "
+                "scheme. The analysis module is jurisdiction-free.",
+            )
+            self.assertNotIn("urn:rkaf:us:", text)
+            self.assertEqual(
+                [],
+                sorted(set(re.findall(r"rkaf:proceeding\w*", text))),
+                f"constraints/analysis/{cue.name} mentions a proceeding-scoped "
+                "value. Those belong to constraints/profiles/us-rulemaking/.",
+            )
+
+    # -------------------------------------------------------- §5 neutrality
+
+    # Substrings that would give a neutral finding a domain reading. Matched
+    # against DECLARED TERMS only — the prose in these files says "not a
+    # rescission", "not a policy exclusion" on purpose, and a text-level scan
+    # would fire on the very sentences that promise the absence.
+    LEGAL_EFFECT_MARKERS = (
+        "legaleffect",
+        "policyexclusion",
+        "rescind",
+        "rescission",
+        "severity",
+        "deontic",
+        "operative",
+        "enforceab",
+        "sanction",
+        "penalt",
+        "violation",
+    )
+
+    def test_module_declares_no_legal_effect_term(self) -> None:
+        declared: list[str] = []
+        for name, doc in self.documents.items():
+            for shape in doc.shapes:
+                declared.append(shape.name)
+                declared.extend(prop.name for prop in shape.properties)
+            for enum in doc.enums:
+                declared.append(enum.name)
+                declared.extend(enum.values)
+        self.assertIn("rkaf:relationFindingKind", declared)
+        for term in declared:
+            lowered = term.lower()
+            for marker in self.LEGAL_EFFECT_MARKERS:
+                self.assertNotIn(
+                    marker,
+                    lowered,
+                    f"the analysis module declares {term!r}, which reads as a "
+                    "legal or policy effect. The generic layer emits NEUTRAL "
+                    "findings; domain interpretation belongs to a profile "
+                    "(spec/rkaf-analysis.md §7).",
+                )
+
+    def test_relation_change_event_carries_no_assertion_polarity(self) -> None:
+        """A change is not an affirmation or a denial.
+
+        Checked in the compiled JSON Schema, not just the CUE: composition is
+        what would introduce the proposition triple, and composition happens at
+        projection time.
+        """
+        schema = self.schemas["relation-change-event.cue"]["$defs"][
+            "RelationChangeEvent"
+        ]
+        for forbidden in (
+            "rkaf:assertionPolarity",
+            "rkaf:assertsSubject",
+            "rkaf:assertsPredicate",
+            "rkaf:assertsObject",
+        ):
+            self.assertNotIn(
+                forbidden,
+                schema["properties"],
+                f"#RelationChangeEvent carries {forbidden}. It composes "
+                "#AssertionEnvelope and deliberately NOT #AssertionProposition "
+                "(spec/rkaf-analysis.md §2.1).",
+            )
+        # The envelope really did arrive — otherwise the absence above is the
+        # absence of composition, not the absence of polarity.
+        self.assertIn("rkaf:assertionOrigin", schema["properties"])
+        for own in ("rkaf:changeSubject", "rkaf:changePredicate", "rkaf:changeObject"):
+            self.assertIn(own, schema["properties"])
+
+    def test_relation_finding_is_not_the_kernel_finding(self) -> None:
+        """§5.4. `rkaf:RelationFinding` neither composes nor subclasses
+        `rkaf:Finding` (ADR-0093), and the separation is mechanical.
+
+        The kernel's Finding is an actionable validation detection: it carries
+        a `publicationBlocking` / `authorityCritical` severity ladder, exactly
+        one `rkaf:subject`, and a kernel path to being WAIVED through
+        `rkaf:targetFinding` on an Attestation. A neutral relation finding may
+        carry none of those — a waiver over a discrepancy is a domain act, and
+        the severity ladder is the readable-as-legal-effect ladder §5.1
+        forbids.
+        """
+        finding = self.schemas["relation-finding.cue"]["$defs"]["RelationFinding"]
+        kernel = json.loads(
+            target_json_schema(parse_cue_file(self.KERNEL_DIR / "finding.cue"))
+        )
+        # The kernel shape really does carry what we are refusing to inherit.
+        for term in ("rkaf:severity", "rkaf:subject", "rkaf:findingKind"):
+            self.assertIn(term, kernel["$defs"]["Finding"]["properties"])
+        for term in (
+            "rkaf:severity",
+            "rkaf:subject",
+            "rkaf:findingKind",
+            "rkaf:detectedBy",
+            "rkaf:targetFinding",
+        ):
+            self.assertNotIn(
+                term,
+                finding["properties"],
+                f"#RelationFinding carries {term}, a kernel #Finding field. "
+                "The two are deliberately separate classes "
+                "(spec/rkaf-analysis.md §5.4).",
+            )
+        # Nor may the kernel's closed FindingKind grow the analysis value.
+        self.assertNotIn(
+            "rkaf:affirmedDeniedDiscrepancy",
+            kernel["$defs"]["FindingKind"]["enum"],
+            "the kernel's #FindingKind acquired the analysis discrepancy "
+            "value. That is an analysis-owned value in a kernel enum.",
+        )
+        # And no subclass axiom quietly re-merges them in RDF.
+        for shapes_file in ("rkaf-shapes-core.ttl", "rkaf-shapes-analysis.ttl"):
+            text = (REPO_ROOT / "shapes" / shapes_file).read_text()
+            self.assertNotRegex(
+                text,
+                r"rkaf:RelationFinding\s+rdfs:subClassOf",
+                f"{shapes_file} declares rkaf:RelationFinding a subclass. "
+                "Subclassing rkaf:Finding would make a neutral finding "
+                "waivable through rkaf:targetFinding.",
+            )
+
+    def test_comparison_outcomes_are_the_five_closed_values(self) -> None:
+        outcomes = self.schemas["relation-comparison-context.cue"]["$defs"][
+            "RelationComparisonOutcome"
+        ]["enum"]
+        self.assertEqual(
+            [
+                "rkaf:comparisonAffirmedDeniedDiscrepancy",
+                "rkaf:comparisonConflict",
+                "rkaf:comparisonNotComparable",
+                "rkaf:comparisonSatisfied",
+                "rkaf:comparisonUnknown",
+            ],
+            sorted(outcomes),
+            "the comparison outcome set changed. A sixth value is a new "
+            "semantic case and enters this contract by review "
+            "(spec/rkaf-analysis.md §3.2).",
+        )
+
+    # ---------------------------------------------- §6 the closure disabling
+
+    def test_closure_claim_status_is_closed_over_exactly_one_value(self) -> None:
+        """Mechanism 1 of four. The experimental flag."""
+        schema = self.schemas["closure-claim.cue"]
+        status = schema["$defs"]["ClosureClaimStatus"]
+        self.assertEqual(
+            ["rkaf:closureClaimDisabled"],
+            status["enum"],
+            "rkaf:closureClaimStatus grew a value. That single value IS the "
+            "experimental gate: enabling closure must move the contract digest "
+            "and force every pinned consumer to re-accept "
+            "(spec/rkaf-analysis.md §6.4).",
+        )
+        claim = schema["$defs"]["ClosureClaim"]
+        self.assertIn(
+            "rkaf:closureClaimStatus",
+            claim.get("required", []),
+            "rkaf:closureClaimStatus became optional. A producer must not be "
+            "able to author a ClosureClaim without declaring it disabled.",
+        )
+        # And the same closure survives into the other compiled targets, so a
+        # consumer on any sink rejects a second value.
+        shacl = target_shacl(self.documents["closure-claim.cue"])
+        self.assertIn("rkaf:closureClaimDisabled", shacl)
+        self.assertIn("sh:in", shacl)
+        rust = target_rust(self.documents["closure-claim.cue"])
+        self.assertIn("ClosureClaimDisabled", rust)
+        typescript = target_typescript(self.documents["closure-claim.cue"])
+        self.assertIn("rkaf:closureClaimDisabled", typescript)
+
+    def test_no_property_anywhere_is_class_ranged_to_a_closure_claim(self) -> None:
+        """Mechanism 1b. No class-ranged edge INTO a disabled record.
+
+        Scans the union of every `l0-ranges.cue` under `constraints/` — the
+        kernel's, this module's, and every profile's — because a range declared
+        in any of them reaches SHACL and the L0 audit identically.
+        """
+        registry = _scan_reference_class_registry(
+            self.ANALYSIS_DIR / "semantics" / "l0-ranges.cue"
+        )
+        self.assertIn(
+            "rkaf:findingProofRecord",
+            registry,
+            "the range registry scan came back without the analysis ranges — "
+            "this test is not actually looking at the union",
+        )
+        offenders = sorted(
+            term for term, target in registry.items() if target == "rkaf:ClosureClaim"
+        )
+        self.assertEqual(
+            [],
+            offenders,
+            f"{offenders} are class-ranged to rkaf:ClosureClaim. A ranged edge "
+            "into a disabled record is the first half of consuming it as "
+            "evidence (spec/rkaf-analysis.md §6.5).",
+        )
+
+    def test_no_closure_resolver_proof_type_exists(self) -> None:
+        """Mechanism 2 of four. A closure decision cannot be minted as a proof."""
+        proof_types = self.schemas["resolver-proof-record.cue"]["$defs"][
+            "ResolverProofType"
+        ]["enum"]
+        self.assertEqual(
+            [
+                "rkaf:artifactPairingProof",
+                "rkaf:assertionStateProof",
+                "rkaf:baselineWarrantProof",
+                "rkaf:evidenceBindingProof",
+                "rkaf:predicateCatalogProof",
+                "rkaf:scopeComparisonProof",
+            ],
+            sorted(proof_types),
+            "the resolver proof-type set changed. The three longitudinal "
+            "protocols — version lineage, expected coverage, closure — enter "
+            "this enum by the same deliberate contract change that enables "
+            "#ClosureClaim, not before (spec/rkaf-analysis.md §4.1).",
+        )
+        for value in proof_types:
+            self.assertNotIn("closure", value.lower())
+            self.assertNotIn("coverage", value.lower())
+            self.assertNotIn("lineage", value.lower())
+
+    def test_no_omission_finding_kind_is_representable(self) -> None:
+        """Mechanism 2b. Silence outside a proven boundary stays unknown."""
+        kinds = self.schemas["relation-finding.cue"]["$defs"]["RelationFindingKind"][
+            "enum"
+        ]
+        self.assertEqual(
+            ["rkaf:affirmedDeniedDiscrepancy"],
+            kinds,
+            "rkaf:relationFindingKind changed. An omission kind converts "
+            "silence into a claim, which is the single failure mode this "
+            "module exists to prevent (spec/rkaf-analysis.md §5.2).",
+        )
+        # The absence is also checked by SHAPE, not only by value: no enum
+        # anywhere in the module may name an omission-flavoured case.
+        for name, doc in self.documents.items():
+            for enum in doc.enums:
+                for value in enum.values:
+                    lowered = value.lower()
+                    self.assertNotIn("notobserved", lowered.replace("_", ""))
+                    self.assertNotIn("omission", lowered)
+                    self.assertNotIn("omitted", lowered)
+                    self.assertNotIn("missingrelation", lowered.replace("_", ""))
+
+    def test_no_fixture_treats_a_closure_claim_as_finding_evidence(self) -> None:
+        """Mechanism 4 of four, at the corpus level.
+
+        Fixtures may exist for ClosureClaim SHAPE validity. None may put a
+        ClosureClaim and a RelationFinding in the same document — the SHACL
+        shape rejects the reachable case, and co-presence is how a
+        "shape-validity only" fixture drifts into an evidence example.
+
+        The deliberate exceptions are the two negative fixtures that PROVE the
+        shape fires — one at depth 1 and one at depth 2 — and they are named
+        here so that removing the shape and keeping the fixtures, or deleting
+        either fixture, cannot pass silently.
+
+        Types are matched on their EXPANDED IRI. A substring scan for
+        `"rkaf:ClosureClaim"` is evaded by a fixture that writes the type out in
+        full or aliases it in an inline `@context`, and evading this gate is
+        precisely the edit it exists to catch.
+        """
+        allowed = {
+            "negatives/relation-finding-citing-closure-claim-negative.jsonld",
+            "negatives/relation-finding-citing-closure-claim-indirect-negative.jsonld",
+        }
+        closure_claim = self.RKAF_NS + "ClosureClaim"
+        relation_finding = self.RKAF_NS + "RelationFinding"
+        seen_allowed: set[str] = set()
+        offenders: list[str] = []
+        carriers = 0
+        for path in sorted(self.FIXTURES_DIR.rglob("*.jsonld")):
+            types = self._fixture_types(path)
+            if closure_claim not in types:
+                continue
+            carriers += 1
+            rel = path.relative_to(self.FIXTURES_DIR).as_posix()
+            if relation_finding not in types:
+                continue
+            if rel in allowed:
+                seen_allowed.add(rel)
+                continue
+            offenders.append(rel)
+        self.assertGreaterEqual(
+            carriers,
+            len(allowed),
+            "the fixture scan found fewer rkaf:ClosureClaim documents than the "
+            "named exceptions — @type expansion is broken and this test is not "
+            "actually looking at the corpus",
+        )
+        self.assertEqual(
+            [],
+            offenders,
+            f"fixture(s) {offenders} contain both a rkaf:ClosureClaim and a "
+            "rkaf:RelationFinding. rkaf:ClosureClaim is DISABLED: a fixture may "
+            "show its shape and must never show it as evidence "
+            "(spec/rkaf-analysis.md §6.3).",
+        )
+        self.assertEqual(
+            allowed,
+            seen_allowed,
+            "a negative fixture proving rkaf:ClosureClaimNotFindingEvidence"
+            "Shape fires is gone. Deleting one would let the shape — or its "
+            "unbounded-depth traversal — be weakened without any gate noticing.",
+        )
+
+    def test_the_closure_claim_fixture_scan_cannot_be_evaded_by_an_alias(self) -> None:
+        """The scan above matches on expanded IRIs, so spelling changes do not
+        hide a fixture from it.
+
+        Three spellings of the same class — the shipped CURIE, the fully
+        expanded IRI, and a private alias declared in an inline `@context` —
+        must all be recognised. A substring scan recognises only the first, and
+        the other two are one search-and-replace away.
+        """
+        closure_claim = self.RKAF_NS + "ClosureClaim"
+        for label, doc in (
+            ("shipped CURIE", {"@graph": [{"@type": "rkaf:ClosureClaim"}]}),
+            ("expanded IRI", {"@graph": [{"@type": closure_claim}]}),
+            (
+                "inline alias",
+                {
+                    "@context": {"Boundary": {"@id": "rkaf:ClosureClaim"}},
+                    "@graph": [{"@type": "Boundary"}],
+                },
+            ),
+            ("type list", {"@graph": [{"@type": ["rkaf:Assertion", closure_claim]}]}),
+            ("nested node", {"@graph": [{"x": {"@type": "rkaf:ClosureClaim"}}]}),
+        ):
+            self.assertIn(
+                closure_claim,
+                self._expanded_types(doc),
+                f"a ClosureClaim written as a {label} is invisible to the "
+                "mechanism-4 fixture scan",
+            )
+        # ...and the expansion does not manufacture matches out of unrelated
+        # types, which would make the scan fire on every fixture and stop
+        # discriminating.
+        self.assertNotIn(
+            closure_claim,
+            self._expanded_types({"@graph": [{"@type": "rkaf:RelationFinding"}]}),
+        )
+
+    def test_closure_claim_carries_no_assertion_polarity(self) -> None:
+        """A closure claim's proposition is not a triple."""
+        schema = self.schemas["closure-claim.cue"]["$defs"]["ClosureClaim"]
+        for forbidden in (
+            "rkaf:assertionPolarity",
+            "rkaf:assertsSubject",
+            "rkaf:assertsPredicate",
+            "rkaf:assertsObject",
+        ):
+            self.assertNotIn(forbidden, schema["properties"])
+        self.assertIn("rkaf:assertionOrigin", schema["properties"])
+
+    def test_closure_is_always_local(self) -> None:
+        """A claim that names no region would be a claim about a document."""
+        schema = self.schemas["closure-claim.cue"]["$defs"]["ClosureClaim"]
+        for term in (
+            "rkaf:closureArtifact",
+            "rkaf:closureRegion",
+            "rkaf:closurePredicateFamily",
+            "rkaf:closureProfileVersion",
+            "rkaf:closureMemberDigest",
+        ):
+            self.assertIn(term, schema.get("required", []), f"{term} became optional")
+        # A JSON-LD `@set` property projects as `anyOf[scalar, array]`; the
+        # obligation lives on the array branch.
+        array_branch = next(
+            branch
+            for branch in schema["properties"]["rkaf:closureRegion"]["anyOf"]
+            if branch.get("type") == "array"
+        )
+        self.assertEqual(
+            1,
+            array_branch["minItems"],
+            "rkaf:closureRegion accepts an empty region list. A claim that "
+            "names no region is a claim about a whole document, which this "
+            "record must be incapable of expressing "
+            "(spec/rkaf-analysis.md §6.1).",
+        )
+
+    # ------------------------------------- the hand-authored shapes DO fire
+
+    def test_analysis_cross_node_shapes_fire(self) -> None:
+        """Run the shapes rather than reading them.
+
+        Both rules are paired — the evasion is rejected AND the honest record
+        that differs by one fact is accepted — so an over-broad shape fails the
+        second half rather than passing by rejecting everything.
+        """
+        import rdflib
+        from pyshacl import validate
+
+        shapes = rdflib.Graph()
+        shapes.parse(
+            str(REPO_ROOT / "shapes" / "rkaf-shapes-analysis.ttl"), format="turtle"
+        )
+
+        def conforms(turtle: str) -> bool:
+            data = rdflib.Graph()
+            data.parse(data=TURTLE_PREAMBLE + turtle, format="turtle")
+            ok, _, _ = validate(
+                data_graph=data,
+                shacl_graph=shapes,
+                inference="rdfs",
+                advanced=True,
+                meta_shacl=False,
+            )
+            return ok
+
+        def finding(extra: str = "", outcome: str = "rkaf:comparisonAffirmedDeniedDiscrepancy") -> str:
+            return f"""
+            ex:comparison a rkaf:RelationComparisonContext ;
+              rkaf:comparisonOutcome {outcome} .
+            ex:finding a rkaf:RelationFinding ;
+              rkaf:relationFindingKind rkaf:affirmedDeniedDiscrepancy ;
+              rkaf:findingComparisonContext ex:comparison ;
+              rkaf:findingProofRecord ex:proof {extra} .
+            ex:proof a rkaf:ResolverProofRecord .
+            """
+
+        # §5.5 — a discrepancy finding on a satisfied comparison.
+        self.assertFalse(
+            conforms(finding(outcome="rkaf:comparisonSatisfied")),
+            "a discrepancy finding attached to a SATISFIED comparison passed",
+        )
+        self.assertTrue(conforms(finding()))
+
+        # §6.4 mechanism 3 — a finding reaching a ClosureClaim.
+        claim = "\n ex:claim a rkaf:ClosureClaim ."
+        self.assertFalse(
+            conforms(finding(extra="; rkaf:findingProofRecord ex:claim") + claim),
+            "a finding referencing a ClosureClaim directly passed",
+        )
+        self.assertFalse(
+            conforms(
+                finding()
+                + claim
+                + "\n ex:comparison rkaf:comparisonProofRecord ex:claim ."
+            ),
+            "a finding reaching a ClosureClaim through its context passed",
+        )
+        self.assertFalse(
+            conforms(
+                finding() + claim + "\n ex:proof rkaf:proofSupportingRecord ex:claim ."
+            ),
+            "a finding reaching a ClosureClaim through a cited proof passed — "
+            "routing the claim through rkaf:proofSupportingRecord would enable "
+            "omission by indirection",
+        )
+        # ...and the reachability is UNBOUNDED, not four fixed hops. An earlier
+        # form of the shape enumerated one-hop routes, and interposing a single
+        # extra ResolverProofRecord — every edge legal, every proof type legal —
+        # walked straight through it. Depths 2 and 3 must be rejected too, or
+        # "disabled" means nothing more than "not named at distance one".
+        self.assertFalse(
+            conforms(
+                finding()
+                + claim
+                + """
+                ex:proof rkaf:proofSupportingRecord ex:proof2 .
+                ex:proof2 a rkaf:ResolverProofRecord ;
+                  rkaf:proofType rkaf:assertionStateProof ;
+                  rkaf:proofSupportingRecord ex:claim .
+                """
+            ),
+            "a finding reaching a ClosureClaim at DEPTH 2 (proof -> proof -> "
+            "claim) passed — interposing one extra proof record must not "
+            "re-enable omission by indirection",
+        )
+        self.assertFalse(
+            conforms(
+                finding()
+                + claim
+                + """
+                ex:proof rkaf:proofSupportingRecord ex:proof2 .
+                ex:proof2 a rkaf:ResolverProofRecord ;
+                  rkaf:proofSupportingRecord ex:proof3 .
+                ex:proof3 a rkaf:ResolverProofRecord ;
+                  rkaf:proofInput ex:claim .
+                """
+            ),
+            "a finding reaching a ClosureClaim at DEPTH 3 passed",
+        )
+        # The second route the depth-1 form missed entirely: out through a
+        # compared assertion and back down its supersession chain.
+        self.assertFalse(
+            conforms(
+                finding(extra="; rkaf:findingComparedAssertion ex:assertion")
+                + claim
+                + """
+                ex:assertion a rkaf:RelationshipAssertion ;
+                  rkaf:supersedesAssertion ex:claim .
+                """
+            ),
+            "a finding reaching a ClosureClaim through findingComparedAssertion "
+            "/rkaf:supersedesAssertion passed",
+        )
+        # ...and a ClosureClaim with no finding in the graph is still valid
+        # shape. Disabled means unreachable FROM A FINDING, not unwritable.
+        self.assertTrue(conforms("ex:claim a rkaf:ClosureClaim ."))
+        # Nor may the traversal be so broad that an unrelated node merely
+        # MENTIONING a shape-validity claim fails a finding elsewhere in the
+        # same document. §6.3 permits the claim to appear; it forbids the
+        # finding reaching it.
+        self.assertTrue(
+            conforms(
+                finding()
+                + claim
+                + "\n ex:bystander a rkaf:Attestation ; rkaf:targetFinding ex:claim ."
+            ),
+            "a ClosureClaim named by a node the finding does not reach failed — "
+            "the traversal is over-broad and §6.3 permits shape-validity claims",
+        )
+
+        # §6.1 — a ClosureClaim carrying polarity anyway, the mirror of §2.1.
+        self.assertFalse(
+            conforms(
+                """
+                ex:claim a rkaf:ClosureClaim ;
+                  rkaf:closureClaimStatus rkaf:closureClaimDisabled ;
+                  rkaf:assertionPolarity rkaf:denied .
+                """
+            ),
+            "a rkaf:ClosureClaim carrying rkaf:assertionPolarity passed — a "
+            "disabled record must not be publishable as a denied assertion",
+        )
+        for predicate in (
+            "rkaf:assertsSubject",
+            "rkaf:assertsPredicate",
+            "rkaf:assertsObject",
+        ):
+            self.assertFalse(
+                conforms(
+                    f"""
+                    ex:claim a rkaf:ClosureClaim ;
+                      rkaf:closureClaimStatus rkaf:closureClaimDisabled ;
+                      {predicate} ex:thing .
+                    """
+                ),
+                f"a rkaf:ClosureClaim carrying {predicate} passed — its "
+                "proposition is a bounded enumeration, not a triple",
+            )
+        self.assertTrue(
+            conforms(
+                """
+                ex:claim a rkaf:ClosureClaim ;
+                  rkaf:closureClaimStatus rkaf:closureClaimDisabled ;
+                  rkaf:closureRegion ex:fragment .
+                """
+            )
+        )
+
+        # §4.3 — a proof replayed against a comparison that is not the one
+        # citing it. The proof record itself is untouched, so its content digest
+        # is no help: the CITATION is what is false.
+        self.assertFalse(
+            conforms(
+                """
+                ex:comparison2026 a rkaf:RelationComparisonContext ;
+                  rkaf:comparisonOutcome rkaf:comparisonAffirmedDeniedDiscrepancy ;
+                  rkaf:comparisonProofRecord ex:stale .
+                ex:stale a rkaf:ResolverProofRecord ;
+                  rkaf:proofType rkaf:assertionStateProof ;
+                  rkaf:proofComparisonContext ex:comparison2019 .
+                """
+            ),
+            "a comparison citing a proof issued for ANOTHER comparison passed — "
+            "that is how a stale gate pass gets reused (§4.3)",
+        )
+        self.assertTrue(
+            conforms(
+                """
+                ex:comparison2026 a rkaf:RelationComparisonContext ;
+                  rkaf:comparisonOutcome rkaf:comparisonAffirmedDeniedDiscrepancy ;
+                  rkaf:comparisonProofRecord ex:fresh .
+                ex:fresh a rkaf:ResolverProofRecord ;
+                  rkaf:proofType rkaf:assertionStateProof ;
+                  rkaf:proofComparisonContext ex:comparison2026 .
+                """
+            )
+        )
+        # ...and a comparison whose proofs are dereferenced elsewhere — no proof
+        # node in the graph — validates exactly as it did before.
+        self.assertTrue(
+            conforms(
+                """
+                ex:comparison2026 a rkaf:RelationComparisonContext ;
+                  rkaf:comparisonOutcome rkaf:comparisonAffirmedDeniedDiscrepancy ;
+                  rkaf:comparisonProofRecord ex:elsewhere .
+                """
+            )
+        )
+
+        # §2.1 — a change event carrying polarity anyway.
+        self.assertFalse(
+            conforms(
+                """
+                ex:event a rkaf:RelationChangeEvent ;
+                  rkaf:relationChangeOperation rkaf:relationRemoval ;
+                  rkaf:assertionPolarity rkaf:denied .
+                """
+            ),
+            "a rkaf:RelationChangeEvent carrying rkaf:assertionPolarity passed",
+        )
+        self.assertTrue(
+            conforms(
+                """
+                ex:event a rkaf:RelationChangeEvent ;
+                  rkaf:relationChangeOperation rkaf:relationRemoval ;
+                  rkaf:changeSubject ex:subject .
+                """
+            )
+        )
+
+
 class L2DispatchPrefixTests(unittest.TestCase):
     """Both L2 dispatchers bind the SAME set of `@type` prefixes.
 

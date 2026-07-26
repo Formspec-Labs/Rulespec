@@ -1,0 +1,80 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@graph": [
+    {
+      "@id": "urn:rkaf:fixture:analysis:neg:fc:artifact:baseline",
+      "@type": "rkaf:Artifact",
+      "rkaf:hasArtifactIdentifier": "urn:rkaf:fixture:analysis:neg:fc:artifact:baseline",
+      "rkaf:artifactIdentifierScheme": "rkaf:partner-defined",
+      "rkaf:hasContentDigest": "sha256:7a7a7a7a7a7a7a7a7a7a7a7a7a7a7a7a7a7a7a7a7a7a7a7a7a7a7a7a7a7a7a7a"
+    },
+    {
+      "@id": "urn:rkaf:fixture:analysis:neg:fc:artifact:observed",
+      "@type": "rkaf:Artifact",
+      "rkaf:hasArtifactIdentifier": "urn:rkaf:fixture:analysis:neg:fc:artifact:observed",
+      "rkaf:artifactIdentifierScheme": "rkaf:partner-defined",
+      "rkaf:hasContentDigest": "sha256:7b7b7b7b7b7b7b7b7b7b7b7b7b7b7b7b7b7b7b7b7b7b7b7b7b7b7b7b7b7b7b7b"
+    },
+    {
+      "@id": "urn:rkaf:fixture:analysis:neg:fc:issuer",
+      "@type": "rkaf:ResolverProofIssuer",
+      "rkaf:proofResolver": "urn:rkaf:fixture:analysis:resolver:assertion-state",
+      "rkaf:proofResolverVersion": "relation-comparison-v1",
+      "rkaf:proofPolicy": "urn:rkaf:fixture:analysis:policy:accepted-current",
+      "rkaf:proofPolicyVersion": "relation-comparison-v1"
+    },
+    {
+      "@id": "urn:rkaf:fixture:analysis:neg:fc:proof:stale-2019",
+      "@type": "rkaf:ResolverProofRecord",
+      "rkaf:proofType": "rkaf:assertionStateProof",
+      "rkaf:proofIssuer": "urn:rkaf:fixture:analysis:neg:fc:issuer",
+      "rkaf:proofComparisonContext": "urn:rkaf:fixture:analysis:neg:fc:comparison:2019",
+      "rkaf:proofOutcome": "rkaf:gatePass",
+      "rkaf:proofRationale": "Both assertions were accepted for the named consumer and scope at the 2019 evaluation time.",
+      "rkaf:proofInput": [
+        "urn:rkaf:fixture:analysis:neg:fc:assertion:expected",
+        "urn:rkaf:fixture:analysis:neg:fc:assertion:observed"
+      ],
+      "rkaf:proofEvaluatedAt": "2019-04-02T09:00:00Z",
+      "rkaf:proofSnapshot": "urn:rkaf:fixture:analysis:snapshot:2019-04-02",
+      "rkaf:proofRecordDigest": "sha256:7c7c7c7c7c7c7c7c7c7c7c7c7c7c7c7c7c7c7c7c7c7c7c7c7c7c7c7c7c7c7c7c"
+    },
+    {
+      "@id": "urn:rkaf:fixture:analysis:neg:fc:comparison:2019",
+      "@type": "rkaf:RelationComparisonContext",
+      "rkaf:comparisonBaselineArtifact": "urn:rkaf:fixture:analysis:neg:fc:artifact:baseline",
+      "rkaf:comparisonObservedArtifact": "urn:rkaf:fixture:analysis:neg:fc:artifact:observed",
+      "rkaf:comparisonExpectedAssertion": "urn:rkaf:fixture:analysis:neg:fc:assertion:expected",
+      "rkaf:comparisonConsumer": "urn:rkaf:fixture:analysis:consumer:permits-desk",
+      "rkaf:comparisonScope": "urn:rkaf:fixture:analysis:scope:permits-class-b",
+      "rkaf:comparisonEvaluationTime": "2019-04-02T09:00:00Z",
+      "rkaf:comparisonPolicyVersion": "relation-comparison-v1",
+      "rkaf:comparisonDetector": "urn:rkaf:fixture:analysis:detector:relation-comparator",
+      "rkaf:comparisonDetectorVersion": "1.0.0",
+      "rkaf:comparisonSnapshot": "urn:rkaf:fixture:analysis:snapshot:2019-04-02",
+      "rkaf:comparisonOutcome": "rkaf:comparisonSatisfied",
+      "rkaf:comparisonProofRecord": [
+        "urn:rkaf:fixture:analysis:neg:fc:proof:stale-2019"
+      ]
+    },
+    {
+      "@id": "urn:rkaf:fixture:analysis:neg:fc:comparison:2026",
+      "@type": "rkaf:RelationComparisonContext",
+      "rkaf:comparisonBaselineArtifact": "urn:rkaf:fixture:analysis:neg:fc:artifact:baseline",
+      "rkaf:comparisonObservedArtifact": "urn:rkaf:fixture:analysis:neg:fc:artifact:observed",
+      "rkaf:comparisonExpectedAssertion": "urn:rkaf:fixture:analysis:neg:fc:assertion:expected",
+      "rkaf:comparisonConsumer": "urn:rkaf:fixture:analysis:consumer:permits-desk",
+      "rkaf:comparisonScope": "urn:rkaf:fixture:analysis:scope:permits-class-b",
+      "rkaf:comparisonEvaluationTime": "2026-06-01T12:00:00Z",
+      "rkaf:comparisonPolicyVersion": "relation-comparison-v1",
+      "rkaf:comparisonDetector": "urn:rkaf:fixture:analysis:detector:relation-comparator",
+      "rkaf:comparisonDetectorVersion": "1.4.0",
+      "rkaf:comparisonSnapshot": "urn:rkaf:fixture:analysis:snapshot:2026-06-01",
+      "rkaf:comparisonOutcome": "rkaf:comparisonAffirmedDeniedDiscrepancy",
+      "rkaf:comparisonProofRecord": [
+        "urn:rkaf:fixture:analysis:neg:fc:proof:stale-2019"
+      ]
+    }
+  ],
+  "_comment": "Negative. The 2026 comparison cites a proof record that names the 2019 comparison in rkaf:proofComparisonContext: a stale gate pass, replayed to back a fresh discrepancy. The proof record itself is untouched, so rkaf:proofRecordDigest is no help — it is the CITATION that is fraudulent, and only a rule relating the two nodes can see it. Every per-property constraint in both compiled targets passes here by construction. Caught by rkaf:ResolverProofComparisonBindingShape (spec/rkaf-analysis.md 4.3)."
+}

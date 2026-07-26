@@ -1,0 +1,228 @@
+# Rulespec document-analysis shapes v0.2
+# Profile: Pattern C only (no sh:if / sh:then), plus SPARQL constraints for the
+# cross-node agreement rules per-property SHACL cannot reach.
+#
+# Companion to spec/rkaf-analysis.md and constraints/analysis/. The compiled
+# shapes under compiled/shacl/analysis/ carry every per-property constraint the
+# CUE source states; the six rules below are the ones that are ABOUT the
+# relationship between two nodes, or about a property that must be ABSENT, and
+# Layer 2 emits neither.
+
+@prefix sh:    <http://www.w3.org/ns/shacl#> .
+@prefix owl:   <http://www.w3.org/2002/07/owl#> .
+@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix rkaf:  <https://rulespec.org/ns/v1#> .
+
+<https://rulespec.org/shapes/analysis>
+  a owl:Ontology ;
+  rdfs:label "Rulespec document-analysis SHACL shapes v0.2" ;
+  rdfs:comment "Neutral comparison, change-event, resolver-proof, and disabled-closure invariants. Generic and jurisdiction-free; profiles may depend on these shapes, the kernel does not." .
+
+# No subclass axiom is declared here, deliberately.
+#
+# `rkaf:RelationChangeEvent` and `rkaf:ClosureClaim` both compose
+# `#AssertionEnvelope`, exactly as `rkaf:ConceptAssignment` does, and
+# `shapes/rkaf-shapes-core.ttl` gives that class `rdfs:subClassOf
+# rkaf:Assertion`. Neither of these two gets the same treatment, for the same
+# reason in two directions:
+#
+#   * a change event is NOT an assertion — it states that a source changes a
+#     relation, not that the relation holds or fails to hold. Making it an
+#     `rkaf:Assertion` subclass would put proposed removals into every consumer
+#     query that reads accepted assertions, which is precisely the collapse
+#     Analysis §2 exists to prevent; and
+#   * a closure claim is disabled, and a disabled record must not become
+#     reachable through the assertion class hierarchy while it is disabled.
+#
+# The AI-lineage obligation both classes inherit from the envelope is already
+# emitted per-class by the compiler (see compiled/shacl/analysis/), so nothing
+# is lost by withholding the axiom.
+
+# ── Analysis §2 — a change event carries no polarity ─────────────────────────
+#
+# `#RelationChangeEvent` composes `#AssertionEnvelope` and deliberately NOT
+# `#AssertionProposition`, so `rkaf:assertionPolarity` is absent from the CUE
+# shape. Absence is not enforcement: the compiled JSON Schema and the RDF model
+# are both open-world, so a producer that adds the property anyway is
+# unconstrained by the generated artifacts. This shape closes that.
+#
+# The rule is not cosmetic. "A proposal cannot carry assertion polarity": a
+# removal recorded as a denied assertion says the relation was never true,
+# which destroys the difference between "this was never so" and "this stopped
+# being so" — the difference every later comparison is built on.
+rkaf:RelationChangeEventNoPolarityShape a sh:NodeShape ;
+  sh:targetClass rkaf:RelationChangeEvent ;
+  sh:property [
+    sh:path rkaf:assertionPolarity ;
+    sh:maxCount 0 ;
+    sh:message "A rkaf:RelationChangeEvent MUST NOT carry rkaf:assertionPolarity. A change is not an affirmation or a denial (spec/rkaf-analysis.md §2)." ;
+  ] ;
+  sh:property [
+    sh:path rkaf:assertsSubject ;
+    sh:maxCount 0 ;
+    sh:message "A rkaf:RelationChangeEvent MUST NOT carry the assertion proposition predicates; use rkaf:changeSubject / rkaf:changePredicate / rkaf:changeObject (spec/rkaf-analysis.md §2)." ;
+  ] ;
+  sh:property [
+    sh:path rkaf:assertsPredicate ;
+    sh:maxCount 0 ;
+    sh:message "A rkaf:RelationChangeEvent MUST NOT carry the assertion proposition predicates; use rkaf:changeSubject / rkaf:changePredicate / rkaf:changeObject (spec/rkaf-analysis.md §2)." ;
+  ] ;
+  sh:property [
+    sh:path rkaf:assertsObject ;
+    sh:maxCount 0 ;
+    sh:message "A rkaf:RelationChangeEvent MUST NOT carry the assertion proposition predicates; use rkaf:changeSubject / rkaf:changePredicate / rkaf:changeObject (spec/rkaf-analysis.md §2)." ;
+  ] .
+
+# ── Analysis §5 — a finding agrees with the comparison it reports ────────────
+#
+# `rkaf:relationFindingKind` has exactly one value and the finding binds a
+# `rkaf:RelationComparisonContext` that carries the outcome. Nothing in
+# per-property SHACL relates the two: a producer could attach a discrepancy
+# finding to a comparison that came back `rkaf:comparisonSatisfied`, and every
+# compiled target would pass it. That would let a neutral finding claim a
+# disagreement the comparison never found.
+#
+# Written so it fires only when the context node IS in the graph: a finding
+# published alone, with its context dereferenced elsewhere, validates exactly
+# as it did before.
+rkaf:RelationFindingContextOutcomeAgreementShape a sh:NodeShape ;
+  sh:targetClass rkaf:RelationFinding ;
+  sh:sparql [
+    a sh:SPARQLConstraint ;
+    sh:message "A rkaf:RelationFinding MUST bind a rkaf:RelationComparisonContext whose rkaf:comparisonOutcome is rkaf:comparisonAffirmedDeniedDiscrepancy (spec/rkaf-analysis.md §5)." ;
+    sh:select """
+      PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+      PREFIX rkaf: <https://rulespec.org/ns/v1#>
+      SELECT $this
+      WHERE {
+        $this rkaf:findingComparisonContext ?context .
+        ?context rdf:type rkaf:RelationComparisonContext ;
+                 rkaf:comparisonOutcome ?outcome .
+        FILTER (?outcome != rkaf:comparisonAffirmedDeniedDiscrepancy)
+      }
+    """ ;
+  ] .
+
+# ── Analysis §6 — ClosureClaim is DISABLED as finding evidence ───────────────
+#
+# A `rkaf:ClosureClaim` MUST NOT be consumed as evidence for any finding while
+# closure is disabled. This shape fails any graph in which a
+# `rkaf:RelationFinding` REACHES a ClosureClaim: directly through one of its own
+# properties, or TRANSITIVELY through the citation edges that carry evidence —
+# its comparison context, the proof records it or its context cite, the
+# assertions it compared, and the records those in turn lean on.
+#
+# The reachability is deliberately UNBOUNDED, not a fixed number of hops. An
+# earlier form of this shape enumerated four one-hop routes, and a producer
+# closed the gap by interposing one extra `rkaf:ResolverProofRecord`:
+# `finding -> findingProofRecord -> proofA -> proofSupportingRecord -> proofB
+# -> proofSupportingRecord -> claim` was never traversed, so the claim did
+# evidential work the contract says it cannot. `rkaf:proofSupportingRecord` is
+# deliberately unranged (see constraints/analysis/semantics/l0-ranges.cue) and
+# a proof record may cite another one, so the chain has no natural depth limit
+# and the shape must not assume one either. "Disabled" has to mean UNREACHABLE
+# rather than un-named, at any depth — otherwise omission is enabled by
+# indirection.
+#
+# The traversal is restricted to the evidence-bearing predicates rather than
+# `?anyProperty*`: an unrestricted transitive wildcard would fail a graph in
+# which some unrelated node merely happens to mention a shape-validity
+# ClosureClaim, and §6.3 permits a ClosureClaim to appear in a conforming
+# document as a shape-validity artifact.
+#
+# This is one of four independent mechanisms; the others are the single-valued
+# `#ClosureClaimStatus` enum, the absence of any closure proof type in
+# `#ResolverProofType`, and `AnalysisModuleTests` in
+# `tools/test_constraints_compile.py`. Enabling closure means changing all
+# four, which is the point: it must be a reviewed contract change, never an
+# accident.
+rkaf:ClosureClaimNotFindingEvidenceShape a sh:NodeShape ;
+  sh:targetClass rkaf:RelationFinding ;
+  sh:sparql [
+    a sh:SPARQLConstraint ;
+    sh:message "rkaf:ClosureClaim is EXPERIMENTAL and DISABLED: no rkaf:RelationFinding may reach one through its own properties, its comparison context, a cited proof record, a compared assertion, or any chain of the records those cite (spec/rkaf-analysis.md §6)." ;
+    sh:select """
+      PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+      PREFIX rkaf: <https://rulespec.org/ns/v1#>
+      SELECT $this
+      WHERE {
+        {
+          $this ?direct ?claim .
+        } UNION {
+          $this (rkaf:findingComparisonContext|rkaf:findingProofRecord|rkaf:findingComparedAssertion)/
+                (rkaf:comparisonProofRecord|rkaf:comparisonExpectedAssertion|rkaf:proofSupportingRecord|
+                 rkaf:proofInput|rkaf:supersedesAssertion|rkaf:hasJustification)* ?claim .
+        }
+        ?claim rdf:type rkaf:ClosureClaim .
+      }
+    """ ;
+  ] .
+
+# ── Analysis §6 — a ClosureClaim carries no assertion polarity ───────────────
+#
+# The mirror of `rkaf:RelationChangeEventNoPolarityShape`, on the class where
+# it matters most. `#ClosureClaim` composes `#AssertionEnvelope` and
+# deliberately NOT `#AssertionProposition`: a closure claim's proposition is
+# "this bounded region was completely enumerated", not a subject-predicate-
+# object triple. Absence from the CUE shape is not enforcement — the compiled
+# JSON Schema emits no `additionalProperties: false` and RDF is open-world, so
+# without this shape a DISABLED record can be published as a *denied assertion
+# about a triple*: exactly the collapse §2 exists to prevent, wearing the one
+# `@type` that is supposed to carry no weight at all.
+rkaf:ClosureClaimNoPolarityShape a sh:NodeShape ;
+  sh:targetClass rkaf:ClosureClaim ;
+  sh:property [
+    sh:path rkaf:assertionPolarity ;
+    sh:maxCount 0 ;
+    sh:message "A rkaf:ClosureClaim MUST NOT carry rkaf:assertionPolarity. A closure claim is a claim about a completed enumeration, not an affirmation or a denial (spec/rkaf-analysis.md §6.1)." ;
+  ] ;
+  sh:property [
+    sh:path rkaf:assertsSubject ;
+    sh:maxCount 0 ;
+    sh:message "A rkaf:ClosureClaim MUST NOT carry the assertion proposition predicates; its proposition is a bounded enumeration, not a subject-predicate-object triple (spec/rkaf-analysis.md §6.1)." ;
+  ] ;
+  sh:property [
+    sh:path rkaf:assertsPredicate ;
+    sh:maxCount 0 ;
+    sh:message "A rkaf:ClosureClaim MUST NOT carry the assertion proposition predicates; its proposition is a bounded enumeration, not a subject-predicate-object triple (spec/rkaf-analysis.md §6.1)." ;
+  ] ;
+  sh:property [
+    sh:path rkaf:assertsObject ;
+    sh:maxCount 0 ;
+    sh:message "A rkaf:ClosureClaim MUST NOT carry the assertion proposition predicates; its proposition is a bounded enumeration, not a subject-predicate-object triple (spec/rkaf-analysis.md §6.1)." ;
+  ] .
+
+# ── Analysis §4.3 — a proof is bound to the comparison that cites it ─────────
+#
+# `rkaf:proofComparisonContext` is REQUIRED on every `#ResolverProofRecord`,
+# and §4.3 says why: "a proof that does not name its comparison can be replayed
+# against a different one, which is how a stale pass gets reused". Requiring the
+# property only makes the binding DECLARED. Nothing per-property can check that
+# the named comparison is the one actually citing the proof, because that is a
+# statement relating two nodes.
+#
+# Without this shape a producer could take a 2019 gate pass, cite it from a 2026
+# comparison, and leave `rkaf:proofComparisonContext` pointing at the 2019
+# context: every per-property constraint passes, and a stale pass backs a fresh
+# discrepancy finding. `rkaf:proofRecordDigest` does not catch it either — the
+# proof record is unedited; it is the CITATION that is fraudulent.
+#
+# Written to fire only when the proof node is present in the graph and names a
+# comparison, so a comparison published alone, with its proofs dereferenced
+# elsewhere, validates exactly as it did before.
+rkaf:ResolverProofComparisonBindingShape a sh:NodeShape ;
+  sh:targetClass rkaf:RelationComparisonContext ;
+  sh:sparql [
+    a sh:SPARQLConstraint ;
+    sh:message "A rkaf:ResolverProofRecord cited by rkaf:comparisonProofRecord MUST name that same rkaf:RelationComparisonContext in rkaf:proofComparisonContext. A proof issued for another comparison is a replayed, possibly stale, pass (spec/rkaf-analysis.md §4.3)." ;
+    sh:select """
+      PREFIX rkaf: <https://rulespec.org/ns/v1#>
+      SELECT $this
+      WHERE {
+        $this rkaf:comparisonProofRecord ?proof .
+        ?proof rkaf:proofComparisonContext ?other .
+        FILTER (?other != $this)
+      }
+    """ ;
+  ] .

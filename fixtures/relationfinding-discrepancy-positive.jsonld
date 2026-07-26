@@ -1,0 +1,123 @@
+{
+  "@context": "../context/rkaf-context.jsonld",
+  "@graph": [
+    {
+      "@id": "urn:rkaf:fixture:analysis:artifact:baseline-2025",
+      "@type": "rkaf:Artifact",
+      "rkaf:hasArtifactIdentifier": "urn:rkaf:fixture:analysis:artifact:baseline-2025",
+      "rkaf:artifactIdentifierScheme": "rkaf:partner-defined",
+      "rkaf:hasContentDigest": "sha256:1111111111111111111111111111111111111111111111111111111111111111"
+    },
+    {
+      "@id": "urn:rkaf:fixture:analysis:artifact:observed-2026",
+      "@type": "rkaf:Artifact",
+      "rkaf:hasArtifactIdentifier": "urn:rkaf:fixture:analysis:artifact:observed-2026",
+      "rkaf:artifactIdentifierScheme": "rkaf:partner-defined",
+      "rkaf:hasContentDigest": "sha256:2222222222222222222222222222222222222222222222222222222222222222"
+    },
+    {
+      "@id": "urn:rkaf:fixture:analysis:assertion:baseline-affirmed",
+      "@type": "rkaf:RelationshipAssertion",
+      "rkaf:assertionOrigin": "rkaf:humanAsserted",
+      "rkaf:assertsSubject": "urn:rkaf:fixture:analysis:subject:permit-class-b",
+      "rkaf:assertsPredicate": "urn:rkaf:fixture:analysis:predicate:requiresInspection",
+      "rkaf:assertsObject": "urn:rkaf:fixture:analysis:object:annual-inspection",
+      "rkaf:assertionPolarity": "rkaf:affirmed",
+      "rkaf:assertedAt": "2025-04-02T00:00:00Z"
+    },
+    {
+      "@id": "urn:rkaf:fixture:analysis:assertion:observed-denied",
+      "@type": "rkaf:RelationshipAssertion",
+      "rkaf:assertionOrigin": "rkaf:humanAsserted",
+      "rkaf:assertsSubject": "urn:rkaf:fixture:analysis:subject:permit-class-b",
+      "rkaf:assertsPredicate": "urn:rkaf:fixture:analysis:predicate:requiresInspection",
+      "rkaf:assertsObject": "urn:rkaf:fixture:analysis:object:annual-inspection",
+      "rkaf:assertionPolarity": "rkaf:denied",
+      "rkaf:assertedAt": "2026-05-11T00:00:00Z"
+    },
+    {
+      "@id": "urn:rkaf:fixture:analysis:issuer:assertion-state",
+      "@type": "rkaf:ResolverProofIssuer",
+      "rkaf:proofResolver": "urn:rkaf:fixture:analysis:resolver:assertion-state",
+      "rkaf:proofResolverVersion": "relation-comparison-v1",
+      "rkaf:proofPolicy": "urn:rkaf:fixture:analysis:policy:accepted-current",
+      "rkaf:proofPolicyVersion": "relation-comparison-v1"
+    },
+    {
+      "@id": "urn:rkaf:fixture:analysis:proof:pairing",
+      "@type": "rkaf:ResolverProofRecord",
+      "rkaf:proofType": "rkaf:artifactPairingProof",
+      "rkaf:proofIssuer": "urn:rkaf:fixture:analysis:issuer:assertion-state",
+      "rkaf:proofComparisonContext": "urn:rkaf:fixture:analysis:comparison:permit-class-b",
+      "rkaf:proofOutcome": "rkaf:gatePass",
+      "rkaf:proofRationale": "Both artifact versions declare the same partner-defined identifier lineage and carry content digests.",
+      "rkaf:proofInput": [
+        "urn:rkaf:fixture:analysis:artifact:baseline-2025",
+        "urn:rkaf:fixture:analysis:artifact:observed-2026"
+      ],
+      "rkaf:proofInputDigest": [
+        "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+        "sha256:2222222222222222222222222222222222222222222222222222222222222222"
+      ],
+      "rkaf:proofEvaluatedAt": "2026-06-01T12:00:00Z",
+      "rkaf:proofSnapshot": "urn:rkaf:fixture:analysis:snapshot:2026-06-01",
+      "rkaf:proofRecordDigest": "sha256:aaaa111111111111111111111111111111111111111111111111111111111111"
+    },
+    {
+      "@id": "urn:rkaf:fixture:analysis:proof:assertion-state",
+      "@type": "rkaf:ResolverProofRecord",
+      "rkaf:proofType": "rkaf:assertionStateProof",
+      "rkaf:proofIssuer": "urn:rkaf:fixture:analysis:issuer:assertion-state",
+      "rkaf:proofComparisonContext": "urn:rkaf:fixture:analysis:comparison:permit-class-b",
+      "rkaf:proofOutcome": "rkaf:gatePass",
+      "rkaf:proofRationale": "Both assertions are accepted for the named consumer and scope at the evaluation time.",
+      "rkaf:proofInput": [
+        "urn:rkaf:fixture:analysis:assertion:baseline-affirmed",
+        "urn:rkaf:fixture:analysis:assertion:observed-denied"
+      ],
+      "rkaf:proofSupportingRecord": [
+        "urn:rkaf:fixture:analysis:attestation:baseline-approval"
+      ],
+      "rkaf:proofEvaluatedAt": "2026-06-01T12:00:00Z",
+      "rkaf:proofSnapshot": "urn:rkaf:fixture:analysis:snapshot:2026-06-01",
+      "rkaf:proofRecordDigest": "sha256:bbbb222222222222222222222222222222222222222222222222222222222222"
+    },
+    {
+      "@id": "urn:rkaf:fixture:analysis:comparison:permit-class-b",
+      "@type": "rkaf:RelationComparisonContext",
+      "rkaf:comparisonBaselineArtifact": "urn:rkaf:fixture:analysis:artifact:baseline-2025",
+      "rkaf:comparisonObservedArtifact": "urn:rkaf:fixture:analysis:artifact:observed-2026",
+      "rkaf:comparisonExpectedAssertion": "urn:rkaf:fixture:analysis:assertion:baseline-affirmed",
+      "rkaf:comparisonConsumer": "urn:rkaf:fixture:analysis:consumer:permits-desk",
+      "rkaf:comparisonScope": "urn:rkaf:fixture:analysis:scope:permits-class-b",
+      "rkaf:comparisonEvaluationTime": "2026-06-01T12:00:00Z",
+      "rkaf:comparisonPolicyVersion": "relation-comparison-v1",
+      "rkaf:comparisonDetector": "urn:rkaf:fixture:analysis:detector:relation-comparator",
+      "rkaf:comparisonDetectorVersion": "1.4.0",
+      "rkaf:comparisonSnapshot": "urn:rkaf:fixture:analysis:snapshot:2026-06-01",
+      "rkaf:comparisonOutcome": "rkaf:comparisonAffirmedDeniedDiscrepancy",
+      "rkaf:comparisonProofRecord": [
+        "urn:rkaf:fixture:analysis:proof:pairing",
+        "urn:rkaf:fixture:analysis:proof:assertion-state"
+      ]
+    },
+    {
+      "@id": "urn:rkaf:fixture:analysis:finding:permit-class-b-discrepancy",
+      "@type": "rkaf:RelationFinding",
+      "rkaf:relationFindingKind": "rkaf:affirmedDeniedDiscrepancy",
+      "rkaf:findingComparisonContext": "urn:rkaf:fixture:analysis:comparison:permit-class-b",
+      "rkaf:findingComparedAssertion": [
+        "urn:rkaf:fixture:analysis:assertion:baseline-affirmed",
+        "urn:rkaf:fixture:analysis:assertion:observed-denied"
+      ],
+      "rkaf:findingProofRecord": [
+        "urn:rkaf:fixture:analysis:proof:pairing",
+        "urn:rkaf:fixture:analysis:proof:assertion-state"
+      ],
+      "rkaf:findingDetectedAt": "2026-06-01T12:00:05Z",
+      "rkaf:findingRationale": "Two accepted assertions state opposite polarities for the same canonical relation across the compared artifact versions.",
+      "rkaf:findingFingerprint": "permit-class-b|requiresInspection|annual-inspection"
+    }
+  ],
+  "_comment": "Analysis 5, end to end. The finding says one thing only: accepted assertions disagreed under this comparison. It is not a denial, not a rescission, and not a policy exclusion — any domain reading of it belongs to a profile. The finding restates nothing the context already binds, and the context's outcome must agree with the finding's kind (rkaf:RelationFindingContextOutcomeAgreementShape)."
+}
