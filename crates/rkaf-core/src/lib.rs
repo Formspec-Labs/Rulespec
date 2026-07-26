@@ -103,6 +103,7 @@ pub mod generated {
     pub mod profiles {
         pub mod us_rulemaking {
             pub mod rulemaking             { include!("generated/profiles/us_rulemaking/rulemaking.rs"); }
+            pub mod us_lifecycle_event     { include!("generated/profiles/us_rulemaking/us_lifecycle_event.rs"); }
             pub mod us_regulatory_artifact { include!("generated/profiles/us_rulemaking/us_regulatory_artifact.rs"); }
         }
     }
@@ -141,6 +142,15 @@ pub use generated::relationship_assertion::RelationshipAssertion;
 pub use generated::profiles::us_rulemaking::rulemaking::{
     AgendaProceedingRelationship, CommentPeriod, Docket, Proceeding,
     RegulatoryAgendaItem, RegulatoryAgendaObservation,
+};
+// The COMPOSED lifecycle-event kind set — the kernel's ten universal kinds
+// plus this profile's twelve `rkaf:proceeding*` kinds — and the composed
+// carrier that types its `lifecycleEventKind` field with it. The kernel
+// `LifecycleEvent` re-exported above stays open on that property (its field is
+// `String`), matching the compiled kernel schema and shape; consumers that
+// want the closed 22-value type use `ComposedLifecycleEventKind`.
+pub use generated::profiles::us_rulemaking::us_lifecycle_event::{
+    ComposedLifecycleEventKind, USLifecycleEvent, USProceedingLifecycleEventKind,
 };
 pub use generated::profiles::us_rulemaking::us_regulatory_artifact::USRegulatoryArtifact;
 pub use generated::source_fragment::SourceFragment;

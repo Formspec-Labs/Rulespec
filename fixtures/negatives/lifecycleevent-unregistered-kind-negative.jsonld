@@ -1,0 +1,19 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@graph": [
+    {
+      "@id": "urn:rkaf:fixture:negative:lifecycle:unregistered-kind",
+      "@type": "rkaf:LifecycleEvent",
+      "rkaf:lifecycleEventKind": "rkaf:proceedingBogus",
+      "rkaf:effectiveDate": "2026-05-01T00:00:00Z",
+      "rkaf:emittedBy": "urn:rkaf:fixture:actor:agency:example",
+      "rkaf:appliesTo": ["urn:rkaf:fixture:negative:artifact:unregistered-kind"]
+    },
+    {
+      "@id": "urn:rkaf:fixture:negative:artifact:unregistered-kind",
+      "@type": "rkaf:Artifact",
+      "rkaf:hasArtifactIdentifier": "urn:rkaf:fixture:negative:artifact:unregistered-kind",
+      "rkaf:artifactIdentifierScheme": "rkaf:urn-persistent"
+    }
+  ]
+}

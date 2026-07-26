@@ -10,6 +10,7 @@ from pathlib import Path
 from tools import conformance_lib
 from tools.constraints_compile import (
     CompileError,
+    _rego_symbol,
     _scan_global_enum_registry,
     _scan_reference_class_registry,
     parse_cue_file,
@@ -21,6 +22,26 @@ from tools.constraints_compile import (
 )
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
+
+# The kernel properties that are deliberately EXTENSION POINTS: the kernel
+# names the carrier and leaves it unconstrained, and a profile supplies the
+# closed value set. FROZEN, and the freeze is the point.
+#
+# Two audits key off this list, from opposite directions:
+#
+#   * `LifecycleKindOwnershipTests.test_kernel_carriers_stay_open_on_kind`
+#     proves each listed property really is open in every compiled KERNEL
+#     carrier — an extension point that quietly acquired a kernel closure
+#     would reject the profile values it exists to admit.
+#   * `OverlaySupersetTests` allows an overlay to restate a kernel property
+#     ONLY when it is on this list. Without the list the exemption keyed on the
+#     kernel definition merely BEING `{"type": "string"}` right now, so a future
+#     overlay could convert a genuine kernel closure into a profile-only one —
+#     a real relaxation of the kernel contract — and pass in silence.
+#
+# Adding an extension point is therefore a deliberate edit here, reviewed as
+# such, not a side effect of loosening a kernel definition somewhere else.
+KERNEL_EXTENSION_POINT_PROPERTIES = ("rkaf:lifecycleEventKind",)
 
 # The generic Assertion envelope (constraints/core/assertion.cue). Every one of
 # these MUST reach RelationshipAssertion through CUE composition — the envelope
@@ -1182,58 +1203,6 @@ class KernelProfileBoundaryTests(unittest.TestCase):
     KERNEL_DIR = REPO_ROOT / "constraints" / "core"
     PROFILES_DIR = REPO_ROOT / "constraints" / "profiles"
 
-    # Domain values still declared by a kernel file, with the reason each one
-    # has not moved yet. An entry here is a KNOWN, REPORTED debt, not a licence:
-    # the assertion below pins the exact set, so a new leak fails even though
-    # these remain.
-    #
-    # lifecycle-event.cue — `#LifecycleEventKind` mixes ten universal kinds with
-    # twelve `rkaf:proceeding*` kinds. Splitting it is blocked, not merely
-    # unfinished: the compiled kernel shape closes the enum with
-    # `sh:in (...)` on `sh:targetClass rkaf:LifecycleEvent`, SHACL is
-    # conjunctive, and `spec/rkaf-rulemaking.md` §6 commits the module to
-    # `rkaf:LifecycleEvent` ("this module defines no parallel event class").
-    # A profile overlay on the same class can therefore only ever intersect
-    # the kernel's ten values, never restore the twelve. Minting a parallel
-    # class instead would also drop proceeding events out of
-    # `nodes_by_type("rkaf:LifecycleEvent")` in crates/rkaf-runtime, silently
-    # removing them from cascade and staleness evaluation.
-    KNOWN_KERNEL_DOMAIN_VALUES = {
-        "lifecycle-event.cue": {
-            "rkaf:proceedingConcluded",
-            "rkaf:proceedingDisapproved",
-            "rkaf:proceedingFinal",
-            "rkaf:proceedingLongterm",
-            "rkaf:proceedingPrerule",
-            "rkaf:proceedingProposed",
-            "rkaf:proceedingReinstated",
-            "rkaf:proceedingRemanded",
-            "rkaf:proceedingStayed",
-            "rkaf:proceedingSupplemental",
-            "rkaf:proceedingVacated",
-            "rkaf:proceedingWithdrawn",
-        },
-    }
-
-    # The ten kinds `#LifecycleEventKind` is allowed to keep: they name events
-    # that happen to a governed assertion in ANY jurisdiction. FROZEN — this
-    # allowlist is what turns the debt assertion below from a `rkaf:proceeding*`
-    # prefix scan into a real gate. A new kernel kind that is neither on this
-    # list nor already-recorded debt fails whatever it is called, so smuggling a
-    # domain value in under a name like `rkaf:hearingScheduled` is caught too.
-    UNIVERSAL_LIFECYCLE_EVENT_KINDS = frozenset({
-        "rkaf:revalidation",
-        "rkaf:revalidationClosure",
-        "rkaf:amendment",
-        "rkaf:supersession",
-        "rkaf:rescission",
-        "rkaf:materialRevision",
-        "rkaf:editorialRevision",
-        "rkaf:conceptLifecycle",
-        "rkaf:promotion",
-        "rkaf:demotion",
-    })
-
     def _profile_definition_names(self) -> set[str]:
         names: set[str] = set()
         for cue in sorted(self.PROFILES_DIR.rglob("*.cue")):
@@ -1281,50 +1250,719 @@ class KernelProfileBoundaryTests(unittest.TestCase):
                 "Those grammars belong to constraints/profiles/us-rulemaking/.",
             )
 
-    def test_kernel_domain_value_debt_does_not_grow(self) -> None:
-        """Pin the kernel's domain-value debt by ALLOWLIST, not by prefix.
+    def test_kernel_declares_no_proceeding_scoped_value(self) -> None:
+        """No `rkaf:proceeding*` string may appear anywhere under core/.
 
-        Two nets, because a prefix scan alone only catches debt that keeps
-        announcing itself:
-
-        1. Every kernel file, scanned for `rkaf:proceeding*` — the shape the
-           recorded debt actually has today.
-        2. `#LifecycleEventKind` measured against the frozen list of ten
-           universal kinds. ANY value that is neither universal nor already
-           recorded fails, whatever it is named.
+        A proceeding is a rulemaking construct. The twelve proceeding lifecycle
+        kinds live in `constraints/profiles/us-rulemaking/us-lifecycle-event.cue`
+        and reach `rkaf:LifecycleEvent` through the composed profile shape, so
+        the kernel has no reason to mention one — in an enum, a pattern, or a
+        comment.
         """
-        found: dict[str, set[str]] = {}
-        for cue in sorted(self.KERNEL_DIR.glob("*.cue")):
-            values = set(re.findall(r'"(rkaf:proceeding\w*)"', cue.read_text()))
-            if values:
-                found[cue.name] = values
-        self.assertEqual(
-            self.KNOWN_KERNEL_DOMAIN_VALUES,
-            found,
-            "the set of proceeding-scoped values left in the kernel changed. "
-            "Adding one is a regression; removing all of them means "
-            "KNOWN_KERNEL_DOMAIN_VALUES should be emptied along with the "
-            "blocker note above it.",
+        for cue in sorted(self.KERNEL_DIR.rglob("*.cue")):
+            self.assertEqual(
+                [],
+                sorted(set(re.findall(r"rkaf:proceeding\w*", cue.read_text()))),
+                f"constraints/core/{cue.name} mentions a proceeding-scoped "
+                "value. Those belong to constraints/profiles/us-rulemaking/; "
+                "the kernel owns only the universal lifecycle kinds.",
+            )
+
+
+class CrossFileEnumRegistryTests(unittest.TestCase):
+    """The registry that lets one file's closure name another file's values.
+
+    Every emitter that can express a closed value set now resolves through it,
+    so two properties matter beyond "does it find the values":
+
+      * it must be DETERMINISTIC — the registry feeds SHACL and Rego closures,
+        and a value set that depends on directory-walk order is a compiled
+        artifact that depends on the machine that built it;
+      * a name must resolve to exactly ONE definition, because first-wins over
+        a duplicate silently picks a value set and the losing file's closure
+        vanishes without a diagnostic.
+    """
+
+    def _tree(self, root: str, files: dict[str, str]) -> Path:
+        """Write a miniature `constraints/` tree, return one file inside it."""
+        constraints = Path(root) / "constraints"
+        for relpath, text in files.items():
+            path = constraints / relpath
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_text(text)
+        return constraints / next(iter(files))
+
+    KERNEL_PART = """
+package rkaf
+
+#Kind: "rkaf:a" | "rkaf:b"
+"""
+
+    PROFILE_UNION = """
+package rkaf
+
+#ProfileKind:  "rkaf:c"
+#ComposedKind: #Kind | #ProfileKind
+
+#Event: {
+	"@type":    "rkaf:Event"
+	"rkaf:kind": #ComposedKind
+}
+"""
+
+    def test_rego_emits_unions_resolved_across_files(self) -> None:
+        """The F1 regression, at the unit level.
+
+        `target_rego` used to iterate `doc.enums` only, so a union naming the
+        whole-contract set produced no Rego symbol at all and the target
+        shipped the profile's part alone.
+        """
+        with tempfile.TemporaryDirectory() as temporary:
+            self._tree(
+                temporary,
+                {
+                    "core/kernel.cue": self.KERNEL_PART,
+                    "profiles/p/overlay.cue": self.PROFILE_UNION,
+                },
+            )
+            overlay = Path(temporary) / "constraints" / "profiles" / "p" / "overlay.cue"
+            registry = _scan_global_enum_registry(overlay)
+            rego = target_rego(
+                parse_cue_file(overlay), registry=registry, source_file=overlay
+            )
+            self.assertIn('profile_kind_values := ["rkaf:c"]', rego)
+            self.assertIn(
+                'composed_kind_values := ["rkaf:a", "rkaf:b", "rkaf:c"]',
+                rego,
+                "the Rego target dropped the assembled union — the closed "
+                "whole-contract set exists in every other target and not here.",
+            )
+
+    def test_rego_union_that_resolves_nowhere_raises(self) -> None:
+        """A union Rego cannot assemble must abort, not emit a partial set."""
+        with tempfile.TemporaryDirectory() as temporary:
+            overlay = self._tree(
+                temporary, {"profiles/p/overlay.cue": self.PROFILE_UNION}
+            )
+            with self.assertRaises(CompileError):
+                target_rego(parse_cue_file(overlay), registry={}, source_file=overlay)
+
+    def test_duplicate_enum_name_across_files_raises(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            anchor = self._tree(
+                temporary,
+                {
+                    "core/kernel.cue": self.KERNEL_PART,
+                    "core/other.cue": self.KERNEL_PART,
+                },
+            )
+            with self.assertRaises(CompileError) as caught:
+                _scan_global_enum_registry(anchor)
+            self.assertIn("#Kind", str(caught.exception))
+
+    def test_duplicate_union_name_across_files_raises(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            anchor = self._tree(
+                temporary,
+                {
+                    "core/kernel.cue": self.KERNEL_PART,
+                    "profiles/p/overlay.cue": self.PROFILE_UNION,
+                    "profiles/q/overlay.cue": self.PROFILE_UNION,
+                },
+            )
+            with self.assertRaises(CompileError):
+                _scan_global_enum_registry(anchor)
+
+    def test_repository_declares_no_duplicate_enum_names(self) -> None:
+        """The real tree: 57 names, each declared once.
+
+        Scanning without raising IS the assertion; the count is a guard so a
+        tree that stopped being scanned cannot pass vacuously.
+        """
+        registry = _scan_global_enum_registry(
+            REPO_ROOT / "constraints" / "core" / "lifecycle-event.cue"
+        )
+        self.assertGreaterEqual(
+            len(registry),
+            57,
+            "the enum registry shrank — a definition stopped being scanned.",
         )
 
-        lifecycle = parse_cue_file(self.KERNEL_DIR / "lifecycle-event.cue")
-        kinds = next(
-            enum for enum in lifecycle.enums if enum.name == "LifecycleEventKind"
+    def test_registry_scan_does_not_depend_on_filesystem_order(self) -> None:
+        """Walk the same tree in reverse; get the same registry.
+
+        `rglob` yields in directory order, which differs between filesystems.
+        With the walk sorted AND duplicates rejected, the assembled value sets
+        — and therefore the pinned contract digest — are the same everywhere.
+        """
+        with tempfile.TemporaryDirectory() as temporary:
+            anchor = self._tree(
+                temporary,
+                {
+                    "core/kernel.cue": self.KERNEL_PART,
+                    "profiles/p/overlay.cue": self.PROFILE_UNION,
+                },
+            )
+            forward = _scan_global_enum_registry(anchor)
+            unsorted_rglob = Path.rglob
+
+            def reverse_rglob(self, pattern):  # noqa: ANN001
+                return reversed(sorted(unsorted_rglob(self, pattern)))
+
+            with unittest.mock.patch.object(Path, "rglob", reverse_rglob):
+                backward = _scan_global_enum_registry(anchor)
+            self.assertEqual(
+                {name: getattr(entry, "values", getattr(entry, "refs", None))
+                 for name, entry in forward.items()},
+                {name: getattr(entry, "values", getattr(entry, "refs", None))
+                 for name, entry in backward.items()},
+            )
+
+
+class LifecycleKindOwnershipTests(unittest.TestCase):
+    """Every `rkaf:LifecycleEvent` kind is owned by EXACTLY ONE module.
+
+    One class, one property, one closed value set — assembled at build time
+    from parts each of which has a single declaring module (the kernel, or one
+    profile). This audit replaces the interim
+    `test_kernel_domain_value_debt_does_not_grow` allowlist, which could only
+    say "the debt did not grow"; the questions that matter after the split are
+    ownership questions:
+
+      (i)   no value appears in a compiled artifact without a declaring module,
+            and no value is declared by two modules;
+      (ii)  the kernel's part is exactly the ten universal kinds;
+      (iii) the assembled union equals kernel + sum(profiles) — no orphan
+            (declared but never assembled) and no duplicate.
+
+    Everything is derived structurally rather than hardcoded: the audit finds
+    the shape that CLOSES `rkaf:lifecycleEventKind`, reads the union it binds,
+    and resolves that union's parts to the files that declare them. Renaming a
+    definition or adding a second profile does not need an edit here; declaring
+    a kind twice, or in no module, fails.
+    """
+
+    CONSTRAINTS_DIR = REPO_ROOT / "constraints"
+    COMPILED_JSON_SCHEMA = REPO_ROOT / "compiled" / "json-schema"
+    COMPILED_SHACL = REPO_ROOT / "compiled" / "shacl"
+    COMPILED_TYPESCRIPT = REPO_ROOT / "compiled" / "typescript"
+    COMPILED_REGO = REPO_ROOT / "compiled" / "rego"
+    GENERATED_RUST = REPO_ROOT / "crates" / "rkaf-core" / "src" / "generated"
+    KIND_PROPERTY = "rkaf:lifecycleEventKind"
+    EVENT_CLASS = "rkaf:LifecycleEvent"
+
+    # The ten kinds the KERNEL owns: events that happen to a governed assertion
+    # in ANY jurisdiction. FROZEN — this is what turns the audit from a
+    # `rkaf:proceeding*` prefix scan into a real gate. A kernel kind that is not
+    # on this list fails whatever it is called, so smuggling a domain value into
+    # the kernel under a name like `rkaf:hearingScheduled` is caught too.
+    UNIVERSAL_LIFECYCLE_EVENT_KINDS = (
+        "rkaf:revalidation",
+        "rkaf:revalidationClosure",
+        "rkaf:amendment",
+        "rkaf:supersession",
+        "rkaf:rescission",
+        "rkaf:materialRevision",
+        "rkaf:editorialRevision",
+        "rkaf:conceptLifecycle",
+        "rkaf:promotion",
+        "rkaf:demotion",
+    )
+
+    # ---- declaration side (CUE source) --------------------------------
+
+    def _cue_documents(self) -> dict[str, object]:
+        """`{constraints-relative path: parsed doc}` for every CUE source."""
+        return {
+            path.relative_to(self.CONSTRAINTS_DIR).with_suffix("").as_posix():
+                parse_cue_file(path, resolve_composition=False)
+            for path in sorted(self.CONSTRAINTS_DIR.rglob("*.cue"))
+        }
+
+    def _closing_union_name(self, documents: dict[str, object]) -> str:
+        """The enum/union that CLOSES the kind property, found structurally."""
+        closers: list[tuple[str, str]] = []
+        for relpath, document in documents.items():
+            for shape in document.shapes:
+                if shape.type_iri != self.EVENT_CLASS:
+                    continue
+                for prop in shape.properties:
+                    if prop.name == self.KIND_PROPERTY and prop.enum_ref:
+                        closers.append((relpath, prop.enum_ref))
+        self.assertEqual(
+            1,
+            len(closers),
+            "exactly one CUE shape may close "
+            f"{self.KIND_PROPERTY} over a value set; found {closers}. Zero "
+            "means nothing enforces the closed set; two means two disagreeing "
+            "closed sets bind the same class.",
+        )
+        return closers[0][1]
+
+    def _parts(self) -> tuple[str, dict[str, tuple[str, ...]]]:
+        """`(union name, {declaring module: values})` for the assembled union."""
+        documents = self._cue_documents()
+        union_name = self._closing_union_name(documents)
+        union = next(
+            (
+                candidate
+                for document in documents.values()
+                for candidate in document.enum_unions
+                if candidate.name == union_name
+            ),
+            None,
+        )
+        self.assertIsNotNone(
+            union,
+            f"#{union_name} closes {self.KIND_PROPERTY} but is not a union of "
+            "per-module parts. The whole-contract value set must be assembled "
+            "from named parts so each value has a declaring module.",
+        )
+        parts: dict[str, tuple[str, ...]] = {}
+        for ref in union.refs:
+            declaring = [
+                (relpath, enum)
+                for relpath, document in documents.items()
+                for enum in document.enums
+                if enum.name == ref
+            ]
+            self.assertEqual(
+                1,
+                len(declaring),
+                f"union member #{ref} must be declared by exactly one CUE "
+                f"file; found {[relpath for relpath, _ in declaring]}.",
+            )
+            relpath, enum = declaring[0]
+            self.assertNotIn(
+                relpath,
+                parts,
+                f"{relpath} contributes two parts to #{union_name}; one module "
+                "declares one part, or 'which module owns this value' has no "
+                "single answer.",
+            )
+            parts[relpath] = tuple(enum.values)
+        return union_name, parts
+
+    # ---- compiled side ------------------------------------------------
+
+    def _compiled_shacl_closures(
+        self, prop: str | None = None
+    ) -> dict[str, frozenset[str] | None]:
+        """`{compiled TTL: sh:in values on `prop`}` (None = open)."""
+        prop = prop or self.KIND_PROPERTY
+        found: dict[str, frozenset[str] | None] = {}
+        for path in sorted(self.COMPILED_SHACL.rglob("*.ttl")):
+            for line in path.read_text().splitlines():
+                if f"sh:path {prop} ;" not in line:
+                    continue
+                closure = re.search(r"sh:in \(([^)]*)\)", line)
+                found[path.relative_to(self.COMPILED_SHACL).as_posix()] = (
+                    frozenset(closure.group(1).split()) if closure else None
+                )
+        return found
+
+    def _compiled_schema_closures(
+        self, prop: str | None = None
+    ) -> dict[str, tuple[str, ...] | None]:
+        """`{compiled schema: enum on `prop`}` (None = open)."""
+        prop = prop or self.KIND_PROPERTY
+        found: dict[str, tuple[str, ...] | None] = {}
+        for path in sorted(self.COMPILED_JSON_SCHEMA.rglob("*.schema.json")):
+            document = json.loads(path.read_text())
+            defs = document.get("$defs", {})
+            for class_schema in defs.values():
+                if not isinstance(class_schema, dict):
+                    continue
+                definition = class_schema.get("properties", {}).get(prop)
+                if definition is None:
+                    continue
+                reference = definition.get("$ref", "")
+                if reference.startswith("#/$defs/"):
+                    definition = defs.get(reference.removeprefix("#/$defs/"), {})
+                values = definition.get("enum")
+                found[
+                    path.relative_to(self.COMPILED_JSON_SCHEMA).as_posix()
+                ] = tuple(values) if isinstance(values, list) else None
+        return found
+
+    def _compiled_typescript_closures(
+        self, prop: str | None = None
+    ) -> dict[str, tuple[str, ...] | None]:
+        """`{compiled .ts: literal union on `prop`}` (None = open).
+
+        TypeScript expresses the property closure the same way JSON Schema
+        does — an open carrier types the property `string`, a closed one names
+        a literal-union alias — so this scanner mirrors
+        `_compiled_schema_closures`: find the property, then follow the named
+        type to its `export type` alias. Aliases are collected across ALL
+        compiled TS, because a shape may close over an enum a different file
+        declares and emit an `import type` for it; the compiler now refuses
+        duplicate enum names outright (`_scan_global_enum_registry`), so a bare
+        name resolves to exactly one alias.
+        """
+        prop = prop or self.KIND_PROPERTY
+        aliases: dict[str, tuple[str, ...]] = {}
+        for path in sorted(self.COMPILED_TYPESCRIPT.rglob("*.ts")):
+            for match in re.finditer(
+                r"^export type (\w+) = ([^;]+);", path.read_text(), re.M
+            ):
+                aliases[match.group(1)] = tuple(
+                    re.findall(r'"([^"]+)"', match.group(2))
+                )
+        found: dict[str, tuple[str, ...] | None] = {}
+        for path in sorted(self.COMPILED_TYPESCRIPT.rglob("*.ts")):
+            for match in re.finditer(
+                rf'^  "{re.escape(prop)}"\??: (.+);$',
+                path.read_text(),
+                re.M,
+            ):
+                annotation = match.group(1).strip()
+                relative = path.relative_to(self.COMPILED_TYPESCRIPT).as_posix()
+                if annotation == "string":
+                    found[relative] = None
+                    continue
+                self.assertIn(
+                    annotation,
+                    aliases,
+                    f"compiled/typescript/{relative} types "
+                    f"{prop} as {annotation}, which resolves to "
+                    "no emitted literal union. The scanner cannot tell whether "
+                    "that artifact is open or closed, so the audit would be "
+                    "measuring nothing here.",
+                )
+                found[relative] = aliases[annotation]
+        return found
+
+    def _generated_rust_closures(
+        self, prop: str | None = None
+    ) -> dict[str, tuple[str, ...] | None]:
+        """`{generated .rs: wire values of `prop`'s field type}` (None = open).
+
+        Rust closes a property by TYPING the struct field as a generated enum
+        rather than `String`; the wire values are the `#[serde(rename = ...)]`
+        attributes on that enum's variants. Enum bodies are collected across
+        the whole generated tree so a field typed by a cross-module enum still
+        resolves.
+        """
+        prop = prop or self.KIND_PROPERTY
+        enums: dict[str, tuple[str, ...]] = {}
+        for path in sorted(self.GENERATED_RUST.rglob("*.rs")):
+            for match in re.finditer(
+                r"^pub enum (\w+) \{\n(.*?)^\}", path.read_text(), re.M | re.S
+            ):
+                enums[match.group(1)] = tuple(
+                    re.findall(
+                        r'#\[serde\(rename = "([^"]+)"\)\]', match.group(2)
+                    )
+                )
+        found: dict[str, tuple[str, ...] | None] = {}
+        for path in sorted(self.GENERATED_RUST.rglob("*.rs")):
+            for match in re.finditer(
+                rf'#\[serde\(rename = "{re.escape(prop)}"[^\]]*\)\]'
+                r"\n\s*pub \w+: ([\w:]+),",
+                path.read_text(),
+            ):
+                annotation = match.group(1).rsplit("::", 1)[-1]
+                relative = path.relative_to(self.GENERATED_RUST).as_posix()
+                if annotation == "String":
+                    found[relative] = None
+                    continue
+                self.assertIn(
+                    annotation,
+                    enums,
+                    f"generated Rust {relative} types {prop} as "
+                    f"{annotation}, which resolves to no generated enum.",
+                )
+                found[relative] = enums[annotation]
+        return found
+
+    def _compiled_rego_closures(
+        self, union_name: str
+    ) -> dict[str, tuple[str, ...] | None]:
+        """`{compiled .rego: the assembled union's value set}` (None = absent).
+
+        Rego is the one target with no property types at all — it emits value
+        SETS keyed by CUE definition name and leaves the `deny` rules that
+        consult them to the policy author. So "does this artifact carry the
+        closure" is necessarily asked as "does it carry the assembled union's
+        value set", not "how is the property typed". That is exactly the
+        question the Rego emitter used to answer wrongly: it iterated
+        `doc.enums` only, so the composed 22-value set existed in every other
+        target and in NO Rego artifact.
+        """
+        symbol = f"{_rego_symbol(union_name)}_values"
+        found: dict[str, tuple[str, ...] | None] = {}
+        for path in sorted(self.COMPILED_REGO.rglob("*.rego")):
+            match = re.search(
+                rf"^{re.escape(symbol)} := \[([^\]]*)\]", path.read_text(), re.M
+            )
+            found[path.relative_to(self.COMPILED_REGO).as_posix()] = (
+                tuple(re.findall(r'"([^"]+)"', match.group(1)))
+                if match
+                else None
+            )
+        return found
+
+    def _all_compiled_closures(
+        self, union_name: str
+    ) -> dict[str, tuple[str, ...] | None]:
+        """Every compiled target's view of the kind closure, one flat map.
+
+        Keyed by the sink each artifact actually lives in, so a failure names
+        the file on disk. `compiled/cue/` is deliberately absent: it is a
+        verbatim passthrough of the CUE source, so scanning it would re-ask the
+        declaration-side questions `_parts()` already answers rather than
+        checking a projection.
+        """
+        return {
+            **{
+                f"compiled/json-schema/{k}": v
+                for k, v in self._compiled_schema_closures().items()
+            },
+            **{
+                f"compiled/shacl/{k}": v
+                for k, v in self._compiled_shacl_closures().items()
+            },
+            **{
+                f"compiled/typescript/{k}": v
+                for k, v in self._compiled_typescript_closures().items()
+            },
+            **{
+                f"compiled/rego/{k}": v
+                for k, v in self._compiled_rego_closures(union_name).items()
+            },
+            **{
+                f"crates/rkaf-core/src/generated/{k}": v
+                for k, v in self._generated_rust_closures().items()
+            },
+        }
+
+    # ---- the audit ----------------------------------------------------
+
+    def test_kernel_part_is_exactly_the_ten_universal_kinds(self) -> None:
+        _, parts = self._parts()
+        kernel = {
+            relpath: values
+            for relpath, values in parts.items()
+            if relpath.startswith("core/")
+        }
+        self.assertEqual(
+            1,
+            len(kernel),
+            f"exactly one KERNEL part expected; found {sorted(kernel)}",
         )
         self.assertEqual(
-            self.KNOWN_KERNEL_DOMAIN_VALUES["lifecycle-event.cue"],
-            set(kinds.values) - self.UNIVERSAL_LIFECYCLE_EVENT_KINDS,
-            "#LifecycleEventKind gained a kind that is neither one of the ten "
-            "universal lifecycle kinds nor part of the recorded proceeding "
-            "debt. A jurisdiction-specific event kind belongs in a profile; if "
-            "the new kind really is universal, add it to "
-            "UNIVERSAL_LIFECYCLE_EVENT_KINDS deliberately.",
+            self.UNIVERSAL_LIFECYCLE_EVENT_KINDS,
+            next(iter(kernel.values())),
+            "the kernel's lifecycle-kind part changed. A jurisdiction-specific "
+            "event kind belongs in a profile; if a new kind really is "
+            "universal, add it to UNIVERSAL_LIFECYCLE_EVENT_KINDS deliberately.",
         )
+
+    def test_at_least_one_profile_contributes_kinds(self) -> None:
+        """Guard the guard: with no profile part the audit proves nothing."""
+        _, parts = self._parts()
         self.assertTrue(
-            self.UNIVERSAL_LIFECYCLE_EVENT_KINDS.issubset(set(kinds.values)),
-            "#LifecycleEventKind dropped a universal kind; the allowlist and "
-            "the enum must stay in step or this gate silently stops measuring.",
+            [relpath for relpath in parts if relpath.startswith("profiles/")],
+            "no profile contributes lifecycle kinds — either the split "
+            "regressed or this audit has stopped measuring anything.",
         )
+
+    def test_no_value_is_declared_by_two_modules(self) -> None:
+        _, parts = self._parts()
+        seen: dict[str, str] = {}
+        for relpath, values in sorted(parts.items()):
+            for value in values:
+                self.assertNotIn(
+                    value,
+                    seen,
+                    f"{value} is declared by both {seen.get(value)} and "
+                    f"{relpath}. Exactly one module owns a value; two "
+                    "declarations mean neither module can be changed safely.",
+                )
+                seen[value] = relpath
+
+        # Ownership is scoped to the KIND value set, not to the IRIs
+        # themselves: `#ProceedingStage` legitimately reuses the seven
+        # stage-family IRIs for `rkaf:proceedingStage`, the coupled property
+        # spec/rkaf-rulemaking.md §6 requires to equal the latest stage-family
+        # kind. What must not happen is a second part of the KIND set going
+        # unassembled, so the net below is name-shaped: an enum that announces
+        # itself as a lifecycle-kind part must be one of the union's parts.
+        # (The structural nets are `_closing_union_name` — exactly one shape
+        # closes the property — and the compiled-artifact comparisons below.)
+        for relpath, document in self._cue_documents().items():
+            for enum in document.enums:
+                if not enum.name.endswith("LifecycleEventKind"):
+                    continue
+                self.assertEqual(
+                    parts.get(relpath, ()),
+                    tuple(enum.values),
+                    f"#{enum.name} in {relpath} declares lifecycle kinds but "
+                    "is not a part of the assembled union — an orphan set "
+                    "nothing enforces.",
+                )
+
+    def test_assembled_union_equals_kernel_plus_profiles(self) -> None:
+        union_name, parts = self._parts()
+        expected = [
+            value
+            for relpath in sorted(parts, key=lambda p: (not p.startswith("core/"), p))
+            for value in parts[relpath]
+        ]
+        self.assertEqual(
+            len(expected),
+            len(set(expected)),
+            "the assembled union repeats a value",
+        )
+        for compiled, values in self._all_compiled_closures(union_name).items():
+            if values is None:
+                continue
+            self.assertEqual(
+                sorted(expected),
+                sorted(values),
+                f"{compiled} closes {self.KIND_PROPERTY} over a set that is "
+                f"not kernel + sum(profiles) (#{union_name}).",
+            )
+
+    def test_composed_rego_artifact_carries_the_whole_contract_set(self) -> None:
+        """The shipped Rego artifact, named and counted.
+
+        Rego was the target that lost the union: `compiled/rego/core/
+        lifecycle-event.rego` carried the kernel's ten and no artifact anywhere
+        under `compiled/rego/` carried the assembled set. This asserts the
+        profile artifact specifically, so a failure points at a file rather
+        than at a sink.
+        """
+        union_name, parts = self._parts()
+        expected = {value for values in parts.values() for value in values}
+        closures = self._compiled_rego_closures(union_name)
+        composed = closures.get("profiles/us-rulemaking/us-lifecycle-event.rego")
+        self.assertIsNotNone(
+            composed,
+            "compiled/rego/profiles/us-rulemaking/us-lifecycle-event.rego does "
+            f"not carry #{union_name}. Run `make compile`; if it is still "
+            "missing, target_rego has stopped emitting enum unions.",
+        )
+        self.assertEqual(sorted(expected), sorted(composed))
+        self.assertEqual(22, len(composed), "the whole-contract set is 22 kinds")
+
+    def test_every_target_carries_the_assembled_closure(self) -> None:
+        """One target silently short of the union is the failure mode here.
+
+        The composed set has to arrive in EVERY projection, not just the ones
+        a gate happens to load. Rego is the worked example of why: no gate
+        walks `compiled/rego/`, so when the emitter shipped only `doc.enums`
+        the artifact carried 10 values instead of 22 and every other check
+        stayed green. Asserting per-sink means the next target to lose the
+        union names itself.
+        """
+        union_name, _ = self._parts()
+        closures = self._all_compiled_closures(union_name)
+        for sink in (
+            "compiled/json-schema/",
+            "compiled/shacl/",
+            "compiled/typescript/",
+            "compiled/rego/",
+            "crates/rkaf-core/src/generated/",
+        ):
+            with self.subTest(sink=sink):
+                self.assertTrue(
+                    [
+                        compiled
+                        for compiled, values in closures.items()
+                        if compiled.startswith(sink) and values is not None
+                    ],
+                    f"no artifact under {sink} carries the assembled "
+                    f"#{union_name} closure. That target projects a value set "
+                    "narrower than the CUE source declares.",
+                )
+
+    def test_no_compiled_kind_value_lacks_a_declaring_module(self) -> None:
+        union_name, parts = self._parts()
+        declared = {value for values in parts.values() for value in values}
+        for compiled, values in self._all_compiled_closures(union_name).items():
+            for value in values or ():
+                self.assertIn(
+                    value,
+                    declared,
+                    f"{compiled} accepts {value}, which no module declares.",
+                )
+
+    def test_kernel_carriers_stay_open_on_kind(self) -> None:
+        """The deliberate half of the layering, pinned so it cannot drift.
+
+        A kernel carrier does NOT close an extension point. Closing the kind
+        property at the kernel's ten would make the kernel carriers REJECT
+        events whose kinds a profile in this same contract declares — the
+        compiled artifacts would then disagree with each other. Same semantics
+        the kernel `#Artifact` has for US identifier terms: unconstrained, not
+        rejected.
+
+        Driven by `KERNEL_EXTENSION_POINT_PROPERTIES` rather than by one
+        hardcoded property, so this and the `OverlaySupersetTests` exemption
+        are answering to the SAME frozen list from opposite directions.
+
+        `compiled/rego/` is deliberately not consulted here: Rego emits value
+        SETS, never property types, so it has no way to express "this carrier
+        leaves the property open" and there is nothing to assert. Its half of
+        the contract — that the assembled union does arrive — is
+        `test_every_target_carries_the_assembled_closure`.
+        """
+        self.assertTrue(
+            KERNEL_EXTENSION_POINT_PROPERTIES,
+            "the extension-point list is empty; this audit measures nothing.",
+        )
+        for prop in KERNEL_EXTENSION_POINT_PROPERTIES:
+            scanners = {
+                "compiled/json-schema": self._compiled_schema_closures(prop),
+                "compiled/shacl": self._compiled_shacl_closures(prop),
+                "compiled/typescript": self._compiled_typescript_closures(prop),
+                "crates/rkaf-core/src/generated": (
+                    self._generated_rust_closures(prop)
+                ),
+            }
+            for sink, closures in scanners.items():
+                # "Kernel" is anything not under `profiles/`, which is the one
+                # split every sink agrees on: the Rust sink puts core modules
+                # at the root (`generated/lifecycle_event.rs`) while the others
+                # nest them under `core/`, but ALL of them put a profile under
+                # `profiles/<profile>/`.
+                kernel = {
+                    artifact: values
+                    for artifact, values in closures.items()
+                    if not artifact.startswith("profiles/")
+                }
+                with self.subTest(prop=prop, sink=sink):
+                    self.assertTrue(
+                        kernel,
+                        f"no kernel carrier under {sink} declares {prop} — "
+                        "either the carrier moved or this audit stopped "
+                        "measuring anything (run `make compile`).",
+                    )
+                    self.assertEqual(
+                        [],
+                        sorted(
+                            artifact
+                            for artifact, values in kernel.items()
+                            if values is not None
+                        ),
+                        f"a kernel carrier under {sink} closes {prop}, which "
+                        "KERNEL_EXTENSION_POINT_PROPERTIES declares an "
+                        "extension point. A kernel closure REJECTS every "
+                        "profile-contributed value no matter what the overlay "
+                        "says; the closure belongs in the profile.",
+                    )
+                    self.assertTrue(
+                        [
+                            artifact
+                            for artifact, values in closures.items()
+                            if values is not None
+                        ],
+                        f"nothing under {sink} closes {prop} at all — the "
+                        "composed artifact is missing and no profile enforces "
+                        "the closed set.",
+                    )
 
 
 class USRulemakingProfileTests(unittest.TestCase):
@@ -1555,30 +2193,24 @@ class ProfileOverlaySupersetTests(unittest.TestCase):
     CORE_SHACL = REPO_ROOT / "compiled" / "shacl" / "core"
     PROFILE_SHACL = REPO_ROOT / "compiled" / "shacl" / "profiles"
 
-    # Kernel SHACL enum closures the profile overlays currently DROP, keyed by
-    # (overlay TTL relative to compiled/shacl/, target class, property).
+    # Kernel SHACL enum closures a profile overlay DROPS, keyed by (overlay TTL
+    # relative to compiled/shacl/, target class, property).
     #
-    # Adversarial-review finding F2: `target_shacl()` takes no cross-file enum
-    # registry, so a property whose enum is defined in another CUE file loses
-    # its `sh:in`. `rkaf:artifactIdentifierScheme` is declared by the kernel
-    # `#Artifact`, and the overlay composes that shape, so the overlay's copy
-    # arrives closure-free. `tools/constraints_parity.py` then validates the
-    # us-regulatory-artifact rows against that overlay ALONE, comparing a
-    # strict JSON Schema to a weakened shape.
+    # EMPTY, and it must stay empty. Adversarial-review finding F2 —
+    # `target_shacl()` took no cross-file enum registry, so a property whose
+    # enum is declared in another CUE file lost its `sh:in` — is FIXED: the
+    # emitter now resolves enum references through the same registry the
+    # json-schema/rust/typescript emitters use, and
+    # `compiled/shacl/profiles/us-rulemaking/us-regulatory-artifact.ttl` closes
+    # `rkaf:artifactIdentifierScheme` over the kernel's twelve schemes. That
+    # matters because `tools/constraints_parity.py` validates the
+    # us-regulatory-artifact rows against that overlay ALONE.
     #
-    # An entry here is KNOWN, REPORTED debt, not a licence: the assertion pins
-    # the exact set, so a NEWLY dropped closure fails. Threading the registry
-    # into `target_shacl` empties this set — which also fails, prompting whoever
-    # lands it to delete the pin. See the `target_shacl` docstring for why the
-    # obvious fix is not applied here: it unmasks a missing `@type` coercion on
-    # `rkaf:capabilityCap` / `rkaf:lifecycleState` in the JSON-LD context.
-    KNOWN_DROPPED_SHACL_ENUM_CLOSURES = {
-        (
-            "profiles/us-rulemaking/us-regulatory-artifact.ttl",
-            "rkaf:Artifact",
-            "rkaf:artifactIdentifierScheme",
-        ),
-    }
+    # Landing the closure required fixing a second defect first: an IRI-valued
+    # `sh:in` only matches data whose values reach RDF as IRIs, and
+    # `rkaf:capabilityCap` / `rkaf:lifecycleState` carried no `@type`
+    # coercion in `context/rkaf-context.jsonld`. Both now do.
+    KNOWN_DROPPED_SHACL_ENUM_CLOSURES: set[tuple[str, str, str]] = set()
 
     def _classes_by_type(
         self, directory: Path, pattern: str
@@ -1614,6 +2246,29 @@ class ProfileOverlaySupersetTests(unittest.TestCase):
             for entry in entries
         ]
 
+    # The SHAPE a kernel extension point has: `{"type": "string"}` is every
+    # string, so an overlay that closes it over an enum can only narrow.
+    # Anything richer than this is a real kernel constraint and an overlay must
+    # restate it verbatim or not at all.
+    #
+    # Shape alone is not sufficient authorization. Keyed on shape only, the
+    # exemption would also admit an overlay that FIRST relaxed a kernel closure
+    # to `{"type": "string"}` and then re-closed it in the profile — turning a
+    # constraint every kernel consumer got into one only profile consumers get,
+    # while this test reported a superset. So the property must ALSO be named
+    # in KERNEL_EXTENSION_POINT_PROPERTIES, which is frozen at module scope.
+    KERNEL_EXTENSION_POINT = {"type": "string"}
+
+    @staticmethod
+    def _closed_string_enum(definition: dict, schema_path: Path) -> list | None:
+        """The closed value list a property definition resolves to, if any."""
+        reference = definition.get("$ref", "")
+        if reference.startswith("#/$defs/"):
+            defs = json.loads(schema_path.read_text()).get("$defs", {})
+            definition = defs.get(reference.removeprefix("#/$defs/"), {})
+        values = definition.get("enum")
+        return values if isinstance(values, list) and values else None
+
     def test_the_scan_actually_finds_an_overlay(self) -> None:
         """Guard the guard: an empty walk would pass every assertion below."""
         pairs = self._overlay_pairs()
@@ -1639,11 +2294,44 @@ class ProfileOverlaySupersetTests(unittest.TestCase):
                     )
                     if name == "@type":
                         continue
+                    restated = overlay["properties"][name]
+                    if restated == definition:
+                        continue
+                    # The one legal difference: the kernel left the property
+                    # UNCONSTRAINED (an extension point — `{"type": "string"}`
+                    # carries no constraint at all) and the overlay closes it
+                    # over a value set. That is ADDING a constraint, the same
+                    # direction this test protects. `rkaf:lifecycleEventKind`
+                    # is exactly that: the kernel owns the ten universal kinds
+                    # but leaves the carrier open, and the profile binds the
+                    # assembled closed union (see LifecycleKindOwnershipTests).
+                    #
+                    # Two conditions, not one. The property must be a DECLARED
+                    # extension point, and the kernel definition must still
+                    # have the open shape. Checking only the second lets a
+                    # future overlay manufacture its own exemption by relaxing
+                    # the kernel first.
+                    self.assertIn(
+                        name,
+                        KERNEL_EXTENSION_POINT_PROPERTIES,
+                        f"{pname} restates kernel property {name}, which is "
+                        "not a declared extension point. An overlay may ADD "
+                        "constraints, never restate one differently. If the "
+                        "kernel really should hand this property to profiles, "
+                        "add it to KERNEL_EXTENSION_POINT_PROPERTIES as a "
+                        "deliberate change to the kernel contract.",
+                    )
                     self.assertEqual(
+                        self.KERNEL_EXTENSION_POINT,
                         definition,
-                        overlay["properties"][name],
                         f"{pname} redefines kernel property {name}; an overlay "
                         "may ADD constraints, never restate one differently",
+                    )
+                    self.assertIsNotNone(
+                        self._closed_string_enum(restated, ppath),
+                        f"{pname} restates the open kernel property {name} as "
+                        f"{restated}, which is not a closed value set. An "
+                        "extension point may only be NARROWED.",
                     )
                 self.assertEqual(
                     [],
@@ -1714,10 +2402,10 @@ class ProfileOverlaySupersetTests(unittest.TestCase):
         self.assertEqual(
             self.KNOWN_DROPPED_SHACL_ENUM_CLOSURES,
             dropped_closures,
-            "the set of kernel sh:in closures dropped by a profile overlay "
-            "changed. Growing it is a regression; shrinking it to empty means "
-            "finding F2 is fixed and KNOWN_DROPPED_SHACL_ENUM_CLOSURES should "
-            "be emptied along with the note above it.",
+            "a profile overlay dropped a kernel sh:in closure. Every enum "
+            "reference — including one declared in another CUE file — must "
+            "reach the overlay's SHACL, because constraints_parity.py "
+            "validates a profile's fixtures against that overlay alone.",
         )
 
 
@@ -1834,6 +2522,14 @@ class SchemaBindingCollisionTests(unittest.TestCase):
             bindings["rkaf:Artifact"].class_name,
             "rkaf:Artifact must resolve to the US rulemaking overlay; binding "
             "it to the kernel would stop enforcing the US grammars",
+        )
+        self.assertEqual(
+            "USLifecycleEvent",
+            bindings["rkaf:LifecycleEvent"].class_name,
+            "rkaf:LifecycleEvent must resolve to the composed overlay — the "
+            "artifact that closes the kind property over the assembled union. "
+            "Binding it to the kernel would leave every lifecycle-event kind "
+            "unchecked, because the kernel carrier is deliberately open on it.",
         )
 
 

@@ -53,8 +53,10 @@ CONSTRAINTS: dict[str, str] = {
     "concept-registry":        "core",
     "assertion":               "core",
     "relationship-assertion":  "core",
+    "lifecycle-event":         "core",
     "rulemaking":              "profiles/us-rulemaking",
     "us-regulatory-artifact":  "profiles/us-rulemaking",
+    "us-lifecycle-event":      "profiles/us-rulemaking",
     "conditional-silent-pass": "adversarial",
     "cross-property-coupling": "adversarial",
     "enum-drift":              "adversarial",
@@ -121,6 +123,30 @@ FIXTURE_BINDINGS: list[tuple[str, str, str, str]] = [
     ("us-regulatory-artifact", "USRegulatoryArtifact", "fixtures/negatives/artifact-us-eo-malformed-negative.jsonld", "FAIL"),
     ("us-regulatory-artifact", "USRegulatoryArtifact",
      "fixtures/negatives/artifact-regulatory-scheme-unregistered-negative.jsonld",
+     "FAIL"),
+    # Lifecycle-event kinds are layered the same way the Artifact terms are.
+    # The kernel owns the ten universal kinds but its carriers are OPEN on
+    # `rkaf:lifecycleEventKind`: an event carrying a profile-contributed kind
+    # — or an unregistered one — is UNCONSTRAINED by the kernel schema/shape
+    # rather than rejected by it. These three rows pin that deliberate
+    # openness; the composed rows below close the same property over the
+    # assembled 22-value union, so the SAME unregistered-kind document that
+    # PASSES the kernel FAILS the composed artifact.
+    ("lifecycle-event", "LifecycleEvent",
+     "fixtures/lifecycleevent-positive.jsonld", "PASS"),
+    ("lifecycle-event", "LifecycleEvent",
+     "fixtures/lifecycleevent-composed-kind-positive.jsonld", "PASS"),
+    ("lifecycle-event", "LifecycleEvent",
+     "fixtures/negatives/lifecycleevent-unregistered-kind-negative.jsonld",
+     "PASS"),
+    ("us-lifecycle-event", "USLifecycleEvent",
+     "fixtures/lifecycleevent-positive.jsonld", "PASS"),
+    ("us-lifecycle-event", "USLifecycleEvent",
+     "fixtures/lifecycleevent-composed-kind-positive.jsonld", "PASS"),
+    ("us-lifecycle-event", "USLifecycleEvent",
+     "fixtures/lifecycleevent-proceeding-stages-positive.jsonld", "PASS"),
+    ("us-lifecycle-event", "USLifecycleEvent",
+     "fixtures/negatives/lifecycleevent-unregistered-kind-negative.jsonld",
      "FAIL"),
     ("rulemaking", "Docket", "fixtures/docket-us-regsgov-positive.jsonld", "PASS"),
     ("rulemaking", "Docket", "fixtures/negatives/docket-missing-has-docket-identifier-negative.jsonld", "FAIL"),

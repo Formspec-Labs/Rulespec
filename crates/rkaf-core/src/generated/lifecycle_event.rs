@@ -37,42 +37,6 @@ pub enum LifecycleEventKind {
     /// Wire value `rkaf:demotion`.
     #[serde(rename = "rkaf:demotion")]
     Demotion,
-    /// Wire value `rkaf:proceedingPrerule`.
-    #[serde(rename = "rkaf:proceedingPrerule")]
-    ProceedingPrerule,
-    /// Wire value `rkaf:proceedingProposed`.
-    #[serde(rename = "rkaf:proceedingProposed")]
-    ProceedingProposed,
-    /// Wire value `rkaf:proceedingSupplemental`.
-    #[serde(rename = "rkaf:proceedingSupplemental")]
-    ProceedingSupplemental,
-    /// Wire value `rkaf:proceedingFinal`.
-    #[serde(rename = "rkaf:proceedingFinal")]
-    ProceedingFinal,
-    /// Wire value `rkaf:proceedingWithdrawn`.
-    #[serde(rename = "rkaf:proceedingWithdrawn")]
-    ProceedingWithdrawn,
-    /// Wire value `rkaf:proceedingLongterm`.
-    #[serde(rename = "rkaf:proceedingLongterm")]
-    ProceedingLongterm,
-    /// Wire value `rkaf:proceedingConcluded`.
-    #[serde(rename = "rkaf:proceedingConcluded")]
-    ProceedingConcluded,
-    /// Wire value `rkaf:proceedingVacated`.
-    #[serde(rename = "rkaf:proceedingVacated")]
-    ProceedingVacated,
-    /// Wire value `rkaf:proceedingStayed`.
-    #[serde(rename = "rkaf:proceedingStayed")]
-    ProceedingStayed,
-    /// Wire value `rkaf:proceedingRemanded`.
-    #[serde(rename = "rkaf:proceedingRemanded")]
-    ProceedingRemanded,
-    /// Wire value `rkaf:proceedingReinstated`.
-    #[serde(rename = "rkaf:proceedingReinstated")]
-    ProceedingReinstated,
-    /// Wire value `rkaf:proceedingDisapproved`.
-    #[serde(rename = "rkaf:proceedingDisapproved")]
-    ProceedingDisapproved,
 }
 
 use std::collections::BTreeMap;
@@ -88,7 +52,7 @@ pub struct LifecycleEvent {
     pub id: Option<String>,
     /// JSON-LD property `rkaf:lifecycleEventKind`.
     #[serde(rename = "rkaf:lifecycleEventKind")]
-    pub lifecycle_event_kind: LifecycleEventKind,
+    pub lifecycle_event_kind: String,
     /// JSON-LD property `rkaf:effectiveDate`.
     #[serde(rename = "rkaf:effectiveDate")]
     pub effective_date: String,

@@ -14,6 +14,8 @@ Rulespec CUE follows (defined in constraints/core/, constraints/adversarial/,
 constraints/ai-extraction/):
 
   - `#Name: "lit" | "lit" | "lit"`          → closed enum
+  - `#Whole: #PartA | #PartB`                → closed enum assembled from parts
+                                               that may live in other files
   - `#Name: { "field": #TypeRef, ... }`     → shape with typed properties
   - `#Name: { #Base, ... }`                  → shape composed from `#Base`
   - `#Name: #Base & { ... }`                 → shape composed from `#Base`
@@ -878,6 +880,79 @@ def _resolve_shape_compositions(doc: ConstraintDoc, source_file: Path) -> None:
     doc.shapes = [_compose_shape(shape, registry) for shape in doc.shapes]
 
 
+# ---- Value-set assembly --------------------------------------------------
+#
+# A closed value set may be assembled from more than one module: the kernel
+# declares the values it owns, a profile declares its own, and a union
+# (`#Whole: #KernelPart | #ProfilePart`) names the closed whole-contract set.
+# CUE resolves those references across files inside one instance; the projector
+# resolves them across files through the enum registry, so every target emits
+# the SAME assembled set instead of silently dropping the half it cannot see.
+
+
+def _resolve_enum_values(
+    name: str,
+    doc: ConstraintDoc,
+    registry: Optional[dict] = None,
+    _stack: tuple[str, ...] = (),
+) -> list[str]:
+    """Ordered literal values of an enum or enum-union, resolved across files.
+
+    Definitions in `doc` win over the registry (same rule as shape
+    composition), then the cross-file registry is consulted. Order is the
+    declaration order of the union's refs, so the assembled set is
+    deterministic and the contract digest does not depend on scan order.
+
+    A reference that resolves nowhere raises rather than contributing zero
+    values: a union that silently loses one of its parts compiles to a target
+    that ACCEPTS FEWER values than the CUE, and a dropped `sh:in` / `enum`
+    member is exactly the kind of quiet weakening `CompileError` exists for.
+
+    The single exception is a caller that supplied NO registry asking for a
+    top-level name this document does not declare: it has told the resolver it
+    cannot see other files, so the honest answer is "no values known here"
+    (the emitter then omits the closure entirely) rather than a fabricated
+    partial set. Inside a union there is no such answer — a half-assembled
+    union is a wrong closed set — so that always raises.
+    """
+    if name in _stack:
+        raise CompileError(
+            "cyclic enum union: " + " -> ".join([*_stack, name]) +
+            ". A union that references itself has no fixed point; the "
+            "assembled value set would depend on where resolution started."
+        )
+    stack = (*_stack, name)
+
+    for enum in doc.enums:
+        if enum.name == name:
+            return list(enum.values)
+    for union in doc.enum_unions:
+        if union.name == name:
+            values: list[str] = []
+            for ref in union.refs:
+                values.extend(_resolve_enum_values(ref, doc, registry, stack))
+            return values
+
+    entry = registry.get(name) if registry else None
+    if isinstance(entry, EnumDef):
+        return list(entry.values)
+    if isinstance(entry, EnumUnion):
+        values = []
+        for ref in entry.refs:
+            values.extend(_resolve_enum_values(ref, doc, registry, stack))
+        return values
+
+    if registry is None and not _stack:
+        return []
+
+    raise CompileError(
+        f"enum reference #{name} resolves to no CUE definition"
+        + (f" (referenced from #{_stack[-1]})" if _stack else "")
+        + ". Emitting the value set without it would close the compiled target "
+        "over FEWER values than the CUE source declares."
+    )
+
+
 # ---- JSON Schema target --------------------------------------------------
 
 def _scan_global_enum_registry(source_file: Path) -> dict:
@@ -895,7 +970,14 @@ def _scan_global_enum_registry(source_file: Path) -> dict:
             break
     if constraints_root is None:
         return registry
-    for cue_file in constraints_root.rglob("*.cue"):
+    # Sorted, not raw `rglob`: the registry now feeds SHACL and Rego closures
+    # as well as JSON Schema/Rust/TypeScript, so scan order would otherwise
+    # decide which definition a name resolves to — and the contract digest with
+    # it. A duplicate name is a hard error rather than first-wins for the same
+    # reason: two files declaring one name means "which values does this
+    # closure hold" has no single answer, and silently picking one ships a
+    # compiled artifact that disagrees with the CUE half of the time.
+    for cue_file in sorted(constraints_root.rglob("*.cue")):
         try:
             sibling = parse_cue_file(cue_file)
         except CompileError:
@@ -906,16 +988,20 @@ def _scan_global_enum_registry(source_file: Path) -> dict:
             continue
         package = cue_file.stem  # e.g. "usage-eligibility"
         relpath = cue_file.resolve().relative_to(constraints_root).with_suffix("")
-        for e in sibling.enums:
-            if e.name not in registry:
-                registry[e.name] = e
-                _REGISTRY_SOURCES[e.name] = package
-                _REGISTRY_RELPATHS[e.name] = relpath.as_posix()
-        for u in sibling.enum_unions:
-            if u.name not in registry:
-                registry[u.name] = u
-                _REGISTRY_SOURCES[u.name] = package
-                _REGISTRY_RELPATHS[u.name] = relpath.as_posix()
+        for definition in [*sibling.enums, *sibling.enum_unions]:
+            name = definition.name
+            if name in registry:
+                raise CompileError(
+                    f"enum/union #{name} is declared by both "
+                    f"{_REGISTRY_RELPATHS[name]}.cue and {relpath.as_posix()}"
+                    ".cue. A cross-file reference to #"
+                    f"{name} would resolve to whichever file the scan reached "
+                    "first, so the compiled value set — and the contract "
+                    "digest — would depend on filesystem order. Rename one."
+                )
+            registry[name] = definition
+            _REGISTRY_SOURCES[name] = package
+            _REGISTRY_RELPATHS[name] = relpath.as_posix()
     return registry
 
 
@@ -994,16 +1080,16 @@ def _scan_reference_class_registry(source_file: Path) -> dict[str, str]:
 
 def target_json_schema(doc: ConstraintDoc, registry: Optional[dict] = None) -> str:
     schemas: dict = {}
-    enum_by_name = {e.name: e for e in doc.enums}
     for e in doc.enums:
         schemas[e.name] = {"type": "string", "enum": e.values}
-    # Enum-unions: collapse to a single closed enum from the union of referenced values.
+    # Enum-unions: collapse to a single closed enum from the union of
+    # referenced values. Refs may cross files (a profile assembling the closed
+    # whole-contract set from the kernel's values plus its own).
     for u in doc.enum_unions:
-        union_values: list[str] = []
-        for ref in u.refs:
-            if ref in enum_by_name:
-                union_values.extend(enum_by_name[ref].values)
-        schemas[u.name] = {"type": "string", "enum": union_values}
+        schemas[u.name] = {
+            "type": "string",
+            "enum": _resolve_enum_values(u.name, doc, registry),
+        }
 
     # Inline cross-file enum definitions referenced by this doc's properties /
     # disjunctions / conditionals so the resulting schema is self-contained.
@@ -1012,18 +1098,12 @@ def target_json_schema(doc: ConstraintDoc, registry: Optional[dict] = None) -> s
     def _inline_cross_file(enum_name: str) -> None:
         if enum_name in schemas or registry is None:
             return
-        entry = registry.get(enum_name)
-        if entry is None:
+        if registry.get(enum_name) is None:
             return
-        if isinstance(entry, EnumDef):
-            schemas[enum_name] = {"type": "string", "enum": entry.values}
-        else:  # EnumUnion
-            values: list[str] = []
-            for ref in entry.refs:
-                ref_entry = registry.get(ref)
-                if isinstance(ref_entry, EnumDef):
-                    values.extend(ref_entry.values)
-            schemas[enum_name] = {"type": "string", "enum": values}
+        schemas[enum_name] = {
+            "type": "string",
+            "enum": _resolve_enum_values(enum_name, doc, registry),
+        }
 
     if registry:
         for s in doc.shapes:
@@ -1053,12 +1133,12 @@ def target_json_schema(doc: ConstraintDoc, registry: Optional[dict] = None) -> s
                     disjunction_prop_names.add(bp.name)
                     # Add to top-level props so anyOf can reference them
                     if bp.name not in props:
-                        props[bp.name] = property_to_jsonschema(bp, doc)
+                        props[bp.name] = property_to_jsonschema(bp, doc, registry)
         if s.type_iri:
             props["@type"] = {"const": s.type_iri}
             required.append("@type")
         for p in s.properties:
-            props[p.name] = property_to_jsonschema(p, doc)
+            props[p.name] = property_to_jsonschema(p, doc, registry)
             if not p.optional and p.name not in disjunction_prop_names:
                 required.append(p.name)
         # Conditional branches → JSON Schema `allOf` with `if/then`
@@ -1066,9 +1146,9 @@ def target_json_schema(doc: ConstraintDoc, registry: Optional[dict] = None) -> s
         for c in s.conditionals:
             then_props: dict = {}
             for tp in c.then_require:
-                then_props[tp.name] = property_to_jsonschema(tp, doc)
+                then_props[tp.name] = property_to_jsonschema(tp, doc, registry)
                 if tp.name not in props:
-                    props[tp.name] = property_to_jsonschema(tp, doc)
+                    props[tp.name] = property_to_jsonschema(tp, doc, registry)
             if c.when_equals is None:
                 condition = {"required": [c.when_property]}
             else:
@@ -1098,7 +1178,7 @@ def target_json_schema(doc: ConstraintDoc, registry: Optional[dict] = None) -> s
                 br_props: dict = {}
                 br_req: list[str] = []
                 for bp in br.properties:
-                    br_props[bp.name] = property_to_jsonschema(bp, doc)
+                    br_props[bp.name] = property_to_jsonschema(bp, doc, registry)
                     if not bp.optional:
                         br_req.append(bp.name)
                 alts.append({"properties": br_props, "required": br_req})
@@ -1129,18 +1209,24 @@ def target_json_schema(doc: ConstraintDoc, registry: Optional[dict] = None) -> s
     return json.dumps(envelope, indent=2)
 
 
-def property_to_jsonschema(p: PropDef, doc: ConstraintDoc) -> dict:
+def property_to_jsonschema(
+    p: PropDef, doc: ConstraintDoc, registry: Optional[dict] = None
+) -> dict:
     if p.fixed_value is not None:
         return {"const": p.fixed_value}
     if p.inline_enum_values:
         return {"type": "string", "enum": p.inline_enum_values}
     if p.enum_union_refs:
-        # Resolve to a single closed enum from the referenced enums.
-        enum_by_name = {e.name: e for e in doc.enums}
+        # Resolve to a single closed enum from the referenced enums, which may
+        # be declared in another file.
         vals: list[str] = []
         for ref in p.enum_union_refs:
-            if ref in enum_by_name:
-                vals.extend(enum_by_name[ref].values)
+            # `("<inline union>",)`: an inline union is still a union, so a
+            # ref that resolves nowhere raises instead of assembling half a
+            # closed set — even when the caller passed no registry.
+            vals.extend(
+                _resolve_enum_values(ref, doc, registry, ("<inline union>",))
+            )
         return {"type": "string", "enum": vals}
     if p.type_ref == "enum":
         return {"$ref": f"#/$defs/{p.enum_ref}"}
@@ -1225,19 +1311,17 @@ def target_rust(
             out.append(f"    {variant},")
         out.append("}")
         out.append("")
-    # Enum unions: emit as Rust enum with variants flattened from the referenced enums.
-    enum_by_name = {e.name: e for e in doc.enums}
+    # Enum unions: emit as Rust enum with variants flattened from the
+    # referenced enums, including any declared in another CUE file.
     for u in doc.enum_unions:
         out.append(f"/// Closed Rulespec values for `{u.name}`.")
         out.append("#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]")
         out.append(f"pub enum {u.name} {{")
-        for ref in u.refs:
-            if ref in enum_by_name:
-                for v in enum_by_name[ref].values:
-                    variant = _pascal_after_colon(v)
-                    out.append(f"    /// Wire value `{v}`.")
-                    out.append(f'    #[serde(rename = "{v}")]')
-                    out.append(f"    {variant},")
+        for v in _resolve_enum_values(u.name, doc, registry):
+            variant = _pascal_after_colon(v)
+            out.append(f"    /// Wire value `{v}`.")
+            out.append(f'    #[serde(rename = "{v}")]')
+            out.append(f"    {variant},")
         out.append("}")
         out.append("")
     if doc.shapes:
@@ -1479,13 +1563,10 @@ def target_typescript(
         lits = " | ".join(f'"{v}"' for v in e.values)
         out.append(f"export type {e.name} = {lits};")
         out.append("")
-    enum_by_name = {e.name: e for e in doc.enums}
     for u in doc.enum_unions:
-        all_values: list[str] = []
-        for ref in u.refs:
-            if ref in enum_by_name:
-                all_values.extend(enum_by_name[ref].values)
-        lits = " | ".join(f'"{v}"' for v in all_values)
+        lits = " | ".join(
+            f'"{v}"' for v in _resolve_enum_values(u.name, doc, registry)
+        )
         out.append(f"export type {u.name} = {lits};")
         out.append("")
     has_date = any(
@@ -1631,28 +1712,25 @@ def target_shacl(
     doc: ConstraintDoc,
     reference_classes: Optional[dict[str, str]] = None,
     source_file: Optional[Path] = None,
+    registry: Optional[dict] = None,
 ) -> str:
     """Emit SHACL for every Pattern-C shape in `doc`.
 
-    KNOWN GAP (adversarial review F2, deliberately NOT fixed here): unlike
-    `target_json_schema`, `target_rust` and `target_typescript`, this emitter
-    takes no cross-file enum `registry`, so a property whose enum is DEFINED IN
-    ANOTHER CUE FILE loses its `sh:in` closure. A profile overlay composing a
-    kernel shape is exactly that case: `compiled/shacl/profiles/us-rulemaking/
-    us-regulatory-artifact.ttl` carries no `sh:in` for
-    `rkaf:artifactIdentifierScheme`, and `constraints_parity.py` validates the
-    us-regulatory-artifact rows against that overlay alone.
+    Like `target_json_schema`, `target_rust` and `target_typescript`, this
+    emitter takes the cross-file enum `registry`, so a property whose enum is
+    DEFINED IN ANOTHER CUE FILE still emits its `sh:in` closure. A profile
+    overlay composing a kernel shape is exactly that case:
+    `compiled/shacl/profiles/us-rulemaking/us-regulatory-artifact.ttl` closes
+    `rkaf:artifactIdentifierScheme` over the kernel's scheme values even though
+    the kernel declares them, which matters because
+    `tools/constraints_parity.py` validates the us-regulatory-artifact rows
+    against that overlay ALONE.
 
-    Threading the registry through is a two-line change and was implemented and
-    measured. It flips exactly one fixture verdict —
-    `fixtures/edges/bridge-consumer-registration-singletons-edge.jsonld` SHACL
-    pass -> fail — because it unmasks a SEPARATE defect: `rkaf:capabilityCap`
-    and `rkaf:lifecycleState` are enum-valued but carry no `@type: @id`/`@vocab`
-    coercion in `context/rkaf-context.jsonld`, so their values reach RDF as
-    plain literals that no IRI-valued `sh:in` list can match. Every sibling enum
-    term (`rkaf:usageEligibility`, `rkaf:artifactIdentifierScheme`,
-    `rkaf:supportedAuthorityKinds`) does carry one. Fix the context first; the
-    registry threading then lands with no verdict change.
+    An IRI-valued `sh:in` list only matches data whose values reach RDF as
+    IRIs, so every enum-valued term MUST carry an `@type: @id`/`@vocab`
+    coercion in `context/rkaf-context.jsonld`. Adding a closure here without
+    the matching coercion turns a passing document into a violation whose
+    message names the value that is already in the list.
     """
     out: list[str] = [
         "# AUTO-GENERATED by tools/constraints_compile.py (target=shacl, Pattern C only).",
@@ -1671,19 +1749,14 @@ def target_shacl(
         "@prefix rkaf: <https://rulespec.org/ns/v1#> .",
         "",
     ]
-    enum_by_name = {e.name: e for e in doc.enums}
     # Expand enum unions: a union {A,B,C} contributes the flattened values
-    # of its referenced enums to a single resolved value list.
+    # of its referenced enums to a single resolved value list. Enums declared
+    # in another CUE file resolve through the registry; a name that resolves
+    # nowhere is a compile error, never a silently open property.
     def resolve_enum(name: str) -> list[str]:
-        if name in enum_by_name:
-            return enum_by_name[name].values
-        for u in doc.enum_unions:
-            if u.name == name:
-                vals: list[str] = []
-                for ref in u.refs:
-                    vals.extend(resolve_enum(ref))
-                return vals
-        return []
+        if not name:
+            return []
+        return _resolve_enum_values(name, doc, registry)
     for s in doc.shapes:
         if not s.type_iri:
             continue
@@ -1779,7 +1852,16 @@ def target_cue(doc: ConstraintDoc, source_path: Path) -> str:
 
 # ---- Rego target ---------------------------------------------------------
 
-def target_rego(doc: ConstraintDoc, source_file: Optional[Path] = None) -> str:
+def _rego_symbol(name: str) -> str:
+    """CUE definition name → Rego snake_case value-set symbol."""
+    return re.sub(r"([A-Z])", r"_\1", name).lstrip("_").lower()
+
+
+def target_rego(
+    doc: ConstraintDoc,
+    registry: Optional[dict] = None,
+    source_file: Optional[Path] = None,
+) -> str:
     out: list[str] = [
         "# AUTO-GENERATED by tools/constraints_compile.py (target=rego).",
         f"# Source: {_source_header(doc, source_file)}",
@@ -1787,9 +1869,18 @@ def target_rego(doc: ConstraintDoc, source_file: Optional[Path] = None) -> str:
         "",
     ]
     for e in doc.enums:
-        lower = re.sub(r"([A-Z])", r"_\1", e.name).lstrip("_").lower()
         vals = ", ".join(f'"{v}"' for v in e.values)
-        out.append(f"{lower}_values := [{vals}]")
+        out.append(f"{_rego_symbol(e.name)}_values := [{vals}]")
+    # A union names the closed WHOLE-contract set, assembled from parts that
+    # may live in other files. Emitting only `doc.enums` would ship a Rego
+    # value set narrower than the CUE — the same quiet weakening
+    # `_resolve_enum_values` exists to prevent — so unions resolve through the
+    # registry exactly as they do for TypeScript and JSON Schema.
+    for u in doc.enum_unions:
+        vals = ", ".join(
+            f'"{v}"' for v in _resolve_enum_values(u.name, doc, registry)
+        )
+        out.append(f"{_rego_symbol(u.name)}_values := [{vals}]")
     out.append("")
     out.append("# Validators emit `deny[msg]` for each violation.")
     return "\n".join(out)
@@ -1849,9 +1940,12 @@ def main() -> int:
                 doc,
                 reference_classes=reference_classes,
                 source_file=args.input,
+                registry=enum_registry,
             )
         elif args.target == "rego":
-            out = target_rego(doc, source_file=args.input)
+            out = target_rego(
+                doc, registry=enum_registry, source_file=args.input
+            )
         else:
             out = TARGETS[args.target](doc)
     except CompileError as exc:

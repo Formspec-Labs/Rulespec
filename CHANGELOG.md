@@ -70,6 +70,71 @@ adapted for a specification + shape + fixture project.
 - Completed a local paired Spicy Regs corpus exercise and deterministic rerun.
   The candidate remains unpublished and Experimental pending a release,
   refreshed conformance declarations, and non-originating consumer review.
+- Moved the twelve `rkaf:proceeding*` lifecycle kinds out of the universal
+  kernel into the US rulemaking profile
+  (`constraints/profiles/us-rulemaking/us-lifecycle-event.cue`). There is still
+  ONE `rkaf:LifecycleEvent` class and one `rkaf:lifecycleEventKind` property:
+  the kernel declares the ten universal kinds and leaves its carriers open on
+  that property, the profile declares its twelve, and the compiler assembles
+  the closed 22-value union at build time onto a profile shape that composes
+  the kernel one. Conformance, `rkaf-validate`, and the SHACL suite bind the
+  composed artifact, so every previously enforced kind is still enforced and no
+  GATED fixture verdict changed (see the ungated L3 change noted below).
+  Consumer surface: `rkaf_core::LifecycleEvent`'s
+  `lifecycle_event_kind` field is now `String` (open, matching the kernel
+  carrier) and the closed 22-value type is `rkaf_core::ComposedLifecycleEventKind`,
+  carried by the new `rkaf_core::USLifecycleEvent`. TypeScript gains
+  `ComposedLifecycleEventKind` / `USProceedingLifecycleEventKind` in
+  `compiled/typescript/profiles/us-rulemaking/us-lifecycle-event.ts`;
+  `LifecycleEventKind` in the kernel module is now the ten universal kinds.
+- Compiled SHACL now closes enums that a DIFFERENT CUE file declares:
+  `target_shacl()` takes the same cross-file enum registry the
+  json-schema/rust/typescript emitters take. This closes adversarial-review
+  finding F2 (a profile overlay silently dropped the kernel's `sh:in`) and
+  retires the `KNOWN_DROPPED_SHACL_ENUM_CLOSURES` pin.
+
+  The scope is wider than the one overlay that motivated it. Threading the
+  registry adds **16 `sh:in` closures across 10 compiled shapes — 15 of them on
+  KERNEL shapes**, only one on the profile overlay
+  (`rkaf:artifactIdentifierScheme` on
+  `compiled/shacl/profiles/us-rulemaking/us-regulatory-artifact.ttl`). The
+  kernel shapes that gained a closure, and the properties they now constrain:
+
+  | Compiled shape | Property now closed |
+  |---|---|
+  | `core/assertion.ttl` | `rkaf:usageEligibility`, `rkaf:consumerLifecycleState` |
+  | `core/bridge-consumer-registration.ttl` | `rkaf:capabilityCap`, `rkaf:supportedAuthorityKinds` |
+  | `core/bridge-validation-result.ttl` | `rkaf:chainTerminusKind`, `rkaf:detectedIssues`, `rkaf:effectiveUsageEligibility` |
+  | `core/concept-mapping.ttl` | `rkaf:usageEligibility` |
+  | `core/concept-resolution-result.ttl` | `rkaf:usageCeiling` |
+  | `core/consumer-effective-declaration.ttl` | `rkaf:declaredEffective` |
+  | `core/local-adoption.ttl` | `rkaf:usageEligibility` |
+  | `core/point-in-time-exception.ttl` | `rkaf:evaluationAnchor` |
+  | `core/relationship-assertion.ttl` | `rkaf:assertionOrigin`, `rkaf:usageEligibility`, `rkaf:consumerLifecycleState` |
+
+  Every one of these was already closed in the CUE source and in the JSON
+  Schema, Rust, and TypeScript targets; SHACL alone was shipping them open.
+  L3 is therefore STRICTER for these properties than it was before this
+  release. Data that relied on SHACL accepting an out-of-enum value on any of
+  them will now fail L3.
+- `context/rkaf-context.jsonld` — added the missing `@type` coercions on
+  `rkaf:capabilityCap` (`@id`, matching its `rkaf:usageEligibility` sibling)
+  and `rkaf:lifecycleState` (`@vocab`). Both are enum-valued terms whose
+  values reached RDF as plain literals, which no IRI-valued `sh:in` can match.
+
+  This repaired one fixture verdict, in a column that is reported but NOT
+  gated: `fixtures/behavior/concept-resolution-publication-blocking.jsonld`
+  goes **L3 fail -> pass**. Its `rkaf:lifecycleState: "rkaf:approved"` values
+  previously reached RDF as plain literals and could not match the IRI-valued
+  `sh:in` on `core/concept-mapping.ttl`; with the `@vocab` coercion they arrive
+  as IRIs and the shape is satisfied. `tools/conformance_report.py` does not
+  gate L3 for `behavior` fixtures (their `rkaf:input` graph may carry
+  declarative stubs), so this moved no divergence count — the fixture was
+  green before and is green now, and the note explaining the permitted L3
+  failure has simply disappeared. It is recorded here because a verdict that
+  changes without a gate noticing is exactly the kind of change a reader of
+  this file should not have to rediscover. All other 312 shared fixture rows
+  are verdict-identical across L1/L2/L3.
 
 ### Deferred by contract
 

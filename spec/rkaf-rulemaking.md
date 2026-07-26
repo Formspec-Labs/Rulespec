@@ -340,6 +340,26 @@ Proceeding stage transitions use `rkaf:LifecycleEvent`; this module defines no
 parallel event class. For the stage-family kinds, every `rkaf:appliesTo` value
 MUST be a Proceeding, and `rkaf:effectiveDate` records the transition time.
 
+NOTE (codification detail, no normative change): the twelve kinds below are
+CONTRIBUTED BY THIS MODULE to the shared `rkaf:lifecycleEventKind` value set
+rather than owned by the kernel. `constraints/core/lifecycle-event.cue`
+declares the ten universal kinds and leaves the property open at the carrier
+level; `constraints/profiles/us-rulemaking/us-lifecycle-event.cue` declares
+these twelve and binds the assembled closed union to `rkaf:LifecycleEvent`
+through a profile shape that composes the kernel one. The class, the property,
+and the closed set every conforming validator applies are unchanged — a
+consumer that loads this module sees exactly the 22 values.
+
+A consumer that loads only the kernel is unconstrained by the property
+ENTIRELY, not merely by these twelve. The compiled kernel carrier types
+`rkaf:lifecycleEventKind` as an open string and emits no `sh:in`, so the ten
+universal kinds ship as a named type that nothing binds to the property; every
+closed kind set in this contract is enforced by the profile artifacts. That
+openness is deliberate rather than an oversight — SHACL is conjunctive and the
+compiled shapes are loaded together, so a kernel closure over the ten would
+reject every profile-contributed kind no matter what the overlay says (see
+`constraints/README.md`, "Layered value sets").
+
 The `rkaf:lifecycleEventKind` closed enum adds:
 
 | Event kind | Meaning |
@@ -497,10 +517,12 @@ full-corpus receipt to agree before condition 1 is marked satisfied again.
 ## 10. Validation surface
 
 - CUE source: `constraints/profiles/us-rulemaking/rulemaking.cue` (the process
-  module) and `constraints/profiles/us-rulemaking/us-regulatory-artifact.cue`
+  module), `constraints/profiles/us-rulemaking/us-regulatory-artifact.cue`
   (the §5.2 regulatory-identifier overlay, which composes the kernel
-  `#Artifact`). Class-valued ranges for this module's predicates:
-  `constraints/profiles/us-rulemaking/semantics/l0-ranges.cue`.
+  `#Artifact`), and `constraints/profiles/us-rulemaking/us-lifecycle-event.cue`
+  (the §6 proceeding kinds, which composes the kernel `#LifecycleEvent` and
+  binds the assembled kind union). Class-valued ranges for this module's
+  predicates: `constraints/profiles/us-rulemaking/semantics/l0-ranges.cue`.
 - Generated JSON Schema, Rust, TypeScript, and SHACL: produced by
   `tools/compile_all.sh` into `compiled/<target>/profiles/us-rulemaking/` and
   `crates/rkaf-core/src/generated/profiles/us_rulemaking/`.

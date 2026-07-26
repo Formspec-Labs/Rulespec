@@ -1,0 +1,34 @@
+{
+  "@context": "../context/rkaf-context.jsonld",
+  "@graph": [
+    {
+      "@id": "urn:rkaf:fixture:lifecycle:composed-universal",
+      "@type": "rkaf:LifecycleEvent",
+      "rkaf:lifecycleEventKind": "rkaf:amendment",
+      "rkaf:effectiveDate": "2026-02-10T00:00:00Z",
+      "rkaf:emittedBy": "urn:rkaf:fixture:actor:agency:example",
+      "rkaf:appliesTo": ["urn:rkaf:fixture:artifact:composed-kind-target"],
+      "rkaf:bridgeContractVersion": "rkaf-bridge/1.0"
+    },
+    {
+      "@id": "urn:rkaf:fixture:lifecycle:composed-profile",
+      "@type": "rkaf:LifecycleEvent",
+      "rkaf:lifecycleEventKind": "rkaf:proceedingFinal",
+      "rkaf:effectiveDate": "2026-03-11T00:00:00Z",
+      "rkaf:emittedBy": "urn:rkaf:fixture:actor:agency:example",
+      "rkaf:appliesTo": ["urn:rkaf:fixture:proceeding:composed-kind"]
+    },
+    {
+      "@id": "urn:rkaf:fixture:proceeding:composed-kind",
+      "@type": "rkaf:Proceeding",
+      "rkaf:hasProceedingIdentifier": "urn:rkaf:fixture:proceeding:composed-kind",
+      "rkaf:proceedingIdentifierScheme": "rkaf:partner-defined"
+    },
+    {
+      "@id": "urn:rkaf:fixture:artifact:composed-kind-target",
+      "@type": "rkaf:Artifact",
+      "rkaf:hasArtifactIdentifier": "urn:rkaf:fixture:artifact:composed-kind-target",
+      "rkaf:artifactIdentifierScheme": "rkaf:urn-persistent"
+    }
+  ]
+}

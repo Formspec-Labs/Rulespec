@@ -40,6 +40,62 @@ UNCONSTRAINED by the kernel carriers rather than rejected by them, and is
 constrained by the profile carriers. `tools/constraints_parity.py` pins both
 halves.
 
+### Layered value sets
+
+A profile may contribute VALUES to a kernel property as well as properties to a
+kernel class. `rkaf:lifecycleEventKind` is the worked example:
+
+| Layer | Declares | Compiled artifact |
+|---|---|---|
+| `core/lifecycle-event.cue` | `#LifecycleEventKind` — the ten universal kinds — and a kind property left deliberately OPEN | `compiled/*/core/lifecycle-event.*`: the ten kinds as a named type, no closure on the property |
+| `profiles/us-rulemaking/us-lifecycle-event.cue` | `#USProceedingLifecycleEventKind` (twelve `proceeding` kinds), the assembled union `#ComposedLifecycleEventKind`, and `#USLifecycleEvent` composing the kernel shape | `compiled/*/profiles/us-rulemaking/us-lifecycle-event.*`: all 22 values, closed, bound to `rkaf:LifecycleEvent` |
+
+Why the kernel carrier stays open: SHACL is conjunctive and the compiled shapes
+are loaded together, so a kernel `sh:in` over ten values would reject every
+profile-contributed kind no matter what the overlay says. Openness here means
+the same thing it means for the Artifact terms — unconstrained by the kernel,
+constrained by the profile — and the composed artifact is the one
+`tools/conformance_lib.py` and `crates/rkaf-validate/build.rs` bind to the
+class. Ownership is not left to review habit: `LifecycleKindOwnershipTests` in
+`tools/test_constraints_compile.py` proves every value in every compiled
+artifact has exactly one declaring module, that the kernel's part is exactly
+the ten universal kinds, and that the assembled union equals kernel +
+sum(profiles).
+
+"Every compiled artifact" is meant literally, and the audit walks each sink in
+the shape that sink can express:
+
+| Sink | How the closure appears | Scanned by |
+|---|---|---|
+| `compiled/json-schema/` | `enum` on the property (possibly via `$ref`) | `_compiled_schema_closures` |
+| `compiled/shacl/` | `sh:in` on the property's `sh:property` | `_compiled_shacl_closures` |
+| `compiled/typescript/` | property typed by a literal-union alias, not `string` | `_compiled_typescript_closures` |
+| `crates/rkaf-core/src/generated/` | field typed by a generated enum, not `String` | `_generated_rust_closures` |
+| `compiled/rego/` | a `<definition>_values` list — Rego has NO property types | `_compiled_rego_closures` |
+| `compiled/cue/` | not scanned: verbatim passthrough of the source the audit already reads | — |
+
+Rego is the reason this table exists rather than a sentence. It is the one
+target that cannot express "this property is closed over that set" at all — it
+emits value sets and leaves the `deny` rules to the policy author — and it is
+also the target no gate loads. When `target_rego` iterated `doc.enums` only, the
+assembled 22-value union existed in every other artifact and in none of the
+Rego ones, and nothing failed. `test_every_target_carries_the_assembled_closure`
+now asserts per-sink, so the next target to lose a union names itself.
+
+Cross-file value sets reach EVERY target: `target_shacl` and `target_rego` take
+the same enum registry the json-schema/rust/typescript emitters take, so an
+overlay closes a property whose enum a different file declares. Two consequences
+worth stating outright:
+
+  * An IRI-valued `sh:in` only matches data whose values arrive as IRIs, so
+    every enum-valued term MUST also carry an `@type: @id`/`@vocab` coercion in
+    `context/rkaf-context.jsonld`.
+  * The registry is built from a SORTED walk and rejects a duplicate
+    enum/union name with a `CompileError`. A name that resolved to whichever
+    file the walk reached first would make the compiled value sets — and the
+    contract digest pinned in `spec/rkaf-conformance.md` — depend on the
+    filesystem that built them.
+
 ## Targets and obligations (per spec §6.3)
 
 | Target        | Status | Output                                  |

@@ -503,6 +503,9 @@
     "rkaf:lifecycleEventKind": {
       "@type": "@vocab"
     },
+    "rkaf:lifecycleState": {
+      "@type": "@vocab"
+    },
     "rkaf:mappingRelation": {
       "@type": "@vocab"
     },
@@ -546,6 +549,9 @@
       "@type": "@id"
     },
     "rkaf:usageEligibility": {
+      "@type": "@id"
+    },
+    "rkaf:capabilityCap": {
       "@type": "@id"
     },
     "rkaf:assertionOrigin": {
