@@ -26,15 +26,57 @@ from typing import Any
 import yaml
 
 try:
-    from constraints_compile import ConstraintDoc, parse_cue_file
+    from constraints_compile import (
+        ConstraintDoc,
+        parse_cue_file,
+        range_registry_paths,
+    )
 except ModuleNotFoundError:  # Imported as tools.l0_mapping_audit in unit tests.
-    from tools.constraints_compile import ConstraintDoc, parse_cue_file
+    from tools.constraints_compile import (
+        ConstraintDoc,
+        parse_cue_file,
+        range_registry_paths,
+    )
 
 ROOT = Path(__file__).resolve().parent.parent
+CONSTRAINTS_ROOT = ROOT / "constraints"
 CUE_DIR = ROOT / "constraints" / "core"
+PROFILES_DIR = ROOT / "constraints" / "profiles"
 CONTEXT_PATH = ROOT / "context" / "rkaf-context.jsonld"
 RANGE_PATH = ROOT / "constraints" / "semantics" / "l0-ranges.cue"
 PARTNER_DIR = ROOT / "conformance" / "partners"
+
+# "Argument not supplied", distinct from an explicit `None`. A caller that
+# redirects `cue_dir` at a synthetic tree must not silently pick up the REAL
+# repo's profiles or range registry alongside it: the sibling directories are
+# derived from whatever `cue_dir` it named. Passing `None` explicitly means
+# "no profiles at all", which `PROFILES_DIR`-as-default could never express.
+_UNSET: Any = object()
+
+
+def shape_source_paths(
+    *, cue_dir: Path | None = None, profiles_dir: Path | None = _UNSET
+) -> list[Path]:
+    """Every CUE file that declares vocabulary-bearing shapes.
+
+    The kernel plus every domain profile. Profiles own jurisdiction-specific
+    terms (US regulatory identifiers, `rkaf:publishedInProceeding`, the
+    rulemaking classes); an L0 mapping that cites one of those terms is still
+    citing the Rulespec contract, so the registry and the contract digest cover
+    both trees. Range registries live in their own `semantics/` package
+    directory and are handled separately.
+
+    `profiles_dir` defaults to `cue_dir`'s own `../profiles` sibling, so
+    redirecting `cue_dir` redirects both. Pass `profiles_dir=None` to scan the
+    kernel alone.
+    """
+    cue_dir = CUE_DIR if cue_dir is None else cue_dir
+    if profiles_dir is _UNSET:
+        profiles_dir = cue_dir.parent / "profiles"
+    paths = sorted(cue_dir.glob("*.cue"))
+    if profiles_dir is not None and profiles_dir.is_dir():
+        paths.extend(sorted(profiles_dir.glob("*/*.cue")))
+    return paths
 
 FENCE_START = re.compile(r"^```yaml[ \t]+rkaf-l0-mapping[ \t]*$")
 FENCE_END = re.compile(r"^```[ \t]*$")
@@ -154,10 +196,13 @@ def _value_kind(context_entry: Any) -> str | None:
     return None
 
 
-def _load_ranges(path: Path, prefixes: dict[str, str]) -> dict[str, str]:
+def _load_ranges(paths: list[Path], prefixes: dict[str, str]) -> dict[str, str]:
     ranges: dict[str, str] = {}
-    for term, target in re.findall(r'^\s*"([^"]+)":\s*"([^"]+)"', path.read_text(), re.MULTILINE):
-        ranges[_expand(term, prefixes)] = _expand(target, prefixes)
+    for path in paths:
+        for term, target in re.findall(
+            r'^\s*"([^"]+)":\s*"([^"]+)"', path.read_text(), re.MULTILINE
+        ):
+            ranges[_expand(term, prefixes)] = _expand(target, prefixes)
     return ranges
 
 
@@ -180,8 +225,14 @@ def load_vocabulary_registry(
     *,
     cue_dir: Path = CUE_DIR,
     context_path: Path = CONTEXT_PATH,
-    range_path: Path = RANGE_PATH,
+    range_path: Path = _UNSET,
+    profiles_dir: Path | None = _UNSET,
 ) -> VocabularyRegistry:
+    # Both sibling paths derive from `cue_dir` unless named explicitly, so a
+    # caller pointing `cue_dir` at a synthetic tree gets that tree's profiles
+    # and ranges — never the real repo's silently unioned in.
+    if range_path is _UNSET:
+        range_path = cue_dir.parent / "semantics" / "l0-ranges.cue"
     context_doc = json.loads(context_path.read_text())
     context = context_doc["@context"]
     prefixes = {
@@ -189,7 +240,12 @@ def load_vocabulary_registry(
         for key, value in context.items()
         if ":" not in key and isinstance(value, str)
     }
-    docs = [parse_cue_file(path) for path in sorted(cue_dir.glob("*.cue"))]
+    shape_paths = shape_source_paths(cue_dir=cue_dir, profiles_dir=profiles_dir)
+    # `range_path` names the KERNEL registry; the contract is the union of every
+    # `l0-ranges.cue` beneath the same `constraints/` root, so a profile's
+    # ranges are covered without a second parameter.
+    range_paths = range_registry_paths(range_path.parent.parent)
+    docs = [parse_cue_file(path) for path in shape_paths]
     enums = _enum_registry(docs)
 
     terms: set[str] = set()
@@ -255,7 +311,11 @@ def load_vocabulary_registry(
         for values in enums.values()
         for value in values
     }
-    contract_paths = [*sorted(cue_dir.glob("*.cue")), context_path, range_path]
+    # The digest pins every input that can change what the contract accepts:
+    # kernel shapes, profile shapes, the shared context, and every range
+    # registry. A profile CUE edit MUST move the digest, or an L0 declaration
+    # could keep certifying against a contract that no longer exists.
+    contract_paths = [*shape_paths, context_path, *range_paths]
     return VocabularyRegistry(
         terms=frozenset(terms),
         enum_values=frozenset(all_enum_values),
@@ -265,7 +325,7 @@ def load_vocabulary_registry(
         domains_by_term={
             term: frozenset(domains) for term, domains in domains_by_term.items()
         },
-        ranges_by_term=_load_ranges(range_path, prefixes),
+        ranges_by_term=_load_ranges(range_paths, prefixes),
         value_kinds_by_term=value_kinds,
         contract_version=_contract_version(contract_paths),
     )

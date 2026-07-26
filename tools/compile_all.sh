@@ -11,6 +11,13 @@
 #                   the Rust workspace re-exports from this path. No kebab
 #                   copy is produced — see ADR or constraints/README.md.)
 #
+# Domain profiles under constraints/profiles/<profile>/ compile to the same six
+# targets under a `profiles/<profile>` sub-path, e.g.
+#   compiled/json-schema/profiles/us-rulemaking/rulemaking.schema.json
+#   crates/rkaf-core/src/generated/profiles/us_rulemaking/rulemaking.rs
+# The sub-path keeps the dependency direction legible: a profile may compose a
+# kernel shape, never the reverse.
+#
 # Idempotent. Run from Rulespec repo root.
 #
 # Used by:
@@ -34,6 +41,8 @@ compile_one() {
     if [[ "$src" == constraints/core/* ]]; then sub="core"
     elif [[ "$src" == constraints/adversarial/* ]]; then sub="adversarial"
     elif [[ "$src" == constraints/ai-extraction/* ]]; then sub="ai-extraction"
+    elif [[ "$src" == constraints/profiles/*/*.cue ]]; then
+        sub="profiles/$(basename "$(dirname "$src")")"
     else
         echo "ERROR: unknown constraint subdirectory in $src" >&2
         return 1
@@ -61,10 +70,13 @@ compile_one() {
             outpath="$outdir/$base.rego"
             ;;
         rust)
-            # Only core/ primitives feed into the Rust workspace today.
-            # adversarial/ and ai-extraction/ are CUE-only.
-            if [[ "$sub" != "core" ]]; then return 0; fi
-            outdir="crates/rkaf-core/src/generated"
+            # core/ primitives and profiles/ overlays feed into the Rust
+            # workspace. adversarial/ and ai-extraction/ are CUE-only.
+            case "$sub" in
+                core)        outdir="crates/rkaf-core/src/generated" ;;
+                profiles/*)  outdir="crates/rkaf-core/src/generated/profiles/$(snake_case "${sub#profiles/}")" ;;
+                *)           return 0 ;;
+            esac
             outpath="$outdir/$(snake_case "$base").rs"
             ;;
         *)
@@ -82,6 +94,7 @@ main() {
         constraints/core/*.cue
         constraints/adversarial/*.cue
         constraints/ai-extraction/*.cue
+        constraints/profiles/*/*.cue
     )
     local targets=(json-schema typescript shacl cue rego rust)
 

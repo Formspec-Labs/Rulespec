@@ -263,6 +263,77 @@ Proceeding. Relations whose range is a specific edition — such as
 posting Artifact carries the edition being cited, not "the document" in the
 abstract.
 
+### 5.2 Regulatory citation identity
+
+This subsection is the normative home of the US regulatory identifier pair.
+`spec/rkaf-core.md` §4.1 defines the universal Artifact and deliberately does
+not declare these terms; the profile shape `#USRegulatoryArtifact` in
+`constraints/profiles/us-rulemaking/us-regulatory-artifact.cue` composes the
+kernel `#Artifact` and adds them, keeping `@type: rkaf:Artifact`. A consumer
+that does not adopt this profile never sees them.
+
+An Artifact MAY also carry one US regulatory citation or agency identifier:
+
+- `rkaf:hasRegulatoryIdentifier` (0..1) — canonical identifier IRI from the
+  table below.
+- `rkaf:regulatoryIdentifierScheme` (0..1) — corresponding value from the
+  closed US regulatory-identifier enum.
+
+These properties MUST occur together. They identify the cited legal or
+administrative resource independently of the immutable Artifact edition.
+They never satisfy the required `rkaf:hasArtifactIdentifier` /
+`rkaf:artifactIdentifierScheme` pair.
+
+An Artifact represents one source posting. A document published in more than
+one registry — for example a Federal Register document that also appears as a
+regulations.gov docket document — is represented as one Artifact per posting,
+each carrying at most one regulatory-identifier pair. Producers MUST NOT merge
+postings into a single Artifact to carry a second pair, and SHOULD choose the
+scheme that names the cited resource most specifically (an Executive order's
+Federal Register posting carries `rkaf:us-eo`, not `rkaf:us-frdoc`). The
+normative cross-posting pattern, including how postings link to each other and
+to Proceedings, is §5.1 above.
+
+The US regulatory schemes use these canonical forms:
+
+| Scheme | Identifies | Canonical form and normalization |
+|---|---|---|
+| `rkaf:us-cfr` | A CFR part or section | `urn:rkaf:us:cfr:<title>:<part>[.<section>]`, for example `urn:rkaf:us:cfr:40:60`, `urn:rkaf:us:cfr:40:60.1`, or `urn:rkaf:us:cfr:40:60.5375a`. Title and part are decimal digits without spaces; title has no leading zero. A section may have a lowercase alphabetic suffix of up to three characters and internal lowercase alphanumeric hyphen suffixes. Subparts are outside this identifier grammar. |
+| `rkaf:us-usc` | A U.S. Code section | `urn:rkaf:us:usc:<title>:<section>`, for example `urn:rkaf:us:usc:42:7411`. Omit subsection parentheses. Preserve internal hyphens and normalize alphabetic suffixes to lowercase. |
+| `rkaf:us-frdoc` | A Federal Register document | `urn:rkaf:us:frdoc:<document-number>`, for example `urn:rkaf:us:frdoc:2024-00366`. The document number is a four-digit year, a hyphen, and a five-digit sequence. Official source values outside this grammar use the permanent-publication fallback below. |
+| `rkaf:us-regsgov` | A regulations.gov docket, document, or comment | `urn:rkaf:us:regsgov:<agency-issued-id>`, for example `urn:rkaf:us:regsgov:EPA-HQ-OAR-2021-0317-0184` or `urn:rkaf:us:regsgov:EPA_FRDOC_0001`. Normalize ASCII letters to uppercase and preserve agency-issued hyphen or underscore separators. Single-segment and legacy identifiers remain source values; producers MUST NOT invent missing segments. Docket containers use the scheme on `rkaf:Docket`, while documents and comments use it on `rkaf:Artifact`; see `spec/rkaf-rulemaking.md`. |
+| `rkaf:us-pl` | A public law | `urn:rkaf:us:pl:<congress>-<law-number>`, for example `urn:rkaf:us:pl:117-58`. Both components are positive decimal integers without leading zeroes. |
+| `rkaf:us-eo` | An Executive order | `urn:rkaf:us:eo:<order-number>`, for example `urn:rkaf:us:eo:14094`. The order number is a positive decimal integer without leading zeroes. |
+
+These URNs supply normalized citation and agency identity where no US public
+body publishes a canonical citation URI. They preserve, rather than replace,
+the identifier classes owned by the CFR, U.S. Code, Federal Register,
+regulations.gov, Congress, and the Executive Office. This is
+composition-consistent minting under `spec/rkaf-core.md` §9.4.
+
+For an official Federal Register document number outside the
+`YYYY-NNNNN` grammar, a producer MUST identify the Artifact with its permanent
+`https://www.federalregister.gov/d/<source-value>` URL and
+`rkaf:artifactIdentifierScheme: rkaf:urn-persistent`. It MUST NOT assert
+`rkaf:regulatoryIdentifierScheme: rkaf:us-frdoc` for the unsupported lexical
+form. Producers MAY retain the source value in provenance metadata. This
+fallback preserves the source document without broadening the normalized
+`rkaf:us-frdoc` citation space.
+
+The same fallback discipline applies to `rkaf:us-regsgov`: an agency-issued
+identifier outside the canonical grammar — including a legacy value with a
+single lexical segment — keeps its permanent
+`https://www.regulations.gov/document/<source-value>` URL as
+`rkaf:hasArtifactIdentifier` with `rkaf:artifactIdentifierScheme:
+rkaf:urn-persistent`, and the producer MUST NOT label the source value
+`rkaf:us-regsgov`.
+
+`rkaf:publishedInProceeding` (0..*) belongs to this profile for the same
+reason: a Proceeding is a rulemaking construct, so a universal Artifact cannot
+own a relation into it. Its range is `rkaf:Proceeding`, declared in
+`constraints/profiles/us-rulemaking/semantics/l0-ranges.cue`.
+
+
 ## 6. Lifecycle events
 
 Proceeding stage transitions use `rkaf:LifecycleEvent`; this module defines no
@@ -425,9 +496,14 @@ full-corpus receipt to agree before condition 1 is marked satisfied again.
 
 ## 10. Validation surface
 
-- CUE source: `constraints/core/rulemaking.cue`
+- CUE source: `constraints/profiles/us-rulemaking/rulemaking.cue` (the process
+  module) and `constraints/profiles/us-rulemaking/us-regulatory-artifact.cue`
+  (the §5.2 regulatory-identifier overlay, which composes the kernel
+  `#Artifact`). Class-valued ranges for this module's predicates:
+  `constraints/profiles/us-rulemaking/semantics/l0-ranges.cue`.
 - Generated JSON Schema, Rust, TypeScript, and SHACL: produced by
-  `tools/compile_all.sh`.
+  `tools/compile_all.sh` into `compiled/<target>/profiles/us-rulemaking/` and
+  `crates/rkaf-core/src/generated/profiles/us_rulemaking/`.
 - JSON Schema is an intentionally partial validation projection for calendar
   dates and cross-field ordering. It emits a lexical date pattern, `format:
   date`, and the `x-rkaf-order` annotation, but Draft 2020-12 processors may

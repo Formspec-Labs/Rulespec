@@ -4,8 +4,10 @@ import json
 import re
 import tempfile
 import unittest
+import unittest.mock
 from pathlib import Path
 
+from tools import conformance_lib
 from tools.constraints_compile import (
     CompileError,
     _scan_global_enum_registry,
@@ -1082,7 +1084,10 @@ import "time"
 
     def test_reference_ranges_project_to_shacl_classes(self) -> None:
         root = Path(__file__).resolve().parent.parent
-        source = root / "constraints" / "core" / "rulemaking.cue"
+        source = (
+            root / "constraints" / "profiles" / "us-rulemaking"
+            / "rulemaking.cue"
+        )
         document = parse_cue_file(source)
         ranges = _scan_reference_class_registry(source)
         shacl = target_shacl(document, reference_classes=ranges)
@@ -1110,7 +1115,10 @@ import "time"
 
     def test_forbidden_pattern_projects_to_all_shape_validators(self) -> None:
         root = Path(__file__).resolve().parent.parent
-        source = root / "constraints" / "core" / "rulemaking.cue"
+        source = (
+            root / "constraints" / "profiles" / "us-rulemaking"
+            / "rulemaking.cue"
+        )
         document = parse_cue_file(source)
         agenda_identifier_scheme = next(
             enum for enum in document.enums
@@ -1141,7 +1149,10 @@ import "time"
 
     def test_optional_nonempty_list_is_absent_or_nonempty(self) -> None:
         root = Path(__file__).resolve().parent.parent
-        source = root / "constraints" / "core" / "rulemaking.cue"
+        source = (
+            root / "constraints" / "profiles" / "us-rulemaking"
+            / "rulemaking.cue"
+        )
         document = parse_cue_file(source)
         schema = json.loads(target_json_schema(document))
         proceeding = schema["$defs"]["Proceeding"]
@@ -1156,6 +1167,674 @@ import "time"
             if "sh:path rkaf:hasAuthority" in line
         )
         self.assertNotIn("sh:minCount", has_authority_line)
+
+
+class KernelProfileBoundaryTests(unittest.TestCase):
+    """The kernel never depends on a profile.
+
+    `profiles depend on reusable contracts; the kernel never depends on a
+    profile` is the module-boundary rule this repository has to keep
+    mechanically, not by review habit. These tests fail the build the moment a
+    jurisdiction-specific term or a profile shape reference lands in
+    `constraints/core/`.
+    """
+
+    KERNEL_DIR = REPO_ROOT / "constraints" / "core"
+    PROFILES_DIR = REPO_ROOT / "constraints" / "profiles"
+
+    # Domain values still declared by a kernel file, with the reason each one
+    # has not moved yet. An entry here is a KNOWN, REPORTED debt, not a licence:
+    # the assertion below pins the exact set, so a new leak fails even though
+    # these remain.
+    #
+    # lifecycle-event.cue — `#LifecycleEventKind` mixes ten universal kinds with
+    # twelve `rkaf:proceeding*` kinds. Splitting it is blocked, not merely
+    # unfinished: the compiled kernel shape closes the enum with
+    # `sh:in (...)` on `sh:targetClass rkaf:LifecycleEvent`, SHACL is
+    # conjunctive, and `spec/rkaf-rulemaking.md` §6 commits the module to
+    # `rkaf:LifecycleEvent` ("this module defines no parallel event class").
+    # A profile overlay on the same class can therefore only ever intersect
+    # the kernel's ten values, never restore the twelve. Minting a parallel
+    # class instead would also drop proceeding events out of
+    # `nodes_by_type("rkaf:LifecycleEvent")` in crates/rkaf-runtime, silently
+    # removing them from cascade and staleness evaluation.
+    KNOWN_KERNEL_DOMAIN_VALUES = {
+        "lifecycle-event.cue": {
+            "rkaf:proceedingConcluded",
+            "rkaf:proceedingDisapproved",
+            "rkaf:proceedingFinal",
+            "rkaf:proceedingLongterm",
+            "rkaf:proceedingPrerule",
+            "rkaf:proceedingProposed",
+            "rkaf:proceedingReinstated",
+            "rkaf:proceedingRemanded",
+            "rkaf:proceedingStayed",
+            "rkaf:proceedingSupplemental",
+            "rkaf:proceedingVacated",
+            "rkaf:proceedingWithdrawn",
+        },
+    }
+
+    # The ten kinds `#LifecycleEventKind` is allowed to keep: they name events
+    # that happen to a governed assertion in ANY jurisdiction. FROZEN — this
+    # allowlist is what turns the debt assertion below from a `rkaf:proceeding*`
+    # prefix scan into a real gate. A new kernel kind that is neither on this
+    # list nor already-recorded debt fails whatever it is called, so smuggling a
+    # domain value in under a name like `rkaf:hearingScheduled` is caught too.
+    UNIVERSAL_LIFECYCLE_EVENT_KINDS = frozenset({
+        "rkaf:revalidation",
+        "rkaf:revalidationClosure",
+        "rkaf:amendment",
+        "rkaf:supersession",
+        "rkaf:rescission",
+        "rkaf:materialRevision",
+        "rkaf:editorialRevision",
+        "rkaf:conceptLifecycle",
+        "rkaf:promotion",
+        "rkaf:demotion",
+    })
+
+    def _profile_definition_names(self) -> set[str]:
+        names: set[str] = set()
+        for cue in sorted(self.PROFILES_DIR.rglob("*.cue")):
+            for match in re.finditer(r"^#(\w+):", cue.read_text(), re.MULTILINE):
+                names.add(match.group(1))
+        return names
+
+    def test_kernel_never_references_a_profile_definition(self) -> None:
+        profile_names = self._profile_definition_names()
+        self.assertIn(
+            "USRegulatoryArtifact",
+            profile_names,
+            "profile scan found no US rulemaking shapes — the test is not "
+            "actually looking at the profile tree",
+        )
+        kernel_names = set()
+        for cue in sorted(self.KERNEL_DIR.glob("*.cue")):
+            for match in re.finditer(r"^#(\w+):", cue.read_text(), re.MULTILINE):
+                kernel_names.add(match.group(1))
+        for cue in sorted(self.KERNEL_DIR.glob("*.cue")):
+            referenced = set(re.findall(r"#(\w+)", cue.read_text()))
+            leaked = sorted((referenced & profile_names) - kernel_names)
+            self.assertEqual(
+                [],
+                leaked,
+                f"constraints/core/{cue.name} references profile shape(s) "
+                f"{leaked}. The kernel MUST NOT depend on a profile; move the "
+                "consumer into the profile instead.",
+            )
+
+    def test_kernel_declares_no_us_jurisdiction_terms(self) -> None:
+        for cue in sorted(self.KERNEL_DIR.glob("*.cue")):
+            text = cue.read_text()
+            self.assertEqual(
+                [],
+                sorted(set(re.findall(r'"(rkaf:us-[\w-]+)"', text))),
+                f"constraints/core/{cue.name} declares a US identifier scheme. "
+                "US regulatory identity belongs to "
+                "constraints/profiles/us-rulemaking/.",
+            )
+            self.assertNotIn(
+                "urn:rkaf:us:",
+                text,
+                f"constraints/core/{cue.name} encodes a US citation grammar. "
+                "Those grammars belong to constraints/profiles/us-rulemaking/.",
+            )
+
+    def test_kernel_domain_value_debt_does_not_grow(self) -> None:
+        """Pin the kernel's domain-value debt by ALLOWLIST, not by prefix.
+
+        Two nets, because a prefix scan alone only catches debt that keeps
+        announcing itself:
+
+        1. Every kernel file, scanned for `rkaf:proceeding*` — the shape the
+           recorded debt actually has today.
+        2. `#LifecycleEventKind` measured against the frozen list of ten
+           universal kinds. ANY value that is neither universal nor already
+           recorded fails, whatever it is named.
+        """
+        found: dict[str, set[str]] = {}
+        for cue in sorted(self.KERNEL_DIR.glob("*.cue")):
+            values = set(re.findall(r'"(rkaf:proceeding\w*)"', cue.read_text()))
+            if values:
+                found[cue.name] = values
+        self.assertEqual(
+            self.KNOWN_KERNEL_DOMAIN_VALUES,
+            found,
+            "the set of proceeding-scoped values left in the kernel changed. "
+            "Adding one is a regression; removing all of them means "
+            "KNOWN_KERNEL_DOMAIN_VALUES should be emptied along with the "
+            "blocker note above it.",
+        )
+
+        lifecycle = parse_cue_file(self.KERNEL_DIR / "lifecycle-event.cue")
+        kinds = next(
+            enum for enum in lifecycle.enums if enum.name == "LifecycleEventKind"
+        )
+        self.assertEqual(
+            self.KNOWN_KERNEL_DOMAIN_VALUES["lifecycle-event.cue"],
+            set(kinds.values) - self.UNIVERSAL_LIFECYCLE_EVENT_KINDS,
+            "#LifecycleEventKind gained a kind that is neither one of the ten "
+            "universal lifecycle kinds nor part of the recorded proceeding "
+            "debt. A jurisdiction-specific event kind belongs in a profile; if "
+            "the new kind really is universal, add it to "
+            "UNIVERSAL_LIFECYCLE_EVENT_KINDS deliberately.",
+        )
+        self.assertTrue(
+            self.UNIVERSAL_LIFECYCLE_EVENT_KINDS.issubset(set(kinds.values)),
+            "#LifecycleEventKind dropped a universal kind; the allowlist and "
+            "the enum must stay in step or this gate silently stops measuring.",
+        )
+
+
+class USRulemakingProfileTests(unittest.TestCase):
+    """US regulatory identity is enforced by the profile, not the kernel.
+
+    Kernel-purity semantics, stated once and pinned here:
+
+      * At the CUE source of truth the kernel `#Artifact` is CLOSED. Unifying it
+        with `rkaf:hasRegulatoryIdentifier` is `field not allowed`.
+      * The compiled kernel carriers are OPEN, because that is what JSON Schema
+        without `additionalProperties: false` and open-world RDF mean. A
+        document carrying US terms is therefore UNCONSTRAINED by the kernel
+        carriers, not rejected by them.
+      * The profile overlay composes `#Artifact`, keeps `@type: rkaf:Artifact`,
+        and re-adds every US constraint. Enforcement moved; it did not vanish.
+    """
+
+    KERNEL_ARTIFACT = REPO_ROOT / "constraints" / "core" / "artifact.cue"
+    PROFILE_ARTIFACT = (
+        REPO_ROOT
+        / "constraints"
+        / "profiles"
+        / "us-rulemaking"
+        / "us-regulatory-artifact.cue"
+    )
+
+    US_TERMS = (
+        "rkaf:hasRegulatoryIdentifier",
+        "rkaf:regulatoryIdentifierScheme",
+        "rkaf:publishedInProceeding",
+    )
+
+    def test_kernel_artifact_carriers_no_longer_mention_us_terms(self) -> None:
+        document = parse_cue_file(self.KERNEL_ARTIFACT)
+        artifact = next(s for s in document.shapes if s.name == "Artifact")
+        declared = {prop.name for prop in artifact.properties}
+        for term in self.US_TERMS:
+            self.assertNotIn(term, declared)
+        self.assertEqual([], artifact.conditionals)
+
+        schema = json.loads(target_json_schema(document))
+        kernel = schema["$defs"]["Artifact"]
+        for term in self.US_TERMS:
+            self.assertNotIn(term, kernel["properties"])
+        self.assertNotIn("allOf", kernel)
+        self.assertNotIn("USRegulatoryIdentifierScheme", schema["$defs"])
+
+        shacl = target_shacl(document)
+        for term in self.US_TERMS:
+            self.assertNotIn(term, shacl)
+
+    def test_kernel_artifact_json_schema_stays_open(self) -> None:
+        """The kernel does not REJECT a US-bearing document; it ignores it.
+
+        Spelled out as a test so the semantics is a decision on record rather
+        than an accident of the emitter.
+        """
+        document = parse_cue_file(self.KERNEL_ARTIFACT)
+        kernel = json.loads(target_json_schema(document))["$defs"]["Artifact"]
+        self.assertNotIn("additionalProperties", kernel)
+        self.assertNotIn("unevaluatedProperties", kernel)
+
+    def test_profile_overlay_keeps_every_kernel_artifact_constraint(self) -> None:
+        document = parse_cue_file(self.PROFILE_ARTIFACT)
+        kernel = json.loads(
+            target_json_schema(parse_cue_file(self.KERNEL_ARTIFACT))
+        )["$defs"]["Artifact"]
+        overlay = json.loads(target_json_schema(document))["$defs"][
+            "USRegulatoryArtifact"
+        ]
+        for name, definition in kernel["properties"].items():
+            self.assertIn(
+                name,
+                overlay["properties"],
+                f"the profile overlay dropped kernel property {name}",
+            )
+            if name != "@type":
+                self.assertEqual(definition, overlay["properties"][name])
+        self.assertEqual(
+            sorted(kernel["required"]),
+            sorted(overlay["required"]),
+            "the profile overlay changed which kernel fields are required",
+        )
+        self.assertEqual({"const": "rkaf:Artifact"}, overlay["properties"]["@type"])
+
+    def test_profile_overlay_enforces_every_us_grammar(self) -> None:
+        document = parse_cue_file(self.PROFILE_ARTIFACT)
+        overlay = json.loads(target_json_schema(document))["$defs"][
+            "USRegulatoryArtifact"
+        ]
+        for term in self.US_TERMS:
+            self.assertIn(term, overlay["properties"])
+
+        conditions = {
+            branch["if"]
+            .get("properties", {})
+            .get("rkaf:regulatoryIdentifierScheme", {})
+            .get("anyOf", [{}])[0]
+            .get("const"): branch["then"]["properties"][
+                "rkaf:hasRegulatoryIdentifier"
+            ]["pattern"]
+            for branch in overlay["allOf"]
+            if "rkaf:hasRegulatoryIdentifier" in branch["then"]["properties"]
+        }
+        for scheme in (
+            "rkaf:us-cfr",
+            "rkaf:us-usc",
+            "rkaf:us-frdoc",
+            "rkaf:us-regsgov",
+            "rkaf:us-pl",
+            "rkaf:us-eo",
+        ):
+            self.assertIn(
+                scheme,
+                conditions,
+                f"the profile lost the {scheme} canonical-form grammar",
+            )
+            self.assertTrue(conditions[scheme].startswith("^urn:rkaf:us:"))
+
+        # hasRegulatoryIdentifier present REQUIRES a declared scheme.
+        self.assertIn(
+            {
+                "if": {"required": ["rkaf:hasRegulatoryIdentifier"]},
+                "then": {
+                    "properties": {
+                        "rkaf:regulatoryIdentifierScheme": {
+                            "$ref": "#/$defs/USRegulatoryIdentifierScheme"
+                        }
+                    },
+                    "required": ["rkaf:regulatoryIdentifierScheme"],
+                },
+            },
+            overlay["allOf"],
+        )
+
+    def test_profile_shacl_targets_the_universal_artifact_class(self) -> None:
+        """The overlay constrains `rkaf:Artifact` rather than minting a class.
+
+        A US regulatory document IS an Artifact. Every overlaid property is
+        optional and every grammar sits behind a scheme guard, so conjoining
+        this NodeShape with the kernel's can only ever add constraints.
+        """
+        shacl = target_shacl(
+            parse_cue_file(self.PROFILE_ARTIFACT),
+            reference_classes={"rkaf:publishedInProceeding": "rkaf:Proceeding"},
+        )
+        self.assertIn("rkaf:USRegulatoryArtifactShape a sh:NodeShape ;", shacl)
+        self.assertIn("sh:targetClass rkaf:Artifact ;", shacl)
+        self.assertIn(
+            "sh:path rkaf:publishedInProceeding ;", shacl
+        )
+        self.assertIn("sh:class rkaf:Proceeding ;", shacl)
+        # Only the shape's own property declarations — not the `sh:not` guards
+        # inside the conditional `sh:or` blocks — carry cardinality. Every US
+        # property must stay optional so conjoining this shape with the
+        # kernel's cannot reject a non-US Artifact.
+        declarations = [
+            line.strip()
+            for line in shacl.splitlines()
+            if line.startswith("  sh:property [ sh:path ")
+        ]
+        for term in ("rkaf:hasRegulatoryIdentifier", "rkaf:regulatoryIdentifierScheme"):
+            declaration = next(
+                line for line in declarations if f"sh:path {term} ;" in line
+            )
+            self.assertNotIn("sh:minCount", declaration)
+        scheme = next(
+            line
+            for line in declarations
+            if "sh:path rkaf:regulatoryIdentifierScheme ;" in line
+        )
+        self.assertIn("sh:in ( rkaf:us-cfr", scheme)
+        published = next(
+            line for line in declarations if "sh:path rkaf:publishedInProceeding ;" in line
+        )
+        self.assertNotIn("sh:minCount", published)
+
+
+def _shacl_property_declarations(ttl: str) -> dict[str, dict[str, dict]]:
+    """`{target_class: {sh:path: {min, max, in}}}` for one compiled SHACL file.
+
+    Reads only a NodeShape's OWN top-level `sh:property` declarations — the
+    two-space-indented lines the emitter writes one per property. Declarations
+    nested inside a conditional `sh:or` block are indented further and are
+    deliberately skipped: those are guards, not the shape's cardinality.
+    """
+    shapes: dict[str, dict[str, dict]] = {}
+    target: str | None = None
+    for line in ttl.splitlines():
+        if line.startswith("  sh:targetClass "):
+            target = line.strip().removeprefix("sh:targetClass ").removesuffix(" ;")
+            shapes.setdefault(target, {})
+        elif line == "  .":
+            target = None
+        elif target is not None and line.startswith("  sh:property [ sh:path "):
+            path = re.search(r"sh:path (\S+) ;", line)
+            if path is None:
+                continue
+            minimum = re.search(r"sh:minCount (\d+)", line)
+            maximum = re.search(r"sh:maxCount (\d+)", line)
+            closure = re.search(r"sh:in \(([^)]*)\)", line)
+            shapes[target][path.group(1)] = {
+                "min": int(minimum.group(1)) if minimum else 0,
+                "max": int(maximum.group(1)) if maximum else None,
+                "in": frozenset(closure.group(1).split()) if closure else None,
+            }
+    return shapes
+
+
+class ProfileOverlaySupersetTests(unittest.TestCase):
+    """Every profile overlay is a SUPERSET of the kernel shape it displaces.
+
+    This is the invariant the whole kernel/profile split rests on. Both
+    `tools/conformance_lib.py` and `crates/rkaf-validate/build.rs` bind a
+    JSON-LD `@type` to the PROFILE schema whenever a profile claims it, on the
+    stated grounds that the overlay restates every kernel constraint and adds
+    the profile's own. If that stops being true, the displaced kernel
+    constraints stop being enforced and every gate stays green — the profile
+    overlay currently carries nine US negatives that nothing else checks.
+
+    So this walks EVERY profile schema that binds a `@type` also bound in
+    `core/`, rather than hardcoding the one overlay that exists today. A second
+    profile added later is covered on arrival.
+    """
+
+    CORE_JSON_SCHEMA = REPO_ROOT / "compiled" / "json-schema" / "core"
+    PROFILE_JSON_SCHEMA = REPO_ROOT / "compiled" / "json-schema" / "profiles"
+    CORE_SHACL = REPO_ROOT / "compiled" / "shacl" / "core"
+    PROFILE_SHACL = REPO_ROOT / "compiled" / "shacl" / "profiles"
+
+    # Kernel SHACL enum closures the profile overlays currently DROP, keyed by
+    # (overlay TTL relative to compiled/shacl/, target class, property).
+    #
+    # Adversarial-review finding F2: `target_shacl()` takes no cross-file enum
+    # registry, so a property whose enum is defined in another CUE file loses
+    # its `sh:in`. `rkaf:artifactIdentifierScheme` is declared by the kernel
+    # `#Artifact`, and the overlay composes that shape, so the overlay's copy
+    # arrives closure-free. `tools/constraints_parity.py` then validates the
+    # us-regulatory-artifact rows against that overlay ALONE, comparing a
+    # strict JSON Schema to a weakened shape.
+    #
+    # An entry here is KNOWN, REPORTED debt, not a licence: the assertion pins
+    # the exact set, so a NEWLY dropped closure fails. Threading the registry
+    # into `target_shacl` empties this set — which also fails, prompting whoever
+    # lands it to delete the pin. See the `target_shacl` docstring for why the
+    # obvious fix is not applied here: it unmasks a missing `@type` coercion on
+    # `rkaf:capabilityCap` / `rkaf:lifecycleState` in the JSON-LD context.
+    KNOWN_DROPPED_SHACL_ENUM_CLOSURES = {
+        (
+            "profiles/us-rulemaking/us-regulatory-artifact.ttl",
+            "rkaf:Artifact",
+            "rkaf:artifactIdentifierScheme",
+        ),
+    }
+
+    def _classes_by_type(
+        self, directory: Path, pattern: str
+    ) -> dict[str, list[tuple]]:
+        """`{type_iri: [(path, class_name, class_schema), ...]}`.
+
+        A list, not a single entry: two overlays claiming one `@type` is a
+        collision `conformance_lib` rejects, but this walk must still SEE both
+        rather than let the later file quietly replace the earlier one.
+        """
+        found: dict[str, list[tuple]] = {}
+        for path in sorted(directory.glob(pattern)):
+            document = json.loads(path.read_text())
+            for class_name, class_schema in document.get("$defs", {}).items():
+                if not isinstance(class_schema, dict):
+                    continue
+                type_iri = (
+                    class_schema.get("properties", {}).get("@type", {}).get("const")
+                )
+                if isinstance(type_iri, str) and type_iri.startswith("rkaf:"):
+                    found.setdefault(type_iri, []).append(
+                        (path, class_name, class_schema)
+                    )
+        return found
+
+    def _overlay_pairs(self) -> list[tuple]:
+        kernel = self._classes_by_type(self.CORE_JSON_SCHEMA, "*.schema.json")
+        profile = self._classes_by_type(self.PROFILE_JSON_SCHEMA, "*/*.schema.json")
+        return [
+            (type_iri, kernel[type_iri][0], entry)
+            for type_iri, entries in profile.items()
+            if type_iri in kernel
+            for entry in entries
+        ]
+
+    def test_the_scan_actually_finds_an_overlay(self) -> None:
+        """Guard the guard: an empty walk would pass every assertion below."""
+        pairs = self._overlay_pairs()
+        self.assertIn(
+            "rkaf:Artifact",
+            {type_iri for type_iri, _, _ in pairs},
+            "no profile overlay of a kernel class was found — either "
+            "compiled/json-schema/ is stale (run `make compile`) or this test "
+            "has stopped measuring anything.",
+        )
+
+    def test_every_overlay_is_a_json_schema_superset_of_the_kernel(self) -> None:
+        for type_iri, (kpath, kname, kernel), (ppath, pname, overlay) in (
+            self._overlay_pairs()
+        ):
+            with self.subTest(type_iri=type_iri, overlay=ppath.name):
+                for name, definition in kernel.get("properties", {}).items():
+                    self.assertIn(
+                        name,
+                        overlay.get("properties", {}),
+                        f"{pname} ({ppath.name}) displaces {kname} for "
+                        f"{type_iri} but dropped kernel property {name}",
+                    )
+                    if name == "@type":
+                        continue
+                    self.assertEqual(
+                        definition,
+                        overlay["properties"][name],
+                        f"{pname} redefines kernel property {name}; an overlay "
+                        "may ADD constraints, never restate one differently",
+                    )
+                self.assertEqual(
+                    [],
+                    sorted(set(kernel.get("required", ())) - set(overlay.get("required", ()))),
+                    f"{pname} stopped requiring a field {kname} requires",
+                )
+                self.assertEqual(
+                    {"const": type_iri},
+                    overlay["properties"]["@type"],
+                    f"{pname} must keep binding {type_iri}; minting a parallel "
+                    "@type would leave the kernel class unconstrained",
+                )
+
+    def test_every_overlay_shacl_preserves_kernel_property_constraints(self) -> None:
+        """SHACL is conjunctive in principle — but only the OVERLAY is consulted.
+
+        `tools/constraints_parity.py` validates a profile's fixtures against the
+        profile TTL alone, so the overlay has to carry the kernel's constraints
+        itself rather than relying on the kernel shape also being loaded.
+        """
+        kernel_shapes: dict[str, dict[str, dict]] = {}
+        for path in sorted(self.CORE_SHACL.glob("*.ttl")):
+            for target, properties in _shacl_property_declarations(path.read_text()).items():
+                kernel_shapes.setdefault(target, {}).update(properties)
+
+        dropped_closures: set[tuple[str, str, str]] = set()
+        checked = 0
+        for path in sorted(self.PROFILE_SHACL.glob("*/*.ttl")):
+            relative = path.relative_to(self.PROFILE_SHACL.parent).as_posix()
+            for target, properties in _shacl_property_declarations(path.read_text()).items():
+                if target not in kernel_shapes:
+                    continue
+                checked += 1
+                for name, kernel in kernel_shapes[target].items():
+                    with self.subTest(overlay=relative, target=target, path=name):
+                        self.assertIn(
+                            name,
+                            properties,
+                            f"{relative} targets {target} but dropped the "
+                            f"kernel's constraint on {name}",
+                        )
+                        overlay = properties[name]
+                        self.assertGreaterEqual(
+                            overlay["min"],
+                            kernel["min"],
+                            f"{relative} relaxed sh:minCount on {name}",
+                        )
+                        if kernel["max"] is not None:
+                            self.assertIsNotNone(
+                                overlay["max"],
+                                f"{relative} dropped sh:maxCount on {name}",
+                            )
+                            self.assertLessEqual(
+                                overlay["max"],
+                                kernel["max"],
+                                f"{relative} relaxed sh:maxCount on {name}",
+                            )
+                        if kernel["in"] is not None and not (
+                            overlay["in"] is not None
+                            and kernel["in"] <= overlay["in"]
+                        ):
+                            dropped_closures.add((relative, target, name))
+
+        self.assertGreater(
+            checked, 0, "no profile SHACL shape overlays a kernel class — "
+            "compiled/shacl/ is stale or this test stopped measuring anything."
+        )
+        self.assertEqual(
+            self.KNOWN_DROPPED_SHACL_ENUM_CLOSURES,
+            dropped_closures,
+            "the set of kernel sh:in closures dropped by a profile overlay "
+            "changed. Growing it is a regression; shrinking it to empty means "
+            "finding F2 is fixed and KNOWN_DROPPED_SHACL_ENUM_CLOSURES should "
+            "be emptied along with the note above it.",
+        )
+
+
+class ProfileRangeRegistryTests(unittest.TestCase):
+    """A profile owns the ranges of the predicates it owns."""
+
+    def test_kernel_range_registry_declares_no_profile_predicate(self) -> None:
+        kernel = (
+            REPO_ROOT / "constraints" / "semantics" / "l0-ranges.cue"
+        ).read_text()
+        for term in (
+            "rkaf:publishedInProceeding",
+            "rkaf:commentPeriodFor",
+            "rkaf:proceedingAffects",
+            "dcat:qualifiedRelation",
+        ):
+            self.assertNotIn(term, kernel)
+
+    def test_reference_class_registry_unions_kernel_and_profile(self) -> None:
+        registry = _scan_reference_class_registry(
+            REPO_ROOT / "constraints" / "core" / "artifact.cue"
+        )
+        self.assertEqual("rkaf:Artifact", registry["dcterms:hasFormat"])
+        self.assertEqual(
+            "rkaf:Proceeding", registry["rkaf:publishedInProceeding"]
+        )
+
+
+class SchemaBindingCollisionTests(unittest.TestCase):
+    """A `@type` claimed by two profile overlays is a HARD ERROR.
+
+    Displacing the KERNEL binding is safe and deliberate: the overlay composes
+    the kernel shape, so it is a superset. Two sibling profiles are not
+    supersets of each other, so there is no defensible winner — whichever loses
+    stops being enforced while every gate stays green. The old "first path
+    alphabetically wins" rule made that outcome silent AND arbitrary: an
+    `eu-rulemaking` overlay sorts ahead of `us-rulemaking`, so adding one would
+    have unbound the US schema (and the nine US negatives only it enforces)
+    without a single failing test.
+    """
+
+    @staticmethod
+    def _class_schema(type_iri: str) -> dict:
+        return {
+            "properties": {"@type": {"const": type_iri}},
+            "required": ["@type"],
+        }
+
+    def _tree(self, root: Path, profiles: dict[str, str]) -> None:
+        core = root / "compiled" / "json-schema" / "core"
+        core.mkdir(parents=True)
+        (core / "artifact.schema.json").write_text(
+            json.dumps({"$defs": {"Artifact": self._class_schema("rkaf:Artifact")}})
+        )
+        for profile, class_name in profiles.items():
+            directory = root / "compiled" / "json-schema" / "profiles" / profile
+            directory.mkdir(parents=True)
+            (directory / f"{profile}-artifact.schema.json").write_text(
+                json.dumps({"$defs": {class_name: self._class_schema("rkaf:Artifact")}})
+            )
+
+    def _bindings_over(self, root: Path) -> dict:
+        return unittest.mock.patch.multiple(
+            conformance_lib,
+            ROOT=root,
+            COMPILED_JSON_SCHEMA_DIR=root / "compiled" / "json-schema" / "core",
+            COMPILED_PROFILE_JSON_SCHEMA_ROOT=(
+                root / "compiled" / "json-schema" / "profiles"
+            ),
+        )
+
+    def test_one_profile_overlay_displaces_the_kernel_binding(self) -> None:
+        """Control: the single-overlay case still resolves to the profile."""
+        with tempfile.TemporaryDirectory() as raw:
+            root = Path(raw)
+            self._tree(root, {"us-rulemaking": "USRegulatoryArtifact"})
+            with self._bindings_over(root):
+                bindings = conformance_lib.schema_bindings()
+        self.assertEqual(
+            "USRegulatoryArtifact", bindings["rkaf:Artifact"].class_name
+        )
+
+    def test_two_profile_overlays_on_one_type_iri_raise(self) -> None:
+        with tempfile.TemporaryDirectory() as raw:
+            root = Path(raw)
+            self._tree(
+                root,
+                {
+                    "eu-rulemaking": "EURegulatoryArtifact",
+                    "us-rulemaking": "USRegulatoryArtifact",
+                },
+            )
+            with self._bindings_over(root):
+                with self.assertRaises(
+                    conformance_lib.DuplicateProfileBindingError
+                ) as caught:
+                    conformance_lib.schema_bindings()
+        message = str(caught.exception)
+        self.assertIn("rkaf:Artifact", message)
+        self.assertIn("profiles/eu-rulemaking", message)
+        self.assertIn("profiles/us-rulemaking", message)
+
+    def test_the_shipped_compiled_tree_has_no_overlay_collision(self) -> None:
+        """The rule runs against the real tree, not only a synthetic one.
+
+        `schema_bindings()` raising IS the collision check, so calling it here
+        is the assertion: if `compiled/json-schema/profiles/` ever grows a
+        second overlay for a class, this fails before any downstream gate gets
+        a chance to pass on a silently unbound schema.
+        """
+        bindings = conformance_lib.schema_bindings()
+        self.assertEqual(
+            "USRegulatoryArtifact",
+            bindings["rkaf:Artifact"].class_name,
+            "rkaf:Artifact must resolve to the US rulemaking overlay; binding "
+            "it to the kernel would stop enforcing the US grammars",
+        )
 
 
 if __name__ == "__main__":

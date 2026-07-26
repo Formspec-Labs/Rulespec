@@ -25,9 +25,9 @@ from conformance_lib import (
     schema_bindings,
 )
 from vocab_audit import (
-    CUE_DIR,
     FIXTURE_DIR,
     TERM_DOC,
+    constraint_sources,
     cue_coverage_check,
     parse_required_fixtures,
 )
@@ -96,15 +96,15 @@ def l0_vocab_coverage() -> tuple[list[str], int, int, int, int]:
     vocab_text = TERM_DOC.read_text()
     required = parse_required_fixtures(vocab_text)
     present = {path.stem for path in FIXTURE_DIR.glob("*.jsonld")}
-    cue_count = len(list(CUE_DIR.glob("*.cue")))
+    cue_count = len(constraint_sources())
     missing_fixtures = sorted(required - present)
     missing_terms = cue_coverage_check(vocab_text)
 
     for name in missing_fixtures:
         issues.append(f"L0 vocabulary fixture missing: {name}.jsonld")
-    for cue_stem, terms in missing_terms:
+    for label, terms in missing_terms:
         choices = ", ".join(sorted(f"rkaf:{term}" for term in terms))
-        issues.append(f"L0 CUE primitive missing vocabulary terms: {cue_stem} -> {choices}")
+        issues.append(f"L0 CUE primitive missing vocabulary terms: {label} -> {choices}")
 
     return (
         issues,

@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """Mechanically generate "missing required field" negative fixtures.
 
-For each codified class in `compiled/json-schema/core/`, walks the schema's
+For each codified class discovered by `conformance_lib.schema_bindings()`
+(kernel plus every compiled domain profile), walks the schema's
 `required` list and emits one negative fixture per required field, with the
 field stripped. Output: `fixtures/negatives/<class>-missing-<field>-negative.jsonld`.
 
@@ -138,7 +139,13 @@ def generate_for_class(binding: SchemaBinding, dry_run: bool) -> tuple[list[Path
         modified = _strip_field_from_node(target_node, field)
         new_doc = _rewrap(original, modified, target_type)
         slug = _safe_filename(field)
-        cls_slug = re.sub(r"([A-Z])", r"-\1", binding.class_name).lower().lstrip("-")
+        # Slug from the JSON-LD `@type`, not the bound class name. The two agree
+        # for kernel shapes, but a profile overlay binds a class of its own
+        # (`USRegulatoryArtifact` for `rkaf:Artifact`) — slugging from the class
+        # would mint a second, mis-named `u-s-regulatory-artifact-*` family
+        # alongside the `artifact-*` fixtures already on disk. The fixture is
+        # named for the class of document it is a negative FOR.
+        cls_slug = _safe_filename(binding.type_iri)
         out_path = OUT_DIR / f"{cls_slug}-missing-{slug}-negative.jsonld"
         if dry_run:
             print(f"  [DRY ] {out_path.relative_to(ROOT)}")

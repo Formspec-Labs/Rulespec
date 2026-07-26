@@ -31,9 +31,15 @@ from pyshacl import validate as shacl_validate
 
 ROOT = Path(__file__).resolve().parent.parent
 
-# Constraint name → (CUE basename, subdir under constraints/)
-# All v0.2 constraints. The compiled artifacts live under compiled/<target>/<subdir>/<basename>.<ext>
-CONSTRAINTS: dict[str, tuple[str, str]] = {
+# Constraint name → subdir under constraints/ (and therefore under
+# compiled/<target>/). All v0.2 constraints. Compiled artifacts live at
+# compiled/<target>/<subdir>/<constraint>.<ext>.
+#
+# `profiles/<profile>` entries are domain profiles: they compose kernel shapes
+# and add jurisdiction-specific terms. Running their fixtures through the
+# PROFILE schema and the PROFILE SHACL file — never the kernel's — is what
+# proves the profile, not the kernel, now carries those constraints.
+CONSTRAINTS: dict[str, str] = {
     "artifact":                "core",
     "source-fragment":         "core",
     "evidence-binding":        "core",
@@ -45,9 +51,10 @@ CONSTRAINTS: dict[str, tuple[str, str]] = {
     "workspace":               "core",
     "mapping-state":           "core",
     "concept-registry":        "core",
-    "rulemaking":              "core",
     "assertion":               "core",
     "relationship-assertion":  "core",
+    "rulemaking":              "profiles/us-rulemaking",
+    "us-regulatory-artifact":  "profiles/us-rulemaking",
     "conditional-silent-pass": "adversarial",
     "cross-property-coupling": "adversarial",
     "enum-drift":              "adversarial",
@@ -81,22 +88,40 @@ FIXTURE_BINDINGS: list[tuple[str, str, str, str]] = [
     ("artifact", "Artifact", "fixtures/artifact-eli-positive.jsonld", "PASS"),
     ("artifact", "Artifact", "fixtures/artifact-doi-positive.jsonld", "PASS"),
     ("artifact", "Artifact", "fixtures/artifact-cid-positive.jsonld", "PASS"),
-    ("artifact", "Artifact", "fixtures/artifact-us-cfr-positive.jsonld", "PASS"),
-    ("artifact", "Artifact", "fixtures/artifact-us-usc-positive.jsonld", "PASS"),
-    ("artifact", "Artifact", "fixtures/artifact-us-frdoc-positive.jsonld", "PASS"),
-    ("artifact", "Artifact", "fixtures/artifact-us-regsgov-positive.jsonld", "PASS"),
-    ("artifact", "Artifact", "fixtures/artifact-us-pl-positive.jsonld", "PASS"),
-    ("artifact", "Artifact", "fixtures/artifact-us-eo-positive.jsonld", "PASS"),
     ("artifact", "Artifact", "fixtures/artifact-primary-topic-positive.jsonld", "PASS"),
     ("artifact", "Artifact", "fixtures/artifact-version-lineage-positive.jsonld", "PASS"),
-    ("artifact", "Artifact", "fixtures/negatives/artifact-regulatory-identifier-missing-scheme-negative.jsonld", "FAIL"),
-    ("artifact", "Artifact", "fixtures/negatives/artifact-regulatory-scheme-missing-identifier-negative.jsonld", "FAIL"),
-    ("artifact", "Artifact", "fixtures/negatives/artifact-us-cfr-malformed-negative.jsonld", "FAIL"),
-    ("artifact", "Artifact", "fixtures/negatives/artifact-us-usc-malformed-negative.jsonld", "FAIL"),
-    ("artifact", "Artifact", "fixtures/negatives/artifact-us-frdoc-malformed-negative.jsonld", "FAIL"),
-    ("artifact", "Artifact", "fixtures/negatives/artifact-us-regsgov-malformed-negative.jsonld", "FAIL"),
-    ("artifact", "Artifact", "fixtures/negatives/artifact-us-pl-malformed-negative.jsonld", "FAIL"),
-    ("artifact", "Artifact", "fixtures/negatives/artifact-us-eo-malformed-negative.jsonld", "FAIL"),
+    # The kernel Artifact is open at the carrier level: a document carrying US
+    # profile terms is UNCONSTRAINED by the kernel schema/shape rather than
+    # rejected by it. These two rows pin that semantics — the same malformed
+    # documents that FAIL below under the profile PASS the kernel, because the
+    # kernel no longer knows the terms. (The CUE definition itself is closed:
+    # see ArtifactKernelPurityTests in tools/test_constraints_compile.py.)
+    ("artifact", "Artifact",
+     "fixtures/negatives/artifact-us-cfr-malformed-negative.jsonld", "PASS"),
+    ("artifact", "Artifact",
+     "fixtures/negatives/artifact-regulatory-scheme-unregistered-negative.jsonld",
+     "PASS"),
+    # US regulatory identity now lives in the profile overlay, which composes
+    # the kernel #Artifact. Every US fixture is classified by the PROFILE.
+    ("us-regulatory-artifact", "USRegulatoryArtifact", "fixtures/artifact-eli-positive.jsonld", "PASS"),
+    ("us-regulatory-artifact", "USRegulatoryArtifact", "fixtures/artifact-us-cfr-positive.jsonld", "PASS"),
+    ("us-regulatory-artifact", "USRegulatoryArtifact", "fixtures/artifact-us-usc-positive.jsonld", "PASS"),
+    ("us-regulatory-artifact", "USRegulatoryArtifact", "fixtures/artifact-us-frdoc-positive.jsonld", "PASS"),
+    ("us-regulatory-artifact", "USRegulatoryArtifact", "fixtures/artifact-us-regsgov-positive.jsonld", "PASS"),
+    ("us-regulatory-artifact", "USRegulatoryArtifact", "fixtures/artifact-us-pl-positive.jsonld", "PASS"),
+    ("us-regulatory-artifact", "USRegulatoryArtifact", "fixtures/artifact-us-eo-positive.jsonld", "PASS"),
+    ("us-regulatory-artifact", "USRegulatoryArtifact", "fixtures/artifact-cross-posting-positive.jsonld", "PASS"),
+    ("us-regulatory-artifact", "USRegulatoryArtifact", "fixtures/negatives/artifact-regulatory-identifier-missing-scheme-negative.jsonld", "FAIL"),
+    ("us-regulatory-artifact", "USRegulatoryArtifact", "fixtures/negatives/artifact-regulatory-scheme-missing-identifier-negative.jsonld", "FAIL"),
+    ("us-regulatory-artifact", "USRegulatoryArtifact", "fixtures/negatives/artifact-us-cfr-malformed-negative.jsonld", "FAIL"),
+    ("us-regulatory-artifact", "USRegulatoryArtifact", "fixtures/negatives/artifact-us-usc-malformed-negative.jsonld", "FAIL"),
+    ("us-regulatory-artifact", "USRegulatoryArtifact", "fixtures/negatives/artifact-us-frdoc-malformed-negative.jsonld", "FAIL"),
+    ("us-regulatory-artifact", "USRegulatoryArtifact", "fixtures/negatives/artifact-us-regsgov-malformed-negative.jsonld", "FAIL"),
+    ("us-regulatory-artifact", "USRegulatoryArtifact", "fixtures/negatives/artifact-us-pl-malformed-negative.jsonld", "FAIL"),
+    ("us-regulatory-artifact", "USRegulatoryArtifact", "fixtures/negatives/artifact-us-eo-malformed-negative.jsonld", "FAIL"),
+    ("us-regulatory-artifact", "USRegulatoryArtifact",
+     "fixtures/negatives/artifact-regulatory-scheme-unregistered-negative.jsonld",
+     "FAIL"),
     ("rulemaking", "Docket", "fixtures/docket-us-regsgov-positive.jsonld", "PASS"),
     ("rulemaking", "Docket", "fixtures/negatives/docket-missing-has-docket-identifier-negative.jsonld", "FAIL"),
     ("rulemaking", "Docket", "fixtures/negatives/docket-missing-docket-identifier-scheme-negative.jsonld", "FAIL"),
@@ -177,6 +202,17 @@ FIXTURE_BINDINGS: list[tuple[str, str, str, str]] = [
 ]
 
 
+def rust_module_path(constraint: str) -> Path:
+    """Generated-Rust sink for a constraint, mirroring tools/compile_all.sh."""
+    subdir = CONSTRAINTS[constraint]
+    snake = constraint.replace("-", "_")
+    base = ROOT / "crates" / "rkaf-core" / "src" / "generated"
+    if subdir.startswith("profiles/"):
+        profile = subdir.split("/", 1)[1].replace("-", "_")
+        return base / "profiles" / profile / f"{snake}.rs"
+    return base / f"{snake}.rs"
+
+
 def run_jsonschema(constraint: str, shape: str, fixture_path: Path) -> str:
     subdir = CONSTRAINTS[constraint]
     schema_path = ROOT / "compiled" / "json-schema" / subdir / f"{constraint}.schema.json"
@@ -246,13 +282,13 @@ def run_shacl(constraint: str, shape: str, fixture_path: Path) -> str:
 def structural_parity_rust(constraint: str) -> bool:
     subdir = CONSTRAINTS[constraint]
     js = (ROOT / "compiled" / "json-schema" / subdir / f"{constraint}.schema.json").read_text()
-    # Canonical Rust sink is crates/rkaf-core/src/generated/<snake>.rs.
-    # adversarial/ + ai-extraction/ constraints are not compiled to Rust
-    # (Plan 7a-7c restriction); skip parity for those.
-    if subdir != "core":
+    # Canonical Rust sink is crates/rkaf-core/src/generated/<snake>.rs for the
+    # kernel and .../generated/profiles/<profile>/<snake>.rs for a domain
+    # profile. adversarial/ + ai-extraction/ constraints are not compiled to
+    # Rust (Plan 7a-7c restriction); skip parity for those.
+    if subdir != "core" and not subdir.startswith("profiles/"):
         return True
-    snake = constraint.replace("-", "_")
-    rs_path = ROOT / "crates" / "rkaf-core" / "src" / "generated" / f"{snake}.rs"
+    rs_path = rust_module_path(constraint)
     if not rs_path.exists():
         return False
     rs = rs_path.read_text()

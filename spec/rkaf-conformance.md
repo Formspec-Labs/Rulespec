@@ -26,7 +26,8 @@ L1 ⊂ L2 ⊂ L3 ⊂ L4 — each JSON-LD level subsumes the prior. L0 is the voc
 An L0 implementation MUST:
 
 1. Publish a carrier-mapping document pinned to the SHA-256 digest of the
-   Rulespec CUE, context, and L0 range contract.
+   Rulespec contract: the kernel CUE, every domain profile's CUE, the shared
+   context, and every L0 range registry.
 2. Declare each mapped field's carrier location, subject type, predicate,
    direction, value kind, collection behavior, and class-valued range.
 3. Give an executable transform and sample for every IRI-valued field.
@@ -50,7 +51,7 @@ current `sha256:<64 lowercase hex>` contract digest. Every block in one
 document MUST use the same digest.
 
 ```yaml rkaf-l0-mapping
-rulespec_version: "sha256:4b5d224cdf60387b9a778bb31ca122597c174f33abb6c120e22fd9812d2a0ef6"
+rulespec_version: "sha256:4c7b0779c963b511fd54134ee6a1263a332106add96e2f80c1c428f9ac59fd68"
 mappings:
   - table: proceedings
     column: current_stage
@@ -77,6 +78,15 @@ mappings:
         output:
           - https://www.federalregister.gov/d/2024-00366
 ```
+
+The example above maps a US rulemaking carrier, so both of its predicates —
+`rkaf:proceedingStage` and `rkaf:publishedInProceeding` — are US rulemaking
+PROFILE terms defined by `spec/rkaf-rulemaking.md` and codified under
+`constraints/profiles/us-rulemaking/`, not universal kernel terms. L0 places no
+adoption obligation on any profile: an implementation maps whichever registered
+terms its carrier actually holds, kernel or profile, and the digest in
+`rulespec_version` covers the kernel shapes, every profile's shapes, the shared
+context, and every L0 range registry.
 
 Each entry has these rules:
 

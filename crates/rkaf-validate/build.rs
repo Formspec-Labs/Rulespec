@@ -10,28 +10,63 @@ fn escaped_path(path: &Path) -> String {
         .replace('"', "\\\"")
 }
 
-fn main() {
-    let manifest_dir = PathBuf::from(env::var("CARGO_MANIFEST_DIR").expect("CARGO_MANIFEST_DIR"));
-    let repo_root = manifest_dir
-        .parent()
-        .and_then(Path::parent)
-        .expect("rkaf-validate lives under crates/");
-    let schema_dir = repo_root.join("compiled/json-schema/core");
-    println!("cargo:rerun-if-changed={}", schema_dir.display());
-
-    let mut entries: BTreeMap<String, (String, PathBuf)> = BTreeMap::new();
-    let mut schema_paths: Vec<PathBuf> = fs::read_dir(&schema_dir)
-        .expect("read compiled JSON Schema directory")
+fn read_schema_dir(dir: &Path) -> Vec<PathBuf> {
+    fs::read_dir(dir)
+        .unwrap_or_else(|e| panic!("read compiled JSON Schema directory {}: {e}", dir.display()))
         .map(|entry| entry.expect("read schema directory entry").path())
         .filter(|path| {
             path.file_name()
                 .and_then(|n| n.to_str())
                 .is_some_and(|n| n.ends_with(".schema.json"))
         })
-        .collect();
-    schema_paths.sort();
+        .collect()
+}
 
-    for path in schema_paths {
+fn main() {
+    let manifest_dir = PathBuf::from(env::var("CARGO_MANIFEST_DIR").expect("CARGO_MANIFEST_DIR"));
+    let repo_root = manifest_dir
+        .parent()
+        .and_then(Path::parent)
+        .expect("rkaf-validate lives under crates/");
+    // Kernel schemas, then every domain profile's overlay schemas. A profile
+    // overlay composes the kernel shape it extends, so it is a superset:
+    // binding a class to the overlay keeps every kernel constraint and adds
+    // the profile's. Profiles are collected AFTER the kernel and override, so
+    // shipping the US rulemaking profile does not silently stop checking the
+    // regulatory-identifier grammars.
+    let schema_dir = repo_root.join("compiled/json-schema/core");
+    let profile_root = repo_root.join("compiled/json-schema/profiles");
+    println!("cargo:rerun-if-changed={}", schema_dir.display());
+    println!("cargo:rerun-if-changed={}", profile_root.display());
+
+    let mut entries: BTreeMap<String, (String, PathBuf)> = BTreeMap::new();
+    let mut kernel_bound: std::collections::BTreeSet<String> = Default::default();
+    // Which profile overlay already claimed each `@type`. A SECOND overlay on
+    // the same class is a hard error: displacing the kernel is meaningful
+    // because the overlay is a superset of it, but two sibling profiles are not
+    // supersets of each other, so picking one would silently stop embedding the
+    // other's schema while the build stayed green.
+    let mut profile_bound: BTreeMap<String, PathBuf> = BTreeMap::new();
+    let mut schema_paths = read_schema_dir(&schema_dir);
+    schema_paths.sort();
+    let mut profile_dirs: Vec<PathBuf> = fs::read_dir(&profile_root)
+        .map(|dir| {
+            dir.map(|entry| entry.expect("read profile directory entry").path())
+                .filter(|path| path.is_dir())
+                .collect()
+        })
+        .unwrap_or_default();
+    profile_dirs.sort();
+    let mut profile_paths: Vec<PathBuf> = Vec::new();
+    for dir in &profile_dirs {
+        println!("cargo:rerun-if-changed={}", dir.display());
+        let mut paths = read_schema_dir(dir);
+        paths.sort();
+        profile_paths.extend(paths);
+    }
+
+    for path in schema_paths.into_iter().chain(profile_paths.into_iter()) {
+        let is_profile = path.starts_with(&profile_root);
         println!("cargo:rerun-if-changed={}", path.display());
         let raw = fs::read_to_string(&path).expect("read compiled schema");
         let parsed: Value = serde_json::from_str(&raw).expect("parse compiled schema");
@@ -50,9 +85,25 @@ fn main() {
             if !type_iri.starts_with("rkaf:") {
                 continue;
             }
-            entries
-                .entry(type_iri.to_string())
-                .or_insert_with(|| (class_name.to_string(), path.clone()));
+            if is_profile {
+                if let Some(previous) = profile_bound.get(type_iri) {
+                    panic!(
+                        "two profile overlays bind {type_iri}: {} and {}. Exactly \
+                         one schema may validate a given @type — binding \
+                         {type_iri} to either one silently stops enforcing the \
+                         other's constraints. Give one overlay its own @type, or \
+                         merge them into a single profile shape.",
+                        previous.display(),
+                        path.display(),
+                    );
+                }
+                profile_bound.insert(type_iri.to_string(), path.clone());
+                entries.insert(type_iri.to_string(), (class_name.to_string(), path.clone()));
+                kernel_bound.remove(type_iri);
+            } else if !entries.contains_key(type_iri) {
+                entries.insert(type_iri.to_string(), (class_name.to_string(), path.clone()));
+                kernel_bound.insert(type_iri.to_string());
+            }
         }
     }
 

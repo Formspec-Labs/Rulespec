@@ -1,6 +1,6 @@
 # Rulespec Specifications
 
-This directory holds the active normative specifications. The CUE source under `constraints/core/` is the source of truth for shape; `tools/constraints_compile.py` projects each CUE file to JSON Schema, SHACL, TypeScript, and Rust targets. The spec markdown files in this directory describe vocabulary, normative behavior, and the layered architecture.
+This directory holds the active normative specifications. The CUE source under `constraints/core/` (universal kernel) and `constraints/profiles/` (domain profiles) is the source of truth for shape; `tools/constraints_compile.py` projects each CUE file to JSON Schema, SHACL, TypeScript, and Rust targets. The spec markdown files in this directory describe vocabulary, normative behavior, and the layered architecture.
 
 ## Documents
 

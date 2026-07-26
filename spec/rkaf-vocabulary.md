@@ -11,8 +11,6 @@
 | rkaf:Artifact | https://rulespec.org/ns/v1#Artifact | Class | — | — | — | artifact-eli-positive, artifact-doi-positive, artifact-cid-positive, artifact-us-cfr-positive, artifact-us-usc-positive, artifact-us-frdoc-positive, artifact-us-regsgov-positive, artifact-us-pl-positive, artifact-us-eo-positive |
 | rkaf:hasArtifactIdentifier | https://rulespec.org/ns/v1#hasArtifactIdentifier | Property | rkaf:Artifact | IRI | 1..* | artifact-eli-positive |
 | rkaf:artifactIdentifierScheme | https://rulespec.org/ns/v1#artifactIdentifierScheme | Property (closed enum) | rkaf:Artifact | rkaf:ArtifactIdentifierScheme | 1..* | artifact-eli-positive |
-| rkaf:hasRegulatoryIdentifier | https://rulespec.org/ns/v1#hasRegulatoryIdentifier | Property | rkaf:Artifact | IRI | 0..1 | artifact-us-cfr-positive |
-| rkaf:regulatoryIdentifierScheme | https://rulespec.org/ns/v1#regulatoryIdentifierScheme | Property (closed enum) | rkaf:Artifact | rkaf:USRegulatoryIdentifierScheme | 0..1 | artifact-us-cfr-positive |
 | foaf:primaryTopic | http://xmlns.com/foaf/0.1/primaryTopic | Property (FOAF mode-1 import) | rkaf:Artifact | IRI | 0..1 | artifact-primary-topic-positive |
 | dcterms:hasFormat | http://purl.org/dc/terms/hasFormat | Property (DCTERMS mode-1 import) | rkaf:Artifact | rkaf:Artifact | 0..* | artifact-cross-posting-positive |
 | dcterms:isFormatOf | http://purl.org/dc/terms/isFormatOf | Property (DCTERMS mode-1 import) | rkaf:Artifact | rkaf:Artifact | 0..* | artifact-cross-posting-positive |
@@ -49,10 +47,12 @@
 
 ## Experimental US rulemaking-process module
 
-These terms are defined by `spec/rkaf-rulemaking.md`. Their status is Experimental; inclusion in the mechanically checked vocabulary does not satisfy the module's stabilization gate.
+These terms are defined by `spec/rkaf-rulemaking.md` and codified under `constraints/profiles/us-rulemaking/`, which compiles to `compiled/<target>/profiles/us-rulemaking/` and `crates/rkaf-core/src/generated/profiles/us_rulemaking/`. They are jurisdiction-specific: the universal-primitives table above and the kernel CUE under `constraints/core/` do not declare any of them, and a consumer that does not adopt this profile never sees them. `rkaf:hasRegulatoryIdentifier`, `rkaf:regulatoryIdentifierScheme`, and `rkaf:publishedInProceeding` have `rkaf:Artifact` as their domain because the profile shape `#USRegulatoryArtifact` composes the kernel `#Artifact` rather than minting a parallel class. Their status is Experimental; inclusion in the mechanically checked vocabulary does not satisfy the module's stabilization gate.
 
 | Term | IRI | Kind | Domain | Range | Cardinality | Required fixtures |
 |---|---|---|---|---|---|---|
+| rkaf:hasRegulatoryIdentifier | https://rulespec.org/ns/v1#hasRegulatoryIdentifier | Property | rkaf:Artifact | IRI | 0..1 | artifact-us-cfr-positive |
+| rkaf:regulatoryIdentifierScheme | https://rulespec.org/ns/v1#regulatoryIdentifierScheme | Property (closed enum) | rkaf:Artifact | rkaf:USRegulatoryIdentifierScheme | 0..1 | artifact-us-cfr-positive |
 | rkaf:RegulatoryAgendaItem | https://rulespec.org/ns/v1#RegulatoryAgendaItem | Class (rulemaking-profile specialization of dcat:Resource) | — | — | — | agenda-item-ordinary-positive, agenda-item-coast-guard-recurring-positive, agenda-item-faa-recurring-positive, agenda-item-repeated-unresolved-positive |
 | rkaf:hasAgendaItemIdentifier | https://rulespec.org/ns/v1#hasAgendaItemIdentifier | Property | rkaf:RegulatoryAgendaItem | IRI | 1 | agenda-item-ordinary-positive |
 | rkaf:agendaItemIdentifierScheme | https://rulespec.org/ns/v1#agendaItemIdentifierScheme | Property (closed enum) | rkaf:RegulatoryAgendaItem | rkaf:AgendaItemIdentifierScheme | 1 | agenda-item-ordinary-positive |

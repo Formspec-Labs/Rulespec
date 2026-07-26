@@ -1,18 +1,27 @@
 //! Rulespec Layer 1 — typed Vocabulary primitives.
 //!
 //! **All types in this crate are code-generated from the CUE source-of-truth
-//! under `constraints/core/`.** The generator is `tools/constraints_compile.py
-//! --target rust`. Each CUE source file produces one Rust module under
-//! `src/generated/`. The same compiler emits JSON Schema, SHACL, and
-//! TypeScript targets from the identical AST — so all surfaces stay in lock
-//! step.
+//! under `constraints/core/` (the universal kernel) and
+//! `constraints/profiles/` (domain profiles).** The generator is
+//! `tools/constraints_compile.py --target rust`. Each CUE source file produces
+//! one Rust module under `src/generated/`. The same compiler emits JSON
+//! Schema, SHACL, and TypeScript targets from the identical AST — so all
+//! surfaces stay in lock step.
 //!
 //! Source pipeline:
 //! ```text
 //!   constraints/core/<class>.cue
 //!     ↓ python3 tools/constraints_compile.py --target rust
 //!   crates/rkaf-core/src/generated/<class>.rs
+//!
+//!   constraints/profiles/<profile>/<class>.cue
+//!     ↓ python3 tools/constraints_compile.py --target rust
+//!   crates/rkaf-core/src/generated/profiles/<profile>/<class>.rs
 //! ```
+//!
+//! A profile module may compose a kernel shape; no kernel module references a
+//! profile. `tools/test_constraints_compile.py::KernelProfileBoundaryTests`
+//! audits that direction.
 //!
 //! Round-trip parity (`from_value(to_value(x)) == x`) is the only invariant
 //! this crate guarantees. Validation lives in `rkaf-validate`.
@@ -82,12 +91,21 @@ pub mod generated {
     pub mod retention_policy                   { include!("generated/retention_policy.rs"); }
     pub mod revalidation_event                 { include!("generated/revalidation_event.rs"); }
     pub mod relationship_assertion             { include!("generated/relationship_assertion.rs"); }
-    pub mod rulemaking                         { include!("generated/rulemaking.rs"); }
     pub mod source_fragment                    { include!("generated/source_fragment.rs"); }
     pub mod trust_and_safety                   { include!("generated/trust_and_safety.rs"); }
     pub mod usage_eligibility                  { include!("generated/usage_eligibility.rs"); }
     pub mod warrant                            { include!("generated/warrant.rs"); }
     pub mod workspace                          { include!("generated/workspace.rs"); }
+
+    /// Domain profiles. Each submodule is generated from
+    /// `constraints/profiles/<profile>/` and may compose kernel shapes; no
+    /// kernel module above depends on anything below this line.
+    pub mod profiles {
+        pub mod us_rulemaking {
+            pub mod rulemaking             { include!("generated/profiles/us_rulemaking/rulemaking.rs"); }
+            pub mod us_regulatory_artifact { include!("generated/profiles/us_rulemaking/us_regulatory_artifact.rs"); }
+        }
+    }
 }
 
 // Top-level re-exports — every primitive class. Use the `generated::<module>::`
@@ -117,10 +135,14 @@ pub use generated::point_in_time_exception::PointInTimeException;
 pub use generated::registry_conflict::RegistryConflict;
 pub use generated::revalidation_event::{RevalidationClosureEvent, RevalidationEvent};
 pub use generated::relationship_assertion::RelationshipAssertion;
-pub use generated::rulemaking::{
+// US rulemaking profile. These types moved from the kernel into
+// `generated::profiles::us_rulemaking`; the crate-root re-exports are kept so
+// existing consumers keep compiling against the same paths.
+pub use generated::profiles::us_rulemaking::rulemaking::{
     AgendaProceedingRelationship, CommentPeriod, Docket, Proceeding,
     RegulatoryAgendaItem, RegulatoryAgendaObservation,
 };
+pub use generated::profiles::us_rulemaking::us_regulatory_artifact::USRegulatoryArtifact;
 pub use generated::source_fragment::SourceFragment;
 pub use generated::warrant::Warrant;
 pub use generated::workspace::Workspace;

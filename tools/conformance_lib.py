@@ -11,7 +11,31 @@ ROOT = Path(__file__).resolve().parent.parent
 FIXTURES_DIR = ROOT / "fixtures"
 COMPILED_JSON_SCHEMA_DIR = ROOT / "compiled" / "json-schema" / "core"
 COMPILED_SHACL_DIR = ROOT / "compiled" / "shacl" / "core"
+COMPILED_PROFILE_JSON_SCHEMA_ROOT = ROOT / "compiled" / "json-schema" / "profiles"
+COMPILED_PROFILE_SHACL_ROOT = ROOT / "compiled" / "shacl" / "profiles"
 HAND_AUTHORED_SHACL_DIR = ROOT / "shapes"
+
+
+def compiled_json_schema_paths() -> list[Path]:
+    """Kernel schemas first, then each domain profile's overlay schemas.
+
+    Order is load-bearing: `schema_bindings()` resolves one schema per JSON-LD
+    `@type`, and a profile overlay is a SUPERSET of the kernel shape it
+    composes (it restates every kernel property and adds its own), so the more
+    specific shape must win. See `schema_bindings`.
+    """
+    paths = sorted(COMPILED_JSON_SCHEMA_DIR.glob("*.schema.json"))
+    if COMPILED_PROFILE_JSON_SCHEMA_ROOT.is_dir():
+        paths.extend(sorted(COMPILED_PROFILE_JSON_SCHEMA_ROOT.glob("*/*.schema.json")))
+    return paths
+
+
+def compiled_shacl_paths() -> list[Path]:
+    """Every compiled SHACL file: kernel shapes plus every profile overlay."""
+    paths = sorted(COMPILED_SHACL_DIR.glob("*.ttl"))
+    if COMPILED_PROFILE_SHACL_ROOT.is_dir():
+        paths.extend(sorted(COMPILED_PROFILE_SHACL_ROOT.glob("*/*.ttl")))
+    return paths
 
 CROSS_GATE_DIRS = {"projectors", "adversarial", "ai-extraction"}
 # Reserved for future non-fixture siblings under fixtures/ that the conformance
@@ -19,6 +43,17 @@ CROSS_GATE_DIRS = {"projectors", "adversarial", "ai-extraction"}
 # the b6c24de cleanup — the legacy `context.jsonld` was removed; the canonical
 # JSON-LD context lives at `context/rkaf-context.jsonld`.
 NON_FIXTURE_NAMES: set[str] = set()
+
+
+class DuplicateProfileBindingError(RuntimeError):
+    """Two profile overlays claim the same JSON-LD `@type`.
+
+    Exactly one schema validates a given `@type`. When two profiles overlay the
+    same class there is no defensible winner: whichever loses stops being
+    checked, and every gate stays green while the constraints it carried go
+    unenforced. That is a repo-shape error the compiler cannot resolve, so it
+    is raised rather than silently arbitrated.
+    """
 
 
 @dataclass(frozen=True)
@@ -30,6 +65,14 @@ class SchemaBinding:
     class_name: str
     schema_path: Path
     required: tuple[str, ...]
+
+
+def _repo_relative(path: Path) -> str:
+    """Repo-relative display path, falling back to the absolute path."""
+    try:
+        return path.relative_to(ROOT).as_posix()
+    except ValueError:
+        return path.as_posix()
 
 
 def load_json(path: Path) -> dict | None:
@@ -58,9 +101,28 @@ def iter_nodes(doc: dict, *, include_behavior_input: bool = True) -> Iterable[di
 
 
 def schema_bindings() -> dict[str, SchemaBinding]:
-    """Discover every compiled class schema that declares a concrete @type."""
+    """Discover every compiled class schema that declares a concrete @type.
+
+    Exactly one schema validates a given `@type`. Within one tree the first
+    deterministic binding wins (a legacy duplicate never displaces the
+    canonical file, which sorts first). ACROSS trees a profile overlay
+    deliberately displaces the kernel binding for the class it composes: the
+    overlay restates every kernel property and adds the profile's own, so
+    binding to it keeps the kernel's guarantees and adds the profile's. Binding
+    to the kernel instead would silently stop checking the profile grammars on
+    a repo that ships the profile.
+
+    A SECOND profile overlay on an already-overlaid class is a hard error
+    (`DuplicateProfileBindingError`): displacing the kernel is meaningful
+    because the overlay is a superset of it, but two sibling profiles are not
+    supersets of each other, so picking one would silently unbind the other's
+    constraints while every gate stayed green.
+    """
     bindings: dict[str, SchemaBinding] = {}
-    for schema_path in sorted(COMPILED_JSON_SCHEMA_DIR.glob("*.schema.json")):
+    kernel_bound: set[str] = set()
+    profile_bound: dict[str, Path] = {}
+    for schema_path in compiled_json_schema_paths():
+        is_profile = COMPILED_PROFILE_JSON_SCHEMA_ROOT in schema_path.parents
         doc = json.loads(schema_path.read_text())
         schema_name = schema_path.name.removesuffix(".schema.json")
         for class_name, class_schema in doc.get("$defs", {}).items():
@@ -73,18 +135,30 @@ def schema_bindings() -> dict[str, SchemaBinding]:
             )
             if not isinstance(type_iri, str) or not type_iri.startswith("rkaf:"):
                 continue
-            # Some legacy schema files still duplicate a class. Keep the first
-            # deterministic binding; the canonical file sorts before aliases.
-            bindings.setdefault(
-                type_iri,
-                SchemaBinding(
-                    type_iri=type_iri,
-                    schema_name=schema_name,
-                    class_name=class_name,
-                    schema_path=schema_path,
-                    required=tuple(class_schema.get("required", ())),
-                ),
+            binding = SchemaBinding(
+                type_iri=type_iri,
+                schema_name=schema_name,
+                class_name=class_name,
+                schema_path=schema_path,
+                required=tuple(class_schema.get("required", ())),
             )
+            if is_profile:
+                if (previous := profile_bound.get(type_iri)) is not None:
+                    raise DuplicateProfileBindingError(
+                        f"two profile overlays bind {type_iri}: "
+                        f"{_repo_relative(previous)} and "
+                        f"{_repo_relative(schema_path)}. Exactly one schema may "
+                        f"validate a given @type — binding {type_iri} to either "
+                        "one silently stops enforcing the other's constraints. "
+                        "Give one overlay its own @type, or merge them into a "
+                        "single profile shape."
+                    )
+                profile_bound[type_iri] = schema_path
+                bindings[type_iri] = binding
+                kernel_bound.discard(type_iri)
+            elif type_iri not in bindings:
+                bindings[type_iri] = binding
+                kernel_bound.add(type_iri)
     return bindings
 
 
@@ -93,9 +167,14 @@ def schema_bindings_by_class() -> dict[str, SchemaBinding]:
 
 
 def shacl_shape_paths() -> list[Path]:
-    """Return the full SHACL suite: authored invariants plus compiled shapes."""
+    """Return the full SHACL suite: authored invariants plus compiled shapes.
+
+    Compiled shapes cover the kernel and every domain profile this repo ships.
+    SHACL is conjunctive, so a profile overlay may only ADD constraints to a
+    class the kernel also targets — it can never relax one.
+    """
     paths = list(sorted(HAND_AUTHORED_SHACL_DIR.glob("*.ttl")))
-    paths.extend(sorted(COMPILED_SHACL_DIR.glob("*.ttl")))
+    paths.extend(compiled_shacl_paths())
     return paths
 
 

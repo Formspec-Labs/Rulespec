@@ -21,7 +21,9 @@ ROOT = Path(__file__).resolve().parent.parent
 TERM_DOC = ROOT / "spec" / "rkaf-vocabulary.md"
 FIXTURE_DIR = ROOT / "fixtures"
 CUE_DIR = ROOT / "constraints" / "core"
+PROFILES_CUE_DIR = ROOT / "constraints" / "profiles"
 COMPILED_JSON_SCHEMA_DIR = ROOT / "compiled" / "json-schema" / "core"
+COMPILED_PROFILE_JSON_SCHEMA_ROOT = ROOT / "compiled" / "json-schema" / "profiles"
 
 # Enum/property-only schemas do not emit concrete JSON-LD @type constants.
 CUE_TERM_FALLBACKS: dict[str, set[str]] = {
@@ -34,8 +36,37 @@ def _kebab_to_titlecase(name: str) -> str:
     return "".join(part[:1].upper() + part[1:] for part in name.split("-"))
 
 
-def _schema_type_terms(cue_stem: str) -> set[str]:
-    schema_path = COMPILED_JSON_SCHEMA_DIR / f"{cue_stem}.schema.json"
+def constraint_sources() -> list[tuple[str, Path, Path]]:
+    """(label, cue path, compiled JSON Schema path) for every codified source.
+
+    The kernel plus every domain profile. A profile's terms are still Rulespec
+    vocabulary — they just live in the profile's section of
+    `spec/rkaf-vocabulary.md` rather than the universal-primitives table.
+    """
+    sources: list[tuple[str, Path, Path]] = [
+        (
+            f"constraints/core/{cue.name}",
+            cue,
+            COMPILED_JSON_SCHEMA_DIR / f"{cue.stem}.schema.json",
+        )
+        for cue in sorted(CUE_DIR.glob("*.cue"))
+    ]
+    if PROFILES_CUE_DIR.is_dir():
+        for cue in sorted(PROFILES_CUE_DIR.glob("*/*.cue")):
+            profile = cue.parent.name
+            sources.append(
+                (
+                    f"constraints/profiles/{profile}/{cue.name}",
+                    cue,
+                    COMPILED_PROFILE_JSON_SCHEMA_ROOT
+                    / profile
+                    / f"{cue.stem}.schema.json",
+                )
+            )
+    return sources
+
+
+def _schema_type_terms(schema_path: Path) -> set[str]:
     if not schema_path.is_file():
         return set()
     import json
@@ -58,15 +89,15 @@ def _schema_type_terms(cue_stem: str) -> set[str]:
 def cue_primitives_expected_terms() -> dict[str, set[str]]:
     """For each CUE file, return every vocab term suffix it must cover."""
     out: dict[str, set[str]] = {}
-    for cue in sorted(CUE_DIR.glob("*.cue")):
+    for label, cue, schema_path in constraint_sources():
         stem = cue.stem
-        schema_terms = _schema_type_terms(stem)
+        schema_terms = _schema_type_terms(schema_path)
         if schema_terms:
-            out[stem] = schema_terms
+            out[label] = schema_terms
         elif stem in CUE_TERM_FALLBACKS:
-            out[stem] = CUE_TERM_FALLBACKS[stem]
+            out[label] = CUE_TERM_FALLBACKS[stem]
         else:
-            out[stem] = {_kebab_to_titlecase(stem)}
+            out[label] = {_kebab_to_titlecase(stem)}
     return out
 
 # Fixture names look like: lowercase-with-hyphens, possibly mixed case for camelCase enums.
@@ -140,12 +171,12 @@ def parse_required_fixtures(text: str) -> set[str]:
 
 
 def cue_coverage_check(vocab_text: str) -> list[tuple[str, set[str]]]:
-    """Return (cue_filename, missing_terms) for uncovered CUE terms."""
+    """Return (cue source label, missing_terms) for uncovered CUE terms."""
     missing: list[tuple[str, set[str]]] = []
-    for cue_stem, terms in cue_primitives_expected_terms().items():
+    for label, terms in cue_primitives_expected_terms().items():
         missing_terms = {t for t in terms if not re.search(rf"\brkaf:{t}\b", vocab_text)}
         if missing_terms:
-            missing.append((cue_stem, missing_terms))
+            missing.append((label, missing_terms))
     return missing
 
 
@@ -169,11 +200,12 @@ def main() -> int:
     missing_fixtures = sorted(required - present)
     extra = sorted(present - required)
     missing_terms = cue_coverage_check(vocab_text)
+    primitive_count = len(constraint_sources())
 
     print(
         f"vocab audit — fixtures required: {len(required)} present: {len(present)} | "
-        f"CUE primitives: {len(list(CUE_DIR.glob('*.cue')))} covered: "
-        f"{len(list(CUE_DIR.glob('*.cue'))) - len(missing_terms)}"
+        f"CUE primitives: {primitive_count} covered: "
+        f"{primitive_count - len(missing_terms)}"
     )
     if missing_fixtures:
         print(f"\nMISSING FIXTURES ({len(missing_fixtures)}):")
@@ -181,9 +213,9 @@ def main() -> int:
             print(f"  {m}.jsonld")
     if missing_terms:
         print(f"\nCUE PRIMITIVES MISSING FROM spec/rkaf-vocabulary.md ({len(missing_terms)}):")
-        for cue_stem, terms in missing_terms:
+        for label, terms in missing_terms:
             choices = ", ".join(sorted(f"rkaf:{t}" for t in terms))
-            print(f"  constraints/core/{cue_stem}.cue missing: {choices}")
+            print(f"  {label} missing: {choices}")
     if extra:
         # Compact form — count only by default; full list only when small.
         if len(extra) <= 5:

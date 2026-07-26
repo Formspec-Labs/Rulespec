@@ -9,17 +9,43 @@ Selection rationale: see `docs/adr/2026-05-12-rkaf-constraint-source-cue.md`.
 
 ```
 constraints/
-├── core/              CUE source for every v0.2 vocabulary primitive (§§4-5 of spec).
+├── core/              CUE source for every v0.2 UNIVERSAL vocabulary primitive (§§4-5 of spec).
+├── semantics/         Kernel L0 range registry (class-valued predicate ranges).
+├── profiles/          Domain profiles. Jurisdiction- or family-specific terms.
+│   └── us-rulemaking/ US regulatory identity + the rulemaking-process module
+│                      (spec/rkaf-rulemaking.md), plus its own semantics/l0-ranges.cue.
 ├── adversarial/       Evaluator-class adversarial constraints (≥5 per spec §10.1).
 └── ai-extraction/     LLM-systematic-misinterpretation adversarial constraints (≥3 per spec §10.1).
 ```
+
+### Kernel / profile boundary
+
+`profiles/` may compose a kernel shape; `core/` MUST NOT reference anything
+under `profiles/`. That direction is audited, not merely documented — see
+`KernelProfileBoundaryTests` in `tools/test_constraints_compile.py`, which
+fails the build on a profile-shape reference or a US identifier grammar
+landing in `core/`.
+
+A profile overlay composes the kernel shape it extends and keeps that shape's
+`@type`. `#USRegulatoryArtifact` therefore constrains `rkaf:Artifact`, adding
+only optional properties and guarded grammars: conjoining the profile's
+NodeShape with the kernel's can only ever add constraints, never relax one. A
+consumer that loads only the kernel sees no profile term at all.
+
+Kernel definitions are closed at the CUE layer, so
+`#Artifact & {"rkaf:hasRegulatoryIdentifier": "…"}` is `field not allowed`. The
+compiled carriers are open by construction (JSON Schema without
+`additionalProperties: false`; open-world RDF), so a US-bearing document is
+UNCONSTRAINED by the kernel carriers rather than rejected by them, and is
+constrained by the profile carriers. `tools/constraints_parity.py` pins both
+halves.
 
 ## Targets and obligations (per spec §6.3)
 
 | Target        | Status | Output                                  |
 |---------------|--------|-----------------------------------------|
 | JSON Schema   | MUST   | `compiled/json-schema/<sub>/<name>.schema.json` (Draft 2020-12) |
-| Rust          | MUST   | `crates/rkaf-core/src/generated/<snake>.rs` — canonical sink for the Rust workspace; kebab → snake mapping handled by `tools/compile_all.sh`. **Tracked in git.** No parallel `compiled/rust/` copy is produced. |
+| Rust          | MUST   | `crates/rkaf-core/src/generated/<snake>.rs` for `core/`, `crates/rkaf-core/src/generated/profiles/<profile>/<snake>.rs` for `profiles/` — canonical sink for the Rust workspace; kebab → snake mapping handled by `tools/compile_all.sh`. **Tracked in git.** No parallel `compiled/rust/` copy is produced. |
 | TypeScript    | MUST   | `compiled/typescript/<sub>/<name>.ts`   |
 | SHACL         | MAY    | `compiled/shacl/<sub>/<name>.ttl` (Pattern C only — no `sh:if`/`sh:then`) |
 | CUE           | MAY    | `compiled/cue/<sub>/<name>.cue` (passthrough) |
@@ -32,16 +58,20 @@ constraints/
 ./tools/install-cue.sh
 
 # Compile every constraint to every target
-for f in constraints/core/*.cue constraints/adversarial/*.cue constraints/ai-extraction/*.cue; do
-  base=$(basename "$f" .cue)
-  if [[ "$f" == constraints/core/* ]]; then sub="core"
-  elif [[ "$f" == constraints/adversarial/* ]]; then sub="adversarial"
-  else sub="ai-extraction"; fi
-  for t in json-schema rust typescript shacl cue rego; do
-    python3 tools/constraints_compile.py --in "$f" --target "$t" \
-      --out "compiled/$t/$sub/$base.<ext>"
-  done
-done
+tools/compile_all.sh
+```
+
+`compile_all.sh` is the single canonical driver: it maps each source directory
+to its compiled sub-path (`core`, `adversarial`, `ai-extraction`,
+`profiles/<profile>`), writes Rust for `core/` and `profiles/`, and re-pins the
+embedded L0 contract digests.
+
+CUE packages are directory-scoped, so a profile that composes a kernel shape is
+vetted as one instance with the kernel — which is exactly the dependency it
+declares:
+
+```bash
+.tools/cue vet ./constraints/core/*.cue ./constraints/profiles/us-rulemaking/*.cue
 ```
 
 ## Parity orchestrator (release gate)
@@ -74,7 +104,8 @@ CUE → multi-target compiler. It recognizes the regular CUE patterns Rulespec
 uses (closed-string-enums, enum-of-refs unions, shape definitions, conditional
 `if "x" == "v" { ... }` blocks, sibling `{...} | {...}` disjunctions, list
 constraints with `list.MinItems(N)`). It is not a full CUE parser; the
-authoritative CUE syntax check is `.tools/cue vet ./constraints/...`.
+authoritative CUE syntax check is `.tools/cue vet` (see Build above for the
+profile invocation).
 
 The plan envisaged a Rust crate (`rkaf-constraints-compile`); the Python
 implementation here is the v0.2-pre.3 working compiler. Per the plan's ADR,
