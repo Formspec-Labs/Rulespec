@@ -25,6 +25,15 @@ package rkaf
 #ConceptMappingLifecycleState: "rkaf:proposed" | "rkaf:underReview" |
 	"rkaf:approved" | "rkaf:deprecated" | "rkaf:retired"
 
+// Both concept slots are IRIs on the wire — `context/rkaf-context.jsonld`
+// coerces each with `@type: @id` — but NEITHER carries a class range in
+// `constraints/semantics/l0-ranges.cue`, and that absence is deliberate for the
+// reason that file already records for `skos:inScheme` and
+// `rkaf:assignedConcept`: SKOS owns concept identity, and a mapping's endpoint
+// may legally be an external `skos:Concept` in a thesaurus Rulespec does not
+// model. Pinning a range here would reject exactly the cross-scheme alignment
+// the `*Match` predicates exist for. The cardinality and the IRI coercion are
+// what is enforced; the class is not.
 #ConceptMapping: {
 	"@type":                     "rkaf:ConceptMapping"
 	"rkaf:sourceConcept":        string // IRI of source Concept

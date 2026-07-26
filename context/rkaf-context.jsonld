@@ -74,6 +74,12 @@
     "oa:hasSelector": {
       "@type": "@id"
     },
+    "oa:TextQuoteSelector": {
+      "@type": "@id"
+    },
+    "oa:TextPositionSelector": {
+      "@type": "@id"
+    },
     "oa:exact": {
       "@type": "xsd:string"
     },
@@ -552,6 +558,15 @@
     "rkaf:anchorType": {
       "@type": "@id"
     },
+    "rkaf:Assertion": {
+      "@type": "@id"
+    },
+    "rkaf:RelationshipAssertion": {
+      "@type": "@id"
+    },
+    "rkaf:ValueAssertion": {
+      "@type": "@id"
+    },
     "rkaf:assertsSubject": {
       "@type": "@id"
     },
@@ -576,6 +591,9 @@
     "rkaf:hasExtractionProvenance": {
       "@type": "@id"
     },
+    "rkaf:SourceClaimant": {
+      "@type": "@id"
+    },
     "rkaf:claimsAssertion": {
       "@type": "@id"
     },
@@ -591,6 +609,9 @@
     "rkaf:attributedInFragment": {
       "@type": "@id",
       "@container": "@set"
+    },
+    "rkaf:ExtractionActivity": {
+      "@type": "@id"
     },
     "rkaf:extractionMethod": {
       "@type": "@vocab"
@@ -792,6 +813,9 @@
       "@type": "@id"
     },
     "rkaf:targetPacket": {
+      "@type": "@id"
+    },
+    "rkaf:sourceConcept": {
       "@type": "@id"
     },
     "rkaf:targetConcept": {
@@ -1479,7 +1503,8 @@
       "See also (future-projection, no predicate import): lrml:, rrmv:, eco:, sepio:, cito:, and the unimported dcterms supersession predicates (§9.2.2). Promote to §9.2 Alignment when a partner consumer arrives with a named use case.",
       "Reintroduced dcat: for the Experimental rulemaking module's named Spicy Regs carrier: dcat:qualifiedRelation, dcat:Relationship, and dcat:hadRole now have executable corpus and fixture coverage.",
       "Dropped remaining Cohort D dead-weight prefix declarations: nano: (pattern citation, not predicate import) and schemaorg: (no SEO projector). Re-declare when the dependent layer ships.",
-      "Retained the legacy hasProceedingEvidenceIdentifier context aliases for Experimental pre-release decoding; they no longer occur in the current Proceeding shape."
+      "Retained the legacy hasProceedingEvidenceIdentifier context aliases for Experimental pre-release decoding; they no longer occur in the current Proceeding shape.",
+      "Completeness sweep: every class a CUE shape binds now carries a term definition here. The reshape added rkaf:ValueAssertion, rkaf:SourceClaimant, rkaf:ExtractionActivity, oa:TextQuoteSelector, and oa:TextPositionSelector as compiled, schema-bound classes without one; rkaf:Assertion and rkaf:RelationshipAssertion had never had one. tools/test_semantic_carriers.py::CompositionCarrierTests fails the build if a bound class term goes missing again."
     ],
     "note": "_meta is JSON-LD-safe: keys not in @context are ignored by JSON-LD processors."
   }

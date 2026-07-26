@@ -1,7 +1,7 @@
 # Rulespec Core — Vocabulary v0.2
 
 **Status:** Pre-release, normative.
-**Supersedes:** `spec/rkaf-core-v0.1.md` (historical, retained for archival reference only).
+**Supersedes:** `archive/v0.1/spec/rkaf-core-v0.1.md` (historical, retained for archival reference only).
 **Companion docs:** `spec/rkaf-concept-registry.md`, `spec/rkaf-vocabulary.md`.
 
 ## 0. Conformance language
@@ -778,7 +778,7 @@ Generalizes Studio's `wosTarget` projection pattern.
 
 ## 6. Inherited Core v0.1 primitives [Normative]
 
-Inherited name-for-name from `spec/rkaf-core-v0.1.md`:
+Inherited name-for-name from `archive/v0.1/spec/rkaf-core-v0.1.md`:
 
 - **Assertion model:** `rkaf:Assertion`, `rkaf:assertsSubject`, `rkaf:assertsPredicate`, `rkaf:assertsObject`, `rkaf:hasApplicability`, `rkaf:effectivePeriod`.
 - **Relationship assertion specialization:** `rkaf:RelationshipAssertion`, `rkaf:assertionPolarity`.

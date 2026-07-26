@@ -19,7 +19,7 @@ help:
 	@echo "  make test-rust          — cargo test --workspace (unit + integration)"
 	@echo "  make test-shapes        — parse + JSON-Schema + SHACL + negative fixtures"
 	@echo "  make test-reference-corpora — validate shipped reference-corpus JSON-LD"
-	@echo "  make test-audits        — vocab, coverage, rename, constraints-parity, projector-parity, version-sync"
+	@echo "  make test-audits        — vocab, coverage, rename, constraints-parity, projector-parity, version-sync, semantic carriers"
 	@echo "  make test-conformance   — L1-L4 report plus L0 carrier-mapping audit"
 	@echo "  make compile            — regenerate JSON Schema + Rust + SHACL + TS from CUE"
 	@echo "  make clean              — cargo clean"
@@ -58,7 +58,7 @@ test-reference-corpora:
 test-audits:
 	$(CARGO) build $(CARGO_MANIFEST) -p projector-harness
 	$(PYTHON) tools/vocab_audit.py
-	$(PYTHON) -m unittest tools.test_constraints_compile tools.test_l0_mapping_audit -v
+	$(PYTHON) -m unittest tools.test_constraints_compile tools.test_l0_mapping_audit tools.test_semantic_carriers -v
 	$(PYTHON) tools/l0_mapping_audit.py
 	$(PYTHON) tools/l0_l3_coverage_audit.py
 	$(PYTHON) tools/rename_audit.py

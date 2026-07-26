@@ -150,6 +150,56 @@ v0.1 §4.3 lists 11 edges as "the cascade closure set." This spec disambiguates 
 | C9 | `rkaf:LocalAdoption.targetAssertion` | Every adoption of the seed |
 | C10 | `rkaf:assertsObject` (concept-typed) + 5 SKOS mapping edges | Concept-lifecycle propagation |
 
+**The v0.2 contract reshape adds no edge to either table, and none of its new
+classes changes a runtime path.** The reshape introduced `ValueAssertion`,
+`SourceClaimant`, `ExtractionActivity`, `ConceptScheme`, `ConceptAssignment`,
+the five document-analysis contracts, and the US rulemaking profile. The
+decision for each, recorded here because "we checked and nothing changed" is
+otherwise indistinguishable from "we did not check":
+
+- **Provenance and identity edges are not dependency edges.**
+  `rkaf:hasSourceClaimant`, `rkaf:hasExtractionProvenance`,
+  `rkaf:assignmentEvidence`, `rkaf:supportingAssignment`, and
+  `rkaf:versionLineageEvidence` all record how a record CAME TO BE. Cascading
+  over them would mean that re-anchoring a fragment invalidates every
+  assertion whose extraction run happened to read it, which is the opposite of
+  what §2.1's dependency reading means. `rkaf:derivedFromFragment` (C1) is
+  already the edge that says "this assertion's content depends on that
+  region"; adding provenance edges beside it would double-count.
+- **`rkaf:assertsValue` is not `rkaf:assertsObject`.** C10 traverses
+  `assertsObject` because its object is an IRI that may BE a concept
+  undergoing lifecycle change. A `ValueAssertion`'s object is a typed literal:
+  it names no node, so there is nothing to traverse to.
+- **The document-analysis module is downstream-only.** A
+  `RelationComparisonContext` points AT two artifact versions, a
+  `ResolverProofRecord` points AT its comparison, a `RelationFinding` points AT
+  both. Inverse traversal from an artifact would therefore reach every
+  comparison ever run over it — turning one amendment into an unbounded sweep
+  of historical analysis records, none of which is a consumer artifact that
+  needs revalidating. Analysis records are observations about a graph, not
+  dependents within it. Adding them is a separate, evidence-bearing decision,
+  not a mechanical consequence of the module existing.
+- **The profile contributes lifecycle VALUES, not a parallel event class.**
+  `#USLifecycleEvent` composes the kernel `#LifecycleEvent` and keeps
+  `@type: "rkaf:LifecycleEvent"` (`spec/rkaf-rulemaking.md` §6), so
+  `stale::should_be_stale`, which iterates
+  `graph.nodes_by_type("rkaf:LifecycleEvent")`, sees a
+  `rkaf:proceedingFinal` event exactly as it sees a `rkaf:amendment` one. Had
+  the profile minted its own class, every profile-emitted event would have
+  been silently invisible to the stale transition and to T3 seed
+  determination — with every shape gate still green.
+
+  Two tests cover this, and the split between them is not incidental.
+  `crates/rkaf-runtime/tests/profile_isolation_carrier.rs` runs
+  profile-contributed kinds through the stale path and fails if a profile
+  VALUE ever stops behaving like a kernel one — its payloads state
+  `rkaf:LifecycleEvent` as a constant, so it tests the consequent and cannot
+  detect a mint on its own.
+  `tools/test_semantic_carriers.py::ProfileIsolationCarrierTests::test_the_profile_overlay_keeps_the_kernel_class`
+  is what fails if the overlay ever stops targeting the shared class: it reads
+  the profile's `@type` binding and its compiled `sh:targetClass` rather than
+  restating either.
+
 ### §2.2 — Algorithm
 
 ```text
@@ -255,7 +305,7 @@ Per v0.1 §5.4. Each rule has a decidable predicate over the graph + the consume
 
 **Chain-walk depth:** unbounded by spec; runtime uses a visited-set to protect against cycles.
 
-**Warrant↔Authority transition:** `rkaf:Authority` is a specialization of `rkaf:Warrant` (per `archive/v0.1/spec/rkaf-core.md` §2 and the comment block at `constraints/core/authority.cue:1-8`). The chain walker treats every node typed `rkaf:Authority` as also satisfying the `rkaf:Warrant` type for chain-traversal purposes. `derivesAuthorityFrom` hops live on `Authority` nodes and the walker follows them transparently when present.
+**Warrant↔Authority transition:** `rkaf:Authority` is a specialization of `rkaf:Warrant` (per `archive/v0.1/spec/rkaf-core-v0.1.md` §2 and the comment block at `constraints/core/authority.cue:1-8`). The chain walker treats every node typed `rkaf:Authority` as also satisfying the `rkaf:Warrant` type for chain-traversal purposes. `derivesAuthorityFrom` hops live on `Authority` nodes and the walker follows them transparently when present.
 
 ### §3.8 — Rule 8: bridge-emitted attestations for consumer-detected issues
 

@@ -51,7 +51,7 @@ current `sha256:<64 lowercase hex>` contract digest. Every block in one
 document MUST use the same digest.
 
 ```yaml rkaf-l0-mapping
-rulespec_version: "sha256:6c89656c123b35cfa75eb156d5cf37e7afce9ef98d26afd9de02e34cd37e5cc9"
+rulespec_version: "sha256:5f287a1e266feb4bec73317c3dca2d10654a61b1502f13ace176d1e9f4e23446"
 mappings:
   - table: proceedings
     column: current_stage
@@ -138,7 +138,7 @@ claims or an L0 adoption-depth claim.
 ```bash
 python3 tools/l0_mapping_audit.py --print-contract-version
 python3 tools/l0_mapping_audit.py docs/ontology.md
-python3 tools/l0_mapping_audit.py conformance/partners/example.yaml
+python3 tools/l0_mapping_audit.py conformance/partners/rulespec-reference.yaml
 ```
 
 The repository gate invokes the tool without arguments. That mode discovers every L0 declaration under `conformance/partners/`.

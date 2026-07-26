@@ -375,3 +375,117 @@ fn round_trip_source_fragment_identity_fixtures() {
     round_trip::<Artifact>("artifact-content-digest-positive", "rkaf:Artifact");
     round_trip::<Artifact>("artifact-version-lineage-positive", "rkaf:Artifact");
 }
+
+// ── Semantic carrier coverage: the document-analysis module ────────────────
+//
+// Category: **identity** and **typed values**, through the Rust carrier.
+// `spec/rkaf-analysis.md` shipped five contracts with compiled Rust structs and
+// no round-trip test — the one gate that proves a generated carrier neither
+// drops nor invents a field. Every analysis fixture below is a `@graph`
+// document, so `extract` locates the node by `@type`.
+
+#[test]
+fn round_trip_relation_change_event_fixtures() {
+    round_trip::<RelationChangeEvent>(
+        "relationchangeevent-removal-positive",
+        "rkaf:RelationChangeEvent",
+    );
+    round_trip::<RelationChangeEvent>(
+        "relationchangeevent-replacement-positive",
+        "rkaf:RelationChangeEvent",
+    );
+}
+
+#[test]
+fn round_trip_relation_comparison_context_fixture() {
+    round_trip::<RelationComparisonContext>(
+        "relationcomparisoncontext-satisfied-positive",
+        "rkaf:RelationComparisonContext",
+    );
+}
+
+#[test]
+fn round_trip_resolver_proof_fixtures() {
+    round_trip::<ResolverProofRecord>(
+        "relationcomparisoncontext-satisfied-positive",
+        "rkaf:ResolverProofRecord",
+    );
+    round_trip::<ResolverProofIssuer>(
+        "relationcomparisoncontext-satisfied-positive",
+        "rkaf:ResolverProofIssuer",
+    );
+}
+
+#[test]
+fn round_trip_relation_finding_fixture() {
+    round_trip::<RelationFinding>(
+        "relationfinding-discrepancy-positive",
+        "rkaf:RelationFinding",
+    );
+}
+
+/// The disabled contract still has to round-trip. A carrier that silently
+/// dropped `rkaf:closureClaimStatus` would erase the one field whose closed
+/// single value is what "disabled" MEANS (`spec/rkaf-analysis.md` §6).
+#[test]
+fn round_trip_closure_claim_fixture() {
+    round_trip::<ClosureClaim>("closureclaim-disabled-positive", "rkaf:ClosureClaim");
+    let doc = fixture("closureclaim-disabled-positive");
+    let node = extract(&doc, "rkaf:ClosureClaim");
+    let claim: ClosureClaim = serde_json::from_value(node).expect("deserialize ClosureClaim");
+    assert_eq!(
+        serde_json::to_value(claim.closure_claim_status).expect("serialize status"),
+        Value::String("rkaf:closureClaimDisabled".into()),
+        "the only representable closure-claim status is the disabled one"
+    );
+}
+
+// ── Semantic carrier coverage: concepts and the US rulemaking profile ──────
+
+#[test]
+fn round_trip_concept_flavor_fixtures() {
+    round_trip::<RegisteredConcept>("concept-registered-positive", "rkaf:RegisteredConcept");
+    round_trip::<LocalConcept>("localconcept-positive", "rkaf:LocalConcept");
+}
+
+/// The profile overlay keeps the kernel `@type`, so the SAME document
+/// deserializes as the kernel carrier and as the profile carrier. That is the
+/// composition claim of `constraints/README.md` stated as a carrier fact: a
+/// consumer that loads only the kernel reads a US-bearing Artifact without
+/// error, and a consumer that loads the profile reads the same bytes with the
+/// regulatory identifier typed.
+#[test]
+fn round_trip_profile_overlay_shares_the_kernel_type() {
+    round_trip::<USRegulatoryArtifact>("artifact-us-cfr-positive", "rkaf:Artifact");
+    round_trip::<Artifact>("artifact-us-cfr-positive", "rkaf:Artifact");
+    round_trip::<USLifecycleEvent>(
+        "lifecycleevent-composed-kind-positive",
+        "rkaf:LifecycleEvent",
+    );
+}
+
+// ── Semantic carrier coverage: provenance-role and disposition carriers ────
+
+#[test]
+fn round_trip_retention_policy_fixture() {
+    round_trip::<RetentionPolicy>("retentionpolicy-positive", "rkaf:RetentionPolicy");
+}
+
+/// `MappingStateCarrier` is the one primitive with no `@type` of its own — it
+/// is an annotation any mapping-bearing node may carry — so it cannot go
+/// through `extract`. Round-tripping it from the fixture root is the same
+/// invariant, applied where the carrier actually lives.
+#[test]
+fn round_trip_mapping_state_carrier() {
+    let doc = fixture("mappingstate-positive");
+    let carrier: MappingStateCarrier =
+        serde_json::from_value(doc.clone()).expect("deserialize MappingStateCarrier");
+    let reserialized = serde_json::to_value(&carrier).expect("serialize MappingStateCarrier");
+    assert_eq!(
+        reserialized
+            .get("rkaf:mappingState")
+            .expect("carrier keeps its mapping state"),
+        doc.get("rkaf:mappingState").expect("fixture states one"),
+        "the mapping-state annotation must survive the carrier round-trip"
+    );
+}

@@ -156,19 +156,39 @@ pub mod generated {
 
 // Top-level re-exports — every primitive class. Use the `generated::<module>::`
 // path if you need the inner enums (WarrantKind, ConfidenceMethod, etc.).
+//
+// "Every primitive class" is audited, not asserted — but the audit has a
+// precise boundary, and it is narrower than that phrase sounds.
+// `tools/test_semantic_carriers.py::CompositionCarrierTests::
+// test_every_schema_bound_class_carries_a_crate_root_reexport` fails the build
+// if a generated struct that a compiled JSON Schema binds to a `@type` has no
+// re-export here. That is what covers the 52 dispatch classes, including the
+// two typed OA selectors: a consumer reading a fragment's typed selector must
+// not have to reach into `generated::`.
+//
+// It does NOT cover the shared shapes. `AssertionEnvelope`,
+// `AssertionProposition`, `ConsumerDisposition`, and `MappingStateCarrier`
+// declare no `@type` const, so no compiled JSON Schema binds them and the
+// sweep above cannot see them. They are re-exported by judgement — an SDK
+// consumer composing the envelope, or splitting an assertion into its
+// proposition and disposition halves, should not have to reach into
+// `generated::` either — and the same test names them in an explicit list so
+// the judgement is not undone by accident.
 pub use generated::access_scope::AccessScope;
 pub use generated::ai_lineage::AILineage;
 pub use generated::applicability_scope::ApplicabilityScope;
 pub use generated::artifact::Artifact;
-pub use generated::assertion::Assertion;
+pub use generated::assertion::{
+    Assertion, AssertionEnvelope, AssertionProposition, ConsumerDisposition,
+};
 pub use generated::attestation::Attestation;
 pub use generated::authority::Authority;
 pub use generated::bridge_consumer_registration::BridgeConsumerRegistration;
 pub use generated::bridge_issue_attestation_contract::BridgeIssueAttestationContract;
 pub use generated::bridge_validation_result::BridgeValidationResult;
-pub use generated::concept::ConceptScheme;
+pub use generated::concept::{ConceptScheme, LocalConcept, RegisteredConcept};
 pub use generated::concept_assignment::ConceptAssignment;
-pub use generated::concept_mapping::ConceptMapping;
+pub use generated::concept_mapping::{ConceptMapping, MappingApplicabilityContext};
 pub use generated::concept_resolution_result::ConceptResolutionResult;
 pub use generated::confidence_record::ConfidenceRecord;
 pub use generated::consumer_effective_declaration::ConsumerEffectiveDeclaration;
@@ -180,8 +200,10 @@ pub use generated::generated_work_product::GeneratedWorkProduct;
 pub use generated::justification::Justification;
 pub use generated::lifecycle_event::LifecycleEvent;
 pub use generated::local_adoption::LocalAdoption;
+pub use generated::mapping_state::MappingStateCarrier;
 pub use generated::point_in_time_exception::PointInTimeException;
 pub use generated::registry_conflict::RegistryConflict;
+pub use generated::retention_policy::RetentionPolicy;
 pub use generated::revalidation_event::{RevalidationClosureEvent, RevalidationEvent};
 pub use generated::relationship_assertion::RelationshipAssertion;
 // Document-analysis module (spec/rkaf-analysis.md). Generic comparison and
@@ -218,7 +240,11 @@ pub use generated::profiles::us_rulemaking::us_lifecycle_event::{
 };
 pub use generated::profiles::us_rulemaking::us_regulatory_artifact::USRegulatoryArtifact;
 pub use generated::source_claimant::SourceClaimant;
-pub use generated::source_fragment::SourceFragment;
+// `TextQuoteSelector` and `TextPositionSelector` are `oa:`-typed classes with
+// compiled shapes of their own (Core §4.2) — required payload, offset ordering,
+// and the coordinate system an offset counts in — so they are primitive classes
+// here for the same reason `rkaf-validate` binds them.
+pub use generated::source_fragment::{SourceFragment, TextPositionSelector, TextQuoteSelector};
 pub use generated::value_assertion::ValueAssertion;
 pub use generated::warrant::Warrant;
 pub use generated::workspace::Workspace;

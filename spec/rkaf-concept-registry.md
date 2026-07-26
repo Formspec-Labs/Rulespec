@@ -1,7 +1,7 @@
 # Rulespec Concept Registry — v0.2
 
 **Status:** Pre-release, normative.
-**Supersedes:** `spec/rkaf-concept-registry-v0.1.2.md` (historical).
+**Supersedes:** `archive/v0.1/spec/rkaf-concept-registry-v0.1.2.md` (historical).
 **Companion docs:** `spec/rkaf-core.md`, `spec/rkaf-vocabulary.md`.
 
 ## 1. Purpose
@@ -16,7 +16,7 @@ Concept resolution establishes **semantic compatibility**. It does NOT establish
 
 ### 2.1 rkaf:Concept
 
-(Definition preserved from `spec/rkaf-concept-registry-v0.1.2.md` §2.1.)
+(Definition preserved from `archive/v0.1/spec/rkaf-concept-registry-v0.1.2.md` §2.1.)
 
 Required properties on a canonical `rkaf:RegisteredConcept`:
 - `@type`: includes `skos:Concept` and `rkaf:RegisteredConcept`.
@@ -96,7 +96,7 @@ The registry-relevant consequence is that a `rkaf:LocalConcept` accumulates evid
 
 (Inherited from v0.1.2 §3.)
 
-Conflict resolution among competing canonical assignments uses the v0.1.2 procedure: applicability scope intersection, attestation count, recency, then registry-declared tiebreaker. SHACL shape `rkaf:ConceptResolutionConflictShape` (in `shapes/rkaf-shapes-conceptregistry-v0.1.ttl`) is preserved unchanged.
+Conflict resolution among competing canonical assignments uses the v0.1.2 procedure: applicability scope intersection, attestation count, recency, then registry-declared tiebreaker. SHACL shape `rkaf:ConceptResolutionConflictShape` is preserved unchanged in the superseded v0.1 shape set at `archive/v0.1/shapes/rkaf-shapes-conceptregistry-v0.1.ttl`. No active gate loads that file; the procedure it encodes is runtime behavior, specified normatively in `spec/rkaf-behavior.md` §6 and executed by `crates/rkaf-runtime/src/concept.rs`.
 
 ## 4. Lifecycle on Concept
 
@@ -106,7 +106,7 @@ Concept lifecycle events — `rkaf:registered`, `rkaf:deprecated`, `rkaf:superse
 
 ## 5. SHACL
 
-Validated by `shapes/rkaf-shapes-conceptregistry.ttl` (new) **plus** the inherited `shapes/rkaf-shapes-conceptregistry-v0.1.ttl` (lifecycle and applicability rules).
+Validated by the hand-authored `shapes/rkaf-shapes-conceptregistry.ttl` plus the compiled `compiled/shacl/core/concept.ttl`, `concept-assignment.ttl`, and `concept-mapping.ttl`, which the gate loads together (`tools/conformance_lib.py::shacl_shape_paths`). The inherited v0.1.2 file is `archive/v0.1/shapes/rkaf-shapes-conceptregistry-v0.1.ttl`; it was wholesale-superseded and is NOT loaded. Its lifecycle and applicability rules live in `compiled/shacl/core/lifecycle-event.ttl` and `compiled/shacl/core/concept-mapping.ttl` respectively.
 
 `skos:prefLabel(1)` and `skos:inScheme(1)` are enforced at **L1** (CUE → `constraints/core/concept.cue` → `compiled/json-schema/core/concept.schema.json`) and **L3** (`compiled/shacl/core/concept.ttl` — `sh:property [ sh:path skos:prefLabel ; sh:minCount 1 ]` and `sh:property [ sh:path skos:inScheme ; sh:minCount 1 ; sh:maxCount 1 ]`, both on `rkaf:RegisteredConceptShape` and `rkaf:LocalConceptShape`). Producers omitting either are rejected at both validation layers. The `sh:maxCount 1` on `skos:inScheme` is a deliberate Rulespec narrowing of an unrestricted SKOS predicate — one concept, one facet; see Core §4.7.2.
 

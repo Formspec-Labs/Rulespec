@@ -10,7 +10,12 @@ Normative architecture and conformance — the load-bearing surface above the vo
 
 ### `rkaf-vocabulary.md`
 
-Enumerates every codified Rulespec class and predicate, with the CUE source file, fixture, and purpose for each. §5 covers the v0.2 normative-tier primitives (Assertion, Warrant, Artifact, SourceFragment, EvidenceBinding, ConfidenceRecord, AccessScope, AILineage, RetentionPolicy, MappingState, Workspace, anchoring). §6 covers the codified additional terms (Authority, Attestation, LocalAdoption, ApplicabilityScope, EffectivePeriod, LifecycleEvent, Concept, ConceptMapping, ConceptResolutionResult, BridgeValidationResult, closed-enum lattices, predicates).
+Enumerates every codified Rulespec class and predicate. Two documentation tiers, and the difference is deliberate:
+
+- **Per-term tables** — one row per term, with IRI, kind, domain, range, cardinality, and required fixtures. These cover the universal primitives (§§4.1–4.6 of `rkaf-core.md`), the concept vocabulary and assignments (§4.7), the document-analysis module, the Experimental US rulemaking-process module, the Studio-derived promotions, and the abstract anchoring contract.
+- **Per-class tier (§6)** — one row per class with its CUE source, fixture, and purpose, plus bullet sections for the closed enums and the traversal predicates. A class here is fully specified by its CUE file; the row records what it is FOR.
+
+`tools/vocab_audit.py` enforces the floor across both tiers: every class a CUE file compiles must appear as `rkaf:<Term>`, and every fixture named in a `Required fixtures` cell must exist.
 
 ### `rkaf-conformance.md`
 
@@ -30,11 +35,11 @@ and authority chains.
 
 ### `rkaf-concept-registry.md`
 
-The concept registry specification — companion to `rkaf-vocabulary.md` §6. Defines `RegisteredConcept`, `LocalConcept`, `ConceptRegistry`, `ConceptMintingAuthority`, the SKOS mapping predicates, `MappingApplicabilityContext`, `ConceptResolutionResult`, and the three conformance levels (Core, Lifecycle, Federated).
+The concept registry specification — companion to `rkaf-vocabulary.md`. Defines `RegisteredConcept`, `LocalConcept`, `ConceptRegistry`, `ConceptMintingAuthority`, the nine SKOS mapping predicates, `MappingApplicabilityContext`, `ConceptResolutionResult`, and the three conformance levels (Core, Lifecycle, Federated). `ConceptScheme` (§2.6) and `ConceptAssignment` (§2.8) are normatively defined in `rkaf-core.md` §4.7 and referenced here for their registry consequences rather than restated.
 
 ### `rkaf-behavior.md`
 
-Layer 5 (runtime) behavioral semantics — the contracts that are *not* CUE-validatable shape: the `usageEligibility` reducer, the `CascadeClosureV1` cascade-closure algorithm, the 10 bridge contract rules, point-in-time-exception evaluation, and lifecycle packet ingest semantics. The full v0.1 normative prose is preserved at `archive/v0.1/spec/rkaf-core.md`; this document is the active-tree summary plus codification roadmap.
+Layer 5 (runtime) behavioral semantics — the contracts that are *not* CUE-validatable shape: the `usageEligibility` reducer, the `CascadeClosureV1` cascade-closure algorithm, the 10 bridge contract rules, point-in-time-exception evaluation, and lifecycle packet ingest semantics. The full v0.1 normative prose is preserved at `archive/v0.1/spec/rkaf-core-v0.1.md`; this document is the active-tree summary plus codification roadmap.
 
 ### `projectors/json-schema.md`, `projectors/json-ld.md`, `projectors/openapi.md`
 
