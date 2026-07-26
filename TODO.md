@@ -26,7 +26,7 @@ The plan specified `rkaf-conformance` Rust binary + `suite.index.json` + `confor
 
 - [x] Land and tag the prerequisite `v0.2.0-pre.7` consolidation. The tag points
   to `7205347`; the US identifier, L0, and rulemaking work remains Unreleased.
-- [ ] Decide the release shape before tagging: the memo prescribed two releases (N+1: identifiers + L0; N+2: rulemaking module + corpus), but all four deliverables sit together in Unreleased. Either cut them as two tags or record in the memo why one combined release preserves the sequencing intent (2026-07-23 architecture review, FINDING 2).
+- [ ] Decide the release shape before tagging: the memo prescribed two releases (N+1: identifiers + L0; N+2: rulemaking module + corpus), but all four deliverables sit together in Unreleased. Either cut them as two tags or record in the memo why one combined release preserves the sequencing intent (2026-07-23 architecture review, FINDING 2). Record in the same decision where the assertion, concept, and analysis contract reshape (section below) lands relative to these tags.
 - [ ] Regenerate `conformance/partners/rulespec-reference.yaml` via `tools/conformance_report.py --self-certify` at the release cut — it is pinned to `0.2.0-pre.6` with a 2026-05-17 corpus run and predates the US-identifier fixtures (2026-07-23 architecture review, FINDING 6).
 - [ ] File `conformance/partners/spicy-regs.yaml` only after spicy-regs ships both `rule_targets` and `docs/ontology.md`, then run `tools/l0_mapping_audit.py` against that real mapping.
 - [x] Record the 2026-07-24 maintainer-operated adversarial simulated-consumer review and its three agenda decisions. The simulation is evidence, not a non-originating review.
@@ -66,6 +66,59 @@ F-5, F-11, F-12, and F-14 were refuted and require no implementation work.
 generated enforcement, positive and negative coverage, and corpus evidence;
 both repositories pass their full gates against the same released contract; and
 a non-originating consumer reviews or ratifies the repaired module.
+
+## Assertion, concept, and analysis contract reshape (paired with Spicy Regs)
+
+Execution source of truth: `../spicy-regs/TODO-RULE.md` Milestone A, governed
+by the canonical vision
+(`../spicy-regs/docs/superpowers/specs/2026-07-25-rulespec-spicy-regs-complete-vision-goal.md`).
+Carrier evidence: the corpus receipts and evaluation records linked from that
+backlog. This contract must release before Spicy Regs publishes relationship,
+value, or concept data under it.
+
+- [ ] Move U.S. identifiers, `publishedInProceeding`, and domain lifecycle
+      values out of the universal kernel into explicit profiles.
+      Maintainer decision 2026-07-25 for the lifecycle half: keep one
+      `rkaf:LifecycleEvent` class (`spec/rkaf-rulemaking.md` §6 stands) and
+      adopt profile-extended closure — the kernel CUE owns only the 10
+      universal kinds, the US rulemaking profile contributes the 12
+      `proceeding-*` kinds, and the compiler assembles the closed value
+      union at build time. Conditions: compiled artifacts must expose the
+      layering honestly (kernel target without profile kinds, composed
+      target with them, conformance walking the composed one), and a
+      compile-time ownership audit must prove every kind is owned by
+      exactly one module (replacing the interim
+      `test_kernel_domain_value_debt_does_not_grow` allowlist).
+- [x] Fix CUE shape composition in every projector so generated formats
+      preserve composed constraints. Done 2026-07-25: commit `c7055cb`
+      (facet-level unification, loud failure on unresolvable/cyclic bases,
+      `#AssertionEnvelope` extracted and composed by `#Assertion` and
+      `#RelationshipAssertion` with deliberate narrowings; adversarially
+      reviewed; all gates green at digest `sha256:4b5d224c…`).
+- [ ] Define `AssertionEnvelope` with distinct `RelationshipAssertion` and
+      typed-literal `ValueAssertion`; keep immutable proposition content
+      separate from acceptance, disposition, confidence, attestation, and
+      mutable consumer state.
+- [ ] Separate source claimant, extraction provenance, model derivation, and
+      human approval.
+- [ ] Finish immutable Artifact version and revision identity; stabilize
+      `SourceFragment` identity with exact artifact, selector,
+      coordinate-system, and content-digest bindings.
+- [ ] Add `ConceptScheme`, SKOS-compatible concepts and mappings, and
+      evidence-bearing `ConceptAssignment` for Artifacts and SourceFragments.
+- [ ] Place relation changes, comparison contexts, resolver proofs, and
+      neutral findings outside the kernel; keep `ClosureClaim` Experimental
+      and disabled.
+- [ ] Regenerate normative prose, CUE, context, vocabulary, SHACL, SDK types,
+      runtime behavior, fixtures, and reference corpora; add semantic carrier
+      tests; run all gates from a clean checkout.
+- [ ] Complete the non-originating-consumer review, then cut one reviewed
+      pre-1.0 release with an immutable contract digest (maintainer
+      authorization required).
+
+**Release train:** decided with the release-shape item above. Default: a
+separate release after the pending US-identifier/L0/rulemaking tag(s); record
+the final decision in both this file and `../spicy-regs/TODO-RULE.md`.
 
 ## Rust SDK (Layer 5) — umbrella crate
 
