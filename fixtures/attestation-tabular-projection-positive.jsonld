@@ -1,0 +1,66 @@
+{
+  "@context": "../context/rkaf-context.jsonld",
+  "@graph": [
+    {
+      "@id": "urn:rkaf:fixture:atp:artifact",
+      "@type": "rkaf:Artifact",
+      "rkaf:hasArtifactIdentifier": "urn:rkaf:fixture:atp:artifact",
+      "rkaf:artifactIdentifierScheme": "rkaf:partner-defined",
+      "rkaf:hasContentDigest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+    },
+    {
+      "@id": "urn:rkaf:fixture:atp:fragment:sec-4b",
+      "@type": "rkaf:SourceFragment",
+      "oa:hasSource": "urn:rkaf:fixture:atp:artifact",
+      "oa:hasSelector": {
+        "@type": "oa:TextQuoteSelector",
+        "oa:exact": "An applicant residing in a group living arrangement is a separate household."
+      },
+      "rkaf:selectorKind": "oa:TextQuoteSelector",
+      "rkaf:sourceArtifactDigest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "rkaf:fragmentContentDigest": "sha256:eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
+    },
+    {
+      "@id": "urn:rkaf:fixture:atp:assignment:ca-0007",
+      "@type": "rkaf:ConceptAssignment",
+      "rkaf:assignmentSubject": "urn:rkaf:fixture:atp:fragment:sec-4b",
+      "rkaf:assignmentSubjectType": "rkaf:SourceFragment",
+      "rkaf:assignedConcept": "urn:rkaf:fixture:concept:household-composition",
+      "skos:inScheme": "urn:rkaf:fixture:scheme:fns-snap-topic",
+      "rkaf:assignmentRole": "rkaf:assignmentSubstantive",
+      "rkaf:assignmentDerivation": "rkaf:directAssignment",
+      "rkaf:assignmentEvidence": [
+        "urn:rkaf:fixture:atp:fragment:sec-4b"
+      ],
+      "rkaf:assertionOrigin": "rkaf:humanAsserted",
+      "rkaf:assertedAt": "2026-07-20T09:00:00Z",
+      "rkaf:usageEligibility": "rkaf:localOperationalUse"
+    },
+    {
+      "@id": "urn:rkaf:fixture:atp:attestation:row-1",
+      "@type": "rkaf:Attestation",
+      "rkaf:attestor": "urn:example:actor:reviewer-14",
+      "rkaf:attestorKind": "rkaf:humanUser",
+      "rkaf:targets": [
+        "urn:rkaf:fixture:atp:assignment:ca-0007"
+      ],
+      "rkaf:decision": "rkaf:approved",
+      "rkaf:attestationScope": "urn:rkaf:fixture:scope:snap-topic-tagging-2026",
+      "rkaf:attestedAt": "2026-07-21T11:15:00Z"
+    },
+    {
+      "@id": "urn:rkaf:fixture:atp:attestation:row-2",
+      "@type": "rkaf:Attestation",
+      "rkaf:attestor": "urn:example:actor:reviewer-22",
+      "rkaf:attestorKind": "rkaf:formalReviewer",
+      "rkaf:targets": [
+        "urn:rkaf:fixture:atp:assignment:ca-0007"
+      ],
+      "rkaf:decision": "rkaf:rejected",
+      "rkaf:attestationScope": "urn:rkaf:fixture:scope:snap-topic-tagging-2026",
+      "rkaf:attestedAt": "2026-07-23T16:40:00Z",
+      "rkaf:rationale": "The cited region defines household composition for group living arrangements, not the topic the assignment names; re-tag against the definitions section."
+    }
+  ],
+  "_comment": "L0 tabular attestation pattern (Conformance §0.1, 'Attestation as a table'), shown as the JSON-LD two rows of an attestations table project to. Both rows are separate rkaf:Attestation nodes with their own identity, attestor, kind, scope, and decision time; the approved ConceptAssignment carries NO approval field, per Core §3.1 and §4.7.3. The second row is a rejection over the SAME target, which is the point of the pattern: rejection is a first-class row and is never implied by an absent one. Two attestors disagreeing about one record stays representable, which an approved_by column on the assignment could not express."
+}

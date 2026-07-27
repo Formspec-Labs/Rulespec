@@ -30,8 +30,10 @@ An L0 implementation MUST:
    context, and every L0 range registry.
 2. Declare each mapped field's carrier location, subject type, predicate,
    direction, value kind, collection behavior, and class-valued range.
-3. Give an executable transform and sample for every IRI-valued field.
-   Identifier transforms also declare the registered identifier scheme.
+3. Give an executable transform and sample for every IRI-valued field that is
+   not a closed enum; a closed-enum IRI-valued field declares an `enum_map`
+   instead. Identifier transforms also declare the registered identifier
+   scheme.
 4. Preserve closed-enum discipline through an explicit `enum_map` or
    executable transform.
 5. File a self-certification with `declared_levels: [L0]`,
@@ -105,8 +107,14 @@ Each entry has these rules:
   the registered context/CUE coercion. `collection` defaults to `scalar`;
   `json-list` parses a single JSON-array column and applies the transform to
   every item as `{value}`.
-- `enum_map` is valid only for a closed-enum property. Every target MUST be a
-  registered value allowed for that property.
+- `enum_map` is valid only for a closed-enum property, and its `value_kind`
+  MUST be `vocab` or `iri`. Both coercions put the value on the wire as an IRI;
+  the difference is only whether the context resolves a bare term (`@vocab`) or
+  carries the already-expanded IRI (`@id`). Every target MUST be a registered
+  value allowed for that property. A closed-enum property registered as `iri`
+  — `rkaf:decision`, `rkaf:assertionOrigin` — therefore declares its discipline
+  through `enum_map` rather than through a transform, whose output the audit
+  checks for IRI shape and never for membership.
 - `transform` contains either `template`, or `pattern` plus `replacement`.
   Identifier predicates also require `identifier_scheme`.
 - `source_membership`, when present, contains exactly `table` and `column`.
@@ -125,6 +133,147 @@ Unknown block, entry, transform, and sample keys are errors. The audit checks
 predicate domains and class ranges from the current CUE contract, so an
 inverse relationship cannot silently become a forward relationship.
 A document MAY contain prose and other code blocks around the mapping blocks.
+
+### Worked pattern — attestation as a table [Normative]
+
+`spec/rkaf-core.md` §3.1 and §4.7.3 place approval, rejection, and revocation
+in an `rkaf:Attestation` **targeting** the record — never in a field on the
+record itself. That rule is about the SHAPE OF THE GRAPH, not about the
+serialization, and a tabular carrier satisfies it the same way a JSON-LD one
+does: with a separate node set whose rows point at the approved records. This
+subsection states the pattern normatively so a Parquet, SQL, or CSV producer
+does not have to infer it.
+
+An L0 implementation that records approval MUST carry it in a **separate
+attestations table**. One row is one `rkaf:Attestation` node. The row's own
+identifier is the Attestation's identity; the approved record's identity
+appears only in the target column, which maps to `rkaf:targets`. Six columns
+carry the required Attestation terms:
+
+| Column role | Term | Value kind | Rule |
+| --- | --- | --- | --- |
+| Attestor | `rkaf:attestor` | `iri` | The IRI of the party that decided. |
+| Attestor kind | `rkaf:attestorKind` | `vocab` | Closed `rkaf:AttestorKind`; declare it with `enum_map`. |
+| Targets | `rkaf:targets` | `iri` | At least one target. A repeated column is a `json-list`; a one-target-per-row table is `scalar`. |
+| Decision | `rkaf:decision` | `iri` | Closed `rkaf:AttestationDecision`; declare it with `enum_map`. |
+| Scope | `rkaf:attestationScope` | `literal` | What the decision covers. |
+| Decided at | `rkaf:attestedAt` | `literal` | `xsd:dateTime`. |
+
+Four rules make the tabular form carry the same meaning as the JSON-LD one:
+
+1. **The attestation is not a column on the approved record.** An
+   `approved_by` or `approval_status` column on the assignments, assertions, or
+   findings table is NOT an Attestation, whatever it is renamed to. It carries
+   no attestor kind, no scope, no decision time, and no revocation, and it
+   cannot express two attestors disagreeing about one record. A carrier that
+   holds only such a column MUST NOT map it to `rkaf:decision`,
+   `rkaf:attestor`, or any other Attestation term.
+2. **Rejection is a row.** `rkaf:rejected`, `rkaf:abstained`, and
+   `rkaf:flaggedForReview` are values of the same closed decision set as
+   `rkaf:approved`. A record with no attestation row is UNREVIEWED; it is not
+   rejected. A carrier that represents rejection by deleting the row, or by the
+   absence of an approval row, has made rejection unrepresentable and MUST NOT
+   claim `rkaf:decision`.
+3. **Revocation is a value, not a delete.** A withdrawn attestation keeps its
+   row and gains `rkaf:revokedAt`. Deleting the row destroys the record that
+   the decision was once made.
+4. **`rkaf:targets` is the join, and it is many.** The Attestation names the
+   records; the records do not name the Attestation. A target column with a
+   single-value constraint is a narrowing of the pattern, not the pattern, and
+   an implementation that needs one attestor decision over several records MUST
+   either repeat the target column as a `json-list` or emit one row per target
+   with a shared attestation identifier.
+
+The mapping below is the worked example. It is audited by
+`tools/test_l0_mapping_audit.py`, so it is executable rather than illustrative:
+
+```yaml rkaf-l0-mapping
+rulespec_version: "sha256:5f287a1e266feb4bec73317c3dca2d10654a61b1502f13ace176d1e9f4e23446"
+mappings:
+  - table: attestations
+    column: attestor_id
+    subject_type: https://rulespec.org/ns/v1#Attestation
+    term: https://rulespec.org/ns/v1#attestor
+    direction: forward
+    value_kind: iri
+    transform:
+      template: "urn:example:actor:{attestor_id}"
+    samples:
+      - input:
+          attestor_id: reviewer-14
+        output: urn:example:actor:reviewer-14
+  - table: attestations
+    column: attestor_kind
+    subject_type: https://rulespec.org/ns/v1#Attestation
+    term: https://rulespec.org/ns/v1#attestorKind
+    direction: forward
+    value_kind: vocab
+    enum_map:
+      human: https://rulespec.org/ns/v1#humanUser
+      model: https://rulespec.org/ns/v1#aiModel
+  - table: attestations
+    column: target_ids_json
+    subject_type: https://rulespec.org/ns/v1#Attestation
+    term: https://rulespec.org/ns/v1#targets
+    direction: forward
+    value_kind: iri
+    collection: json-list
+    transform:
+      template: "urn:example:assignment:{value}"
+    samples:
+      - input:
+          target_ids_json: '["ca-0007", "ca-0008"]'
+        output:
+          - urn:example:assignment:ca-0007
+          - urn:example:assignment:ca-0008
+  - table: attestations
+    column: decision
+    subject_type: https://rulespec.org/ns/v1#Attestation
+    term: https://rulespec.org/ns/v1#decision
+    direction: forward
+    value_kind: iri
+    enum_map:
+      approved: https://rulespec.org/ns/v1#approved
+      approved_with_conditions: https://rulespec.org/ns/v1#approvedWithConditions
+      rejected: https://rulespec.org/ns/v1#rejected
+      abstained: https://rulespec.org/ns/v1#abstained
+      flagged: https://rulespec.org/ns/v1#flaggedForReview
+  - table: attestations
+    column: attestation_scope
+    subject_type: https://rulespec.org/ns/v1#Attestation
+    term: https://rulespec.org/ns/v1#attestationScope
+    direction: forward
+    value_kind: literal
+  - table: attestations
+    column: attested_at
+    subject_type: https://rulespec.org/ns/v1#Attestation
+    term: https://rulespec.org/ns/v1#attestedAt
+    direction: forward
+    value_kind: literal
+  - table: attestations
+    column: revoked_at
+    subject_type: https://rulespec.org/ns/v1#Attestation
+    term: https://rulespec.org/ns/v1#revokedAt
+    direction: forward
+    value_kind: literal
+```
+
+`fixtures/attestation-tabular-projection-positive.jsonld` is what two rows of
+that table project to: one approval and one rejection over the same
+`rkaf:ConceptAssignment`, both carrying their own attestor, scope, and decision
+time, and neither appearing as a field on the assignment. The fixture is
+validated at L1, L2, and L3 by the repository gates, so the pattern's output is
+checked and not merely asserted.
+
+An implementation MAY inline the attestation columns into the record's own
+table ONLY when that table carries the full column set above, its rows still
+project to separate Attestation nodes with their own identity, and the mapping
+still declares `subject_type: rkaf:Attestation` for every attestation column.
+Inlining is a storage choice about where the columns sit; it is never
+permission to model approval as a property of the approved record, and it
+caps the carrier at one attestation per record — a second attestor, a later
+revocation, or a rejection following an approval all require the separate
+table.
 
 ### Gate
 

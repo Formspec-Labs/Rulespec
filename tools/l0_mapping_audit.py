@@ -113,6 +113,11 @@ ALLOWED_ENTRY_KEYS = {
 }
 REQUIRED_ENTRY_KEYS = {"table", "subject_type", "term", "direction", "value_kind"}
 VALUE_KINDS = {"iri", "vocab", "literal", "number", "date"}
+# Value kinds an `enum_map` may declare. Both put the mapped value on the wire
+# as an IRI, which is what `sh:in` over IRI members matches; the difference is
+# only whether the context resolves a bare term (`@vocab`) or carries the
+# already-expanded IRI (`@id`).
+ENUM_MAP_VALUE_KINDS = {"vocab", "iri"}
 DIRECTIONS = {"forward", "inverse"}
 COLLECTIONS = {"scalar", "json-list"}
 IDENTIFIER_TERMS = {
@@ -429,8 +434,19 @@ def _validate_enum_map(
     if not isinstance(enum_map, dict) or not enum_map:
         issues.append(f"{location}: enum_map MUST be a non-empty mapping")
         return
-    if value_kind != "vocab":
-        issues.append(f"{location}: enum_map requires value_kind: vocab")
+    # A closed enum reaches the wire as an IRI under EITHER coercion. `@vocab`
+    # resolves a bare term against the vocabulary; `@id` carries the same value
+    # already expanded. `rkaf:decision` and `rkaf:assertionOrigin` are closed
+    # sets registered with `@type: @id`, so restricting `enum_map` to `vocab`
+    # left them with no way to declare closed-enum discipline at all — only a
+    # transform, whose output the audit checks for IRI SHAPE and never for
+    # membership. That is the unchecked semantic claim §0.1 requirement 4
+    # exists to prevent.
+    if value_kind not in ENUM_MAP_VALUE_KINDS:
+        issues.append(
+            f"{location}: enum_map requires value_kind "
+            f"{' or '.join(sorted(ENUM_MAP_VALUE_KINDS))}"
+        )
     allowed = registry.enum_values_by_term.get(term)
     if allowed is None:
         issues.append(f"{location}: enum_map is only valid for a closed-enum term")
@@ -891,7 +907,7 @@ def audit_mapping_text(
             elif samples is not None:
                 issues.append(f"{location}: samples require a transform")
 
-            if value_kind == "iri" and transform is None:
+            if value_kind == "iri" and transform is None and enum_map is None:
                 issues.append(
                     f"{location}: IRI mappings require an executable transform and samples"
                 )

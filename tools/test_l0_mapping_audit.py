@@ -8,12 +8,14 @@ from typing import Any
 import yaml
 
 from tools.l0_mapping_audit import (
+    ROOT,
     audit_mapping_text,
     audit_partner,
     load_vocabulary_registry,
 )
 
 RKAF = "https://rulespec.org/ns/v1#"
+CONFORMANCE_SPEC = ROOT / "spec" / "rkaf-conformance.md"
 
 
 class L0MappingAuditTests(unittest.TestCase):
@@ -320,6 +322,100 @@ class L0MappingAuditTests(unittest.TestCase):
             registry=self.registry,
         )
         self.assertTrue(any("not valid for term" in issue for issue in result.issues))
+
+    def test_enum_map_declares_discipline_for_an_id_coerced_closed_enum(self) -> None:
+        """`rkaf:decision` is a closed set registered with `@type: @id`.
+
+        Restricting `enum_map` to `value_kind: vocab` left every such term with
+        no way to declare closed-enum discipline: a transform's output is
+        checked for IRI SHAPE and never for membership, so a typo in the
+        template produced an unregistered decision the audit accepted.
+        """
+        decision = {
+            "table": "attestations",
+            "column": "decision",
+            "subject_type": f"{RKAF}Attestation",
+            "term": f"{RKAF}decision",
+            "direction": "forward",
+            "value_kind": "iri",
+            "enum_map": {
+                "approved": f"{RKAF}approved",
+                "rejected": f"{RKAF}rejected",
+            },
+        }
+        result = audit_mapping_text(
+            self.mapping_markdown([decision]),
+            registry=self.registry,
+        )
+        self.assertEqual(result.issues, ())
+
+        decision["enum_map"] = {"approved": f"{RKAF}assignmentPrimary"}
+        result = audit_mapping_text(
+            self.mapping_markdown([decision]),
+            registry=self.registry,
+        )
+        self.assertTrue(any("not valid for term" in issue for issue in result.issues))
+
+    def test_enum_map_stays_closed_to_untyped_and_open_terms(self) -> None:
+        literal_term = {
+            "table": "attestations",
+            "column": "attestation_scope",
+            "subject_type": f"{RKAF}Attestation",
+            "term": f"{RKAF}attestationScope",
+            "direction": "forward",
+            "value_kind": "literal",
+            "enum_map": {"whole-record": f"{RKAF}approved"},
+        }
+        result = audit_mapping_text(
+            self.mapping_markdown([literal_term]),
+            registry=self.registry,
+        )
+        self.assertTrue(
+            any("enum_map requires value_kind" in issue for issue in result.issues)
+        )
+        self.assertTrue(
+            any(
+                "enum_map is only valid for a closed-enum term" in issue
+                for issue in result.issues
+            )
+        )
+
+        open_iri_term = {
+            "table": "attestations",
+            "column": "attestor_id",
+            "subject_type": f"{RKAF}Attestation",
+            "term": f"{RKAF}attestor",
+            "direction": "forward",
+            "value_kind": "iri",
+            "enum_map": {"reviewer-14": "urn:example:actor:reviewer-14"},
+        }
+        result = audit_mapping_text(
+            self.mapping_markdown([open_iri_term]),
+            registry=self.registry,
+        )
+        self.assertTrue(
+            any(
+                "enum_map is only valid for a closed-enum term" in issue
+                for issue in result.issues
+            )
+        )
+
+    def test_the_normative_conformance_examples_are_executable(self) -> None:
+        """Every `rkaf-l0-mapping` block in the conformance spec is audited.
+
+        The tabular attestation pattern (§0.1) is normative, so its worked
+        mapping has to be executable rather than illustrative: a term, domain,
+        range, value kind, or enum target that drifts out of the contract fails
+        here instead of shipping as prose a consumer would copy.
+        """
+        result = audit_mapping_text(
+            CONFORMANCE_SPEC.read_text(),
+            registry=self.registry,
+        )
+        self.assertEqual(result.issues, ())
+        self.assertGreaterEqual(result.blocks, 2)
+        self.assertIn(f"{RKAF}decision", result.terms)
+        self.assertIn(f"{RKAF}targets", result.terms)
 
     def test_mapping_version_must_match_current_contract(self) -> None:
         result = audit_mapping_text(

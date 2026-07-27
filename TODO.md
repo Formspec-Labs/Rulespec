@@ -174,6 +174,41 @@ value, or concept data under it.
 separate release after the pending US-identifier/L0/rulemaking tag(s); record
 the final decision in both this file and `../spicy-regs/TODO-RULE.md`.
 
+## Consumer-requested contract simplifications (Spicy Regs)
+
+Consumer evidence: `../spicy-regs/docs/decisions.md`, entry
+"2026-07-27 — Contract-assumption validation results", which recorded three
+optional Rulespec simplifications as informational and non-blocking after an
+adversarial validation of the consumer plan's contract assumptions. The
+maintainer authorized landing them ahead of the pre-1.0 release cut. RULE-005
+is satisfied: each is driven by a named consumer finding, not by a
+repo-internal preference.
+
+- [x] Normative tabular/inlined Attestation pattern for L0 implementers.
+      Done 2026-07-27: `spec/rkaf-conformance.md` §0.1 gains
+      "Attestation as a table" — a separate attestations table, one row per
+      Attestation node, `rkaf:targets` as the outward join, six required
+      columns, and four rules (an `approved_by` column is not an Attestation;
+      rejection is a row and an absent row means unreviewed; revocation is
+      `rkaf:revokedAt`, not a delete; `rkaf:targets` is many). Inlining is
+      permitted as a storage choice and capped at one attestation per record.
+      "Never a field" is unchanged and restated — the pattern shows how a
+      separate table SATISFIES it.
+      The worked mapping is gated:
+      `L0MappingAuditTests.test_the_normative_conformance_examples_are_executable`
+      audits every `rkaf-l0-mapping` block in the conformance spec, and
+      `fixtures/attestation-tabular-projection-positive.jsonld` (one approval
+      and one rejection over the same `rkaf:ConceptAssignment`) is gated at
+      L1-L3. The pattern needed one audit fix to be expressible:
+      `enum_map` now covers closed enums the context coerces with `@type: @id`
+      (`rkaf:decision`, `rkaf:assertionOrigin`), which previously had no way to
+      declare closed-enum discipline at all. Contract digest UNCHANGED at
+      `sha256:5f287a1e…` — no CUE, context, or range-registry byte moved.
+- [ ] Carrier-local fragment URN for `rkaf:assignmentEvidence`.
+- [ ] Machine-legible scope carve-outs (`excluded_terms:`) in the L0
+      conformance-file format, replacing freeform notes prose the audit never
+      parsed.
+
 ## Rust SDK (Layer 5) — umbrella crate
 
 Registry client + federation are blocked on Plan 4. The ~80% below is buildable today from existing ingredients.

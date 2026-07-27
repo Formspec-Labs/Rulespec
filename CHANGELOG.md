@@ -9,6 +9,47 @@ adapted for a specification + shape + fixture project.
 
 ### Added
 
+- **A normative tabular attestation pattern for L0 carriers**
+  (`spec/rkaf-conformance.md` §0.1, "Attestation as a table"). Core §3.1 and
+  §4.7.3 put approval, rejection, and revocation in an `rkaf:Attestation`
+  TARGETING the record — never in a field on it — and that rule is about the
+  shape of the graph, not about the serialization. A Parquet, SQL, or CSV
+  producer previously had to infer how to satisfy it and reasonably concluded
+  that a per-row provenance block was close enough. The subsection states the
+  pattern instead of leaving it to be derived: a separate attestations table,
+  one row per Attestation node, the approved record's identity appearing only
+  in the `rkaf:targets` join column, and six columns carrying attestor,
+  attestor kind, targets (≥1), the closed decision, scope, and decision time.
+
+  Four rules carry the meaning the table has to preserve. An `approved_by` or
+  `approval_status` column on the approved record's own table is NOT an
+  Attestation and MUST NOT be mapped to `rkaf:decision` or `rkaf:attestor` —
+  it carries no attestor kind, no scope, no decision time, no revocation, and
+  it cannot represent two attestors disagreeing about one record. Rejection is
+  a ROW: `rkaf:rejected` and `rkaf:abstained` are members of the same closed
+  set as `rkaf:approved`, an absent row means UNREVIEWED, and a carrier that
+  expresses rejection by deleting a row has made rejection unrepresentable.
+  Revocation is `rkaf:revokedAt` on the surviving row, not a delete. And
+  `rkaf:targets` is many and points from the Attestation outward, so a
+  single-target column is a narrowing of the pattern rather than the pattern.
+  Inlining the six columns into the record's own table is permitted as a
+  storage choice when the rows still project to separate Attestation nodes,
+  and it caps the carrier at one attestation per record.
+
+  The worked mapping is executable, not illustrative:
+  `L0MappingAuditTests.test_the_normative_conformance_examples_are_executable`
+  audits every `rkaf-l0-mapping` block in the conformance spec, so a term,
+  domain, range, value kind, or enum target that drifts out of the contract
+  fails the build instead of shipping as prose a consumer would copy.
+  `fixtures/attestation-tabular-projection-positive.jsonld` is what two rows
+  project to — one approval and one rejection over the same
+  `rkaf:ConceptAssignment` — and is gated at L1, L2, and L3.
+
+  Driven by consumer evidence: `../spicy-regs/docs/decisions.md`, entry
+  "2026-07-27 — Contract-assumption validation results" ("approval requires a
+  real contract-shaped `attestations` table (the per-row provenance block is
+  not an Attestation; rejection must be recordable, never implied by
+  omission)").
 - **The document-analysis module** (`spec/rkaf-analysis.md`, CUE under
   `constraints/analysis/`) — generic, jurisdiction-free contracts for comparing
   relations across document versions. It is a THIRD tree beside the kernel and
@@ -273,6 +314,18 @@ adapted for a specification + shape + fixture project.
 
 ### Changed
 
+- **`enum_map` now covers closed enums registered with `@type: @id`**
+  (`tools/l0_mapping_audit.py`, Conformance §0.1). The audit accepted
+  `enum_map` only on `value_kind: vocab`, which left `rkaf:decision` and
+  `rkaf:assertionOrigin` — closed sets the context coerces with `@id` rather
+  than `@vocab` — with no way to declare closed-enum discipline at all. Their
+  only route was a transform, whose output the audit checks for IRI SHAPE and
+  never for membership, so a typo in the template minted an unregistered
+  decision and passed. Both coercions put the value on the wire as an IRI;
+  `enum_map` is now valid for either, and an `iri` mapping that declares one
+  no longer also has to declare a transform. `enum_map` remains closed to
+  terms with no registered enum, so an open IRI property cannot use it to
+  dodge the transform requirement.
 - **`rkaf:AILineage` no longer requires `rkaf:humanApprover`** (Core §2.4,
   §5.3). This resolves the open conflict recorded in the previous entry. The
   AI-touched `rkaf:assertionOrigin` values still REQUIRE `rkaf:hasAILineage`,
