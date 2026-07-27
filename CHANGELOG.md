@@ -9,6 +9,39 @@ adapted for a specification + shape + fixture project.
 
 ### Added
 
+- **Machine-legible scope carve-outs in the L0 conformance-file format** —
+  `excluded_terms` and `excluded_tables` (Conformance §0.1, "Scope
+  carve-outs"). `terms_used` said what a declaration COVERED; what it
+  deliberately left out lived in `notes` prose, which no tool reads. "We do not
+  map concept assignments this quarter" and "we stopped mapping concept
+  assignments last quarter" were therefore the same sentence to every gate, and
+  a scope that SHRANK looked exactly like a scope that had always been that
+  shape.
+
+  `tools/l0_mapping_audit.py` now validates both keys. Each is optional and
+  each, when present, is a non-empty duplicate-free list. Every
+  `excluded_terms` entry MUST be a REGISTERED contract term and MUST NOT appear
+  in `terms_used` or any mapping block: registration stops a carve-out naming a
+  predicate the contract never had, which would read as coverage of something
+  Rulespec does not define, and the not-mapped rule stops a declaration
+  claiming a term twice, in and out at once. Every `excluded_tables` entry MUST
+  NOT name a table any mapping block maps; tables are carrier-local strings, so
+  they are checked against the mapping rather than against the contract.
+  `MappingAudit` gained a `tables` field to carry that comparison.
+
+  Absent means the implementation **said nothing** about what it left out. It
+  is NOT read as the complement of `terms_used`, and no rule treats it that
+  way, so no declaration written before the keys existed acquires a claim it
+  never made — stated as a test rather than assumed
+  (`test_a_declaration_without_carve_outs_is_unchanged`). What the keys buy is
+  a diff: widening is a term leaving `excluded_terms` and appearing in
+  `terms_used`, narrowing is the reverse, and each is one hunk in review
+  instead of a paragraph nobody re-reads.
+
+  Driven by consumer evidence: `../spicy-regs/docs/decisions.md`, entry
+  "2026-07-27 — Contract-assumption validation results" (recorded
+  simplification "machine-legible scope carve-outs (`excluded_terms:`) instead
+  of freeform notes prose").
 - **The carrier-local fragment URN, a second registered identity form for a
   cited region** (Core §4.2, §4.7.3). `rkaf:assignmentEvidence` has range
   `rkaf:SourceFragment`, and for a tabular carrier that range was a requirement

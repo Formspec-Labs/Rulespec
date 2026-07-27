@@ -30,6 +30,22 @@ declared_levels:
 # terms_used:
 #   - "https://rulespec.org/ns/v1#hasAgendaItemIdentifier"
 
+# Optional machine-legible scope carve-outs (L0). Both keys are checked, and
+# both default to absent — absence means the declaration said NOTHING about
+# what it left out, never "everything else is out of scope". Put that broader
+# claim in `notes`, where it belongs, because no audit can check it.
+#   excluded_terms  — registered contract terms this carrier deliberately does
+#                     not map. Each MUST be registered and MUST NOT appear in
+#                     terms_used or any mapping block.
+#   excluded_tables — carrier tables this mapping deliberately does not cover.
+#                     Each MUST NOT be a table any mapping block maps.
+# Widening is a term moving from excluded_terms into terms_used; narrowing is
+# the reverse. Each shows up as one diff hunk instead of a prose paragraph.
+# excluded_terms:
+#   - "https://rulespec.org/ns/v1#assignmentEvidence"
+# excluded_tables:
+#   - "attestations"
+
 # Operational adoption depth — D0 cite / D1 overlay / D2 align / D3 derive /
 # D4 substrate / D5 sole. See source spec Appendix D. L0 declarations MUST
 # delete this field because Appendix D does not define vocabulary-only depth.

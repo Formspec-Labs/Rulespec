@@ -176,6 +176,10 @@ class MappingAudit:
     blocks: int
     issues: tuple[str, ...]
     versions: frozenset[str] = frozenset()
+    # Every `table` named by a well-formed entry. Carried so a declaration can
+    # say which carrier tables it deliberately left unmapped and have that
+    # claim CHECKED against what the mapping actually covers.
+    tables: frozenset[str] = frozenset()
 
 
 def _expand(value: str, prefixes: dict[str, str]) -> str:
@@ -726,6 +730,7 @@ def audit_mapping_text(
     blocks, issues = extract_mapping_blocks(text)
     terms: set[str] = set()
     versions: set[str] = set()
+    tables: set[str] = set()
     seen_mappings: set[tuple[str, tuple[str, ...], str, str]] = set()
     entry_count = 0
 
@@ -785,6 +790,7 @@ def audit_mapping_text(
             if not isinstance(table, str) or not table.strip():
                 issues.append(f"{location}: table MUST be a non-empty string")
                 continue
+            tables.add(table)
             columns = _mapping_columns(entry, location=location, issues=issues)
             if columns is None:
                 continue
@@ -931,6 +937,7 @@ def audit_mapping_text(
         blocks=len(blocks),
         issues=tuple(issues),
         versions=frozenset(versions),
+        tables=frozenset(tables),
     )
 
 
@@ -953,6 +960,72 @@ def _resolve_mapping_path(partner_path: Path, value: str, repo_root: Path) -> Pa
         repo_root / raw,
     ]
     return next((candidate.resolve() for candidate in candidates if candidate.is_file()), None)
+
+
+def _validate_exclusions(
+    document: dict[str, Any],
+    *,
+    mapped_terms: set[str],
+    mapped_tables: set[str],
+    registry: VocabularyRegistry,
+    issues: list[str],
+) -> None:
+    """Check the optional machine-legible scope carve-outs.
+
+    Narrowing a declaration used to live in `notes` prose, which the audit
+    never read: "we do not map concept assignments this quarter" and "we
+    stopped mapping concept assignments last quarter" were the same sentence to
+    every tool, so a scope that shrank looked exactly like a scope that had
+    always been that shape. `excluded_terms` and `excluded_tables` make the
+    carve-out a checked, diffable declaration.
+
+    Both keys are OPTIONAL and both default to absent, so every declaration
+    written before they existed keeps passing unchanged. Absent means "the
+    implementation said nothing about what it left out" — it does NOT mean the
+    complement of `terms_used`, and no rule here treats it that way.
+
+    Each excluded term MUST be registered and MUST NOT be mapped. Registration
+    is what stops a carve-out naming a predicate the contract never had, which
+    would read as coverage of something Rulespec does not define; the
+    not-mapped rule is what stops a declaration claiming a term twice, in and
+    out, and makes widening (a term leaving `excluded_terms` and appearing in
+    `terms_used`) and narrowing (the reverse) show up as one diff hunk each.
+    """
+    for key, values in (
+        ("excluded_terms", document.get("excluded_terms")),
+        ("excluded_tables", document.get("excluded_tables")),
+    ):
+        if values is None:
+            continue
+        if not isinstance(values, list) or not values:
+            issues.append(f"{key} MUST be a non-empty list when present")
+            continue
+        if not all(isinstance(value, str) and value.strip() for value in values):
+            issues.append(f"{key} entries MUST be non-empty strings")
+            continue
+        if len(set(values)) != len(values):
+            issues.append(f"{key} MUST NOT contain duplicates")
+
+        if key == "excluded_terms":
+            unregistered = sorted(
+                value for value in set(values) if value not in registry.terms
+            )
+            if unregistered:
+                issues.append(
+                    "excluded_terms entries MUST be registered contract terms: "
+                    f"{unregistered}"
+                )
+            claimed = sorted(set(values) & mapped_terms)
+            if claimed:
+                issues.append(
+                    f"excluded_terms MUST NOT name mapped terms: {claimed}"
+                )
+        else:
+            claimed = sorted(set(values) & mapped_tables)
+            if claimed:
+                issues.append(
+                    f"excluded_tables MUST NOT name mapped tables: {claimed}"
+                )
 
 
 def audit_partner(
@@ -1042,12 +1115,21 @@ def audit_partner(
         if extra:
             issues.append(f"terms_used contains unmapped terms: {extra}")
 
+    _validate_exclusions(
+        document,
+        mapped_terms=set(mapping.terms) | declared_terms,
+        mapped_tables=set(mapping.tables),
+        registry=registry,
+        issues=issues,
+    )
+
     return MappingAudit(
         mapping.terms,
         mapping.entries,
         mapping.blocks,
         tuple(issues),
         mapping.versions,
+        mapping.tables,
     )
 
 

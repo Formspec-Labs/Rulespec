@@ -38,7 +38,7 @@ runs it on every PR, immediately after `tools/compile_all.sh` regenerates
 
 ## L0 carrier-mapping audit
 
-[`l0_mapping_audit.py`](l0_mapping_audit.py) validates the normative fenced mapping blocks defined in `spec/rkaf-conformance.md`. It checks full term IRIs, closed-enum targets, duplicate column mappings, and the L0-only fields in partner self-certifications.
+[`l0_mapping_audit.py`](l0_mapping_audit.py) validates the normative fenced mapping blocks defined in `spec/rkaf-conformance.md`. It checks full term IRIs, closed-enum targets, duplicate column mappings, and the L0-only fields in partner self-certifications — including the optional `excluded_terms` and `excluded_tables` carve-outs, where every excluded term must be a registered contract term the mapping does NOT claim and every excluded table must be one the mapping does not cover. Both keys are optional; a declaration that omits them is audited exactly as before.
 
 ```sh
 python3 tools/l0_mapping_audit.py docs/ontology.md

@@ -226,9 +226,19 @@ repo-internal preference.
       BREAKING for producers already emitting `rkaf:assignmentEvidence`: they
       add `rkaf:assignmentEvidenceScheme: rkaf:published-fragment`. Sixteen
       in-tree fixtures were updated accordingly.
-- [ ] Machine-legible scope carve-outs (`excluded_terms:`) in the L0
+- [x] Machine-legible scope carve-outs (`excluded_terms:`) in the L0
       conformance-file format, replacing freeform notes prose the audit never
-      parsed.
+      parsed. Done 2026-07-27: `tools/l0_mapping_audit.py` validates optional
+      `excluded_terms` and `excluded_tables` on an L0 declaration — each a
+      non-empty duplicate-free list; every excluded term registered AND
+      unmapped, every excluded table unmapped. `MappingAudit` gained `tables`
+      to carry that comparison. Absent means the declaration said NOTHING about
+      scope, never "everything else is out"; backward compatibility is a test,
+      not an assumption. Documented in Conformance §0.1 ("Scope carve-outs"),
+      §6, `conformance/self-certification.template.yaml`, and `tools/README.md`.
+      Five new audit tests. Contract digest UNCHANGED at
+      `sha256:5aaac340…` — the declaration format is not part of the CUE,
+      context, or range-registry contract.
 
 ## Rust SDK (Layer 5) — umbrella crate
 

@@ -39,7 +39,9 @@ An L0 implementation MUST:
 5. File a self-certification with `declared_levels: [L0]`,
    `rulespec_version`, `carrier_mapping`, `terms_used`, and
    `test_corpus_version`. `terms_used` MUST be the unique set of full term IRIs
-   present in the mapping blocks.
+   present in the mapping blocks. A declaration MAY additionally state its
+   scope carve-outs machine-legibly with `excluded_terms` and
+   `excluded_tables` (see **Scope carve-outs** below).
 6. NOT claim L1, L2, L3, L4, or an Appendix-D adoption depth. L0 does not
    exercise a JSON-LD carrier, and Appendix D does not define depth semantics
    for vocabulary-only carriers.
@@ -334,14 +336,54 @@ component. And a carrier that publishes fragments keeps declaring
 value in the `urn:rkaf:fragment:` namespace under any other declaration is a
 violation.
 
+### Scope carve-outs [Normative]
+
+`terms_used` says what a declaration COVERS. What it deliberately leaves out
+used to live in `notes` prose, which no tool reads — so "we do not map concept
+assignments this quarter" and "we stopped mapping concept assignments last
+quarter" were the same sentence to every gate, and a scope that shrank looked
+exactly like a scope that had always been that shape.
+
+Two OPTIONAL keys make a carve-out a checked declaration:
+
+```yaml
+excluded_terms:
+  - "https://rulespec.org/ns/v1#assignmentEvidence"
+excluded_tables:
+  - "attestations"
+```
+
+- `excluded_terms`, when present, is a non-empty, duplicate-free list. Every
+  entry MUST be a **registered contract term** and MUST NOT appear in
+  `terms_used` or in any mapping block. Registration is what stops a carve-out
+  naming a predicate the contract never had, which would read as coverage of
+  something Rulespec does not define. The not-mapped rule is what stops a
+  declaration claiming a term twice, in and out at once.
+- `excluded_tables`, when present, is a non-empty, duplicate-free list of
+  carrier table names, and MUST NOT name a table any mapping block maps. Tables
+  are carrier-local strings, so the audit checks them against the mapping and
+  not against the contract.
+
+Both keys are optional and both default to absent, so every declaration written
+before they existed keeps passing unchanged. **Absent means the implementation
+said nothing about what it left out.** It is NOT the complement of `terms_used`,
+and no rule reads it that way — an implementation that wants "everything else is
+out of scope" says so in `notes`, because that claim is about the whole contract
+and the audit cannot check it.
+
+What the keys buy is a diff. Widening is one term leaving `excluded_terms` and
+appearing in `terms_used`; narrowing is the reverse. Each is a single hunk in
+review rather than a paragraph nobody re-reads.
+
 ### Gate
 
 `tools/l0_mapping_audit.py` parses the fenced blocks and verifies their contract
 digest, structure, vocabulary terms, domain/range, direction, value kind,
 transforms, samples, and enum targets against the CUE vocabulary, semantic
 range registry, and canonical JSON-LD context. Given a partner YAML, it also
-resolves `carrier_mapping`, verifies `terms_used`, and rejects mixed L0/L1+
-claims or an L0 adoption-depth claim.
+resolves `carrier_mapping`, verifies `terms_used`, checks any declared
+`excluded_terms` and `excluded_tables` against the registry and the mapping,
+and rejects mixed L0/L1+ claims or an L0 adoption-depth claim.
 
 ```bash
 python3 tools/l0_mapping_audit.py --print-contract-version
@@ -489,6 +531,13 @@ rulespec_version: "sha256:<current L0 contract digest>"
 carrier_mapping: "path/to/the/published-mapping.md"
 terms_used:
   - "https://rulespec.org/ns/v1#hasAgendaItemIdentifier"
+# Optional, and checked: every excluded term is registered and unmapped,
+# every excluded table is unmapped. Absent means nothing was said about
+# scope, never "everything else is out".
+excluded_terms:
+  - "https://rulespec.org/ns/v1#assignmentEvidence"
+excluded_tables:
+  - "attestations"
 test_corpus_version: "<immutable carrier corpus version>"
 results:
   L0: pass

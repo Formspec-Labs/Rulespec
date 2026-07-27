@@ -569,6 +569,127 @@ class L0MappingAuditTests(unittest.TestCase):
             assert result is not None
             self.assertEqual(result.issues, ())
 
+    def test_declared_carve_outs_are_checked_against_the_mapping(self) -> None:
+        """`excluded_terms` and `excluded_tables` make narrowing diffable.
+
+        Both are optional, and a declaration that omits them behaves exactly as
+        it did before — see the backward-compatibility test below.
+        """
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            partner = self.write_partner(
+                root,
+                mappings=[self.stage_mapping()],
+                terms_used=[f"{RKAF}proceedingStage"],
+                excluded_terms=[
+                    f"{RKAF}assignmentEvidence",
+                    f"{RKAF}hasDocketIdentifier",
+                ],
+                excluded_tables=["comment_periods", "attestations"],
+            )
+            result = audit_partner(partner, registry=self.registry, repo_root=root)
+            self.assertIsNotNone(result)
+            assert result is not None
+            self.assertEqual(result.issues, ())
+            self.assertEqual(result.tables, {"proceedings"})
+
+    def test_a_carve_out_may_not_name_something_the_mapping_claims(self) -> None:
+        """In and out at once is the incoherence the key exists to catch."""
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            partner = self.write_partner(
+                root,
+                mappings=[self.stage_mapping()],
+                terms_used=[f"{RKAF}proceedingStage"],
+                excluded_terms=[f"{RKAF}proceedingStage"],
+                excluded_tables=["proceedings"],
+            )
+            result = audit_partner(partner, registry=self.registry, repo_root=root)
+            self.assertIsNotNone(result)
+            assert result is not None
+            self.assertTrue(
+                any(
+                    "excluded_terms MUST NOT name mapped terms" in issue
+                    for issue in result.issues
+                )
+            )
+            self.assertTrue(
+                any(
+                    "excluded_tables MUST NOT name mapped tables" in issue
+                    for issue in result.issues
+                )
+            )
+
+    def test_a_carve_out_may_only_name_registered_terms(self) -> None:
+        """A carve-out naming a predicate the contract never had reads as
+        coverage of something Rulespec does not define."""
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            partner = self.write_partner(
+                root,
+                mappings=[self.stage_mapping()],
+                terms_used=[f"{RKAF}proceedingStage"],
+                excluded_terms=[f"{RKAF}notRegistered"],
+            )
+            result = audit_partner(partner, registry=self.registry, repo_root=root)
+            self.assertIsNotNone(result)
+            assert result is not None
+            self.assertTrue(
+                any(
+                    "excluded_terms entries MUST be registered contract terms"
+                    in issue
+                    for issue in result.issues
+                )
+            )
+
+    def test_a_carve_out_must_be_a_non_empty_duplicate_free_list(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            partner = self.write_partner(
+                root,
+                mappings=[self.stage_mapping()],
+                terms_used=[f"{RKAF}proceedingStage"],
+                excluded_terms=[],
+                excluded_tables=["comment_periods", "comment_periods"],
+            )
+            result = audit_partner(partner, registry=self.registry, repo_root=root)
+            self.assertIsNotNone(result)
+            assert result is not None
+            self.assertTrue(
+                any(
+                    "excluded_terms MUST be a non-empty list when present" in issue
+                    for issue in result.issues
+                )
+            )
+            self.assertTrue(
+                any(
+                    "excluded_tables MUST NOT contain duplicates" in issue
+                    for issue in result.issues
+                )
+            )
+
+    def test_a_declaration_without_carve_outs_is_unchanged(self) -> None:
+        """Backward compatibility, stated as a test rather than assumed.
+
+        Absence means the implementation said nothing about what it left out.
+        It is NOT read as the complement of `terms_used`, so no existing
+        declaration acquires a claim it never made.
+        """
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            partner = self.write_partner(
+                root,
+                mappings=[self.stage_mapping()],
+                terms_used=[f"{RKAF}proceedingStage"],
+            )
+            document = yaml.safe_load(partner.read_text())
+            self.assertNotIn("excluded_terms", document)
+            self.assertNotIn("excluded_tables", document)
+            result = audit_partner(partner, registry=self.registry, repo_root=root)
+            self.assertIsNotNone(result)
+            assert result is not None
+            self.assertEqual(result.issues, ())
+
     def test_partner_cannot_mix_levels_or_claim_adoption_depth(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
