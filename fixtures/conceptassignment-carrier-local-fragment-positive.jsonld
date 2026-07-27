@@ -1,0 +1,43 @@
+{
+  "@context": "../context/rkaf-context.jsonld",
+  "@graph": [
+    {
+      "@id": "urn:rkaf:fixture:clf:artifact",
+      "@type": "rkaf:Artifact",
+      "rkaf:hasArtifactIdentifier": "urn:rkaf:fixture:clf:artifact",
+      "rkaf:artifactIdentifierScheme": "rkaf:partner-defined",
+      "rkaf:hasContentDigest": "sha256:1111111111111111111111111111111111111111111111111111111111111111"
+    },
+    {
+      "@id": "urn:rkaf:fragment:urn%3Arkaf%3Afixture%3Aclf%3Aartifact:118:214:sha256-2222222222222222222222222222222222222222222222222222222222222222",
+      "@type": "rkaf:SourceFragment",
+      "oa:hasSource": "urn:rkaf:fixture:clf:artifact",
+      "oa:hasSelector": {
+        "@type": "oa:TextPositionSelector",
+        "oa:start": 118,
+        "oa:end": 214,
+        "rkaf:coordinateSystem": "rkaf:unicode-codepoint"
+      },
+      "rkaf:selectorKind": "oa:TextPositionSelector",
+      "rkaf:fragmentContentDigest": "sha256:2222222222222222222222222222222222222222222222222222222222222222"
+    },
+    {
+      "@id": "urn:rkaf:fixture:clf:seg:sec-2c-income",
+      "@type": "rkaf:ConceptAssignment",
+      "rkaf:assignmentSubject": "urn:rkaf:fragment:urn%3Arkaf%3Afixture%3Aclf%3Aartifact:118:214:sha256-2222222222222222222222222222222222222222222222222222222222222222",
+      "rkaf:assignmentSubjectType": "rkaf:SourceFragment",
+      "rkaf:assignedConcept": "urn:rkaf:fixture:concept:household-income",
+      "skos:inScheme": "urn:rkaf:fixture:scheme:fns-snap-topic",
+      "rkaf:assignmentRole": "rkaf:assignmentSubstantive",
+      "rkaf:assignmentDerivation": "rkaf:directAssignment",
+      "rkaf:assignmentEvidence": [
+        "urn:rkaf:fragment:urn%3Arkaf%3Afixture%3Aclf%3Aartifact:118:214:sha256-2222222222222222222222222222222222222222222222222222222222222222"
+      ],
+      "rkaf:assignmentEvidenceScheme": "rkaf:carrier-local-fragment",
+      "rkaf:assertionOrigin": "rkaf:humanAsserted",
+      "rkaf:assertedAt": "2026-07-27T10:00:00Z",
+      "rkaf:usageEligibility": "rkaf:localOperationalUse"
+    }
+  ],
+  "_comment": "Carrier-local fragment URN (§4.2), the derived evidence identity a tabular carrier can mint from columns it already stores. Every binding in the SourceFragment node is a mechanical expansion of the URN and nothing else: oa:hasSource is the percent-decoded artifact component, oa:start and oa:end are the half-open code-point offsets, rkaf:coordinateSystem and rkaf:selectorKind are fixed by the scheme, and rkaf:fragmentContentDigest is the trailing digest respelled with a colon. That is why the L0 carrier needs no fragments table — the row it would have held is derivable — and why a JSON-LD graph still carries the node: SHACL validates a graph, so a graph that cites a fragment contains it. rkaf:assignmentEvidenceScheme is what binds the cited values to the derived grammar; without the declaration the URN would be an unchecked mint."
+}

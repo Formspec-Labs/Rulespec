@@ -448,6 +448,24 @@ FIXTURE_BINDINGS: list[tuple[str, str, str, str]] = [
     # compares one node's value against ANOTHER node's class or property, which
     # is the same reference-following JSON Schema cannot do. Same gate, same
     # reason.
+    #
+    # NOTE — nor for the two carrier-local fragment URN negatives
+    # (concept-assignment-carrier-local-fragment-undeclared-negative,
+    # source-fragment-carrier-local-urn-source-mismatch-negative). The first is
+    # a per-VALUE conditional keyed on that value's own lexical form and the
+    # second compares a node's IRI against its own `oa:hasSource`; both live in
+    # `shapes/rkaf-shapes-core.ttl` for the same reason — the CUE list-of-string
+    # carrier admits one pattern, and JSON Schema has no way to relate a value
+    # to a sibling property of the node it names. The two that BOTH targets do
+    # see have rows below.
+    ("concept-assignment", "ConceptAssignment",
+     "fixtures/negatives/concept-assignment-evidence-without-scheme-negative.jsonld",
+     "FAIL"),
+    ("concept-assignment", "ConceptAssignment",
+     "fixtures/negatives/concept-assignment-carrier-local-fragment-malformed-negative.jsonld",
+     "FAIL"),
+    ("concept-assignment", "ConceptAssignment",
+     "fixtures/conceptassignment-carrier-local-fragment-positive.jsonld", "PASS"),
     ("concept-assignment", "ConceptAssignment",
      "fixtures/negatives/concept-assignment-missing-assignment-subject-negative.jsonld",
      "FAIL"),

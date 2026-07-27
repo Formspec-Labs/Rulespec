@@ -1237,6 +1237,9 @@
       "@type": "@id",
       "@container": "@set"
     },
+    "rkaf:assignmentEvidenceScheme": {
+      "@type": "@vocab"
+    },
     "rkaf:supportingAssignment": {
       "@type": "@id",
       "@container": "@set"

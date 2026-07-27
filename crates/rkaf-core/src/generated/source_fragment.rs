@@ -68,6 +68,17 @@ pub enum CoordinateSystem {
     PartnerDefined,
 }
 
+/// Closed Rulespec values for `FragmentIdentityScheme`.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub enum FragmentIdentityScheme {
+    /// Wire value `rkaf:published-fragment`.
+    #[serde(rename = "rkaf:published-fragment")]
+    PublishedFragment,
+    /// Wire value `rkaf:carrier-local-fragment`.
+    #[serde(rename = "rkaf:carrier-local-fragment")]
+    CarrierLocalFragment,
+}
+
 use std::collections::BTreeMap;
 
 /// Generated JSON-LD carrier for `TextQuoteSelector`.

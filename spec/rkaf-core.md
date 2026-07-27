@@ -475,6 +475,72 @@ The unit is declared on the SELECTOR, not on the fragment, because it belongs to
 whatever counts in it: a fragment carrying a quote selector and a position
 selector has exactly one coordinate system, and it is the position selector's.
 
+**Fragment identity schemes.** `rkaf:FragmentIdentityScheme` is the closed
+two-value enum naming HOW a cited region is identified:
+
+- `rkaf:published-fragment` — the cited IRI names a `rkaf:SourceFragment` node
+  the producer publishes, and the identity bindings above are read off it. This
+  is the form every other Rulespec record uses.
+- `rkaf:carrier-local-fragment` — the cited IRI is a **carrier-local fragment
+  URN** and carries the bindings itself.
+
+The derived form exists because the published form was, for a tabular carrier,
+a requirement to publish a table rather than a requirement to know anything. A
+carrier that already stores an artifact identifier, a start offset, an end
+offset, and a digest of the selected text holds every binding a fragment needs;
+making it also maintain and join a fragments table before it may cite evidence
+adds no information and blocked the term outright for carriers that will not
+maintain one.
+
+The URN is:
+
+```text
+urn:rkaf:fragment:<artifact>:<start>:<end>:sha256-<64 lowercase hex>
+```
+
+| Component | Content |
+| --- | --- |
+| `<artifact>` | The parent Artifact IRI, percent-encoded against the RFC 3986 unreserved set (`A-Za-z0-9-._~`) with UPPERCASE hex triplets — the encoding SPARQL's `ENCODE_FOR_URI` produces. |
+| `<start>` | First Unicode code point of the region. Decimal, no leading zeroes. |
+| `<end>` | One past the last. Decimal, no leading zeroes. |
+| digest | SHA-256 over the UTF-8 bytes of the selected text. |
+
+Four properties of the grammar are load-bearing:
+
+1. **The interval is half-open `[start, end)`, counted in Unicode code
+   points.** `start == end` is an insertion point, and two abutting regions
+   share no code point. The unit is FIXED by the scheme rather than declared
+   per value, because a derived identifier that left the unit to be guessed
+   would reintroduce the exact instability `rkaf:coordinateSystem` exists to
+   remove. `rkaf:selectorKind` is fixed to `oa:TextPositionSelector` for the
+   same reason.
+2. **The artifact component is percent-encoded.** Encoding is what keeps it a
+   single unambiguous component inside a colon-delimited URN, and it is what
+   makes the parent Artifact recoverable by a reader that dereferences nothing.
+3. **The digest is spelled `sha256-`, not `sha256:`.** Same algorithm, same
+   64 lowercase hex characters as every other Rulespec digest; the hyphen keeps
+   the component from contributing a colon. Its SCOPE is the selected text —
+   what `rkaf:fragmentContentDigest` covers — and not the Artifact.
+4. **`rkaf:sourceArtifactDigest` is not carried.** The derived form pins the
+   quoted text and not the document state around it, so a producer that needs
+   the substitution check described above publishes a fragment node. This is
+   the one binding the derived form gives up, and it is stated rather than
+   quietly absent.
+
+A carrier-local fragment URN DENOTES the `rkaf:SourceFragment` its components
+describe; it does not name a different kind of thing. At L0 that is the whole
+story, and no fragments carrier is required. At L1–L4 the unit of validation is
+a GRAPH, so a graph that cites the URN materializes the node it denotes — an
+expansion that is mechanical, introduces no fact the URN did not already carry,
+and is shown end to end in
+`fixtures/conceptassignment-carrier-local-fragment-positive.jsonld`.
+`rkaf:CarrierLocalFragmentUrnSourceAgreementShape`
+(`shapes/rkaf-shapes-core.ttl`) checks that the expansion is faithful for the
+binding that matters most: a materialized fragment MUST carry the `oa:hasSource`
+its own URN encodes. That the offsets and the digest also agree with the source
+is a PRODUCER obligation — checking them needs the selected text, which
+validation does not have — and it is stated here rather than implied.
+
 Selector stability across Artifact revisions is a partner obligation. Supersession (§6.1, inherited) resolves fragment continuity. For ELI artifacts, ELI-I edges are the canonical fragment-continuity model.
 
 A temporary processing segment — a bounded model input assembled from source
@@ -646,10 +712,35 @@ Conditional properties:
 - When `rkaf:assignmentDerivation` is `rkaf:directAssignment`, `rkaf:assignmentEvidence` (1..*) is REQUIRED.
 - When `rkaf:assignmentDerivation` is `rkaf:derivedAssignment`, `rkaf:supportingAssignment` (1..*) is REQUIRED.
 - When `rkaf:supportingAssignment` is present, `rkaf:assignmentPolicyVersion` (1) is REQUIRED.
+- When `rkaf:assignmentEvidence` is present, `rkaf:assignmentEvidenceScheme` (1) is REQUIRED.
+- When `rkaf:assignmentEvidenceScheme` is `rkaf:carrier-local-fragment`, every `rkaf:assignmentEvidence` value MUST match the carrier-local fragment URN grammar (§4.2).
 
 `rkaf:assignmentEvidence` has range `rkaf:SourceFragment`, so "exact evidence"
 resolves to real coordinates in a real Artifact rather than to any IRI at all.
 `rkaf:supportingAssignment` has range `rkaf:ConceptAssignment`.
+
+`rkaf:assignmentEvidenceScheme` (1 when evidence is present, closed enum
+`rkaf:FragmentIdentityScheme`) says WHICH of the two identity forms in §4.2 the
+cited values use. It is required for the same reason
+`rkaf:regulatoryIdentifierScheme` is required whenever
+`rkaf:hasRegulatoryIdentifier` is present: a published fragment IRI and a
+carrier-local fragment URN are both absolute IRIs, the grammar a value must
+satisfy is not recoverable from the value, and only the declaration says which
+one the producer is claiming. Declaring
+`rkaf:carrier-local-fragment` binds every cited value to the derived grammar on
+all six compiled targets. Naming a value in the `urn:rkaf:fragment:` namespace
+WITHOUT that declaration is a violation
+(`rkaf:ConceptAssignmentCarrierLocalEvidenceDeclaredShape`,
+`shapes/rkaf-shapes-core.ttl`): registering the derived form has to mean the
+namespace is checked wherever it appears, not merely wherever a producer
+volunteers the declaration. That rule is L3-only because it is a per-VALUE
+conditional keyed on that value's own lexical form, which the compiled
+list-of-string carrier — one pattern for the whole list — cannot express.
+
+The derived form changes where the bindings live, not whether they exist. The
+class range stands, the same-Artifact rule below still applies to the
+materialized fragment, and a carrier-local URN cited as evidence for a
+carrier-local subject still has to name the same Artifact.
 
 Two further rules constrain WHICH fragment may be cited, and one obligation is
 left to the producer. Both rules are L3-only: each compares one node's value

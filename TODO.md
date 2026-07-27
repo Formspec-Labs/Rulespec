@@ -204,7 +204,28 @@ repo-internal preference.
       (`rkaf:decision`, `rkaf:assertionOrigin`), which previously had no way to
       declare closed-enum discipline at all. Contract digest UNCHANGED at
       `sha256:5f287a1e…` — no CUE, context, or range-registry byte moved.
-- [ ] Carrier-local fragment URN for `rkaf:assignmentEvidence`.
+- [x] Carrier-local fragment URN for `rkaf:assignmentEvidence`.
+      Done 2026-07-27: `rkaf:FragmentIdentityScheme` (Core §4.2) registers a
+      second identity form for a cited region —
+      `urn:rkaf:fragment:<percent-encoded artifact IRI>:<start>:<end>:sha256-<64 hex>`,
+      half-open `[start, end)` over Unicode code points, unit and selector kind
+      FIXED by the scheme, digest scoped to the selected text. The offsets match
+      `../spicy-regs/docs/ontology.md` "Anchor semantics" exactly.
+      `rkaf:assignmentEvidenceScheme` is REQUIRED whenever evidence is present,
+      mirroring `rkaf:regulatoryIdentifierScheme`; declaring
+      `rkaf:carrier-local-fragment` binds every value to the derived grammar on
+      all six targets. The class range STANDS — the URN satisfies it by
+      construction. Two hand-authored shapes close the per-value conditional
+      and the URN/`oa:hasSource` agreement CUE cannot express.
+      Coverage: 1 positive, 4 negatives, 3 parity rows, 3 L0 audit tests, and a
+      worked L0 mapping in Conformance §0.1 gated by the executable-examples
+      test. Contract digest MOVED
+      `sha256:5f287a1e…` -> `sha256:5aaac340bc21c7728fa70c250b7f74134dbb855804076f571a31144923d65cb7`;
+      `make compile` re-pinned `spec/rkaf-conformance.md` and the corpus
+      manifest, and no generated file was hand-edited.
+      BREAKING for producers already emitting `rkaf:assignmentEvidence`: they
+      add `rkaf:assignmentEvidenceScheme: rkaf:published-fragment`. Sixteen
+      in-tree fixtures were updated accordingly.
 - [ ] Machine-legible scope carve-outs (`excluded_terms:`) in the L0
       conformance-file format, replacing freeform notes prose the audit never
       parsed.

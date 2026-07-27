@@ -400,6 +400,102 @@ class L0MappingAuditTests(unittest.TestCase):
             )
         )
 
+    @staticmethod
+    def carrier_local_evidence_mapping() -> dict[str, Any]:
+        return {
+            "table": "concept_assignments",
+            "columns": [
+                "artifact_urn_encoded",
+                "start_codepoint",
+                "end_codepoint",
+                "text_sha256",
+            ],
+            "subject_type": f"{RKAF}ConceptAssignment",
+            "term": f"{RKAF}assignmentEvidence",
+            "direction": "forward",
+            "object_type": f"{RKAF}SourceFragment",
+            "value_kind": "iri",
+            "transform": {
+                "template": (
+                    "urn:rkaf:fragment:{artifact_urn_encoded}:"
+                    "{start_codepoint}:{end_codepoint}:sha256-{text_sha256}"
+                ),
+                "identifier_scheme": f"{RKAF}carrier-local-fragment",
+            },
+            "samples": [
+                {
+                    "input": {
+                        "artifact_urn_encoded": "urn%3Aspicy-regs%3Aartifact%3A9f2c4b",
+                        "start_codepoint": 118,
+                        "end_codepoint": 214,
+                        "text_sha256": "2" * 64,
+                    },
+                    "output": (
+                        "urn:rkaf:fragment:urn%3Aspicy-regs%3Aartifact%3A9f2c4b"
+                        ":118:214:sha256-" + "2" * 64
+                    ),
+                }
+            ],
+        }
+
+    def test_carrier_local_evidence_mints_a_fragment_without_a_fragments_table(
+        self,
+    ) -> None:
+        """A carrier with an artifact id, two offsets, and a region digest can
+        claim `rkaf:assignmentEvidence` without publishing a fragments table.
+
+        The class range still holds — `object_type` is declared and checked —
+        because the URN DENOTES the fragment its components describe.
+        """
+        result = audit_mapping_text(
+            self.mapping_markdown([self.carrier_local_evidence_mapping()]),
+            registry=self.registry,
+        )
+        self.assertEqual(result.issues, ())
+        self.assertEqual(result.terms, {f"{RKAF}assignmentEvidence"})
+
+    def test_evidence_mapping_must_declare_its_identity_scheme(self) -> None:
+        """Both registered identity forms are absolute IRIs, so the mapping —
+        not the value — is what says which grammar the producer is claiming."""
+        undeclared = self.carrier_local_evidence_mapping()
+        undeclared["transform"] = {
+            "template": undeclared["transform"]["template"],
+        }
+        result = audit_mapping_text(
+            self.mapping_markdown([undeclared]),
+            registry=self.registry,
+        )
+        self.assertTrue(
+            any("requires a full-IRI identifier_scheme" in issue for issue in result.issues)
+        )
+
+        wrong_scheme = self.carrier_local_evidence_mapping()
+        wrong_scheme["transform"] = {
+            **wrong_scheme["transform"],
+            "identifier_scheme": f"{RKAF}us-cfr",
+        }
+        result = audit_mapping_text(
+            self.mapping_markdown([wrong_scheme]),
+            registry=self.registry,
+        )
+        self.assertTrue(
+            any("is not valid for" in issue for issue in result.issues)
+        )
+
+    def test_evidence_mapping_still_carries_the_source_fragment_range(self) -> None:
+        no_range = self.carrier_local_evidence_mapping()
+        del no_range["object_type"]
+        result = audit_mapping_text(
+            self.mapping_markdown([no_range]),
+            registry=self.registry,
+        )
+        self.assertTrue(
+            any(
+                f"{RKAF}assignmentEvidence requires object_type" in issue
+                for issue in result.issues
+            )
+        )
+
     def test_the_normative_conformance_examples_are_executable(self) -> None:
         """Every `rkaf-l0-mapping` block in the conformance spec is audited.
 

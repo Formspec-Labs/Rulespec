@@ -20,6 +20,49 @@ import "list"
 	"rkaf:utf16-code-unit" | "rkaf:xml-node-path" | "rkaf:page-region" |
 	"rkaf:partner-defined"
 
+// Closed enum: HOW a cited fragment is identified (§4.2).
+//
+// `rkaf:published-fragment` is the form every other Rulespec record uses. The
+// cited IRI names a `rkaf:SourceFragment` node the producer publishes, and the
+// three identity bindings below are read off that node.
+//
+// `rkaf:carrier-local-fragment` is the DERIVED form. A tabular carrier that
+// already stores an artifact identifier, a start offset, an end offset, and a
+// digest of the selected text holds every binding a fragment needs. Requiring
+// it to also publish a fragments table before it may cite evidence adds no
+// information, and it blocked the term outright for carriers that will not
+// maintain one. The URN carries the bindings instead of pointing at a node
+// that would restate them:
+//
+//   urn:rkaf:fragment:<artifact>:<start>:<end>:sha256-<64 lowercase hex>
+//
+//   <artifact>  the parent Artifact IRI, percent-encoded against the RFC 3986
+//               unreserved set (`A-Za-z0-9-._~`) with uppercase hex triplets —
+//               the encoding SPARQL's ENCODE_FOR_URI produces. Encoding is
+//               what keeps the component unambiguous inside a colon-delimited
+//               URN, and it is what makes the artifact recoverable by a reader
+//               that never dereferences anything.
+//   <start>     first Unicode code point of the region, no leading zeroes
+//   <end>       one past the last, no leading zeroes. The interval is HALF-OPEN
+//               `[start, end)`, so `start == end` is an insertion point and two
+//               abutting regions share no code point.
+//   digest      SHA-256 over the UTF-8 bytes of the SELECTED TEXT — the same
+//               scope `rkaf:fragmentContentDigest` covers, not the Artifact's.
+//               It is spelled `sha256-` rather than `sha256:` so the component
+//               contributes no colon to a colon-delimited URN.
+//
+// The scheme FIXES the two facts an offset cannot carry: the coordinate system
+// is `rkaf:unicode-codepoint` and the selector kind is `oa:TextPositionSelector`.
+// A derived identifier that left the unit to be guessed would reintroduce the
+// exact instability `#CoordinateSystem` exists to remove — `118` names three
+// different positions across code points, UTF-8 bytes, and UTF-16 code units.
+//
+// What the URN does NOT carry is `rkaf:sourceArtifactDigest`: which STATE of
+// the Artifact the coordinates were taken against. A carrier that needs the
+// substitution check §4.2 describes publishes a fragment node; the derived
+// form pins the quoted text and not the document around it.
+#FragmentIdentityScheme: "rkaf:published-fragment" | "rkaf:carrier-local-fragment"
+
 // TextQuoteSelector — OA 1.0 payload predicates (§9.1 Cohort A import).
 // oa:exact is required; oa:prefix and oa:suffix are optional context anchors.
 // rkaf:SourceFragment rdfs:subClassOf oa:SpecificResource (§4.2 alignment).

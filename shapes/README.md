@@ -42,7 +42,7 @@ the imports document structure rather than drive loading.
 
 | File | Shapes | What it carries |
 |---|---|---|
-| `rkaf-shapes-core.ttl` | `AssertionAILineageShape`, `SourceFragmentSelectorKindAgreementShape`, `ConceptAssignmentFragmentSubjectEvidenceShape`, `ConceptAssignmentEvidenceSameArtifactShape` | Umbrella imports, `rkaf:Authority rdfs:subClassOf rkaf:Warrant`, the AI-touched-origin lineage requirement, and the two concept-assignment evidence rules (Core §4.7) |
+| `rkaf-shapes-core.ttl` | `AssertionAILineageShape`, `SourceFragmentSelectorKindAgreementShape`, `ConceptAssignmentFragmentSubjectEvidenceShape`, `ConceptAssignmentEvidenceSameArtifactShape`, `ConceptAssignmentCarrierLocalEvidenceDeclaredShape`, `CarrierLocalFragmentUrnSourceAgreementShape` | Umbrella imports, `rkaf:Authority rdfs:subClassOf rkaf:Warrant`, the AI-touched-origin lineage requirement, the concept-assignment evidence rules (Core §4.7), and the two carrier-local fragment URN rules — a value in the `urn:rkaf:fragment:` namespace must DECLARE the derived scheme, and a materialized fragment must carry the `oa:hasSource` its own URN encodes (Core §4.2) |
 | `rkaf-shapes-warrant.ttl` | `WarrantShape`, `EvidenceBindingShape`, `SourceFragmentShape` | Warrant family/kind structure, evidence binding, fragment anchoring (Core §§4.2–4.4) |
 | `rkaf-shapes-confidence.ttl` | `ConfidenceRecordShape` | Measured-confidence structure; a bare score is not a confidence record (Core §4.5) |
 | `rkaf-shapes-accessscope.ttl` | `AccessScopeShape` | Access-scope structure and regulatory-class carriage |

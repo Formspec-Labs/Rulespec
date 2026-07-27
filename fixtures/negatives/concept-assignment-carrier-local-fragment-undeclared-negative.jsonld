@@ -1,0 +1,28 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@graph": [
+    {
+      "@id": "urn:rkaf:fixture:clf-undecl:artifact",
+      "@type": "rkaf:Artifact",
+      "rkaf:hasArtifactIdentifier": "urn:rkaf:fixture:clf-undecl:artifact",
+      "rkaf:artifactIdentifierScheme": "rkaf:partner-defined",
+      "rkaf:hasContentDigest": "sha256:1111111111111111111111111111111111111111111111111111111111111111"
+    },
+    {
+      "@id": "urn:rkaf:fixture:clf-undecl:seg:sec-2c-income",
+      "@type": "rkaf:ConceptAssignment",
+      "rkaf:assignmentSubject": "urn:rkaf:fixture:clf-undecl:artifact",
+      "rkaf:assignmentSubjectType": "rkaf:Artifact",
+      "rkaf:assignedConcept": "urn:rkaf:fixture:concept:household-income",
+      "skos:inScheme": "urn:rkaf:fixture:scheme:fns-snap-topic",
+      "rkaf:assignmentRole": "rkaf:assignmentSubstantive",
+      "rkaf:assignmentDerivation": "rkaf:directAssignment",
+      "rkaf:assignmentEvidence": [
+        "urn:rkaf:fragment:not-encoded-at-all:oops"
+      ],
+      "rkaf:assignmentEvidenceScheme": "rkaf:published-fragment",
+      "rkaf:assertionOrigin": "rkaf:humanAsserted"
+    }
+  ],
+  "_comment": "Negative: a value squatting the urn:rkaf:fragment: namespace while the record declares rkaf:published-fragment, so the compiled conditional never fires and the value meets only the generic absolute-IRI pattern. Registering the derived form has to mean the namespace is checked wherever it appears, not merely wherever a producer volunteers the declaration. Caught by rkaf:ConceptAssignmentCarrierLocalEvidenceDeclaredShape, which is a per-VALUE conditional keyed on that value's own lexical form — something CUE's list-of-string carrier, with its single pattern, cannot express (§4.2)."
+}

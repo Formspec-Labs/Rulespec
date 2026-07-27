@@ -9,6 +9,84 @@ adapted for a specification + shape + fixture project.
 
 ### Added
 
+- **The carrier-local fragment URN, a second registered identity form for a
+  cited region** (Core §4.2, §4.7.3). `rkaf:assignmentEvidence` has range
+  `rkaf:SourceFragment`, and for a tabular carrier that range was a requirement
+  to PUBLISH A TABLE rather than a requirement to know anything: a carrier
+  holding an artifact identifier, a start offset, an end offset, and a digest
+  of the selected text already holds every binding a fragment needs, yet could
+  not claim the term without also maintaining and joining a fragments carrier.
+
+  `rkaf:FragmentIdentityScheme` is the new closed two-value enum —
+  `rkaf:published-fragment` (the cited IRI names a published
+  `rkaf:SourceFragment` node) and `rkaf:carrier-local-fragment` (the cited IRI
+  carries the bindings itself):
+
+  ```text
+  urn:rkaf:fragment:<percent-encoded artifact IRI>:<start>:<end>:sha256-<64 hex>
+  ```
+
+  Four grammar decisions are load-bearing. The interval is half-open
+  `[start, end)` counted in Unicode CODE POINTS, and the scheme FIXES both the
+  unit and `oa:TextPositionSelector` rather than declaring them per value — a
+  derived identifier that left the unit to be guessed would reintroduce exactly
+  the instability `rkaf:coordinateSystem` exists to remove. The artifact
+  component is percent-encoded against the RFC 3986 unreserved set with
+  uppercase hex triplets — the encoding `ENCODE_FOR_URI` produces — so it stays
+  one unambiguous component in a colon-delimited URN and is comparable without
+  a decoder. The digest is spelled `sha256-` so the component contributes no
+  colon, and its scope is the selected text, not the Artifact. And
+  `rkaf:sourceArtifactDigest` is deliberately NOT carried: the derived form
+  pins the quoted text and not the document state around it, which is the one
+  binding it gives up.
+
+  `rkaf:assignmentEvidenceScheme` is REQUIRED whenever
+  `rkaf:assignmentEvidence` is present, exactly as
+  `rkaf:regulatoryIdentifierScheme` is required whenever
+  `rkaf:hasRegulatoryIdentifier` is. Both identity forms are absolute IRIs, so
+  the grammar a value must satisfy is not recoverable from the value and only
+  the declaration says which one is being claimed. Declaring
+  `rkaf:carrier-local-fragment` binds every cited value to the derived grammar
+  on all six compiled targets.
+
+  Two hand-authored shapes close what the compiled carrier cannot reach.
+  `rkaf:ConceptAssignmentCarrierLocalEvidenceDeclaredShape` rejects a value in
+  the `urn:rkaf:fragment:` namespace on a record that did not declare the
+  derived scheme — registering the form has to mean the namespace is checked
+  wherever it appears, not wherever a producer volunteers a declaration, and
+  the rule is a per-VALUE conditional keyed on that value's own lexical form,
+  which the projector's single-pattern list carrier cannot express.
+  `rkaf:CarrierLocalFragmentUrnSourceAgreementShape` requires a materialized
+  fragment to carry the `oa:hasSource` its own URN encodes; without it, every
+  rule that leans on `oa:hasSource` — the same-Artifact evidence rule above all
+  — could be reading a source the identifier contradicts.
+
+  The class range STANDS. A carrier-local URN does not escape it; it satisfies
+  it by construction, because the artifact, the offsets, the unit, the selector
+  kind, and the region digest are all recoverable by parsing. At L0 that is the
+  whole story and no fragments carrier is required. At L1–L4 the unit of
+  validation is a graph, so a graph that cites the URN materializes the node it
+  denotes — a mechanical expansion introducing no fact the URN did not already
+  carry, shown end to end in
+  `fixtures/conceptassignment-carrier-local-fragment-positive.jsonld`.
+
+  Coverage: one positive fixture, four negatives (evidence with no scheme, a
+  malformed derived URN, an undeclared namespace squat, and a materialized
+  fragment whose `oa:hasSource` contradicts its URN), three new parity rows for
+  the two negatives and the positive both compiled targets see, and three L0
+  audit tests. `rkaf:assignmentEvidence` joins the scheme-bearing terms in
+  `tools/l0_mapping_audit.py`, so an L0 mapping that mints evidence names the
+  registered scheme it minted under, and §0.1 gains the worked mapping.
+
+  Driven by consumer evidence: `../spicy-regs/docs/decisions.md`, entry
+  "2026-07-27 — Contract-assumption validation results"
+  ("`assignmentEvidence` stays unclaimed at L0 (SourceFragment range, no
+  fragments carrier)", and the recorded simplification "letting
+  `assignmentEvidence` cite a carrier-local fragment URN derived from
+  offsets"). Offsets match `../spicy-regs/docs/ontology.md`, "Anchor
+  semantics": Python Unicode code points over half-open `[start, end)`
+  intervals, with the region digest covering
+  `field_text[start_char:end_char]`.
 - **A normative tabular attestation pattern for L0 carriers**
   (`spec/rkaf-conformance.md` §0.1, "Attestation as a table"). Core §3.1 and
   §4.7.3 put approval, rejection, and revocation in an `rkaf:Attestation`

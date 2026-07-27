@@ -32,6 +32,7 @@
       "rkaf:assignmentEvidence": [
         "urn:rkaf:fixture:ca:fragment:sec-3a"
       ],
+      "rkaf:assignmentEvidenceScheme": "rkaf:published-fragment",
       "rkaf:assertionOrigin": "rkaf:humanAsserted",
       "rkaf:assertedAt": "2026-07-25T14:00:00Z",
       "rkaf:usageEligibility": "rkaf:localOperationalUse"

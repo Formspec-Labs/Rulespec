@@ -49,6 +49,7 @@
       "rkaf:assignmentEvidence": [
         "urn:rkaf:fixture:ca-xdoc:fragment-b:preamble"
       ],
+      "rkaf:assignmentEvidenceScheme": "rkaf:published-fragment",
       "rkaf:assertionOrigin": "rkaf:humanAsserted"
     }
   ],

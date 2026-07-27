@@ -52,6 +52,7 @@
       "rkaf:assignmentEvidence": [
         "urn:rkaf:fixture:ca:fragment:sec-3a"
       ],
+      "rkaf:assignmentEvidenceScheme": "rkaf:published-fragment",
       "rkaf:assertionOrigin": "rkaf:aiSuggested",
       "rkaf:hasAILineage": "urn:rkaf:fixture:ca:lineage:unreviewed",
       "rkaf:hasExtractionProvenance": "urn:rkaf:fixture:ca:run:2026-07-25",

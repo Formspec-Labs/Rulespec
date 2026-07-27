@@ -53,7 +53,7 @@ current `sha256:<64 lowercase hex>` contract digest. Every block in one
 document MUST use the same digest.
 
 ```yaml rkaf-l0-mapping
-rulespec_version: "sha256:5f287a1e266feb4bec73317c3dca2d10654a61b1502f13ace176d1e9f4e23446"
+rulespec_version: "sha256:5aaac340bc21c7728fa70c250b7f74134dbb855804076f571a31144923d65cb7"
 mappings:
   - table: proceedings
     column: current_stage
@@ -116,7 +116,11 @@ Each entry has these rules:
   through `enum_map` rather than through a transform, whose output the audit
   checks for IRI shape and never for membership.
 - `transform` contains either `template`, or `pattern` plus `replacement`.
-  Identifier predicates also require `identifier_scheme`.
+  A SCHEME-BEARING predicate also requires `identifier_scheme` — the five
+  identifier predicates, and `rkaf:assignmentEvidence`, whose two registered
+  identity forms are both absolute IRIs (Core §4.2). The value grammar of a
+  scheme-bearing predicate is not recoverable from the value, so a mapping that
+  mints one names the registered scheme it minted under.
 - `source_membership`, when present, contains exactly `table` and `column`.
   It is valid only on a one-column mapping. A scalar value, or each item of a
   `json-list`, participates in that mapping only when the exact non-null value
@@ -188,7 +192,7 @@ The mapping below is the worked example. It is audited by
 `tools/test_l0_mapping_audit.py`, so it is executable rather than illustrative:
 
 ```yaml rkaf-l0-mapping
-rulespec_version: "sha256:5f287a1e266feb4bec73317c3dca2d10654a61b1502f13ace176d1e9f4e23446"
+rulespec_version: "sha256:5aaac340bc21c7728fa70c250b7f74134dbb855804076f571a31144923d65cb7"
 mappings:
   - table: attestations
     column: attestor_id
@@ -274,6 +278,61 @@ permission to model approval as a property of the approved record, and it
 caps the carrier at one attestation per record — a second attestor, a later
 revocation, or a rejection following an approval all require the separate
 table.
+
+### Worked pattern — carrier-local fragment evidence [Normative]
+
+`rkaf:assignmentEvidence` has range `rkaf:SourceFragment`. Before Core §4.2
+registered a second identity form, that range meant a tabular carrier had to
+publish and join a fragments table before it could claim the term at all —
+a requirement to publish a table rather than a requirement to know anything,
+since a carrier holding an artifact id, a start offset, an end offset, and a
+digest of the selected text already holds every binding a fragment needs.
+
+A carrier-local fragment URN carries those bindings in the identifier:
+
+```text
+urn:rkaf:fragment:<percent-encoded artifact IRI>:<start>:<end>:sha256-<64 hex>
+```
+
+Offsets are Unicode code points over a half-open `[start, end)` interval; the
+digest covers the selected text. The mapping mints one from columns the carrier
+already stores, and declares the scheme it minted under:
+
+```yaml rkaf-l0-mapping
+rulespec_version: "sha256:5aaac340bc21c7728fa70c250b7f74134dbb855804076f571a31144923d65cb7"
+mappings:
+  - table: concept_assignments
+    columns:
+      - artifact_urn_encoded
+      - start_codepoint
+      - end_codepoint
+      - text_sha256
+    subject_type: https://rulespec.org/ns/v1#ConceptAssignment
+    term: https://rulespec.org/ns/v1#assignmentEvidence
+    direction: forward
+    object_type: https://rulespec.org/ns/v1#SourceFragment
+    value_kind: iri
+    transform:
+      template: "urn:rkaf:fragment:{artifact_urn_encoded}:{start_codepoint}:{end_codepoint}:sha256-{text_sha256}"
+      identifier_scheme: https://rulespec.org/ns/v1#carrier-local-fragment
+    samples:
+      - input:
+          artifact_urn_encoded: urn%3Aspicy-regs%3Aartifact%3A9f2c4b
+          start_codepoint: 118
+          end_codepoint: 214
+          text_sha256: 2222222222222222222222222222222222222222222222222222222222222222
+        output: urn:rkaf:fragment:urn%3Aspicy-regs%3Aartifact%3A9f2c4b:118:214:sha256-2222222222222222222222222222222222222222222222222222222222222222
+```
+
+Three obligations survive the change and are NOT relaxed by it. The percent
+encoding is the RFC 3986 unreserved set with uppercase hex triplets, so the
+parent Artifact is recoverable from the identifier and comparable without a
+decoder. Evidence still has to come from the same Artifact as the subject, so a
+carrier-local subject and a carrier-local evidence value must share an artifact
+component. And a carrier that publishes fragments keeps declaring
+`rkaf:published-fragment`: the scheme is what says which grammar applies, and a
+value in the `urn:rkaf:fragment:` namespace under any other declaration is a
+violation.
 
 ### Gate
 

@@ -1,0 +1,33 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@graph": [
+    {
+      "@id": "urn:rkaf:fixture:clf-mismatch:artifact-a",
+      "@type": "rkaf:Artifact",
+      "rkaf:hasArtifactIdentifier": "urn:rkaf:fixture:clf-mismatch:artifact-a",
+      "rkaf:artifactIdentifierScheme": "rkaf:partner-defined",
+      "rkaf:hasContentDigest": "sha256:1111111111111111111111111111111111111111111111111111111111111111"
+    },
+    {
+      "@id": "urn:rkaf:fixture:clf-mismatch:artifact-b",
+      "@type": "rkaf:Artifact",
+      "rkaf:hasArtifactIdentifier": "urn:rkaf:fixture:clf-mismatch:artifact-b",
+      "rkaf:artifactIdentifierScheme": "rkaf:partner-defined",
+      "rkaf:hasContentDigest": "sha256:3333333333333333333333333333333333333333333333333333333333333333"
+    },
+    {
+      "@id": "urn:rkaf:fragment:urn%3Arkaf%3Afixture%3Aclf-mismatch%3Aartifact-a:118:214:sha256-2222222222222222222222222222222222222222222222222222222222222222",
+      "@type": "rkaf:SourceFragment",
+      "oa:hasSource": "urn:rkaf:fixture:clf-mismatch:artifact-b",
+      "oa:hasSelector": {
+        "@type": "oa:TextPositionSelector",
+        "oa:start": 118,
+        "oa:end": 214,
+        "rkaf:coordinateSystem": "rkaf:unicode-codepoint"
+      },
+      "rkaf:selectorKind": "oa:TextPositionSelector",
+      "rkaf:fragmentContentDigest": "sha256:2222222222222222222222222222222222222222222222222222222222222222"
+    }
+  ],
+  "_comment": "Negative: a materialized carrier-local fragment whose oa:hasSource contradicts its own URN. The URN encodes artifact-a; the node declares artifact-b. Every rule that leans on oa:hasSource — the same-Artifact evidence rule above all — would then be reading a source the identifier denies, and the offsets would be counted against a document the digest never covered. The node a URN expands to is a mechanical expansion, so an unfaithful one is a defect rather than a variant (§4.2)."
+}

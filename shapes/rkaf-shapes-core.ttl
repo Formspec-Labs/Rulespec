@@ -156,3 +156,62 @@ rkaf:ConceptAssignmentEvidenceSameArtifactShape a sh:NodeShape ;
       }
     """ ;
   ] .
+
+# §4.2 / §4.7.3 — a carrier-local fragment URN must be DECLARED, not just used.
+#
+# `rkaf:assignmentEvidenceScheme` narrows the evidence grammar when it is set to
+# `rkaf:carrier-local-fragment`, and a compiled conditional can only fire on the
+# value the record declares. Nothing stopped a producer minting a value in the
+# `urn:rkaf:fragment:` namespace while declaring `rkaf:published-fragment` — or
+# while declaring the scheme the record's OTHER evidence value uses — and that
+# value then met the generic absolute-IRI pattern and no grammar at all. The
+# derived form would be a namespace anyone could squat rather than a checked
+# claim, which is the whole point of registering it.
+#
+# CUE cannot express this: the rule is a per-VALUE conditional keyed on that
+# value's own lexical form, and the projector's list-of-string carrier admits a
+# single pattern. Written as "no evidence value is in the derived namespace OR
+# the record declares the derived scheme", it stays silent on every record that
+# cites published fragments, so existing documents validate unchanged.
+rkaf:ConceptAssignmentCarrierLocalEvidenceDeclaredShape a sh:NodeShape ;
+  sh:targetClass rkaf:ConceptAssignment ;
+  sh:or (
+    [ sh:property [ sh:path rkaf:assignmentEvidence ;
+        sh:not [ sh:pattern "^urn:rkaf:fragment:" ] ] ]
+    [ sh:property [ sh:path rkaf:assignmentEvidenceScheme ;
+        sh:hasValue rkaf:carrier-local-fragment ] ]
+  ) ;
+  sh:message "An rkaf:assignmentEvidence value in the urn:rkaf:fragment: namespace REQUIRES rkaf:assignmentEvidenceScheme rkaf:carrier-local-fragment, which is what binds it to the derived grammar (§4.2)." .
+
+# §4.2 — a materialized carrier-local fragment must agree with its own URN.
+#
+# The URN carries the Artifact, the offsets, the unit, and the region digest, so
+# the `rkaf:SourceFragment` node a JSON-LD graph materializes for it is a
+# mechanical expansion rather than new information. Nothing forced the expansion
+# to be faithful: a node identified by a URN encoding one Artifact could declare
+# `oa:hasSource` pointing at another, and every downstream rule that leans on
+# `oa:hasSource` — including `ConceptAssignmentEvidenceSameArtifactShape` above
+# — would then be reading a source the identifier contradicts.
+#
+# `ENCODE_FOR_URI` produces exactly the encoding §4.2 specifies for the artifact
+# component (RFC 3986 unreserved set, uppercase hex triplets), so the comparison
+# is an equality over strings and needs no decoder. The offsets and the digest
+# stay producer obligations, stated as such in §4.2: checking them needs the
+# selected text, which validation does not have.
+rkaf:CarrierLocalFragmentUrnSourceAgreementShape a sh:NodeShape ;
+  sh:targetClass rkaf:SourceFragment ;
+  sh:sparql [
+    a sh:SPARQLConstraint ;
+    sh:message "A rkaf:SourceFragment identified by a carrier-local fragment URN MUST carry the oa:hasSource that URN encodes (§4.2)." ;
+    sh:select """
+      PREFIX oa: <http://www.w3.org/ns/oa#>
+      PREFIX rkaf: <https://rulespec.org/ns/v1#>
+      SELECT $this
+      WHERE {
+        $this oa:hasSource ?source .
+        FILTER (STRSTARTS(STR($this), "urn:rkaf:fragment:"))
+        FILTER (REPLACE(STR($this), "^urn:rkaf:fragment:([^:]*):.*$", "$1")
+                != ENCODE_FOR_URI(STR(?source)))
+      }
+    """ ;
+  ] .

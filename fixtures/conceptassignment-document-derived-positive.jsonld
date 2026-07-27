@@ -44,6 +44,7 @@
       "rkaf:assignmentEvidence": [
         "urn:rkaf:fixture:ca:fragment:sec-3a"
       ],
+      "rkaf:assignmentEvidenceScheme": "rkaf:published-fragment",
       "rkaf:assertionOrigin": "rkaf:humanAsserted"
     },
     {
@@ -58,6 +59,7 @@
       "rkaf:assignmentEvidence": [
         "urn:rkaf:fixture:ca:fragment:sec-7b"
       ],
+      "rkaf:assignmentEvidenceScheme": "rkaf:published-fragment",
       "rkaf:assertionOrigin": "rkaf:humanAsserted"
     },
     {

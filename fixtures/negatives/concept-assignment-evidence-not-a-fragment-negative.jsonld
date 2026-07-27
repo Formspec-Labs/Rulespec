@@ -40,6 +40,7 @@
       "rkaf:assignmentEvidence": [
         "urn:rkaf:fixture:ca:not-a-fragment"
       ],
+      "rkaf:assignmentEvidenceScheme": "rkaf:published-fragment",
       "rkaf:assertionOrigin": "rkaf:humanAsserted"
     }
   ],

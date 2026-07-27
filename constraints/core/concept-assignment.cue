@@ -84,6 +84,33 @@ import "list"
 	// coordinates in a real Artifact rather than to any IRI at all.
 	"rkaf:assignmentEvidence"?: [...(string & =~"^[A-Za-z][A-Za-z0-9+.-]*:[^\\s]+$")] & list.MinItems(1)
 
+	// WHICH identity form those cited regions use — `#FragmentIdentityScheme`
+	// in constraints/core/source-fragment.cue. Required whenever evidence is
+	// present, exactly as `rkaf:regulatoryIdentifierScheme` is required
+	// whenever `rkaf:hasRegulatoryIdentifier` is present: the grammar a value
+	// must satisfy is not recoverable from the value, so the record declares
+	// which one applies and the declaration is what turns a minted identifier
+	// into a CHECKED claim instead of an assumed one.
+	//
+	// The class range stays `rkaf:SourceFragment`. A carrier-local URN does not
+	// escape it — it SATISFIES it by construction, because the artifact,
+	// the offsets, the coordinate system, the selector kind, and the region
+	// digest are all recoverable by parsing. What changes is where the bindings
+	// live, not whether they exist.
+	"rkaf:assignmentEvidenceScheme"?: #FragmentIdentityScheme
+
+	if assignment["rkaf:assignmentEvidence"] != _|_ {
+		"rkaf:assignmentEvidenceScheme": #FragmentIdentityScheme
+	}
+
+	// A declared carrier-local scheme binds every cited value to the derived
+	// grammar. Without this narrowing the declaration would be a label rather
+	// than a constraint, which is the unchecked semantic claim the scheme
+	// exists to prevent.
+	if assignment["rkaf:assignmentEvidenceScheme"] == "rkaf:carrier-local-fragment" {
+		"rkaf:assignmentEvidence": [...(string & =~"^urn:rkaf:fragment:([A-Za-z0-9._~-]|%[0-9A-F]{2})+:(0|[1-9][0-9]*):(0|[1-9][0-9]*):sha256-[0-9a-f]{64}$")] & list.MinItems(1)
+	}
+
 	// The already-accepted assignments a derived assignment was computed from,
 	// and the version of the documented rule that combined them. Aggregation
 	// without both is an unexplainable tag.

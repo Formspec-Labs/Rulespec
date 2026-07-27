@@ -127,7 +127,16 @@ IDENTIFIER_TERMS = {
     "https://rulespec.org/ns/v1#hasProceedingIdentifier",
     "https://rulespec.org/ns/v1#hasDocketIdentifier",
 }
+# Terms whose value grammar is not recoverable from the value, so a mapping
+# that mints one MUST name the registered scheme it minted under. Identifier
+# predicates are the original members; `rkaf:assignmentEvidence` joined them
+# when `#FragmentIdentityScheme` registered a second identity form for a cited
+# region (Core §4.2) — a carrier-local fragment URN and a published fragment
+# IRI are both absolute IRIs, and only the declaration says which grammar the
+# producer is claiming.
 IDENTIFIER_SCHEME_TERMS = {
+    "https://rulespec.org/ns/v1#assignmentEvidence":
+        "https://rulespec.org/ns/v1#assignmentEvidenceScheme",
     "https://rulespec.org/ns/v1#hasArtifactIdentifier":
         "https://rulespec.org/ns/v1#artifactIdentifierScheme",
     "https://rulespec.org/ns/v1#hasRegulatoryIdentifier":
@@ -522,7 +531,7 @@ def _validate_transform(
         if not isinstance(scheme, str) or not FULL_IRI.fullmatch(scheme):
             valid = False
             issues.append(
-                f"{location}: identifier transform requires a full-IRI "
+                f"{location}: a transform for {term} requires a full-IRI "
                 "identifier_scheme"
             )
         elif scheme not in registry.enum_values_by_term.get(scheme_term, frozenset()):
@@ -533,7 +542,7 @@ def _validate_transform(
     elif scheme is not None:
         valid = False
         issues.append(
-            f"{location}: identifier_scheme is only valid for an identifier term"
+            f"{location}: identifier_scheme is only valid for a scheme-bearing term"
         )
 
     return transform if valid else None

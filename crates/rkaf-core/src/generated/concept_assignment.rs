@@ -117,6 +117,9 @@ pub struct ConceptAssignment {
     /// JSON-LD property `rkaf:assignmentEvidence`.
     #[serde(rename = "rkaf:assignmentEvidence", skip_serializing_if = "Option::is_none", default)]
     pub assignment_evidence: Option<crate::OneOrMany<String>>,
+    /// JSON-LD property `rkaf:assignmentEvidenceScheme`.
+    #[serde(rename = "rkaf:assignmentEvidenceScheme", skip_serializing_if = "Option::is_none", default)]
+    pub assignment_evidence_scheme: Option<crate::generated::source_fragment::FragmentIdentityScheme>,
     /// JSON-LD property `rkaf:supportingAssignment`.
     #[serde(rename = "rkaf:supportingAssignment", skip_serializing_if = "Option::is_none", default)]
     pub supporting_assignment: Option<crate::OneOrMany<String>>,

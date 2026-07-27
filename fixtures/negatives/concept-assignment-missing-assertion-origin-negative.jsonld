@@ -31,7 +31,8 @@
       "rkaf:assignmentDerivation": "rkaf:directAssignment",
       "rkaf:assignmentEvidence": [
         "urn:rkaf:fixture:ca:fragment:sec-3a"
-      ]
+      ],
+      "rkaf:assignmentEvidenceScheme": "rkaf:published-fragment"
     }
   ]
 }

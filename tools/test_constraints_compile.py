@@ -3946,6 +3946,7 @@ class CrossNodeAgreementShapeTests(unittest.TestCase):
           rkaf:assignmentRole rkaf:assignmentPrimary ;
           rkaf:assignmentDerivation rkaf:directAssignment ;
           rkaf:assignmentEvidence ex:fragment ;
+          rkaf:assignmentEvidenceScheme rkaf:published-fragment ;
           rkaf:assertionOrigin rkaf:humanAsserted .
         """
 
@@ -3972,7 +3973,7 @@ class CrossNodeAgreementShapeTests(unittest.TestCase):
                 + self._assignment(
                     "ex:fragment",
                     "rkaf:SourceFragment",
-                    "rkaf:assignmentEvidence ex:fragment .",
+                    "rkaf:assignmentEvidence ex:fragment ;\n                     rkaf:assignmentEvidenceScheme rkaf:published-fragment .",
                 )
             )
         )
@@ -4019,7 +4020,7 @@ class CrossNodeAgreementShapeTests(unittest.TestCase):
                 + self._assignment(
                     "ex:fragment",
                     "rkaf:SourceFragment",
-                    "rkaf:assignmentEvidence ex:fragment-b .",
+                    "rkaf:assignmentEvidence ex:fragment-b ;\n                     rkaf:assignmentEvidenceScheme rkaf:published-fragment .",
                 )
             ),
             "evidence from another Artifact satisfied the local-evidence rule",
@@ -4032,7 +4033,95 @@ class CrossNodeAgreementShapeTests(unittest.TestCase):
                 + self._assignment(
                     "ex:fragment",
                     "rkaf:SourceFragment",
-                    "rkaf:assignmentEvidence ex:fragment .",
+                    "rkaf:assignmentEvidence ex:fragment ;\n                     rkaf:assignmentEvidenceScheme rkaf:published-fragment .",
+                )
+            )
+        )
+
+    # -------------------------------------- §4.2 carrier-local fragment URN
+
+    # `urn:rkaf:test:artifact` percent-encoded the way §4.2 specifies and
+    # SPARQL's ENCODE_FOR_URI produces: unreserved set `A-Za-z0-9-._~`,
+    # uppercase hex triplets.
+    _ENCODED_ARTIFACT = "urn%3Arkaf%3Atest%3Aartifact"
+    _URN_FRAGMENT = (
+        f"<urn:rkaf:fragment:{_ENCODED_ARTIFACT}:118:214:sha256-{'2' * 64}>"
+    )
+
+    def test_a_fragment_urn_must_be_declared_to_be_used(self) -> None:
+        """Registering the derived form has to mean the namespace is CHECKED.
+
+        The compiled conditional fires on the scheme the record declares, so a
+        producer minting a `urn:rkaf:fragment:` value while declaring
+        `rkaf:published-fragment` met the generic absolute-IRI pattern and no
+        grammar at all — the namespace would be squattable rather than
+        registered. CUE cannot reach this: it is a per-VALUE conditional keyed
+        on that value's own lexical form, and the projector's list carrier
+        admits one pattern for the whole list.
+        """
+        squat = self._ARTIFACT + self._assignment(
+            "ex:artifact",
+            "rkaf:Artifact",
+            "rkaf:assignmentEvidence <urn:rkaf:fragment:not-encoded:oops> ;\n"
+            "          rkaf:assignmentEvidenceScheme rkaf:published-fragment .",
+        )
+        self.assertFalse(
+            self._conforms(squat),
+            "a urn:rkaf:fragment: value passed under a published-fragment "
+            "declaration",
+        )
+
+    def test_a_materialized_fragment_must_match_its_own_urn(self) -> None:
+        """The expansion of a URN is mechanical, so an unfaithful one is a bug.
+
+        Every rule that leans on `oa:hasSource` — the same-Artifact evidence
+        rule above all — would otherwise read a source the identifier denies,
+        and the offsets would be counted against a document the digest never
+        covered.
+        """
+        faithful = (
+            self._ARTIFACT
+            + f"""
+            {self._URN_FRAGMENT} a rkaf:SourceFragment ;
+              oa:hasSource ex:artifact ;
+              oa:hasSelector ex:selector ;
+              rkaf:selectorKind oa:TextPositionSelector .
+            ex:selector a oa:TextPositionSelector ;
+              oa:start 118 ; oa:end 214 ;
+              rkaf:coordinateSystem rkaf:unicode-codepoint .
+            """
+        )
+        self.assertTrue(self._conforms(faithful))
+
+        unfaithful = faithful.replace("oa:hasSource ex:artifact", "oa:hasSource ex:other")
+        self.assertFalse(
+            self._conforms(
+                unfaithful
+                + """
+                ex:other a rkaf:Artifact ;
+                  rkaf:hasArtifactIdentifier "urn:rkaf:test:other" ;
+                  rkaf:artifactIdentifierScheme rkaf:partner-defined .
+                """
+            ),
+            "a fragment whose oa:hasSource contradicts its own URN validated",
+        )
+
+    def test_a_published_fragment_iri_is_untouched_by_the_urn_rules(self) -> None:
+        """Both new rules are scoped to the derived namespace.
+
+        A published fragment IRI matches neither, so every record written
+        before the scheme existed validates exactly as it did — once it names
+        the scheme it was always using.
+        """
+        self.assertTrue(
+            self._conforms(
+                self._ARTIFACT
+                + self._FRAGMENT
+                + self._assignment(
+                    "ex:fragment",
+                    "rkaf:SourceFragment",
+                    "rkaf:assignmentEvidence ex:fragment ;\n"
+                    "          rkaf:assignmentEvidenceScheme rkaf:published-fragment .",
                 )
             )
         )
