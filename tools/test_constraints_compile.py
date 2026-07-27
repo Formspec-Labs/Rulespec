@@ -11,6 +11,7 @@ from jsonschema import Draft202012Validator
 
 from tools import conformance_lib
 from tools.constraints_compile import (
+    VALUE_OBJECT_MEMBERS,
     CompileError,
     _rego_symbol,
     _scan_global_enum_registry,
@@ -2662,14 +2663,133 @@ class TypedLiteralCarriageTests(unittest.TestCase):
         typescript = target_typescript(
             self.document, registry=self.registry, source_file=self.source
         )
+        # The DECLARED members keep their types. What the emitted object type
+        # additionally forbids is `test_typescript_closes_the_value_object`'s
+        # subject; asserting the whole line in both places would make one
+        # emitter change fail two tests for the same reason.
         self.assertIn(
-            '"rkaf:assertsValue": { "@value": string; "@type": ValueDatatype };',
+            '"rkaf:assertsValue": { "@value": string; "@type": ValueDatatype;',
             typescript,
         )
         # Not just the type — a runtime check that the datatype is in the set.
         self.assertIn("@type outside the closed datatype set", typescript)
         for datatype in self.datatypes:
             self.assertIn(f'"{datatype}"', typescript)
+
+    def test_typescript_closes_the_value_object(self) -> None:
+        """Generated TypeScript must reject value-object members outside the
+        ones the CUE declares — in the TYPE and in the runtime validator.
+
+        Every other target already closes the object: JSON Schema with
+        `additionalProperties: false`, Rust with `deny_unknown_fields` on
+        `crate::TypedLiteral`, SHACL by construction (a language-tagged literal
+        expands with the datatype GONE, so no `sh:datatype` alternative
+        matches). TypeScript was the hole. A structural object type accepts a
+        widened value carrying extra members, and the emitted validator checked
+        only `@value`'s type and `@type`'s membership — so the SDK accepted
+        `fixtures/negatives/value-assertion-language-tagged-negative.jsonld`,
+        which every other gate rejects.
+
+        Two members, two reasons — the same pair
+        `test_value_object_rejects_members_outside_json_ld` pins on the JSON
+        Schema side:
+
+          * `@language` — the RDF-corrupting one, and the reason Core §2.2
+            keeps language-tagged literals outside the v0.2 carrier.
+          * an arbitrary member (`rkaf:bogus`) — dropped by JSON-LD expansion,
+            so only a wire-form gate can catch it.
+
+        There is no TypeScript toolchain in this repository, so both halves are
+        asserted against the EMITTED SOURCE: the object type's text for the
+        static half, and for the runtime half the emitted guard plus the member
+        set it closes over, evaluated against real payloads.
+        """
+        typescript = target_typescript(
+            self.document, registry=self.registry, source_file=self.source
+        )
+        declared = [
+            member.name
+            for member in next(
+                prop
+                for shape in self.document.shapes
+                for prop in shape.properties
+                if prop.name == "rkaf:assertsValue"
+            ).object_properties
+        ]
+        self.assertEqual(declared, ["@value", "@type"])
+
+        # ── static half: the emitted object type ──────────────────────────
+        member_line = next(
+            (
+                line.strip()
+                for line in typescript.splitlines()
+                if line.strip().startswith('"rkaf:assertsValue"')
+            ),
+            None,
+        )
+        self.assertIsNotNone(
+            member_line, "no `rkaf:assertsValue` member in the emitted interface"
+        )
+        self.assertEqual(
+            member_line,
+            '"rkaf:assertsValue": { "@value": string; "@type": ValueDatatype; '
+            '"@language"?: never };',
+            "the emitted object type must forbid the JSON-LD value-object "
+            "members the CUE does not declare",
+        )
+        for reserved in sorted(VALUE_OBJECT_MEMBERS - set(declared)):
+            self.assertIn(
+                f'"{reserved}"?: never',
+                member_line,
+                f"an undeclared JSON-LD value-object member ({reserved}) must "
+                "be typed away, not merely omitted: TypeScript is structural, "
+                "so omission admits it on any widened value",
+            )
+
+        # ── runtime half: the emitted guard, and the set it closes over ───
+        guard = next(
+            (
+                line.strip()
+                for line in typescript.splitlines()
+                if "member outside the closed value object" in line
+            ),
+            None,
+        )
+        self.assertIsNotNone(
+            guard,
+            "the generated validator must close the value object at runtime; "
+            "the static type cannot, because an arbitrary extra member is "
+            "inexpressible in a structural object type",
+        )
+        self.assertIn(
+            'Object.keys((v["rkaf:assertsValue"] as Record<string, unknown> '
+            "| undefined)!).some((member) => !",
+            guard,
+            "the runtime closure must test the value object's OWN keys",
+        )
+        allowed = json.loads(
+            re.search(r"!(\[[^\]]*\])\.includes\(member\)", guard).group(1)
+        )
+        self.assertEqual(
+            allowed,
+            declared,
+            "the runtime closure must close over exactly the members the CUE "
+            "declares; a drift here reopens the hole in one target only",
+        )
+        for extra, rejected in (
+            ({}, False),
+            ({"@language": "en"}, True),
+            ({"rkaf:bogus": "y"}, True),
+        ):
+            with self.subTest(extra=extra):
+                payload = {"@value": "x", "@type": "xsd:string", **extra}
+                self.assertEqual(
+                    any(member not in allowed for member in payload),
+                    rejected,
+                    "the emitted guard must reject exactly the members outside "
+                    "the closed value object, and a valid typed literal must "
+                    "still pass",
+                )
 
     def test_value_object_rejects_members_outside_json_ld(self) -> None:
         """The compiled value object is CLOSED, so JSON Schema rejects exactly

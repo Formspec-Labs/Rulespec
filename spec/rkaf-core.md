@@ -109,6 +109,18 @@ leave SHACL and JSON Schema disagreeing about the same document. Language-
 tagged meaning belongs on concepts, where `skos:prefLabel` and `skos:altLabel`
 already carry it (`spec/rkaf-concept-registry.md`).
 
+The value object is therefore CLOSED, and closure — not merely the absence of
+`@language` from the required members — is what every compiled target
+enforces: `additionalProperties: false` in JSON Schema, `deny_unknown_fields`
+on the Rust `crate::TypedLiteral`, and in TypeScript both halves of what that
+language can express — every JSON-LD value-object member the source does not
+declare is typed `never`, which is what rejects `@language` on a value the
+compiler has already widened, and the generated validator rejects any member
+outside the declared set, which is what catches a member TypeScript's
+structural typing cannot forbid. SHACL needs no separate rule: a
+language-tagged literal arrives with the datatype gone, so no `sh:datatype`
+alternative matches it.
+
 ### 2.3 Proposition content and consumer state [Normative]
 
 An assertion's proposition content is immutable and consists of exactly:

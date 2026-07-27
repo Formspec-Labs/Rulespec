@@ -243,9 +243,11 @@ adapted for a specification + shape + fixture project.
   declaring `@value` — JSON-LD's own definition of a value object — projects
   to all six targets, with the value object emitted CLOSED on every target
   (`additionalProperties: false` in JSON Schema, `deny_unknown_fields` on
-  `TypedLiteral`) so a language-tagged literal is rejected everywhere `cue vet`
-  rejects it. A value object whose `@type` is not a closed enum is a
-  `CompileError` rather than a silently weaker artifact.
+  `TypedLiteral`, and in TypeScript an undeclared JSON-LD member typed `never`
+  plus a generated member check in `validate<Shape>`) so a language-tagged
+  literal is rejected everywhere `cue vet` rejects it. A value object whose
+  `@type` is not a closed enum is a `CompileError` rather than a silently
+  weaker artifact.
 
   A nested struct that is NOT a value object is unchanged: it keeps the
   pre-existing lossy hoist (inner fields flattened onto the outer shape, outer

@@ -1828,6 +1828,21 @@ def target_typescript(
                         f'!{allowed}.includes({literal}!["@type"] as string)) '
                         f'errs.push("{p.name}: @type outside the closed datatype set");'
                     )
+                # The runtime half of the closure `_ts_type` starts. That
+                # emitted type can forbid the JSON-LD members the source does not
+                # declare, but not an arbitrary extra key, so the members the
+                # CUE struct closes over are checked here against the object's
+                # OWN keys. Emitted after the member checks above so a null
+                # `@value` slot still fails on the same line it always did.
+                declared = json.dumps(
+                    [inner.name for inner in p.object_properties or []]
+                )
+                out.append(
+                    f"  if ({literal} !== undefined && "
+                    f"Object.keys({literal}!).some((member) => "
+                    f"!{declared}.includes(member))) "
+                    f'errs.push("{p.name}: member outside the closed value object");'
+                )
         for index, conditional in enumerate(s.conditionals):
             when_name = f"condition{index + 1}"
             when_value = f'record["{conditional.when_property}"]'
@@ -1878,10 +1893,27 @@ def _ts_type(p: PropDef) -> str:
     if p.fixed_value is not None:
         return f'"{p.fixed_value}"'
     if p.type_ref == "value_object":
+        declared = [inner.name for inner in p.object_properties or []]
         members = [
             f'"{inner.name}"{"?" if inner.optional else ""}: {_ts_type(inner)}'
             for inner in p.object_properties or []
         ]
+        # CLOSE the value object in the type as well as at runtime. TypeScript
+        # is structural: omitting a member only stops an object LITERAL from
+        # carrying it (excess-property checking), while any widened value keeps
+        # passing. Typing each JSON-LD value-object member the source does NOT
+        # declare as `never` is what makes it unassignable everywhere —
+        # `@language` today, which is the member that also destroys the RDF
+        # datatype (§2.2), so a TypeScript consumer cannot mint the document
+        # JSON Schema, SHACL, Rust, and `cue vet` all reject.
+        #
+        # An ARBITRARY extra member has no type-level spelling here, so the
+        # emitted validator closes over the declared set instead; the two
+        # halves are one closure, split only by what each side can express.
+        members.extend(
+            f'"{reserved}"?: never'
+            for reserved in sorted(VALUE_OBJECT_MEMBERS - set(declared))
+        )
         return "{ " + "; ".join(members) + " }"
     if p.type_ref == "enum":
         return p.enum_ref or "string"

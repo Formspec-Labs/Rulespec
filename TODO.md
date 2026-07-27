@@ -140,6 +140,32 @@ value, or concept data under it.
       2026-07-26: detached worktree at `56686d9`, cold `make compile`
       reproduces the committed pins (`sha256:5f287a1e…`), `make test`
       exit 0, 420 conformance fixtures, 0 divergences.
+- [x] Close the carried follow-up from the Spicy Regs v3 second-half handoff:
+      TypeScript closure of language-tagged value objects. Done 2026-07-26,
+      LOCAL AND UNCOMMITTED — no hash yet; the orchestrator commits it.
+      The generated TypeScript now closes the value object on both halves it
+      can express: `_ts_type` types every JSON-LD value-object member the CUE
+      does not declare as `never` (`"@language"?: never` today), and the same
+      value-object emitter path in `target_typescript` emits one
+      `Object.keys(...).some(...)` guard closing over the declared members, so
+      an arbitrary extra key is caught where structural typing cannot forbid
+      it. TypeScript was the last unclosed target — JSON Schema already emitted
+      `additionalProperties: false`, Rust `deny_unknown_fields`, and SHACL
+      rejects a language-tagged literal because expansion drops the datatype.
+      Language-tagged literals remain OUTSIDE the v0.2 `ValueAssertion`
+      carrier; this closes the hole, it does not admit them.
+      Evidence (local, pending commit): new
+      `TypedLiteralCarriageTests.test_typescript_closes_the_value_object`
+      failed on both halves before the emitter change and passes after;
+      `spec/rkaf-core.md` §2.2 now names TypeScript closure as an enforcement
+      surface, and the CHANGELOG's "CLOSED on every target" parenthetical is no
+      longer overstated; `make compile` reproduces the pins
+      (`sha256:5f287a1e…`, unchanged — only
+      `compiled/typescript/core/value-assertion.ts` moved, and `compiled/` is
+      untracked, so no generated file was hand-edited); `make test` exit 0 —
+      154 cargo tests, 170 Python unit tests, 0 core parity divergences (the
+      two documentation-class adversarial findings are the unchanged
+      baseline), 420 conformance fixtures, 0 divergences.
 - [ ] Complete the non-originating-consumer review, then cut one reviewed
       pre-1.0 release with an immutable contract digest (maintainer
       authorization required).
