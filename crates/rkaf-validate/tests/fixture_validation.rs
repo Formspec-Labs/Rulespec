@@ -129,6 +129,29 @@ fn negative_fixtures_load_and_classify() {
 }
 
 #[test]
+fn invalid_bcp47_language_tag_is_rejected_by_the_rust_validator() {
+    let v = Validator::new();
+    let node = serde_json::json!({
+        "@type": "rkaf:ValueAssertion",
+        "rkaf:assertionOrigin": "rkaf:humanAsserted",
+        "rkaf:epistemicBasis": "rkaf:sourceExplicit",
+        "rkaf:assertsSubject": "urn:rkaf:test:subject",
+        "rkaf:assertsPredicate": "skos:prefLabel",
+        "rkaf:assertsValue": {"@value": "income", "@language": "en--US"},
+        "rkaf:assertionPolarity": "rkaf:affirmed"
+    });
+    let errors = v
+        .validate(&node)
+        .expect_err("the authoritative Rust validator must enforce BCP 47");
+    assert!(
+        errors
+            .iter()
+            .any(|error| error.pointer.contains("rkaf:assertsValue")),
+        "expected the invalid language tag to fail at assertsValue: {errors:?}"
+    );
+}
+
+#[test]
 fn positive_fixtures_cover_every_embedded_schema_type() {
     let v = Validator::new();
     let known: BTreeSet<String> = v.known_type_iris().map(str::to_owned).collect();

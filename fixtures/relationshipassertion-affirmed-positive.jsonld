@@ -1,12 +1,43 @@
 {
   "@context": "../context/rkaf-context.jsonld",
-  "@id": "urn:rkaf:fixture:relationship-assertion:expected-baseline",
-  "@type": "rkaf:RelationshipAssertion",
-  "rkaf:assertionOrigin": "rkaf:humanAsserted",
-  "rkaf:assertsSubject": "urn:rkaf:fixture:policy:emergency-amendment",
-  "rkaf:assertsPredicate": "urn:rkaf:fixture:predicate:appliesTo",
-  "rkaf:assertsObject": "urn:rkaf:fixture:group:airworthiness-resources",
-  "rkaf:assertionPolarity": "rkaf:affirmed",
-  "rkaf:hasApplicability": "urn:rkaf:fixture:scope:aviation-cybersecurity",
-  "rkaf:hasWarrant": "urn:rkaf:fixture:warrant:approved-comparator"
+  "@graph": [
+    {
+      "@id": "urn:rkaf:fixture:relationship-assertion:expected-baseline",
+      "@type": "rkaf:RelationshipAssertion",
+      "rkaf:assertionOrigin": "rkaf:humanAsserted",
+      "rkaf:epistemicBasis": "rkaf:sourceExplicit",
+      "rkaf:assertsSubject": "urn:rkaf:fixture:policy:emergency-amendment",
+      "rkaf:assertsPredicate": "urn:rkaf:fixture:predicate:appliesTo",
+      "rkaf:assertsObject": "urn:rkaf:fixture:group:airworthiness-resources",
+      "rkaf:assertionPolarity": "rkaf:affirmed",
+      "rkaf:hasApplicability": "urn:rkaf:fixture:scope:aviation-cybersecurity",
+      "rkaf:hasWarrant": "urn:rkaf:fixture:warrant:approved-comparator"
+    },
+    {
+      "@id": "urn:rkaf:fixture:relationship-assertion:artifact:baseline",
+      "@type": "rkaf:Artifact",
+      "rkaf:hasArtifactIdentifier": "urn:rkaf:fixture:relationship-assertion:artifact:baseline",
+      "rkaf:artifactIdentifierScheme": "rkaf:partner-defined"
+    },
+    {
+      "@id": "urn:rkaf:fixture:relationship-assertion:fragment:baseline",
+      "@type": "rkaf:SourceFragment",
+      "oa:hasSource": "urn:rkaf:fixture:relationship-assertion:artifact:baseline",
+      "oa:hasSelector": {
+        "@type": "oa:TextQuoteSelector",
+        "oa:exact": "The emergency amendment applies to airworthiness resources."
+      },
+      "rkaf:selectorKind": "oa:TextQuoteSelector"
+    },
+    {
+      "@id": "urn:rkaf:fixture:relationship-assertion:evidence:baseline",
+      "@type": "rkaf:EvidenceBinding",
+      "rkaf:bindsAssertion": "urn:rkaf:fixture:relationship-assertion:expected-baseline",
+      "rkaf:bindsSourceFragment": [
+        "urn:rkaf:fixture:relationship-assertion:fragment:baseline"
+      ],
+      "rkaf:evidenceRole": "rkaf:textualEvidence",
+      "rkaf:evidentiaryFunction": "rkaf:supports"
+    }
+  ]
 }

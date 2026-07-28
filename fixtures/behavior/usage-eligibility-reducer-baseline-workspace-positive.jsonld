@@ -11,6 +11,7 @@
         "@id": "a1",
         "@type": "rkaf:Assertion",
         "rkaf:assertionOrigin": "rkaf:humanAsserted",
+        "rkaf:epistemicBasis": "rkaf:editorialAssertion",
         "rkaf:usageEligibility": "rkaf:reviewQueueOnly"
       }
     ]

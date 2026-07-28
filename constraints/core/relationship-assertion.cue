@@ -12,7 +12,8 @@ package rkaf
 // the contract:
 //   #AssertionProposition — the immutable proposition core (subject,
 //     predicate, polarity), shared with #ValueAssertion.
-//   #AssertionEnvelope    — provenance, grounding, and consumer disposition.
+//   #DurableAssertionEnvelope — provenance, epistemic basis, grounding, and
+//                               consumer disposition.
 // Both live in constraints/core/assertion.cue, so their properties and the
 // AI-lineage conditionals have exactly one source and are projected here from
 // it.
@@ -27,7 +28,7 @@ package rkaf
 // the stricter pattern. Deleting them would loosen every generated target
 // relative to the CUE source.
 #RelationshipAssertion: assertion={
-	#AssertionEnvelope
+	#DurableAssertionEnvelope
 	#AssertionProposition
 	"@type": "rkaf:RelationshipAssertion"
 
@@ -45,6 +46,7 @@ package rkaf
 	"rkaf:hasWarrant"?:              string & =~"^[A-Za-z][A-Za-z0-9+.-]*:[^\\s]+$"
 	"rkaf:hasAuthority"?:            string & =~"^[A-Za-z][A-Za-z0-9+.-]*:[^\\s]+$"
 	"rkaf:hasAccessScope"?:          string & =~"^[A-Za-z][A-Za-z0-9+.-]*:[^\\s]+$"
+	"rkaf:hasRetentionPolicy"?:      string & =~"^[A-Za-z][A-Za-z0-9+.-]*:[^\\s]+$"
 	"rkaf:hasSourceClaimant"?:       string & =~"^[A-Za-z][A-Za-z0-9+.-]*:[^\\s]+$"
 	"rkaf:hasExtractionProvenance"?: string & =~"^[A-Za-z][A-Za-z0-9+.-]*:[^\\s]+$"
 	"rkaf:hasConfidence"?:           [...(string & =~"^[A-Za-z][A-Za-z0-9+.-]*:[^\\s]+$")]
@@ -57,16 +59,6 @@ package rkaf
 	if assertion["rkaf:assertionOrigin"] == "rkaf:aiSuggested" {
 		"rkaf:hasAILineage": string & =~"^[A-Za-z][A-Za-z0-9+.-]*:[^\\s]+$"
 	}
-	if assertion["rkaf:assertionOrigin"] == "rkaf:aiPromoted" {
-		"rkaf:hasAILineage": string & =~"^[A-Za-z][A-Za-z0-9+.-]*:[^\\s]+$"
-	}
-	if assertion["rkaf:assertionOrigin"] == "rkaf:humanQualified" {
-		"rkaf:hasAILineage": string & =~"^[A-Za-z][A-Za-z0-9+.-]*:[^\\s]+$"
-	}
-	if assertion["rkaf:assertionOrigin"] == "rkaf:humanRevalidation" {
-		"rkaf:hasAILineage": string & =~"^[A-Za-z][A-Za-z0-9+.-]*:[^\\s]+$"
-	}
-
 	// Same narrowing for the envelope's deterministic-origin conditional
 	// (§2.4): the required ExtractionActivity must be named by an IRI.
 	if assertion["rkaf:assertionOrigin"] == "rkaf:deterministicExtraction" {

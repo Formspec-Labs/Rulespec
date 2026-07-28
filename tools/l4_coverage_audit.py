@@ -45,14 +45,13 @@ CASCADE_EDGES = {
     "rkaf:collectsEvidenceType",
     "rkaf:operationallyDependsOn",
     "rkaf:targetAssertion",
+    "rkaf:assertsSubject",
     "rkaf:assertsObject",
     "skos:exactMatch",
     "skos:closeMatch",
     "skos:broadMatch",
     "skos:narrowMatch",
     "skos:relatedMatch",
-    "rkaf:sourceConcept",
-    "rkaf:targetConcept",
 }
 
 REDUCER_BRANCHES = {

@@ -7,31 +7,86 @@
   "rkaf:input": {
     "@graph": [
       {
-        "@id": "X",
+        "@id": "urn:rkaf:fixture:concept:X",
         "@type": "rkaf:LocalConcept",
         "rkaf:definedInScope": "urn:rkaf:scope:test",
         "rkaf:conceptScope": "urn:rkaf:scope:test",
-        "rkaf:conceptStatus": "rkaf:active",
         "skos:prefLabel": "X",
         "skos:inScheme": "urn:rkaf:scheme:test-topic"
       },
       {
-        "@id": "m1",
+        "@id": "urn:rkaf:fixture:beh:cmac:m1",
         "@type": "rkaf:ConceptMapping",
-        "rkaf:sourceConcept": "X",
-        "rkaf:targetConcept": "canon:A",
-        "rkaf:mappingRelation": "skos:exactMatch",
-        "rkaf:lifecycleState": "rkaf:approved",
+        "rkaf:assertionOrigin": "rkaf:humanAsserted",
+        "rkaf:epistemicBasis": "rkaf:editorialAssertion",
+        "rkaf:assertsSubject": "urn:rkaf:fixture:concept:X",
+        "rkaf:assertsPredicate": "skos:exactMatch",
+        "rkaf:assertsObject": "canon:A",
+        "rkaf:assertionPolarity": "rkaf:affirmed",
+        "rkaf:sourceConceptRelease": "urn:rkaf:fixture:release:test-source",
+        "rkaf:targetConceptRelease": "urn:rkaf:fixture:release:test-target",
         "rkaf:managedByRegistry": "urn:rkaf:registry:trusted-1"
       },
       {
-        "@id": "m2",
+        "@id": "urn:rkaf:fixture:beh:cmac:m2",
         "@type": "rkaf:ConceptMapping",
-        "rkaf:sourceConcept": "X",
-        "rkaf:targetConcept": "canon:B",
-        "rkaf:mappingRelation": "skos:exactMatch",
-        "rkaf:lifecycleState": "rkaf:approved",
+        "rkaf:assertionOrigin": "rkaf:humanAsserted",
+        "rkaf:epistemicBasis": "rkaf:editorialAssertion",
+        "rkaf:assertsSubject": "urn:rkaf:fixture:concept:X",
+        "rkaf:assertsPredicate": "skos:exactMatch",
+        "rkaf:assertsObject": "canon:B",
+        "rkaf:assertionPolarity": "rkaf:affirmed",
+        "rkaf:sourceConceptRelease": "urn:rkaf:fixture:release:test-source",
+        "rkaf:targetConceptRelease": "urn:rkaf:fixture:release:test-target",
         "rkaf:managedByRegistry": "urn:rkaf:registry:other"
+      },
+      {
+        "@id": "urn:rkaf:fixture:beh:cmac:release",
+        "@type": "rkaf:ReferenceResourceRelease",
+        "dcterms:isVersionOf": "urn:rkaf:fixture:resource:cmac-mappings",
+        "dcat:version": "2026.07.28",
+        "dcterms:type": "skos:ConceptScheme",
+        "rkaf:membershipMode": "rkaf:completeMembership",
+        "prov:hadMember": [
+          "urn:rkaf:fixture:beh:cmac:m1",
+          "urn:rkaf:fixture:beh:cmac:m2"
+        ],
+        "dcat:distribution": [
+          "urn:rkaf:fixture:beh:cmac:distribution"
+        ],
+        "rkaf:referenceReleaseDigest": "sha256:673386951654982f576125476bd4d0a7f59bf857fdccd9f72e9c547036d4dda5"
+      },
+      {
+        "@id": "urn:rkaf:fixture:beh:cmac:distribution",
+        "@type": "rkaf:Artifact",
+        "rkaf:hasArtifactIdentifier": [
+          "urn:rkaf:fixture:beh:cmac:distribution"
+        ],
+        "rkaf:artifactIdentifierScheme": [
+          "rkaf:partner-defined"
+        ],
+        "dcterms:format": "application/ld+json",
+        "rkaf:hasContentDigest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      },
+      {
+        "@id": "att1",
+        "@type": "rkaf:Attestation",
+        "rkaf:attestor": "urn:rkaf:fixture:actor:registry-reviewer",
+        "rkaf:attestorKind": "rkaf:formalReviewer",
+        "rkaf:targets": ["urn:rkaf:fixture:beh:cmac:m1"],
+        "rkaf:decision": "rkaf:approved",
+        "rkaf:attestationScope": "rkaf:registryPublication",
+        "rkaf:attestedAt": "2026-07-28T12:00:00Z"
+      },
+      {
+        "@id": "att2",
+        "@type": "rkaf:Attestation",
+        "rkaf:attestor": "urn:rkaf:fixture:actor:registry-reviewer",
+        "rkaf:attestorKind": "rkaf:formalReviewer",
+        "rkaf:targets": ["urn:rkaf:fixture:beh:cmac:m2"],
+        "rkaf:decision": "rkaf:approved",
+        "rkaf:attestationScope": "rkaf:registryPublication",
+        "rkaf:attestedAt": "2026-07-28T12:00:00Z"
       },
       {
         "@id": "reg1",
@@ -59,8 +114,8 @@
     "resolutionResult": "rkaf:conflict",
     "registryConflict": {
       "conflictingEntries": [
-        "m1",
-        "m2"
+        "urn:rkaf:fixture:beh:cmac:m1",
+        "urn:rkaf:fixture:beh:cmac:m2"
       ],
       "severity": "rkaf:authorityCritical"
     }

@@ -3,35 +3,90 @@
   "@id": "urn:rkaf:fixture:beh:cmpb:case1",
   "@type": "rkaf:BehaviorTestCase",
   "rkaf:behaviorContract": "rkaf:ConceptResolutionWithConflict",
-  "rkaf:rationale": "Both mappings carry lifecycleState=approved AND target different concepts. §6.1 upgrades severity to publicationBlocking.",
+  "rkaf:rationale": "Both mappings are members of a reference-resource release and have unrevoked registry-publication approval Attestations. Because they target different concepts, §6.1 upgrades severity to publicationBlocking.",
   "rkaf:input": {
     "@graph": [
       {
-        "@id": "X",
+        "@id": "urn:rkaf:fixture:concept:X",
         "@type": "rkaf:LocalConcept",
         "rkaf:definedInScope": "urn:rkaf:scope:test",
         "rkaf:conceptScope": "urn:rkaf:scope:test",
-        "rkaf:conceptStatus": "rkaf:active",
         "skos:prefLabel": "X",
         "skos:inScheme": "urn:rkaf:scheme:test-topic"
       },
       {
-        "@id": "m1",
+        "@id": "urn:rkaf:fixture:beh:cmpb:m1",
         "@type": "rkaf:ConceptMapping",
-        "rkaf:sourceConcept": "X",
-        "rkaf:targetConcept": "canon:A",
-        "rkaf:mappingRelation": "skos:exactMatch",
-        "rkaf:lifecycleState": "rkaf:approved",
+        "rkaf:assertionOrigin": "rkaf:humanAsserted",
+        "rkaf:epistemicBasis": "rkaf:editorialAssertion",
+        "rkaf:assertsSubject": "urn:rkaf:fixture:concept:X",
+        "rkaf:assertsPredicate": "skos:exactMatch",
+        "rkaf:assertsObject": "canon:A",
+        "rkaf:assertionPolarity": "rkaf:affirmed",
+        "rkaf:sourceConceptRelease": "urn:rkaf:fixture:release:test-source",
+        "rkaf:targetConceptRelease": "urn:rkaf:fixture:release:test-target",
         "rkaf:managedByRegistry": "urn:rkaf:registry:r1"
       },
       {
-        "@id": "m2",
+        "@id": "urn:rkaf:fixture:beh:cmpb:m2",
         "@type": "rkaf:ConceptMapping",
-        "rkaf:sourceConcept": "X",
-        "rkaf:targetConcept": "canon:B",
-        "rkaf:mappingRelation": "skos:exactMatch",
-        "rkaf:lifecycleState": "rkaf:approved",
+        "rkaf:assertionOrigin": "rkaf:humanAsserted",
+        "rkaf:epistemicBasis": "rkaf:editorialAssertion",
+        "rkaf:assertsSubject": "urn:rkaf:fixture:concept:X",
+        "rkaf:assertsPredicate": "skos:exactMatch",
+        "rkaf:assertsObject": "canon:B",
+        "rkaf:assertionPolarity": "rkaf:affirmed",
+        "rkaf:sourceConceptRelease": "urn:rkaf:fixture:release:test-source",
+        "rkaf:targetConceptRelease": "urn:rkaf:fixture:release:test-target",
         "rkaf:managedByRegistry": "urn:rkaf:registry:r2"
+      },
+      {
+        "@id": "urn:rkaf:fixture:beh:cmpb:release",
+        "@type": "rkaf:ReferenceResourceRelease",
+        "dcterms:isVersionOf": "urn:rkaf:fixture:resource:cmpb-mappings",
+        "dcat:version": "2026.07.28",
+        "dcterms:type": "skos:ConceptScheme",
+        "rkaf:membershipMode": "rkaf:completeMembership",
+        "prov:hadMember": [
+          "urn:rkaf:fixture:beh:cmpb:m1",
+          "urn:rkaf:fixture:beh:cmpb:m2"
+        ],
+        "dcat:distribution": [
+          "urn:rkaf:fixture:beh:cmpb:distribution"
+        ],
+        "rkaf:referenceReleaseDigest": "sha256:82177a23a716face86fef5e2ebf315e050c41c3254df31701bdaee1154198608"
+      },
+      {
+        "@id": "urn:rkaf:fixture:beh:cmpb:distribution",
+        "@type": "rkaf:Artifact",
+        "rkaf:hasArtifactIdentifier": [
+          "urn:rkaf:fixture:beh:cmpb:distribution"
+        ],
+        "rkaf:artifactIdentifierScheme": [
+          "rkaf:partner-defined"
+        ],
+        "dcterms:format": "application/ld+json",
+        "rkaf:hasContentDigest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+      },
+      {
+        "@id": "att1",
+        "@type": "rkaf:Attestation",
+        "rkaf:attestor": "urn:rkaf:fixture:actor:registry-reviewer",
+        "rkaf:attestorKind": "rkaf:formalReviewer",
+        "rkaf:targets": ["urn:rkaf:fixture:beh:cmpb:m1"],
+        "rkaf:decision": "rkaf:approved",
+        "rkaf:attestationScope": "rkaf:registryPublication",
+        "rkaf:attestedAt": "2026-07-28T12:00:00Z"
+      },
+      {
+        "@id": "att2",
+        "@type": "rkaf:Attestation",
+        "rkaf:attestor": "urn:rkaf:fixture:actor:registry-reviewer",
+        "rkaf:attestorKind": "rkaf:formalReviewer",
+        "rkaf:targets": ["urn:rkaf:fixture:beh:cmpb:m2"],
+        "rkaf:decision": "rkaf:approved",
+        "rkaf:attestationScope": "rkaf:registryPublication",
+        "rkaf:attestedAt": "2026-07-28T12:00:00Z"
       }
     ]
   },
@@ -39,8 +94,8 @@
     "resolutionResult": "rkaf:conflict",
     "registryConflict": {
       "conflictingEntries": [
-        "m1",
-        "m2"
+        "urn:rkaf:fixture:beh:cmpb:m1",
+        "urn:rkaf:fixture:beh:cmpb:m2"
       ],
       "severity": "rkaf:publicationBlocking"
     }

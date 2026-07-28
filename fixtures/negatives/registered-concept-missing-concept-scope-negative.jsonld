@@ -3,6 +3,5 @@
   "@id": "urn:rkaf:fixture:concept:household-income",
   "@type": "rkaf:RegisteredConcept",
   "rkaf:managedByRegistry": "urn:rkaf:fixture:registry:fns-snap-canonical",
-  "rkaf:conceptStatus": "rkaf:active",
   "skos:inScheme": "urn:rkaf:fixture:scheme:fns-snap-topic"
 }

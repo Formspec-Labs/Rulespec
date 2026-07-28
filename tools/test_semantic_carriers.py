@@ -353,9 +353,19 @@ class DirectionCarrierTests(unittest.TestCase):
             (FIXTURES / "relationshipassertion-affirmed-positive.jsonld").read_text()
         )
         swapped = copy.deepcopy(source)
-        swapped["rkaf:assertsSubject"], swapped["rkaf:assertsObject"] = (
-            source["rkaf:assertsObject"],
-            source["rkaf:assertsSubject"],
+        source_assertion = next(
+            node
+            for node in source["@graph"]
+            if node.get("@type") == "rkaf:RelationshipAssertion"
+        )
+        swapped_assertion = next(
+            node
+            for node in swapped["@graph"]
+            if node.get("@type") == "rkaf:RelationshipAssertion"
+        )
+        swapped_assertion["rkaf:assertsSubject"], swapped_assertion["rkaf:assertsObject"] = (
+            source_assertion["rkaf:assertsObject"],
+            source_assertion["rkaf:assertsSubject"],
         )
         self.assertFalse(
             isomorphic(expand_doc(source), expand_doc(swapped)),
@@ -394,31 +404,24 @@ class DirectionCarrierTests(unittest.TestCase):
         )
 
     def test_both_endpoints_of_a_concept_mapping_expand_as_iris(self) -> None:
-        """`rkaf:sourceConcept` is the asymmetry that was there to be found.
-
-        `constraints/core/concept-mapping.cue` documents both slots as "IRI of
-        … Concept" and the compiled shape gives each bare cardinality — no
-        `sh:class`, no `sh:nodeKind` — because a mapping endpoint may legally
-        be an external `skos:Concept` (see the comment on `#ConceptMapping`).
-        With no range to lean on, the context coercion is the ONLY thing making
-        an endpoint an IRI rather than a string literal, and nothing else in
-        the repo would notice if one of the two lost it: `rkaf:targetConcept`
-        carried `@type: @id` and `rkaf:sourceConcept` did not, and every gate
-        stayed green.
-        """
+        """Canonical mapping endpoints and their release pins stay directed IRIs."""
         graph = expand_file(FIXTURES / "conceptmapping-positive.jsonld")
         node = "urn:rkaf:fixture:cmap:income-closematch"
-        for term in ("sourceConcept", "targetConcept"):
+        for term in (
+            "assertsSubject",
+            "assertsObject",
+            "sourceConceptRelease",
+            "targetConceptRelease",
+        ):
             with self.subTest(term=term):
                 self.assertIsInstance(
                     one(graph, node, RKAF + term),
                     URIRef,
-                    f"rkaf:{term} must expand to an IRI — the CUE documents it "
-                    "as one, and only context/rkaf-context.jsonld makes it so",
+                    f"rkaf:{term} must expand to an IRI",
                 )
         self.assertNotEqual(
-            one(graph, node, RKAF + "sourceConcept"),
-            one(graph, node, RKAF + "targetConcept"),
+            one(graph, node, RKAF + "assertsSubject"),
+            one(graph, node, RKAF + "assertsObject"),
             "a mapping's two endpoints are a direction, not a set",
         )
 
@@ -464,7 +467,10 @@ class TypedValueCarrierTests(unittest.TestCase):
 
     def test_a_date_value_keeps_its_datatype_through_expand_and_compact(self) -> None:
         node = "urn:rkaf:fixture:value-assertion:effective-date"
-        original = expand_file(FIXTURES / "valueassertion-date-positive.jsonld")
+        fixture = expand_file(FIXTURES / "valueassertion-date-positive.jsonld")
+        original = rdflib.Graph()
+        for triple in fixture.triples((URIRef(node), None, None)):
+            original.add(triple)
         value = one(original, node, RKAF + "assertsValue")
         self.assertIsInstance(value, Literal)
         self.assertEqual(
@@ -490,7 +496,11 @@ class TypedValueCarrierTests(unittest.TestCase):
         )
 
     def test_an_integer_value_keeps_its_lexical_form(self) -> None:
-        graph = expand_file(FIXTURES / "valueassertion-denied-integer-positive.jsonld")
+        node = "urn:rkaf:fixture:value-assertion:comment-count-denied"
+        fixture = expand_file(FIXTURES / "valueassertion-denied-integer-positive.jsonld")
+        graph = rdflib.Graph()
+        for triple in fixture.triples((URIRef(node), None, None)):
+            graph.add(triple)
         values = [
             o
             for _, _, o in graph.triples((None, URIRef(RKAF + "assertsValue"), None))
@@ -512,17 +522,18 @@ class TypedValueCarrierTests(unittest.TestCase):
             "'42' into a number and back is where the fidelity goes",
         )
 
-    def test_a_language_tagged_object_is_rejected(self) -> None:
-        """Control from the other side: `@language` is not `@type`, and a
-        language-tagged object is a string in a language, not a typed value."""
-        negative = FIXTURES / "negatives" / "value-assertion-language-tagged-negative.jsonld"
-        ok, _ = conforms(expand_file(negative), full_suite())
-        self.assertFalse(
-            ok,
-            "a language-tagged assertsValue must FAIL — the closed "
-            "rkaf:ValueDatatype set has no member for it, and accepting it "
-            "would silently replace the datatype with a language tag",
+    def test_a_language_tagged_object_preserves_language_and_script(self) -> None:
+        graph = expand_file(FIXTURES / "valueassertion-language-tagged-positive.jsonld")
+        value = one(
+            graph,
+            "urn:rkaf:fixture:value-assertion:language-tagged",
+            RKAF + "assertsValue",
         )
+        self.assertIsInstance(value, Literal)
+        self.assertEqual(value.language, "zh-Hant")
+        self.assertIsNone(value.datatype)
+        ok, _ = conforms(graph, full_suite())
+        self.assertTrue(ok, "a well-formed BCP 47 language-tagged value must conform")
 
     def test_every_enum_valued_term_is_iri_coerced_in_the_context(self) -> None:
         """`constraints/README.md` states this as a rule; nothing enforced it.
@@ -746,7 +757,13 @@ class EvidenceResolutionCarrierTests(unittest.TestCase):
         graph = expand_file(FIXTURES / "conceptassignment-fragment-direct-positive.jsonld")
         assignment = "urn:rkaf:fixture:ca:seg:sec-3a-income"
 
-        evidence = one(graph, assignment, RKAF + "assignmentEvidence")
+        binding = next(
+            graph.subjects(
+                URIRef(RKAF + "bindsAssertion"),
+                URIRef(assignment),
+            )
+        )
+        evidence = one(graph, str(binding), RKAF + "bindsSourceFragment")
         self.assertIsInstance(evidence, URIRef, "evidence must be an IRI, not a label")
         self.assertIn(
             URIRef(RKAF + "SourceFragment"),
@@ -754,7 +771,7 @@ class EvidenceResolutionCarrierTests(unittest.TestCase):
             "the evidence IRI must dereference IN THIS GRAPH to a node typed "
             "rkaf:SourceFragment — that is what the declared class range buys",
         )
-        subject = one(graph, assignment, RKAF + "assignmentSubject")
+        subject = one(graph, assignment, RKAF + "assertsSubject")
         self.assertEqual(
             subject, evidence,
             "a segment assignment must cite THAT segment (Core §4.7)",
@@ -833,6 +850,29 @@ class EvidenceResolutionCarrierTests(unittest.TestCase):
             prefix, _, local = term.partition(":")
             return prefixes.get(prefix, prefix + ":") + local
 
+        shape_graph = full_suite()
+        subclass = URIRef("http://www.w3.org/2000/01/rdf-schema#subClassOf")
+
+        def satisfies_range(actual: URIRef, expected: URIRef) -> bool:
+            if actual == expected:
+                return True
+            seen: set[URIRef] = set()
+            pending = [actual]
+            while pending:
+                current = pending.pop()
+                if current in seen:
+                    continue
+                seen.add(current)
+                parents = [
+                    parent
+                    for parent in shape_graph.objects(current, subclass)
+                    if isinstance(parent, URIRef)
+                ]
+                if expected in parents:
+                    return True
+                pending.extend(parents)
+            return False
+
         violations: list[str] = []
         for path in positive_fixture_paths():
             graph = expand_file(path)
@@ -848,7 +888,11 @@ class EvidenceResolutionCarrierTests(unittest.TestCase):
                     local_types = list(graph.objects(obj, RDF_TYPE))
                     if not local_types:
                         continue  # described elsewhere; legal
-                    if expected not in local_types:
+                    if not any(
+                        isinstance(actual, URIRef)
+                        and satisfies_range(actual, expected)
+                        for actual in local_types
+                    ):
                         violations.append(
                             f"{path.relative_to(FIXTURES)}: {term} → {obj} is "
                             f"typed {[str(t) for t in local_types]}, "
@@ -884,7 +928,14 @@ class CompositionCarrierTests(unittest.TestCase):
         for path in CONSTRAINT_SOURCES:
             raw = cc.parse_cue_file(path, resolve_composition=False)
             for shape in raw.shapes:
-                if "AssertionEnvelope" in shape.base_refs and shape.type_iri:
+                if (
+                    {
+                        "AssertionEnvelope",
+                        "DurableAssertionEnvelope",
+                    }
+                    & set(shape.base_refs)
+                    and shape.type_iri
+                ):
                     found.append((path, shape.name, shape.type_iri))
         return found
 

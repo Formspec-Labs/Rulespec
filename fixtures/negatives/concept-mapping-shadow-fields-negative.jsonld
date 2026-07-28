@@ -1,0 +1,18 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@id": "urn:rkaf:fixture:cmap-negative:shadow-fields",
+  "@type": "rkaf:ConceptMapping",
+  "rkaf:assertionOrigin": "rkaf:humanAsserted",
+  "rkaf:epistemicBasis": "rkaf:editorialAssertion",
+  "rkaf:assertsSubject": "urn:rkaf:fixture:concept:local",
+  "rkaf:assertsPredicate": "skos:closeMatch",
+  "rkaf:assertsObject": "urn:rkaf:fixture:concept:canonical",
+  "rkaf:assertionPolarity": "rkaf:affirmed",
+  "rkaf:sourceConceptRelease": "urn:rkaf:fixture:release:local",
+  "rkaf:targetConceptRelease": "urn:rkaf:fixture:release:canonical",
+  "rkaf:sourceConcept": "urn:rkaf:fixture:concept:local",
+  "rkaf:targetConcept": "urn:rkaf:fixture:concept:canonical",
+  "rkaf:mappingRelation": "skos:closeMatch",
+  "rkaf:mappingPublicationState": "rkaf:published",
+  "_comment": "Negative migration gate: canonical assertion fields, release membership, and Attestation replace the former mapping shadow fields and inline publication state."
+}

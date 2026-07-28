@@ -21,7 +21,8 @@ import "list"
 // distinction every later comparison depends on.
 //
 // Polarity is therefore structurally absent here. `#RelationChangeEvent`
-// composes `#AssertionEnvelope` (provenance, grounding, consumer disposition)
+// composes `#DurableAssertionEnvelope` (epistemic basis, provenance,
+// grounding, consumer disposition)
 // and deliberately NOT `#AssertionProposition` (subject, predicate, POLARITY):
 // a proposal cannot carry assertion polarity. The compiled carriers are
 // open-world, so absence alone is not enforcement; the hand-authored shape
@@ -62,7 +63,7 @@ import "list"
 	"rkaf:changeStageUnclear"
 
 #RelationChangeEvent: event={
-	#AssertionEnvelope
+	#DurableAssertionEnvelope
 	"@type": "rkaf:RelationChangeEvent"
 
 	// The relation the change acts on. Same three slots a
@@ -111,6 +112,7 @@ import "list"
 	"rkaf:hasJustification"?:        string & =~"^[A-Za-z][A-Za-z0-9+.-]*:[^\\s]+$"
 	"rkaf:hasWarrant"?:              string & =~"^[A-Za-z][A-Za-z0-9+.-]*:[^\\s]+$"
 	"rkaf:hasAccessScope"?:          string & =~"^[A-Za-z][A-Za-z0-9+.-]*:[^\\s]+$"
+	"rkaf:hasRetentionPolicy"?:      string & =~"^[A-Za-z][A-Za-z0-9+.-]*:[^\\s]+$"
 	"rkaf:hasSourceClaimant"?:       string & =~"^[A-Za-z][A-Za-z0-9+.-]*:[^\\s]+$"
 	"rkaf:hasExtractionProvenance"?: string & =~"^[A-Za-z][A-Za-z0-9+.-]*:[^\\s]+$"
 	"rkaf:hasConfidence"?:           [...(string & =~"^[A-Za-z][A-Za-z0-9+.-]*:[^\\s]+$")]

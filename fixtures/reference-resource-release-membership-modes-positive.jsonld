@@ -1,0 +1,64 @@
+{
+  "@context": "../context/rkaf-context.jsonld",
+  "@graph": [
+    {
+      "@id": "urn:rkaf:fixture:release:complete",
+      "@type": "rkaf:ReferenceResourceRelease",
+      "dcterms:isVersionOf": "urn:rkaf:fixture:resource:topics",
+      "dcat:version": "2026.07.28",
+      "dcterms:type": "skos:ConceptScheme",
+      "rkaf:membershipMode": "rkaf:completeMembership",
+      "prov:hadMember": ["urn:rkaf:fixture:concept:income"],
+      "dcat:distribution": ["urn:rkaf:fixture:distribution:complete"],
+      "rkaf:referenceReleaseDigest": "sha256:fecc285565de79660746576bc181d6effab4f3cdac8620196dbe535af19d312f",
+      "rkaf:versionBasis": "rkaf:publisherAssigned"
+    },
+    {
+      "@id": "urn:rkaf:fixture:release:partial",
+      "@type": "rkaf:ReferenceResourceRelease",
+      "dcterms:isVersionOf": "urn:rkaf:fixture:resource:identifier-authority",
+      "dcat:version": "snapshot-2026-07-28",
+      "dcterms:type": "urn:rkaf:reference-resource-kind:identifier-authority",
+      "rkaf:membershipMode": "rkaf:partialMembership",
+      "prov:hadMember": ["urn:rkaf:fixture:identifier:known-example"],
+      "dcat:distribution": ["urn:rkaf:fixture:distribution:partial"],
+      "rkaf:referenceReleaseDigest": "sha256:60f855176949f039e3bd59f36217c272bec1c24318a1aea9b0fa3e80ed443a2e",
+      "rkaf:versionBasis": "rkaf:contentDerived"
+    },
+    {
+      "@id": "urn:rkaf:fixture:release:not-enumerated",
+      "@type": "rkaf:ReferenceResourceRelease",
+      "dcterms:isVersionOf": "urn:rkaf:fixture:resource:schema",
+      "dcat:version": "1.4",
+      "dcterms:type": "urn:rkaf:reference-resource-kind:schema",
+      "rkaf:membershipMode": "rkaf:membershipNotEnumerated",
+      "dcat:distribution": ["urn:rkaf:fixture:distribution:not-enumerated"],
+      "rkaf:referenceReleaseDigest": "sha256:ceff6b36d62eabe3e5beedaee8ae39f2a438f043ad98a25c967f62d6b3b0c530"
+    },
+    {
+      "@id": "urn:rkaf:fixture:distribution:complete",
+      "@type": "rkaf:Artifact",
+      "rkaf:hasArtifactIdentifier": ["urn:rkaf:fixture:distribution:complete"],
+      "rkaf:artifactIdentifierScheme": ["rkaf:partner-defined"],
+      "dcterms:format": "application/ld+json",
+      "rkaf:hasContentDigest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    {
+      "@id": "urn:rkaf:fixture:distribution:partial",
+      "@type": "rkaf:Artifact",
+      "rkaf:hasArtifactIdentifier": ["urn:rkaf:fixture:distribution:partial"],
+      "rkaf:artifactIdentifierScheme": ["rkaf:partner-defined"],
+      "dcterms:format": "text/csv",
+      "rkaf:hasContentDigest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+    },
+    {
+      "@id": "urn:rkaf:fixture:distribution:not-enumerated",
+      "@type": "rkaf:Artifact",
+      "rkaf:hasArtifactIdentifier": ["urn:rkaf:fixture:distribution:not-enumerated"],
+      "rkaf:artifactIdentifierScheme": ["rkaf:partner-defined"],
+      "dcterms:format": "application/schema+json",
+      "rkaf:hasContentDigest": "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+    }
+  ],
+  "_comment": "The generic release model supports complete controlled vocabularies, partial authority snapshots, and resources whose members are not meaningfully enumerable without inventing fake member nodes."
+}

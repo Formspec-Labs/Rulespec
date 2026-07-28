@@ -34,7 +34,18 @@
       "rkaf:changeEvidence": [
         "urn:rkaf:fixture:analysis:rcr:fragment:clause-2"
       ],
-      "rkaf:assertionOrigin": "rkaf:humanAsserted"
+      "rkaf:assertionOrigin": "rkaf:humanAsserted",
+      "rkaf:epistemicBasis": "rkaf:sourceExplicit"
+    },
+    {
+      "@id": "urn:rkaf:fixture:analysis:rcr:evidence:standard-replaced",
+      "@type": "rkaf:EvidenceBinding",
+      "rkaf:bindsAssertion": "urn:rkaf:fixture:analysis:rcr:event:standard-replaced",
+      "rkaf:bindsSourceFragment": [
+        "urn:rkaf:fixture:analysis:rcr:fragment:clause-2"
+      ],
+      "rkaf:evidenceRole": "rkaf:textualEvidence",
+      "rkaf:evidentiaryFunction": "rkaf:supports"
     }
   ],
   "_comment": "Analysis 2, both conditionals in one record. A replacement names the successor object, because a replacement that does not is a removal wearing another label; and a change the source says is already in effect names when it took effect, because otherwise the record cannot be ordered against any baseline."

@@ -1,0 +1,7 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@id": "urn:rkaf:fixture:negative:concept-assignment:missing-canonical-required-fields",
+  "@type": "rkaf:ConceptAssignment",
+  "rkaf:assignedConceptRelease": "urn:rkaf:fixture:release:topics",
+  "_comment": "Negative coverage vector: a ConceptAssignment cannot omit its canonical proposition, polarity, construction origin, or epistemic basis."
+}

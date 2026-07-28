@@ -1,0 +1,25 @@
+{
+  "@context": "../context/rkaf-context.jsonld",
+  "@graph": [
+    {
+      "@id": "urn:rkaf:fixture:value-assertion:language-tagged",
+      "@type": "rkaf:ValueAssertion",
+      "rkaf:assertionOrigin": "rkaf:humanAsserted",
+      "rkaf:epistemicBasis": "rkaf:sourceExplicit",
+      "rkaf:assertsSubject": "urn:rkaf:fixture:policy:income",
+      "rkaf:assertsPredicate": "skos:prefLabel",
+      "rkaf:assertsValue": {
+        "@value": "家庭收入",
+        "@language": "zh-Hant"
+      },
+      "rkaf:assertionPolarity": "rkaf:affirmed"
+    },
+    {
+      "@id": "urn:rkaf:fixture:value-assertion:language-tagged:evidence",
+      "@type": "rkaf:EvidenceBinding",
+      "rkaf:bindsAssertion": "urn:rkaf:fixture:value-assertion:language-tagged",
+      "rkaf:noEvidenceReason": "rkaf:consensus-without-citation"
+    }
+  ],
+  "_comment": "ValueAssertion may carry an RDF 1.1 language-tagged string. Native multilingual SKOS vocabulary content still belongs in a ReferenceResourceRelease distribution."
+}

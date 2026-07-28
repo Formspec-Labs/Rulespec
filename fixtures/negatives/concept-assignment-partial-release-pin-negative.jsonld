@@ -1,0 +1,48 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@graph": [
+    {
+      "@id": "urn:rkaf:fixture:ca-negative:partial-release",
+      "@type": "rkaf:ReferenceResourceRelease",
+      "dcterms:isVersionOf": "urn:rkaf:fixture:resource:topics",
+      "dcat:version": "partial-2026.07.28",
+      "dcterms:type": "skos:ConceptScheme",
+      "rkaf:membershipMode": "rkaf:partialMembership",
+      "prov:hadMember": ["urn:rkaf:fixture:concept:income"],
+      "dcat:distribution": ["urn:rkaf:fixture:ca-negative:distribution"],
+      "rkaf:referenceReleaseDigest": "sha256:1111111111111111111111111111111111111111111111111111111111111111"
+    },
+    {
+      "@id": "urn:rkaf:fixture:ca-negative:distribution",
+      "@type": "rkaf:Artifact",
+      "rkaf:hasArtifactIdentifier": ["urn:rkaf:fixture:ca-negative:distribution"],
+      "rkaf:artifactIdentifierScheme": ["rkaf:partner-defined"],
+      "dcterms:format": "application/ld+json",
+      "rkaf:hasContentDigest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    {
+      "@id": "urn:rkaf:fixture:ca-negative:subject",
+      "@type": "rkaf:Artifact",
+      "rkaf:hasArtifactIdentifier": ["urn:rkaf:fixture:ca-negative:subject"],
+      "rkaf:artifactIdentifierScheme": ["rkaf:partner-defined"]
+    },
+    {
+      "@id": "urn:rkaf:fixture:ca-negative:assignment",
+      "@type": "rkaf:ConceptAssignment",
+      "rkaf:assertsSubject": "urn:rkaf:fixture:ca-negative:subject",
+      "rkaf:assertsPredicate": "rkaf:assignmentPrimary",
+      "rkaf:assertsObject": "urn:rkaf:fixture:concept:income",
+      "rkaf:assertionPolarity": "rkaf:affirmed",
+      "rkaf:assignedConceptRelease": "urn:rkaf:fixture:ca-negative:partial-release",
+      "rkaf:assertionOrigin": "rkaf:humanAsserted",
+      "rkaf:epistemicBasis": "rkaf:editorialAssertion"
+    },
+    {
+      "@id": "urn:rkaf:fixture:ca-negative:evidence",
+      "@type": "rkaf:EvidenceBinding",
+      "rkaf:bindsAssertion": "urn:rkaf:fixture:ca-negative:assignment",
+      "rkaf:noEvidenceReason": "rkaf:declared-hypothesis"
+    }
+  ],
+  "_comment": "Negative: a ConceptAssignment may pin only a completeMembership release; presence in a partial snapshot does not prove authoritative membership."
+}

@@ -59,10 +59,7 @@ mod tests {
     fn runtime_error_iri_tag_mapping() {
         // Pin the variant → IRI mapping. Fixtures bind to these strings;
         // any rename is a breaking change to the fixture contract.
-        assert_eq!(
-            RuntimeError::Parse("x".into()).iri_tag(),
-            "rkaf:ParseError"
-        );
+        assert_eq!(RuntimeError::Parse("x".into()).iri_tag(), "rkaf:ParseError");
         assert_eq!(
             RuntimeError::MissingNode("x".into()).iri_tag(),
             "rkaf:MissingNode"
@@ -88,7 +85,10 @@ mod tests {
             "rkaf:MalformedTestCase"
         );
         // Semver doesn't construct directly from a literal; use From.
-        let semver_err: RuntimeError = "not-a-semver".parse::<semver::Version>().unwrap_err().into();
+        let semver_err: RuntimeError = "not-a-semver"
+            .parse::<semver::Version>()
+            .unwrap_err()
+            .into();
         assert_eq!(semver_err.iri_tag(), "rkaf:SemverError");
     }
 }

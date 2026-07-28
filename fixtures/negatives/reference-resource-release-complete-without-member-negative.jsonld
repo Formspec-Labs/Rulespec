@@ -1,0 +1,12 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@id": "urn:rkaf:fixture:release-negative:complete-empty",
+  "@type": "rkaf:ReferenceResourceRelease",
+  "dcterms:isVersionOf": "urn:rkaf:fixture:resource:topics",
+  "dcat:version": "2026.07.28",
+  "dcterms:type": "skos:ConceptScheme",
+  "rkaf:membershipMode": "rkaf:completeMembership",
+  "dcat:distribution": ["urn:rkaf:fixture:distribution:topics"],
+  "rkaf:referenceReleaseDigest": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+  "_comment": "Negative: completeMembership must enumerate at least one prov:hadMember."
+}

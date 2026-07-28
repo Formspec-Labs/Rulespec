@@ -1,0 +1,32 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@graph": [
+    {
+      "@type": "rkaf:ReferenceResourceRelease",
+      "dcterms:isVersionOf": "urn:rkaf:fixture:resource:blank-release",
+      "dcat:version": "2026.07.28",
+      "dcterms:type": "skos:ConceptScheme",
+      "rkaf:membershipMode": "rkaf:completeMembership",
+      "prov:hadMember": [
+        "urn:rkaf:fixture:concept:income"
+      ],
+      "dcat:distribution": [
+        "urn:rkaf:fixture:distribution:blank-release"
+      ],
+      "rkaf:referenceReleaseDigest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    {
+      "@id": "urn:rkaf:fixture:distribution:blank-release",
+      "@type": "rkaf:Artifact",
+      "rkaf:hasArtifactIdentifier": [
+        "urn:rkaf:fixture:distribution:blank-release"
+      ],
+      "rkaf:artifactIdentifierScheme": [
+        "rkaf:partner-defined"
+      ],
+      "dcterms:format": "application/ld+json",
+      "rkaf:hasContentDigest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+    }
+  ],
+  "_comment": "Negative: a release manifest must have an IRI identity; a blank node cannot be pinned or independently resolved."
+}

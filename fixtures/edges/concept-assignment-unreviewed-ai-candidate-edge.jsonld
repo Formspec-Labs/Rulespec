@@ -2,6 +2,26 @@
   "@context": "../../context/rkaf-context.jsonld",
   "@graph": [
     {
+      "@id": "urn:rkaf:fixture:ca:release:candidate-2026-07-28",
+      "@type": "rkaf:ReferenceResourceRelease",
+      "dcterms:isVersionOf": "urn:rkaf:fixture:registry:workspace-candidates",
+      "dcat:version": "candidate-2026.07.28",
+      "dcterms:type": "skos:ConceptScheme",
+      "rkaf:membershipMode": "rkaf:completeMembership",
+      "prov:hadMember": ["urn:rkaf:fixture:local-concept:tx-grossEarnedIncome"],
+      "dcat:distribution": ["urn:rkaf:fixture:ca:distribution:candidate"],
+      "rkaf:referenceReleaseDigest": "sha256:55c000c25604058bb988020ff80af908b8799df229c6fb0972a5eeeece911e3a",
+      "dcterms:issued": "2026-07-28T12:00:00Z"
+    },
+    {
+      "@id": "urn:rkaf:fixture:ca:distribution:candidate",
+      "@type": "rkaf:Artifact",
+      "rkaf:hasArtifactIdentifier": ["urn:rkaf:fixture:ca:distribution:candidate"],
+      "rkaf:artifactIdentifierScheme": ["rkaf:partner-defined"],
+      "dcterms:format": "application/ld+json",
+      "rkaf:hasContentDigest": "sha256:3535353535353535353535353535353535353535353535353535353535353535"
+    },
+    {
       "@id": "urn:rkaf:fixture:ca:artifact",
       "@type": "rkaf:Artifact",
       "rkaf:hasArtifactIdentifier": "urn:rkaf:fixture:ca:artifact",
@@ -43,20 +63,24 @@
     {
       "@id": "urn:rkaf:fixture:ca:seg:candidate",
       "@type": "rkaf:ConceptAssignment",
-      "rkaf:assignmentSubject": "urn:rkaf:fixture:ca:fragment:sec-3a",
-      "rkaf:assignmentSubjectType": "rkaf:SourceFragment",
-      "rkaf:assignedConcept": "urn:rkaf:fixture:local-concept:tx-grossEarnedIncome",
-      "skos:inScheme": "urn:rkaf:fixture:scheme:fns-snap-topic",
-      "rkaf:assignmentRole": "rkaf:assignmentContextual",
-      "rkaf:assignmentDerivation": "rkaf:directAssignment",
-      "rkaf:assignmentEvidence": [
-        "urn:rkaf:fixture:ca:fragment:sec-3a"
-      ],
-      "rkaf:assignmentEvidenceScheme": "rkaf:published-fragment",
+      "rkaf:assertsSubject": "urn:rkaf:fixture:ca:fragment:sec-3a",
+      "rkaf:assertsPredicate": "rkaf:assignmentContextual",
+      "rkaf:assertsObject": "urn:rkaf:fixture:local-concept:tx-grossEarnedIncome",
+      "rkaf:assertionPolarity": "rkaf:affirmed",
+      "rkaf:assignedConceptRelease": "urn:rkaf:fixture:ca:release:candidate-2026-07-28",
       "rkaf:assertionOrigin": "rkaf:aiSuggested",
+      "rkaf:epistemicBasis": "rkaf:statisticalInference",
       "rkaf:hasAILineage": "urn:rkaf:fixture:ca:lineage:unreviewed",
       "rkaf:hasExtractionProvenance": "urn:rkaf:fixture:ca:run:2026-07-25",
       "rkaf:usageEligibility": "rkaf:reviewQueueOnly"
+    },
+    {
+      "@id": "urn:rkaf:fixture:ca:evidence:candidate",
+      "@type": "rkaf:EvidenceBinding",
+      "rkaf:bindsAssertion": "urn:rkaf:fixture:ca:seg:candidate",
+      "rkaf:bindsSourceFragment": ["urn:rkaf:fixture:ca:fragment:sec-3a"],
+      "rkaf:evidenceRole": "rkaf:textualEvidence",
+      "rkaf:evidentiaryFunction": "rkaf:supports"
     }
   ],
   "_comment": "Edge: an unreviewed model-proposed assignment, recorded honestly. The lineage names no approver and the run names no reviewer, because none exists — the candidate sits at reviewQueueOnly with no rkaf:Attestation targeting it. It still carries exact local evidence: a model may propose the concept, and it may not skip the source region."

@@ -124,10 +124,12 @@ A `rkaf:ValueAssertion` MUST contain exactly one IRI-valued
 `rkaf:assertionPolarity` from the same closed set §2.1 defines, and exactly one
 `rkaf:assertsValue`.
 
-`rkaf:assertsValue` MUST be a JSON-LD value object: a `@value` member holding
-the literal's lexical form as a string, and a `@type` member holding the
-datatype IRI. Both members are REQUIRED. The datatype MUST be a member of the
-closed `rkaf:ValueDatatype` set:
+`rkaf:assertsValue` MUST be a closed JSON-LD value object with a `@value`
+member holding the literal's lexical form as a string and exactly one of
+`@type` or `@language`.
+
+For a typed literal, `@type` MUST be a member of the closed
+`rkaf:ValueDatatype` set:
 
 `xsd:string`, `xsd:token`, `xsd:boolean`, `xsd:integer`, `xsd:decimal`,
 `xsd:double`, `xsd:date`, `xsd:dateTime`, `xsd:time`, `xsd:duration`,
@@ -144,30 +146,19 @@ deliberately defines the term with `@id` alone: any `@type` coercion would
 collapse every ValueAssertion in the document to one datatype and silently
 discard the declared one.
 
-Consumers MUST reject a datatype outside the closed set. Every compiled target
-enforces the same set from the same CUE source: the JSON Schema `@type` enum,
-one SHACL `sh:datatype` alternative per member under `sh:nodeKind sh:Literal`,
-the generated Rust `crate::TypedLiteral<ValueDatatype>`, and the generated
-TypeScript membership check.
+For a language-tagged string, `@language` MUST be a well-formed BCP 47
+language tag. Script information belongs in that tag, for example `zh-Hant`;
+Rulespec does not add a parallel script field. A value object MUST NOT carry
+both `@type` and `@language`.
 
-Language-tagged literals are NOT part of the v0.2 `rkaf:ValueAssertion`
-carrier. A JSON-LD value object carrying `@language` expands to a literal with
-no datatype, which no `sh:datatype` closure can constrain; admitting it would
-leave SHACL and JSON Schema disagreeing about the same document. Language-
-tagged meaning belongs on concepts, where `skos:prefLabel` and `skos:altLabel`
-already carry it (`spec/rkaf-concept-registry.md`).
-
-The value object is therefore CLOSED, and closure — not merely the absence of
-`@language` from the required members — is what every compiled target
-enforces: `additionalProperties: false` in JSON Schema, `deny_unknown_fields`
-on the Rust `crate::TypedLiteral`, and in TypeScript both halves of what that
-language can express — every JSON-LD value-object member the source does not
-declare is typed `never`, which is what rejects `@language` on a value the
-compiler has already widened, and the generated validator rejects any member
-outside the declared set, which is what catches a member TypeScript's
-structural typing cannot forbid. SHACL needs no separate rule: a
-language-tagged literal arrives with the datatype gone, so no `sh:datatype`
-alternative matches it.
+Consumers MUST reject an unknown datatype, an invalid language tag, a value
+carrying both branches, or an undeclared member. The compiled targets enforce
+the same disjunction from the CUE source. The generated Rust model preserves
+the two RDF literal forms as `TypedLiteral` and `LanguageTaggedString`;
+neither form is normalized into an untyped string. Native SKOS labels remain
+the preferred multilingual carrier for vocabulary labels and definitions;
+this branch exists for assertions whose proposition itself is a
+language-tagged value.
 
 ### 2.3 Proposition content and consumer state [Normative]
 
@@ -290,43 +281,17 @@ appears in the kernel or is referenced by a kernel shape.
 
 **Model derivation lineage.** `rkaf:AILineage` (§5.3) is NOT duplicated by
 `rkaf:ExtractionActivity`. It records the model derivation — model id, version,
-prompt template, temperature, seed, input context hash — and remains REQUIRED
-for AI-touched `rkaf:assertionOrigin` values. `rkaf:ExtractionActivity` may
+prompt template, temperature, seed, input context hash — and is REQUIRED when
+`rkaf:assertionOrigin` is `rkaf:aiSuggested`. `rkaf:ExtractionActivity` may
 link it via `rkaf:hasAILineage` when both exist; the two fields
 `rkaf:extractionModelRef` and `rkaf:extractionPromptRef` are opaque references
 for a run that may never be reviewed, not a second lineage record.
 
-`rkaf:AILineage` MUST NOT require a human approver, and as of v0.2
-`rkaf:humanApprover` is OPTIONAL (0..1). An AI-touched assertion still MUST
-carry `rkaf:hasAILineage`; that requirement is satisfied by an approver-free
-lineage. An unreviewed model candidate is therefore representable exactly as it
-is — a model produced it, and no `rkaf:Attestation` targets it yet.
-
-> **Resolved.** Earlier drafts of this section recorded an open conflict:
-> `rkaf:AILineage` required `rkaf:humanApprover` while the AI-touched
-> `rkaf:assertionOrigin` values — including `rkaf:aiSuggested`, whose entire
-> meaning is *unreviewed candidate* — required `rkaf:hasAILineage`. Together
-> they forced an approver onto an unreviewed candidate, so the only way to
-> record an honest candidate was to invent a reviewer. The contract is
-> unreleased and the target architecture is canonical, so the requirement was
-> removed rather than documented. `rkaf:humanApprover` is now optional, and
-> approval is where it always belonged: an `rkaf:Attestation` whose
-> `rkaf:targets` includes the assertion.
->
-> The lineage shape still refuses a review attributed to nobody. When
-> `rkaf:humanRationale` is present — a human's stated reason for accepting the
-> output — `rkaf:humanApprover` is REQUIRED. A rationale with no approver reads
-> as approved while naming no one accountable, which is worse than an
-> unreviewed candidate.
->
-> Two negative fixtures were affected. `fixtures/negatives/`
-> `a-i-lineage-missing-human-approver-negative.jsonld` keeps its verdict and its
-> name: it states a `rkaf:humanRationale`, so it now fails the rule above.
-> `fixtures/ailineage-missing-approver-negative.jsonld` no longer describes a
-> defect and was replaced by
-> `fixtures/ailineage-malformed-input-context-hash-negative.jsonld`, which
-> catches one that is still real — an input-context hash that is not a digest.
-> No coverage was dropped.
+`rkaf:AILineage` MUST NOT require a human approver, and
+`rkaf:humanApprover` is OPTIONAL (0..1). An `rkaf:aiSuggested` assertion is
+therefore representable exactly as it is — a model produced it, and no
+`rkaf:Attestation` targets it yet. When `rkaf:humanRationale` is present,
+`rkaf:humanApprover` is REQUIRED. Approval itself remains an Attestation.
 
 **Human approval.** Approval has no dedicated contract because
 `rkaf:Attestation` (§3.1) already is one: it carries the attestor, the attestor
@@ -335,17 +300,14 @@ revocation marker. Minting a parallel approval record would create two places
 to look for the same fact. A reviewer approving an extraction records an
 `rkaf:Attestation` whose `rkaf:targets` includes the assertion IRI.
 
-**Deterministic origin.** `rkaf:assertionOrigin` gains one v0.2 value:
-`rkaf:deterministicExtraction`. It means the record was produced by a
+**Deterministic origin.** `rkaf:deterministicExtraction` means the record was produced by a
 deterministic parser or join over identified inputs — a mechanically
 reproducible derivation, NOT an interpretive judgment. Re-running the named
 run over the same inputs MUST yield the same proposition; nothing about the
 record is a claim that anyone read the source and decided anything.
 
-The value is therefore not `rkaf:humanAsserted` with a machine in the loop, and
-it is not any AI-touched value: it carries no `rkaf:hasAILineage` requirement,
-and the §3.5 inverse rule applies to it — a deterministic-origin assertion MUST
-NOT carry `rkaf:hasAILineage`, because there is no model derivation to record.
+The value is therefore not `rkaf:humanAsserted` with a machine in the loop and
+not `rkaf:aiSuggested`: it carries no `rkaf:hasAILineage` requirement.
 
 `rkaf:hasExtractionProvenance` is REQUIRED when the origin is
 `rkaf:deterministicExtraction`, and the requirement is mechanical on every
@@ -404,6 +366,32 @@ added), `rkaf:hasApplicability`, `rkaf:assertedAt`, and `rkaf:hasAccessScope`.
 `rkaf:supersedesAssertion` appends supersession history rather than rewriting
 the predecessor.
 
+### 2.5 Construction origin and epistemic basis [Normative]
+
+Every durable assertion MUST state both `rkaf:assertionOrigin` and
+`rkaf:epistemicBasis`. They answer different questions:
+
+- `rkaf:assertionOrigin` records what constructed this immutable record. Its
+  closed set is `rkaf:humanAsserted`, `rkaf:aiSuggested`, `rkaf:imported`, and
+  `rkaf:deterministicExtraction`.
+- `rkaf:epistemicBasis` records why the proposition may be believed. Its
+  closed set is `rkaf:sourceExplicit`, `rkaf:deterministicDerivation`,
+  `rkaf:statisticalInference`, `rkaf:editorialAssertion`, and
+  `rkaf:userAssertion`.
+
+Construction origin MUST NOT encode review, approval, qualification,
+promotion, publication, or revalidation. Those are social or lifecycle facts
+recorded by `rkaf:Attestation`, `rkaf:LocalAdoption`, and
+`rkaf:LifecycleEvent`. Review does not rewrite either axis. If the proposition
+changes, the producer MUST mint a new assertion and MAY connect it with
+`rkaf:supersedesAssertion` or PROV-O derivation.
+
+An `rkaf:aiSuggested` assertion MUST carry `rkaf:hasAILineage` and MUST set
+`rkaf:usageEligibility` to one of `rkaf:notEligible`, `rkaf:searchOnly`, or
+`rkaf:reviewQueueOnly`. Approval is a separate Attestation; it MUST NOT be
+represented by changing the origin. A deterministic extraction MUST carry
+`rkaf:hasExtractionProvenance`.
+
 ## 3. Closed-taxonomy discipline [Normative]
 
 Every enum defined in this spec is **closed within a release**. Extending an enum requires a new release with a declared URI. Producers MUST NOT mint unregistered enum values. Consumers MUST reject unrecognized enum values from the closed sets defined below.
@@ -414,7 +402,8 @@ The closed enums introduced by v0.2 are:
   no longer a kernel term — it is defined by the US rulemaking profile, see
   `spec/rkaf-rulemaking.md` §5.2
 - `rkaf:selectorKind` (§4.2)
-- `rkaf:noEvidenceReason` (§4.3)
+- `rkaf:noEvidenceReason`, `rkaf:evidenceRole`, and
+  `rkaf:evidentiaryFunction` (§4.3)
 - `rkaf:warrantKind` and `rkaf:warrantFamily` (§4.4)
 - `rkaf:confidenceMethod` and `rkaf:calibrationStatus` (§4.5)
 - `rkaf:accessScopeKind` and `rkaf:regulatoryClass` (§4.6)
@@ -424,19 +413,21 @@ The closed enums introduced by v0.2 are:
 - `rkaf:claimantAttribution` (§2.4)
 - `rkaf:extractionMethod` (§2.4)
 - `rkaf:coordinateSystem` (§4.2)
-- `rkaf:assignmentSubjectType`, `rkaf:assignmentRole`, and
-  `rkaf:assignmentDerivation` (§4.7)
+- `rkaf:ConceptAssignmentPredicate` (§4.7)
+- `rkaf:SkosMappingPredicate` (`spec/rkaf-concept-registry.md`)
+- `rkaf:ReferenceResourceMembershipMode` and
+  `rkaf:ReferenceResourceVersionBasis` (§4.1.1)
+- `rkaf:EpistemicBasis` (§2.5)
 
 The experimental US rulemaking module adds
 `rkaf:proceedingIdentifierScheme`, `rkaf:docketIdentifierScheme`, and
 `rkaf:proceedingStage`; see `spec/rkaf-rulemaking.md`. Their values follow the
 same release-bound closed-taxonomy discipline.
 
-`rkaf:assertionOrigin` is the one inherited enum v0.2 EXTENDS. It gains
-`rkaf:deterministicExtraction` (§2.4) and loses nothing; the six v0.1 values
-keep their meanings. The addition is breaking for consumers under §3's
-reject-unrecognized-values rule, which is why it lands before the first
-release rather than after it.
+`rkaf:assertionOrigin` is a four-value construction taxonomy (§2.5). The
+retired draft values `rkaf:aiPromoted`, `rkaf:humanQualified`, and
+`rkaf:humanRevalidation` are non-conforming because they mixed construction
+with later review state.
 
 The closed enums inherited from v0.1 retain their definitions: `rkaf:assertionOrigin`, `rkaf:hasSafetyLabel`, `rkaf:hasTrustZone`, `rkaf:usageEligibility`, `rkaf:authorityKind`, `rkaf:adoptionAuthorityKind`, `rkaf:adoptionStatus`, `rkaf:result`, `rkaf:resolutionStatus`, `rkaf:resolutionMethod`, `rkaf:cacheStatus`, `rkaf:usageCeiling`, `rkaf:cascadeAlgorithm`, `rkaf:evidenceRole`, `rkaf:severity`, `rkaf:decision`, `rkaf:visibility`, `rkaf:lifecycleEvent`.
 
@@ -454,6 +445,13 @@ Required properties:
   `rkaf:aknt-eId`, `rkaf:doi`, `rkaf:isbn`, `rkaf:issn`, `rkaf:cid`,
   `rkaf:hash-sha256`, `rkaf:urn-persistent`, `rkaf:formspec-need`,
   `rkaf:partner-defined`.
+
+Optional representation and policy properties:
+
+- `dcterms:format` (0..1) — the IANA media type for this immutable
+  representation.
+- `rkaf:hasContentDigest` (0..1) — lowercase `sha256:<64 hex>`.
+- `rkaf:hasAccessScope` and `rkaf:hasRetentionPolicy` (0..1 each).
 
 An Artifact identifier MUST resolve to, or be derived from, one immutable
 edition, publication, snapshot, or content payload. Examples include a
@@ -559,6 +557,52 @@ experimental rulemaking module. Neither class reuses Artifact identity.
 `rkaf:uslm-section` remains a selector for substructure inside USLM markup; it
 is distinct from the U.S. Code citation identity defined by the rulemaking
 profile.
+
+#### 4.1.1 ReferenceResourceRelease
+
+**rkaf:ReferenceResourceRelease** is the immutable semantic manifest for one
+release of any governed reference resource, including an ontology, thesaurus,
+code list, identifier authority, classification, entity registry, mapping set,
+or schema. Profiles own concrete resource-type IRIs; the kernel does not
+duplicate their inventories.
+
+A release MUST carry:
+
+- an absolute IRI identifier; a blank-node release is non-conforming because
+  an assignment, mapping, verifier, or consumer cannot pin and independently
+  resolve it;
+- `dcterms:isVersionOf` (1), identifying the stable reference resource;
+- `dcat:version` (1);
+- `dcterms:type` (1), identifying the resource kind;
+- `rkaf:membershipMode` (1), from `rkaf:completeMembership`,
+  `rkaf:partialMembership`, or `rkaf:membershipNotEnumerated`;
+- `dcat:distribution` (1..*), each naming an immutable Artifact; and
+- `rkaf:referenceReleaseDigest` (1), a lowercase `sha256:<64 hex>`.
+
+`rkaf:versionBasis` MAY state `rkaf:publisherAssigned` or
+`rkaf:contentDerived`. It is optional because an imported release can be
+exactly digest-pinned even when the publisher's versioning basis is unknown.
+`dcterms:issued` and `rkaf:hasEffectivePeriod` are optional.
+
+Complete and partial membership MUST enumerate at least one `prov:hadMember`.
+`rkaf:membershipNotEnumerated` MUST NOT carry `prov:hadMember`. A consumer MUST
+NOT treat partial or non-enumerated membership as proof that an unlisted member
+is absent. A `ConceptAssignment` or `ConceptMapping` endpoint pin MUST resolve
+to a complete release that lists the referenced concept.
+
+The release digest is SHA-256 over RDFC-1.0 canonical N-Quads of the closed
+manifest graph: every allowed release triple except
+`rkaf:referenceReleaseDigest`, plus each distribution Artifact's identifier,
+`dcterms:format`, and `rkaf:hasContentDigest`. This digest identifies the
+semantic manifest; each distribution digest identifies its bytes. Import,
+activation, rollback, indexing, deployment, rights, and cache state remain
+application concerns.
+
+The normative reference implementation is
+`tools/reference_release_digest.py`. An L3 verifier MUST recompute this digest
+and compare it with `rkaf:referenceReleaseDigest`; satisfying the lexical
+`sha256:<64 hex>` shape alone is insufficient. The repository's ordinary
+positive, negative, and conformance-report gates invoke this verifier.
 
 ### 4.2 SourceFragment
 
@@ -725,14 +769,34 @@ an assertion through `rkaf:ExtractionActivity` (§2.4).
 Required properties:
 - `rkaf:bindsAssertion` (1) — the assertion being bound.
 - One of:
-  - `rkaf:bindsSourceFragment` (1..*) — at least one SourceFragment, OR
+  - `rkaf:bindsSourceFragment` (1..*) — at least one SourceFragment, together
+    with exactly one `rkaf:evidenceRole` and one
+    `rkaf:evidentiaryFunction`; OR
   - `rkaf:noEvidenceReason` (1) — closed enum: `rkaf:axiomatic`, `rkaf:inferred-from-warrant-class`, `rkaf:consensus-without-citation`, `rkaf:permitted-by-safety-label`, `rkaf:declared-hypothesis`. The Assertion's `rkaf:hasSafetyLabel` MUST permit the chosen reason. This rule is uniform over the enum: it applies to every member, including `rkaf:declared-hypothesis`, with no per-value exceptions.
 
 Optional properties:
-- `rkaf:warrantKind` (0..1) — overrides the Assertion's warrant kind for this binding.
 - `rkaf:hasAccessScope` (0..1) — narrows the binding's visibility.
+- `rkaf:hasRetentionPolicy` (0..1) — applies the binding's retention rule.
 
-An assertion lacking either an EvidenceBinding-with-fragment OR an explicit `noEvidenceReason` permitted by its safety level is **not operationally valid**. Layer 2 enforces this.
+`rkaf:evidenceRole` identifies the portable evidence kind or source role:
+`rkaf:textualEvidence`, `rkaf:structuralEvidence`,
+`rkaf:retrievalSignal`, `rkaf:authorityCitation`,
+`rkaf:officialSourceMetadata`, `rkaf:reviewedAuthorityChain`,
+`rkaf:formalAdoptionEvent`, `rkaf:mappingRationale`,
+`rkaf:registrationEvent`, or `rkaf:rescissionEvidence`.
+
+`rkaf:evidentiaryFunction` identifies how the evidence bears on this
+assertion: `rkaf:supports`, `rkaf:qualifies`, `rkaf:contradicts`,
+`rkaf:definesScope`, or `rkaf:providesContext`. The axes are independent. A
+text fragment may support one assertion and contradict another.
+
+Every durable `rkaf:Assertion` and every specialization MUST be the object of
+at least one `rkaf:bindsAssertion` edge from an EvidenceBinding. This inverse
+evidence rule applies uniformly to `RelationshipAssertion`, `ValueAssertion`,
+`ConceptAssignment`, `ConceptMapping`, `ClosureClaim`, and
+`RelationChangeEvent`; no form has an inline evidence exception. An assertion
+lacking either a fragment-backed binding or a permitted `noEvidenceReason` is
+not operationally valid. Layer 2 and Layer 3 enforce this.
 
 **Declared hypothesis.** `rkaf:declared-hypothesis` means the assertion is a
 deliberately held, not-yet-validated belief. It is distinct from both
@@ -811,7 +875,8 @@ Multiple `ConfidenceRecord` instances on the same assertion are explicitly permi
 
 ### 4.6 AccessScope
 
-**rkaf:AccessScope** — visibility boundary attachable to Assertions, Attestations, EvidenceBindings, and SourceFragments.
+**rkaf:AccessScope** — visibility boundary attachable to Artifacts,
+Assertions, Attestations, EvidenceBindings, and SourceFragments.
 
 Required property:
 - `rkaf:accessScopeKind` (1) — closed enum: `rkaf:public`, `rkaf:partnerVisible`, `rkaf:organizationVisible`, `rkaf:roleRestricted`, `rkaf:personalRestricted`, `rkaf:regulatoryRestricted`, `rkaf:embargoUntil`.
@@ -827,199 +892,52 @@ For `accessScopeKind = regulatoryRestricted` cases, AccessScope SHOULD compose `
 
 Aligned with **W3C ODRL** (rights expression — overlay-attached, not inline) and **W3C DPV** (privacy classification — composed directly for `regulatoryRestricted` cases via the three predicates above; see §9.2). Partners requiring full rights expression attach ODRL overlays via the Layer 4 projector pattern.
 
-### 4.7 ConceptScheme and ConceptAssignment
+### 4.7 SKOS concepts and ConceptAssignment
 
-SKOS owns concept-scheme semantics. `skos:inScheme`, `skos:hasTopConcept`,
-`skos:prefLabel`, `skos:altLabel`, `skos:definition`, `skos:broader`,
-`skos:narrower`, `skos:related`, and the SKOS mapping properties are used with
-their own meanings, and Rulespec restates none of them. This section defines
-only what SKOS leaves open and Rulespec must check mechanically: which facet a
-scheme controls, who governs it, and what an assignment stands on.
+SKOS remains the multilingual vocabulary carrier. Producers use native
+`skos:ConceptScheme`, `skos:Concept`, `skos:prefLabel`, `skos:altLabel`,
+`skos:definition`, `skos:inScheme`, `skos:broader`, `skos:narrower`, and
+`skos:related` semantics. Rulespec adds governance and assertion records; it
+does not replace SKOS labels, definitions, hierarchy, or language handling.
 
-Companion normative detail for the registry lifecycle is in
-`spec/rkaf-concept-registry.md`.
+`rkaf:ConceptScheme` MUST carry `skos:prefLabel`, `rkaf:schemeFacet`, and
+exactly one governing edge: `rkaf:managedByRegistry` or
+`rkaf:definedInScope`. `rkaf:RegisteredConcept` and `rkaf:LocalConcept` MUST
+carry exactly one `skos:inScheme` plus their class-specific governance fields.
+`rkaf:conceptStatus` is not part of the current model. Release membership,
+`rkaf:Attestation`, and `rkaf:LifecycleEvent` record publication, review, and
+lifecycle facts without mutating the concept.
 
-#### 4.7.1 rkaf:ConceptScheme
+**rkaf:ConceptAssignment** is a strict `rkaf:RelationshipAssertion`
+specialization:
 
-**rkaf:ConceptScheme** — one facet, one controlled category system. Compatible
-with `skos:ConceptScheme`; a producer MAY type a node as both.
+- `rkaf:assertsSubject` names the Artifact or SourceFragment being assigned;
+- `rkaf:assertsPredicate` is exactly one of `rkaf:assignmentPrimary`,
+  `rkaf:assignmentSubstantive`, `rkaf:assignmentMention`, or
+  `rkaf:assignmentContextual`;
+- `rkaf:assertsObject` names the assigned concept;
+- `rkaf:assertionPolarity` is `rkaf:affirmed`; and
+- `rkaf:assignedConceptRelease` names the exact complete
+  `rkaf:ReferenceResourceRelease` whose `prov:hadMember` includes that concept.
 
-Required properties:
-- `skos:prefLabel` (1).
-- `rkaf:schemeFacet` (1, IRI) — which facet the scheme controls.
-- `rkaf:conceptStatus` (1) — the same closed enum concepts use.
-- One of `rkaf:managedByRegistry` (1, IRI) or `rkaf:definedInScope` (1, IRI).
+These are the canonical proposition fields. Producers MUST NOT emit the
+retired shadow properties `rkaf:assignmentSubject`,
+`rkaf:assignmentSubjectType`, `rkaf:assignedConcept`,
+`rkaf:assignmentRole`, `rkaf:assignmentDerivation`,
+`rkaf:assignmentEvidence`, `rkaf:assignmentEvidenceScheme`,
+`rkaf:supportingAssignment`, or `rkaf:assignmentPolicyVersion`.
 
-Optional: `skos:definition` (0..1), `skos:hasTopConcept` (0..*).
+Every ConceptAssignment uses the universal inverse EvidenceBinding path
+(§4.3). A fragment-backed binding carries `rkaf:bindsSourceFragment`,
+`rkaf:evidenceRole`, and `rkaf:evidentiaryFunction`; a permitted
+evidence-absence case carries `rkaf:noEvidenceReason`. Evidence never appears
+inline on the assignment.
 
-Facets MUST stay explicit. Topic, industry, regulated entity, affected
-population, legal authority, place, organization, document role, obligation,
-outcome, and legal status are different questions, and a scheme that never says
-which one it answers is how they merge — every one of them holds terms, and only
-the declared facet distinguishes them. `rkaf:schemeFacet` is a producer- or
-profile-owned IRI and NOT a kernel enum: closing that set universally would be
-Rulespec minting a facet taxonomy it has no standing to own.
-
-The ownership disjunction is the seam `rkaf:RegisteredConcept` and
-`rkaf:LocalConcept` already draw for concepts, applied to their container: a
-scheme is either governed by a registry or defined in a workspace scope.
-
-Authoritative structured values stay typed properties rather than fuzzy tags. An
-organization is a relationship, a document state is a profile enum, a date is a
-typed literal (§2.2), and a citation is a normalized identifier. Only genuinely
-taxonomic meaning belongs in a scheme.
-
-#### 4.7.2 Concepts
-
-`rkaf:RegisteredConcept` and `rkaf:LocalConcept` (§6, `spec/rkaf-concept-registry.md` §2.1)
-each MUST carry `skos:inScheme` (1). A facet-free concept is exactly the term
-that later merges with a same-spelled term from another facet. The referenced
-scheme MAY be an `rkaf:ConceptScheme` or an external `skos:ConceptScheme`, so
-Rulespec declares no class range over `skos:inScheme`.
-
-**Rulespec narrows `skos:inScheme` to exactly one scheme.** SKOS places no
-cardinality restriction on the predicate — a `skos:Concept` may belong to
-several schemes — and this is the one place §4.7's "Rulespec restates none of
-them" is qualified. A concept belongs to exactly one facet: a term that answers
-both "which industry" and "which topic" is two terms wearing one IRI, and the
-merge it invites is precisely what the facet discipline exists to prevent.
-Multi-facet membership is modelled as separate concepts joined by a SKOS mapping
-property (§4.7 and `spec/rkaf-concept-registry.md`), which keeps the alignment
-explicit and reviewable instead of implicit in a membership list.
-
-`skos:definition` (0..1) is REQUIRED when `rkaf:conceptStatus` is
-`rkaf:promoted`. Promotion is rare: it requires a definition, scope, examples,
-counterexamples, mappings, usage evidence, conflicts, lineage, a steward, a
-human approver, and a rationale. The definition is the piece a shape can check,
-and its absence means the shared vocabulary gained a term nobody wrote down.
-Query popularity, click counts, and model confidence MAY guide review; they
-never establish meaning and never promote a concept.
-
-#### 4.7.3 rkaf:ConceptAssignment
-
-**rkaf:ConceptAssignment** — an evidence-bearing, versioned record that one
-Artifact or one SourceFragment is associated with one concept.
-
-Required properties:
-- `rkaf:assignmentSubject` (1, IRI) — the tagged thing.
-- `rkaf:assignmentSubjectType` (1) — closed enum `rkaf:Artifact`, `rkaf:SourceFragment`.
-- `rkaf:assignedConcept` (1, IRI).
-- `skos:inScheme` (1, IRI) — the facet, restated at the point of use so a consumer reading assignments alone can tell an industry tag from a topic tag without resolving the concept.
-- `rkaf:assignmentRole` (1) — closed enum `rkaf:assignmentPrimary`, `rkaf:assignmentSubstantive`, `rkaf:assignmentMention`, `rkaf:assignmentContextual`. Editorial ordering only; nothing in Rulespec compares two roles.
-- `rkaf:assignmentDerivation` (1) — closed enum `rkaf:directAssignment`, `rkaf:derivedAssignment`.
-- `rkaf:assertionOrigin` (1), inherited from the envelope below.
-
-Conditional properties:
-- When `rkaf:assignmentSubjectType` is `rkaf:SourceFragment`, `rkaf:assignmentEvidence` (1..*) is REQUIRED.
-- When `rkaf:assignmentDerivation` is `rkaf:directAssignment`, `rkaf:assignmentEvidence` (1..*) is REQUIRED.
-- When `rkaf:assignmentDerivation` is `rkaf:derivedAssignment`, `rkaf:supportingAssignment` (1..*) is REQUIRED.
-- When `rkaf:supportingAssignment` is present, `rkaf:assignmentPolicyVersion` (1) is REQUIRED.
-- When `rkaf:assignmentEvidence` is present, `rkaf:assignmentEvidenceScheme` (1) is REQUIRED.
-- When `rkaf:assignmentEvidenceScheme` is `rkaf:carrier-local-fragment`, every `rkaf:assignmentEvidence` value MUST match the carrier-local fragment URN grammar (§4.2).
-
-`rkaf:assignmentEvidence` has range `rkaf:SourceFragment`, so "exact evidence"
-resolves to real coordinates in a real Artifact rather than to any IRI at all.
-`rkaf:supportingAssignment` has range `rkaf:ConceptAssignment`.
-
-`rkaf:assignmentEvidenceScheme` (1 when evidence is present, closed enum
-`rkaf:FragmentIdentityScheme`) says WHICH of the two identity forms in §4.2 the
-cited values use. It is required for the same reason
-`rkaf:regulatoryIdentifierScheme` is required whenever
-`rkaf:hasRegulatoryIdentifier` is present: a published fragment IRI and a
-carrier-local fragment URN are both absolute IRIs, the grammar a value must
-satisfy is not recoverable from the value, and only the declaration says which
-one the producer is claiming. Declaring
-`rkaf:carrier-local-fragment` binds every cited value to the derived grammar on
-all six compiled targets. Naming a value in the `urn:rkaf:fragment:` namespace
-WITHOUT that declaration is a violation
-(`rkaf:ConceptAssignmentCarrierLocalEvidenceDeclaredShape`,
-`shapes/rkaf-shapes-core.ttl`): registering the derived form has to mean the
-namespace is checked wherever it appears, not merely wherever a producer
-volunteers the declaration. That rule is L3-only because it is a per-VALUE
-conditional keyed on that value's own lexical form, which the compiled
-list-of-string carrier — one pattern for the whole list — cannot express.
-
-The derived form changes where the bindings live, not whether they exist. The
-class range stands, the same-Artifact rule below still applies to the
-materialized fragment, and a carrier-local URN cited as evidence for a
-carrier-local subject still has to name the same Artifact.
-
-Two further rules constrain WHICH fragment may be cited, and one obligation is
-left to the producer. Both rules are L3-only: each compares one node's value
-against another node's class or property, which no JSON Schema can follow.
-
-1. When `rkaf:assignmentSubject` RESOLVES to a `rkaf:SourceFragment`,
-   `rkaf:assignmentEvidence` (1..*) is REQUIRED — whatever
-   `rkaf:assignmentSubjectType` declares. The subject-type conditional above
-   keys on a self-declared literal, so on its own it is defeated by relabelling
-   a segment assignment `rkaf:Artifact`; that relabelling would let a document
-   tag prove a section tag, which is exactly what the directional rule forbids.
-2. Every cited `rkaf:assignmentEvidence` fragment MUST name the same
-   `oa:hasSource` Artifact as the subject fragment. Without it, one fragment of
-   one unrelated document satisfies the evidence requirement for every segment
-   in a corpus.
-3. Producers MUST cite regions OF THE SUBJECT FRAGMENT. Rule 2 is the floor a
-   shape can check; whether the cited region is the subject's own needs selector
-   arithmetic across coordinate systems and unit conversions, which Rulespec
-   does not require an implementation to perform. This is a producer obligation,
-   not a mechanical check, and it is stated here rather than implied.
-
-**The envelope is composed, not restated.** `rkaf:ConceptAssignment` composes
-`#AssertionEnvelope` (§2.3), so everything an assignment records about its own
-trustworthiness has exactly one home:
-
-| Fact | Where it lives |
-| --- | --- |
-| Construction origin | `rkaf:assertionOrigin` |
-| Model derivation | `rkaf:hasAILineage` (§5.3, AI-touched origins) |
-| Extraction run | `rkaf:hasExtractionProvenance` (§2.4) |
-| Source claimant | `rkaf:hasSourceClaimant` (§2.4) |
-| Confidence | `rkaf:hasConfidence` (0..*, §4.5) |
-| Approval, rejection, revocation | an `rkaf:Attestation` targeting the assignment — never a field |
-| Consumer state | `rkaf:usageEligibility`, `rkaf:consumerLifecycleState`, `rkaf:hasAccessScope` |
-| Supersession | `rkaf:supersedesAssertion` |
-| Assertion time | `rkaf:assertedAt` |
-
-`#AssertionProposition` (§2.3) is deliberately NOT composed: an assignment's
-proposition is the subject-concept pair, not a subject/predicate/object triple,
-and composing it would demand an `rkaf:assertsPredicate` every assignment would
-fill with the same placeholder. The producer's extraction profile version
-belongs in `rkaf:ExtractionActivity`'s `rkaf:extractorVersion`, not in a second
-version field here.
-
-Assignment history is append-only. A revised assignment is a NEW record naming
-its predecessor through `rkaf:supersedesAssertion`; the predecessor stays
-addressable.
-
-**The directional rule.** Both Artifacts and meaningful SourceFragments are
-taggable, and the two directions are not symmetric:
-
-```text
-accepted segment assignments
-  -> policy-bound document aggregation
-  -> document assignment with supporting-assignment proof
-  -> candidate context for other segment passes
-  -> fresh segment proposals
-  -> local evidence requirement
-  -> accepted new segment assignments
-```
-
-Segment evidence MAY support a document tag. A document tag MAY shortlist
-candidate concepts for a segment, and it MUST NOT prove one: the segment
-assignment still requires its own `rkaf:assignmentEvidence`, drawn from the same
-Artifact as the subject fragment. Three rules carry that together — the
-subject-type conditional, the resolved-subject rule, and the same-Artifact rule
-above. Without them one mistaken document tag propagates to every segment and
-the segments then confirm the document.
-
-Inherited document context remains non-evidentiary context. A zero-tag segment
-MUST NOT remove another segment's assignment or the document's supported tag;
-missing tags remain unknown, never negative.
-
-`rkaf:assignmentPolicyVersion` is what makes "a documented rule may combine
-approved segment tags into a document tag" checkable: the record says WHICH
-documented rule, at which version, so the same inputs can be replayed against
-the same policy.
+Assignment history is append-only. A revised proposition is a new assertion
+that MAY name its predecessor with `rkaf:supersedesAssertion`. Document-level
+aggregation or inherited context may generate candidates, but it does not
+replace fragment evidence and it never turns missing tags into negative
+assertions.
 
 ## 5. Studio-derived promotions [Normative]
 
@@ -1036,7 +954,8 @@ First-class typed shape. Required properties:
 - `rkaf:retentionTrigger` (1) — closed enum: `rkaf:creation`, `rkaf:lastAccess`, `rkaf:lastModification`, `rkaf:lifecycleEvent`.
 - `rkaf:retentionPostExpiry` (1) — closed enum: `rkaf:delete`, `rkaf:anonymize`, `rkaf:archive`, `rkaf:legal-hold-on-trigger`.
 
-Attached to Artifacts, Assertions, Attestations, or EvidenceBindings via `rkaf:hasRetentionPolicy`.
+Attached to Artifacts, Assertions, Attestations, EvidenceBindings, or
+SourceFragments via `rkaf:hasRetentionPolicy`.
 
 ### 5.3 rkaf:AILineage
 
@@ -1052,7 +971,10 @@ Required properties:
 
 When `rkaf:humanRationale` is present, `rkaf:humanApprover` is REQUIRED. A stated human reason with no human named is a review attributed to nobody, which reads as approved while leaving no one accountable.
 
-An assertion with `rkaf:assertionOrigin ∈ {rkaf:aiSuggested, rkaf:aiPromoted, rkaf:humanQualified, rkaf:humanRevalidation}` MUST carry an `rkaf:hasAILineage` reference. Layer 2 enforces this. The requirement is satisfied by an approver-free lineage: it demands that the derivation be recorded, not that it be reviewed.
+An assertion with `rkaf:assertionOrigin = rkaf:aiSuggested` MUST carry an
+`rkaf:hasAILineage` reference and the provisional usage cap in §2.5. Layer 2
+enforces both. The lineage may be approver-free: it records the model
+derivation, not a review.
 
 ### 5.4 rkaf:llmHint
 
@@ -1113,7 +1035,11 @@ Per source spec §1.5:
 
 1. **Decidable structure.** Producers emit closed enums, structured shapes, and explicit IRIs. AI extraction is over structured surfaces, not free-text post-hoc parsing.
 2. **Calibrated confidence.** AI-touched assertions MUST carry `rkaf:hasConfidence` with `rkaf:confidenceMethod` and `rkaf:calibrationStatus`. Bare-score confidence is rejected.
-3. **AI lineage.** AI-touched assertions MUST carry `rkaf:hasAILineage`. The lineage records the model derivation; it does NOT record approval, and it MUST NOT require a human approver (§2.4). Approval, when it happens, is an `rkaf:Attestation` targeting the assertion. A model asked to review its own output produces another opinion, not an approval.
+3. **AI lineage.** An `rkaf:aiSuggested` assertion MUST carry
+   `rkaf:hasAILineage` and the provisional usage cap in §2.5. The lineage
+   records the model derivation; it does not record approval and does not
+   require a human approver. Approval is an `rkaf:Attestation` targeting the
+   assertion.
 4. **AccessScope preservation.** AI consumers MUST treat retrieved source material as data, not instruction; MUST preserve `rkaf:hasAccessScope` through retrieval, summarization, projection, generation.
 5. **Warrant-chain awareness.** AI traversing a warrant chain across families MUST surface the cross-family transition for human review.
 6. **Closed-enum coercibility.** AI extraction targets MUST coerce to closed enum values; non-conforming outputs are rejected.
@@ -1131,7 +1057,7 @@ This table lists only ontologies composed at mode 1: predicate declared in `cont
 |---|---|---|
 | **W3C PROV-O** | `prov:` | Provenance vocabulary. `prov:wasGeneratedBy`, `prov:wasAttributedTo`, `prov:wasDerivedFrom`, `prov:generatedAtTime` compose with cryptographic anchoring (§7) and AI lineage records (§5.3). `prov:startedAtTime` and `prov:endedAtTime` carry activity timing on `rkaf:ExtractionActivity` (§2.4) — imported rather than re-minted, because PROV-O already names the start and end of an activity. |
 | **W3C Web Annotation Ontology (OA)** | `oa:` | Rulespec v0.2 composes **OA 1.0** (W3C Recommendation 2017-02-23; namespace `http://www.w3.org/ns/oa#`, stable). Predicate-level imports: `oa:hasSource` (parent-resource edge on a SpecificResource), `oa:hasSelector` (selector attachment), `oa:exact` / `oa:prefix` / `oa:suffix` (TextQuoteSelector payload), `oa:start` / `oa:end` (TextPositionSelector offsets). Rulespec adds one rkaf-namespaced predicate to the position selector, `rkaf:coordinateSystem`, because OA does not name the unit its offsets count in and an offset without a unit is not reproducible (§4.2). `rkaf:SourceFragment rdfs:subClassOf oa:SpecificResource`. Foundational selector kinds (`oa:FragmentSelector`, `oa:TextQuoteSelector`, `oa:TextPositionSelector`, `oa:RangeSelector`, `oa:XPathSelector`, `oa:CssSelector`) MUST be supported by every Rulespec implementation handling source fragments. Rulespec declines L1/L3 constraints over OA predicate ranges with one exception: `oa:hasSource` carries an L3 `sh:class rkaf:Artifact` range (§4.2), because a fragment of a workspace, a proceeding, or an actor addresses no document region at all. Everywhere else partner producers conform to OA's own domain/range. Breaking changes in a future OA 2.0 trigger an alignment-row re-evaluation. |
-| **W3C SKOS** | `skos:` | Concept relations for the Concept Registry (`spec/rkaf-concept-registry.md`): the cross-scheme mapping properties (`exactMatch`, `closeMatch`, `broadMatch`, `narrowMatch`, `relatedMatch`), the in-scheme semantic relations SKOS distinguishes from them (`broader`, `narrower`, `related`), and `mappingRelation`. v0.2 additionally imports `skos:inScheme` (concept-to-scheme membership, REQUIRED on both concept flavors and on every `rkaf:ConceptAssignment`), `skos:definition`, and `skos:hasTopConcept` (§4.7). SKOS owns concept-scheme semantics; Rulespec declares no class range over these predicates, because a concept or scheme may live in an external thesaurus. |
+| **W3C SKOS** | `skos:` | Native concept schemes, multilingual labels and definitions, hierarchy, and the five concrete cross-scheme mapping predicates. `skos:inScheme` is REQUIRED on both Rulespec concept flavors; `ConceptAssignment` and `ConceptMapping` use canonical relationship fields and exact release pins instead of restating scheme membership (§4.7). |
 | **ELI** (European Legislation Identifier) | `eli:` | Rulespec v0.2 composes **ELI 1.5 core** (2024 release; namespace `http://data.europa.eu/eli/ontology#`, stable across v1.0 → v1.5). Use ELI URIs as the canonical Artifact identifier scheme for EU legal sources (§4.1). Do not duplicate ELI's URI structure or metadata model; compose. For multi-predecessor consolidation edges (one consolidated text incorporating multiple prior versions or amending acts), compose `eli:consolidates` (and inverse `eli:consolidated_by`) directly — both predicates are non-functional in ELI 1.5 and explicitly designed for repeated use. Consolidation is semantically distinct from supersession: `eli:consolidates` denotes editorial restatement that incorporates predecessors which remain legally extant; `rkaf:supersedesAssertion` (§6, Lifecycle primitives) denotes replacement where predecessors become historical. Use both together when appropriate. Breaking changes in a future ELI 2.0 trigger an alignment-row re-evaluation: Rulespec declines L1/L3 constraints over `eli:*` predicates by design (partners conform to ELI's own domain/range), so migration policy must be documented at the alignment layer. |
 | **Dublin Core Terms** | `dcterms:` | `dcterms:hasFormat` and `dcterms:isFormatOf` are direct Artifact-to-Artifact imports for registry cross-postings. Rulespec constrains their class range but does not redefine Dublin Core format semantics; the canonical US rulemaking direction is defined in `spec/rkaf-rulemaking.md` §4.1. |
 | **FOAF 0.99** | `foaf:` | `foaf:primaryTopic` is the general, functional document-to-main-subject relation on `rkaf:Artifact`. Domain profiles may constrain the topic class; sharing a topic does not merge document identity. |
@@ -1158,7 +1084,7 @@ The four composition modes classify how each alignment row integrates with the R
 | Mode | Name | Description | Debt level | Examples |
 |------|------|-------------|------------|---------|
 | **1** | Direct predicate import | Predicate declared in `context/rkaf-context.jsonld`; used in CUE shape or projected schema. Highest commitment — context declaration is a release-boundary constraint. | Highest | `prov:wasGeneratedBy`, `eli:consolidates`, `oa:TextQuoteSelector` |
-| **2** | Class-tag composition | External IRI used as `@type` value or as a typed-string enum value inside an rkaf-namespaced predicate. No direct predicate import required. | Moderate | `oa:TextQuoteSelector` as `rkaf:selectorKind` value; `skos:exactMatch` as `rkaf:mappingPredicate` |
+| **2** | Class-tag composition | External IRI used as `@type` value or as a typed-string enum value inside an rkaf-namespaced predicate. No direct predicate import required. | Moderate | `oa:TextQuoteSelector` as `rkaf:selectorKind` value; `skos:exactMatch` as `rkaf:assertsPredicate` on ConceptMapping |
 | **3** | URI-value composition | External URI carried inside an rkaf-namespaced predicate, gated by a scheme enum. External structure is data, not graph shape. | Moderate | ELI URIs in `rkaf:hasArtifactIdentifier` where `rkaf:artifactIdentifierScheme: "rkaf:eli"` |
 | **4** | Pattern citation | Architectural prior art with no predicate or URI flow. No namespace declaration required. Preserves design rationale without accruing context debt. | Lowest | Nanopublications (overlay-shape pattern); LegalRuleML (defeasibility-preservation discipline) |
 

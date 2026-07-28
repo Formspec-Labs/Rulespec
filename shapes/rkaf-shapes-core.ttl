@@ -7,6 +7,7 @@
 @prefix owl:   <http://www.w3.org/2002/07/owl#> .
 @prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix oa:    <http://www.w3.org/ns/oa#> .
+@prefix skos:  <http://www.w3.org/2004/02/skos/core#> .
 @prefix rkaf:  <https://rulespec.org/ns/v1#> .
 
 <https://rulespec.org/shapes/core>
@@ -26,8 +27,9 @@ rkaf:Authority rdfs:subClassOf rkaf:Warrant .
 
 # RelationshipAssertion is the proposition-bearing Assertion specialization
 # restored in Core §2.1. Its generated shape now inherits the generic envelope
-# through CUE composition (`#RelationshipAssertion` embeds `#AssertionEnvelope`
-# from constraints/core/assertion.cue), so the envelope has one source instead
+# through CUE composition (`#RelationshipAssertion` embeds
+# `#DurableAssertionEnvelope` from constraints/core/assertion.cue), so the
+# envelope has one source instead
 # of a forked copy. The few envelope fields that reappear in
 # relationship-assertion.cue are deliberate narrowings (plain string → absolute
 # IRI), not duplication; the projector unifies them facet by facet.
@@ -44,26 +46,95 @@ rkaf:RelationshipAssertion rdfs:subClassOf rkaf:Assertion .
 # the same parent for the same reason and by the same hand-authored route.
 rkaf:ValueAssertion rdfs:subClassOf rkaf:Assertion .
 
-# ConceptAssignment composes the same `#AssertionEnvelope` (Core §4.7): it
-# carries construction origin, AI lineage, extraction provenance, confidence,
-# supersession, and consumer disposition from one source rather than restating
-# them. It does NOT compose `#AssertionProposition` — its proposition is the
-# subject/concept pair, not a subject/predicate/object triple — so the subclass
-# axiom is hand-authored here for the same reason the two above are: no CUE
-# expression names a parent class for codegen to project.
-rkaf:ConceptAssignment rdfs:subClassOf rkaf:Assertion .
+# ConceptAssignment is a SKOS-release-pinned RelationshipAssertion. Its
+# canonical proposition is subject / assignment-role predicate / concept
+# object / affirmed polarity; it carries no parallel assignment slots.
+rkaf:ConceptAssignment rdfs:subClassOf rkaf:RelationshipAssertion .
 
-# Assertion-level Pattern-C requirement: an Assertion whose assertionOrigin is
-# in the AI-touched set MUST carry rkaf:hasAILineage (§5.3).
+# ConceptMapping is the SKOS-constrained RelationshipAssertion specialization:
+# it carries the same subject / predicate / object / polarity proposition and
+# durable assertion envelope, while closing the predicate to SKOS's five
+# concrete cross-scheme mapping properties.
+rkaf:ConceptMapping rdfs:subClassOf rkaf:RelationshipAssertion .
+
+# Migration boundary: former parallel fields are not extension points. Their
+# continued presence would recreate two contradictory homes for the same
+# proposition, evidence, review, or lifecycle fact.
+rkaf:ConceptStatusRemovedShape a sh:NodeShape ;
+  sh:targetClass rkaf:ConceptScheme ;
+  sh:targetClass rkaf:RegisteredConcept ;
+  sh:targetClass rkaf:LocalConcept ;
+  sh:property [ sh:path rkaf:conceptStatus ; sh:maxCount 0 ] ;
+  sh:message "conceptStatus was removed: release membership, Attestation, and LifecycleEvent own those facts." .
+
+rkaf:ConceptAssignmentShadowFieldsRemovedShape a sh:NodeShape ;
+  sh:targetClass rkaf:ConceptAssignment ;
+  sh:property [ sh:path rkaf:assignmentSubject ; sh:maxCount 0 ] ;
+  sh:property [ sh:path rkaf:assignmentSubjectType ; sh:maxCount 0 ] ;
+  sh:property [ sh:path rkaf:assignedConcept ; sh:maxCount 0 ] ;
+  sh:property [ sh:path rkaf:assignmentRole ; sh:maxCount 0 ] ;
+  sh:property [ sh:path rkaf:assignmentEvidence ; sh:maxCount 0 ] ;
+  sh:property [ sh:path rkaf:assignmentEvidenceScheme ; sh:maxCount 0 ] ;
+  sh:property [ sh:path rkaf:assignmentDerivation ; sh:maxCount 0 ] ;
+  sh:property [ sh:path rkaf:supportingAssignment ; sh:maxCount 0 ] ;
+  sh:property [ sh:path rkaf:assignmentPolicyVersion ; sh:maxCount 0 ] ;
+  sh:property [ sh:path skos:inScheme ; sh:maxCount 0 ] ;
+  sh:message "ConceptAssignment uses only the canonical RelationshipAssertion proposition, release pin, EvidenceBinding, and PROV derivation." .
+
+rkaf:ConceptMappingShadowFieldsRemovedShape a sh:NodeShape ;
+  sh:targetClass rkaf:ConceptMapping ;
+  sh:property [ sh:path rkaf:sourceConcept ; sh:maxCount 0 ] ;
+  sh:property [ sh:path rkaf:targetConcept ; sh:maxCount 0 ] ;
+  sh:property [ sh:path rkaf:mappingRelation ; sh:maxCount 0 ] ;
+  sh:property [ sh:path rkaf:mappingPublicationState ; sh:maxCount 0 ] ;
+  sh:message "ConceptMapping uses canonical assertion fields; release membership plus Attestation replaces inline publication state." .
+
+# Every Assertion must resolve to the one canonical evidence mechanism:
+# EvidenceBinding points at the immutable assertion and may be added or
+# superseded without rewriting it.
+rkaf:AssertionEvidenceShape a sh:NodeShape ;
+  sh:targetClass rkaf:Assertion ;
+  sh:targetClass rkaf:RelationshipAssertion ;
+  sh:targetClass rkaf:ValueAssertion ;
+  sh:targetClass rkaf:ConceptAssignment ;
+  sh:targetClass rkaf:ConceptMapping ;
+  sh:property [
+    sh:path [ sh:inversePath rkaf:bindsAssertion ] ;
+    sh:qualifiedValueShape [ sh:class rkaf:EvidenceBinding ] ;
+    sh:qualifiedMinCount 1
+  ] ;
+  sh:message "Every Assertion MUST resolve to an EvidenceBinding (Core §4.3)." .
+
+# Assertion-level Pattern-C requirement: an AI-constructed Assertion MUST
+# carry rkaf:hasAILineage (§5.3). Review and promotion are separate records,
+# never assertionOrigin values.
 rkaf:AssertionAILineageShape a sh:NodeShape ;
   sh:targetClass rkaf:Assertion ;
   sh:or (
     [ sh:property [ sh:path rkaf:assertionOrigin ;
-        sh:not [ sh:in ( rkaf:aiSuggested rkaf:aiPromoted
-                          rkaf:humanQualified rkaf:humanRevalidation ) ] ] ]
+        sh:not [ sh:hasValue rkaf:aiSuggested ] ] ]
     [ sh:property [ sh:path rkaf:hasAILineage ; sh:minCount 1 ] ]
   ) ;
-  sh:message "Assertion with AI-touched assertionOrigin MUST carry rkaf:hasAILineage (§5.3)." .
+  sh:message "An Assertion with assertionOrigin rkaf:aiSuggested MUST carry rkaf:hasAILineage (§5.3)." .
+
+# JSON-LD expands a language-tagged value object to rdf:langString and carries
+# the tag through LANG(). Layer 2 applies the full BCP 47 grammar; this RDF-side
+# check rejects malformed separators and subtag widths after expansion.
+rkaf:ValueAssertionLanguageTagShape a sh:NodeShape ;
+  sh:targetClass rkaf:ValueAssertion ;
+  sh:sparql [
+    a sh:SPARQLConstraint ;
+    sh:message "ValueAssertion language-tagged strings MUST carry a well-formed BCP 47 language tag (§2.2)." ;
+    sh:select """
+      PREFIX rkaf: <https://rulespec.org/ns/v1#>
+      SELECT $this
+      WHERE {
+        $this rkaf:assertsValue ?value .
+        FILTER (LANG(?value) != "")
+        FILTER (!REGEX(LANG(?value), "^[A-Za-z]{1,8}(-[A-Za-z0-9]{1,8})*$"))
+      }
+    """ ;
+  ] .
 
 # §4.2 — a declared selector kind must be backed by a selector of that type.
 #
@@ -96,60 +167,61 @@ rkaf:SourceFragmentSelectorKindAgreementShape a sh:NodeShape ;
   ) ;
   sh:message "A fragment declaring selectorKind oa:TextPositionSelector MUST attach a typed oa:TextPositionSelector (§4.2)." .
 
-# §4.7.3 — the directional rule keys on what the subject IS, not on what the
-# record SAYS it is.
-#
-# `rkaf:assignmentSubjectType` is a self-declared literal in a closed enum, and
-# the compiled conditional that requires local evidence fires on that literal
-# alone. Relabelling one segment assignment `rkaf:Artifact` therefore bought a
-# producer the document-tag treatment for a fragment subject: the document tag
-# proved the section tag, which is exactly the self-confirming loop §4.7.3
-# forbids. This shape re-keys the obligation on the subject node's own
-# `rdf:type`, so the label cannot buy anything.
-#
-# The two rules are complementary, not redundant: the compiled conditional
-# still catches an HONEST record with a fragment subject and no evidence, and
-# this one catches a MISLABELLED one. Written as "the subject does not resolve
-# to a SourceFragment OR evidence is present", it stays silent when the subject
-# node is absent from the graph, so a standalone assignment document validates
-# exactly as it did before.
-rkaf:ConceptAssignmentFragmentSubjectEvidenceShape a sh:NodeShape ;
+# §4.7 — assertsSubject must resolve to exactly the two taggable classes.
+rkaf:ConceptAssignmentSubjectClassShape a sh:NodeShape ;
   sh:targetClass rkaf:ConceptAssignment ;
-  sh:or (
-    [ sh:property [ sh:path rkaf:assignmentSubject ;
-        sh:not [ sh:class rkaf:SourceFragment ] ] ]
-    [ sh:property [ sh:path rkaf:assignmentEvidence ; sh:minCount 1 ] ]
-  ) ;
-  sh:message "An assignment whose subject resolves to a rkaf:SourceFragment MUST carry rkaf:assignmentEvidence, whatever rkaf:assignmentSubjectType declares (§4.7.3)." .
+  sh:property [
+    sh:path rkaf:assertsSubject ;
+    sh:or (
+      [ sh:class rkaf:Artifact ]
+      [ sh:class rkaf:SourceFragment ]
+    )
+  ] ;
+  sh:message "ConceptAssignment assertsSubject MUST resolve to an Artifact or SourceFragment (§4.7)." .
 
-# §4.7.3 — cited evidence must come from the same Artifact as the subject.
-#
-# The compiled conditional requires only that SOME class-ranged SourceFragment
-# be named. A producer could satisfy every segment in a corpus by citing one
-# fragment of an unrelated document, which restores the self-confirming loop the
-# evidence requirement exists to break. `oa:hasSource` equality is the strongest
-# check a shape can make: whether the cited region is the subject's OWN region
-# needs selector arithmetic across coordinate systems, which no SHACL profile
-# expresses. Core §4.7.3 states the residual as a producer obligation rather
-# than claiming it is checked.
-#
-# Both `oa:hasSource` values must be present for the constraint to fire, so an
-# assignment whose fragments live in another document validates unchanged.
+# A fragment assignment needs fragment-backed evidence; noEvidenceReason cannot
+# make one source region prove a semantic assignment about another.
+rkaf:ConceptAssignmentFragmentEvidenceShape a sh:NodeShape ;
+  sh:targetClass rkaf:ConceptAssignment ;
+  sh:sparql [
+    a sh:SPARQLConstraint ;
+    sh:message "A ConceptAssignment whose assertsSubject is a SourceFragment MUST have a fragment-backed EvidenceBinding (§4.7)." ;
+    sh:select """
+      PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+      PREFIX rkaf: <https://rulespec.org/ns/v1#>
+      SELECT $this
+      WHERE {
+        $this rkaf:assertsSubject ?subject .
+        ?subject rdf:type rkaf:SourceFragment .
+        FILTER NOT EXISTS {
+          ?binding rdf:type rkaf:EvidenceBinding ;
+                   rkaf:bindsAssertion $this ;
+                   rkaf:bindsSourceFragment ?evidence .
+        }
+      }
+    """ ;
+  ] .
+
+# Fragment-backed assignment evidence must come from the same Artifact as the
+# subject. This is the strongest graph check available without selector
+# arithmetic.
 rkaf:ConceptAssignmentEvidenceSameArtifactShape a sh:NodeShape ;
   sh:targetClass rkaf:ConceptAssignment ;
   sh:sparql [
     a sh:SPARQLConstraint ;
-    sh:message "rkaf:assignmentEvidence MUST cite a region of the SAME Artifact as the subject fragment (§4.7.3)." ;
+    sh:message "A fragment-backed EvidenceBinding for a ConceptAssignment MUST cite a region of the SAME Artifact as the subject fragment (§4.7.3)." ;
     sh:select """
       PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
       PREFIX oa: <http://www.w3.org/ns/oa#>
       PREFIX rkaf: <https://rulespec.org/ns/v1#>
       SELECT $this
       WHERE {
-        $this rkaf:assignmentSubject ?subject ;
-              rkaf:assignmentEvidence ?evidence .
+        $this rkaf:assertsSubject ?subject .
         ?subject rdf:type rkaf:SourceFragment ;
                  oa:hasSource ?subjectArtifact .
+        ?binding rdf:type rkaf:EvidenceBinding ;
+                 rkaf:bindsAssertion $this ;
+                 rkaf:bindsSourceFragment ?evidence .
         ?evidence rdf:type rkaf:SourceFragment ;
                   oa:hasSource ?evidenceArtifact .
         FILTER (?evidenceArtifact != ?subjectArtifact)
@@ -157,31 +229,25 @@ rkaf:ConceptAssignmentEvidenceSameArtifactShape a sh:NodeShape ;
     """ ;
   ] .
 
-# §4.2 / §4.7.3 — a carrier-local fragment URN must be DECLARED, not just used.
-#
-# `rkaf:assignmentEvidenceScheme` narrows the evidence grammar when it is set to
-# `rkaf:carrier-local-fragment`, and a compiled conditional can only fire on the
-# value the record declares. Nothing stopped a producer minting a value in the
-# `urn:rkaf:fragment:` namespace while declaring `rkaf:published-fragment` — or
-# while declaring the scheme the record's OTHER evidence value uses — and that
-# value then met the generic absolute-IRI pattern and no grammar at all. The
-# derived form would be a namespace anyone could squat rather than a checked
-# claim, which is the whole point of registering it.
-#
-# CUE cannot express this: the rule is a per-VALUE conditional keyed on that
-# value's own lexical form, and the projector's list-of-string carrier admits a
-# single pattern. Written as "no evidence value is in the derived namespace OR
-# the record declares the derived scheme", it stays silent on every record that
-# cites published fragments, so existing documents validate unchanged.
-rkaf:ConceptAssignmentCarrierLocalEvidenceDeclaredShape a sh:NodeShape ;
-  sh:targetClass rkaf:ConceptAssignment ;
-  sh:or (
-    [ sh:property [ sh:path rkaf:assignmentEvidence ;
-        sh:not [ sh:pattern "^urn:rkaf:fragment:" ] ] ]
-    [ sh:property [ sh:path rkaf:assignmentEvidenceScheme ;
-        sh:hasValue rkaf:carrier-local-fragment ] ]
-  ) ;
-  sh:message "An rkaf:assignmentEvidence value in the urn:rkaf:fragment: namespace REQUIRES rkaf:assignmentEvidenceScheme rkaf:carrier-local-fragment, which is what binds it to the derived grammar (§4.2)." .
+# A carrier-local fragment URN is now an ordinary materialized SourceFragment
+# and declares its identity scheme on that node, not on every assertion that
+# cites it.
+rkaf:CarrierLocalFragmentSchemeShape a sh:NodeShape ;
+  sh:targetClass rkaf:SourceFragment ;
+  sh:sparql [
+    a sh:SPARQLConstraint ;
+    sh:message "A carrier-local SourceFragment URN MUST declare fragmentIdentityScheme rkaf:carrier-local-fragment (§4.2)." ;
+    sh:select """
+      PREFIX rkaf: <https://rulespec.org/ns/v1#>
+      SELECT $this
+      WHERE {
+        FILTER (STRSTARTS(STR($this), "urn:rkaf:fragment:"))
+        FILTER NOT EXISTS {
+          $this rkaf:fragmentIdentityScheme rkaf:carrier-local-fragment .
+        }
+      }
+    """ ;
+  ] .
 
 # §4.2 — a materialized carrier-local fragment must agree with its own URN.
 #

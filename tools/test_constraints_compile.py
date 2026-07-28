@@ -14,6 +14,7 @@ from tools.constraints_compile import (
     VALUE_OBJECT_MEMBERS,
     CompileError,
     _rego_symbol,
+    _rust_field_clean,
     _scan_global_enum_registry,
     _scan_reference_class_registry,
     parse_cue_file,
@@ -66,10 +67,12 @@ ASSERTION_ENVELOPE_FIELDS = (
     "rkaf:consumerLifecycleState",
     "rkaf:hasAccessScope",
     "rkaf:assertionOrigin",
+    "rkaf:epistemicBasis",
     "rkaf:hasApplicability",
     "rkaf:hasJustification",
     "rkaf:hasWarrant",
     "rkaf:hasAuthority",
+    "rkaf:hasRetentionPolicy",
     "prov:wasDerivedFrom",
     "rkaf:hasSourceClaimant",
     "rkaf:hasExtractionProvenance",
@@ -98,9 +101,6 @@ CONSUMER_DISPOSITION_FIELDS = (
 
 AI_TOUCHED_ORIGINS = (
     "rkaf:aiSuggested",
-    "rkaf:aiPromoted",
-    "rkaf:humanQualified",
-    "rkaf:humanRevalidation",
 )
 
 # The absolute-IRI lexical form RelationshipAssertion demands of its reference
@@ -118,6 +118,31 @@ RELATIONSHIP_ASSERTION_NARROWED_PROPERTIES = (
 # The fifth narrowing: the envelope's AI-lineage conditionals require
 # hasAILineage; RelationshipAssertion additionally requires it to be an IRI.
 RELATIONSHIP_ASSERTION_NARROWED_CONDITIONAL = "rkaf:hasAILineage"
+
+
+class RustIdentifierTests(unittest.TestCase):
+    def test_reserved_property_local_names_get_safe_struct_fields(self) -> None:
+        self.assertEqual(_rust_field_clean("dcterms:type"), "type_")
+        self.assertEqual(_rust_field_clean("rkaf:match"), "match_")
+        self.assertEqual(_rust_field_clean("dcat:version"), "version")
+
+    def test_namespaced_type_does_not_collide_with_jsonld_type(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            source = Path(temporary) / "resource.cue"
+            source.write_text(
+                """
+package rkaf
+
+#Resource: {
+	"@type":        "rkaf:Resource"
+	"dcterms:type": string
+}
+"""
+            )
+            rust = target_rust(parse_cue_file(source))
+            self.assertIn("pub type_: String,", rust)
+            self.assertIn("pub dcterms_type: String,", rust)
+            self.assertEqual(rust.count("pub type_: String,"), 1)
 
 
 class ShapeCompositionTests(unittest.TestCase):
@@ -564,6 +589,50 @@ package rkaf
                 },
             )
 
+    def test_typescript_conditional_list_validation_preserves_list_shape(
+        self,
+    ) -> None:
+        """A conditional list stays a list in its runtime checks.
+
+        ReferenceResourceRelease first exposed this projection defect:
+        TypeScript declared `prov:hadMember` as `string[]`, but the conditional
+        branch validated it as one scalar string, rejecting every valid
+        enumerated release.
+        """
+        with tempfile.TemporaryDirectory() as temporary:
+            source = Path(temporary) / "conditional-list.cue"
+            source.write_text(
+                """
+package rkaf
+
+import "list"
+
+#ConditionalList: release={
+	"@type":         "rkaf:ConditionalList"
+	"rkaf:mode":     string
+	"rkaf:members"?: [...(string & =~"^urn:")] & list.MinItems(1)
+	if release["rkaf:mode"] == "rkaf:enumerated" {
+		"rkaf:members": [...(string & =~"^urn:")] & list.MinItems(1)
+	}
+}
+"""
+            )
+            typescript = target_typescript(parse_cue_file(source))
+            member = 'record["rkaf:members"]'
+            self.assertIn(
+                f"!Array.isArray({member}) || {member}.length < 1",
+                typescript,
+            )
+            self.assertIn(
+                f"!{member}.every((value) => typeof value === "
+                '"string" && new RegExp("^urn:").test(value))',
+                typescript,
+            )
+            self.assertNotIn(
+                f'typeof {member} !== "string"',
+                typescript,
+            )
+
     def test_a_conditional_requiring_two_properties_reaches_shacl_intact(
         self,
     ) -> None:
@@ -896,12 +965,12 @@ class ConstraintCompilerTests(unittest.TestCase):
         source = root / "constraints" / "core" / "relationship-assertion.cue"
         text = source.read_text()
 
-        # The envelope must arrive by embedding — a bare `#AssertionEnvelope`
+        # The durable envelope must arrive by embedding.
         # line inside the shape body, which is CUE struct embedding — and not
         # as a hand-copied block of fields.
         self.assertRegex(
             text,
-            r"(?m)^\s*#AssertionEnvelope\s*$",
+            r"(?m)^\s*#DurableAssertionEnvelope\s*$",
             "RelationshipAssertion must embed the shared Assertion envelope",
         )
 
@@ -986,7 +1055,8 @@ class ConstraintCompilerTests(unittest.TestCase):
         lineage_branches = [
             branch
             for branch in composed["allOf"]
-            if branch.get("then", {}).get("required") == ["rkaf:hasAILineage"]
+            if "rkaf:hasAILineage"
+            in branch.get("then", {}).get("required", [])
         ]
         self.assertEqual(
             len(lineage_branches),
@@ -1071,9 +1141,8 @@ class ConstraintCompilerTests(unittest.TestCase):
         lineage_branches = [
             branch
             for branch in composed["allOf"]
-            if branch.get("then", {})
-            .get("required", [])
-            == [RELATIONSHIP_ASSERTION_NARROWED_CONDITIONAL]
+            if RELATIONSHIP_ASSERTION_NARROWED_CONDITIONAL
+            in branch.get("then", {}).get("required", [])
         ]
         self.assertEqual(len(lineage_branches), len(AI_TOUCHED_ORIGINS))
         for branch in lineage_branches:
@@ -1112,6 +1181,36 @@ class ConstraintCompilerTests(unittest.TestCase):
                 typescript,
                 f"{field_name} narrowing did not reach TypeScript",
             )
+
+    def test_ai_suggested_usage_cap_reaches_sdk_projections(self) -> None:
+        """The AI cap is a conditional closed enum, not presence alone."""
+        source = (
+            REPO_ROOT
+            / "constraints"
+            / "core"
+            / "relationship-assertion.cue"
+        )
+        document = parse_cue_file(source)
+        registry = _scan_global_enum_registry(source)
+
+        typescript = target_typescript(document, registry=registry)
+        self.assertIn(
+            "import type { ProvisionalAIUsageEligibility }",
+            typescript,
+        )
+        self.assertIn(
+            '["rkaf:notEligible", "rkaf:searchOnly", '
+            '"rkaf:reviewQueueOnly"].includes('
+            'record["rkaf:usageEligibility"] as string)',
+            typescript,
+        )
+
+        rust = target_rust(document, registry=registry)
+        self.assertIn(
+            "type _StructuralDependencyProvisionalAIUsageEligibility = "
+            "crate::generated::assertion::ProvisionalAIUsageEligibility;",
+            rust,
+        )
 
     def test_patterns_dates_and_order_project_from_aliased_shape(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
@@ -2645,8 +2744,7 @@ class SchemaBindingCollisionTests(unittest.TestCase):
 
 
 class TypedLiteralCarriageTests(unittest.TestCase):
-    """The ValueAssertion object slot must survive to EVERY target as a typed
-    literal — not as "some object" on one side and "some literal" on the other.
+    """The ValueAssertion object slot must preserve both RDF 1.1 branches.
 
     Shape parity alone would not catch the failure that matters here. JSON
     Schema sees a nested object with an `@type` member; SHACL sees a single
@@ -2671,14 +2769,17 @@ class TypedLiteralCarriageTests(unittest.TestCase):
             target_json_schema(self.document, registry=self.registry)
         )
         value = composed["$defs"]["ValueAssertion"]["properties"]["rkaf:assertsValue"]
-        self.assertEqual(value["type"], "object")
-        self.assertEqual(value["properties"]["@value"], {"type": "string"})
+        self.assertEqual(len(value["oneOf"]), 2)
+        typed, language = value["oneOf"]
+        self.assertEqual(typed["properties"]["@value"], {"type": "string"})
         self.assertEqual(
-            value["properties"]["@type"], {"$ref": "#/$defs/ValueDatatype"}
+            typed["properties"]["@type"], {"$ref": "#/$defs/ValueDatatype"}
         )
-        self.assertEqual(sorted(value["required"]), ["@type", "@value"])
+        self.assertEqual(sorted(typed["required"]), ["@type", "@value"])
+        self.assertEqual(sorted(language["required"]), ["@language", "@value"])
+        self.assertIn("pattern", language["properties"]["@language"])
         self.assertIs(
-            value["additionalProperties"],
+            typed["additionalProperties"],
             False,
             "the value object must be CLOSED. The CUE struct is closed, so "
             "`cue vet` rejects an extra member; an open JSON Schema object "
@@ -2703,7 +2804,7 @@ class TypedLiteralCarriageTests(unittest.TestCase):
         emitted = set(re.findall(r"sh:datatype (\S+) \]", shacl))
         self.assertEqual(
             emitted,
-            set(self.datatypes),
+            {*self.datatypes, "rdf:langString"},
             "SHACL and JSON Schema must close the value object's datatype over "
             "the SAME set; a difference means one gate accepts what the other "
             "rejects",
@@ -2714,7 +2815,7 @@ class TypedLiteralCarriageTests(unittest.TestCase):
             self.document, registry=self.registry, source_file=self.source
         )
         self.assertIn(
-            "pub asserts_value: crate::TypedLiteral<ValueDatatype>,",
+            "pub asserts_value: crate::RdfLiteral<ValueDatatype>,",
             rust,
             "the Rust carrier must type the literal, not degrade it to String",
         )
@@ -2729,6 +2830,10 @@ class TypedLiteralCarriageTests(unittest.TestCase):
             '"rkaf:assertsValue": { "@value": string; "@type": ValueDatatype;',
             typescript,
         )
+        self.assertIn(
+            '| { "@value": string; "@language": string; "@type"?: never }',
+            typescript,
+        )
         # Not just the type — a runtime check that the datatype is in the set.
         self.assertIn("@type outside the closed datatype set", typescript)
         for datatype in self.datatypes:
@@ -2739,21 +2844,19 @@ class TypedLiteralCarriageTests(unittest.TestCase):
         ones the CUE declares — in the TYPE and in the runtime validator.
 
         Every other target already closes the object: JSON Schema with
-        `additionalProperties: false`, Rust with `deny_unknown_fields` on
-        `crate::TypedLiteral`, SHACL by construction (a language-tagged literal
-        expands with the datatype GONE, so no `sh:datatype` alternative
-        matches). TypeScript was the hole. A structural object type accepts a
+        `additionalProperties: false`, Rust with `deny_unknown_fields` on the
+        two `crate::RdfLiteral` branches, and SHACL through its datatype
+        alternatives. TypeScript was the hole. A structural object type accepts a
         widened value carrying extra members, and the emitted validator checked
         only `@value`'s type and `@type`'s membership — so the SDK accepted
-        `fixtures/negatives/value-assertion-language-tagged-negative.jsonld`,
+        a value carrying both `@type` and `@language`,
         which every other gate rejects.
 
         Two members, two reasons — the same pair
         `test_value_object_rejects_members_outside_json_ld` pins on the JSON
         Schema side:
 
-          * `@language` — the RDF-corrupting one, and the reason Core §2.2
-            keeps language-tagged literals outside the v0.2 carrier.
+          * `@language` on the typed branch — mutually exclusive with `@type`.
           * an arbitrary member (`rkaf:bogus`) — dropped by JSON-LD expansion,
             so only a wire-form gate can catch it.
 
@@ -2765,16 +2868,17 @@ class TypedLiteralCarriageTests(unittest.TestCase):
         typescript = target_typescript(
             self.document, registry=self.registry, source_file=self.source
         )
-        declared = [
-            member.name
-            for member in next(
-                prop
-                for shape in self.document.shapes
-                for prop in shape.properties
-                if prop.name == "rkaf:assertsValue"
-            ).object_properties
-        ]
-        self.assertEqual(declared, ["@value", "@type"])
+        value_prop = next(
+            prop
+            for shape in self.document.shapes
+            for prop in shape.properties
+            if prop.name == "rkaf:assertsValue"
+        )
+        branches = value_prop.object_alternatives
+        self.assertEqual(
+            [[member.name for member in branch] for branch in branches],
+            [["@value", "@type"], ["@value", "@language"]],
+        )
 
         # ── static half: the emitted object type ──────────────────────────
         member_line = next(
@@ -2791,18 +2895,13 @@ class TypedLiteralCarriageTests(unittest.TestCase):
         self.assertEqual(
             member_line,
             '"rkaf:assertsValue": { "@value": string; "@type": ValueDatatype; '
-            '"@language"?: never };',
+            '"@language"?: never } | { "@value": string; "@language": string; '
+            '"@type"?: never };',
             "the emitted object type must forbid the JSON-LD value-object "
             "members the CUE does not declare",
         )
-        for reserved in sorted(VALUE_OBJECT_MEMBERS - set(declared)):
-            self.assertIn(
-                f'"{reserved}"?: never',
-                member_line,
-                f"an undeclared JSON-LD value-object member ({reserved}) must "
-                "be typed away, not merely omitted: TypeScript is structural, "
-                "so omission admits it on any widened value",
-            )
+        self.assertIn('"@language"?: never', member_line)
+        self.assertIn('"@type"?: never', member_line)
 
         # ── runtime half: the emitted guard, and the set it closes over ───
         guard = next(
@@ -2830,24 +2929,11 @@ class TypedLiteralCarriageTests(unittest.TestCase):
         )
         self.assertEqual(
             allowed,
-            declared,
-            "the runtime closure must close over exactly the members the CUE "
-            "declares; a drift here reopens the hole in one target only",
+            sorted(VALUE_OBJECT_MEMBERS),
+            "the runtime closure must allow only JSON-LD value-object members",
         )
-        for extra, rejected in (
-            ({}, False),
-            ({"@language": "en"}, True),
-            ({"rkaf:bogus": "y"}, True),
-        ):
-            with self.subTest(extra=extra):
-                payload = {"@value": "x", "@type": "xsd:string", **extra}
-                self.assertEqual(
-                    any(member not in allowed for member in payload),
-                    rejected,
-                    "the emitted guard must reject exactly the members outside "
-                    "the closed value object, and a valid typed literal must "
-                    "still pass",
-                )
+        self.assertIn("exactly one of @type or @language is required", typescript)
+        self.assertIn("@language must be a BCP 47 language tag", typescript)
 
     def test_value_object_rejects_members_outside_json_ld(self) -> None:
         """The compiled value object is CLOSED, so JSON Schema rejects exactly
@@ -2855,13 +2941,9 @@ class TypedLiteralCarriageTests(unittest.TestCase):
 
         Two members matter, for different reasons:
 
-          * `@language` — the RDF-corrupting one. A language-tagged literal
-            expands with the declared datatype DROPPED, so SHACL's
-            `sh:datatype` alternatives reject it. An open object left JSON
-            Schema accepting a document SHACL rejected, which is the exact
-            disagreement §2.2's closed datatype set exists to prevent. The
-            corpus negative
-            `fixtures/negatives/value-assertion-language-tagged-negative.jsonld`
+          * `@language` together with `@type` — RDF 1.1 makes these mutually
+            exclusive. The corpus negative
+            `fixtures/negatives/valueassertion-type-and-language-negative.jsonld`
             pins this end to end across both gates.
           * an arbitrary member (`rkaf:bogus`) — a WIRE-FORM-only divergence.
             JSON-LD expansion silently drops it, so the RDF is a well-formed
@@ -2880,6 +2962,7 @@ class TypedLiteralCarriageTests(unittest.TestCase):
             "@id": "urn:rkaf:test:value-assertion",
             "@type": "rkaf:ValueAssertion",
             "rkaf:assertionOrigin": "rkaf:humanAsserted",
+            "rkaf:epistemicBasis": "rkaf:editorialAssertion",
             "rkaf:assertsSubject": "urn:rkaf:test:subject",
             "rkaf:assertsPredicate": "urn:rkaf:test:predicate",
             "rkaf:assertionPolarity": "rkaf:affirmed",
@@ -2894,19 +2977,50 @@ class TypedLiteralCarriageTests(unittest.TestCase):
             [],
             "a bare value object must still validate",
         )
-        for extra in ({"@language": "en"}, {"rkaf:bogus": "y"}):
-            with self.subTest(extra=extra):
+        self.assertEqual(
+            list(
+                validator.iter_errors(
+                    {
+                        **base,
+                        "rkaf:assertsValue": {
+                            "@value": "繁體中文",
+                            "@language": "zh-Hant",
+                        },
+                    }
+                )
+            ),
+            [],
+            "a language-tagged string with a script subtag must validate",
+        )
+        self.assertEqual(
+            list(
+                validator.iter_errors(
+                    {
+                        **base,
+                        "rkaf:assertsValue": {
+                            "@value": "colour",
+                            "@language": "EN-gb-OED",
+                        },
+                    }
+                )
+            ),
+            [],
+            "BCP 47 tags are case-insensitive, including grandfathered tags",
+        )
+        for value in (
+            {"@value": "x", "@type": "xsd:string", "@language": "en"},
+            {"@value": "x", "@language": "en_US"},
+            {"@value": "x", "@language": "en--US"},
+            {"@value": "x", "@type": "xsd:string", "rkaf:bogus": "y"},
+        ):
+            with self.subTest(value=value):
                 node = {
                     **base,
-                    "rkaf:assertsValue": {
-                        "@value": "x",
-                        "@type": "xsd:string",
-                        **extra,
-                    },
+                    "rkaf:assertsValue": value,
                 }
                 self.assertTrue(
                     list(validator.iter_errors(node)),
-                    f"the value object must reject the extra member {extra}",
+                    f"the value object must reject {value}",
                 )
 
     def test_value_object_without_closed_datatype_enum_is_a_compile_error(
@@ -3061,7 +3175,8 @@ class PropositionSeparationTests(unittest.TestCase):
             for shape in attestation.shapes
             for prop in shape.properties
         } - {"@type", "rkaf:hasEffectivePeriod", "rkaf:lastVerifiedAt",
-             "rkaf:verifiedBy", "rkaf:hasAccessScope"}
+             "rkaf:verifiedBy", "rkaf:hasAccessScope",
+             "rkaf:hasRetentionPolicy"}
         for name in ("relationship-assertion", "value-assertion", "assertion"):
             with self.subTest(form=name):
                 document = parse_cue_file(
@@ -3526,7 +3641,10 @@ class AILineageApprovalSeparationTests(unittest.TestCase):
         }
         for origin in AI_TOUCHED_ORIGINS:
             with self.subTest(origin=origin):
-                self.assertEqual(guarded[origin], {"rkaf:hasAILineage"})
+                self.assertEqual(
+                    guarded[origin],
+                    {"rkaf:hasAILineage", "rkaf:usageEligibility"},
+                )
 
     def test_a_stated_rationale_still_names_its_human(self) -> None:
         """A review attributed to nobody is worse than no review.
@@ -3565,15 +3683,7 @@ class AILineageApprovalSeparationTests(unittest.TestCase):
 
 
 class ConceptAssignmentTests(unittest.TestCase):
-    """Core §4.7 — assignments are evidence-bearing, and the flow is one-way.
-
-    Two properties carry the whole design. First, exactly two kinds of thing
-    are taggable and they are not interchangeable. Second, evidence flows UP
-    from segments to documents and never back down: a document tag may
-    shortlist candidates for a segment and can never prove one. Without the
-    second rule a single mistaken document tag propagates to every segment and
-    the segments then confirm the document.
-    """
+    """Core §4.7 — assignments are strict RelationshipAssertions."""
 
     def setUp(self) -> None:
         self.source = REPO_ROOT / "constraints" / "core" / "concept-assignment.cue"
@@ -3597,76 +3707,65 @@ class ConceptAssignmentTests(unittest.TestCase):
             ).read_text()
         )["$defs"]["ConceptAssignment"]
 
-    def _guards(self) -> dict[tuple[str, str | None], set[str]]:
-        return {
-            (branch.when_property, branch.when_equals): {
-                prop.name for prop in branch.then_require
-            }
-            for branch in self.shape.conditionals
-        }
+    def test_assignment_uses_the_canonical_relationship_proposition(self) -> None:
+        for field in ASSERTION_PROPOSITION_FIELDS:
+            with self.subTest(field=field):
+                self.assertIn(field, self.properties)
+                self.assertFalse(self.properties[field].optional)
+        self.assertIn("rkaf:assertsObject", self.properties)
+        self.assertFalse(self.properties["rkaf:assertsObject"].optional)
+        self.assertEqual(
+            self.properties["rkaf:assertionPolarity"].fixed_value,
+            "rkaf:affirmed",
+        )
 
-    def test_exactly_two_subject_kinds_are_taggable(self) -> None:
+    def test_assignment_predicate_is_exactly_the_role(self) -> None:
         values = next(
             enum.values
             for enum in self.document.enums
-            if enum.name == "AssignmentSubjectType"
+            if enum.name == "ConceptAssignmentPredicate"
         )
-        self.assertEqual(values, ["rkaf:Artifact", "rkaf:SourceFragment"])
-        self.assertIn(
-            "sh:path rkaf:assignmentSubjectType ; sh:minCount 1 ; sh:maxCount 1 ; "
-            "sh:in ( rkaf:Artifact rkaf:SourceFragment )",
-            self.shacl,
-        )
-        for name in ("rkaf:assignmentSubject", "rkaf:assignmentSubjectType"):
-            self.assertFalse(self.properties[name].optional)
-
-    def test_a_segment_tag_needs_evidence_from_that_segment(self) -> None:
-        """The rule that stops a document tag from confirming itself."""
-        guards = self._guards()
         self.assertEqual(
-            guards.get(("rkaf:assignmentSubjectType", "rkaf:SourceFragment")),
-            {"rkaf:assignmentEvidence"},
+            values,
+            [
+                "rkaf:assignmentPrimary",
+                "rkaf:assignmentSubstantive",
+                "rkaf:assignmentMention",
+                "rkaf:assignmentContextual",
+            ],
         )
-        self.assertIn(
-            "sh:path rkaf:assignmentSubjectType ; sh:hasValue rkaf:SourceFragment",
-            self.shacl,
+        self.assertEqual(
+            self.properties["rkaf:assertsPredicate"].enum_ref,
+            "ConceptAssignmentPredicate",
         )
 
-    def test_direct_and_derived_carry_different_obligations(self) -> None:
-        guards = self._guards()
-        self.assertEqual(
-            guards.get(("rkaf:assignmentDerivation", "rkaf:directAssignment")),
-            {"rkaf:assignmentEvidence"},
+    def test_only_the_exact_concept_release_is_form_specific(self) -> None:
+        release = self.properties["rkaf:assignedConceptRelease"]
+        self.assertFalse(release.optional)
+        self.assertEqual(release.pattern, IRI_PATTERN)
+        ranges = _scan_reference_class_registry(
+            REPO_ROOT / "constraints" / "semantics" / "l0-ranges.cue"
         )
         self.assertEqual(
-            guards.get(("rkaf:assignmentDerivation", "rkaf:derivedAssignment")),
-            {"rkaf:supportingAssignment"},
+            ranges.get("rkaf:assignedConceptRelease"),
+            "rkaf:ReferenceResourceRelease",
         )
 
-    def test_aggregation_names_the_documented_rule(self) -> None:
-        """"A documented rule may combine segment tags" needs WHICH rule."""
-        guards = self._guards()
-        self.assertEqual(
-            guards.get(("rkaf:supportingAssignment", None)),
-            {"rkaf:assignmentPolicyVersion"},
-        )
-
-    def test_evidence_and_supports_resolve_to_real_records(self) -> None:
-        ranges = _scan_reference_class_registry(self.source)
-        self.assertEqual(
-            ranges.get("rkaf:assignmentEvidence"), "rkaf:SourceFragment"
-        )
-        self.assertEqual(
-            ranges.get("rkaf:supportingAssignment"), "rkaf:ConceptAssignment"
-        )
-        self.assertRegex(
-            self.shacl,
-            r"sh:path rkaf:assignmentEvidence ;[^\n]*sh:class rkaf:SourceFragment",
-        )
-        self.assertRegex(
-            self.shacl,
-            r"sh:path rkaf:supportingAssignment ;[^\n]*sh:class rkaf:ConceptAssignment",
-        )
+    def test_removed_parallel_assignment_fields_stay_absent(self) -> None:
+        for removed in (
+            "rkaf:assignmentSubject",
+            "rkaf:assignmentSubjectType",
+            "rkaf:assignedConcept",
+            "rkaf:assignmentRole",
+            "rkaf:assignmentEvidence",
+            "rkaf:assignmentEvidenceScheme",
+            "rkaf:assignmentDerivation",
+            "rkaf:supportingAssignment",
+            "rkaf:assignmentPolicyVersion",
+            "skos:inScheme",
+        ):
+            with self.subTest(removed=removed):
+                self.assertNotIn(removed, self.properties)
 
     def test_the_envelope_is_composed_not_restated(self) -> None:
         """Trust context has one home, and the assignment reuses it.
@@ -3686,36 +3785,10 @@ class ConceptAssignmentTests(unittest.TestCase):
         ):
             self.assertNotIn(invented, self.properties)
 
-    def test_no_proposition_core_is_composed(self) -> None:
-        """An assignment's proposition is the subject-concept pair.
-
-        Composing `#AssertionProposition` would demand an
-        `rkaf:assertsPredicate` that every assignment fills with the same
-        placeholder — a required field carrying no information.
-        """
-        for field in ASSERTION_PROPOSITION_FIELDS:
-            with self.subTest(field=field):
-                self.assertNotIn(field, self.properties)
-
-    def test_derivation_is_orthogonal_to_construction_origin(self) -> None:
-        """`assignmentDerivation` and `assertionOrigin` answer different
-        questions: how the RECORD was structured versus what CONSTRUCTED it. A
-        model may propose a direct assignment; a deterministic rule may compute
-        a derived one. Collapsing them would make "a model said so" and "it was
-        aggregated" the same fact."""
-        derivation = next(
-            enum.values
-            for enum in self.document.enums
-            if enum.name == "AssignmentDerivation"
-        )
-        origins = next(
-            enum.values
-            for enum in parse_cue_file(
-                REPO_ROOT / "constraints" / "core" / "assertion.cue"
-            ).enums
-            if enum.name == "AssertionOrigin"
-        )
-        self.assertEqual(set(derivation) & set(origins), set())
+    def test_derivation_uses_prov_and_justification_not_parallel_slots(self) -> None:
+        self.assertIn("prov:wasDerivedFrom", self.properties)
+        self.assertIn("rkaf:hasJustification", self.properties)
+        self.assertIn("rkaf:hasWarrant", self.properties)
 
 
 class ConceptSchemeTests(unittest.TestCase):
@@ -3768,40 +3841,23 @@ class ConceptSchemeTests(unittest.TestCase):
     def test_skos_membership_keeps_no_rulespec_class_range(self) -> None:
         """A concept may live in an external thesaurus.
 
-        `skos:inScheme` and `rkaf:assignedConcept` are deliberately absent from
-        the range registry: constraining them to `rkaf:ConceptScheme` /
-        `rkaf:RegisteredConcept` would reject every producer composing an
-        external SKOS vocabulary, which is the composition §9.4 requires.
+        `skos:inScheme` and canonical assertion endpoints are deliberately
+        absent from the range registry: constraining them to a Rulespec concept
+        class would reject every producer composing an external SKOS
+        vocabulary, which is the composition §9.4 requires.
         """
         ranges = _scan_reference_class_registry(self.source)
         self.assertNotIn("skos:inScheme", ranges)
-        self.assertNotIn("rkaf:assignedConcept", ranges)
 
-    def test_promotion_requires_a_written_definition(self) -> None:
+    def test_concept_lifecycle_is_not_an_inline_status(self) -> None:
         for shape in ("RegisteredConcept", "LocalConcept"):
             with self.subTest(shape=shape):
-                guards = {
-                    (branch.when_property, branch.when_equals): {
-                        prop.name for prop in branch.then_require
-                    }
-                    for branch in self.shapes[shape].conditionals
-                }
-                self.assertEqual(
-                    guards.get(("rkaf:conceptStatus", "rkaf:promoted")),
-                    {"skos:definition"},
-                )
+                self.assertNotIn("rkaf:conceptStatus", self._properties(shape))
 
-    def test_skos_mapping_properties_are_available_and_nothing_was_removed(
+    def test_concept_mapping_uses_exactly_the_five_skos_mapping_properties(
         self,
     ) -> None:
-        """SKOS separates in-scheme relations from cross-scheme mappings.
-
-        Without the `*Match` half a producer aligning to an external thesaurus
-        had to reach for `skos:broader` and misstate the alignment as if both
-        concepts lived in one vocabulary. The three earlier in-scheme values
-        stay legal: this is an addition, and every mapping valid before the
-        change is still valid.
-        """
+        """SKOS separates in-scheme relations from cross-scheme mappings."""
         values = next(
             enum.values
             for enum in parse_cue_file(
@@ -3809,23 +3865,22 @@ class ConceptSchemeTests(unittest.TestCase):
             ).enums
             if enum.name == "SkosMappingPredicate"
         )
-        for added in ("skos:broadMatch", "skos:narrowMatch", "skos:relatedMatch"):
-            self.assertIn(added, values)
-        for preserved in (
-            "skos:closeMatch",
-            "skos:exactMatch",
-            "skos:broader",
-            "skos:narrower",
-            "skos:related",
-            "skos:mappingRelation",
-        ):
-            self.assertIn(preserved, values)
+        self.assertEqual(
+            values,
+            [
+                "skos:exactMatch",
+                "skos:closeMatch",
+                "skos:broadMatch",
+                "skos:narrowMatch",
+                "skos:relatedMatch",
+            ],
+        )
 
     def test_the_hand_authored_shape_closes_the_same_mapping_set(self) -> None:
         """SHACL is conjunctive, so the two lists must agree exactly.
 
         `shapes/rkaf-shapes-conceptregistry.ttl` and the compiled shape both
-        emit `sh:in` over `rkaf:mappingRelation`. A value present in one and
+        emit `sh:in` over `rkaf:assertsPredicate`. A value present in one and
         absent from the other is rejected by the merged suite no matter what
         the compiled artifact says, which would make the CUE source a lie.
         """
@@ -3833,7 +3888,7 @@ class ConceptSchemeTests(unittest.TestCase):
             REPO_ROOT / "shapes" / "rkaf-shapes-conceptregistry.ttl"
         ).read_text()
         closure = re.search(
-            r"sh:path rkaf:mappingRelation ;.*?sh:in \((.*?)\) ;",
+            r"sh:path rkaf:assertsPredicate ;.*?sh:in \((.*?)\) ;",
             authored,
             re.DOTALL,
         )
@@ -3983,72 +4038,41 @@ class CrossNodeAgreementShapeTests(unittest.TestCase):
     """
 
     @staticmethod
-    def _assignment(subject: str, subject_type: str, tail: str) -> str:
+    def _assignment(subject: str, evidence: str = "ex:fragment") -> str:
         return f"""
+        ex:release a rkaf:ReferenceResourceRelease .
         ex:assignment a rkaf:ConceptAssignment ;
-          rkaf:assignmentSubject {subject} ;
-          rkaf:assignmentSubjectType {subject_type} ;
-          rkaf:assignedConcept ex:concept ;
-          skos:inScheme ex:scheme ;
-          rkaf:assignmentRole rkaf:assignmentSubstantive ;
-          rkaf:assignmentDerivation rkaf:derivedAssignment ;
-          rkaf:supportingAssignment ex:other-assignment ;
-          rkaf:assignmentPolicyVersion "test/1.0.0" ;
+          rkaf:assertsSubject {subject} ;
+          rkaf:assertsPredicate rkaf:assignmentSubstantive ;
+          rkaf:assertsObject ex:concept ;
+          rkaf:assertionPolarity rkaf:affirmed ;
+          rkaf:assignedConceptRelease ex:release ;
           rkaf:assertionOrigin rkaf:humanAsserted ;
-          {tail}
-        ex:other-assignment a rkaf:ConceptAssignment ;
-          rkaf:assignmentSubject ex:artifact ;
-          rkaf:assignmentSubjectType rkaf:Artifact ;
-          rkaf:assignedConcept ex:concept ;
-          skos:inScheme ex:scheme ;
-          rkaf:assignmentRole rkaf:assignmentPrimary ;
-          rkaf:assignmentDerivation rkaf:directAssignment ;
-          rkaf:assignmentEvidence ex:fragment ;
-          rkaf:assignmentEvidenceScheme rkaf:published-fragment ;
-          rkaf:assertionOrigin rkaf:humanAsserted .
+          rkaf:epistemicBasis rkaf:sourceExplicit .
+        ex:binding a rkaf:EvidenceBinding ;
+          rkaf:bindsAssertion ex:assignment ;
+          rkaf:bindsSourceFragment {evidence} ;
+          rkaf:evidenceRole rkaf:textualEvidence ;
+          rkaf:evidentiaryFunction rkaf:supports .
         """
 
-    def test_a_mislabelled_fragment_subject_still_needs_evidence(self) -> None:
-        """The subject-type conditional keys on a literal the producer writes.
+    def test_a_fragment_subject_uses_its_resolved_class(self) -> None:
+        """There is no producer-written subject-type label to contradict."""
+        self.assertTrue(
+            self._conforms(
+                self._ARTIFACT
+                + self._FRAGMENT
+                + self._assignment("ex:fragment")
+            )
+        )
 
-        Changing one enum value from `rkaf:SourceFragment` to `rkaf:Artifact`
-        bought a segment assignment the document-tag treatment while its subject
-        IRI still resolved to a fragment — so the document tag proved the
-        section tag, which §4.7.3 forbids outright.
-        """
+    def test_an_absent_subject_node_is_rejected(self) -> None:
+        """The canonical subject must resolve to Artifact or SourceFragment."""
         self.assertFalse(
             self._conforms(
                 self._ARTIFACT
                 + self._FRAGMENT
-                + self._assignment("ex:fragment", "rkaf:Artifact", ".")
-            ),
-            "relabelling the subject type evaded the local-evidence rule",
-        )
-        self.assertTrue(
-            self._conforms(
-                self._ARTIFACT
-                + self._FRAGMENT
-                + self._assignment(
-                    "ex:fragment",
-                    "rkaf:SourceFragment",
-                    "rkaf:assignmentEvidence ex:fragment ;\n                     rkaf:assignmentEvidenceScheme rkaf:published-fragment .",
-                )
-            )
-        )
-
-    def test_an_absent_subject_node_is_not_an_accusation(self) -> None:
-        """A standalone assignment document must validate as it always did.
-
-        The rule is written as "the subject does not resolve to a fragment OR
-        evidence is present", so a graph that simply does not contain the
-        subject node stays silent. Written the other way round it would reject
-        every assignment shipped without its subject.
-        """
-        self.assertTrue(
-            self._conforms(
-                self._ARTIFACT
-                + self._FRAGMENT
-                + self._assignment("ex:absent-subject", "rkaf:Artifact", ".")
+                + self._assignment("ex:absent-subject")
             )
         )
 
@@ -4075,11 +4099,7 @@ class CrossNodeAgreementShapeTests(unittest.TestCase):
                 self._ARTIFACT
                 + self._FRAGMENT
                 + other_document
-                + self._assignment(
-                    "ex:fragment",
-                    "rkaf:SourceFragment",
-                    "rkaf:assignmentEvidence ex:fragment-b ;\n                     rkaf:assignmentEvidenceScheme rkaf:published-fragment .",
-                )
+                + self._assignment("ex:fragment", "ex:fragment-b")
             ),
             "evidence from another Artifact satisfied the local-evidence rule",
         )
@@ -4088,11 +4108,7 @@ class CrossNodeAgreementShapeTests(unittest.TestCase):
                 self._ARTIFACT
                 + self._FRAGMENT
                 + other_document
-                + self._assignment(
-                    "ex:fragment",
-                    "rkaf:SourceFragment",
-                    "rkaf:assignmentEvidence ex:fragment ;\n                     rkaf:assignmentEvidenceScheme rkaf:published-fragment .",
-                )
+                + self._assignment("ex:fragment")
             )
         )
 
@@ -4117,11 +4133,18 @@ class CrossNodeAgreementShapeTests(unittest.TestCase):
         on that value's own lexical form, and the projector's list carrier
         admits one pattern for the whole list.
         """
-        squat = self._ARTIFACT + self._assignment(
-            "ex:artifact",
-            "rkaf:Artifact",
-            "rkaf:assignmentEvidence <urn:rkaf:fragment:not-encoded:oops> ;\n"
-            "          rkaf:assignmentEvidenceScheme rkaf:published-fragment .",
+        squat = (
+            self._ARTIFACT
+            + """
+            <urn:rkaf:fragment:not-encoded:oops> a rkaf:SourceFragment ;
+              oa:hasSource ex:artifact ;
+              oa:hasSelector ex:selector ;
+              rkaf:selectorKind oa:TextQuoteSelector .
+            ex:selector a oa:TextQuoteSelector ; oa:exact "evidence" .
+            """
+            + self._assignment(
+                "ex:artifact", "<urn:rkaf:fragment:not-encoded:oops>"
+            )
         )
         self.assertFalse(
             self._conforms(squat),
@@ -4143,7 +4166,8 @@ class CrossNodeAgreementShapeTests(unittest.TestCase):
             {self._URN_FRAGMENT} a rkaf:SourceFragment ;
               oa:hasSource ex:artifact ;
               oa:hasSelector ex:selector ;
-              rkaf:selectorKind oa:TextPositionSelector .
+              rkaf:selectorKind oa:TextPositionSelector ;
+              rkaf:fragmentIdentityScheme rkaf:carrier-local-fragment .
             ex:selector a oa:TextPositionSelector ;
               oa:start 118 ; oa:end 214 ;
               rkaf:coordinateSystem rkaf:unicode-codepoint .
@@ -4175,12 +4199,7 @@ class CrossNodeAgreementShapeTests(unittest.TestCase):
             self._conforms(
                 self._ARTIFACT
                 + self._FRAGMENT
-                + self._assignment(
-                    "ex:fragment",
-                    "rkaf:SourceFragment",
-                    "rkaf:assignmentEvidence ex:fragment ;\n"
-                    "          rkaf:assignmentEvidenceScheme rkaf:published-fragment .",
-                )
+                + self._assignment("ex:fragment")
             )
         )
 
@@ -4904,7 +4923,12 @@ class AnalysisModuleTests(unittest.TestCase):
         self.assertTrue(conforms(finding()))
 
         # §6.4 mechanism 3 — a finding reaching a ClosureClaim.
-        claim = "\n ex:claim a rkaf:ClosureClaim ."
+        claim = """
+        ex:claim a rkaf:ClosureClaim .
+        ex:claim-evidence a rkaf:EvidenceBinding ;
+          rkaf:bindsAssertion ex:claim ;
+          rkaf:noEvidenceReason rkaf:axiomatic .
+        """
         self.assertFalse(
             conforms(finding(extra="; rkaf:findingProofRecord ex:claim") + claim),
             "a finding referencing a ClosureClaim directly passed",
@@ -4975,7 +4999,7 @@ class AnalysisModuleTests(unittest.TestCase):
         )
         # ...and a ClosureClaim with no finding in the graph is still valid
         # shape. Disabled means unreachable FROM A FINDING, not unwritable.
-        self.assertTrue(conforms("ex:claim a rkaf:ClosureClaim ."))
+        self.assertTrue(conforms(claim))
         # Nor may the traversal be so broad that an unrelated node merely
         # MENTIONING a shape-validity claim fails a finding elsewhere in the
         # same document. §6.3 permits the claim to appear; it forbids the
@@ -4997,6 +5021,9 @@ class AnalysisModuleTests(unittest.TestCase):
                 ex:claim a rkaf:ClosureClaim ;
                   rkaf:closureClaimStatus rkaf:closureClaimDisabled ;
                   rkaf:assertionPolarity rkaf:denied .
+                ex:claim-evidence a rkaf:EvidenceBinding ;
+                  rkaf:bindsAssertion ex:claim ;
+                  rkaf:noEvidenceReason rkaf:axiomatic .
                 """
             ),
             "a rkaf:ClosureClaim carrying rkaf:assertionPolarity passed — a "
@@ -5013,6 +5040,9 @@ class AnalysisModuleTests(unittest.TestCase):
                     ex:claim a rkaf:ClosureClaim ;
                       rkaf:closureClaimStatus rkaf:closureClaimDisabled ;
                       {predicate} ex:thing .
+                    ex:claim-evidence a rkaf:EvidenceBinding ;
+                      rkaf:bindsAssertion ex:claim ;
+                      rkaf:noEvidenceReason rkaf:axiomatic .
                     """
                 ),
                 f"a rkaf:ClosureClaim carrying {predicate} passed — its "
@@ -5024,6 +5054,9 @@ class AnalysisModuleTests(unittest.TestCase):
                 ex:claim a rkaf:ClosureClaim ;
                   rkaf:closureClaimStatus rkaf:closureClaimDisabled ;
                   rkaf:closureRegion ex:fragment .
+                ex:claim-evidence a rkaf:EvidenceBinding ;
+                  rkaf:bindsAssertion ex:claim ;
+                  rkaf:noEvidenceReason rkaf:axiomatic .
                 """
             )
         )
@@ -5076,6 +5109,9 @@ class AnalysisModuleTests(unittest.TestCase):
                 ex:event a rkaf:RelationChangeEvent ;
                   rkaf:relationChangeOperation rkaf:relationRemoval ;
                   rkaf:assertionPolarity rkaf:denied .
+                ex:event-evidence a rkaf:EvidenceBinding ;
+                  rkaf:bindsAssertion ex:event ;
+                  rkaf:noEvidenceReason rkaf:inferred-from-warrant-class .
                 """
             ),
             "a rkaf:RelationChangeEvent carrying rkaf:assertionPolarity passed",
@@ -5086,6 +5122,9 @@ class AnalysisModuleTests(unittest.TestCase):
                 ex:event a rkaf:RelationChangeEvent ;
                   rkaf:relationChangeOperation rkaf:relationRemoval ;
                   rkaf:changeSubject ex:subject .
+                ex:event-evidence a rkaf:EvidenceBinding ;
+                  rkaf:bindsAssertion ex:event ;
+                  rkaf:noEvidenceReason rkaf:inferred-from-warrant-class .
                 """
             )
         )

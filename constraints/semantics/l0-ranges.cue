@@ -12,9 +12,9 @@ package semantics
 // type owns it — ELI, BIBFRAME, Schema.org, or a profile class. Declaring a
 // class range here would be Rulespec minting the universal Work class
 // `spec/rkaf-core.md` §4.1 declines to mint, and it would reject every producer
-// composing a public model instead. `skos:inScheme` and `rkaf:assignedConcept`
-// are absent for the same reason: SKOS owns scheme membership and a concept may
-// be an external `skos:Concept`.
+// composing a public model instead. `skos:inScheme` is absent for the same
+// reason: SKOS owns scheme membership and a concept may be an external
+// `skos:Concept`.
 #L0RangeRegistry: {
 	"rkaf:hasAuthority":    "rkaf:Authority"
 	"dcterms:hasFormat":    "rkaf:Artifact"
@@ -27,7 +27,16 @@ package semantics
 	// Version lineage must resolve to addressable source regions, never to a
 	// bare label or a similarity score (§4.1).
 	"rkaf:versionLineageEvidence": "rkaf:SourceFragment"
-	// Concept-assignment evidence and aggregation inputs (§4.7).
-	"rkaf:assignmentEvidence":   "rkaf:SourceFragment"
-	"rkaf:supportingAssignment": "rkaf:ConceptAssignment"
+	// No class range on bindsAssertion: the object may be a core Assertion
+	// specialization or an analysis assertion form that deliberately is not
+	// an rkaf:Assertion subclass. The inverse target shapes enforce the
+	// allowed durable forms without inventing a false common class.
+	"rkaf:bindsSourceFragment":    "rkaf:SourceFragment"
+	// Immutable reference-resource release pins (§4.7 / Concept Registry §2.2).
+	"rkaf:assignedConceptRelease":   "rkaf:ReferenceResourceRelease"
+	"rkaf:sourceConceptRelease":     "rkaf:ReferenceResourceRelease"
+	"rkaf:targetConceptRelease":     "rkaf:ReferenceResourceRelease"
+	"dcat:distribution":             "rkaf:Artifact"
+	"rkaf:hasAccessScope":                  "rkaf:AccessScope"
+	"rkaf:hasRetentionPolicy":              "rkaf:RetentionPolicy"
 }

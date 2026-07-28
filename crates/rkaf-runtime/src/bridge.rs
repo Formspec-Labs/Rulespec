@@ -647,4 +647,3 @@ mod tests {
         assert!(verify_finding_iris_resolve(&g).is_ok());
     }
 }
-

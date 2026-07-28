@@ -4,7 +4,6 @@
   "@type": "rkaf:ConceptScheme",
   "skos:prefLabel": "FNS SNAP topic scheme",
   "rkaf:schemeFacet": "urn:rkaf:facet:topic",
-  "rkaf:conceptStatus": "rkaf:active",
   "skos:definition": "Subject-matter topics of SNAP eligibility policy. Organizations, places, document states, and dates are OTHER facets and are not members of this scheme.",
   "skos:hasTopConcept": [
     "urn:rkaf:fixture:concept:household-income"

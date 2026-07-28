@@ -1,0 +1,22 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@id": "urn:rkaf:fixture:local-concept:income-evidence",
+  "@type": "rkaf:LocalConcept",
+  "skos:prefLabel": "Income evidence",
+  "skos:altLabel": [
+    "Income proof",
+    "Proof of earnings"
+  ],
+  "skos:definition": "Evidence used locally to establish household income.",
+  "skos:inScheme": "urn:rkaf:fixture:scheme:workspace-topics",
+  "skos:narrower": [
+    "urn:rkaf:fixture:local-concept:wage-statement",
+    "urn:rkaf:fixture:local-concept:self-employment-ledger"
+  ],
+  "skos:related": [
+    "urn:rkaf:fixture:local-concept:eligibility-verification"
+  ],
+  "rkaf:definedInScope": "urn:rkaf:scope:benefit-workspace",
+  "rkaf:conceptScope": "benefit-workspace/evidence/income",
+  "_comment": "Edge: a workspace-local SKOS concept may carry several labels and semantic neighbors without becoming a cross-scheme ConceptMapping."
+}

@@ -3,6 +3,5 @@
   "@id": "urn:rkaf:fixture:scheme:fns-snap-topic",
   "@type": "rkaf:ConceptScheme",
   "rkaf:schemeFacet": "urn:rkaf:facet:topic",
-  "rkaf:conceptStatus": "rkaf:active",
   "rkaf:managedByRegistry": "urn:rkaf:fixture:registry:fns-snap-canonical"
 }

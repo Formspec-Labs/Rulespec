@@ -5,6 +5,5 @@
   "skos:prefLabel": "Gross earned income (TX-HHSC)",
   "skos:inScheme": "urn:rkaf:fixture:scheme:fns-snap-topic",
   "rkaf:definedInScope": "urn:rkaf:scope:tx-hhsc-snap",
-  "rkaf:conceptScope": "tx-hhsc/snap/income",
-  "rkaf:conceptStatus": "rkaf:active"
+  "rkaf:conceptScope": "tx-hhsc/snap/income"
 }

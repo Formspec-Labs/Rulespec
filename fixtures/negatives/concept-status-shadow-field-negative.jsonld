@@ -1,0 +1,11 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@id": "urn:rkaf:fixture:concept-negative:inline-status",
+  "@type": "rkaf:RegisteredConcept",
+  "skos:prefLabel": "Household income",
+  "skos:inScheme": "urn:rkaf:fixture:scheme:topics",
+  "rkaf:managedByRegistry": "urn:rkaf:fixture:registry:topics",
+  "rkaf:conceptScope": "benefits/income",
+  "rkaf:conceptStatus": "rkaf:active",
+  "_comment": "Negative migration gate: release membership, Attestation, and LifecycleEvent replace the removed inline conceptStatus field."
+}

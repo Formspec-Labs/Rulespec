@@ -31,7 +31,8 @@
       "rkaf:changeEvidence": [
         "urn:rkaf:fixture:analysis:edge:fragment:paragraph-1"
       ],
-      "rkaf:assertionOrigin": "rkaf:humanAsserted"
+      "rkaf:assertionOrigin": "rkaf:humanAsserted",
+      "rkaf:epistemicBasis": "rkaf:sourceExplicit"
     }
   ],
   "_comment": "Edge. The source states a suspension with no decidable stage and no date of any kind. rkaf:changeStageUnclear is a first-class value precisely so this record exists: dropping it loses the evidence, and guessing a stage or a date converts uncertainty into a claim."

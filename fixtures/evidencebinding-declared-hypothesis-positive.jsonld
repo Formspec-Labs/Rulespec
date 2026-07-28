@@ -5,6 +5,7 @@
       "@id": "urn:rkaf:fixture:declared-hypothesis:assertion",
       "@type": "rkaf:RelationshipAssertion",
       "rkaf:assertionOrigin": "rkaf:humanAsserted",
+      "rkaf:epistemicBasis": "rkaf:editorialAssertion",
       "rkaf:assertsSubject": "urn:rkaf:fixture:program:assistance-intake",
       "rkaf:assertsPredicate": "urn:rkaf:fixture:predicate:isConstrainedBy",
       "rkaf:assertsObject": "urn:rkaf:fixture:requirement:prior-year-filing",

@@ -19,6 +19,7 @@
       "@id": "urn:rkaf:fixture:analysis:assertion:baseline-affirmed",
       "@type": "rkaf:RelationshipAssertion",
       "rkaf:assertionOrigin": "rkaf:humanAsserted",
+      "rkaf:epistemicBasis": "rkaf:sourceExplicit",
       "rkaf:assertsSubject": "urn:rkaf:fixture:analysis:subject:permit-class-b",
       "rkaf:assertsPredicate": "urn:rkaf:fixture:analysis:predicate:requiresInspection",
       "rkaf:assertsObject": "urn:rkaf:fixture:analysis:object:annual-inspection",
@@ -29,11 +30,24 @@
       "@id": "urn:rkaf:fixture:analysis:assertion:observed-denied",
       "@type": "rkaf:RelationshipAssertion",
       "rkaf:assertionOrigin": "rkaf:humanAsserted",
+      "rkaf:epistemicBasis": "rkaf:sourceExplicit",
       "rkaf:assertsSubject": "urn:rkaf:fixture:analysis:subject:permit-class-b",
       "rkaf:assertsPredicate": "urn:rkaf:fixture:analysis:predicate:requiresInspection",
       "rkaf:assertsObject": "urn:rkaf:fixture:analysis:object:annual-inspection",
       "rkaf:assertionPolarity": "rkaf:denied",
       "rkaf:assertedAt": "2026-05-11T00:00:00Z"
+    },
+    {
+      "@id": "urn:rkaf:fixture:analysis:evidence:baseline",
+      "@type": "rkaf:EvidenceBinding",
+      "rkaf:bindsAssertion": "urn:rkaf:fixture:analysis:assertion:baseline-affirmed",
+      "rkaf:noEvidenceReason": "rkaf:inferred-from-warrant-class"
+    },
+    {
+      "@id": "urn:rkaf:fixture:analysis:evidence:observed",
+      "@type": "rkaf:EvidenceBinding",
+      "rkaf:bindsAssertion": "urn:rkaf:fixture:analysis:assertion:observed-denied",
+      "rkaf:noEvidenceReason": "rkaf:inferred-from-warrant-class"
     },
     {
       "@id": "urn:rkaf:fixture:analysis:issuer:assertion-state",

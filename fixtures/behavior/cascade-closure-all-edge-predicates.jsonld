@@ -10,12 +10,14 @@
       {
         "@id": "seed",
         "@type": "rkaf:Assertion",
-        "rkaf:assertionOrigin": "rkaf:humanAsserted"
+        "rkaf:assertionOrigin": "rkaf:humanAsserted",
+        "rkaf:epistemicBasis": "rkaf:editorialAssertion"
       },
       {
         "@id": "edge-derived-from-fragment",
         "@type": "rkaf:Assertion",
         "rkaf:assertionOrigin": "rkaf:humanAsserted",
+        "rkaf:epistemicBasis": "rkaf:editorialAssertion",
         "rkaf:derivedFromFragment": "seed"
       },
       {
@@ -27,36 +29,42 @@
         "@id": "edge-has-authority",
         "@type": "rkaf:Assertion",
         "rkaf:assertionOrigin": "rkaf:humanAsserted",
+        "rkaf:epistemicBasis": "rkaf:editorialAssertion",
         "rkaf:hasAuthority": "seed"
       },
       {
         "@id": "edge-derives-authority-from",
         "@type": "rkaf:Assertion",
         "rkaf:assertionOrigin": "rkaf:humanAsserted",
+        "rkaf:epistemicBasis": "rkaf:editorialAssertion",
         "rkaf:derivesAuthorityFrom": "seed"
       },
       {
         "@id": "edge-implements",
         "@type": "rkaf:Assertion",
         "rkaf:assertionOrigin": "rkaf:humanAsserted",
+        "rkaf:epistemicBasis": "rkaf:editorialAssertion",
         "rkaf:implements": "seed"
       },
       {
         "@id": "edge-requires-evidence-type",
         "@type": "rkaf:Assertion",
         "rkaf:assertionOrigin": "rkaf:humanAsserted",
+        "rkaf:epistemicBasis": "rkaf:editorialAssertion",
         "rkaf:requiresEvidenceType": "seed"
       },
       {
         "@id": "edge-collects-evidence-type",
         "@type": "rkaf:Assertion",
         "rkaf:assertionOrigin": "rkaf:humanAsserted",
+        "rkaf:epistemicBasis": "rkaf:editorialAssertion",
         "rkaf:collectsEvidenceType": "seed"
       },
       {
         "@id": "edge-operationally-depends-on",
         "@type": "rkaf:Assertion",
         "rkaf:assertionOrigin": "rkaf:humanAsserted",
+        "rkaf:epistemicBasis": "rkaf:editorialAssertion",
         "rkaf:operationallyDependsOn": "seed"
       },
       {
@@ -75,55 +83,57 @@
         "@id": "edge-asserts-object",
         "@type": "rkaf:Assertion",
         "rkaf:assertionOrigin": "rkaf:humanAsserted",
+        "rkaf:epistemicBasis": "rkaf:editorialAssertion",
         "rkaf:assertsObject": "seed"
       },
       {
         "@id": "edge-skos-exact-match",
         "@type": "rkaf:Assertion",
         "rkaf:assertionOrigin": "rkaf:humanAsserted",
+        "rkaf:epistemicBasis": "rkaf:editorialAssertion",
         "skos:exactMatch": "seed"
       },
       {
         "@id": "edge-skos-close-match",
         "@type": "rkaf:Assertion",
         "rkaf:assertionOrigin": "rkaf:humanAsserted",
+        "rkaf:epistemicBasis": "rkaf:editorialAssertion",
         "skos:closeMatch": "seed"
       },
       {
         "@id": "edge-skos-broad-match",
         "@type": "rkaf:Assertion",
         "rkaf:assertionOrigin": "rkaf:humanAsserted",
+        "rkaf:epistemicBasis": "rkaf:editorialAssertion",
         "skos:broadMatch": "seed"
       },
       {
         "@id": "edge-skos-narrow-match",
         "@type": "rkaf:Assertion",
         "rkaf:assertionOrigin": "rkaf:humanAsserted",
+        "rkaf:epistemicBasis": "rkaf:editorialAssertion",
         "skos:narrowMatch": "seed"
       },
       {
         "@id": "edge-skos-related-match",
         "@type": "rkaf:Assertion",
         "rkaf:assertionOrigin": "rkaf:humanAsserted",
+        "rkaf:epistemicBasis": "rkaf:editorialAssertion",
         "skos:relatedMatch": "seed"
       },
       {
-        "@id": "edge-source-concept",
+        "@id": "edge-asserts-subject",
         "@type": "rkaf:Assertion",
         "rkaf:assertionOrigin": "rkaf:humanAsserted",
-        "rkaf:sourceConcept": "seed"
-      },
-      {
-        "@id": "edge-target-concept",
-        "@type": "rkaf:Assertion",
-        "rkaf:assertionOrigin": "rkaf:humanAsserted",
-        "rkaf:targetConcept": "seed"
+        "rkaf:epistemicBasis": "rkaf:editorialAssertion",
+        "rkaf:assertsSubject": "seed"
       }
     ]
   },
   "rkaf:expectedOutput": {
     "affectedSet": [
       "edge-asserts-object",
+      "edge-asserts-subject",
       "edge-collects-evidence-type",
       "edge-derived-from-fragment",
       "edge-derives-authority-from",
@@ -138,8 +148,6 @@
       "edge-skos-exact-match",
       "edge-skos-narrow-match",
       "edge-skos-related-match",
-      "edge-source-concept",
-      "edge-target-concept",
       "seed"
     ],
     "algorithm": "rkaf:CascadeClosureV1"

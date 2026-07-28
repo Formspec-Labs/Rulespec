@@ -14,6 +14,7 @@ import rdflib
 from pyshacl import validate
 
 from conformance_lib import fixture_name, negative_fixture_paths, shacl_shape_paths
+from reference_release_digest import release_digest_errors
 
 ROOT = Path(__file__).resolve().parent.parent
 
@@ -37,6 +38,7 @@ def main() -> int:
             advanced=True,
             meta_shacl=False,
         )
+        conforms = conforms and not release_digest_errors(data)
         status = "FAIL-AS-EXPECTED" if not conforms else "UNEXPECTED-PASS"
         print(f"  [{status}] fixtures/{rel}")
         if conforms:

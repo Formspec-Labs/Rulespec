@@ -5,6 +5,7 @@
       "@id": "urn:rkaf:fixture:eb-ner:assertion",
       "@type": "rkaf:Assertion",
       "rkaf:assertionOrigin": "rkaf:humanAsserted",
+      "rkaf:epistemicBasis": "rkaf:editorialAssertion",
       "rkaf:hasSafetyLabel": "rkaf:A3AdvisoryAggregated"
     },
     {

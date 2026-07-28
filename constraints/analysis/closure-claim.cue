@@ -93,7 +93,7 @@ import "list"
 	// change events. Without it a DISABLED record can be published as a denied
 	// assertion about a triple, which is the §2 collapse wearing the one
 	// `@type` that is supposed to carry no weight at all.
-	#AssertionEnvelope
+	#DurableAssertionEnvelope
 	"@type": "rkaf:ClosureClaim"
 
 	// The experimental gate. Required; exactly one legal value.
@@ -134,6 +134,7 @@ import "list"
 	"rkaf:hasJustification"?:        string & =~"^[A-Za-z][A-Za-z0-9+.-]*:[^\\s]+$"
 	"rkaf:hasWarrant"?:              string & =~"^[A-Za-z][A-Za-z0-9+.-]*:[^\\s]+$"
 	"rkaf:hasAccessScope"?:          string & =~"^[A-Za-z][A-Za-z0-9+.-]*:[^\\s]+$"
+	"rkaf:hasRetentionPolicy"?:      string & =~"^[A-Za-z][A-Za-z0-9+.-]*:[^\\s]+$"
 	"rkaf:hasSourceClaimant"?:       string & =~"^[A-Za-z][A-Za-z0-9+.-]*:[^\\s]+$"
 	"rkaf:hasExtractionProvenance"?: string & =~"^[A-Za-z][A-Za-z0-9+.-]*:[^\\s]+$"
 	"rkaf:hasConfidence"?:           [...(string & =~"^[A-Za-z][A-Za-z0-9+.-]*:[^\\s]+$")]

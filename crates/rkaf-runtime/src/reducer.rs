@@ -3,7 +3,9 @@
 use chrono::{DateTime, Duration, FixedOffset};
 use serde_json::{json, Value};
 
-use crate::{errors::RuntimeError, graph::Graph, temporal::effective_attestations_at, verdict::Verdict};
+use crate::{
+    errors::RuntimeError, graph::Graph, temporal::effective_attestations_at, verdict::Verdict,
+};
 
 /// The 7-level UsageEligibility lattice, ordered low → high.
 const LATTICE: &[&str] = &[
@@ -37,17 +39,15 @@ pub fn evaluate(test_case: &Value, graph: &Graph) -> Result<Verdict, RuntimeErro
     // Plan 7e.2 — optional evaluation time for the freshness gate. If absent,
     // the reducer skips the freshness check (Attestations of any age accepted).
     // Strictness: malformed RFC-3339 propagates as MalformedTestCase.
-    let evaluation_time: Option<DateTime<FixedOffset>> = match test_case
-        .get("rkaf:evaluationTime")
-        .and_then(Value::as_str)
-    {
-        Some(s) => Some(DateTime::parse_from_rfc3339(s).map_err(|e| {
-            RuntimeError::MalformedTestCase(format!(
-                "rkaf:evaluationTime value {s:?} is not valid RFC-3339: {e}"
-            ))
-        })?),
-        None => None,
-    };
+    let evaluation_time: Option<DateTime<FixedOffset>> =
+        match test_case.get("rkaf:evaluationTime").and_then(Value::as_str) {
+            Some(s) => Some(DateTime::parse_from_rfc3339(s).map_err(|e| {
+                RuntimeError::MalformedTestCase(format!(
+                    "rkaf:evaluationTime value {s:?} is not valid RFC-3339: {e}"
+                ))
+            })?),
+            None => None,
+        };
     // Locate the Assertion under evaluation. Per spec §1, the fixture MUST
     // declare `rkaf:subjectAssertion` — greenfield contract, no implicit
     // "pick the first Assertion" fallback. Graphs commonly carry multiple

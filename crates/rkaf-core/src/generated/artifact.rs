@@ -68,6 +68,9 @@ pub struct Artifact {
     /// JSON-LD property `foaf:primaryTopic`.
     #[serde(rename = "foaf:primaryTopic", skip_serializing_if = "Option::is_none", default)]
     pub primary_topic: Option<String>,
+    /// JSON-LD property `dcterms:format`.
+    #[serde(rename = "dcterms:format", skip_serializing_if = "Option::is_none", default)]
+    pub format: Option<String>,
     /// JSON-LD property `dcterms:hasFormat`.
     #[serde(rename = "dcterms:hasFormat", skip_serializing_if = "Option::is_none", default)]
     pub has_format: Option<crate::OneOrMany<String>>,
@@ -83,6 +86,12 @@ pub struct Artifact {
     /// JSON-LD property `rkaf:hasContentDigest`.
     #[serde(rename = "rkaf:hasContentDigest", skip_serializing_if = "Option::is_none", default)]
     pub has_content_digest: Option<String>,
+    /// JSON-LD property `rkaf:hasAccessScope`.
+    #[serde(rename = "rkaf:hasAccessScope", skip_serializing_if = "Option::is_none", default)]
+    pub has_access_scope: Option<String>,
+    /// JSON-LD property `rkaf:hasRetentionPolicy`.
+    #[serde(rename = "rkaf:hasRetentionPolicy", skip_serializing_if = "Option::is_none", default)]
+    pub has_retention_policy: Option<String>,
     /// JSON-LD property `rkaf:versionLineageEvidence`.
     #[serde(rename = "rkaf:versionLineageEvidence", skip_serializing_if = "Option::is_none", default)]
     pub version_lineage_evidence: Option<crate::OneOrMany<String>>,

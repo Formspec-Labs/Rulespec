@@ -41,6 +41,9 @@ pub enum RelationChangeStage {
     ChangeStageUnclear,
 }
 
+#[allow(dead_code)]
+type _StructuralDependencyProvisionalAIUsageEligibility = crate::generated::assertion::ProvisionalAIUsageEligibility;
+
 use std::collections::BTreeMap;
 
 /// Generated JSON-LD carrier for `RelationChangeEvent`.
@@ -64,6 +67,9 @@ pub struct RelationChangeEvent {
     /// JSON-LD property `rkaf:assertionOrigin`.
     #[serde(rename = "rkaf:assertionOrigin")]
     pub assertion_origin: crate::generated::assertion::AssertionOrigin,
+    /// JSON-LD property `rkaf:epistemicBasis`.
+    #[serde(rename = "rkaf:epistemicBasis")]
+    pub epistemic_basis: crate::generated::assertion::EpistemicBasis,
     /// JSON-LD property `rkaf:hasApplicability`.
     #[serde(rename = "rkaf:hasApplicability", skip_serializing_if = "Option::is_none", default)]
     pub has_applicability: Option<String>,
@@ -76,6 +82,9 @@ pub struct RelationChangeEvent {
     /// JSON-LD property `rkaf:hasAuthority`.
     #[serde(rename = "rkaf:hasAuthority", skip_serializing_if = "Option::is_none", default)]
     pub has_authority: Option<String>,
+    /// JSON-LD property `rkaf:hasRetentionPolicy`.
+    #[serde(rename = "rkaf:hasRetentionPolicy", skip_serializing_if = "Option::is_none", default)]
+    pub has_retention_policy: Option<String>,
     /// JSON-LD property `prov:wasDerivedFrom`.
     #[serde(rename = "prov:wasDerivedFrom", skip_serializing_if = "Option::is_none", default)]
     pub was_derived_from: Option<crate::OneOrMany<String>>,

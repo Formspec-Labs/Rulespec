@@ -1,0 +1,14 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@id": "urn:rkaf:fixture:scheme:multi-root-topic",
+  "@type": "rkaf:ConceptScheme",
+  "skos:prefLabel": "Multi-root benefit topic scheme",
+  "skos:definition": "A governed topic scheme whose hierarchy has more than one top concept.",
+  "skos:hasTopConcept": [
+    "urn:rkaf:fixture:concept:eligibility",
+    "urn:rkaf:fixture:concept:benefit-delivery"
+  ],
+  "rkaf:schemeFacet": "urn:rkaf:facet:topic",
+  "rkaf:managedByRegistry": "urn:rkaf:fixture:registry:benefit-topics",
+  "_comment": "Edge: SKOS permits a concept scheme to have multiple top concepts. Publication or retirement state belongs to release membership, attestations, and lifecycle events, not a mutable status field on the scheme."
+}

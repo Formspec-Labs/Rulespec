@@ -1,0 +1,12 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@id": "urn:rkaf:fixture:ca-negative:missing-release",
+  "@type": "rkaf:ConceptAssignment",
+  "rkaf:assertsSubject": "urn:rkaf:fixture:artifact:subject",
+  "rkaf:assertsPredicate": "rkaf:assignmentPrimary",
+  "rkaf:assertsObject": "urn:rkaf:fixture:concept:topic",
+  "rkaf:assertionPolarity": "rkaf:affirmed",
+  "rkaf:assertionOrigin": "rkaf:humanAsserted",
+  "rkaf:epistemicBasis": "rkaf:editorialAssertion",
+  "_comment": "Negative migration gate: a durable assignment must pin the exact complete ReferenceResourceRelease containing its asserted concept."
+}

@@ -1,8 +1,0 @@
-{
-  "@context": "../../context/rkaf-context.jsonld",
-  "@id": "urn:rkaf:fixture:cm-broader:m1",
-  "@type": "rkaf:ConceptMapping",
-  "rkaf:sourceConcept": "urn:rkaf:concept:income-self-employment",
-  "rkaf:targetConcept": "urn:rkaf:concept:income",
-  "rkaf:mappingRelation": "skos:broader"
-}

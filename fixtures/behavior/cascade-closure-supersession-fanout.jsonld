@@ -10,12 +10,14 @@
       {
         "@id": "A",
         "@type": "rkaf:Assertion",
-        "rkaf:assertionOrigin": "rkaf:humanAsserted"
+        "rkaf:assertionOrigin": "rkaf:humanAsserted",
+        "rkaf:epistemicBasis": "rkaf:editorialAssertion"
       },
       {
         "@id": "B",
         "@type": "rkaf:Assertion",
         "rkaf:assertionOrigin": "rkaf:humanAsserted",
+        "rkaf:epistemicBasis": "rkaf:editorialAssertion",
         "rkaf:supersedesAssertion": "A"
       },
       {

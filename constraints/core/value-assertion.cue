@@ -19,13 +19,13 @@ package rkaf
 //
 // Everything else is shared by composition, not by restatement:
 //   #AssertionProposition — subject, predicate, polarity (immutable core)
-//   #AssertionEnvelope    — origin, provenance, grounding, consumer
-//                           disposition (context, some of it mutable)
+//   #DurableAssertionEnvelope — origin, epistemic basis, provenance,
+//                               grounding, and consumer disposition
 // Both are declared in constraints/core/assertion.cue. The narrowings below
 // are the same deliberate IRI tightenings #RelationshipAssertion applies; the
 // projector unifies them facet by facet into every target.
 #ValueAssertion: assertion={
-	#AssertionEnvelope
+	#DurableAssertionEnvelope
 	#AssertionProposition
 	"@type": "rkaf:ValueAssertion"
 
@@ -33,10 +33,10 @@ package rkaf
 	"rkaf:assertsSubject":   string & =~"^[A-Za-z][A-Za-z0-9+.-]*:[^\\s]+$"
 	"rkaf:assertsPredicate": string & =~"^[A-Za-z][A-Za-z0-9+.-]*:[^\\s]+$"
 
-	// The form-specific object slot: one JSON-LD value object, which expands
-	// to exactly one typed RDF literal. `@value` is the LEXICAL form — kept a
-	// string on the wire so `"42"^^xsd:integer` round-trips byte-for-byte —
-	// and `@type` names the datatype from the closed set above.
+	// The form-specific object slot: one closed JSON-LD value object. The two
+	// mutually exclusive RDF 1.1 branches are a typed literal and a
+	// language-tagged string. A BCP 47 script subtag (for example `Hant` in
+	// `zh-Hant`) preserves script without a parallel property.
 	//
 	// Carriage per target: JSON Schema validates the object and closes `@type`
 	// over #ValueDatatype; SHACL closes the expanded literal over the same set
@@ -45,7 +45,11 @@ package rkaf
 	// types plus a generated datatype-membership check.
 	"rkaf:assertsValue": {
 		"@value": string
-		"@type":  #ValueDatatype
+		{
+			"@type": #ValueDatatype
+		} | {
+			"@language": string & =~"^(?:(?:[A-Za-z]{2,3}(?:-[A-Za-z]{3}){0,3}|[A-Za-z]{4}|[A-Za-z]{5,8})(?:-[A-Za-z]{4})?(?:-(?:[A-Za-z]{2}|[0-9]{3}))?(?:-(?:[A-Za-z0-9]{5,8}|[0-9][A-Za-z0-9]{3}))*(?:-[0-9A-WY-Za-wy-z](?:-[A-Za-z0-9]{2,8})+)*(?:-[xX](?:-[A-Za-z0-9]{1,8})+)?|[xX](?:-[A-Za-z0-9]{1,8})+|[eE][nN]-[gG][bB]-[oO][eE][dD]|[iI]-(?:[aA][mM][iI]|[bB][nN][nN]|[dD][eE][fF][aA][uU][lL][tT]|[eE][nN][oO][cC][hH][iI][aA][nN]|[hH][aA][kK]|[kK][lL][iI][nN][gG][oO][nN]|[lL][uU][xX]|[mM][iI][nN][gG][oO]|[nN][aA][vV][aA][jJ][oO]|[pP][wW][nN]|[tT][aA][oO]|[tT][aA][yY]|[tT][sS][uU])|[sS][gG][nN]-(?:[bB][eE]-[fF][rR]|[bB][eE]-[nN][lL]|[cC][hH]-[dD][eE])|[aA][rR][tT]-[lL][oO][jJ][bB][aA][nN]|[cC][eE][lL]-[gG][aA][uU][lL][iI][sS][hH]|[nN][oO]-(?:[bB][oO][kK]|[nN][yY][nN])|[zZ][hH]-(?:[gG][uU][oO][yY][uU]|[hH][aA][kK][kK][aA]|[mM][iI][nN]|[mM][iI][nN]-[nN][aA][nN]|[xX][iI][aA][nN][gG]))$"
+		}
 	}
 
 	// Derived-shape narrowings of #AssertionEnvelope reference fields.
@@ -54,6 +58,7 @@ package rkaf
 	"rkaf:hasWarrant"?:              string & =~"^[A-Za-z][A-Za-z0-9+.-]*:[^\\s]+$"
 	"rkaf:hasAuthority"?:            string & =~"^[A-Za-z][A-Za-z0-9+.-]*:[^\\s]+$"
 	"rkaf:hasAccessScope"?:          string & =~"^[A-Za-z][A-Za-z0-9+.-]*:[^\\s]+$"
+	"rkaf:hasRetentionPolicy"?:      string & =~"^[A-Za-z][A-Za-z0-9+.-]*:[^\\s]+$"
 	"rkaf:hasSourceClaimant"?:       string & =~"^[A-Za-z][A-Za-z0-9+.-]*:[^\\s]+$"
 	"rkaf:hasExtractionProvenance"?: string & =~"^[A-Za-z][A-Za-z0-9+.-]*:[^\\s]+$"
 	"rkaf:hasConfidence"?:           [...(string & =~"^[A-Za-z][A-Za-z0-9+.-]*:[^\\s]+$")]
@@ -65,16 +70,6 @@ package rkaf
 	if assertion["rkaf:assertionOrigin"] == "rkaf:aiSuggested" {
 		"rkaf:hasAILineage": string & =~"^[A-Za-z][A-Za-z0-9+.-]*:[^\\s]+$"
 	}
-	if assertion["rkaf:assertionOrigin"] == "rkaf:aiPromoted" {
-		"rkaf:hasAILineage": string & =~"^[A-Za-z][A-Za-z0-9+.-]*:[^\\s]+$"
-	}
-	if assertion["rkaf:assertionOrigin"] == "rkaf:humanQualified" {
-		"rkaf:hasAILineage": string & =~"^[A-Za-z][A-Za-z0-9+.-]*:[^\\s]+$"
-	}
-	if assertion["rkaf:assertionOrigin"] == "rkaf:humanRevalidation" {
-		"rkaf:hasAILineage": string & =~"^[A-Za-z][A-Za-z0-9+.-]*:[^\\s]+$"
-	}
-
 	// Same narrowing for the envelope's deterministic-origin conditional
 	// (§2.4): the required ExtractionActivity must be named by an IRI.
 	if assertion["rkaf:assertionOrigin"] == "rkaf:deterministicExtraction" {

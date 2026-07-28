@@ -46,6 +46,26 @@ rkaf:EvidenceBindingShape a sh:NodeShape ;
                 rkaf:consensus-without-citation rkaf:permitted-by-safety-label
                 rkaf:declared-hypothesis ) ; ] ]
   ) ;
+  sh:or (
+    [ sh:not [ sh:property [
+        sh:path rkaf:bindsSourceFragment ; sh:minCount 1
+      ] ] ]
+    [ sh:property [
+        sh:path rkaf:evidenceRole ; sh:minCount 1 ; sh:maxCount 1 ;
+        sh:in ( rkaf:textualEvidence rkaf:structuralEvidence
+                rkaf:retrievalSignal rkaf:authorityCitation
+                rkaf:officialSourceMetadata rkaf:reviewedAuthorityChain
+                rkaf:formalAdoptionEvent rkaf:mappingRationale
+                rkaf:registrationEvent rkaf:rescissionEvidence )
+      ] ;
+      sh:property [
+        sh:path rkaf:evidentiaryFunction ; sh:minCount 1 ; sh:maxCount 1 ;
+        sh:in ( rkaf:supports rkaf:qualifies rkaf:contradicts
+                rkaf:definesScope rkaf:providesContext )
+      ]
+    ]
+  ) ;
+  sh:message "A fragment-backed EvidenceBinding MUST declare both its evidence role and its evidentiary function (§4.3)." ;
   sh:message "EvidenceBinding MUST either bind ≥1 SourceFragment OR carry a permitted noEvidenceReason (§4.3 — operational-validity invariant)." .
 
 # --- Warrant (§4.4) ---

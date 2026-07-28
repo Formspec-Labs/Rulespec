@@ -148,7 +148,7 @@ v0.1 §4.3 lists 11 edges as "the cascade closure set." This spec disambiguates 
 | C7 | `rkaf:collectsEvidenceType` | Every collector |
 | C8 | `rkaf:operationallyDependsOn` | Every dependent |
 | C9 | `rkaf:LocalAdoption.targetAssertion` | Every adoption of the seed |
-| C10 | `rkaf:assertsObject` (concept-typed) + 5 SKOS mapping edges | Concept-lifecycle propagation |
+| C10 | `rkaf:assertsSubject` / `rkaf:assertsObject` (concept-typed) + 5 SKOS mapping edges | Concept-lifecycle propagation |
 
 **The v0.2 contract reshape adds no edge to either table, and none of its new
 classes changes a runtime path.** The reshape introduced `ValueAssertion`,
@@ -157,10 +157,11 @@ the five document-analysis contracts, and the US rulemaking profile. The
 decision for each, recorded here because "we checked and nothing changed" is
 otherwise indistinguishable from "we did not check":
 
-- **Provenance and identity edges are not dependency edges.**
+- **Provenance, evidence, and identity edges are not dependency edges.**
   `rkaf:hasSourceClaimant`, `rkaf:hasExtractionProvenance`,
-  `rkaf:assignmentEvidence`, `rkaf:supportingAssignment`, and
-  `rkaf:versionLineageEvidence` all record how a record CAME TO BE. Cascading
+  `rkaf:bindsSourceFragment`, release pins, and
+  `rkaf:versionLineageEvidence` record support or identity rather than an
+  operational dependency. Cascading
   over them would mean that re-anchoring a fragment invalidates every
   assertion whose extraction run happened to read it, which is the opposite of
   what §2.1's dependency reading means. `rkaf:derivedFromFragment` (C1) is
@@ -405,24 +406,25 @@ The transition is deterministic. `closureDecision == rkaf:retired` moves the sta
 
 ## §6 — Concept resolution with conflict
 
-Given a `LocalConcept` `X` and the set `M = {m₁, m₂, ...}` of `ConceptMapping`s where `m.sourceConcept == X`:
+Given a `LocalConcept` `X` and the set `M = {m₁, m₂, ...}` of
+`ConceptMapping`s where `m.assertsSubject == X`:
 
 ```text
 fn resolve_concept(local_concept: &LocalConcept, graph: &Graph) -> ResolutionVerdict:
     let mappings = graph.nodes_by_type("rkaf:ConceptMapping")
-                        .filter(|m| m.sourceConcept == local_concept.@id)
+                        .filter(|m| m.assertsSubject == local_concept.@id)
                         .collect()
 
     if mappings.is_empty():
         return ResolutionVerdict::Unresolved
 
-    let unique_targets = mappings.iter().map(|m| m.targetConcept).unique().count()
+    let unique_targets = mappings.iter().map(|m| m.assertsObject).unique().count()
 
     if unique_targets == 1:
-        return ResolutionVerdict::Resolved { canonical: mappings[0].targetConcept }
+        return ResolutionVerdict::Resolved { canonical: mappings[0].assertsObject }
 
     // Multiple distinct targets → conflict
-    let severity = if mappings.any(|m| m.mappingRelation == "skos:exactMatch"):
+    let severity = if mappings.any(|m| m.assertsPredicate == "skos:exactMatch"):
                        rkaf:operationalConflict
                    else:
                        rkaf:informational
@@ -439,12 +441,25 @@ fn resolve_concept(local_concept: &LocalConcept, graph: &Graph) -> ResolutionVer
 
 Decided in order, highest first:
 
-1. **`rkaf:authorityCritical`** — fires when (a) ≥2 mappings carry `lifecycleState: approved`, AND (b) targets differ, AND (c) at least one of those approved mappings has `managedByRegistry` ∈ the consumer's `BridgeConsumerRegistration.trustedRegistries`. Trust-level escalation.
-2. **`rkaf:publicationBlocking`** — fires when ≥2 mappings carry `lifecycleState: approved` AND targets differ. (Authority-critical's first two clauses without the trusted-registry clause.) Halts publication-tier emissions.
-3. **`rkaf:operationalConflict`** — at least one mapping uses `skos:exactMatch` AND targets differ. Operational impact: bridge MAY accept but MUST surface.
-4. **`rkaf:informational`** — all mappings are non-exact (`closeMatch`, `broaderMatch`, etc.) AND targets differ. Informational only.
+1. **`rkaf:authorityCritical`** — fires when at least two mappings are
+   publication-relevant, their targets differ, and at least one carries
+   `rkaf:managedByRegistry` in the consumer's
+   `BridgeConsumerRegistration.trustedRegistries`.
+2. **`rkaf:publicationBlocking`** — fires when at least two mappings are
+   publication-relevant and their targets differ.
+3. **`rkaf:operationalConflict`** — at least one mapping uses
+   `skos:exactMatch` and targets differ.
+4. **`rkaf:informational`** — all mappings are non-exact and targets differ.
 
-The `ConceptMapping.lifecycleState` and `ConceptMapping.managedByRegistry` fields land in `constraints/core/concept-mapping.cue`; the consumer's `trustedRegistries` field lands in `constraints/core/bridge-consumer-registration.cue`. The severity assignment is implemented in `crates/rkaf-runtime/src/concept.rs::compute_severity` and exercised by `fixtures/behavior/concept-resolution-publication-blocking.jsonld` and `fixtures/behavior/concept-resolution-authority-critical.jsonld`.
+A mapping is publication-relevant only when it is a member of a
+`rkaf:ReferenceResourceRelease`, an unrevoked `rkaf:Attestation` approves it
+for `rkaf:registryPublication`, and its effective lifecycle is not stale,
+retired, or withdrawn. There is no inline mapping-publication field.
+
+`ConceptMapping.managedByRegistry` is a registry identity and trust input, not
+approval. The consumer's `trustedRegistries` field is defined in
+`constraints/core/bridge-consumer-registration.cue`. The reference
+implementation is `crates/rkaf-runtime/src/concept.rs::compute_severity`.
 
 ### §6.2 — Output shape
 
@@ -491,8 +506,12 @@ Inherited from v0.1 descriptive prose; this document resolves them:
 
 1. **Reducer applicability intersection** — §1.2 Step 1: if eval scope is not in the assertion's `hasApplicability` set, return `notEligible`.
 2. **Bridge rule #7 chain-walk depth** — §3.7: no explicit bound; visited set protects against cycles.
-3. **`RegistryConflict` severity assignment** — §6.1: explicit table by `mappingRelation` + `lifecycleState`. Operational is the default.
-4. **`closeMatch` vs `exactMatch` disagreement** — §6 algorithm: same `targetConcept` is `resolved` regardless of predicate; different `targetConcept` is `conflict`.
+3. **`RegistryConflict` severity assignment** — §6.1: canonical mapping
+   predicate plus release membership, publication Attestation, lifecycle, and
+   registry trust. Operational is the default.
+4. **`closeMatch` vs `exactMatch` disagreement** — §6 algorithm: the same
+   `assertsObject` is resolved regardless of predicate; different objects
+   conflict.
 5. **Consumer effective eligibility encoding** — `rkaf:ConsumerEffectiveDeclaration` (constraints/core/consumer-effective-declaration.cue).
 6. **When a resolved concept becomes "authority-used"** — `BridgeValidationResult.usedAsAuthority` field.
 7. **Which issues require bridge-emitted Attestations** — `BridgeIssueAttestationContract.attestedIssueKinds`; default kinds: `staleDep` / `unresolvedConcept` / `brokenAuthority` / `unsupportedAnchor`.

@@ -403,15 +403,15 @@ class L0MappingAuditTests(unittest.TestCase):
     @staticmethod
     def carrier_local_evidence_mapping() -> dict[str, Any]:
         return {
-            "table": "concept_assignments",
+            "table": "evidence_bindings",
             "columns": [
                 "artifact_urn_encoded",
                 "start_codepoint",
                 "end_codepoint",
                 "text_sha256",
             ],
-            "subject_type": f"{RKAF}ConceptAssignment",
-            "term": f"{RKAF}assignmentEvidence",
+            "subject_type": f"{RKAF}EvidenceBinding",
+            "term": f"{RKAF}bindsSourceFragment",
             "direction": "forward",
             "object_type": f"{RKAF}SourceFragment",
             "value_kind": "iri",
@@ -420,7 +420,6 @@ class L0MappingAuditTests(unittest.TestCase):
                     "urn:rkaf:fragment:{artifact_urn_encoded}:"
                     "{start_codepoint}:{end_codepoint}:sha256-{text_sha256}"
                 ),
-                "identifier_scheme": f"{RKAF}carrier-local-fragment",
             },
             "samples": [
                 {
@@ -442,7 +441,7 @@ class L0MappingAuditTests(unittest.TestCase):
         self,
     ) -> None:
         """A carrier with an artifact id, two offsets, and a region digest can
-        claim `rkaf:assignmentEvidence` without publishing a fragments table.
+        bind a materialized carrier-local SourceFragment from an evidence row.
 
         The class range still holds — `object_type` is declared and checked —
         because the URN DENOTES the fragment its components describe.
@@ -452,35 +451,7 @@ class L0MappingAuditTests(unittest.TestCase):
             registry=self.registry,
         )
         self.assertEqual(result.issues, ())
-        self.assertEqual(result.terms, {f"{RKAF}assignmentEvidence"})
-
-    def test_evidence_mapping_must_declare_its_identity_scheme(self) -> None:
-        """Both registered identity forms are absolute IRIs, so the mapping —
-        not the value — is what says which grammar the producer is claiming."""
-        undeclared = self.carrier_local_evidence_mapping()
-        undeclared["transform"] = {
-            "template": undeclared["transform"]["template"],
-        }
-        result = audit_mapping_text(
-            self.mapping_markdown([undeclared]),
-            registry=self.registry,
-        )
-        self.assertTrue(
-            any("requires a full-IRI identifier_scheme" in issue for issue in result.issues)
-        )
-
-        wrong_scheme = self.carrier_local_evidence_mapping()
-        wrong_scheme["transform"] = {
-            **wrong_scheme["transform"],
-            "identifier_scheme": f"{RKAF}us-cfr",
-        }
-        result = audit_mapping_text(
-            self.mapping_markdown([wrong_scheme]),
-            registry=self.registry,
-        )
-        self.assertTrue(
-            any("is not valid for" in issue for issue in result.issues)
-        )
+        self.assertEqual(result.terms, {f"{RKAF}bindsSourceFragment"})
 
     def test_evidence_mapping_still_carries_the_source_fragment_range(self) -> None:
         no_range = self.carrier_local_evidence_mapping()
@@ -491,7 +462,7 @@ class L0MappingAuditTests(unittest.TestCase):
         )
         self.assertTrue(
             any(
-                f"{RKAF}assignmentEvidence requires object_type" in issue
+                f"{RKAF}bindsSourceFragment requires object_type" in issue
                 for issue in result.issues
             )
         )
@@ -582,7 +553,7 @@ class L0MappingAuditTests(unittest.TestCase):
                 mappings=[self.stage_mapping()],
                 terms_used=[f"{RKAF}proceedingStage"],
                 excluded_terms=[
-                    f"{RKAF}assignmentEvidence",
+                    f"{RKAF}bindsSourceFragment",
                     f"{RKAF}hasDocketIdentifier",
                 ],
                 excluded_tables=["comment_periods", "attestations"],

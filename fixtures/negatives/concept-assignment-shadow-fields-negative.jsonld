@@ -1,0 +1,18 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@id": "urn:rkaf:fixture:ca-negative:shadow-fields",
+  "@type": "rkaf:ConceptAssignment",
+  "rkaf:assertsSubject": "urn:rkaf:fixture:artifact:subject",
+  "rkaf:assertsPredicate": "rkaf:assignmentPrimary",
+  "rkaf:assertsObject": "urn:rkaf:fixture:concept:topic",
+  "rkaf:assertionPolarity": "rkaf:affirmed",
+  "rkaf:assignedConceptRelease": "urn:rkaf:fixture:release:topics",
+  "rkaf:assertionOrigin": "rkaf:humanAsserted",
+  "rkaf:epistemicBasis": "rkaf:editorialAssertion",
+  "rkaf:assignmentSubject": "urn:rkaf:fixture:artifact:subject",
+  "rkaf:assignedConcept": "urn:rkaf:fixture:concept:topic",
+  "rkaf:assignmentRole": "rkaf:assignmentPrimary",
+  "rkaf:assignmentEvidence": ["urn:rkaf:fixture:fragment:evidence"],
+  "rkaf:supportingAssignment": ["urn:rkaf:fixture:assignment:prior"],
+  "_comment": "Negative migration gate: the former parallel assignment slots are closed. Canonical proposition fields plus inverse EvidenceBinding and PROV derivation are the only portable paths."
+}

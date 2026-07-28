@@ -19,6 +19,20 @@
   rdfs:label "Rulespec document-analysis SHACL shapes v0.2" ;
   rdfs:comment "Neutral comparison, change-event, resolver-proof, and disabled-closure invariants. Generic and jurisdiction-free; profiles may depend on these shapes, the kernel does not." .
 
+# Analysis assertion forms compose the durable assertion envelope without
+# becoming rkaf:Assertion subclasses. They therefore receive the universal
+# evidence rule here, inside the analysis module rather than through a kernel
+# dependency on analysis classes.
+rkaf:AnalysisAssertionEvidenceShape a sh:NodeShape ;
+  sh:targetClass rkaf:ClosureClaim ;
+  sh:targetClass rkaf:RelationChangeEvent ;
+  sh:property [
+    sh:path [ sh:inversePath rkaf:bindsAssertion ] ;
+    sh:qualifiedValueShape [ sh:class rkaf:EvidenceBinding ] ;
+    sh:qualifiedMinCount 1
+  ] ;
+  sh:message "Every durable analysis assertion MUST resolve to an EvidenceBinding (Core §4.3)." .
+
 # No subclass axiom is declared here, deliberately.
 #
 # `rkaf:RelationChangeEvent` and `rkaf:ClosureClaim` both compose

@@ -43,10 +43,9 @@ const CASCADE_EDGES: &[&str] = &[
     "skos:broadMatch",
     "skos:narrowMatch",
     "skos:relatedMatch",
-    // ConceptMapping.sourceConcept / targetConcept point AT concepts;
-    // inverse from a concept reaches its mappings.
-    "rkaf:sourceConcept",
-    "rkaf:targetConcept",
+    // ConceptMapping uses the canonical RelationshipAssertion proposition;
+    // inverse from either endpoint reaches the mapping.
+    "rkaf:assertsSubject",
 ];
 
 pub fn evaluate(test_case: &Value, graph: &Graph) -> Result<Verdict, RuntimeError> {

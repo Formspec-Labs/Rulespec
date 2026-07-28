@@ -89,6 +89,33 @@ pub struct TypedLiteral<T> {
     pub datatype: T,
 }
 
+/// RDF 1.1 language-tagged string value object.
+///
+/// Like [`OneOrMany`], this crate is a lossless carrier: it preserves the
+/// language-tag spelling and leaves BCP 47 validation to `rkaf-validate`,
+/// whose generated JSON Schema uses the same pattern as the authoritative CUE
+/// source. This separation is deliberate and is covered by a validator test;
+/// deserializing this carrier alone is not a conformance check.
+#[derive(Debug, Clone, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct LanguageTaggedString {
+    /// Lexical form of the literal (JSON-LD `@value`).
+    #[serde(rename = "@value")]
+    pub value: String,
+    /// BCP 47 language tag as carried on the wire.
+    #[serde(rename = "@language")]
+    pub language: String,
+}
+
+/// The two mutually exclusive JSON-LD value-object forms accepted by
+/// `rkaf:ValueAssertion`.
+#[derive(Debug, Clone, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
+#[serde(untagged)]
+pub enum RdfLiteral<T> {
+    Typed(TypedLiteral<T>),
+    LanguageTagged(LanguageTaggedString),
+}
+
 #[rustfmt::skip]
 pub mod generated {
     pub mod access_scope                 { include!("generated/access_scope.rs"); }
@@ -117,6 +144,7 @@ pub mod generated {
     pub mod lifecycle_event                    { include!("generated/lifecycle_event.rs"); }
     pub mod local_adoption                     { include!("generated/local_adoption.rs"); }
     pub mod registry_conflict                  { include!("generated/registry_conflict.rs"); }
+    pub mod reference_resource_release         { include!("generated/reference_resource_release.rs"); }
     pub mod mapping_state                      { include!("generated/mapping_state.rs"); }
     pub mod point_in_time_exception            { include!("generated/point_in_time_exception.rs"); }
     pub mod retention_policy                   { include!("generated/retention_policy.rs"); }
@@ -202,10 +230,11 @@ pub use generated::lifecycle_event::LifecycleEvent;
 pub use generated::local_adoption::LocalAdoption;
 pub use generated::mapping_state::MappingStateCarrier;
 pub use generated::point_in_time_exception::PointInTimeException;
+pub use generated::reference_resource_release::ReferenceResourceRelease;
 pub use generated::registry_conflict::RegistryConflict;
+pub use generated::relationship_assertion::RelationshipAssertion;
 pub use generated::retention_policy::RetentionPolicy;
 pub use generated::revalidation_event::{RevalidationClosureEvent, RevalidationEvent};
-pub use generated::relationship_assertion::RelationshipAssertion;
 // Document-analysis module (spec/rkaf-analysis.md). Generic comparison and
 // change contracts; `ClosureClaim` is Experimental and DISABLED — its only
 // legal `rkaf:closureClaimStatus` is `rkaf:closureClaimDisabled`, and no
@@ -219,15 +248,15 @@ pub use generated::analysis::relation_comparison_context::{
 };
 pub use generated::analysis::relation_finding::{RelationFinding, RelationFindingKind};
 pub use generated::analysis::resolver_proof_record::{
-    GateStatus, ResolverProofIssuer, ResolverProofOutcome, ResolverProofRecord,
-    ResolverProofType, ScopeRelation,
+    GateStatus, ResolverProofIssuer, ResolverProofOutcome, ResolverProofRecord, ResolverProofType,
+    ScopeRelation,
 };
 // US rulemaking profile. These types moved from the kernel into
 // `generated::profiles::us_rulemaking`; the crate-root re-exports are kept so
 // existing consumers keep compiling against the same paths.
 pub use generated::profiles::us_rulemaking::rulemaking::{
-    AgendaProceedingRelationship, CommentPeriod, Docket, Proceeding,
-    RegulatoryAgendaItem, RegulatoryAgendaObservation,
+    AgendaProceedingRelationship, CommentPeriod, Docket, Proceeding, RegulatoryAgendaItem,
+    RegulatoryAgendaObservation,
 };
 // The COMPOSED lifecycle-event kind set — the kernel's ten universal kinds
 // plus this profile's twelve `rkaf:proceeding*` kinds — and the composed

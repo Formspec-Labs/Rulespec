@@ -76,9 +76,8 @@ fn evaluate_one(path: &PathBuf) -> FixtureVerdict {
     // the runtime raises a specific structural error (e.g. MalformedTestCase
     // on a dangling IRI). Used for strict-error parity tests where the
     // contract refuses to compute a verdict at all.
-    let expected_runtime_error: Option<&str> = tc
-        .get("rkaf:expectedRuntimeError")
-        .and_then(Value::as_str);
+    let expected_runtime_error: Option<&str> =
+        tc.get("rkaf:expectedRuntimeError").and_then(Value::as_str);
 
     match (Runtime::evaluate_and_check(&tc), expected_runtime_error) {
         (Ok(_), None) => FixtureVerdict {

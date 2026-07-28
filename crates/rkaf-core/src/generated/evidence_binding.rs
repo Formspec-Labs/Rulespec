@@ -24,6 +24,61 @@ pub enum NoEvidenceReason {
     DeclaredHypothesis,
 }
 
+/// Closed Rulespec values for `EvidenceRole`.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub enum EvidenceRole {
+    /// Wire value `rkaf:textualEvidence`.
+    #[serde(rename = "rkaf:textualEvidence")]
+    TextualEvidence,
+    /// Wire value `rkaf:structuralEvidence`.
+    #[serde(rename = "rkaf:structuralEvidence")]
+    StructuralEvidence,
+    /// Wire value `rkaf:retrievalSignal`.
+    #[serde(rename = "rkaf:retrievalSignal")]
+    RetrievalSignal,
+    /// Wire value `rkaf:authorityCitation`.
+    #[serde(rename = "rkaf:authorityCitation")]
+    AuthorityCitation,
+    /// Wire value `rkaf:officialSourceMetadata`.
+    #[serde(rename = "rkaf:officialSourceMetadata")]
+    OfficialSourceMetadata,
+    /// Wire value `rkaf:reviewedAuthorityChain`.
+    #[serde(rename = "rkaf:reviewedAuthorityChain")]
+    ReviewedAuthorityChain,
+    /// Wire value `rkaf:formalAdoptionEvent`.
+    #[serde(rename = "rkaf:formalAdoptionEvent")]
+    FormalAdoptionEvent,
+    /// Wire value `rkaf:mappingRationale`.
+    #[serde(rename = "rkaf:mappingRationale")]
+    MappingRationale,
+    /// Wire value `rkaf:registrationEvent`.
+    #[serde(rename = "rkaf:registrationEvent")]
+    RegistrationEvent,
+    /// Wire value `rkaf:rescissionEvidence`.
+    #[serde(rename = "rkaf:rescissionEvidence")]
+    RescissionEvidence,
+}
+
+/// Closed Rulespec values for `EvidentiaryFunction`.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub enum EvidentiaryFunction {
+    /// Wire value `rkaf:supports`.
+    #[serde(rename = "rkaf:supports")]
+    Supports,
+    /// Wire value `rkaf:qualifies`.
+    #[serde(rename = "rkaf:qualifies")]
+    Qualifies,
+    /// Wire value `rkaf:contradicts`.
+    #[serde(rename = "rkaf:contradicts")]
+    Contradicts,
+    /// Wire value `rkaf:definesScope`.
+    #[serde(rename = "rkaf:definesScope")]
+    DefinesScope,
+    /// Wire value `rkaf:providesContext`.
+    #[serde(rename = "rkaf:providesContext")]
+    ProvidesContext,
+}
+
 use std::collections::BTreeMap;
 
 /// Generated JSON-LD carrier for `EvidenceBinding`.
@@ -44,6 +99,12 @@ pub struct EvidenceBinding {
     /// JSON-LD property `rkaf:verifiedBy`.
     #[serde(rename = "rkaf:verifiedBy", skip_serializing_if = "Option::is_none", default)]
     pub verified_by: Option<String>,
+    /// JSON-LD property `rkaf:hasAccessScope`.
+    #[serde(rename = "rkaf:hasAccessScope", skip_serializing_if = "Option::is_none", default)]
+    pub has_access_scope: Option<String>,
+    /// JSON-LD property `rkaf:hasRetentionPolicy`.
+    #[serde(rename = "rkaf:hasRetentionPolicy", skip_serializing_if = "Option::is_none", default)]
+    pub has_retention_policy: Option<String>,
     /// Additional JSON-LD properties preserved during round trips.
     #[serde(flatten)]
     pub extra: BTreeMap<String, serde_json::Value>,

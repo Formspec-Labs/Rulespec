@@ -30,20 +30,19 @@
   rdfs:comment "Hand-authored cross-property invariants. JSON Schema target can't express these in v0.2; compiled SHACL is per-property only." .
 
 # ---------------------------------------------------------------------------
-# §3.5 — Assertion humanAsserted inverse:
-# Non-AI-touched assertionOrigin values MUST NOT carry hasAILineage.
-# (The forward rule — AI-touched MUST carry — already lives in
+# §3.5 — Assertion construction-origin inverse:
+# Only an AI-constructed assertion may carry hasAILineage.
+# (The forward rule — aiSuggested MUST carry — already lives in
 #  rkaf:AssertionAILineageShape in rkaf-shapes-core.ttl.)
 # ---------------------------------------------------------------------------
 rkaf:AssertionNonAITouchedNoLineageShape a sh:NodeShape ;
   sh:targetClass rkaf:Assertion ;
   sh:or (
     [ sh:property [ sh:path rkaf:assertionOrigin ;
-        sh:in ( rkaf:aiSuggested rkaf:aiPromoted
-                 rkaf:humanQualified rkaf:humanRevalidation ) ] ]
+        sh:hasValue rkaf:aiSuggested ] ]
     [ sh:property [ sh:path rkaf:hasAILineage ; sh:maxCount 0 ] ]
   ) ;
-  sh:message "Assertion with non-AI-touched assertionOrigin (humanAsserted / imported / deterministicExtraction) MUST NOT carry rkaf:hasAILineage (§3.5)." .
+  sh:message "Only assertionOrigin rkaf:aiSuggested may carry rkaf:hasAILineage; review and promotion are separate records (§3.5)." .
 
 # ---------------------------------------------------------------------------
 # §4.4 — Warrant family/kind agreement:

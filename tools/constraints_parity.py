@@ -61,6 +61,7 @@ CONSTRAINTS: dict[str, str] = {
     "concept":                 "core",
     "concept-assignment":      "core",
     "concept-mapping":         "core",
+    "reference-resource-release": "core",
     "assertion":               "core",
     "relationship-assertion":  "core",
     "value-assertion":         "core",
@@ -350,15 +351,14 @@ FIXTURE_BINDINGS: list[tuple[str, str, str, str]] = [
      "fixtures/edges/value-assertion-boolean-edge.jsonld", "PASS"),
     ("value-assertion", "ValueAssertion",
      "fixtures/negatives/value-assertion-unregistered-datatype-negative.jsonld", "FAIL"),
-    # The value object must be CLOSED on both sides. A language-tagged literal
-    # is the case that corrupts RDF rather than merely differing on the wire:
-    # `{"@value","@type","@language"}` expands to a plain language-tagged
-    # literal with the declared datatype GONE, so SHACL's `sh:datatype`
-    # alternatives reject it. Before the value object emitted
-    # `additionalProperties: false`, JSON Schema accepted the same document —
-    # this row is the divergence that hole produced.
+    # RDF 1.1 permits either a typed literal or a language-tagged string. The
+    # positive proves the representation survives both projections. Invalid
+    # `@language` syntax and simultaneous `@type` + `@language` are JSON-LD
+    # WIRE errors: expansion normalizes away the latter distinction, so they
+    # are gated by JSON Schema, Rust, and the full hand-authored SHACL suite,
+    # not this compiled-RDF parity table.
     ("value-assertion", "ValueAssertion",
-     "fixtures/negatives/value-assertion-language-tagged-negative.jsonld", "FAIL"),
+     "fixtures/valueassertion-language-tagged-positive.jsonld", "PASS"),
     ("value-assertion", "ValueAssertion",
      "fixtures/negatives/value-assertion-missing-asserts-value-negative.jsonld", "FAIL"),
     ("value-assertion", "ValueAssertion",
@@ -428,20 +428,21 @@ FIXTURE_BINDINGS: list[tuple[str, str, str, str]] = [
     ("concept", "ConceptScheme",
      "fixtures/negatives/concept-scheme-missing-pref-label-negative.jsonld", "FAIL"),
     ("concept", "ConceptScheme",
-     "fixtures/negatives/concept-scheme-missing-concept-status-negative.jsonld", "FAIL"),
+     "fixtures/edges/concept-scheme-multiple-top-concepts-edge.jsonld", "PASS"),
     ("concept", "ConceptScheme",
      "fixtures/negatives/concept-scheme-unowned-negative.jsonld", "FAIL"),
     ("concept", "RegisteredConcept",
      "fixtures/concept-registered-positive.jsonld", "PASS"),
     ("concept", "RegisteredConcept",
-     "fixtures/edges/registered-concept-promoted-edge.jsonld", "PASS"),
+     "fixtures/edges/registered-concept-multiple-relations-edge.jsonld", "PASS"),
     ("concept", "RegisteredConcept",
      "fixtures/negatives/registered-concept-missing-in-scheme-negative.jsonld", "FAIL"),
     ("concept", "RegisteredConcept",
-     "fixtures/negatives/registered-concept-promoted-without-definition-negative.jsonld",
-     "FAIL"),
+     "fixtures/negatives/registered-concept-missing-pref-label-negative.jsonld", "FAIL"),
     ("concept", "LocalConcept",
      "fixtures/localconcept-positive.jsonld", "PASS"),
+    ("concept", "LocalConcept",
+     "fixtures/edges/local-concept-multiple-relations-edge.jsonld", "PASS"),
     ("concept", "LocalConcept",
      "fixtures/negatives/local-concept-missing-in-scheme-negative.jsonld", "FAIL"),
     # SKOS mapping properties. The added *Match members must be accepted by
@@ -453,10 +454,12 @@ FIXTURE_BINDINGS: list[tuple[str, str, str, str]] = [
     ("concept-mapping", "ConceptMapping",
      "fixtures/edges/concept-mapping-skos-broad-match-edge.jsonld", "PASS"),
     ("concept-mapping", "ConceptMapping",
-     "fixtures/edges/concept-mapping-skos-broader-edge.jsonld", "PASS"),
-    # ConceptAssignment (§4.7). The directional rows carry the rule the carrier
-    # evidence turns on: a segment tag needs evidence from that segment, and a
-    # document tag aggregated from segment tags must name them and the policy.
+     "fixtures/negatives/concept-mapping-in-scheme-broader-negative.jsonld", "FAIL"),
+    ("concept-mapping", "ConceptMapping",
+     "fixtures/negatives/concept-mapping-missing-canonical-required-fields-negative.jsonld",
+     "FAIL"),
+    # ConceptAssignment (§4.7). It reuses the canonical relationship
+    # proposition and pins the exact release containing the assigned concept.
     ("concept-assignment", "ConceptAssignment",
      "fixtures/conceptassignment-fragment-direct-positive.jsonld", "PASS"),
     ("concept-assignment", "ConceptAssignment",
@@ -464,16 +467,7 @@ FIXTURE_BINDINGS: list[tuple[str, str, str, str]] = [
     ("concept-assignment", "ConceptAssignment",
      "fixtures/edges/concept-assignment-unreviewed-ai-candidate-edge.jsonld", "PASS"),
     ("concept-assignment", "ConceptAssignment",
-     "fixtures/negatives/concept-assignment-fragment-without-local-evidence-negative.jsonld",
-     "FAIL"),
-    ("concept-assignment", "ConceptAssignment",
-     "fixtures/negatives/concept-assignment-direct-without-evidence-negative.jsonld",
-     "FAIL"),
-    ("concept-assignment", "ConceptAssignment",
-     "fixtures/negatives/concept-assignment-derived-without-supporting-negative.jsonld",
-     "FAIL"),
-    ("concept-assignment", "ConceptAssignment",
-     "fixtures/negatives/concept-assignment-supporting-without-policy-version-negative.jsonld",
+     "fixtures/negatives/concept-assignment-missing-canonical-required-fields-negative.jsonld",
      "FAIL"),
     # NOTE — no parity row for the class-range negatives
     # (concept-assignment-evidence-not-a-fragment-negative,
@@ -495,42 +489,32 @@ FIXTURE_BINDINGS: list[tuple[str, str, str, str]] = [
     # is the same reference-following JSON Schema cannot do. Same gate, same
     # reason.
     #
-    # NOTE — nor for the two carrier-local fragment URN negatives
-    # (concept-assignment-carrier-local-fragment-undeclared-negative,
-    # source-fragment-carrier-local-urn-source-mismatch-negative). The first is
-    # a per-VALUE conditional keyed on that value's own lexical form and the
-    # second compares a node's IRI against its own `oa:hasSource`; both live in
-    # `shapes/rkaf-shapes-core.ttl` for the same reason — the CUE list-of-string
-    # carrier admits one pattern, and JSON Schema has no way to relate a value
-    # to a sibling property of the node it names. The two that BOTH targets do
-    # see have rows below.
-    ("concept-assignment", "ConceptAssignment",
-     "fixtures/negatives/concept-assignment-evidence-without-scheme-negative.jsonld",
-     "FAIL"),
-    ("concept-assignment", "ConceptAssignment",
-     "fixtures/negatives/concept-assignment-carrier-local-fragment-malformed-negative.jsonld",
-     "FAIL"),
+    # The inverse EvidenceBinding path and exact release membership are
+    # cross-node rules and therefore remain in validate_negatives.py rather
+    # than this JSON-Schema/compiled-SHACL parity table.
     ("concept-assignment", "ConceptAssignment",
      "fixtures/conceptassignment-carrier-local-fragment-positive.jsonld", "PASS"),
     ("concept-assignment", "ConceptAssignment",
-     "fixtures/negatives/concept-assignment-missing-assignment-subject-negative.jsonld",
+     "fixtures/negatives/concept-assignment-missing-assigned-release-negative.jsonld",
      "FAIL"),
-    ("concept-assignment", "ConceptAssignment",
-     "fixtures/negatives/concept-assignment-missing-assignment-subject-type-negative.jsonld",
+    # Immutable reference-resource releases (§4.1.1). Membership mode controls
+    # whether prov:hadMember is required or forbidden; the digest vector is
+    # recomputed independently by tools.test_reference_release_digest.
+    ("reference-resource-release", "ReferenceResourceRelease",
+     "fixtures/reference-resource-release-digest-positive.jsonld", "PASS"),
+    ("reference-resource-release", "ReferenceResourceRelease",
+     "fixtures/reference-resource-release-membership-modes-positive.jsonld", "PASS"),
+    ("reference-resource-release", "ReferenceResourceRelease",
+     "fixtures/negatives/reference-resource-release-missing-digest-negative.jsonld",
      "FAIL"),
-    ("concept-assignment", "ConceptAssignment",
-     "fixtures/negatives/concept-assignment-missing-assigned-concept-negative.jsonld",
+    ("reference-resource-release", "ReferenceResourceRelease",
+     "fixtures/negatives/reference-resource-release-complete-without-member-negative.jsonld",
      "FAIL"),
-    ("concept-assignment", "ConceptAssignment",
-     "fixtures/negatives/concept-assignment-missing-in-scheme-negative.jsonld", "FAIL"),
-    ("concept-assignment", "ConceptAssignment",
-     "fixtures/negatives/concept-assignment-missing-assignment-role-negative.jsonld",
+    ("reference-resource-release", "ReferenceResourceRelease",
+     "fixtures/negatives/reference-resource-release-not-enumerated-with-member-negative.jsonld",
      "FAIL"),
-    ("concept-assignment", "ConceptAssignment",
-     "fixtures/negatives/concept-assignment-missing-assignment-derivation-negative.jsonld",
-     "FAIL"),
-    ("concept-assignment", "ConceptAssignment",
-     "fixtures/negatives/concept-assignment-missing-assertion-origin-negative.jsonld",
+    ("reference-resource-release", "ReferenceResourceRelease",
+     "fixtures/negatives/reference-resource-release-missing-canonical-required-fields-negative.jsonld",
      "FAIL"),
     # Document-analysis module (spec/rkaf-analysis.md).
     ("relation-change-event", "RelationChangeEvent",

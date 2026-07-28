@@ -15,6 +15,7 @@
       "@id": "urn:rkaf:fixture:edge:ail-unreviewed:assertion",
       "@type": "rkaf:Assertion",
       "rkaf:assertionOrigin": "rkaf:aiSuggested",
+      "rkaf:epistemicBasis": "rkaf:statisticalInference",
       "rkaf:hasAILineage": "urn:rkaf:fixture:edge:ail-unreviewed:lineage",
       "rkaf:usageEligibility": "rkaf:reviewQueueOnly"
     }

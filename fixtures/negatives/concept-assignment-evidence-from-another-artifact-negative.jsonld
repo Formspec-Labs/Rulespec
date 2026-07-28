@@ -2,56 +2,97 @@
   "@context": "../../context/rkaf-context.jsonld",
   "@graph": [
     {
-      "@id": "urn:rkaf:fixture:ca-xdoc:artifact-a",
-      "@type": "rkaf:Artifact",
-      "rkaf:hasArtifactIdentifier": "urn:rkaf:fixture:ca-xdoc:artifact-a",
-      "rkaf:artifactIdentifierScheme": "rkaf:partner-defined",
-      "rkaf:hasContentDigest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
-    },
-    {
-      "@id": "urn:rkaf:fixture:ca-xdoc:artifact-b",
-      "@type": "rkaf:Artifact",
-      "rkaf:hasArtifactIdentifier": "urn:rkaf:fixture:ca-xdoc:artifact-b",
-      "rkaf:artifactIdentifierScheme": "rkaf:partner-defined",
-      "rkaf:hasContentDigest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
-    },
-    {
-      "@id": "urn:rkaf:fixture:ca-xdoc:fragment-a:sec-3a",
-      "@type": "rkaf:SourceFragment",
-      "oa:hasSource": "urn:rkaf:fixture:ca-xdoc:artifact-a",
-      "oa:hasSelector": {
-        "@type": "oa:TextQuoteSelector",
-        "oa:exact": "The State agency shall issue a notice of expiration."
-      },
-      "rkaf:selectorKind": "oa:TextQuoteSelector",
-      "rkaf:sourceArtifactDigest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
-    },
-    {
-      "@id": "urn:rkaf:fixture:ca-xdoc:fragment-b:preamble",
-      "@type": "rkaf:SourceFragment",
-      "oa:hasSource": "urn:rkaf:fixture:ca-xdoc:artifact-b",
-      "oa:hasSelector": {
-        "@type": "oa:TextQuoteSelector",
-        "oa:exact": "This handbook addresses countable household income throughout."
-      },
-      "rkaf:selectorKind": "oa:TextQuoteSelector",
-      "rkaf:sourceArtifactDigest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
-    },
-    {
-      "@id": "urn:rkaf:fixture:ca-xdoc:seg:sec-3a-income",
-      "@type": "rkaf:ConceptAssignment",
-      "rkaf:assignmentSubject": "urn:rkaf:fixture:ca-xdoc:fragment-a:sec-3a",
-      "rkaf:assignmentSubjectType": "rkaf:SourceFragment",
-      "rkaf:assignedConcept": "urn:rkaf:fixture:concept:household-income",
-      "skos:inScheme": "urn:rkaf:fixture:scheme:fns-snap-topic",
-      "rkaf:assignmentRole": "rkaf:assignmentSubstantive",
-      "rkaf:assignmentDerivation": "rkaf:directAssignment",
-      "rkaf:assignmentEvidence": [
-        "urn:rkaf:fixture:ca-xdoc:fragment-b:preamble"
+      "@id": "urn:rkaf:negative:ca:release",
+      "@type": "rkaf:ReferenceResourceRelease",
+      "dcterms:isVersionOf": "urn:rkaf:negative:ca:scheme",
+      "dcat:version": "1",
+      "dcterms:type": "skos:ConceptScheme",
+      "rkaf:membershipMode": "rkaf:completeMembership",
+      "prov:hadMember": [
+        "urn:rkaf:negative:ca:concept"
       ],
-      "rkaf:assignmentEvidenceScheme": "rkaf:published-fragment",
-      "rkaf:assertionOrigin": "rkaf:humanAsserted"
+      "dcat:distribution": [
+        "urn:rkaf:negative:ca:distribution"
+      ],
+      "rkaf:referenceReleaseDigest": "sha256:1111111111111111111111111111111111111111111111111111111111111111"
+    },
+    {
+      "@id": "urn:rkaf:negative:ca:distribution",
+      "@type": "rkaf:Artifact",
+      "rkaf:hasArtifactIdentifier": [
+        "urn:rkaf:negative:ca:distribution"
+      ],
+      "rkaf:artifactIdentifierScheme": [
+        "rkaf:partner-defined"
+      ],
+      "dcterms:format": "application/ld+json",
+      "rkaf:hasContentDigest": "sha256:2222222222222222222222222222222222222222222222222222222222222222"
+    },
+    {
+      "@id": "urn:rkaf:negative:ca:artifact:subject",
+      "@type": "rkaf:Artifact",
+      "rkaf:hasArtifactIdentifier": [
+        "urn:rkaf:negative:ca:artifact:subject"
+      ],
+      "rkaf:artifactIdentifierScheme": [
+        "rkaf:partner-defined"
+      ]
+    },
+    {
+      "@id": "urn:rkaf:negative:ca:artifact:other",
+      "@type": "rkaf:Artifact",
+      "rkaf:hasArtifactIdentifier": [
+        "urn:rkaf:negative:ca:artifact:other"
+      ],
+      "rkaf:artifactIdentifierScheme": [
+        "rkaf:partner-defined"
+      ]
+    },
+    {
+      "@id": "urn:rkaf:negative:ca:fragment:subject",
+      "@type": "rkaf:SourceFragment",
+      "oa:hasSource": "urn:rkaf:negative:ca:artifact:subject",
+      "oa:hasSelector": {
+        "@type": "oa:TextQuoteSelector",
+        "oa:exact": "Subject text"
+      },
+      "rkaf:selectorKind": [
+        "oa:TextQuoteSelector"
+      ]
+    },
+    {
+      "@id": "urn:rkaf:negative:ca:fragment:other",
+      "@type": "rkaf:SourceFragment",
+      "oa:hasSource": "urn:rkaf:negative:ca:artifact:other",
+      "oa:hasSelector": {
+        "@type": "oa:TextQuoteSelector",
+        "oa:exact": "Unrelated evidence"
+      },
+      "rkaf:selectorKind": [
+        "oa:TextQuoteSelector"
+      ]
+    },
+    {
+      "@id": "urn:rkaf:negative:ca:assignment",
+      "@type": "rkaf:ConceptAssignment",
+      "rkaf:assertsSubject": "urn:rkaf:negative:ca:fragment:subject",
+      "rkaf:assertsPredicate": "rkaf:assignmentSubstantive",
+      "rkaf:assertsObject": "urn:rkaf:negative:ca:concept",
+      "rkaf:assertionPolarity": "rkaf:affirmed",
+      "rkaf:assignedConceptRelease": "urn:rkaf:negative:ca:release",
+      "rkaf:assertionOrigin": "rkaf:humanAsserted",
+      "rkaf:epistemicBasis": "rkaf:sourceExplicit"
+    },
+    {
+      "@id": "urn:rkaf:negative:ca:binding",
+      "@type": "rkaf:EvidenceBinding",
+      "rkaf:bindsAssertion": "urn:rkaf:negative:ca:assignment",
+      "rkaf:bindsSourceFragment": [
+        "urn:rkaf:negative:ca:fragment:other"
+      ],
+      "rkaf:evidenceRole": "rkaf:textualEvidence",
+      "rkaf:evidentiaryFunction": "rkaf:supports"
     }
   ],
-  "_comment": "Negative: 'local evidence' taken from a different document. The subject is a region of Artifact A and the cited evidence is a region of Artifact B, so the record satisfies the class range and the fragment-subject conditional while proving nothing about the subject. One preamble sentence in an unrelated handbook could otherwise carry every segment tag in a corpus — the same self-confirming loop the evidence rule exists to break (§4.7.3)."
+  "_comment": "Negative: a fragment assignment cites evidence from a different Artifact."
 }

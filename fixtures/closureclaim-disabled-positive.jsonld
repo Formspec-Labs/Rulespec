@@ -33,7 +33,18 @@
       "rkaf:closureMemberDigest": "sha256:cdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcd",
       "rkaf:closureReviewedAt": "2026-06-03T10:00:00Z",
       "rkaf:assertionOrigin": "rkaf:humanAsserted",
+      "rkaf:epistemicBasis": "rkaf:deterministicDerivation",
       "rkaf:hasExtractionProvenance": "urn:rkaf:fixture:analysis:cc:run:table-3-enumeration"
+    },
+    {
+      "@id": "urn:rkaf:fixture:analysis:cc:evidence:table-3-standards",
+      "@type": "rkaf:EvidenceBinding",
+      "rkaf:bindsAssertion": "urn:rkaf:fixture:analysis:cc:claim:table-3-standards",
+      "rkaf:bindsSourceFragment": [
+        "urn:rkaf:fixture:analysis:cc:fragment:table-3"
+      ],
+      "rkaf:evidenceRole": "rkaf:structuralEvidence",
+      "rkaf:evidentiaryFunction": "rkaf:supports"
     }
   ],
   "_comment": "Analysis 6. SHAPE VALIDITY ONLY. rkaf:ClosureClaim is Experimental and DISABLED: rkaf:closureClaimStatus is closed over the single value rkaf:closureClaimDisabled, so a claim cannot be authored without declaring that it carries no weight. There is deliberately no rkaf:RelationFinding in this document, and none may cite this claim — see rkaf:ClosureClaimNotFindingEvidenceShape. The claim is bounded to one table of one artifact version because closure is always local."

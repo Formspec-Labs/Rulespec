@@ -17,12 +17,19 @@
       "@id": "urn:rkaf:fixture:mc:assert:snap-llm-classifier",
       "@type": "rkaf:Assertion",
       "rkaf:assertionOrigin": "rkaf:aiSuggested",
+      "rkaf:epistemicBasis": "rkaf:statisticalInference",
       "rkaf:hasAILineage": "urn:rkaf:fixture:mc:ai-lineage:gpt-x-2026",
       "rkaf:usageEligibility": "rkaf:reviewQueueOnly",
       "rkaf:hasApplicability": "urn:rkaf:fixture:mc:applic:snap-classifier",
       "rkaf:hasJustification": "urn:rkaf:fixture:mc:just:benchmark-eval",
       "rkaf:hasWarrant": "urn:rkaf:fixture:mc:warrant:benchmark-methodology",
       "rkaf:hasSafetyLabel": "rkaf:A3Advisory"
+    },
+    {
+      "@id": "urn:rkaf:fixture:mc:evidence:model-card",
+      "@type": "rkaf:EvidenceBinding",
+      "rkaf:bindsAssertion": "urn:rkaf:fixture:mc:assert:snap-llm-classifier",
+      "rkaf:noEvidenceReason": "rkaf:inferred-from-warrant-class"
     },
     {
       "@id": "urn:rkaf:fixture:mc:applic:snap-classifier",

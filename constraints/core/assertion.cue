@@ -1,19 +1,30 @@
 package rkaf
 
-// Closed enum (preserved from v0.1, see Core v0.1 §3 assertionOrigin).
-// v0.2 adds ONE value: `rkaf:deterministicExtraction`, for a record a
-// deterministic parser or join produced. The v0.1 set had no such value, so a
-// mechanically derived record had to claim `rkaf:imported` — which says only
-// that the record came from somewhere else — while the method that actually
-// produced it hung off an OPTIONAL edge nothing required. See Core §2.4,
-// "Deterministic origin".
-#AssertionOrigin: "rkaf:humanAsserted" | "rkaf:aiSuggested" | "rkaf:aiPromoted" |
-	"rkaf:humanQualified" | "rkaf:humanRevalidation" | "rkaf:imported" |
-	"rkaf:deterministicExtraction"
+// What CONSTRUCTED this immutable assertion record. These values say nothing
+// about review, approval, adoption, promotion, or lifecycle: Attestation,
+// LocalAdoption, and LifecycleEvent own those facts. A changed proposition is
+// a new assertion with a new IRI and derivation/supersession links.
+//
+// `rkaf:deterministicExtraction` distinguishes a mechanically reproducible
+// parser or join from `rkaf:imported`, which only says the record was copied
+// from another system. See Core §2.4.
+#AssertionOrigin: "rkaf:humanAsserted" | "rkaf:aiSuggested" |
+	"rkaf:imported" | "rkaf:deterministicExtraction"
 
-// AI-touched origins; assertions with these MUST carry hasAILineage (§5.3).
-#AssertionOriginAITouched: "rkaf:aiSuggested" | "rkaf:aiPromoted" |
-	"rkaf:humanQualified" | "rkaf:humanRevalidation"
+// Why the proposition may be believed. This is deliberately independent of
+// `rkaf:assertionOrigin`, which records what CONSTRUCTED the record. A model
+// may extract a source-explicit statement, a human may record a statistical
+// inference, and review changes neither fact. See Core §2.5.
+#EpistemicBasis: "rkaf:sourceExplicit" | "rkaf:deterministicDerivation" |
+	"rkaf:statisticalInference" | "rkaf:editorialAssertion" |
+	"rkaf:userAssertion"
+
+// An unreviewed AI proposal may be retained and discovered, but it may not
+// silently cross into drafting, operational, publication, or official use.
+// Broader use requires a separate Attestation and, where applicable, a scoped
+// LocalAdoption; changing those records never changes the epistemic basis.
+#ProvisionalAIUsageEligibility: "rkaf:notEligible" | "rkaf:searchOnly" |
+	"rkaf:reviewQueueOnly"
 
 // Whether the proposition is affirmed or denied. Part of the immutable
 // proposition core, so it lives beside `#AssertionProposition` rather than in
@@ -69,18 +80,17 @@ package rkaf
 #AssertionEnvelope: envelope={
 	#ConsumerDisposition
 	"rkaf:assertionOrigin": #AssertionOrigin
+	// `epistemicBasis` is optional only on this internal compatibility
+	// definition. Every durable assertion form composes
+	// `#DurableAssertionEnvelope` below, which makes it required.
+	"rkaf:epistemicBasis"?: #EpistemicBasis
 	// AI-touched assertionOrigin REQUIRES hasAILineage (§5.3).
+	// `aiSuggested` additionally REQUIRES an explicit provisional usage cap:
+	// absence would leave operational meaning to an implementation default,
+	// and a broader value would let an unreviewed proposal authorize itself.
 	if envelope["rkaf:assertionOrigin"] == "rkaf:aiSuggested" {
-		"rkaf:hasAILineage": string
-	}
-	if envelope["rkaf:assertionOrigin"] == "rkaf:aiPromoted" {
-		"rkaf:hasAILineage": string
-	}
-	if envelope["rkaf:assertionOrigin"] == "rkaf:humanQualified" {
-		"rkaf:hasAILineage": string
-	}
-	if envelope["rkaf:assertionOrigin"] == "rkaf:humanRevalidation" {
-		"rkaf:hasAILineage": string
+		"rkaf:hasAILineage":   string
+		"rkaf:usageEligibility": #ProvisionalAIUsageEligibility
 	}
 	// A deterministic origin REQUIRES hasExtractionProvenance (§2.4). The
 	// value claims the record is mechanically reproducible, and a claim of
@@ -95,6 +105,7 @@ package rkaf
 	"rkaf:hasJustification"?:   string // IRI of a Justification
 	"rkaf:hasWarrant"?:         string // IRI of the warrant grounding this assertion
 	"rkaf:hasAuthority"?:       string // IRI; legal-family Warrant or Authority
+	"rkaf:hasRetentionPolicy"?: string // IRI of a RetentionPolicy
 	"prov:wasDerivedFrom"?:     [...(string & =~"^[A-Za-z][A-Za-z0-9+.-]*:[^\\s]+$")]
 	// Provenance roles, each a SEPARATE record (§2.4). None of them is the
 	// proposition, and none of them stands in for another:
@@ -124,7 +135,17 @@ package rkaf
 	"rkaf:assertedAt"?: string // xsd:dateTime
 }
 
-#Assertion: {
+// Every durable Rulespec assertion form uses this definition. Keeping the
+// requirement here makes epistemic basis uniform across generic,
+// relationship, value, concept-assignment, concept-mapping, and analysis
+// assertions while retaining `#AssertionEnvelope` as the one shared source
+// for fields and conditionals.
+#DurableAssertionEnvelope: {
 	#AssertionEnvelope
+	"rkaf:epistemicBasis": #EpistemicBasis
+}
+
+#Assertion: {
+	#DurableAssertionEnvelope
 	"@type": "rkaf:Assertion"
 }

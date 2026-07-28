@@ -2,6 +2,25 @@
   "@context": "../context/rkaf-context.jsonld",
   "@graph": [
     {
+      "@id": "urn:rkaf:fixture:atp:release:topics",
+      "@type": "rkaf:ReferenceResourceRelease",
+      "dcterms:isVersionOf": "urn:rkaf:fixture:registry:topics",
+      "dcat:version": "2026.07.28",
+      "dcterms:type": "skos:ConceptScheme",
+      "rkaf:membershipMode": "rkaf:completeMembership",
+      "prov:hadMember": ["urn:rkaf:fixture:concept:household-composition"],
+      "dcat:distribution": ["urn:rkaf:fixture:atp:distribution:topics"],
+      "rkaf:referenceReleaseDigest": "sha256:8568444419bfe1db1780fffadb91afb76795962fce023ea4760604d366ad5913"
+    },
+    {
+      "@id": "urn:rkaf:fixture:atp:distribution:topics",
+      "@type": "rkaf:Artifact",
+      "rkaf:hasArtifactIdentifier": ["urn:rkaf:fixture:atp:distribution:topics"],
+      "rkaf:artifactIdentifierScheme": ["rkaf:partner-defined"],
+      "dcterms:format": "application/ld+json",
+      "rkaf:hasContentDigest": "sha256:3434343434343434343434343434343434343434343434343434343434343434"
+    },
+    {
       "@id": "urn:rkaf:fixture:atp:artifact",
       "@type": "rkaf:Artifact",
       "rkaf:hasArtifactIdentifier": "urn:rkaf:fixture:atp:artifact",
@@ -23,19 +42,23 @@
     {
       "@id": "urn:rkaf:fixture:atp:assignment:ca-0007",
       "@type": "rkaf:ConceptAssignment",
-      "rkaf:assignmentSubject": "urn:rkaf:fixture:atp:fragment:sec-4b",
-      "rkaf:assignmentSubjectType": "rkaf:SourceFragment",
-      "rkaf:assignedConcept": "urn:rkaf:fixture:concept:household-composition",
-      "skos:inScheme": "urn:rkaf:fixture:scheme:fns-snap-topic",
-      "rkaf:assignmentRole": "rkaf:assignmentSubstantive",
-      "rkaf:assignmentDerivation": "rkaf:directAssignment",
-      "rkaf:assignmentEvidence": [
-        "urn:rkaf:fixture:atp:fragment:sec-4b"
-      ],
-      "rkaf:assignmentEvidenceScheme": "rkaf:published-fragment",
+      "rkaf:assertsSubject": "urn:rkaf:fixture:atp:fragment:sec-4b",
+      "rkaf:assertsPredicate": "rkaf:assignmentSubstantive",
+      "rkaf:assertsObject": "urn:rkaf:fixture:concept:household-composition",
+      "rkaf:assertionPolarity": "rkaf:affirmed",
+      "rkaf:assignedConceptRelease": "urn:rkaf:fixture:atp:release:topics",
       "rkaf:assertionOrigin": "rkaf:humanAsserted",
+      "rkaf:epistemicBasis": "rkaf:sourceExplicit",
       "rkaf:assertedAt": "2026-07-20T09:00:00Z",
       "rkaf:usageEligibility": "rkaf:localOperationalUse"
+    },
+    {
+      "@id": "urn:rkaf:fixture:atp:evidence:ca-0007",
+      "@type": "rkaf:EvidenceBinding",
+      "rkaf:bindsAssertion": "urn:rkaf:fixture:atp:assignment:ca-0007",
+      "rkaf:bindsSourceFragment": ["urn:rkaf:fixture:atp:fragment:sec-4b"],
+      "rkaf:evidenceRole": "rkaf:textualEvidence",
+      "rkaf:evidentiaryFunction": "rkaf:supports"
     },
     {
       "@id": "urn:rkaf:fixture:atp:attestation:row-1",

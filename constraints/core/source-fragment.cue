@@ -127,6 +127,10 @@ import "list"
 	"oa:hasSource":   string & =~"^[A-Za-z][A-Za-z0-9+.-]*:[^\\s]+$"
 	"oa:hasSelector": list.MinItems(1)
 	"rkaf:selectorKind":  [...#SelectorKind] & list.MinItems(1)
+	// Optional explicit identity form. Carrier-local URNs now materialize as
+	// ordinary SourceFragment nodes and declare the scheme here; evidence
+	// always reaches them through the universal EvidenceBinding path.
+	"rkaf:fragmentIdentityScheme"?: #FragmentIdentityScheme
 
 	// Content-digest bindings. `sourceArtifactDigest` pins the Artifact STATE
 	// the coordinates address; `fragmentContentDigest` pins the exact region
@@ -135,6 +139,13 @@ import "list"
 	// may carry either, both, or neither.
 	"rkaf:sourceArtifactDigest"?:  string & =~"^sha256:[0-9a-f]{64}$"
 	"rkaf:fragmentContentDigest"?: string & =~"^sha256:[0-9a-f]{64}$"
+	// Visibility may be narrower than the parent Artifact.
+	"rkaf:hasAccessScope"?: string & =~"^[A-Za-z][A-Za-z0-9+.-]*:[^\\s]+$"
+	// A fragment may need a stricter retention rule than its parent Artifact
+	// (for example, a legally held excerpt). Consumer policy resolves parent
+	// and child policies conservatively; the child edge never erases the
+	// parent's policy.
+	"rkaf:hasRetentionPolicy"?: string & =~"^[A-Za-z][A-Za-z0-9+.-]*:[^\\s]+$"
 
 	// Plan 7d — freshness. Orthogonal to lifecycle: tracks WHEN the source
 	// was last reconfirmed, not whether the rule it grounds is in force.

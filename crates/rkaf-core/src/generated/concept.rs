@@ -4,32 +4,6 @@
 
 use serde::{Deserialize, Serialize};
 
-/// Closed Rulespec values for `ConceptStatus`.
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-pub enum ConceptStatus {
-    /// Wire value `rkaf:draft`.
-    #[serde(rename = "rkaf:draft")]
-    Draft,
-    /// Wire value `rkaf:proposed`.
-    #[serde(rename = "rkaf:proposed")]
-    Proposed,
-    /// Wire value `rkaf:active`.
-    #[serde(rename = "rkaf:active")]
-    Active,
-    /// Wire value `rkaf:promoted`.
-    #[serde(rename = "rkaf:promoted")]
-    Promoted,
-    /// Wire value `rkaf:deprecated`.
-    #[serde(rename = "rkaf:deprecated")]
-    Deprecated,
-    /// Wire value `rkaf:retired`.
-    #[serde(rename = "rkaf:retired")]
-    Retired,
-    /// Wire value `rkaf:rejected`.
-    #[serde(rename = "rkaf:rejected")]
-    Rejected,
-}
-
 use std::collections::BTreeMap;
 
 /// Generated JSON-LD carrier for `ConceptScheme`.
@@ -47,9 +21,6 @@ pub struct ConceptScheme {
     /// JSON-LD property `rkaf:schemeFacet`.
     #[serde(rename = "rkaf:schemeFacet")]
     pub scheme_facet: String,
-    /// JSON-LD property `rkaf:conceptStatus`.
-    #[serde(rename = "rkaf:conceptStatus")]
-    pub concept_status: ConceptStatus,
     /// JSON-LD property `skos:definition`.
     #[serde(rename = "skos:definition", skip_serializing_if = "Option::is_none", default)]
     pub definition: Option<String>,
@@ -86,9 +57,6 @@ pub struct RegisteredConcept {
     /// JSON-LD property `rkaf:conceptScope`.
     #[serde(rename = "rkaf:conceptScope")]
     pub concept_scope: String,
-    /// JSON-LD property `rkaf:conceptStatus`.
-    #[serde(rename = "rkaf:conceptStatus")]
-    pub concept_status: ConceptStatus,
     /// JSON-LD property `skos:altLabel`.
     #[serde(rename = "skos:altLabel", skip_serializing_if = "Option::is_none", default)]
     pub alt_label: Option<crate::OneOrMany<String>>,
@@ -134,9 +102,6 @@ pub struct LocalConcept {
     /// JSON-LD property `rkaf:conceptScope`.
     #[serde(rename = "rkaf:conceptScope")]
     pub concept_scope: String,
-    /// JSON-LD property `rkaf:conceptStatus`.
-    #[serde(rename = "rkaf:conceptStatus")]
-    pub concept_status: ConceptStatus,
     /// JSON-LD property `skos:altLabel`.
     #[serde(rename = "skos:altLabel", skip_serializing_if = "Option::is_none", default)]
     pub alt_label: Option<crate::OneOrMany<String>>,

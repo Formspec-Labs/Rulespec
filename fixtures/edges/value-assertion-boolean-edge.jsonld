@@ -3,6 +3,7 @@
   "@id": "urn:rkaf:fixture:value-assertion:boolean-edge",
   "@type": "rkaf:ValueAssertion",
   "rkaf:assertionOrigin": "rkaf:humanAsserted",
+  "rkaf:epistemicBasis": "rkaf:deterministicDerivation",
   "rkaf:assertsSubject": "urn:rkaf:fixture:policy:emergency-amendment",
   "rkaf:assertsPredicate": "urn:rkaf:fixture:predicate:isCurrentAtEvaluation",
   "rkaf:assertsValue": {

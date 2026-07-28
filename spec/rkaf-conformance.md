@@ -14,7 +14,7 @@ Five levels are defined:
 | **L0 — Vocabulary** | A non-JSON-LD carrier maps its fields to registered Rulespec terms, identifier schemes, and closed-enum values. |
 | **L1 — Parse** | Documents claiming to be Rulespec parseable as JSON-LD without error. |
 | **L2 — Shape** | Every Rulespec node validates against its compiled JSON Schema. |
-| **L3 — Constraint** | Every Rulespec node also passes SHACL constraints, including Pattern-C cross-property invariants. |
+| **L3 — Constraint** | Every Rulespec node also passes SHACL constraints, including Pattern-C cross-property invariants, and all registered semantic-integrity checks. |
 | **L4 — Behavior** | Implementation honors the runtime contracts in `spec/rkaf-behavior.md` (reducer, CascadeClosureV1, 10 bridge rules, point-in-time exceptions, stale transition). |
 
 L1 ⊂ L2 ⊂ L3 ⊂ L4 — each JSON-LD level subsumes the prior. L0 is the vocabulary-only path for tabular or other non-JSON-LD carriers; it is not a prerequisite for L1. An L3-conformant implementation MUST also be L2- and L1-conformant.
@@ -55,7 +55,7 @@ current `sha256:<64 lowercase hex>` contract digest. Every block in one
 document MUST use the same digest.
 
 ```yaml rkaf-l0-mapping
-rulespec_version: "sha256:6e5506001343c55af2530c89070c79c4f74f54f666ef823c2687bd1460d173ce"
+rulespec_version: "sha256:71250f67b81fd54af3f6e6c45f2100f9a2307da589b364593e6708e5674b7172"
 mappings:
   - table: proceedings
     column: current_stage
@@ -118,11 +118,10 @@ Each entry has these rules:
   through `enum_map` rather than through a transform, whose output the audit
   checks for IRI shape and never for membership.
 - `transform` contains either `template`, or `pattern` plus `replacement`.
-  A SCHEME-BEARING predicate also requires `identifier_scheme` — the five
-  identifier predicates, and `rkaf:assignmentEvidence`, whose two registered
-  identity forms are both absolute IRIs (Core §4.2). The value grammar of a
-  scheme-bearing predicate is not recoverable from the value, so a mapping that
-  mints one names the registered scheme it minted under.
+  A SCHEME-BEARING identifier predicate also requires `identifier_scheme`.
+  EvidenceBindings point to materialized SourceFragment nodes;
+  `rkaf:fragmentIdentityScheme` belongs to the fragment and is not an
+  edge-level identifier declaration.
 - `source_membership`, when present, contains exactly `table` and `column`.
   It is valid only on a one-column mapping. A scalar value, or each item of a
   `json-list`, participates in that mapping only when the exact non-null value
@@ -194,7 +193,7 @@ The mapping below is the worked example. It is audited by
 `tools/test_l0_mapping_audit.py`, so it is executable rather than illustrative:
 
 ```yaml rkaf-l0-mapping
-rulespec_version: "sha256:6e5506001343c55af2530c89070c79c4f74f54f666ef823c2687bd1460d173ce"
+rulespec_version: "sha256:71250f67b81fd54af3f6e6c45f2100f9a2307da589b364593e6708e5674b7172"
 mappings:
   - table: attestations
     column: attestor_id
@@ -281,60 +280,79 @@ caps the carrier at one attestation per record — a second attestor, a later
 revocation, or a rejection following an approval all require the separate
 table.
 
-### Worked pattern — carrier-local fragment evidence [Normative]
+### Worked pattern — universal carrier-local evidence [Normative]
 
-`rkaf:assignmentEvidence` has range `rkaf:SourceFragment`. Before Core §4.2
-registered a second identity form, that range meant a tabular carrier had to
-publish and join a fragments table before it could claim the term at all —
-a requirement to publish a table rather than a requirement to know anything,
-since a carrier holding an artifact id, a start offset, an end offset, and a
-digest of the selected text already holds every binding a fragment needs.
+All durable assertions, including ConceptAssignment, use the same inverse
+EvidenceBinding path. A tabular carrier materializes one EvidenceBinding row
+and one SourceFragment row rather than projecting assignment-specific inline
+evidence.
 
-A carrier-local fragment URN carries those bindings in the identifier:
+A carrier-local fragment URN may carry the fragment coordinates:
 
 ```text
 urn:rkaf:fragment:<percent-encoded artifact IRI>:<start>:<end>:sha256-<64 hex>
 ```
 
 Offsets are Unicode code points over a half-open `[start, end)` interval; the
-digest covers the selected text. The mapping mints one from columns the carrier
-already stores, and declares the scheme it minted under:
+digest covers the selected text. The SourceFragment declares
+`rkaf:carrier-local-fragment`. The EvidenceBinding points to that materialized
+node and independently records evidence kind and function:
 
 ```yaml rkaf-l0-mapping
-rulespec_version: "sha256:6e5506001343c55af2530c89070c79c4f74f54f666ef823c2687bd1460d173ce"
+rulespec_version: "sha256:71250f67b81fd54af3f6e6c45f2100f9a2307da589b364593e6708e5674b7172"
 mappings:
-  - table: concept_assignments
-    columns:
-      - artifact_urn_encoded
-      - start_codepoint
-      - end_codepoint
-      - text_sha256
-    subject_type: https://rulespec.org/ns/v1#ConceptAssignment
-    term: https://rulespec.org/ns/v1#assignmentEvidence
+  - table: evidence_bindings
+    column: assertion_iri
+    subject_type: https://rulespec.org/ns/v1#EvidenceBinding
+    term: https://rulespec.org/ns/v1#bindsAssertion
+    direction: forward
+    value_kind: iri
+    transform:
+      template: "{assertion_iri}"
+    samples:
+      - input:
+          assertion_iri: urn:rkaf:example:assertion:1
+        output: urn:rkaf:example:assertion:1
+  - table: evidence_bindings
+    column: fragment_iri
+    subject_type: https://rulespec.org/ns/v1#EvidenceBinding
+    term: https://rulespec.org/ns/v1#bindsSourceFragment
     direction: forward
     object_type: https://rulespec.org/ns/v1#SourceFragment
     value_kind: iri
     transform:
-      template: "urn:rkaf:fragment:{artifact_urn_encoded}:{start_codepoint}:{end_codepoint}:sha256-{text_sha256}"
-      identifier_scheme: https://rulespec.org/ns/v1#carrier-local-fragment
+      template: "{fragment_iri}"
     samples:
       - input:
-          artifact_urn_encoded: urn%3Aspicy-regs%3Aartifact%3A9f2c4b
-          start_codepoint: 118
-          end_codepoint: 214
-          text_sha256: 2222222222222222222222222222222222222222222222222222222222222222
-        output: urn:rkaf:fragment:urn%3Aspicy-regs%3Aartifact%3A9f2c4b:118:214:sha256-2222222222222222222222222222222222222222222222222222222222222222
+          fragment_iri: urn:rkaf:fragment:urn%3Arkaf%3Aartifact%3A1:0:12:sha256-2222222222222222222222222222222222222222222222222222222222222222
+        output: urn:rkaf:fragment:urn%3Arkaf%3Aartifact%3A1:0:12:sha256-2222222222222222222222222222222222222222222222222222222222222222
+    source_membership:
+      table: source_fragments
+      column: fragment_iri
+  - table: evidence_bindings
+    column: evidence_role
+    subject_type: https://rulespec.org/ns/v1#EvidenceBinding
+    term: https://rulespec.org/ns/v1#evidenceRole
+    direction: forward
+    value_kind: iri
+    enum_map:
+      textual: https://rulespec.org/ns/v1#textualEvidence
+  - table: evidence_bindings
+    column: evidentiary_function
+    subject_type: https://rulespec.org/ns/v1#EvidenceBinding
+    term: https://rulespec.org/ns/v1#evidentiaryFunction
+    direction: forward
+    value_kind: vocab
+    enum_map:
+      supports: https://rulespec.org/ns/v1#supports
 ```
 
-Three obligations survive the change and are NOT relaxed by it. The percent
-encoding is the RFC 3986 unreserved set with uppercase hex triplets, so the
-parent Artifact is recoverable from the identifier and comparable without a
-decoder. Evidence still has to come from the same Artifact as the subject, so a
-carrier-local subject and a carrier-local evidence value must share an artifact
-component. And a carrier that publishes fragments keeps declaring
-`rkaf:published-fragment`: the scheme is what says which grammar applies, and a
-value in the `urn:rkaf:fragment:` namespace under any other declaration is a
-violation.
+The carrier MUST also materialize each SourceFragment's `oa:hasSource`,
+`oa:hasSelector`, `rkaf:selectorKind`, and
+`rkaf:fragmentIdentityScheme`. Percent encoding follows the RFC 3986
+unreserved set with uppercase hex triplets. A carrier that publishes ordinary
+fragment IRIs declares `rkaf:published-fragment`; a carrier-local URN declares
+`rkaf:carrier-local-fragment`.
 
 ### Scope carve-outs [Normative]
 
@@ -348,7 +366,7 @@ Two OPTIONAL keys make a carve-out a checked declaration:
 
 ```yaml
 excluded_terms:
-  - "https://rulespec.org/ns/v1#assignmentEvidence"
+  - "https://rulespec.org/ns/v1#bindsSourceFragment"
 excluded_tables:
   - "attestations"
 ```
@@ -446,16 +464,31 @@ An L3 implementation MUST:
    `compiled/shacl/core/` and the legacy Pattern-C-only suite under `shapes/`.
    A hand-authored shape MUST NOT redefine a CUE-expressible structural,
    lexical, date, or ordered-field constraint.
-3. Enforce Pattern-C cross-property invariants — e.g., an Assertion with `assertionOrigin` in the AI-touched subset MUST carry `hasAILineage`.
-4. Surface SHACL violations with focus node, result path, source constraint component, and result message.
+3. Enforce Pattern-C cross-property and graph invariants — for example,
+   `assertionOrigin = aiSuggested` requires AI lineage and a provisional usage
+   cap, and every durable assertion requires an inverse EvidenceBinding.
+4. Recompute every `rkaf:ReferenceResourceRelease` semantic-manifest digest
+   with RDFC-1.0 and SHA-256, reject blank-node release manifests, and reject a
+   declared digest that does not match the closed graph defined by
+   `spec/rkaf-core.md` §4.1.1. A lexical digest shape does not satisfy this
+   requirement.
+5. Surface SHACL violations with focus node, result path, source constraint
+   component, and result message, and surface semantic-integrity failures with
+   the affected release and the expected digest.
 
 ### 3.2 Gate
 
-`tools/ci_validate.py` is the Python SHACL gate. An L3-conformant implementation produces an equivalent verdict on every fixture.
+`tools/ci_validate.py` is the Python L3 gate: it runs SHACL and the registered
+semantic-integrity checks. `tools/reference_release_digest.py` implements the
+RDFC-1.0 release check, and `tools/validate_negatives.py` proves that both a
+well-formed wrong digest and a blank-node release fail. An L3-conformant
+implementation produces an equivalent verdict on every fixture.
 
 ### 3.3 Self-certification
 
-Declaring L3 requires that **every positive fixture passes the full SHACL shape suite** and **every negative fixture surfaces at least one L2 or L3 violation** through the reference gates.
+Declaring L3 requires that **every positive fixture passes the full SHACL shape
+suite and registered semantic-integrity checks** and **every negative fixture
+surfaces at least one L2 or L3 violation** through the reference gates.
 
 ## 4. L4 — Behavior [Normative]
 
@@ -535,7 +568,7 @@ terms_used:
 # every excluded table is unmapped. Absent means nothing was said about
 # scope, never "everything else is out".
 excluded_terms:
-  - "https://rulespec.org/ns/v1#assignmentEvidence"
+  - "https://rulespec.org/ns/v1#bindsSourceFragment"
 excluded_tables:
   - "attestations"
 test_corpus_version: "<immutable carrier corpus version>"

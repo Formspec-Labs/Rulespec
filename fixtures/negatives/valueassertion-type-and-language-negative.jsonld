@@ -1,0 +1,16 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@id": "urn:rkaf:fixture:value-assertion:type-and-language",
+  "@type": "rkaf:ValueAssertion",
+  "rkaf:assertionOrigin": "rkaf:humanAsserted",
+  "rkaf:epistemicBasis": "rkaf:sourceExplicit",
+  "rkaf:assertsSubject": "urn:rkaf:fixture:policy:emergency-amendment",
+  "rkaf:assertsPredicate": "urn:rkaf:fixture:predicate:label",
+  "rkaf:assertsValue": {
+    "@value": "income",
+    "@type": "xsd:string",
+    "@language": "en"
+  },
+  "rkaf:assertionPolarity": "rkaf:affirmed",
+  "_comment": "Negative: RDF 1.1 value objects carry exactly one of @type or @language."
+}

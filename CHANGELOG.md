@@ -5,6 +5,45 @@ All notable changes to Rulespec are documented in this file.
 The format is loosely based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 adapted for a specification + shape + fixture project.
 
+## 0.2.0-pre.8 — Portable evidence and reference-resource semantics
+
+### Changed
+
+- Reduced `rkaf:assertionOrigin` to construction facts:
+  `humanAsserted`, `aiSuggested`, `imported`, and
+  `deterministicExtraction`. Added required `rkaf:epistemicBasis` to every
+  durable assertion. AI suggestions require lineage and a mechanically
+  enforced provisional usage cap; review remains an Attestation.
+- Made inverse `rkaf:EvidenceBinding` universal across every durable assertion
+  form. Fragment-backed bindings now require independent `rkaf:evidenceRole`
+  and `rkaf:evidentiaryFunction` values.
+- Normalized `rkaf:ConceptAssignment` and `rkaf:ConceptMapping` onto canonical
+  RelationshipAssertion fields and removed their shadow fields. Assignments
+  and mapping endpoints now pin exact reference-resource releases.
+- Replaced mutable `rkaf:conceptStatus` and inline mapping publication state
+  with immutable release membership, Attestations, and lifecycle records.
+- Added `rkaf:ReferenceResourceRelease`, including complete, partial, and
+  non-enumerated membership modes, immutable distributions, and an RDFC-1.0
+  semantic-manifest digest.
+- Added BCP 47 language-tagged `ValueAssertion` literals while retaining
+  native SKOS labels and definitions as the multilingual vocabulary carrier.
+- Added media-type, access-scope, and retention carriage across the relevant
+  artifacts, assertions, attestations, evidence bindings, and fragments.
+
+### Validation
+
+- Added migration-negative fixtures for retired origins, concept status,
+  assignment and mapping shadow fields, invalid release pins, invalid
+  membership modes, and invalid language-tagged literals.
+- Added a reproducible RDFC-1.0 reference-release digest tool, mutation and
+  canonical-escaping vectors, blank-node rejection, and production L3
+  integration. The positive, negative, and conformance-report gates now
+  recompute release digests rather than accepting a lexical SHA-256 value.
+- Pinned the conforming `rdfcanon==1.0.0` implementation, aligned CI with
+  `requirements.txt`, and made the default Makefile gate resolve Python 3.12.
+- Regenerated JSON Schema, SHACL, Rust, TypeScript, and OpenAPI outputs from
+  the CUE sources at version `0.2.0-pre.8`.
+
 ## Unreleased — US regulatory identifiers, L0 conformance, and rulemaking module
 
 ### Added

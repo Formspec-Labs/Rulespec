@@ -5,6 +5,7 @@
       "@id": "urn:rkaf:fixture:relationship-assertion:parsed-citation",
       "@type": "rkaf:RelationshipAssertion",
       "rkaf:assertionOrigin": "rkaf:deterministicExtraction",
+      "rkaf:epistemicBasis": "rkaf:deterministicDerivation",
       "rkaf:assertsSubject": "urn:rkaf:fixture:document:air-quality-notice",
       "rkaf:assertsPredicate": "urn:rkaf:fixture:predicate:citesAuthority",
       "rkaf:assertsObject": "urn:rkaf:fixture:citation:42-usc-7401",
@@ -23,6 +24,32 @@
       "rkaf:inputDigest": [
         "sha256:4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865"
       ]
+    },
+    {
+      "@id": "urn:rkaf:fixture:relationship-assertion:artifact:citation",
+      "@type": "rkaf:Artifact",
+      "rkaf:hasArtifactIdentifier": "urn:rkaf:fixture:document:air-quality-notice",
+      "rkaf:artifactIdentifierScheme": "rkaf:partner-defined"
+    },
+    {
+      "@id": "urn:rkaf:fixture:relationship-assertion:fragment:citation",
+      "@type": "rkaf:SourceFragment",
+      "oa:hasSource": "urn:rkaf:fixture:relationship-assertion:artifact:citation",
+      "oa:hasSelector": {
+        "@type": "oa:TextQuoteSelector",
+        "oa:exact": "Authority: 42 U.S.C. 7401."
+      },
+      "rkaf:selectorKind": "oa:TextQuoteSelector"
+    },
+    {
+      "@id": "urn:rkaf:fixture:relationship-assertion:evidence:citation",
+      "@type": "rkaf:EvidenceBinding",
+      "rkaf:bindsAssertion": "urn:rkaf:fixture:relationship-assertion:parsed-citation",
+      "rkaf:bindsSourceFragment": [
+        "urn:rkaf:fixture:relationship-assertion:fragment:citation"
+      ],
+      "rkaf:evidenceRole": "rkaf:authorityCitation",
+      "rkaf:evidentiaryFunction": "rkaf:supports"
     }
   ]
 }

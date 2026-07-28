@@ -33,7 +33,13 @@ The native artifact's `@context` is preserved; the v0.2 Rulespec context is appe
 
 ## 3. Canonicalization
 
-Round-trip parity is asserted on URDNA2015 canonical N-Quads when the Rust `rdf-canon` integration lands (Plan 6 SDK work). For v0.2 MVP, the reference projector asserts byte-equality on the common shape: native `@context` either a string or a single-element array; overlay `@context` either a string or a single-element array; `@graph` an array of typed nodes. Inputs outside this shape MAY round-trip canonically but are not guaranteed to round-trip byte-identically.
+Round-trip parity will be asserted on RDFC-1.0 canonical N-Quads when the Rust
+canonicalization integration lands (Plan 6 SDK work). For v0.2 MVP, the
+reference projector asserts byte-equality on the common shape: native
+`@context` either a string or a single-element array; overlay `@context` either
+a string or a single-element array; `@graph` an array of typed nodes. Inputs
+outside this shape MAY round-trip canonically but are not guaranteed to
+round-trip byte-identically.
 
 ## 4. Type-namespace partition
 

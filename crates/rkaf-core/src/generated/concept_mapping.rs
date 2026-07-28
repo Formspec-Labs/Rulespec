@@ -7,12 +7,12 @@ use serde::{Deserialize, Serialize};
 /// Closed Rulespec values for `SkosMappingPredicate`.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum SkosMappingPredicate {
-    /// Wire value `skos:closeMatch`.
-    #[serde(rename = "skos:closeMatch")]
-    CloseMatch,
     /// Wire value `skos:exactMatch`.
     #[serde(rename = "skos:exactMatch")]
     ExactMatch,
+    /// Wire value `skos:closeMatch`.
+    #[serde(rename = "skos:closeMatch")]
+    CloseMatch,
     /// Wire value `skos:broadMatch`.
     #[serde(rename = "skos:broadMatch")]
     BroadMatch,
@@ -22,39 +22,12 @@ pub enum SkosMappingPredicate {
     /// Wire value `skos:relatedMatch`.
     #[serde(rename = "skos:relatedMatch")]
     RelatedMatch,
-    /// Wire value `skos:broader`.
-    #[serde(rename = "skos:broader")]
-    Broader,
-    /// Wire value `skos:narrower`.
-    #[serde(rename = "skos:narrower")]
-    Narrower,
-    /// Wire value `skos:related`.
-    #[serde(rename = "skos:related")]
-    Related,
-    /// Wire value `skos:mappingRelation`.
-    #[serde(rename = "skos:mappingRelation")]
-    MappingRelation,
 }
 
-/// Closed Rulespec values for `ConceptMappingLifecycleState`.
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-pub enum ConceptMappingLifecycleState {
-    /// Wire value `rkaf:proposed`.
-    #[serde(rename = "rkaf:proposed")]
-    Proposed,
-    /// Wire value `rkaf:underReview`.
-    #[serde(rename = "rkaf:underReview")]
-    UnderReview,
-    /// Wire value `rkaf:approved`.
-    #[serde(rename = "rkaf:approved")]
-    Approved,
-    /// Wire value `rkaf:deprecated`.
-    #[serde(rename = "rkaf:deprecated")]
-    Deprecated,
-    /// Wire value `rkaf:retired`.
-    #[serde(rename = "rkaf:retired")]
-    Retired,
-}
+#[allow(dead_code)]
+type _StructuralDependencyAssertionPolarity = crate::generated::assertion::AssertionPolarity;
+#[allow(dead_code)]
+type _StructuralDependencyProvisionalAIUsageEligibility = crate::generated::assertion::ProvisionalAIUsageEligibility;
 
 use std::collections::BTreeMap;
 
@@ -67,24 +40,72 @@ pub struct ConceptMapping {
     /// Optional JSON-LD resource identifier.
     #[serde(rename = "@id", skip_serializing_if = "Option::is_none", default)]
     pub id: Option<String>,
-    /// JSON-LD property `rkaf:sourceConcept`.
-    #[serde(rename = "rkaf:sourceConcept")]
-    pub source_concept: String,
-    /// JSON-LD property `rkaf:targetConcept`.
-    #[serde(rename = "rkaf:targetConcept")]
-    pub target_concept: String,
-    /// JSON-LD property `rkaf:mappingRelation`.
-    #[serde(rename = "rkaf:mappingRelation")]
-    pub mapping_relation: SkosMappingPredicate,
-    /// JSON-LD property `rkaf:hasApplicability`.
-    #[serde(rename = "rkaf:hasApplicability", skip_serializing_if = "Option::is_none", default)]
-    pub has_applicability: Option<String>,
     /// JSON-LD property `rkaf:usageEligibility`.
     #[serde(rename = "rkaf:usageEligibility", skip_serializing_if = "Option::is_none", default)]
     pub usage_eligibility: Option<crate::generated::usage_eligibility::UsageEligibility>,
-    /// JSON-LD property `rkaf:lifecycleState`.
-    #[serde(rename = "rkaf:lifecycleState", skip_serializing_if = "Option::is_none", default)]
-    pub lifecycle_state: Option<ConceptMappingLifecycleState>,
+    /// JSON-LD property `rkaf:consumerLifecycleState`.
+    #[serde(rename = "rkaf:consumerLifecycleState", skip_serializing_if = "Option::is_none", default)]
+    pub consumer_lifecycle_state: Option<crate::generated::generated_work_product::ConsumerLifecycleState>,
+    /// JSON-LD property `rkaf:hasAccessScope`.
+    #[serde(rename = "rkaf:hasAccessScope", skip_serializing_if = "Option::is_none", default)]
+    pub has_access_scope: Option<String>,
+    /// JSON-LD property `rkaf:assertionOrigin`.
+    #[serde(rename = "rkaf:assertionOrigin")]
+    pub assertion_origin: crate::generated::assertion::AssertionOrigin,
+    /// JSON-LD property `rkaf:epistemicBasis`.
+    #[serde(rename = "rkaf:epistemicBasis")]
+    pub epistemic_basis: crate::generated::assertion::EpistemicBasis,
+    /// JSON-LD property `rkaf:hasApplicability`.
+    #[serde(rename = "rkaf:hasApplicability", skip_serializing_if = "Option::is_none", default)]
+    pub has_applicability: Option<String>,
+    /// JSON-LD property `rkaf:hasJustification`.
+    #[serde(rename = "rkaf:hasJustification", skip_serializing_if = "Option::is_none", default)]
+    pub has_justification: Option<String>,
+    /// JSON-LD property `rkaf:hasWarrant`.
+    #[serde(rename = "rkaf:hasWarrant", skip_serializing_if = "Option::is_none", default)]
+    pub has_warrant: Option<String>,
+    /// JSON-LD property `rkaf:hasAuthority`.
+    #[serde(rename = "rkaf:hasAuthority", skip_serializing_if = "Option::is_none", default)]
+    pub has_authority: Option<String>,
+    /// JSON-LD property `rkaf:hasRetentionPolicy`.
+    #[serde(rename = "rkaf:hasRetentionPolicy", skip_serializing_if = "Option::is_none", default)]
+    pub has_retention_policy: Option<String>,
+    /// JSON-LD property `prov:wasDerivedFrom`.
+    #[serde(rename = "prov:wasDerivedFrom", skip_serializing_if = "Option::is_none", default)]
+    pub was_derived_from: Option<crate::OneOrMany<String>>,
+    /// JSON-LD property `rkaf:hasSourceClaimant`.
+    #[serde(rename = "rkaf:hasSourceClaimant", skip_serializing_if = "Option::is_none", default)]
+    pub has_source_claimant: Option<String>,
+    /// JSON-LD property `rkaf:hasExtractionProvenance`.
+    #[serde(rename = "rkaf:hasExtractionProvenance", skip_serializing_if = "Option::is_none", default)]
+    pub has_extraction_provenance: Option<String>,
+    /// JSON-LD property `rkaf:hasConfidence`.
+    #[serde(rename = "rkaf:hasConfidence", skip_serializing_if = "Option::is_none", default)]
+    pub has_confidence: Option<crate::OneOrMany<String>>,
+    /// JSON-LD property `rkaf:supersedesAssertion`.
+    #[serde(rename = "rkaf:supersedesAssertion", skip_serializing_if = "Option::is_none", default)]
+    pub supersedes_assertion: Option<crate::OneOrMany<String>>,
+    /// JSON-LD property `rkaf:assertedAt`.
+    #[serde(rename = "rkaf:assertedAt", skip_serializing_if = "Option::is_none", default)]
+    pub asserted_at: Option<String>,
+    /// JSON-LD property `rkaf:assertsSubject`.
+    #[serde(rename = "rkaf:assertsSubject")]
+    pub asserts_subject: String,
+    /// JSON-LD property `rkaf:assertsPredicate`.
+    #[serde(rename = "rkaf:assertsPredicate")]
+    pub asserts_predicate: SkosMappingPredicate,
+    /// JSON-LD property `rkaf:assertionPolarity`.
+    #[serde(rename = "rkaf:assertionPolarity")]
+    pub assertion_polarity: String,
+    /// JSON-LD property `rkaf:assertsObject`.
+    #[serde(rename = "rkaf:assertsObject")]
+    pub asserts_object: String,
+    /// JSON-LD property `rkaf:sourceConceptRelease`.
+    #[serde(rename = "rkaf:sourceConceptRelease")]
+    pub source_concept_release: String,
+    /// JSON-LD property `rkaf:targetConceptRelease`.
+    #[serde(rename = "rkaf:targetConceptRelease")]
+    pub target_concept_release: String,
     /// JSON-LD property `rkaf:managedByRegistry`.
     #[serde(rename = "rkaf:managedByRegistry", skip_serializing_if = "Option::is_none", default)]
     pub managed_by_registry: Option<String>,

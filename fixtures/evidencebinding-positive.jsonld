@@ -20,13 +20,16 @@
     {
       "@id": "urn:rkaf:fixture:eb-pos:assertion",
       "@type": "rkaf:Assertion",
-      "rkaf:assertionOrigin": "rkaf:humanAsserted"
+      "rkaf:assertionOrigin": "rkaf:humanAsserted",
+      "rkaf:epistemicBasis": "rkaf:sourceExplicit"
     },
     {
       "@id": "urn:rkaf:fixture:eb-pos:binding",
       "@type": "rkaf:EvidenceBinding",
       "rkaf:bindsAssertion": "urn:rkaf:fixture:eb-pos:assertion",
-      "rkaf:bindsSourceFragment": "urn:rkaf:fixture:eb-pos:fragment"
+      "rkaf:bindsSourceFragment": "urn:rkaf:fixture:eb-pos:fragment",
+      "rkaf:evidenceRole": "rkaf:textualEvidence",
+      "rkaf:evidentiaryFunction": "rkaf:supports"
     }
   ]
 }

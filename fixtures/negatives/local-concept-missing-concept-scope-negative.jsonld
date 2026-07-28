@@ -3,6 +3,5 @@
   "@id": "urn:rkaf:fixture:local-concept:tx-grossEarnedIncome",
   "@type": "rkaf:LocalConcept",
   "rkaf:definedInScope": "urn:rkaf:scope:tx-hhsc-snap",
-  "rkaf:conceptStatus": "rkaf:active",
   "skos:inScheme": "urn:rkaf:fixture:scheme:fns-snap-topic"
 }

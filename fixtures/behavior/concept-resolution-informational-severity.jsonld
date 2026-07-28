@@ -7,27 +7,36 @@
   "rkaf:input": {
     "@graph": [
       {
-        "@id": "X",
+        "@id": "urn:rkaf:fixture:concept:X",
         "@type": "rkaf:LocalConcept",
         "rkaf:definedInScope": "urn:rkaf:scope:test",
         "rkaf:conceptScope": "urn:rkaf:scope:test",
-        "rkaf:conceptStatus": "rkaf:active",
         "skos:prefLabel": "X",
         "skos:inScheme": "urn:rkaf:scheme:test-topic"
       },
       {
         "@id": "m1",
         "@type": "rkaf:ConceptMapping",
-        "rkaf:sourceConcept": "X",
-        "rkaf:targetConcept": "canon:A",
-        "rkaf:mappingRelation": "skos:closeMatch"
+        "rkaf:assertionOrigin": "rkaf:humanAsserted",
+        "rkaf:epistemicBasis": "rkaf:editorialAssertion",
+        "rkaf:assertsSubject": "urn:rkaf:fixture:concept:X",
+        "rkaf:assertsPredicate": "skos:closeMatch",
+        "rkaf:assertsObject": "canon:A",
+        "rkaf:assertionPolarity": "rkaf:affirmed",
+        "rkaf:sourceConceptRelease": "urn:rkaf:fixture:release:test-source",
+        "rkaf:targetConceptRelease": "urn:rkaf:fixture:release:test-target"
       },
       {
         "@id": "m2",
         "@type": "rkaf:ConceptMapping",
-        "rkaf:sourceConcept": "X",
-        "rkaf:targetConcept": "canon:B",
-        "rkaf:mappingRelation": "skos:closeMatch"
+        "rkaf:assertionOrigin": "rkaf:humanAsserted",
+        "rkaf:epistemicBasis": "rkaf:editorialAssertion",
+        "rkaf:assertsSubject": "urn:rkaf:fixture:concept:X",
+        "rkaf:assertsPredicate": "skos:closeMatch",
+        "rkaf:assertsObject": "canon:B",
+        "rkaf:assertionPolarity": "rkaf:affirmed",
+        "rkaf:sourceConceptRelease": "urn:rkaf:fixture:release:test-source",
+        "rkaf:targetConceptRelease": "urn:rkaf:fixture:release:test-target"
       }
     ]
   },

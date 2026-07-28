@@ -4,20 +4,9 @@
 
 use serde::{Deserialize, Serialize};
 
-/// Closed Rulespec values for `AssignmentSubjectType`.
+/// Closed Rulespec values for `ConceptAssignmentPredicate`.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-pub enum AssignmentSubjectType {
-    /// Wire value `rkaf:Artifact`.
-    #[serde(rename = "rkaf:Artifact")]
-    Artifact,
-    /// Wire value `rkaf:SourceFragment`.
-    #[serde(rename = "rkaf:SourceFragment")]
-    SourceFragment,
-}
-
-/// Closed Rulespec values for `ConceptAssignmentRole`.
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-pub enum ConceptAssignmentRole {
+pub enum ConceptAssignmentPredicate {
     /// Wire value `rkaf:assignmentPrimary`.
     #[serde(rename = "rkaf:assignmentPrimary")]
     AssignmentPrimary,
@@ -32,16 +21,10 @@ pub enum ConceptAssignmentRole {
     AssignmentContextual,
 }
 
-/// Closed Rulespec values for `AssignmentDerivation`.
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-pub enum AssignmentDerivation {
-    /// Wire value `rkaf:directAssignment`.
-    #[serde(rename = "rkaf:directAssignment")]
-    DirectAssignment,
-    /// Wire value `rkaf:derivedAssignment`.
-    #[serde(rename = "rkaf:derivedAssignment")]
-    DerivedAssignment,
-}
+#[allow(dead_code)]
+type _StructuralDependencyAssertionPolarity = crate::generated::assertion::AssertionPolarity;
+#[allow(dead_code)]
+type _StructuralDependencyProvisionalAIUsageEligibility = crate::generated::assertion::ProvisionalAIUsageEligibility;
 
 use std::collections::BTreeMap;
 
@@ -66,6 +49,9 @@ pub struct ConceptAssignment {
     /// JSON-LD property `rkaf:assertionOrigin`.
     #[serde(rename = "rkaf:assertionOrigin")]
     pub assertion_origin: crate::generated::assertion::AssertionOrigin,
+    /// JSON-LD property `rkaf:epistemicBasis`.
+    #[serde(rename = "rkaf:epistemicBasis")]
+    pub epistemic_basis: crate::generated::assertion::EpistemicBasis,
     /// JSON-LD property `rkaf:hasApplicability`.
     #[serde(rename = "rkaf:hasApplicability", skip_serializing_if = "Option::is_none", default)]
     pub has_applicability: Option<String>,
@@ -78,6 +64,9 @@ pub struct ConceptAssignment {
     /// JSON-LD property `rkaf:hasAuthority`.
     #[serde(rename = "rkaf:hasAuthority", skip_serializing_if = "Option::is_none", default)]
     pub has_authority: Option<String>,
+    /// JSON-LD property `rkaf:hasRetentionPolicy`.
+    #[serde(rename = "rkaf:hasRetentionPolicy", skip_serializing_if = "Option::is_none", default)]
+    pub has_retention_policy: Option<String>,
     /// JSON-LD property `prov:wasDerivedFrom`.
     #[serde(rename = "prov:wasDerivedFrom", skip_serializing_if = "Option::is_none", default)]
     pub was_derived_from: Option<crate::OneOrMany<String>>,
@@ -96,36 +85,21 @@ pub struct ConceptAssignment {
     /// JSON-LD property `rkaf:assertedAt`.
     #[serde(rename = "rkaf:assertedAt", skip_serializing_if = "Option::is_none", default)]
     pub asserted_at: Option<String>,
-    /// JSON-LD property `rkaf:assignmentSubject`.
-    #[serde(rename = "rkaf:assignmentSubject")]
-    pub assignment_subject: String,
-    /// JSON-LD property `rkaf:assignmentSubjectType`.
-    #[serde(rename = "rkaf:assignmentSubjectType")]
-    pub assignment_subject_type: AssignmentSubjectType,
-    /// JSON-LD property `rkaf:assignedConcept`.
-    #[serde(rename = "rkaf:assignedConcept")]
-    pub assigned_concept: String,
-    /// JSON-LD property `skos:inScheme`.
-    #[serde(rename = "skos:inScheme")]
-    pub in_scheme: String,
-    /// JSON-LD property `rkaf:assignmentRole`.
-    #[serde(rename = "rkaf:assignmentRole")]
-    pub assignment_role: ConceptAssignmentRole,
-    /// JSON-LD property `rkaf:assignmentDerivation`.
-    #[serde(rename = "rkaf:assignmentDerivation")]
-    pub assignment_derivation: AssignmentDerivation,
-    /// JSON-LD property `rkaf:assignmentEvidence`.
-    #[serde(rename = "rkaf:assignmentEvidence", skip_serializing_if = "Option::is_none", default)]
-    pub assignment_evidence: Option<crate::OneOrMany<String>>,
-    /// JSON-LD property `rkaf:assignmentEvidenceScheme`.
-    #[serde(rename = "rkaf:assignmentEvidenceScheme", skip_serializing_if = "Option::is_none", default)]
-    pub assignment_evidence_scheme: Option<crate::generated::source_fragment::FragmentIdentityScheme>,
-    /// JSON-LD property `rkaf:supportingAssignment`.
-    #[serde(rename = "rkaf:supportingAssignment", skip_serializing_if = "Option::is_none", default)]
-    pub supporting_assignment: Option<crate::OneOrMany<String>>,
-    /// JSON-LD property `rkaf:assignmentPolicyVersion`.
-    #[serde(rename = "rkaf:assignmentPolicyVersion", skip_serializing_if = "Option::is_none", default)]
-    pub assignment_policy_version: Option<String>,
+    /// JSON-LD property `rkaf:assertsSubject`.
+    #[serde(rename = "rkaf:assertsSubject")]
+    pub asserts_subject: String,
+    /// JSON-LD property `rkaf:assertsPredicate`.
+    #[serde(rename = "rkaf:assertsPredicate")]
+    pub asserts_predicate: ConceptAssignmentPredicate,
+    /// JSON-LD property `rkaf:assertionPolarity`.
+    #[serde(rename = "rkaf:assertionPolarity")]
+    pub assertion_polarity: String,
+    /// JSON-LD property `rkaf:assertsObject`.
+    #[serde(rename = "rkaf:assertsObject")]
+    pub asserts_object: String,
+    /// JSON-LD property `rkaf:assignedConceptRelease`.
+    #[serde(rename = "rkaf:assignedConceptRelease")]
+    pub assigned_concept_release: String,
     /// Additional JSON-LD properties preserved during round trips.
     #[serde(flatten)]
     pub extra: BTreeMap<String, serde_json::Value>,

@@ -46,6 +46,7 @@ from conformance_lib import (
     shacl_shape_paths,
     violates_order,
 )
+from reference_release_digest import release_digest_errors
 
 ROOT = Path(__file__).resolve().parent.parent
 
@@ -162,8 +163,10 @@ def _load_shacl_graph():
 
 
 def l3_validate(fixture_path: Path) -> tuple[bool, int]:
-    """L3 gate: run pyshacl on the fixture against the full SHACL shape suite.
-    Returns (conforms, violation_count)."""
+    """L3 gate: SHACL plus canonical release-digest verification.
+
+    Returns (conforms, violation_count).
+    """
     try:
         import rdflib
         from pyshacl import validate
@@ -186,7 +189,8 @@ def l3_validate(fixture_path: Path) -> tuple[bool, int]:
     )
     SH = rdflib.Namespace("http://www.w3.org/ns/shacl#")
     violations = list(report_g.subjects(rdflib.RDF.type, SH.ValidationResult))
-    return conforms, len(violations)
+    digest_errors = release_digest_errors(data_graph)
+    return conforms and not digest_errors, len(violations) + len(digest_errors)
 
 
 # ---------------------------------------------------------------- main loop

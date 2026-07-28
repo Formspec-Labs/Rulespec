@@ -1,5 +1,12 @@
 # Rulespec Conformance Fixture v0.2
 
+> **Historical, non-conforming editorial record.** This narrative predates
+> `0.2.0-pre.8` and MUST NOT be used as current authoring guidance. It retains
+> retired assertion-origin, concept-status, inline evidence, and
+> concept-mapping forms so the earlier worked trace remains auditable. Current
+> normative examples are the JSON-LD fixtures validated by
+> `tools/ci_validate.py` and the specifications under `spec/`.
+
 > **Note**: This narrative was written pre-ADR-0093. `BridgeValidationResult` code blocks below show the legacy flat indicator arrays (`rkaf:warnings`, `rkaf:errors`, `rkaf:staleDependencies`, `rkaf:registryUnavailable`, `rkaf:registryVersionOutOfRange`). The current shape uses a single `rkaf:findings` list of `rkaf:Finding` `@id`s — see ADR-0093.
 
 Status: revised worked trace, absorbing decisions through Pass 3

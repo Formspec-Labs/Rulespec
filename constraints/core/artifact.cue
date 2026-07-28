@@ -50,6 +50,9 @@ import "list"
 	"rkaf:hasArtifactIdentifier":    [...(string & =~"^[A-Za-z][A-Za-z0-9+.-]*:[^\\s]+$")] & list.MinItems(1)
 	"rkaf:artifactIdentifierScheme": [...#ArtifactIdentifierScheme] & list.MinItems(1)
 	"foaf:primaryTopic"?:            string & =~"^[A-Za-z][A-Za-z0-9+.-]*:[^\\s]+$"
+	// IANA media type for this immutable representation. `dcterms:hasFormat`
+	// relates sibling Artifacts; `dcterms:format` describes this one.
+	"dcterms:format"?:               string & =~"^[A-Za-z0-9!#$&^_.+-]+/[A-Za-z0-9!#$&^_.+-]+(?:\\s*;.*)?$"
 	"dcterms:hasFormat"?:            [...(string & =~"^[A-Za-z][A-Za-z0-9+.-]*:[^\\s]+$")] & list.MinItems(1)
 	"dcterms:isFormatOf"?:           [...(string & =~"^[A-Za-z][A-Za-z0-9+.-]*:[^\\s]+$")] & list.MinItems(1)
 	"dcterms:isVersionOf"?:          [...(string & =~"^[A-Za-z][A-Za-z0-9+.-]*:[^\\s]+$")] & list.MinItems(1)
@@ -58,7 +61,9 @@ import "list"
 	// The content digest of the immutable state this Artifact names. Lowercase
 	// `sha256:<64 hex>` — the same lexical contract every other Rulespec digest
 	// uses. The kernel checks the FORM of a digest, never its preimage.
-	"rkaf:hasContentDigest"?: string & =~"^sha256:[0-9a-f]{64}$"
+	"rkaf:hasContentDigest"?:  string & =~"^sha256:[0-9a-f]{64}$"
+	"rkaf:hasAccessScope"?:    string & =~"^[A-Za-z][A-Za-z0-9+.-]*:[^\\s]+$"
+	"rkaf:hasRetentionPolicy"?: string & =~"^[A-Za-z][A-Za-z0-9+.-]*:[^\\s]+$"
 
 	// The source regions that STATE the version or revision relation: a
 	// masthead line, an amendment note, a registry supersession field. These

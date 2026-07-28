@@ -5,6 +5,5 @@
   "skos:prefLabel": "Household income evidence",
   "rkaf:managedByRegistry": "urn:rkaf:fixture:registry:fns-snap-canonical",
   "rkaf:conceptScope": "fns/snap/eligibility/income",
-  "rkaf:conceptStatus": "rkaf:active",
   "_comment": "Negative: a facet-free concept. Without skos:inScheme nothing says whether `Household income evidence` is a topic, an obligation, or a document role, and a term that belongs to no facet is exactly the one that later merges with a same-spelled term from another (§4.7)."
 }

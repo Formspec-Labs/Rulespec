@@ -97,6 +97,10 @@ class PropDef:
     # struct declaring `@value` — because that is the wire form of a typed
     # literal. See `_validate_value_object`.
     object_properties: Optional[list["PropDef"]] = None
+    # A value object may have mutually exclusive RDF 1.1 wire branches:
+    # typed literal (`@value` + `@type`) or language-tagged string
+    # (`@value` + `@language`). Each branch is a closed object.
+    object_alternatives: Optional[list[list["PropDef"]]] = None
 
 
 @dataclass
@@ -104,6 +108,7 @@ class ConditionalBranch:
     when_property: str
     when_equals: Optional[str]
     then_require: list[PropDef]
+    then_forbid: list[str] = field(default_factory=list)
 
 
 @dataclass
@@ -400,18 +405,27 @@ def parse_shape_body(lines: list[tuple[int, str]], start: int) -> tuple[ShapeDef
             if mc:
                 when_prop, when_eq = mc.group(1), mc.group(2)
                 req_props: list[PropDef] = []
+                forbidden_props: list[str] = []
                 j = i + 1
                 while j < len(lines):
                     _, l2_raw = lines[j]
                     l2 = l2_raw.strip()
                     if l2 == "}":
                         break
+                    forbidden = re.match(r'^"([^"]+)"\?:\s*_\|_\s*$', l2)
+                    if forbidden:
+                        forbidden_props.append(forbidden.group(1))
+                        j += 1
+                        continue
                     p = parse_property_line(l2)
                     if p:
                         req_props.append(p)
                     j += 1
                 shape.conditionals.append(ConditionalBranch(
-                    when_property=when_prop, when_equals=when_eq, then_require=req_props
+                    when_property=when_prop,
+                    when_equals=when_eq,
+                    then_require=req_props,
+                    then_forbid=forbidden_props,
                 ))
                 i = j + 1
                 continue
@@ -436,6 +450,7 @@ def parse_shape_body(lines: list[tuple[int, str]], start: int) -> tuple[ShapeDef
                         when_property=present.group(1),
                         when_equals=None,
                         then_require=req_props,
+                        then_forbid=[],
                     )
                 )
                 i = j + 1
@@ -486,22 +501,52 @@ def parse_shape_body(lines: list[tuple[int, str]], start: int) -> tuple[ShapeDef
         nested = NESTED_OBJECT_OPEN_RE.match(line)
         if nested:
             inner: list[PropDef] = []
+            alternatives: list[list[PropDef]] = []
             j = i + 1
             while j < len(lines):
                 _, l2_raw = lines[j]
                 l2 = l2_raw.strip()
                 if l2 == "}":
                     break
+                if l2 == "{":
+                    branches: list[list[PropDef]] = []
+                    current: list[PropDef] = []
+                    j += 1
+                    while j < len(lines):
+                        _, branch_raw = lines[j]
+                        branch_line = branch_raw.strip()
+                        if re.match(r"^\}\s*\|\s*\{$", branch_line):
+                            branches.append(current)
+                            current = []
+                            j += 1
+                            continue
+                        if branch_line == "}":
+                            branches.append(current)
+                            j += 1
+                            break
+                        branch_prop = parse_property_line(branch_line)
+                        if branch_prop:
+                            current.append(branch_prop)
+                        j += 1
+                    alternatives = [[*inner, *branch] for branch in branches]
+                    # The next `}` closes the outer value object.
+                    continue
                 inner_prop = parse_property_line(l2)
                 if inner_prop:
                     inner.append(inner_prop)
                 j += 1
-            if any(member.name == "@value" for member in inner):
+            value_branches = alternatives or [inner]
+            if any(
+                member.name == "@value"
+                for branch in value_branches
+                for member in branch
+            ):
                 prop = PropDef(
                     name=nested.group(1),
                     type_ref="value_object",
                     optional=nested.group(2) == "?",
-                    object_properties=inner,
+                    object_properties=value_branches[0],
+                    object_alternatives=value_branches,
                 )
                 _validate_value_object(prop)
                 shape.properties.append(prop)
@@ -702,36 +747,57 @@ def _validate_value_object(prop: PropDef) -> None:
     other nested struct would have to degrade to "some JSON", which is exactly
     the silent weakening `CompileError` exists to prevent.
     """
-    members = [inner.name for inner in prop.object_properties or []]
-    if "@value" not in members:
-        raise CompileError(
-            f'property "{prop.name}" declares an inline nested object that does '
-            "not carry `@value`. The projector carries JSON-LD value objects "
-            "(typed literals) only; any other nested struct would compile to an "
-            "unconstrained object in JSON Schema and to nothing at all in SHACL."
-        )
-    unknown = sorted(set(members) - VALUE_OBJECT_MEMBERS)
-    if unknown:
-        raise CompileError(
-            f'value object "{prop.name}" declares non-JSON-LD member(s) '
-            f"{unknown}. A JSON-LD value object holds only @value, @type, and "
-            "@language; other members would not survive JSON-LD expansion, so "
-            "no constraint on them could be enforced on the RDF side."
-        )
-    datatype = _value_object_member(prop, "@type")
-    if datatype is None or datatype.enum_ref is None:
-        raise CompileError(
-            f'value object "{prop.name}" does not type its `@type` member with a '
-            "closed datatype enum. Without one, SHACL has no datatype set to "
-            "close over and the compiled targets would accept any datatype IRI."
-        )
+    branches = _value_object_branches(prop)
+    for branch in branches:
+        members = [inner.name for inner in branch]
+        if "@value" not in members:
+            raise CompileError(
+                f'property "{prop.name}" declares a value-object branch that '
+                "does not carry `@value`."
+            )
+        unknown = sorted(set(members) - VALUE_OBJECT_MEMBERS)
+        if unknown:
+            raise CompileError(
+                f'value object "{prop.name}" declares non-JSON-LD member(s) '
+                f"{unknown}. A JSON-LD value object holds only @value, @type, "
+                "and @language."
+            )
+        datatype = _branch_member(branch, "@type")
+        language = _branch_member(branch, "@language")
+        if (datatype is None) == (language is None):
+            raise CompileError(
+                f'value object "{prop.name}" branch MUST carry exactly one of '
+                "`@type` or `@language`."
+            )
+        if datatype is not None and datatype.enum_ref is None:
+            raise CompileError(
+                f'value object "{prop.name}" does not type its `@type` member '
+                "with a closed datatype enum."
+            )
+        if language is not None and not language.pattern:
+            raise CompileError(
+                f'value object "{prop.name}" does not validate its `@language` '
+                "member as a BCP 47 language tag."
+            )
+
+
+def _value_object_branches(prop: PropDef) -> list[list[PropDef]]:
+    return prop.object_alternatives or [prop.object_properties or []]
+
+
+def _branch_member(branch: list[PropDef], name: str) -> Optional[PropDef]:
+    for inner in branch:
+        if inner.name == name:
+            return inner
+    return None
 
 
 def _value_object_member(prop: PropDef, name: str) -> Optional[PropDef]:
     """The `@value` / `@type` / `@language` member of a value-object property."""
-    for inner in prop.object_properties or []:
-        if inner.name == name:
-            return inner
+    for branch in _value_object_branches(prop):
+        member = _branch_member(branch, name)
+        if member is not None:
+            return member
     return None
 
 
@@ -824,6 +890,7 @@ _PROPERTY_FACET_DEFAULTS: dict[str, object] = {
     "inline_enum_values": None,
     "enum_union_refs": None,
     "object_properties": None,
+    "object_alternatives": None,
 }
 
 # Facets whose conjunction IS expressible in the flat AST, so two differing
@@ -907,10 +974,12 @@ def _unify_conditional(
     then_require = [_copy_property(prop) for prop in base.then_require]
     for prop in derived.then_require:
         _upsert_property(then_require, prop, shape_name)
+    then_forbid = list(dict.fromkeys([*base.then_forbid, *derived.then_forbid]))
     return ConditionalBranch(
         when_property=base.when_property,
         when_equals=base.when_equals,
         then_require=then_require,
+        then_forbid=then_forbid,
     )
 
 
@@ -929,6 +998,7 @@ def _append_conditional(
             when_property=branch.when_property,
             when_equals=branch.when_equals,
             then_require=[_copy_property(p) for p in branch.then_require],
+            then_forbid=list(branch.then_forbid),
         )
     )
 
@@ -1285,10 +1355,15 @@ def target_json_schema(doc: ConstraintDoc, registry: Optional[dict] = None) -> s
                     },
                     "required": [c.when_property],
                 }
-            all_of.append({
-                "if": condition,
-                "then": {"properties": then_props, "required": list(then_props.keys())},
-            })
+            then_schema: dict = {}
+            if then_props:
+                then_schema["properties"] = then_props
+                then_schema["required"] = list(then_props.keys())
+            if c.then_forbid:
+                then_schema.setdefault("allOf", []).extend(
+                    {"not": {"required": [name]}} for name in c.then_forbid
+                )
+            all_of.append({"if": condition, "then": then_schema})
         # Disjunction branches → anyOf — each branch requires its own properties
         any_of_groups: list[dict] = []
         for disj in s.disjunctions:
@@ -1332,28 +1407,27 @@ def property_to_jsonschema(
     p: PropDef, doc: ConstraintDoc, registry: Optional[dict] = None
 ) -> dict:
     if p.type_ref == "value_object":
-        # JSON-LD value object. `@value` carries the lexical form, `@type` the
-        # datatype IRI drawn from the closed set — the same set the SHACL
-        # target closes over with `sh:datatype`, so the two agree on every
-        # document.
-        obj_props: dict = {}
-        obj_required: list[str] = []
-        for inner in p.object_properties or []:
-            obj_props[inner.name] = property_to_jsonschema(inner, doc, registry)
-            if not inner.optional:
-                obj_required.append(inner.name)
-        out: dict = {"type": "object", "properties": obj_props}
-        if obj_required:
-            out["required"] = obj_required
-        # Close the VALUE OBJECT (not the class that carries it). The CUE
-        # struct is closed, so `cue vet` rejects `@language` and any other
-        # extra member; leaving the emitted object open would let JSON Schema
-        # accept a document CUE and SHACL reject. The `@language` case is the
-        # one that corrupts RDF: a language-tagged literal drops the declared
-        # datatype on expansion, which is precisely what §2.2's closed
-        # datatype set exists to prevent.
-        out["additionalProperties"] = False
-        return out
+        # JSON-LD value objects are mutually exclusive closed branches:
+        # typed literal or RDF 1.1 language-tagged string.
+        alternatives: list[dict] = []
+        for branch in _value_object_branches(p):
+            obj_props: dict = {}
+            obj_required: list[str] = []
+            for inner in branch:
+                obj_props[inner.name] = property_to_jsonschema(
+                    inner, doc, registry
+                )
+                if not inner.optional:
+                    obj_required.append(inner.name)
+            obj: dict = {
+                "type": "object",
+                "properties": obj_props,
+                "additionalProperties": False,
+            }
+            if obj_required:
+                obj["required"] = obj_required
+            alternatives.append(obj)
+        return alternatives[0] if len(alternatives) == 1 else {"oneOf": alternatives}
     if p.fixed_value is not None:
         return {"const": p.fixed_value}
     if p.inline_enum_values:
@@ -1466,18 +1540,79 @@ def target_rust(
             out.append(f"    {variant},")
         out.append("}")
         out.append("")
-    if doc.shapes:
-        out.append("use std::collections::BTreeMap;")
-        out.append("")
 
     # Local enum index — used by _rust_type to decide whether an enum reference
     # is local (bare name) or cross-file (fully-qualified path).
     local_enums = {e.name for e in doc.enums} | {u.name for u in doc.enum_unions}
 
+    # Some composed conditionals narrow a broadly typed carrier field to a
+    # cross-file enum without changing the struct field's broad Rust type.
+    # A fixed value can similarly replace an enum-typed field with `String`.
+    # Keep only THOSE otherwise invisible enums in the generated carrier's
+    # dependency set. Ordinary enum-valued fields already carry their path,
+    # and local enums are declared in this file.
+    structural_only_props = [
+        prop
+        for shape in doc.shapes
+        for prop in (
+            [
+                shape_prop
+                for shape_prop in shape.properties
+                if shape_prop.fixed_value is not None
+            ]
+            + [
+                required
+                for conditional in shape.conditionals
+                for required in conditional.then_require
+            ]
+            + [
+                branch_prop
+                for disjunction in shape.disjunctions
+                for branch in disjunction
+                for branch_prop in branch.properties
+            ]
+        )
+    ]
+    external_enum_paths: set[str] = set()
+    for prop in structural_only_props:
+        enum_names: set[str] = set()
+        if prop.enum_ref:
+            enum_names.add(prop.enum_ref)
+        if prop.list_inner_enum:
+            enum_names.add(prop.list_inner_enum)
+        if prop.type_ref == "value_object":
+            enum_names.update(
+                inner.enum_ref
+                for branch in _value_object_branches(prop)
+                for inner in branch
+                if inner.enum_ref
+            )
+        for enum_name in enum_names:
+            if registry is None or enum_name in local_enums:
+                continue
+            path = _cross_file_enum_path(enum_name, registry)
+            if path:
+                external_enum_paths.add(path)
+    for path in sorted(external_enum_paths):
+        enum_name = path.rsplit("::", 1)[-1]
+        out.append("#[allow(dead_code)]")
+        out.append(
+            f"type _StructuralDependency{enum_name} = {path};"
+        )
+    if external_enum_paths:
+        out.append("")
+
+    if doc.shapes:
+        out.append("use std::collections::BTreeMap;")
+        out.append("")
+
     for s in doc.shapes:
         # The parser diverts `@type` from properties into shape.type_iri, so
         # consult that directly instead of re-scanning properties.
         type_value: Optional[str] = s.type_iri
+        used_field_names = {"id", "extra"}
+        if type_value is not None:
+            used_field_names.add("type_")
 
         out.append(f"/// Generated JSON-LD carrier for `{s.name}`.")
         out.append("#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]")
@@ -1499,7 +1634,7 @@ def target_rust(
             if p.name in ("@type", "@id"):
                 continue
             ty = _rust_type(p, local_enums=local_enums, registry=registry)
-            field_name = _rust_field_clean(p.name)
+            field_name = _rust_unique_field_name(p.name, used_field_names)
             out.append(f"    /// JSON-LD property `{p.name}`.")
             if p.optional:
                 out.append(
@@ -1526,6 +1661,17 @@ def target_rust(
     return "\n".join(out)
 
 
+_RUST_RESERVED_FIELD_NAMES = frozenset({
+    "as", "async", "await", "become", "box", "break", "const", "continue",
+    "crate", "do", "dyn", "else", "enum", "extern", "false", "final", "fn",
+    "for", "gen", "if", "impl", "in", "let", "loop", "macro", "match",
+    "mod", "move", "mut", "override", "priv", "pub", "ref", "return",
+    "self", "static", "struct", "super", "trait", "true", "try", "type",
+    "typeof", "union", "unsafe", "unsized", "use", "virtual", "where",
+    "while", "yield",
+})
+
+
 def _rust_field_clean(name: str) -> str:
     """Generate idiomatic Rust field names from JSON-LD property IRIs.
     Drops the `rkaf:` / `oa:` / `skos:` namespace prefix and snake_cases the rest.
@@ -1533,7 +1679,36 @@ def _rust_field_clean(name: str) -> str:
     if ":" in name:
         name = name.split(":", 1)[1]
     out = name.replace("-", "_").replace("@", "")
-    return _to_snake(out)
+    field = _to_snake(out)
+    return f"{field}_" if field in _RUST_RESERVED_FIELD_NAMES else field
+
+
+def _rust_unique_field_name(name: str, used: set[str]) -> str:
+    """Return a legal field name that is unique within one generated struct.
+
+    Rulespec normally drops the namespace prefix for readable SDK fields.
+    JSON-LD `@type` and a property such as `dcterms:type` expose why that cannot
+    be the only rule: both clean to `type_`. When a local name collides with a
+    reserved carrier field or an earlier property, retain its namespace as the
+    disambiguator. A numeric suffix handles the theoretical case where two
+    source spellings still normalize to the same identifier.
+    """
+    candidate = _rust_field_clean(name)
+    if candidate in used:
+        if ":" in name:
+            namespace, local = name.split(":", 1)
+            candidate = _to_snake(f"{namespace}_{local}")
+        else:
+            candidate = _to_snake(name.replace("@", ""))
+        if candidate in _RUST_RESERVED_FIELD_NAMES:
+            candidate = f"{candidate}_"
+        base = candidate
+        suffix = 2
+        while candidate in used:
+            candidate = f"{base}_{suffix}"
+            suffix += 1
+    used.add(candidate)
+    return candidate
 
 
 def _pascal_after_colon(v: str) -> str:
@@ -1607,17 +1782,21 @@ def _rust_type(p: PropDef, local_enums: Optional[set] = None,
     if p.fixed_value is not None:
         return "String"
     if p.type_ref == "value_object":
-        # `crate::TypedLiteral<T>` is the hand-written JSON-LD value-object
-        # carrier in rkaf-core (same role `crate::OneOrMany<T>` plays for the
-        # scalar-or-array wire shorthand). `T` is the closed datatype enum, so
-        # the Rust layer rejects a datatype outside the CUE set at parse time.
+        # `crate::RdfLiteral<T>` preserves the mutually exclusive typed and
+        # language-tagged RDF 1.1 wire branches. A single typed-only source
+        # keeps the narrower historical `TypedLiteral<T>` carrier.
         datatype = _value_object_member(p, "@type")
         name = (datatype.enum_ref if datatype else None) or "String"
         if local_enums is not None and name not in local_enums and registry is not None:
             fq = _cross_file_enum_path(name, registry)
             if fq:
                 name = fq
-        return f"crate::TypedLiteral<{name}>"
+        has_language_branch = any(
+            _branch_member(branch, "@language") is not None
+            for branch in _value_object_branches(p)
+        )
+        carrier = "RdfLiteral" if has_language_branch else "TypedLiteral"
+        return f"crate::{carrier}<{name}>"
     if p.type_ref == "enum":
         name = p.enum_ref or "String"
         if local_enums is not None and name not in local_enums and registry is not None:
@@ -1693,15 +1872,34 @@ def target_typescript(
         """Enum names a property names directly or through a value object."""
         if prop.type_ref == "value_object":
             return tuple(
-                inner.enum_ref for inner in prop.object_properties or []
+                inner.enum_ref
+                for branch in _value_object_branches(prop)
+                for inner in branch
             )
         return (prop.enum_ref, prop.list_inner_enum)
 
+    referenced_props = [
+        prop
+        for shape in doc.shapes
+        for prop in (
+            list(shape.properties)
+            + [
+                required
+                for conditional in shape.conditionals
+                for required in conditional.then_require
+            ]
+            + [
+                branch_prop
+                for disjunction in shape.disjunctions
+                for branch in disjunction
+                for branch_prop in branch.properties
+            ]
+        )
+    ]
     external_enums = sorted(
         {
             enum_name
-            for shape in doc.shapes
-            for prop in shape.properties
+            for prop in referenced_props
             for enum_name in _referenced_enums(prop)
             if enum_name
             and enum_name not in local_enums
@@ -1805,11 +2003,9 @@ def target_typescript(
                     f'errs.push("{p.name}: invalid date");'
                 )
             if p.type_ref == "value_object":
-                # Carry the typed literal's MEANING, not just its shape: the
-                # lexical form must be a string and the datatype must be inside
-                # the same closed set the JSON Schema `enum` and the SHACL
-                # `sh:datatype` alternatives close over.
+                # Carry both RDF 1.1 value-object branches faithfully.
                 datatype = _value_object_member(p, "@type")
+                language = _value_object_member(p, "@language")
                 values = (
                     _resolve_enum_values(datatype.enum_ref, doc, registry)
                     if datatype and datatype.enum_ref
@@ -1821,22 +2017,30 @@ def target_typescript(
                     f'typeof {literal}!["@value"] !== "string") '
                     f'errs.push("{p.name}: @value must be the lexical form");'
                 )
+                out.append(
+                    f"  if ({literal} !== undefined && "
+                    f'(({literal}!["@type"] !== undefined) === '
+                    f'({literal}!["@language"] !== undefined))) '
+                    f'errs.push("{p.name}: exactly one of @type or @language is required");'
+                )
                 if values:
                     allowed = json.dumps(values)
                     out.append(
                         f"  if ({literal} !== undefined && "
+                        f'{literal}!["@type"] !== undefined && '
                         f'!{allowed}.includes({literal}!["@type"] as string)) '
                         f'errs.push("{p.name}: @type outside the closed datatype set");'
                     )
-                # The runtime half of the closure `_ts_type` starts. That
-                # emitted type can forbid the JSON-LD members the source does not
-                # declare, but not an arbitrary extra key, so the members the
-                # CUE struct closes over are checked here against the object's
-                # OWN keys. Emitted after the member checks above so a null
-                # `@value` slot still fails on the same line it always did.
-                declared = json.dumps(
-                    [inner.name for inner in p.object_properties or []]
-                )
+                if language and language.pattern:
+                    pattern = json.dumps(language.pattern)
+                    out.append(
+                        f"  if ({literal} !== undefined && "
+                        f'{literal}!["@language"] !== undefined && '
+                        f'(typeof {literal}!["@language"] !== "string" || '
+                        f'!new RegExp({pattern}).test({literal}!["@language"] as string))) '
+                        f'errs.push("{p.name}: @language must be a BCP 47 language tag");'
+                    )
+                declared = json.dumps(sorted(VALUE_OBJECT_MEMBERS))
                 out.append(
                     f"  if ({literal} !== undefined && "
                     f"Object.keys({literal}!).some((member) => "
@@ -1863,13 +2067,74 @@ def target_typescript(
                     f'errs.push("{requirement.name}: required by '
                     f'{conditional.when_property}");'
                 )
-                if requirement.pattern:
-                    pattern = json.dumps(requirement.pattern)
+                if (
+                    requirement.type_ref == "list"
+                    and requirement.list_min_items > 0
+                ):
                     out.append(
                         f"  if ({when_name} && {required_value} !== undefined && "
-                        f"(typeof {required_value} !== \"string\" || "
-                        f"!new RegExp({pattern}).test({required_value}))) "
-                        f'errs.push("{requirement.name}: pattern mismatch");'
+                        f"(!Array.isArray({required_value}) || "
+                        f"{required_value}.length < "
+                        f"{requirement.list_min_items})) "
+                        f'errs.push("{requirement.name}: < '
+                        f'{requirement.list_min_items} items");'
+                    )
+                if requirement.pattern:
+                    pattern = json.dumps(requirement.pattern)
+                    if requirement.type_ref == "list":
+                        out.append(
+                            f"  if ({when_name} && {required_value} !== undefined && "
+                            f"(!Array.isArray({required_value}) || "
+                            f"!{required_value}.every((value) => "
+                            f'typeof value === "string" && '
+                            f"new RegExp({pattern}).test(value)))) "
+                            f'errs.push("{requirement.name}: pattern mismatch");'
+                        )
+                    else:
+                        out.append(
+                            f"  if ({when_name} && {required_value} !== undefined && "
+                            f"(typeof {required_value} !== \"string\" || "
+                            f"!new RegExp({pattern}).test({required_value}))) "
+                            f'errs.push("{requirement.name}: pattern mismatch");'
+                        )
+                if requirement.fixed_value is not None:
+                    expected = json.dumps(requirement.fixed_value)
+                    out.append(
+                        f"  if ({when_name} && {required_value} !== undefined && "
+                        f"{required_value} !== {expected}) "
+                        f'errs.push("{requirement.name}: must equal '
+                        f'{requirement.fixed_value}");'
+                    )
+                elif requirement.type_ref == "enum" and requirement.enum_ref:
+                    allowed = json.dumps(
+                        _resolve_enum_values(
+                            requirement.enum_ref,
+                            doc,
+                            registry,
+                        )
+                    )
+                    out.append(
+                        f"  if ({when_name} && {required_value} !== undefined && "
+                        f"!{allowed}.includes({required_value} as string)) "
+                        f'errs.push("{requirement.name}: outside closed set");'
+                    )
+                elif (
+                    requirement.type_ref == "list"
+                    and requirement.list_inner_enum
+                ):
+                    allowed = json.dumps(
+                        _resolve_enum_values(
+                            requirement.list_inner_enum,
+                            doc,
+                            registry,
+                        )
+                    )
+                    out.append(
+                        f"  if ({when_name} && {required_value} !== undefined && "
+                        f"(!Array.isArray({required_value}) || "
+                        f"!{required_value}.every((value) => "
+                        f"{allowed}.includes(value as string)))) "
+                        f'errs.push("{requirement.name}: outside closed set");'
                     )
                 if requirement.string_format == "date":
                     out.append(
@@ -1877,6 +2142,13 @@ def target_typescript(
                         f"!isRkafDate({required_value})) "
                         f'errs.push("{requirement.name}: invalid date");'
                     )
+            for forbidden_name in conditional.then_forbid:
+                forbidden_value = f'record["{forbidden_name}"]'
+                out.append(
+                    f"  if ({when_name} && {forbidden_value} !== undefined) "
+                    f'errs.push("{forbidden_name}: forbidden by '
+                    f'{conditional.when_property}");'
+                )
         for order in s.orders:
             out.append(
                 f'  if (v["{order.lower_property}"] > v["{order.upper_property}"]) '
@@ -1893,28 +2165,19 @@ def _ts_type(p: PropDef) -> str:
     if p.fixed_value is not None:
         return f'"{p.fixed_value}"'
     if p.type_ref == "value_object":
-        declared = [inner.name for inner in p.object_properties or []]
-        members = [
-            f'"{inner.name}"{"?" if inner.optional else ""}: {_ts_type(inner)}'
-            for inner in p.object_properties or []
-        ]
-        # CLOSE the value object in the type as well as at runtime. TypeScript
-        # is structural: omitting a member only stops an object LITERAL from
-        # carrying it (excess-property checking), while any widened value keeps
-        # passing. Typing each JSON-LD value-object member the source does NOT
-        # declare as `never` is what makes it unassignable everywhere —
-        # `@language` today, which is the member that also destroys the RDF
-        # datatype (§2.2), so a TypeScript consumer cannot mint the document
-        # JSON Schema, SHACL, Rust, and `cue vet` all reject.
-        #
-        # An ARBITRARY extra member has no type-level spelling here, so the
-        # emitted validator closes over the declared set instead; the two
-        # halves are one closure, split only by what each side can express.
-        members.extend(
-            f'"{reserved}"?: never'
-            for reserved in sorted(VALUE_OBJECT_MEMBERS - set(declared))
-        )
-        return "{ " + "; ".join(members) + " }"
+        alternatives: list[str] = []
+        for branch in _value_object_branches(p):
+            declared = [inner.name for inner in branch]
+            members = [
+                f'"{inner.name}"{"?" if inner.optional else ""}: {_ts_type(inner)}'
+                for inner in branch
+            ]
+            members.extend(
+                f'"{reserved}"?: never'
+                for reserved in sorted(VALUE_OBJECT_MEMBERS - set(declared))
+            )
+            alternatives.append("{ " + "; ".join(members) + " }")
+        return " | ".join(alternatives)
     if p.type_ref == "enum":
         return p.enum_ref or "string"
     if p.type_ref == "list":
@@ -1959,6 +2222,7 @@ def target_shacl(
         "# DO NOT EDIT.",
         "",
         "@prefix sh:   <http://www.w3.org/ns/shacl#> .",
+        "@prefix rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .",
         "@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .",
         "@prefix oa:   <http://www.w3.org/ns/oa#> .",
         "@prefix skos: <http://www.w3.org/2004/02/skos/core#> .",
@@ -2009,11 +2273,9 @@ def target_shacl(
                 if values:
                     line += f" sh:in ( {values} ) ;"
             if p.type_ref == "value_object":
-                # A JSON-LD value object expands to ONE typed literal, so the
-                # RDF-side closure is over the literal's datatype rather than
-                # over an `@type` node. `sh:in` cannot express that; a
-                # `sh:datatype` alternative per permitted datatype can, and it
-                # rejects exactly the datatypes the JSON Schema `enum` rejects.
+                # JSON-LD value objects expand to one RDF literal. Close the
+                # RDF branch over the typed datatype set plus rdf:langString
+                # when the CUE source declares a language-tagged branch.
                 line += " sh:nodeKind sh:Literal ;"
                 datatype = _value_object_member(p, "@type")
                 values_list = (
@@ -2021,10 +2283,16 @@ def target_shacl(
                     if datatype and datatype.enum_ref
                     else []
                 )
-                if values_list:
-                    alternatives = " ".join(
+                alternatives_list = [
                         f"[ sh:datatype {value} ]" for value in values_list
-                    )
+                ]
+                if any(
+                    _branch_member(branch, "@language") is not None
+                    for branch in _value_object_branches(p)
+                ):
+                    alternatives_list.append("[ sh:datatype rdf:langString ]")
+                if alternatives_list:
+                    alternatives = " ".join(alternatives_list)
                     line += f" sh:or ( {alternatives} ) ;"
             if p.pattern:
                 line += f" sh:pattern {json.dumps(p.pattern)} ;"
@@ -2050,7 +2318,7 @@ def target_shacl(
                     f"        sh:path {c.when_property} ; sh:hasValue {c.when_equals}"
                 )
             out.append("      ] ] ]")
-            if c.then_require:
+            if c.then_require or c.then_forbid:
                 # EVERY requirement, not just the first. A guard that emitted
                 # `then_require[0]` and dropped the rest is the silent-pass
                 # failure `constraints/adversarial/conditional-silent-pass.cue`
@@ -2068,6 +2336,10 @@ def target_shacl(
                         part += " sh:datatype xsd:date ;"
                     part += " ]"
                     requirements.append(part)
+                requirements.extend(
+                    f"sh:property [ sh:path {name} ; sh:maxCount 0 ; ]"
+                    for name in c.then_forbid
+                )
                 out.append("    [ " + " ; ".join(requirements) + " ]")
             else:
                 out.append("    [ sh:property [ sh:path rkaf:_unsatisfiable ; sh:minCount 1 ] ]")

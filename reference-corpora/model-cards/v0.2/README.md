@@ -24,7 +24,7 @@ Records live in `fixtures/`. The corpus prescribes which fixtures form the canon
 | File | Scenario | Governance state |
 |------|----------|-----------------|
 | `../../../fixtures/modelcard-minimal-positive.jsonld` | GPT-x model card for SNAP eligibility classification | Approved with conditions (L3 clean) |
-| `../../../fixtures/modelcard-governance-rejection-negative.jsonld` | AI-promoted assertion without lineage | Rejected (§5.3): untraceable AI origin |
+| `../../../fixtures/negatives/value-assertion-ai-suggested-official-use-negative.jsonld` | AI-suggested assertion claims official-use eligibility | Rejected (§5.3): unreviewed AI proposals are capped at provisional use |
 
 ## Validation
 

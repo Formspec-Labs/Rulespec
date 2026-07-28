@@ -1,8 +1,0 @@
-{
-  "@context": "../../context/rkaf-context.jsonld",
-  "@id": "urn:rkaf:fixture:concept:household-income",
-  "@type": "rkaf:RegisteredConcept",
-  "rkaf:managedByRegistry": "urn:rkaf:fixture:registry:fns-snap-canonical",
-  "rkaf:conceptScope": "fns/snap/eligibility/income",
-  "skos:inScheme": "urn:rkaf:fixture:scheme:fns-snap-topic"
-}

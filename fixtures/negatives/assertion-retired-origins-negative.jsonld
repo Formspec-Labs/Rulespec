@@ -1,0 +1,36 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@graph": [
+    {
+      "@id": "urn:rkaf:fixture:assertion-negative:ai-promoted",
+      "@type": "rkaf:RelationshipAssertion",
+      "rkaf:assertsSubject": "urn:rkaf:fixture:subject",
+      "rkaf:assertsPredicate": "urn:rkaf:fixture:predicate",
+      "rkaf:assertsObject": "urn:rkaf:fixture:object",
+      "rkaf:assertionPolarity": "rkaf:affirmed",
+      "rkaf:assertionOrigin": "rkaf:aiPromoted",
+      "rkaf:epistemicBasis": "rkaf:statisticalInference"
+    },
+    {
+      "@id": "urn:rkaf:fixture:assertion-negative:human-qualified",
+      "@type": "rkaf:RelationshipAssertion",
+      "rkaf:assertsSubject": "urn:rkaf:fixture:subject",
+      "rkaf:assertsPredicate": "urn:rkaf:fixture:predicate",
+      "rkaf:assertsObject": "urn:rkaf:fixture:object",
+      "rkaf:assertionPolarity": "rkaf:affirmed",
+      "rkaf:assertionOrigin": "rkaf:humanQualified",
+      "rkaf:epistemicBasis": "rkaf:editorialAssertion"
+    },
+    {
+      "@id": "urn:rkaf:fixture:assertion-negative:human-revalidation",
+      "@type": "rkaf:RelationshipAssertion",
+      "rkaf:assertsSubject": "urn:rkaf:fixture:subject",
+      "rkaf:assertsPredicate": "urn:rkaf:fixture:predicate",
+      "rkaf:assertsObject": "urn:rkaf:fixture:object",
+      "rkaf:assertionPolarity": "rkaf:affirmed",
+      "rkaf:assertionOrigin": "rkaf:humanRevalidation",
+      "rkaf:epistemicBasis": "rkaf:editorialAssertion"
+    }
+  ],
+  "_comment": "Negative migration gate: review and revalidation are Attestations or LifecycleEvents, never construction origins."
+}

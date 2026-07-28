@@ -153,12 +153,21 @@ pub struct SourceFragment {
     /// JSON-LD property `rkaf:selectorKind`.
     #[serde(rename = "rkaf:selectorKind")]
     pub selector_kind: crate::OneOrMany<SelectorKind>,
+    /// JSON-LD property `rkaf:fragmentIdentityScheme`.
+    #[serde(rename = "rkaf:fragmentIdentityScheme", skip_serializing_if = "Option::is_none", default)]
+    pub fragment_identity_scheme: Option<FragmentIdentityScheme>,
     /// JSON-LD property `rkaf:sourceArtifactDigest`.
     #[serde(rename = "rkaf:sourceArtifactDigest", skip_serializing_if = "Option::is_none", default)]
     pub source_artifact_digest: Option<String>,
     /// JSON-LD property `rkaf:fragmentContentDigest`.
     #[serde(rename = "rkaf:fragmentContentDigest", skip_serializing_if = "Option::is_none", default)]
     pub fragment_content_digest: Option<String>,
+    /// JSON-LD property `rkaf:hasAccessScope`.
+    #[serde(rename = "rkaf:hasAccessScope", skip_serializing_if = "Option::is_none", default)]
+    pub has_access_scope: Option<String>,
+    /// JSON-LD property `rkaf:hasRetentionPolicy`.
+    #[serde(rename = "rkaf:hasRetentionPolicy", skip_serializing_if = "Option::is_none", default)]
+    pub has_retention_policy: Option<String>,
     /// JSON-LD property `rkaf:lastVerifiedAt`.
     #[serde(rename = "rkaf:lastVerifiedAt", skip_serializing_if = "Option::is_none", default)]
     pub last_verified_at: Option<String>,

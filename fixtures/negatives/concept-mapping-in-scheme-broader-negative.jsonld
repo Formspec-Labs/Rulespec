@@ -1,0 +1,14 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@id": "urn:rkaf:fixture:cm-broader:m1",
+  "@type": "rkaf:ConceptMapping",
+  "rkaf:assertionOrigin": "rkaf:humanAsserted",
+  "rkaf:epistemicBasis": "rkaf:editorialAssertion",
+  "rkaf:assertsSubject": "urn:rkaf:concept:income-self-employment",
+  "rkaf:assertsPredicate": "skos:broader",
+  "rkaf:assertsObject": "urn:rkaf:concept:income",
+  "rkaf:assertionPolarity": "rkaf:affirmed",
+  "rkaf:sourceConceptRelease": "urn:rkaf:release:source",
+  "rkaf:targetConceptRelease": "urn:rkaf:release:target",
+  "_comment": "Negative: skos:broader is an in-scheme semantic relation, not one of the five concrete SKOS mapping properties."
+}

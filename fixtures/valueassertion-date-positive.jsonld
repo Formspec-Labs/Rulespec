@@ -1,16 +1,47 @@
 {
   "@context": "../context/rkaf-context.jsonld",
-  "@id": "urn:rkaf:fixture:value-assertion:effective-date",
-  "@type": "rkaf:ValueAssertion",
-  "rkaf:assertionOrigin": "rkaf:humanAsserted",
-  "rkaf:assertsSubject": "urn:rkaf:fixture:policy:emergency-amendment",
-  "rkaf:assertsPredicate": "urn:rkaf:fixture:predicate:effectiveDate",
-  "rkaf:assertsValue": {
-    "@value": "2026-03-01",
-    "@type": "xsd:date"
-  },
-  "rkaf:assertionPolarity": "rkaf:affirmed",
-  "rkaf:hasApplicability": "urn:rkaf:fixture:scope:aviation-cybersecurity",
-  "rkaf:hasWarrant": "urn:rkaf:fixture:warrant:approved-comparator",
-  "rkaf:assertedAt": "2026-03-05T10:00:00Z"
+  "@graph": [
+    {
+      "@id": "urn:rkaf:fixture:value-assertion:effective-date",
+      "@type": "rkaf:ValueAssertion",
+      "rkaf:assertionOrigin": "rkaf:humanAsserted",
+      "rkaf:epistemicBasis": "rkaf:sourceExplicit",
+      "rkaf:assertsSubject": "urn:rkaf:fixture:policy:emergency-amendment",
+      "rkaf:assertsPredicate": "urn:rkaf:fixture:predicate:effectiveDate",
+      "rkaf:assertsValue": {
+        "@value": "2026-03-01",
+        "@type": "xsd:date"
+      },
+      "rkaf:assertionPolarity": "rkaf:affirmed",
+      "rkaf:hasApplicability": "urn:rkaf:fixture:scope:aviation-cybersecurity",
+      "rkaf:hasWarrant": "urn:rkaf:fixture:warrant:approved-comparator",
+      "rkaf:assertedAt": "2026-03-05T10:00:00Z"
+    },
+    {
+      "@id": "urn:rkaf:fixture:value-assertion:artifact:effective-date",
+      "@type": "rkaf:Artifact",
+      "rkaf:hasArtifactIdentifier": "urn:rkaf:fixture:value-assertion:artifact:effective-date",
+      "rkaf:artifactIdentifierScheme": "rkaf:partner-defined"
+    },
+    {
+      "@id": "urn:rkaf:fixture:value-assertion:fragment:effective-date",
+      "@type": "rkaf:SourceFragment",
+      "oa:hasSource": "urn:rkaf:fixture:value-assertion:artifact:effective-date",
+      "oa:hasSelector": {
+        "@type": "oa:TextQuoteSelector",
+        "oa:exact": "Effective March 1, 2026."
+      },
+      "rkaf:selectorKind": "oa:TextQuoteSelector"
+    },
+    {
+      "@id": "urn:rkaf:fixture:value-assertion:evidence:effective-date",
+      "@type": "rkaf:EvidenceBinding",
+      "rkaf:bindsAssertion": "urn:rkaf:fixture:value-assertion:effective-date",
+      "rkaf:bindsSourceFragment": [
+        "urn:rkaf:fixture:value-assertion:fragment:effective-date"
+      ],
+      "rkaf:evidenceRole": "rkaf:textualEvidence",
+      "rkaf:evidentiaryFunction": "rkaf:supports"
+    }
+  ]
 }

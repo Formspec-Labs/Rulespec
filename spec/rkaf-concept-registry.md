@@ -1,115 +1,173 @@
 # Rulespec Concept Registry — v0.2
 
 **Status:** Pre-release, normative.
-**Supersedes:** `archive/v0.1/spec/rkaf-concept-registry-v0.1.2.md` (historical).
-**Companion docs:** `spec/rkaf-core.md`, `spec/rkaf-vocabulary.md`.
+**Supersedes:** `archive/v0.1/spec/rkaf-concept-registry-v0.1.2.md`
+(historical).
+**Companion docs:** `spec/rkaf-core.md`, `spec/rkaf-vocabulary.md`,
+`spec/rkaf-behavior.md`.
 
 ## 1. Purpose
 
-The Concept Registry stores canonical concepts, mappings between concepts, applicability contexts, lifecycle events on concepts, and conflict resolution among competing canonical assignments.
+This profile defines portable records for governed concepts, concept
+assignments, mappings, immutable releases of any governed reference resource
+(including entity registries and mapping sets), and concept resolution.
+Rulespec owns these semantic and trust records. An application
+owns ingestion, search indexes, deployment, cache policy, workflow, and user
+interface state.
 
-Concept resolution establishes **semantic compatibility**. It does NOT establish **policy authority**. A resolved concept may satisfy a `rkaf:collectsEvidenceType` or `rkaf:requiresEvidenceType` reference, but the artifact still requires its own Rulespec justification chain (terminating at a valid `rkaf:hasAuthority`, `rkaf:hasWarrant`, or scoped `rkaf:LocalAdoption`) and its own effective `rkaf:usageEligibility`.
+Concept resolution establishes semantic compatibility. It does not establish
+policy authority or authorize use. Evidence, attestations, local adoption,
+access scope, and consumer eligibility remain independent.
 
-## 2. Primitives
+## 2. Native SKOS vocabulary carriage
 
-(Inherited from v0.1.2 with three v0.2 changes: SKOS-bound mapping predicates, Workspace scoping, generalized warrant on mappings.)
+SKOS owns concept-scheme semantics. Producers MUST use native
+`skos:ConceptScheme`, `skos:Concept`, `skos:prefLabel`, `skos:altLabel`,
+`skos:definition`, `skos:inScheme`, `skos:broader`, `skos:narrower`, and
+`skos:related` properties with their SKOS meanings. Language-tagged labels and
+definitions stay on those SKOS properties.
 
-### 2.1 rkaf:Concept
+`rkaf:ConceptScheme` adds two Rulespec requirements:
 
-(Definition preserved from `archive/v0.1/spec/rkaf-concept-registry-v0.1.2.md` §2.1.)
+- `rkaf:schemeFacet` identifies the question this scheme answers; and
+- exactly one of `rkaf:managedByRegistry` or `rkaf:definedInScope` identifies
+  its governing scope.
 
-Required properties on a canonical `rkaf:RegisteredConcept`:
-- `@type`: includes `skos:Concept` and `rkaf:RegisteredConcept`.
-- `skos:prefLabel` (1).
-- `rkaf:managedByRegistry` (1, IRI).
-- `rkaf:conceptScope` (1, closed enum).
-- `rkaf:conceptStatus` (1, closed enum).
-- `rkaf:registeredAt` (1, `xsd:dateTime`).
+`rkaf:RegisteredConcept` carries `skos:prefLabel`, exactly one
+`skos:inScheme`, `rkaf:managedByRegistry`, `rkaf:conceptScope`, and
+`rkaf:registeredAt`. `rkaf:LocalConcept` carries `skos:prefLabel`, exactly one
+`skos:inScheme`, `rkaf:definedInScope`, and `rkaf:conceptScope`.
 
-Local concepts use `rkaf:LocalConcept` typed nodes, with `rkaf:definedInScope` (IRI of the owning Workspace or organizational scope).
+`rkaf:conceptStatus` is not part of this release. Immutable release membership
+records what a release contains. `rkaf:Attestation` records review or
+publication decisions. `rkaf:LifecycleEvent` records deprecation,
+supersession, split, and merge events. Producers MUST NOT collapse those facts
+into a mutable status field on a concept.
 
-### 2.2 rkaf:ConceptMapping
+## 3. Reference-resource releases
 
-The mapping relation MUST use a SKOS predicate from the closed set:
+Every assignment and mapping endpoint MUST pin the exact
+`rkaf:ReferenceResourceRelease` whose meaning it used. Core §4.1.1 defines the
+generic release manifest, its membership modes, distributions, and RDFC-1.0
+digest.
 
-`skos:exactMatch`, `skos:closeMatch`, `skos:broadMatch`, `skos:narrowMatch`, `skos:relatedMatch`, `skos:broader`, `skos:narrower`, `skos:related`, `skos:mappingRelation`.
+A pin used to validate an endpoint MUST name a release with
+`rkaf:completeMembership`, and that release MUST list the endpoint concept in
+`prov:hadMember`. Partial or non-enumerated membership can describe a release,
+but absence from those manifests proves nothing and cannot validate a pin.
 
-v0.2 ADDS `skos:broadMatch`, `skos:narrowMatch`, and `skos:relatedMatch`; no value was removed, and every mapping valid before this release stays valid. SKOS draws a real line the earlier set collapsed: `skos:broader` / `skos:narrower` / `skos:related` are semantic relations WITHIN one scheme, while the `*Match` properties are the mapping properties used BETWEEN schemes (SKOS Reference §10). Aligning a local concept to an external thesaurus needs the `*Match` half; without it a producer had to reach for the in-scheme relation and misstate the alignment as if both concepts lived in one vocabulary.
+Release identity and publication are separate. A release becomes
+publication-relevant for concept resolution only when:
 
-This replaces v0.1.2's bespoke `rkaf:mappingRelation` enum. SKOS owns this vocabulary; do not duplicate.
+1. its manifest is internally valid and digest-pinned;
+2. an unrevoked `rkaf:Attestation` approves it for publication in the
+   applicable scope; and
+3. no effective `rkaf:LifecycleEvent` has withdrawn or superseded that
+   publication for the same scope.
 
-The closed set is declared twice — `#SkosMappingPredicate` in `constraints/core/concept-mapping.cue` and the `sh:in` list in `shapes/rkaf-shapes-conceptregistry.ttl` — and the two MUST stay identical. SHACL is conjunctive: a value present in one list and absent from the other is rejected by the merged shape suite regardless of what the compiled artifact says.
+Applications may activate, index, cache, roll back, or deploy a release. Those
+operations do not change its portable identity or publication attestation.
 
-A `rkaf:ConceptMapping` is a `rkaf:RelationshipAssertion` whose `assertsPredicate` is one of the SKOS predicates above and whose subject/object are concept IRIs. It inherits the full assertion model — evidence, attestation, scope, adoption, lifecycle — from `spec/rkaf-core.md` §6.
+## 4. ConceptAssignment
 
-### 2.3 rkaf:ConceptResolutionResult
+`rkaf:ConceptAssignment` is a strict `rkaf:RelationshipAssertion`
+specialization:
 
-(Inherited from v0.1.2 §2.3.)
+- `rkaf:assertsSubject` names the Artifact or SourceFragment;
+- `rkaf:assertsPredicate` is one of `rkaf:assignmentPrimary`,
+  `rkaf:assignmentSubstantive`, `rkaf:assignmentMention`, or
+  `rkaf:assignmentContextual`;
+- `rkaf:assertsObject` names the concept;
+- `rkaf:assertionPolarity` is `rkaf:affirmed`; and
+- `rkaf:assignedConceptRelease` pins the complete release containing the
+  concept.
 
-Structured output of registry lookup. Carries `rkaf:resolutionStatus`, `rkaf:resolutionMethod`, `rkaf:cacheStatus`, `rkaf:usageCeiling`, and the resolved `rkaf:mappingAssertion` IRI when resolution proceeded via a mapping. AI consumers MUST consume the `rkaf:usageCeiling` and respect it (no draft-generation usage on `rkaf:reviewQueueOnly` resolutions).
+It inherits `rkaf:assertionOrigin`, `rkaf:epistemicBasis`, provenance,
+confidence, scope, retention, and consumer disposition from the durable
+assertion envelope. Evidence uses the universal inverse
+`rkaf:EvidenceBinding` path. A fragment-backed binding carries
+`rkaf:bindsSourceFragment`, `rkaf:evidenceRole`, and
+`rkaf:evidentiaryFunction`.
 
-### 2.4 rkaf:Workspace scoping
+The retired assignment-specific shadow fields are non-conforming:
+`rkaf:assignmentSubject`, `rkaf:assignmentSubjectType`,
+`rkaf:assignedConcept`, `rkaf:assignmentRole`,
+`rkaf:assignmentDerivation`, `rkaf:assignmentEvidence`,
+`rkaf:assignmentEvidenceScheme`, `rkaf:supportingAssignment`, and
+`rkaf:assignmentPolicyVersion`.
 
-A Concept MAY be scoped to a `rkaf:Workspace` via `rkaf:scopedToWorkspace` (1, IRI). Workspace-scoped concepts are federable to peer workspaces declaring mutual trust per Layer 3 federation (Plan 4).
+## 5. ConceptMapping
 
-URN scheme: `urn:rkaf:workspace:<workspaceId>/<localConceptId>` resolves within the workspace.
+`rkaf:ConceptMapping` is a strict `rkaf:RelationshipAssertion`
+specialization:
 
-### 2.5 Justification on a mapping
+- `rkaf:assertsSubject` names the source concept;
+- `rkaf:assertsPredicate` is exactly one of `skos:exactMatch`,
+  `skos:closeMatch`, `skos:broadMatch`, `skos:narrowMatch`, or
+  `skos:relatedMatch`;
+- `rkaf:assertsObject` names the target concept;
+- `rkaf:assertionPolarity` is `rkaf:affirmed`;
+- `rkaf:sourceConceptRelease` pins the complete release containing the
+  subject; and
+- `rkaf:targetConceptRelease` pins the complete release containing the object.
 
-A `rkaf:ConceptMapping` MAY carry a `rkaf:hasJustification` whose `rkaf:Justification` carries `rkaf:hasWarrant` (warrant kind from any family, not only legal). v0.1.2's `rkaf:hasAuthority` remains valid as the legal-family specialization (`rkaf:Authority rdfs:subClassOf rkaf:Warrant`).
+`skos:broader`, `skos:narrower`, and `skos:related` are in-scheme semantic
+relations, not mapping predicates. `skos:mappingRelation` is an abstract
+super-property, not a concrete claim. All four are non-conforming as a
+ConceptMapping predicate.
 
-### 2.6 rkaf:ConceptScheme and facets
+The canonical proposition fields replace
+`rkaf:sourceConcept`, `rkaf:targetConcept`, and `rkaf:mappingRelation`.
+Publication or approval state MUST NOT appear inline on the mapping;
+`rkaf:Attestation`, release membership, and lifecycle events carry those facts.
+Mapping evidence uses the same inverse EvidenceBinding path as every other
+durable assertion.
 
-A `rkaf:ConceptScheme` is one facet's controlled category system, compatible with `skos:ConceptScheme`. Its normative shape is defined in `spec/rkaf-core.md` §4.7.1 and is not restated here.
+## 6. Local concepts and promotion
 
-Two rules matter to the registry:
-
-1. Every `rkaf:RegisteredConcept` and `rkaf:LocalConcept` MUST carry `skos:inScheme` (1). A facet-free concept is the term that later merges with a same-spelled term from another facet.
-2. A scheme MUST declare `rkaf:schemeFacet` and MUST be owned — either `rkaf:managedByRegistry` (federation-shared) or `rkaf:definedInScope` (workspace-local). That disjunction is the same seam this section already draws between registered and local concepts, applied to their container.
-
-SKOS owns scheme membership, top concepts, labels, and definitions. Rulespec adds the facet declaration and the ownership rule and nothing else; in particular it declares no class range over `skos:inScheme`, so a concept MAY belong to an external `skos:ConceptScheme`.
-
-### 2.7 Promotion
-
-The normal path from retrieval candidate to shared vocabulary is:
+A local candidate may accumulate evidence-backed assignments and mappings.
+Promotion to a shared vocabulary is a governed publication act, not a field
+mutation:
 
 ```text
 retrieval candidate
   -> LocalConcept
-  -> evidence-backed assignments
-  -> measured usefulness and quality
-  -> human-reviewed promotion packet
-  -> RegisteredConcept
+  -> evidence-backed assertions
+  -> reviewed ReferenceResourceRelease
+  -> publication Attestation
 ```
 
-Promotion is rare. It requires a definition, scope, examples, counterexamples, mappings, usage evidence, conflicts, lineage, a steward, a human approver, and a rationale. Of those, `skos:definition` is the one a shape can check, and it is REQUIRED when `rkaf:conceptStatus` is `rkaf:promoted` (`spec/rkaf-core.md` §4.7.2).
+Model confidence, query popularity, and click counts may guide review. They do
+not establish meaning, publish a release, or authorize use. The local history
+remains addressable after a shared concept is published.
 
-Model confidence, query popularity, and click counts MAY guide review. They never establish meaning and MUST NOT promote a concept. Promotion creates a separate reviewed record; it does not rewrite the local history that produced it.
+## 7. Concept resolution
 
-### 2.8 rkaf:ConceptAssignment
+`rkaf:ConceptResolutionResult` carries `rkaf:resolutionStatus`,
+`rkaf:resolutionMethod`, `rkaf:cacheStatus`, `rkaf:usageCeiling`, and the
+resolved `rkaf:mappingAssertion` when resolution used a mapping.
 
-Assignments of concepts to Artifacts and SourceFragments are normatively defined in `spec/rkaf-core.md` §4.7.3. They are registry-adjacent rather than registry-owned: an assignment cites a concept, and the concept's governance stays with its scheme and registry.
+The normative runtime procedure is in `spec/rkaf-behavior.md` §6. It evaluates
+canonical mapping propositions, exact endpoint release pins, publication
+attestations, lifecycle, scope, and registry trust. A consumer MUST respect
+`rkaf:usageCeiling`; semantic resolution alone never authorizes drafting,
+publication, or official use.
 
-The registry-relevant consequence is that a `rkaf:LocalConcept` accumulates evidence-backed assignments before it is eligible for the promotion packet above, and those assignments are themselves append-only, evidence-bearing records — not counters.
+## 8. Validation
 
-## 3. Conflict resolution
+Structural constraints compile from:
 
-(Inherited from v0.1.2 §3.)
+- `constraints/core/concept.cue`;
+- `constraints/core/concept-assignment.cue`;
+- `constraints/core/concept-mapping.cue`; and
+- `constraints/core/reference-resource-release.cue`.
 
-Conflict resolution among competing canonical assignments uses the v0.1.2 procedure: applicability scope intersection, attestation count, recency, then registry-declared tiebreaker. SHACL shape `rkaf:ConceptResolutionConflictShape` is preserved unchanged in the superseded v0.1 shape set at `archive/v0.1/shapes/rkaf-shapes-conceptregistry-v0.1.ttl`. No active gate loads that file; the procedure it encodes is runtime behavior, specified normatively in `spec/rkaf-behavior.md` §6 and executed by `crates/rkaf-runtime/src/concept.rs`.
+Hand-authored SHACL in `shapes/rkaf-shapes-conceptregistry.ttl` carries only
+graph-wide rules and explicit migration rejection that the structural compiler
+cannot express. The compiled and hand-authored shape suites load together.
 
-## 4. Lifecycle on Concept
+## 9. Compatibility
 
-(Inherited from v0.1.2 §4.)
-
-Concept lifecycle events — `rkaf:registered`, `rkaf:deprecated`, `rkaf:superseded`, `rkaf:split`, `rkaf:merged` — are carried by the v0.1 `rkaf:LifecycleEvent` mechanism. Cascade algorithm `rkaf:CascadeClosureV1` is preserved. New: `rkaf:safeAutomaticMigrationStatus` MAY take `rkaf:noSafeAutomaticMigration` to declare manual disambiguation required.
-
-## 5. SHACL
-
-Validated by the hand-authored `shapes/rkaf-shapes-conceptregistry.ttl` plus the compiled `compiled/shacl/core/concept.ttl`, `concept-assignment.ttl`, and `concept-mapping.ttl`, which the gate loads together (`tools/conformance_lib.py::shacl_shape_paths`). The inherited v0.1.2 file is `archive/v0.1/shapes/rkaf-shapes-conceptregistry-v0.1.ttl`; it was wholesale-superseded and is NOT loaded. Its lifecycle and applicability rules live in `compiled/shacl/core/lifecycle-event.ttl` and `compiled/shacl/core/concept-mapping.ttl` respectively.
-
-`skos:prefLabel(1)` and `skos:inScheme(1)` are enforced at **L1** (CUE → `constraints/core/concept.cue` → `compiled/json-schema/core/concept.schema.json`) and **L3** (`compiled/shacl/core/concept.ttl` — `sh:property [ sh:path skos:prefLabel ; sh:minCount 1 ]` and `sh:property [ sh:path skos:inScheme ; sh:minCount 1 ; sh:maxCount 1 ]`, both on `rkaf:RegisteredConceptShape` and `rkaf:LocalConceptShape`). Producers omitting either are rejected at both validation layers. The `sh:maxCount 1` on `skos:inScheme` is a deliberate Rulespec narrowing of an unrestricted SKOS predicate — one concept, one facet; see Core §4.7.2.
-
-## 6. Compatibility
-
-None with v0.1.2. Migration not supported. Replace.
+None with v0.1.2 or earlier v0.2 drafts. Producers must replace retired
+concept-status, assignment-shadow, mapping-shadow, and inline publication-state
+fields with the records defined above.

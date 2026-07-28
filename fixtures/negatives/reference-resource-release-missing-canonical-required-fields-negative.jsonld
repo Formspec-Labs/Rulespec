@@ -1,0 +1,7 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@id": "urn:rkaf:fixture:negative:reference-release:missing-canonical-required-fields",
+  "@type": "rkaf:ReferenceResourceRelease",
+  "rkaf:referenceReleaseDigest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "_comment": "Negative coverage vector: an immutable reference-resource release cannot omit its stable resource, version, kind, membership mode, or distribution."
+}

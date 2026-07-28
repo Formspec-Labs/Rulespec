@@ -128,15 +128,10 @@ IDENTIFIER_TERMS = {
     "https://rulespec.org/ns/v1#hasDocketIdentifier",
 }
 # Terms whose value grammar is not recoverable from the value, so a mapping
-# that mints one MUST name the registered scheme it minted under. Identifier
-# predicates are the original members; `rkaf:assignmentEvidence` joined them
-# when `#FragmentIdentityScheme` registered a second identity form for a cited
-# region (Core §4.2) — a carrier-local fragment URN and a published fragment
-# IRI are both absolute IRIs, and only the declaration says which grammar the
-# producer is claiming.
+# that mints one MUST name the registered scheme it minted under. Evidence
+# bindings point to materialized SourceFragment nodes; fragmentIdentityScheme
+# belongs to those nodes and is not an edge-level identifier declaration.
 IDENTIFIER_SCHEME_TERMS = {
-    "https://rulespec.org/ns/v1#assignmentEvidence":
-        "https://rulespec.org/ns/v1#assignmentEvidenceScheme",
     "https://rulespec.org/ns/v1#hasArtifactIdentifier":
         "https://rulespec.org/ns/v1#artifactIdentifierScheme",
     "https://rulespec.org/ns/v1#hasRegulatoryIdentifier":

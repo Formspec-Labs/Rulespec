@@ -20,10 +20,11 @@ pub fn evaluate(test_case: &Value, graph: &Graph) -> Result<Verdict, RuntimeErro
         .and_then(Value::as_str)
         .ok_or_else(|| RuntimeError::MalformedTestCase("Concept missing @id".into()))?;
 
-    // Gather all ConceptMappings with sourceConcept == this concept.
+    // Gather all ConceptMappings whose canonical assertion subject is this
+    // concept.
     let mappings: Vec<&Value> = graph
         .nodes_by_type("rkaf:ConceptMapping")
-        .filter(|m| m.get("rkaf:sourceConcept").and_then(Value::as_str) == Some(source_id))
+        .filter(|m| m.get("rkaf:assertsSubject").and_then(Value::as_str) == Some(source_id))
         .collect();
 
     if mappings.is_empty() {
@@ -35,7 +36,7 @@ pub fn evaluate(test_case: &Value, graph: &Graph) -> Result<Verdict, RuntimeErro
     // Collect unique target concepts.
     let mut targets: Vec<&str> = mappings
         .iter()
-        .filter_map(|m| m.get("rkaf:targetConcept").and_then(Value::as_str))
+        .filter_map(|m| m.get("rkaf:assertsObject").and_then(Value::as_str))
         .collect();
     targets.sort();
     targets.dedup();
@@ -71,10 +72,12 @@ pub fn evaluate(test_case: &Value, graph: &Graph) -> Result<Verdict, RuntimeErro
 /// Severity ladder per spec §6.1:
 ///   informational         — no exactMatch; targets differ
 ///   operationalConflict   — exactMatch present; targets differ
-///   publicationBlocking   — ≥2 mappings carry lifecycleState=approved AND
-///                            targets differ
-///   authorityCritical     — publicationBlocking AND ≥1 of the approved
-///                            mappings is managedByRegistry ∈
+///   publicationBlocking   — ≥2 mappings are members of a reference-resource
+///                           release, have an unrevoked publication-scope
+///                           approval Attestation, remain active, and target
+///                           different concepts
+///   authorityCritical     — publicationBlocking AND ≥1 of those mappings is
+///                            managedByRegistry ∈
 ///                            consumer.trustedRegistries
 ///
 /// Multi-BCR errors from the consumer resolver propagate — a malformed
@@ -84,12 +87,12 @@ fn compute_severity(
     test_case: &Value,
     graph: &Graph,
 ) -> Result<&'static str, RuntimeError> {
-    let approved: Vec<&&Value> = mappings
+    let publication_relevant: Vec<&&Value> = mappings
         .iter()
-        .filter(|m| m.get("rkaf:lifecycleState").and_then(Value::as_str) == Some("rkaf:approved"))
+        .filter(|m| mapping_is_publication_relevant(m, graph))
         .collect();
 
-    if approved.len() >= 2 {
+    if publication_relevant.len() >= 2 {
         // Authority-critical upgrade requires the canonical consumer. Any
         // resolver error (multi-BCR without rkaf:evaluationConsumer, etc.)
         // propagates rather than degrading to publicationBlocking.
@@ -99,7 +102,7 @@ fn compute_severity(
                 .and_then(Value::as_array)
                 .map(|arr| arr.iter().filter_map(Value::as_str).collect())
                 .unwrap_or_default();
-            let any_trusted = approved.iter().any(|m| {
+            let any_trusted = publication_relevant.iter().any(|m| {
                 m.get("rkaf:managedByRegistry")
                     .and_then(Value::as_str)
                     .map(|r| trusted.contains(&r))
@@ -114,12 +117,48 @@ fn compute_severity(
 
     let any_exact = mappings
         .iter()
-        .any(|m| m.get("rkaf:mappingRelation").and_then(Value::as_str) == Some("skos:exactMatch"));
+        .any(|m| m.get("rkaf:assertsPredicate").and_then(Value::as_str) == Some("skos:exactMatch"));
     Ok(if any_exact {
         "rkaf:operationalConflict"
     } else {
         "rkaf:informational"
     })
+}
+
+fn mapping_is_publication_relevant(mapping: &Value, graph: &Graph) -> bool {
+    let Some(mapping_id) = mapping.get("@id").and_then(Value::as_str) else {
+        return false;
+    };
+    if matches!(
+        mapping
+            .get("rkaf:consumerLifecycleState")
+            .and_then(Value::as_str),
+        Some("rkaf:staleForCurrentUse" | "rkaf:retired" | "rkaf:withdrawn")
+    ) {
+        return false;
+    }
+    let in_release = graph
+        .incoming(mapping_id, "prov:hadMember")
+        .iter()
+        .any(|node| {
+            node.get("@type").and_then(Value::as_str) == Some("rkaf:ReferenceResourceRelease")
+        });
+    if !in_release {
+        return false;
+    }
+    graph
+        .incoming(mapping_id, "rkaf:targets")
+        .iter()
+        .any(|node| {
+            node.get("@type").and_then(Value::as_str) == Some("rkaf:Attestation")
+                && matches!(
+                    node.get("rkaf:decision").and_then(Value::as_str),
+                    Some("rkaf:approved" | "rkaf:approvedWithConditions")
+                )
+                && node.get("rkaf:attestationScope").and_then(Value::as_str)
+                    == Some("rkaf:registryPublication")
+                && node.get("rkaf:revokedAt").is_none()
+        })
 }
 
 #[cfg(test)]
@@ -129,7 +168,7 @@ mod tests {
 
     #[test]
     fn multi_bcr_without_evaluation_consumer_propagates_error() {
-        // Two approved mappings with different targets — would normally
+        // Two publication-relevant mappings with different targets — normally
         // trigger the publicationBlocking/authorityCritical branch where
         // compute_severity reads the consumer. With 2 BCRs in the graph
         // and no rkaf:evaluationConsumer in the test_case, select_consumer
@@ -146,18 +185,37 @@ mod tests {
                     {
                         "@id": "m1",
                         "@type": "rkaf:ConceptMapping",
-                        "rkaf:sourceConcept": "c1",
-                        "rkaf:targetConcept": "c2",
-                        "rkaf:lifecycleState": "rkaf:approved",
+                        "rkaf:assertsSubject": "c1",
+                        "rkaf:assertsPredicate": "skos:exactMatch",
+                        "rkaf:assertsObject": "c2",
                         "rkaf:managedByRegistry": "urn:reg:r1"
                     },
                     {
                         "@id": "m2",
                         "@type": "rkaf:ConceptMapping",
-                        "rkaf:sourceConcept": "c1",
-                        "rkaf:targetConcept": "c3",
-                        "rkaf:lifecycleState": "rkaf:approved",
+                        "rkaf:assertsSubject": "c1",
+                        "rkaf:assertsPredicate": "skos:exactMatch",
+                        "rkaf:assertsObject": "c3",
                         "rkaf:managedByRegistry": "urn:reg:r2"
+                    },
+                    {
+                        "@id": "release",
+                        "@type": "rkaf:ReferenceResourceRelease",
+                        "prov:hadMember": ["m1", "m2"]
+                    },
+                    {
+                        "@id": "att1",
+                        "@type": "rkaf:Attestation",
+                        "rkaf:targets": ["m1"],
+                        "rkaf:decision": "rkaf:approved",
+                        "rkaf:attestationScope": "rkaf:registryPublication"
+                    },
+                    {
+                        "@id": "att2",
+                        "@type": "rkaf:Attestation",
+                        "rkaf:targets": ["m2"],
+                        "rkaf:decision": "rkaf:approved",
+                        "rkaf:attestationScope": "rkaf:registryPublication"
                     },
                     {
                         "@id": "bcr1",

@@ -41,27 +41,35 @@ Each pattern shows: the apparent need, the composed primitives, line-level citat
 
 ---
 
-## Pattern 2 — "I need an AI proposal / promotion workflow" (raw extraction → review → canonical assertion)
+## Pattern 2 — "I need an AI proposal and review workflow"
 
-**Composed primitives:** `rkaf:Assertion.assertionOrigin` (six-value closed enum) + `rkaf:AILineage` + `rkaf:Attestation` + `rkaf:LifecycleEvent` (`rkaf:promotion` / `rkaf:demotion` kinds) + `rkaf:EvidenceBinding`.
+**Composed primitives:** immutable `rkaf:assertionOrigin` and
+`rkaf:epistemicBasis` + `rkaf:AILineage` + provisional
+`rkaf:usageEligibility` + `rkaf:Attestation` + `rkaf:LifecycleEvent` +
+`rkaf:EvidenceBinding`.
 
 **Where they live:**
-- `constraints/core/assertion.cue:4-9` — `#AssertionOrigin` enum: `humanAsserted | aiSuggested | aiPromoted | humanQualified | humanRevalidation | imported`.
-- `constraints/core/assertion.cue:14-27` — CUE conditional enforcing `hasAILineage` on AI-touched origins.
-- `constraints/core/ai-lineage.cue` — `modelId`, `modelVersion`, `promptTemplateRef`, `temperature`, `seed`, `inputContextHash`, `humanApprover`, `humanRationale`.
-- `constraints/core/attestation.cue` — `decision` enum (`approved | approvedWithConditions | rejected | abstained | ...`), `rationale`, `scope`, temporal bounds.
-- `constraints/core/lifecycle-event.cue:8-11` — `lifecycleEventKind` includes `rkaf:promotion` and `rkaf:demotion`.
+
+- `constraints/core/assertion.cue` — four construction origins, five
+  epistemic bases, and the `aiSuggested` lineage/use cap.
+- `constraints/core/ai-lineage.cue` — model derivation.
+- `constraints/core/attestation.cue` — scoped approval, rejection, and review.
+- `constraints/core/lifecycle-event.cue` — promotion/demotion audit events.
+- `constraints/core/evidence-binding.cue` — universal evidence path.
 
 **State map:**
 
 | Workflow state | Rulespec representation |
 |---|---|
-| Raw AI extraction (pending review) | `Assertion(assertionOrigin: aiSuggested, hasAILineage: <lineage>)` |
-| Under review | same Assertion + open `Attestation(decision: abstained, scope: reviewing)` (optional) |
-| Approved | `LifecycleEvent(kind: rkaf:promotion, appliesTo: <assertion>)` transitioning to `aiPromoted` or `humanQualified`; `AILineage.humanApprover` + `humanRationale` set; `Attestation(decision: approved, rationale: ...)` issued |
-| Rejected | `LifecycleEvent(kind: rkaf:demotion, appliesTo: <assertion>)` or hold at `aiSuggested` indefinitely; `Attestation(decision: rejected, rationale: ...)` |
+| Raw AI proposal | immutable Assertion with `assertionOrigin: aiSuggested`, an honest `epistemicBasis`, `hasAILineage`, and eligibility no broader than `reviewQueueOnly` |
+| Under review | the same Assertion plus an optional review Attestation |
+| Approved | the same Assertion plus an approving Attestation and, when useful, a promotion LifecycleEvent |
+| Rejected | the same Assertion plus a rejecting Attestation and, when useful, a demotion LifecycleEvent |
+| Corrected proposition | a new Assertion, linked to its predecessor by supersession or PROV-O derivation |
 
-**Audit retention:** rejected proposals are not deleted. They persist as `Assertion(assertionOrigin: aiSuggested)` with the rejecting `Attestation` linked. Auditors reconstruct the lifecycle from the IRI graph.
+Approval never changes `assertionOrigin`; construction history remains true
+after review. Rejected proposals are retained with their evidence, lineage,
+and rejecting Attestation so an auditor can reconstruct the decision.
 
 **Cross-reference:** the prior `rkaf:Waiver` proposal was falsified on identical grounds (`thoughts/plans/2026-05-13-attestation-temporal-bounds-and-freshness.md §Context`).
 

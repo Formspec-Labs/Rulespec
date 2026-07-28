@@ -50,6 +50,9 @@
       "@type": "@id",
       "@container": "@set"
     },
+    "dcterms:format": {
+      "@type": "xsd:string"
+    },
     "dcterms:isFormatOf": {
       "@type": "@id",
       "@container": "@set"
@@ -415,6 +418,9 @@
     "rkaf:ConceptMapping": {
       "@type": "@id"
     },
+    "rkaf:ReferenceResourceRelease": {
+      "@type": "@id"
+    },
     "rkaf:MappingApplicabilityContext": {
       "@type": "@id"
     },
@@ -556,12 +562,6 @@
     "rkaf:lifecycleEventKind": {
       "@type": "@vocab"
     },
-    "rkaf:lifecycleState": {
-      "@type": "@vocab"
-    },
-    "rkaf:mappingRelation": {
-      "@type": "@vocab"
-    },
     "rkaf:bridgeContractVersion": {
       "@type": "xsd:string"
     },
@@ -699,6 +699,9 @@
     "rkaf:assertionOrigin": {
       "@type": "@id"
     },
+    "rkaf:epistemicBasis": {
+      "@type": "@vocab"
+    },
     "rkaf:authorityKind": {
       "@type": "@id"
     },
@@ -732,6 +735,9 @@
     "rkaf:evidenceRole": {
       "@type": "@id"
     },
+    "rkaf:evidentiaryFunction": {
+      "@type": "@vocab"
+    },
     "rkaf:warningCode": {
       "@type": "@id"
     },
@@ -763,9 +769,6 @@
       "@type": "@id"
     },
     "rkaf:predicate": {
-      "@type": "@id"
-    },
-    "rkaf:conceptStatus": {
       "@type": "@id"
     },
     "rkaf:conceptScope": {
@@ -852,10 +855,10 @@
     "rkaf:targetPacket": {
       "@type": "@id"
     },
-    "rkaf:sourceConcept": {
+    "rkaf:sourceConceptRelease": {
       "@type": "@id"
     },
-    "rkaf:targetConcept": {
+    "rkaf:targetConceptRelease": {
       "@type": "@id"
     },
     "rkaf:targetMappingConflict": {
@@ -968,6 +971,15 @@
     },
     "rkaf:managedByRegistry": {
       "@type": "@id"
+    },
+    "rkaf:referenceReleaseDigest": {
+      "@type": "xsd:string"
+    },
+    "rkaf:versionBasis": {
+      "@type": "@vocab"
+    },
+    "rkaf:membershipMode": {
+      "@type": "@vocab"
     },
     "rkaf:hostedByRegistry": {
       "@type": "@id"
@@ -1255,34 +1267,28 @@
     "rkaf:ConceptAssignment": {
       "@type": "@id"
     },
-    "rkaf:assignmentSubject": {
+    "rkaf:assignedConceptRelease": {
       "@type": "@id"
     },
-    "rkaf:assignmentSubjectType": {
+    "rkaf:fragmentIdentityScheme": {
       "@type": "@vocab"
     },
-    "rkaf:assignedConcept": {
-      "@type": "@id"
-    },
-    "rkaf:assignmentRole": {
-      "@type": "@vocab"
-    },
-    "rkaf:assignmentDerivation": {
-      "@type": "@vocab"
-    },
-    "rkaf:assignmentEvidence": {
+    "prov:hadMember": {
       "@type": "@id",
       "@container": "@set"
     },
-    "rkaf:assignmentEvidenceScheme": {
-      "@type": "@vocab"
-    },
-    "rkaf:supportingAssignment": {
+    "dcat:distribution": {
       "@type": "@id",
       "@container": "@set"
     },
-    "rkaf:assignmentPolicyVersion": {
+    "dcat:version": {
       "@type": "xsd:string"
+    },
+    "dcterms:type": {
+      "@type": "@id"
+    },
+    "dcterms:issued": {
+      "@type": "xsd:dateTime"
     },
     "rkaf:capturedAt": {
       "@type": "xsd:dateTime"
@@ -1524,7 +1530,7 @@
     }
   },
   "_meta": {
-    "version": "v0.2.0-pre.7",
+    "version": "v0.2.0-pre.8",
     "supersedes": "v0.1.1",
     "relationship": "Vocabulary v0.2 — first-class Warrant/Artifact/SourceFragment/EvidenceBinding/ConfidenceRecord/AccessScope/AILineage/RetentionPolicy/MappingState/Workspace primitives; OA/PROV-O/SKOS/ELI predicate-level imports; AKN/USLM/DPV/ODRL alignments; legacy v0.1 ontology aspirations demoted per the §9 four-mode reshape (PKA-03og). v0.1.x is editorial baseline only — wholesale supersession.",
     "delta_from_v0.1": [

@@ -34,7 +34,18 @@
         "urn:rkaf:fixture:analysis:rce:fragment:section-4"
       ],
       "rkaf:assertionOrigin": "rkaf:humanAsserted",
+      "rkaf:epistemicBasis": "rkaf:sourceExplicit",
       "rkaf:assertedAt": "2026-05-12T08:00:00Z"
+    },
+    {
+      "@id": "urn:rkaf:fixture:analysis:rce:evidence:inspection-removed",
+      "@type": "rkaf:EvidenceBinding",
+      "rkaf:bindsAssertion": "urn:rkaf:fixture:analysis:rce:event:inspection-removed",
+      "rkaf:bindsSourceFragment": [
+        "urn:rkaf:fixture:analysis:rce:fragment:section-4"
+      ],
+      "rkaf:evidenceRole": "rkaf:textualEvidence",
+      "rkaf:evidentiaryFunction": "rkaf:supports"
     }
   ],
   "_comment": "Analysis 2. A decided removal, with the source's own event time and the intended effect time held apart from rkaf:assertedAt. There is no polarity here on purpose: a removal is not a denial, and recording it as one would erase the difference between 'never true' and 'stopped being true'."

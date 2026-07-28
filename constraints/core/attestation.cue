@@ -21,6 +21,8 @@ package rkaf
 	"rkaf:attestationScope": string // free-form scope IRI or label
 	"rkaf:attestedAt":      string // xsd:dateTime
 	"rkaf:rationale"?:      string
+	"rkaf:hasAccessScope"?:     string // IRI of AccessScope; may only narrow
+	"rkaf:hasRetentionPolicy"?: string // IRI of RetentionPolicy
 	// Plan 7d (rkaf-behavior.md §4.6 / §5) — temporal bounds + freshness.
 	// All optional, additive. `hasEffectivePeriod` reuses the same predicate
 	// already on Authority + ApplicabilityScope (cascade::is_active reads

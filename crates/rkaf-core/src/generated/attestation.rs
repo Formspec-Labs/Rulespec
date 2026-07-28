@@ -94,6 +94,12 @@ pub struct Attestation {
     /// JSON-LD property `rkaf:rationale`.
     #[serde(rename = "rkaf:rationale", skip_serializing_if = "Option::is_none", default)]
     pub rationale: Option<String>,
+    /// JSON-LD property `rkaf:hasAccessScope`.
+    #[serde(rename = "rkaf:hasAccessScope", skip_serializing_if = "Option::is_none", default)]
+    pub has_access_scope: Option<String>,
+    /// JSON-LD property `rkaf:hasRetentionPolicy`.
+    #[serde(rename = "rkaf:hasRetentionPolicy", skip_serializing_if = "Option::is_none", default)]
+    pub has_retention_policy: Option<String>,
     /// JSON-LD property `rkaf:hasEffectivePeriod`.
     #[serde(rename = "rkaf:hasEffectivePeriod", skip_serializing_if = "Option::is_none", default)]
     pub has_effective_period: Option<String>,

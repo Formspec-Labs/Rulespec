@@ -1,0 +1,6 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@id": "urn:rkaf:fixture:negative:concept-mapping:missing-canonical-required-fields",
+  "@type": "rkaf:ConceptMapping",
+  "_comment": "Negative coverage vector: a ConceptMapping cannot omit its canonical proposition, polarity, construction origin, epistemic basis, or exact endpoint release pins."
+}

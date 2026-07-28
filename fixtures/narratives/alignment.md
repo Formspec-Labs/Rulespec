@@ -1,5 +1,12 @@
 # Fixture Narrative Alignment Notes
 
+> **Historical, non-conforming editorial record.** This file describes
+> pre-`0.2.0-pre.8` examples and MUST NOT be used as current authoring
+> guidance. It retains retired assertion-origin, concept-status, inline
+> evidence, and concept-mapping forms so the earlier alignment work remains
+> auditable. Current normative examples are the JSON-LD fixtures validated by
+> `tools/ci_validate.py` and the specifications under `spec/`.
+
 Reference document for the editorial pass that brings the `/docs/fixtures/*.md` narratives into alignment with the canonical `.jsonld` files after the 14 v0.1-rc1 patches.
 
 The `.jsonld` files are authoritative. Narratives should be updated to match.

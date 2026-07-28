@@ -22,10 +22,6 @@ import "list"
 // belongs to exactly one facet, and multi-facet membership is modelled as
 // separate concepts joined by a SKOS mapping rather than as one term that
 // answers two questions. Core §4.7.2 states the narrowing normatively.
-#ConceptStatus: "rkaf:draft" | "rkaf:proposed" | "rkaf:active" |
-	"rkaf:promoted" | "rkaf:deprecated" | "rkaf:retired" |
-	"rkaf:rejected"
-
 // ConceptScheme — one facet, one controlled category system (§4.7).
 //
 // SKOS owns what a concept scheme MEANS: `skos:inScheme` membership,
@@ -50,7 +46,6 @@ import "list"
 	"@type":              "rkaf:ConceptScheme"
 	"skos:prefLabel":     string
 	"rkaf:schemeFacet":   string & =~"^[A-Za-z][A-Za-z0-9+.-]*:[^\\s]+$"
-	"rkaf:conceptStatus": #ConceptStatus
 	"skos:definition"?:   string
 	"skos:hasTopConcept"?: [...(string & =~"^[A-Za-z][A-Za-z0-9+.-]*:[^\\s]+$")] & list.MinItems(1)
 	{
@@ -60,7 +55,7 @@ import "list"
 	}
 }
 
-#RegisteredConcept: registered={
+#RegisteredConcept: {
 	"@type":                  "rkaf:RegisteredConcept"
 	"skos:prefLabel":          string              // required (1); xsd:string
 	// The facet this concept belongs to, named by its scheme. Required so no
@@ -72,7 +67,6 @@ import "list"
 	"skos:inScheme":          string & =~"^[A-Za-z][A-Za-z0-9+.-]*:[^\\s]+$"
 	"rkaf:managedByRegistry": string              // IRI of rkaf:ConceptRegistry
 	"rkaf:conceptScope":      string              // free-form scope IRI
-	"rkaf:conceptStatus":     #ConceptStatus
 	// Optional SKOS composition (Cohort A, §9.2, PKA-2szi).
 	"skos:altLabel"?:   [...string]              // 0..*; display synonyms
 	"skos:definition"?: string                   // 0..1; the meaning, in words
@@ -80,21 +74,14 @@ import "list"
 	"skos:narrower"?:  [...string]               // 0..*; IRIs of narrower concepts
 	"skos:related"?:   [...string]               // 0..*; IRIs of related concepts
 
-	// Promotion is rare and requires a written meaning (§4.7). A concept marked
-	// promoted with no `skos:definition` records the OUTCOME of a review whose
-	// central artifact — what the term means — was never written down.
-	if registered["rkaf:conceptStatus"] == "rkaf:promoted" {
-		"skos:definition": string
-	}
 }
 
-#LocalConcept: local={
+#LocalConcept: {
 	"@type":               "rkaf:LocalConcept"
 	"skos:prefLabel":       string              // required (1); xsd:string
 	"skos:inScheme":       string & =~"^[A-Za-z][A-Za-z0-9+.-]*:[^\\s]+$"
 	"rkaf:definedInScope": string              // IRI of the defining workspace
 	"rkaf:conceptScope":   string
-	"rkaf:conceptStatus":  #ConceptStatus
 	// Optional SKOS composition (Cohort A, §9.2, PKA-2szi).
 	"skos:altLabel"?:   [...string]            // 0..*; display synonyms
 	"skos:definition"?: string                 // 0..1; the meaning, in words
@@ -102,7 +89,4 @@ import "list"
 	"skos:narrower"?:  [...string]             // 0..*; IRIs of narrower concepts
 	"skos:related"?:   [...string]             // 0..*; IRIs of related concepts
 
-	if local["rkaf:conceptStatus"] == "rkaf:promoted" {
-		"skos:definition": string
-	}
 }

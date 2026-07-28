@@ -4,7 +4,10 @@
 # This Makefile is the single entry point the stack-level fan-out calls into.
 
 CARGO         = cargo
-PYTHON        = python3
+# rdfcanon 1.0.0 requires Python 3.12. uv resolves that interpreter and the
+# pinned requirements for the default local gate; callers may still override
+# PYTHON on the make command line.
+PYTHON        = uv run --python 3.12 --with-requirements requirements.txt python
 CARGO_MANIFEST = --manifest-path crates/Cargo.toml
 
 .PHONY: all help build build-runtime-cli test test-rust test-shapes test-reference-corpora test-audits test-conformance clean compile
@@ -58,7 +61,7 @@ test-reference-corpora:
 test-audits:
 	$(CARGO) build $(CARGO_MANIFEST) -p projector-harness
 	$(PYTHON) tools/vocab_audit.py
-	$(PYTHON) -m unittest tools.test_constraints_compile tools.test_l0_mapping_audit tools.test_semantic_carriers -v
+	$(PYTHON) -m unittest tools.test_constraints_compile tools.test_l0_mapping_audit tools.test_semantic_carriers tools.test_reference_release_digest -v
 	$(PYTHON) tools/l0_mapping_audit.py
 	$(PYTHON) tools/l0_l3_coverage_audit.py
 	$(PYTHON) tools/rename_audit.py
@@ -78,7 +81,7 @@ test-conformance: build-runtime-cli
 # other targets to compiled/<target>/<sub>/ (gitignored).
 
 compile:
-	tools/compile_all.sh
+	PYTHON="$(PYTHON)" tools/compile_all.sh
 
 # ─── Clean ─────────────────────────────────────────────────────────────
 

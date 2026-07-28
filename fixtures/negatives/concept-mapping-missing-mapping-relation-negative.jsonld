@@ -1,8 +1,0 @@
-{
-  "@context": "../../context/rkaf-context.jsonld",
-  "@id": "urn:rkaf:fixture:cmap:income-closematch",
-  "@type": "rkaf:ConceptMapping",
-  "rkaf:sourceConcept": "urn:rkaf:fixture:concept:tx-grossEarnedIncome",
-  "rkaf:targetConcept": "urn:rkaf:fixture:concept:household-income",
-  "rkaf:usageEligibility": "rkaf:localOperationalUse"
-}

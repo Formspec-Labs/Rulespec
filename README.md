@@ -2,8 +2,8 @@
 
 *Making rules legible to software.*
 
-**Released version** `0.2.0-pre.7` · **Working tree** Unreleased US
-rulemaking candidate · **Bridge contract** `rkaf-bridge/1.0` ·
+**Version** `0.2.0-pre.8` · **Working tree** Reference-resource and assertion
+model candidate · **Bridge contract** `rkaf-bridge/1.0` ·
 **Conformance corpus** 301 L1-L4 fixtures plus L0 carrier-mapping and vocabulary
 audits
 
@@ -27,6 +27,12 @@ Not the text of the rule. Plenty of formats already do that. Rulespec captures t
 - **Adoption.** Which office, jurisdiction, or contract has adopted this rule for use, and starting when.
 - **Usage eligibility.** Whether software can search for the rule, draft against it, use it in a real eligibility decision, or cite it in an official notice. These are different permissions, and they are not interchangeable.
 - **Concepts.** The word "household" means one thing in SNAP, another in Medicaid. Rulespec records which definition is in play and where two registries disagree.
+- **Evidence and trust.** Every durable assertion uses one evidence path and
+  keeps construction origin, epistemic basis, review, confidence, and
+  eligibility separate.
+- **Reference releases.** Assignments and mappings pin the exact digest-backed
+  ontology, thesaurus, code list, or classification release whose meaning they
+  use.
 - **Cascade.** When a rule changes, which forms, workflows, notices, and prior decisions are now affected. Software can compute the blast radius.
 
 ## A few questions Rulespec lets software answer
@@ -56,7 +62,7 @@ Rulespec has two conformance paths. L0 lets tabular, SQL, parquet, and CSV produ
 | **L0 — Vocabulary** | Non-JSON-LD fields map to registered terms, identifiers, and enums | `tools/l0_mapping_audit.py` |
 | **L1 — Parse** | Valid JSON-LD, contexts resolve, IRIs well-formed | `tools/ci_validate.py` parse pass |
 | **L2 — Shape** | JSON Schema conformance per primitive type | Generated schemas under `compiled/json-schema/core/` |
-| **L3 — Constraint** | Cross-property invariants (SHACL Pattern-C) | Shape files under `shapes/` |
+| **L3 — Constraint** | Cross-property invariants and release-manifest integrity | `tools/ci_validate.py` (SHACL plus RDFC-1.0 digest checks) |
 | **L4 — Behavior** | Five algorithmic contracts — usage-eligibility reducer, cascade closure, ten bridge-contract rules, point-in-time exceptions, concept-resolution conflict | `rkaf-behavior-validate` (Rust runtime) |
 
 Repository audits such as `tools/vocab_audit.py` keep the specification, CUE source, generated schemas, and fixtures aligned. They are release gates, not a fifth consumer conformance level.
@@ -64,15 +70,14 @@ Repository audits such as `tools/vocab_audit.py` keep the specification, CUE sou
 Run the full sweep:
 
 ```bash
-cargo build --manifest-path crates/Cargo.toml --workspace
-python3 tools/conformance_report.py
-python3 tools/l0_mapping_audit.py
-python3 tools/l0_l3_coverage_audit.py
-python3 tools/l4_coverage_audit.py
-python3 tools/vocab_audit.py
+make test
 ```
 
-The report cross-references every fixture against every layer. Behavior fixtures are produced by a small but exact Rust runtime that implements the five contracts described in `spec/rkaf-behavior.md`.
+The default Makefile gate uses `uv` to resolve Python 3.12 and the pinned
+dependencies in `requirements.txt`; `rdfcanon==1.0.0` requires Python 3.12.
+The report cross-references every fixture against every layer. Behavior
+fixtures are produced by a small but exact Rust runtime that implements the
+five contracts described in `spec/rkaf-behavior.md`.
 
 ## Who this is for
 

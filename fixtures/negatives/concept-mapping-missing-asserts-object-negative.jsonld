@@ -1,0 +1,13 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@id": "urn:rkaf:fixture:cmap:income-closematch",
+  "@type": "rkaf:ConceptMapping",
+  "rkaf:assertionOrigin": "rkaf:humanAsserted",
+  "rkaf:epistemicBasis": "rkaf:editorialAssertion",
+  "rkaf:assertsSubject": "urn:rkaf:fixture:concept:tx-grossEarnedIncome",
+  "rkaf:assertsPredicate": "skos:closeMatch",
+  "rkaf:assertionPolarity": "rkaf:affirmed",
+  "rkaf:sourceConceptRelease": "urn:rkaf:release:source",
+  "rkaf:targetConceptRelease": "urn:rkaf:release:target",
+  "rkaf:usageEligibility": "rkaf:localOperationalUse"
+}

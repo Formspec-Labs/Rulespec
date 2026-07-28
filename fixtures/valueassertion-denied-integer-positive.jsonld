@@ -1,15 +1,48 @@
 {
   "@context": "../context/rkaf-context.jsonld",
-  "@id": "urn:rkaf:fixture:value-assertion:comment-count-denied",
-  "@type": "rkaf:ValueAssertion",
-  "rkaf:assertionOrigin": "rkaf:imported",
-  "rkaf:assertsSubject": "urn:rkaf:fixture:policy:emergency-amendment",
-  "rkaf:assertsPredicate": "urn:rkaf:fixture:predicate:commentCount",
-  "rkaf:assertsValue": {
-    "@value": "412",
-    "@type": "xsd:integer"
-  },
-  "rkaf:assertionPolarity": "rkaf:denied",
-  "rkaf:hasSourceClaimant": "urn:rkaf:fixture:source-claimant:agency-statement",
-  "rkaf:hasConfidence": ["urn:rkaf:fixture:confidence:uncalibrated-baseline"]
+  "@graph": [
+    {
+      "@id": "urn:rkaf:fixture:value-assertion:comment-count-denied",
+      "@type": "rkaf:ValueAssertion",
+      "rkaf:assertionOrigin": "rkaf:imported",
+      "rkaf:epistemicBasis": "rkaf:sourceExplicit",
+      "rkaf:assertsSubject": "urn:rkaf:fixture:policy:emergency-amendment",
+      "rkaf:assertsPredicate": "urn:rkaf:fixture:predicate:commentCount",
+      "rkaf:assertsValue": {
+        "@value": "412",
+        "@type": "xsd:integer"
+      },
+      "rkaf:assertionPolarity": "rkaf:denied",
+      "rkaf:hasSourceClaimant": "urn:rkaf:fixture:source-claimant:agency-statement",
+      "rkaf:hasConfidence": [
+        "urn:rkaf:fixture:confidence:uncalibrated-baseline"
+      ]
+    },
+    {
+      "@id": "urn:rkaf:fixture:value-assertion:artifact:comment-count",
+      "@type": "rkaf:Artifact",
+      "rkaf:hasArtifactIdentifier": "urn:rkaf:fixture:value-assertion:artifact:comment-count",
+      "rkaf:artifactIdentifierScheme": "rkaf:partner-defined"
+    },
+    {
+      "@id": "urn:rkaf:fixture:value-assertion:fragment:comment-count",
+      "@type": "rkaf:SourceFragment",
+      "oa:hasSource": "urn:rkaf:fixture:value-assertion:artifact:comment-count",
+      "oa:hasSelector": {
+        "@type": "oa:TextQuoteSelector",
+        "oa:exact": "The agency did not receive 412 comments."
+      },
+      "rkaf:selectorKind": "oa:TextQuoteSelector"
+    },
+    {
+      "@id": "urn:rkaf:fixture:value-assertion:evidence:comment-count",
+      "@type": "rkaf:EvidenceBinding",
+      "rkaf:bindsAssertion": "urn:rkaf:fixture:value-assertion:comment-count-denied",
+      "rkaf:bindsSourceFragment": [
+        "urn:rkaf:fixture:value-assertion:fragment:comment-count"
+      ],
+      "rkaf:evidenceRole": "rkaf:textualEvidence",
+      "rkaf:evidentiaryFunction": "rkaf:supports"
+    }
+  ]
 }

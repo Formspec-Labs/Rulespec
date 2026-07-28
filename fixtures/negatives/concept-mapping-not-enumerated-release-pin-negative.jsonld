@@ -1,0 +1,61 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@graph": [
+    {
+      "@id": "urn:rkaf:fixture:cmap-negative:source-release",
+      "@type": "rkaf:ReferenceResourceRelease",
+      "dcterms:isVersionOf": "urn:rkaf:fixture:resource:local-topics",
+      "dcat:version": "2026.07.28",
+      "dcterms:type": "skos:ConceptScheme",
+      "rkaf:membershipMode": "rkaf:completeMembership",
+      "prov:hadMember": ["urn:rkaf:fixture:concept:local"],
+      "dcat:distribution": ["urn:rkaf:fixture:cmap-negative:source-distribution"],
+      "rkaf:referenceReleaseDigest": "sha256:1111111111111111111111111111111111111111111111111111111111111111"
+    },
+    {
+      "@id": "urn:rkaf:fixture:cmap-negative:target-release",
+      "@type": "rkaf:ReferenceResourceRelease",
+      "dcterms:isVersionOf": "urn:rkaf:fixture:resource:external-authority",
+      "dcat:version": "live",
+      "dcterms:type": "urn:rkaf:reference-resource-kind:identifier-authority",
+      "rkaf:membershipMode": "rkaf:membershipNotEnumerated",
+      "dcat:distribution": ["urn:rkaf:fixture:cmap-negative:target-distribution"],
+      "rkaf:referenceReleaseDigest": "sha256:2222222222222222222222222222222222222222222222222222222222222222"
+    },
+    {
+      "@id": "urn:rkaf:fixture:cmap-negative:source-distribution",
+      "@type": "rkaf:Artifact",
+      "rkaf:hasArtifactIdentifier": ["urn:rkaf:fixture:cmap-negative:source-distribution"],
+      "rkaf:artifactIdentifierScheme": ["rkaf:partner-defined"],
+      "dcterms:format": "application/ld+json",
+      "rkaf:hasContentDigest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    {
+      "@id": "urn:rkaf:fixture:cmap-negative:target-distribution",
+      "@type": "rkaf:Artifact",
+      "rkaf:hasArtifactIdentifier": ["urn:rkaf:fixture:cmap-negative:target-distribution"],
+      "rkaf:artifactIdentifierScheme": ["rkaf:partner-defined"],
+      "dcterms:format": "text/csv",
+      "rkaf:hasContentDigest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+    },
+    {
+      "@id": "urn:rkaf:fixture:cmap-negative:mapping",
+      "@type": "rkaf:ConceptMapping",
+      "rkaf:assertsSubject": "urn:rkaf:fixture:concept:local",
+      "rkaf:assertsPredicate": "skos:exactMatch",
+      "rkaf:assertsObject": "urn:rkaf:fixture:identifier:external",
+      "rkaf:assertionPolarity": "rkaf:affirmed",
+      "rkaf:sourceConceptRelease": "urn:rkaf:fixture:cmap-negative:source-release",
+      "rkaf:targetConceptRelease": "urn:rkaf:fixture:cmap-negative:target-release",
+      "rkaf:assertionOrigin": "rkaf:humanAsserted",
+      "rkaf:epistemicBasis": "rkaf:editorialAssertion"
+    },
+    {
+      "@id": "urn:rkaf:fixture:cmap-negative:evidence",
+      "@type": "rkaf:EvidenceBinding",
+      "rkaf:bindsAssertion": "urn:rkaf:fixture:cmap-negative:mapping",
+      "rkaf:noEvidenceReason": "rkaf:declared-hypothesis"
+    }
+  ],
+  "_comment": "Negative: a ConceptMapping endpoint cannot pin a membershipNotEnumerated release because that release makes no membership claim."
+}

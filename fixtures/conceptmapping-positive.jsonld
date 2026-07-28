@@ -1,9 +1,94 @@
 {
   "@context": "../context/rkaf-context.jsonld",
-  "@id": "urn:rkaf:fixture:cmap:income-closematch",
-  "@type": "rkaf:ConceptMapping",
-  "rkaf:sourceConcept": "urn:rkaf:fixture:concept:tx-grossEarnedIncome",
-  "rkaf:targetConcept": "urn:rkaf:fixture:concept:household-income",
-  "rkaf:mappingRelation": "skos:closeMatch",
-  "rkaf:usageEligibility": "rkaf:localOperationalUse"
+  "@graph": [
+    {
+      "@id": "urn:rkaf:fixture:cmap:release:local",
+      "@type": "rkaf:ReferenceResourceRelease",
+      "dcterms:isVersionOf": "urn:rkaf:fixture:registry:local-topics",
+      "dcat:version": "2026.07.28-local",
+      "dcterms:type": "skos:ConceptScheme",
+      "rkaf:membershipMode": "rkaf:completeMembership",
+      "prov:hadMember": ["urn:rkaf:fixture:concept:tx-grossEarnedIncome"],
+      "dcat:distribution": ["urn:rkaf:fixture:cmap:distribution:local"],
+      "rkaf:referenceReleaseDigest": "sha256:02122dd467c4085e8f1019efaea210b9b65ac491ec71be20ead86651d9a6f8ae"
+    },
+    {
+      "@id": "urn:rkaf:fixture:cmap:release:canonical",
+      "@type": "rkaf:ReferenceResourceRelease",
+      "dcterms:isVersionOf": "urn:rkaf:fixture:registry:canonical-topics",
+      "dcat:version": "2026.07.28",
+      "dcterms:type": "skos:ConceptScheme",
+      "rkaf:membershipMode": "rkaf:completeMembership",
+      "prov:hadMember": ["urn:rkaf:fixture:concept:household-income"],
+      "dcat:distribution": ["urn:rkaf:fixture:cmap:distribution:canonical"],
+      "rkaf:referenceReleaseDigest": "sha256:9965adfe0d8566b9ce7b5ab29c60e57937ecb9b8d8ed5fe933e2eddfdf22814b"
+    },
+    {
+      "@id": "urn:rkaf:fixture:cmap:distribution:local",
+      "@type": "rkaf:Artifact",
+      "rkaf:hasArtifactIdentifier": ["urn:rkaf:fixture:cmap:distribution:local"],
+      "rkaf:artifactIdentifierScheme": ["rkaf:partner-defined"],
+      "dcterms:format": "application/ld+json",
+      "rkaf:hasContentDigest": "sha256:1111111111111111111111111111111111111111111111111111111111111111"
+    },
+    {
+      "@id": "urn:rkaf:fixture:cmap:distribution:canonical",
+      "@type": "rkaf:Artifact",
+      "rkaf:hasArtifactIdentifier": ["urn:rkaf:fixture:cmap:distribution:canonical"],
+      "rkaf:artifactIdentifierScheme": ["rkaf:partner-defined"],
+      "dcterms:format": "application/ld+json",
+      "rkaf:hasContentDigest": "sha256:2222222222222222222222222222222222222222222222222222222222222222"
+    },
+    {
+      "@id": "urn:rkaf:fixture:cmap:artifact:mapping-review",
+      "@type": "rkaf:Artifact",
+      "rkaf:hasArtifactIdentifier": ["urn:rkaf:fixture:cmap:artifact:mapping-review"],
+      "rkaf:artifactIdentifierScheme": ["rkaf:partner-defined"],
+      "rkaf:hasContentDigest": "sha256:7878787878787878787878787878787878787878787878787878787878787878"
+    },
+    {
+      "@id": "urn:rkaf:fixture:cmap:fragment:mapping-review",
+      "@type": "rkaf:SourceFragment",
+      "oa:hasSource": "urn:rkaf:fixture:cmap:artifact:mapping-review",
+      "oa:hasSelector": {
+        "@type": "oa:TextQuoteSelector",
+        "oa:exact": "Gross earned income is a close match for household income in this eligibility domain."
+      },
+      "rkaf:selectorKind": ["oa:TextQuoteSelector"],
+      "rkaf:fragmentContentDigest": "sha256:8989898989898989898989898989898989898989898989898989898989898989"
+    },
+    {
+      "@id": "urn:rkaf:fixture:cmap:income-closematch",
+      "@type": "rkaf:ConceptMapping",
+      "rkaf:assertionOrigin": "rkaf:humanAsserted",
+      "rkaf:epistemicBasis": "rkaf:editorialAssertion",
+      "rkaf:assertsSubject": "urn:rkaf:fixture:concept:tx-grossEarnedIncome",
+      "rkaf:assertsPredicate": "skos:closeMatch",
+      "rkaf:assertsObject": "urn:rkaf:fixture:concept:household-income",
+      "rkaf:assertionPolarity": "rkaf:affirmed",
+      "rkaf:sourceConceptRelease": "urn:rkaf:fixture:cmap:release:local",
+      "rkaf:targetConceptRelease": "urn:rkaf:fixture:cmap:release:canonical",
+      "rkaf:managedByRegistry": "urn:rkaf:fixture:registry:canonical-topics",
+      "rkaf:usageEligibility": "rkaf:localOperationalUse"
+    },
+    {
+      "@id": "urn:rkaf:fixture:cmap:evidence",
+      "@type": "rkaf:EvidenceBinding",
+      "rkaf:bindsAssertion": "urn:rkaf:fixture:cmap:income-closematch",
+      "rkaf:bindsSourceFragment": ["urn:rkaf:fixture:cmap:fragment:mapping-review"],
+      "rkaf:evidenceRole": "rkaf:mappingRationale",
+      "rkaf:evidentiaryFunction": "rkaf:supports"
+    },
+    {
+      "@id": "urn:rkaf:fixture:cmap:attestation",
+      "@type": "rkaf:Attestation",
+      "rkaf:attestor": "urn:rkaf:fixture:reviewer:concept-steward",
+      "rkaf:attestorKind": "rkaf:conceptMintingAuthority",
+      "rkaf:targets": ["urn:rkaf:fixture:cmap:income-closematch"],
+      "rkaf:decision": "rkaf:approved",
+      "rkaf:attestationScope": "urn:rkaf:registryPublication",
+      "rkaf:attestedAt": "2026-07-28T12:15:00Z"
+    }
+  ],
+  "_comment": "ConceptMapping is a canonical RelationshipAssertion. Release membership identifies published vocabulary content; the separate Attestation records review."
 }

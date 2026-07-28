@@ -1,0 +1,13 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@id": "urn:rkaf:fixture:release-negative:not-enumerated-with-member",
+  "@type": "rkaf:ReferenceResourceRelease",
+  "dcterms:isVersionOf": "urn:rkaf:fixture:resource:schema",
+  "dcat:version": "1.4",
+  "dcterms:type": "urn:rkaf:reference-resource-kind:schema",
+  "rkaf:membershipMode": "rkaf:membershipNotEnumerated",
+  "prov:hadMember": ["urn:rkaf:fixture:fake-member"],
+  "dcat:distribution": ["urn:rkaf:fixture:distribution:schema"],
+  "rkaf:referenceReleaseDigest": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+  "_comment": "Negative: membershipNotEnumerated forbids a misleading partial member list."
+}

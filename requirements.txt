@@ -1,18 +1,13 @@
 # Rulespec tooling requirements.
 #
-# Kept in sync with the `Install Python deps` step of
-# .github/workflows/constraints-parity.yml — a package in one and not the other
-# means a gate that passes locally and not on a PR, or the reverse.
+# Installed directly by the `Install Python deps` step of
+# .github/workflows/constraints-parity.yml so local and PR gates share this
+# single dependency list.
 
 pyshacl>=0.31.0
 rdflib>=7.0.0
 PyYAML>=6.0
 jsonschema>=4.23.0
-# A conforming JSON-LD 1.1 processor. No tool imports it yet; it is installed
-# because rdflib's JSON-LD serializer is what forces
-# `tools/test_semantic_carriers.py::TransformationStabilityTests::
-# test_every_blank_node_free_positive_fixture_survives_compaction` to skip
-# blank-node-bearing fixtures (it emits a blank-node object of an
-# `@type: @id`-coerced term as a bare `_:b0` with no node object). Closing that
-# caveat means compacting through pyld instead.
-pyld>=2.0.4
+# W3C implementation-report entry: 86/86 RDFC-1.0 tests. Version 1.0.0
+# requires Python 3.12, matching the constraints-parity CI job.
+rdfcanon==1.0.0

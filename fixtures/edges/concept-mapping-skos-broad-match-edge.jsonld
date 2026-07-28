@@ -1,10 +1,107 @@
 {
   "@context": "../../context/rkaf-context.jsonld",
-  "@id": "urn:rkaf:fixture:cm-broadmatch:m1",
-  "@type": "rkaf:ConceptMapping",
-  "rkaf:sourceConcept": "urn:rkaf:fixture:local-concept:tx-grossEarnedIncome",
-  "rkaf:targetConcept": "urn:rkaf:fixture:concept:household-income",
-  "rkaf:mappingRelation": "skos:broadMatch",
-  "rkaf:lifecycleState": "rkaf:proposed",
-  "_comment": "Edge: a CROSS-SCHEME alignment. SKOS separates in-scheme semantic relations (broader/narrower/related) from the mapping properties used between schemes (*Match); v0.2 adds broadMatch, narrowMatch, and relatedMatch so an alignment to an external thesaurus no longer has to borrow the in-scheme relation and misstate itself."
+  "@graph": [
+    {
+      "@id": "urn:rkaf:fixture:cm-broadmatch:source-release",
+      "@type": "rkaf:ReferenceResourceRelease",
+      "dcterms:isVersionOf": "urn:rkaf:fixture:registry:local-topics",
+      "dcat:version": "2026.07.28-local",
+      "dcterms:type": "skos:ConceptScheme",
+      "rkaf:membershipMode": "rkaf:completeMembership",
+      "prov:hadMember": [
+        "urn:rkaf:fixture:local-concept:tx-grossEarnedIncome"
+      ],
+      "dcat:distribution": [
+        "urn:rkaf:fixture:cm-broadmatch:source-distribution"
+      ],
+      "rkaf:referenceReleaseDigest": "sha256:ce8754d47b1876c729fbcaae5de606a8a14aa0a5a27798ceeeadbd99f6e89354"
+    },
+    {
+      "@id": "urn:rkaf:fixture:cm-broadmatch:target-release",
+      "@type": "rkaf:ReferenceResourceRelease",
+      "dcterms:isVersionOf": "urn:rkaf:fixture:registry:canonical-topics",
+      "dcat:version": "2026.07.28",
+      "dcterms:type": "skos:ConceptScheme",
+      "rkaf:membershipMode": "rkaf:completeMembership",
+      "prov:hadMember": [
+        "urn:rkaf:fixture:concept:household-income"
+      ],
+      "dcat:distribution": [
+        "urn:rkaf:fixture:cm-broadmatch:target-distribution"
+      ],
+      "rkaf:referenceReleaseDigest": "sha256:a263307569abcff3c2e6e3f41a6c53186bd71608d20d3239d8ddf4ad814407dd"
+    },
+    {
+      "@id": "urn:rkaf:fixture:cm-broadmatch:source-distribution",
+      "@type": "rkaf:Artifact",
+      "rkaf:hasArtifactIdentifier": [
+        "urn:rkaf:fixture:cm-broadmatch:source-distribution"
+      ],
+      "rkaf:artifactIdentifierScheme": [
+        "rkaf:partner-defined"
+      ],
+      "dcterms:format": "application/ld+json",
+      "rkaf:hasContentDigest": "sha256:3333333333333333333333333333333333333333333333333333333333333333"
+    },
+    {
+      "@id": "urn:rkaf:fixture:cm-broadmatch:target-distribution",
+      "@type": "rkaf:Artifact",
+      "rkaf:hasArtifactIdentifier": [
+        "urn:rkaf:fixture:cm-broadmatch:target-distribution"
+      ],
+      "rkaf:artifactIdentifierScheme": [
+        "rkaf:partner-defined"
+      ],
+      "dcterms:format": "application/ld+json",
+      "rkaf:hasContentDigest": "sha256:4444444444444444444444444444444444444444444444444444444444444444"
+    },
+    {
+      "@id": "urn:rkaf:fixture:cm-broadmatch:review-artifact",
+      "@type": "rkaf:Artifact",
+      "rkaf:hasArtifactIdentifier": [
+        "urn:rkaf:fixture:cm-broadmatch:review-artifact"
+      ],
+      "rkaf:artifactIdentifierScheme": [
+        "rkaf:partner-defined"
+      ],
+      "rkaf:hasContentDigest": "sha256:5555555555555555555555555555555555555555555555555555555555555555"
+    },
+    {
+      "@id": "urn:rkaf:fixture:cm-broadmatch:review-fragment",
+      "@type": "rkaf:SourceFragment",
+      "oa:hasSource": "urn:rkaf:fixture:cm-broadmatch:review-artifact",
+      "oa:hasSelector": {
+        "@type": "oa:TextQuoteSelector",
+        "oa:exact": "Gross earned income is narrower in meaning than household income."
+      },
+      "rkaf:selectorKind": [
+        "oa:TextQuoteSelector"
+      ],
+      "rkaf:sourceArtifactDigest": "sha256:5555555555555555555555555555555555555555555555555555555555555555",
+      "rkaf:fragmentContentDigest": "sha256:6666666666666666666666666666666666666666666666666666666666666666"
+    },
+    {
+      "@id": "urn:rkaf:fixture:cm-broadmatch:m1",
+      "@type": "rkaf:ConceptMapping",
+      "rkaf:assertionOrigin": "rkaf:humanAsserted",
+      "rkaf:epistemicBasis": "rkaf:editorialAssertion",
+      "rkaf:assertsSubject": "urn:rkaf:fixture:local-concept:tx-grossEarnedIncome",
+      "rkaf:assertsPredicate": "skos:broadMatch",
+      "rkaf:assertsObject": "urn:rkaf:fixture:concept:household-income",
+      "rkaf:assertionPolarity": "rkaf:affirmed",
+      "rkaf:sourceConceptRelease": "urn:rkaf:fixture:cm-broadmatch:source-release",
+      "rkaf:targetConceptRelease": "urn:rkaf:fixture:cm-broadmatch:target-release"
+    },
+    {
+      "@id": "urn:rkaf:fixture:cm-broadmatch:evidence",
+      "@type": "rkaf:EvidenceBinding",
+      "rkaf:bindsAssertion": "urn:rkaf:fixture:cm-broadmatch:m1",
+      "rkaf:bindsSourceFragment": [
+        "urn:rkaf:fixture:cm-broadmatch:review-fragment"
+      ],
+      "rkaf:evidenceRole": "rkaf:mappingRationale",
+      "rkaf:evidentiaryFunction": "rkaf:supports"
+    }
+  ],
+  "_comment": "Edge corpus: broadMatch is one of the five concrete SKOS cross-scheme mapping predicates, with exact release membership and inverse evidence."
 }

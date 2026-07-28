@@ -10,6 +10,7 @@
         "@id": "A",
         "@type": "rkaf:Assertion",
         "rkaf:assertionOrigin": "rkaf:humanAsserted",
+        "rkaf:epistemicBasis": "rkaf:editorialAssertion",
         "rkaf:consumerLifecycleState": "rkaf:staleForCurrentUse"
       },
       {

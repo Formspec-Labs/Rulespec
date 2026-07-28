@@ -32,8 +32,10 @@
       "rkaf:closureProfileVersion": "analysis-closure-experiment-v0",
       "rkaf:closureMemberDigest": "sha256:2c2c2c2c2c2c2c2c2c2c2c2c2c2c2c2c2c2c2c2c2c2c2c2c2c2c2c2c2c2c2c2c",
       "rkaf:assertionOrigin": "rkaf:aiSuggested",
+      "rkaf:epistemicBasis": "rkaf:statisticalInference",
       "rkaf:hasAILineage": "urn:rkaf:fixture:analysis:ccu:lineage:appendix-enumeration",
-      "rkaf:hasExtractionProvenance": "urn:rkaf:fixture:analysis:ccu:run:appendix-enumeration"
+      "rkaf:hasExtractionProvenance": "urn:rkaf:fixture:analysis:ccu:run:appendix-enumeration",
+      "rkaf:usageEligibility": "rkaf:reviewQueueOnly"
     }
   ],
   "_comment": "Edge, and the honest one. A model-suggested closure claim that nobody has reviewed: no rkaf:closureReviewedAt, and no rkaf:Attestation. Closure is local and revocable, so an unreviewed claim must be representable AS unreviewed rather than back-dated. It is still disabled — rkaf:closureClaimDisabled is the only legal status, and no finding may cite it."

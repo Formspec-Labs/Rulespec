@@ -3,9 +3,11 @@
   "@id": "urn:rkaf:fixture:relationship-assertion:ai-suggested-denial",
   "@type": "rkaf:RelationshipAssertion",
   "rkaf:assertionOrigin": "rkaf:aiSuggested",
+  "rkaf:epistemicBasis": "rkaf:statisticalInference",
   "rkaf:assertsSubject": "urn:rkaf:fixture:policy:emergency-amendment",
   "rkaf:assertsPredicate": "urn:rkaf:fixture:predicate:appliesTo",
   "rkaf:assertsObject": "urn:rkaf:fixture:group:airworthiness-resources",
   "rkaf:assertionPolarity": "rkaf:denied",
-  "rkaf:hasAILineage": "urn:rkaf:fixture:ai-lineage:relation-extraction"
+  "rkaf:hasAILineage": "urn:rkaf:fixture:ai-lineage:relation-extraction",
+  "rkaf:usageEligibility": "rkaf:reviewQueueOnly"
 }

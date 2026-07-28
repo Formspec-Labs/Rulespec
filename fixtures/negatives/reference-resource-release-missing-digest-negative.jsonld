@@ -1,0 +1,12 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@id": "urn:rkaf:fixture:release-negative:missing-digest",
+  "@type": "rkaf:ReferenceResourceRelease",
+  "dcterms:isVersionOf": "urn:rkaf:fixture:resource:topics",
+  "dcat:version": "2026.07.28",
+  "dcterms:type": "skos:ConceptScheme",
+  "rkaf:membershipMode": "rkaf:completeMembership",
+  "prov:hadMember": ["urn:rkaf:fixture:concept:income"],
+  "dcat:distribution": ["urn:rkaf:fixture:distribution:topics"],
+  "_comment": "Negative: every release semantic manifest requires referenceReleaseDigest."
+}

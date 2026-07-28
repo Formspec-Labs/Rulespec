@@ -1,0 +1,15 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@id": "urn:rkaf:fixture:value-assertion:invalid-language",
+  "@type": "rkaf:ValueAssertion",
+  "rkaf:assertionOrigin": "rkaf:humanAsserted",
+  "rkaf:epistemicBasis": "rkaf:sourceExplicit",
+  "rkaf:assertsSubject": "urn:rkaf:fixture:policy:income",
+  "rkaf:assertsPredicate": "skos:prefLabel",
+  "rkaf:assertsValue": {
+    "@value": "household income",
+      "@language": "en-abcdefghi"
+  },
+  "rkaf:assertionPolarity": "rkaf:affirmed",
+  "_comment": "Negative: @language must satisfy the BCP 47 structural grammar."
+}

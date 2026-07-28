@@ -56,14 +56,12 @@ fn assert_value_passes(name: &str, tc: &Value) {
     // the runtime raises a specific structural error (e.g. MalformedTestCase
     // on a dangling IRI). When present, evaluate_and_check MUST error with a
     // matching variant; an Ok verdict is a failure.
-    let expected_err = tc
-        .get("rkaf:expectedRuntimeError")
-        .and_then(Value::as_str);
+    let expected_err = tc.get("rkaf:expectedRuntimeError").and_then(Value::as_str);
     match (Runtime::evaluate_and_check(&tc), expected_err) {
         (Ok(_), None) => {}
-        (Ok(_), Some(want)) => panic!(
-            "fixture {name} expected runtime error {want:?} but got Ok verdict"
-        ),
+        (Ok(_), Some(want)) => {
+            panic!("fixture {name} expected runtime error {want:?} but got Ok verdict")
+        }
         // OutputMismatch precedence is deliberate: a fixture declaring
         // `rkaf:expectedRuntimeError = "rkaf:OutputMismatch"` is therefore
         // unreachable. OutputMismatch is always treated as an unexpected

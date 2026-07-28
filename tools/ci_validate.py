@@ -22,7 +22,22 @@ import json
 import sys
 from pathlib import Path
 
-from conformance_lib import ROOT, fixture_name, positive_fixture_paths, shacl_shape_paths
+try:
+    from conformance_lib import (
+        ROOT,
+        fixture_name,
+        positive_fixture_paths,
+        shacl_shape_paths,
+    )
+    from reference_release_digest import release_digest_errors
+except ModuleNotFoundError:  # Imported as `tools.ci_validate` by unit tests.
+    from tools.conformance_lib import (
+        ROOT,
+        fixture_name,
+        positive_fixture_paths,
+        shacl_shape_paths,
+    )
+    from tools.reference_release_digest import release_digest_errors
 
 MIN_PYSHACL = (0, 31, 0)
 
@@ -75,11 +90,12 @@ def validate_one(fixture_path, shapes_paths):
 
     SH = rdflib.Namespace("http://www.w3.org/ns/shacl#")
     violations = list(report_graph.subjects(rdflib.RDF.type, SH.ValidationResult))
+    digest_errors = release_digest_errors(data_graph)
 
     return {
-        "conforms": conforms,
+        "conforms": conforms and not digest_errors,
         "triples": len(data_graph),
-        "violations": len(violations),
+        "violations": len(violations) + len(digest_errors),
         "violations_detail": [
             {
                 "focus": str(report_graph.value(v, SH.focusNode)),
@@ -88,6 +104,15 @@ def validate_one(fixture_path, shapes_paths):
                 "message": str(report_graph.value(v, SH.resultMessage)),
             }
             for v in violations
+        ]
+        + [
+            {
+                "focus": None,
+                "path": "https://rulespec.org/ns/v1#referenceReleaseDigest",
+                "constraint": "ReferenceResourceReleaseDigestConstraint",
+                "message": message,
+            }
+            for message in digest_errors
         ],
     }
 
