@@ -1,0 +1,28 @@
+{
+  "@context": "../context/rkaf-context.jsonld",
+  "@graph": [
+    {
+      "@id": "urn:rkaf:fixture:relationship-assertion:parsed-citation",
+      "@type": "rkaf:RelationshipAssertion",
+      "rkaf:assertionOrigin": "rkaf:deterministicExtraction",
+      "rkaf:assertsSubject": "urn:rkaf:fixture:document:air-quality-notice",
+      "rkaf:assertsPredicate": "urn:rkaf:fixture:predicate:citesAuthority",
+      "rkaf:assertsObject": "urn:rkaf:fixture:citation:42-usc-7401",
+      "rkaf:assertionPolarity": "rkaf:affirmed",
+      "rkaf:hasExtractionProvenance": "urn:rkaf:fixture:extraction-activity:citation-parse-run",
+      "rkaf:assertedAt": "2026-07-28T09:00:00Z"
+    },
+    {
+      "@id": "urn:rkaf:fixture:extraction-activity:citation-parse-run",
+      "@type": "rkaf:ExtractionActivity",
+      "rkaf:extractionMethod": "rkaf:deterministicParse",
+      "rkaf:extractionRun": "urn:rkaf:fixture:run:citation-parse-0042",
+      "rkaf:extractedBy": "urn:rkaf:fixture:extractor:citation-parser",
+      "rkaf:extractorVersion": "1.4.2",
+      "rkaf:requestContractDigest": "sha256:4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865",
+      "rkaf:inputDigest": [
+        "sha256:4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865"
+      ]
+    }
+  ]
+}

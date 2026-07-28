@@ -43,7 +43,7 @@ rkaf:AssertionNonAITouchedNoLineageShape a sh:NodeShape ;
                  rkaf:humanQualified rkaf:humanRevalidation ) ] ]
     [ sh:property [ sh:path rkaf:hasAILineage ; sh:maxCount 0 ] ]
   ) ;
-  sh:message "Assertion with non-AI-touched assertionOrigin (humanAsserted / imported / reviewClassified / systemDerived) MUST NOT carry rkaf:hasAILineage (§3.5)." .
+  sh:message "Assertion with non-AI-touched assertionOrigin (humanAsserted / imported / deterministicExtraction) MUST NOT carry rkaf:hasAILineage (§3.5)." .
 
 # ---------------------------------------------------------------------------
 # §4.4 — Warrant family/kind agreement:

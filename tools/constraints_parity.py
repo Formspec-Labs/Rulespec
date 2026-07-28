@@ -295,6 +295,14 @@ FIXTURE_BINDINGS: list[tuple[str, str, str, str]] = [
      "fixtures/negatives/relationship-assertion-invalid-polarity-negative.jsonld", "FAIL"),
     ("relationship-assertion", "RelationshipAssertion",
      "fixtures/negatives/relationship-assertion-ai-missing-lineage-negative.jsonld", "FAIL"),
+    # Deterministic origin (Core §2.4). The pair is the whole point of the
+    # value: it claims mechanical reproducibility, so the run that reproduces
+    # it is REQUIRED rather than optional.
+    ("relationship-assertion", "RelationshipAssertion",
+     "fixtures/relationshipassertion-deterministic-origin-positive.jsonld", "PASS"),
+    ("relationship-assertion", "RelationshipAssertion",
+     "fixtures/negatives/relationship-assertion-deterministic-origin-without-provenance-negative.jsonld",
+     "FAIL"),
     # ValueAssertion — the typed-literal proposition form (Core §2.2). The
     # datatype rows are the ones that matter: they prove the JSON Schema
     # `@type` enum and the SHACL `sh:datatype` alternatives close over the SAME

@@ -9,6 +9,53 @@ adapted for a specification + shape + fixture project.
 
 ### Added
 
+- **`rkaf:deterministicExtraction`, a seventh `rkaf:assertionOrigin` value**
+  (Core §2.4, "Deterministic origin"). The v0.1 set had six values and none of
+  them meant "a deterministic parser or join produced this". A producer with
+  machine-derived records had exactly two honest-adjacent options and both were
+  wrong: `rkaf:aiSuggested` is false, and `rkaf:imported` says only that the
+  record came from somewhere else. The real method then had to hang off
+  `rkaf:hasExtractionProvenance`, which is OPTIONAL — so the one fact that
+  distinguished the record was droppable, and no gate would notice.
+
+  The value's meaning is narrow and stated: the record is a **mechanically
+  reproducible derivation, not an interpretive judgment**. Re-running the named
+  run over the same inputs MUST yield the same proposition, and nothing about
+  the record claims anyone read the source and decided anything.
+
+  `rkaf:hasExtractionProvenance` is REQUIRED when the origin is
+  `rkaf:deterministicExtraction`, on every compiled target — the same
+  conditional idiom the four AI-touched origins use for `rkaf:hasAILineage`,
+  emitted as a Pattern-C `sh:or` guard in SHACL, an `if`/`then` in JSON Schema,
+  and the generated Rust and TypeScript validators. A claim of reproducibility
+  that names no run is not one. The referenced activity's
+  `rkaf:extractionMethod` MUST be `rkaf:deterministicParse` or
+  `rkaf:ruleBasedExtraction`; that half is a producer obligation rather than a
+  mechanical check, because the activity may legally live in another document
+  and no shape can require agreement it cannot see (the same posture as §4.7.3
+  rule 3).
+
+  The value is NOT AI-touched: it carries no `rkaf:hasAILineage` requirement,
+  and the §3.5 inverse rule forbids lineage on it.
+  `shapes/rkaf-shapes-pattern-c.ttl`'s message named two values that have not
+  existed since v0.1 (`reviewClassified`, `systemDerived`) and is corrected in
+  the same change. `rkaf:imported` is unchanged and undeprecated — it remains
+  the right value for re-serializing another system's published records.
+
+  Coverage: one positive fixture (assertion plus the materialized
+  `rkaf:ExtractionActivity` it names), one negative (deterministic origin, no
+  provenance edge), two parity rows, and a `rkaf:assertionOrigin` entry in the
+  vocabulary's closed-enum list, which had none because the enum was inherited
+  wholesale from v0.1. Core §3 now records that this is the one inherited enum
+  v0.2 extends.
+
+  BREAKING under §3's reject-unrecognized-values rule: a consumer pinned to the
+  six-value set rejects the seventh. It lands before the first release for
+  exactly that reason.
+
+  Driven by consumer evidence: `../spicy-regs/docs/evidence/`
+  `single-document-rulespec-projection-2026-07-28/README.md`, findings G3 and
+  J1.
 - **Machine-legible scope carve-outs in the L0 conformance-file format** —
   `excluded_terms` and `excluded_tables` (Conformance §0.1, "Scope
   carve-outs"). `terms_used` said what a declaration COVERED; what it

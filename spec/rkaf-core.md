@@ -265,6 +265,42 @@ revocation marker. Minting a parallel approval record would create two places
 to look for the same fact. A reviewer approving an extraction records an
 `rkaf:Attestation` whose `rkaf:targets` includes the assertion IRI.
 
+**Deterministic origin.** `rkaf:assertionOrigin` gains one v0.2 value:
+`rkaf:deterministicExtraction`. It means the record was produced by a
+deterministic parser or join over identified inputs — a mechanically
+reproducible derivation, NOT an interpretive judgment. Re-running the named
+run over the same inputs MUST yield the same proposition; nothing about the
+record is a claim that anyone read the source and decided anything.
+
+The value is therefore not `rkaf:humanAsserted` with a machine in the loop, and
+it is not any AI-touched value: it carries no `rkaf:hasAILineage` requirement,
+and the §3.5 inverse rule applies to it — a deterministic-origin assertion MUST
+NOT carry `rkaf:hasAILineage`, because there is no model derivation to record.
+
+`rkaf:hasExtractionProvenance` is REQUIRED when the origin is
+`rkaf:deterministicExtraction`, and the requirement is mechanical on every
+compiled target. A claim of reproducibility that names no run is not one: the
+`rkaf:ExtractionActivity` is what carries the method, the run, the extractor,
+its version, and the input digests a consumer needs to reproduce the result.
+Without the requirement the method would sit on an optional edge that a
+provenance-stripping projection could drop with no gate noticing — which is
+exactly what happened when a producer with no deterministic value available
+claimed `rkaf:imported` and demoted its real method to that edge.
+
+The referenced activity's `rkaf:extractionMethod` MUST be
+`rkaf:deterministicParse` or `rkaf:ruleBasedExtraction`. This one is a producer
+obligation rather than a mechanical check, for the same reason §4.7.3 rule 3
+is: the activity may legally live in another document, so no shape can require
+agreement it cannot see. A record claiming a deterministic origin over a
+`rkaf:modelExtraction` or `rkaf:humanExtraction` run is non-conforming.
+
+`rkaf:imported` keeps its own meaning and is not deprecated: it says a record
+was re-serialized from another system's published records, which is a statement
+about where the record came from and not about how the proposition was derived.
+A producer re-publishing someone else's table uses `rkaf:imported`; a producer
+deriving propositions from source text or source tables by fixed rule uses
+`rkaf:deterministicExtraction`.
+
 **Derivation.** `prov:wasDerivedFrom` (0..*) records what a record was derived
 from. Its object is not a bare IRI: the declared range is `prov:Entity`
 (`constraints/semantics/l0-ranges.cue`), and every compiled shape that carries
@@ -325,6 +361,12 @@ The experimental US rulemaking module adds
 `rkaf:proceedingIdentifierScheme`, `rkaf:docketIdentifierScheme`, and
 `rkaf:proceedingStage`; see `spec/rkaf-rulemaking.md`. Their values follow the
 same release-bound closed-taxonomy discipline.
+
+`rkaf:assertionOrigin` is the one inherited enum v0.2 EXTENDS. It gains
+`rkaf:deterministicExtraction` (§2.4) and loses nothing; the six v0.1 values
+keep their meanings. The addition is breaking for consumers under §3's
+reject-unrecognized-values rule, which is why it lands before the first
+release rather than after it.
 
 The closed enums inherited from v0.1 retain their definitions: `rkaf:assertionOrigin`, `rkaf:hasSafetyLabel`, `rkaf:hasTrustZone`, `rkaf:usageEligibility`, `rkaf:authorityKind`, `rkaf:adoptionAuthorityKind`, `rkaf:adoptionStatus`, `rkaf:result`, `rkaf:resolutionStatus`, `rkaf:resolutionMethod`, `rkaf:cacheStatus`, `rkaf:usageCeiling`, `rkaf:cascadeAlgorithm`, `rkaf:evidenceRole`, `rkaf:severity`, `rkaf:decision`, `rkaf:visibility`, `rkaf:lifecycleEvent`.
 

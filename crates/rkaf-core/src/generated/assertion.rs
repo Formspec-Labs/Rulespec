@@ -25,6 +25,9 @@ pub enum AssertionOrigin {
     /// Wire value `rkaf:imported`.
     #[serde(rename = "rkaf:imported")]
     Imported,
+    /// Wire value `rkaf:deterministicExtraction`.
+    #[serde(rename = "rkaf:deterministicExtraction")]
+    DeterministicExtraction,
 }
 
 /// Closed Rulespec values for `AssertionOriginAITouched`.

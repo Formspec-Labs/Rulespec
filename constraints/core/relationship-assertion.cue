@@ -66,4 +66,10 @@ package rkaf
 	if assertion["rkaf:assertionOrigin"] == "rkaf:humanRevalidation" {
 		"rkaf:hasAILineage": string & =~"^[A-Za-z][A-Za-z0-9+.-]*:[^\\s]+$"
 	}
+
+	// Same narrowing for the envelope's deterministic-origin conditional
+	// (§2.4): the required ExtractionActivity must be named by an IRI.
+	if assertion["rkaf:assertionOrigin"] == "rkaf:deterministicExtraction" {
+		"rkaf:hasExtractionProvenance": string & =~"^[A-Za-z][A-Za-z0-9+.-]*:[^\\s]+$"
+	}
 }

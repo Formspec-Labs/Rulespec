@@ -1,8 +1,15 @@
 package rkaf
 
 // Closed enum (preserved from v0.1, see Core v0.1 §3 assertionOrigin).
+// v0.2 adds ONE value: `rkaf:deterministicExtraction`, for a record a
+// deterministic parser or join produced. The v0.1 set had no such value, so a
+// mechanically derived record had to claim `rkaf:imported` — which says only
+// that the record came from somewhere else — while the method that actually
+// produced it hung off an OPTIONAL edge nothing required. See Core §2.4,
+// "Deterministic origin".
 #AssertionOrigin: "rkaf:humanAsserted" | "rkaf:aiSuggested" | "rkaf:aiPromoted" |
-	"rkaf:humanQualified" | "rkaf:humanRevalidation" | "rkaf:imported"
+	"rkaf:humanQualified" | "rkaf:humanRevalidation" | "rkaf:imported" |
+	"rkaf:deterministicExtraction"
 
 // AI-touched origins; assertions with these MUST carry hasAILineage (§5.3).
 #AssertionOriginAITouched: "rkaf:aiSuggested" | "rkaf:aiPromoted" |
@@ -74,6 +81,15 @@ package rkaf
 	}
 	if envelope["rkaf:assertionOrigin"] == "rkaf:humanRevalidation" {
 		"rkaf:hasAILineage": string
+	}
+	// A deterministic origin REQUIRES hasExtractionProvenance (§2.4). The
+	// value claims the record is mechanically reproducible, and a claim of
+	// reproducibility that names no run is not one: without the edge the
+	// method is droppable and no gate notices, which is exactly the seam that
+	// forced a real consumer to demote its parse method to an optional edge
+	// under `rkaf:imported`.
+	if envelope["rkaf:assertionOrigin"] == "rkaf:deterministicExtraction" {
+		"rkaf:hasExtractionProvenance": string
 	}
 	"rkaf:hasApplicability"?:   string // IRI of an ApplicabilityScope
 	"rkaf:hasJustification"?:   string // IRI of a Justification

@@ -266,6 +266,27 @@ are batched into one revision rather than deferred into compatibility debt.
       names only the two profile domains, so the kernel assertion envelope's
       use of the edge has no vocabulary row. Fixing that means restructuring
       the universal-primitives table, which is a separate change.
+- [x] G3 / J1 — `#AssertionOrigin` has no value for a record a deterministic
+      parser or join produced, so the projection claimed `rkaf:imported` and
+      demoted its real method to an optional edge.
+      Done 2026-07-28: `rkaf:deterministicExtraction` added to the closed enum
+      (Core §2.4 "Deterministic origin", §3, vocabulary closed-enum list). It
+      means a mechanically reproducible derivation, not an interpretive
+      judgment, and it REQUIRES `rkaf:hasExtractionProvenance` on every
+      compiled target — the same conditional idiom the AI-touched origins use
+      for `rkaf:hasAILineage` — so the seam J1 named is closed: the method is
+      no longer droppable. The referenced activity's `rkaf:extractionMethod`
+      MUST be `rkaf:deterministicParse` or `rkaf:ruleBasedExtraction`; that
+      half is a producer obligation, not a mechanical check, because the
+      activity may live in another document. `rkaf:imported` is unchanged and
+      undeprecated. Coverage: 1 positive, 1 negative, 2 parity rows; the stale
+      `reviewClassified`/`systemDerived` names in
+      `shapes/rkaf-shapes-pattern-c.ttl`'s message were corrected en route.
+      Contract digest MOVED
+      `sha256:50929102…` -> `sha256:162eb506edf161b47683bdbae2d76e2853f04d5d38758b6890fe566f43f30d17`.
+      `make test` exit 0 — 154 cargo tests, 185 Python unit tests, 428
+      conformance fixtures, 0 divergences.
+      BREAKING under §3's reject-unrecognized-values rule.
 - [x] G6 — `rkaf:attestedAt`, `rkaf:revokedAt`, and `rkaf:rationale` have no
       context terms, so attestation timestamps expand as plain strings while
       `rkaf:assertedAt` expands as `xsd:dateTime`.
