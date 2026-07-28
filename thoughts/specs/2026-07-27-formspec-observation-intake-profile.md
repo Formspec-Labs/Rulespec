@@ -1,7 +1,10 @@
 # RS-P1: Observation intake profile — a documented Observation→Assertion mapping
 
 - **Date:** 2026-07-27
-- **Status:** Proposed — awaiting Rulespec maintainer decision
+- **Status:** Proposed — awaiting Rulespec maintainer decision. Its dependency
+  is satisfied: RS-P6 landed 2026-07-28 in `56df3df`, so the promotion mapping
+  no longer has a hole where a hypothesis Need would sit. RS-P3 landed in
+  `c283d94`. This one is deliberately still open.
 - **Origin:** Formspec Needs Specification, Appendix C proposal RS-P1
   (`formspec-stack/formspec/specs/needs/needs-spec.md`)
 - **Consumers:** Rulespec, Formspec

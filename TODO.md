@@ -416,7 +416,8 @@ charter cost, and the open questions the maintainer owns.
   **Done when:** the enum value is declared, one positive fixture cites a
   product Need as evidence subject, and one negative fixture rejects a mutable
   URL carried without the scheme tag.
-  Done 2026-07-28: all three criteria met, with one correction to the third.
+  Done 2026-07-28 in `c283d94`: all three criteria met, with one correction
+  to the third.
   The enum is now 13 values (Core §4.1 "Formspec Need identity", vocabulary
   closed-enum list). The kernel closes the VALUE SET but NOT a grammar over
   it: `rkaf:hasArtifactIdentifier` and `rkaf:artifactIdentifierScheme` are
@@ -443,7 +444,8 @@ charter cost, and the open questions the maintainer owns.
   as written) or `rkaf:usageEligibility` (as Formspec proposed).
   **Done when:** the enum value, its shape constraint, and positive/negative
   fixtures land per the §10 validation contract.
-  Done 2026-07-28, with the shape constraint OPEN — see the follow-up below.
+  Done 2026-07-28 in `56df3df`, with the shape constraint OPEN — see the
+  follow-up below.
   Cap decision: **`rkaf:usageEligibility`**. §4.3's safety-label rule GRANTS
   operational validity and does not bound it, so routing the cap through it
   could only work by never permitting the value under any label — binary

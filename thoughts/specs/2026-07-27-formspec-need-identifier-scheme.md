@@ -1,7 +1,8 @@
 # RS-P3: Register a `rkaf:formspec-need` artifact-identifier scheme
 
 - **Date:** 2026-07-27
-- **Status:** Proposed — awaiting Rulespec maintainer decision
+- **Status:** **ACCEPTED and landed 2026-07-28 in `c283d94`.** See "Resolution"
+  at the foot of this document for what changed against the text below.
 - **Origin:** Formspec Needs Specification, Appendix C proposal RS-P3
   (`formspec-stack/formspec/specs/needs/needs-spec.md`)
 - **Consumers:** Rulespec, Formspec
@@ -87,3 +88,44 @@ without a Rulespec change, and Formspec's own citation direction already works.
   follow-through" section already carries an open decision on how to cut the
   next release. This enum value should join that decision rather than force its
   own tag.
+
+## Resolution — landed 2026-07-28 (`c283d94`)
+
+Accepted. `rkaf:formspec-need` is the thirteenth value of the closed
+`rkaf:artifactIdentifierScheme` enum. All three acceptance criteria are met,
+with one correction to the third.
+
+Two places where this document and the contract had drifted, both resolved in
+the contract's favour:
+
+**No per-scheme grammar.** This document reads as though the scheme tag could
+carry a checkable `<docUrl>#<needId>[@<revision>]` grammar the way `rkaf:us-cfr`
+and its five siblings do. It cannot. Those live in the US rulemaking profile,
+where `rkaf:hasRegulatoryIdentifier` and `rkaf:regulatoryIdentifierScheme` are
+both SCALAR, so a conditional keyed on the scheme can close a pattern over the
+identifier. The kernel pair is 1..* / 1..*: no positional correspondence
+exists, and closing a pattern over the identifier list would force every
+co-declared identifier on a multi-scheme Artifact to match the Needs grammar.
+The kernel therefore closes the VALUE SET and not a grammar over it.
+
+**The negative fails on the missing declaration, not on mutability.** The
+acceptance criterion says "a mutable URL carried without the scheme tag is
+rejected", which reads as if mutability were detectable. §4.1's
+immutable-edition rule has never been mechanically checked for ANY scheme —
+there is no fixture rejecting an eCFR URL either. What the gate catches is the
+absent `rkaf:artifactIdentifierScheme`, which is REQUIRED (1..*). A producer
+asserting the tag over a bare Needs Document URL is non-conforming, but as a
+producer obligation in the posture of §4.7.3 rule 3 and §2.4's
+`rkaf:extractionMethod` agreement. §4.1 now says both things outright.
+
+The open question on fragment grammar is answered by the above: the
+`@<revision>` suffix is carried as a producer-side convention inside the
+identifier string, and no `rkaf:hasArtifactVersion`-style property was minted.
+The release-shape question is unchanged and still rides the open
+"decide the release shape" item in TODO.md.
+
+Coverage: `fixtures/artifact-formspec-need-positive.jsonld`,
+`fixtures/negatives/artifact-formspec-need-without-scheme-negative.jsonld`,
+two rows in `tools/constraints_parity.py`, and a
+`rkaf:ArtifactIdentifierScheme` entry in the vocabulary's closed-enum list.
+Contract digest moved `sha256:7d45dcd2…` -> `sha256:8166af8a…`.
