@@ -240,6 +240,41 @@ repo-internal preference.
       `sha256:5aaac340…` — the declaration format is not part of the CUE,
       context, or range-registry contract.
 
+## Single-document projection findings (Spicy Regs)
+
+Consumer evidence: `../spicy-regs/docs/evidence/`
+`single-document-rulespec-projection-2026-07-28/README.md` (spicy-regs
+`3b48d00`) — one real Federal Register document (FSIS 2026-03227, 91 FR 7926)
+hand-authored end to end as a complete RKAF object and driven through this
+repo's own L1/L2/L3 gates. Its "Judgment calls" and "What the contract could
+not express" sections carry the six findings below, each with its cite.
+RULE-005 is satisfied: every item names a consumer finding, not a repo-internal
+preference. The contract is unreleased with one consumer, so the breaking items
+are batched into one revision rather than deferred into compatibility debt.
+
+- [x] G6 — `rkaf:attestedAt`, `rkaf:revokedAt`, and `rkaf:rationale` have no
+      context terms, so attestation timestamps expand as plain strings while
+      `rkaf:assertedAt` expands as `xsd:dateTime`.
+      Done 2026-07-28: the sweep found the defect is not three terms but ten.
+      Every property annotated `// xsd:dateTime` in the CUE now carries that
+      coercion in `context/rkaf-context.jsonld` — `attestedAt`, `revokedAt`,
+      `adoptedAt`, `openedAt`, `closedAt`, `declaredAt`, `resolvedAt`,
+      `validatedAt`, `retroactiveFrom`, `sunsetAt` — and `rkaf:rationale` is
+      declared `xsd:string`. The convention `context/README.md` listed as
+      ungated is a gate:
+      `TypedValueCarrierTests::test_every_xsd_annotated_term_carries_that_datatype_in_the_context`
+      reads the annotation off the source and requires the coercion; it
+      reported exactly these ten before the fix. No term added since the
+      tabular-attestation change `b613ba3` is missing — `bc88c02`'s
+      `rkaf:assignmentEvidenceScheme` was declared with it. The remaining 20
+      unentered CUE property terms are reference- and string-valued and stay
+      under the by-hand convention; `@id` coercion changes what a value MEANS
+      and is not a sweep-safe edit. Contract digest MOVED
+      `sha256:5aaac340…` -> `sha256:50929102ff3cf8e047fa116dbd67f99790e0b2f6cdbb82fb12c05cc8ff15eeca`;
+      `make compile` re-pinned the conformance example and the corpus
+      manifest. `make test` exit 0 — 154 cargo tests, 185 Python unit tests,
+      426 conformance fixtures, 0 divergences.
+
 ## Rust SDK (Layer 5) — umbrella crate
 
 Registry client + federation are blocked on Plan 4. The ~80% below is buildable today from existing ingredients.

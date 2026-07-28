@@ -559,6 +559,49 @@ class TypedValueCarrierTests(unittest.TestCase):
             "coercion in context/rkaf-context.jsonld",
         )
 
+    def test_every_xsd_annotated_term_carries_that_datatype_in_the_context(self) -> None:
+        """The temporal half of the same failure, and it was live.
+
+        A property the CUE declares as `string` and annotates `// xsd:dateTime`
+        is a timestamp in every surface that reads the source, but the wire is
+        decided by `context/rkaf-context.jsonld` alone: with no coercion the
+        value expands to a plain literal, and nothing downstream objects
+        because the compiled SHACL for these terms checks cardinality, not
+        datatype. Ten terms were in that state — `rkaf:attestedAt` among them —
+        so an attestation time arrived untyped while `rkaf:assertedAt`, the
+        same temporal semantics one record away, arrived as `xsd:dateTime`.
+        `context/README.md` listed this as an ungated convention; it is a gate
+        now.
+        """
+        context = _context()
+        annotated = re.compile(
+            r'^\s*"(rkaf:[A-Za-z]+)"\??:\s*[^/\n]*//\s*(xsd:[A-Za-z]+)'
+        )
+        checked = 0
+        wrong: list[str] = []
+        for path in sorted((ROOT / "constraints").rglob("*.cue")):
+            for line in path.read_text().splitlines():
+                match = annotated.match(line)
+                if not match:
+                    continue
+                term, datatype = match.group(1), match.group(2)
+                checked += 1
+                entry = context.get(term)
+                declared = entry.get("@type") if isinstance(entry, dict) else None
+                if declared != datatype:
+                    wrong.append(
+                        f"{term} (in {path.relative_to(ROOT)}) is annotated "
+                        f"{datatype} and the context declares {declared!r}"
+                    )
+        self.assertGreater(checked, 20, "the annotation scan must actually run")
+        self.assertEqual(
+            [], sorted(set(wrong)),
+            "every property the CUE annotates with an XSD datatype MUST carry "
+            "that same datatype in context/rkaf-context.jsonld — the "
+            "annotation is the declared meaning and the context is the only "
+            "thing that puts it on the wire",
+        )
+
 
 # ── 4. transformations ────────────────────────────────────────────────────
 

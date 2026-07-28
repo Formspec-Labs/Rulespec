@@ -425,6 +425,35 @@ adapted for a specification + shape + fixture project.
 
 ### Changed
 
+- **Ten temporal terms now expand as `xsd:dateTime` instead of as plain
+  strings** (`context/rkaf-context.jsonld`). `rkaf:attestedAt`,
+  `rkaf:revokedAt`, `rkaf:adoptedAt`, `rkaf:openedAt`, `rkaf:closedAt`,
+  `rkaf:declaredAt`, `rkaf:resolvedAt`, `rkaf:validatedAt`,
+  `rkaf:retroactiveFrom`, and `rkaf:sunsetAt` are all declared `// xsd:dateTime`
+  in their CUE shapes and had no term definition in the context at all, so the
+  declared datatype never reached the wire. An `rkaf:Attestation`'s time
+  arrived as an untyped literal while `rkaf:assertedAt` — one record away, the
+  same temporal semantics — arrived typed, and nothing objected: the compiled
+  attestation shape checks cardinality, not datatype
+  (`compiled/shacl/core/attestation.ttl`). `rkaf:rationale` joins them as
+  `xsd:string`, matching `rkaf:claimantText` and the other free-text terms.
+
+  `context/README.md` had listed the datatype convention as *not gated* and
+  named these ten as the standing deviations. It is a gate now:
+  `TypedValueCarrierTests::test_every_xsd_annotated_term_carries_that_datatype_in_the_context`
+  reads the `// xsd:…` annotation off every `constraints/**/*.cue` declaration
+  and requires the matching coercion, so an annotated term cannot lose its
+  datatype again. The remaining 20 CUE property terms with no context entry are
+  reference- and string-valued and stay under the by-hand convention; adding
+  `@id` coercions to them would change what their values MEAN on the wire and
+  belongs to whichever change re-authors those shapes.
+
+  BREAKING for a consumer that string-matched these values out of expanded RDF:
+  they now arrive as typed literals. No producer change is required — the
+  lexical form is untouched, and every in-tree fixture round-trips unchanged.
+
+  Driven by consumer evidence: `../spicy-regs/docs/evidence/`
+  `single-document-rulespec-projection-2026-07-28/README.md`, finding G6.
 - **`enum_map` now covers closed enums registered with `@type: @id`**
   (`tools/l0_mapping_audit.py`, Conformance §0.1). The audit accepted
   `enum_map` only on `value_kind: vocab`, which left `rkaf:decision` and

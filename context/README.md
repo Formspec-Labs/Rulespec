@@ -24,7 +24,8 @@ frozen v0.1.1 package. It is not loaded by any active gate.
 
 ## Rules this file MUST follow — audited
 
-Two rules are enforced by a gate. Breaking either fails `make test-audits`.
+Three rules are enforced by a gate. Breaking any of them fails
+`make test-audits`.
 
 1. **Every CUE-bound class carries a term definition** with `{"@type": "@id"}`.
    A class is CUE-bound when a shape in `constraints/` declares
@@ -51,25 +52,34 @@ Two rules are enforced by a gate. Breaking either fails `make test-audits`.
    checks it across every kernel, analysis, and profile source. This one IS
    about the wire: dropping a coercion changes validation verdicts.
 
+3. **Every property the CUE annotates with an XSD datatype carries that same
+   datatype here** (`xsd:string` for `sha256:`-prefixed digests,
+   `xsd:dateTime` / `xsd:date` for times), so the value survives an
+   expand/compact round trip as a typed literal rather than a bare string.
+   `tools/test_semantic_carriers.py::TypedValueCarrierTests::test_every_xsd_annotated_term_carries_that_datatype_in_the_context`
+   reads the `// xsd:…` annotation off each `constraints/**/*.cue` declaration
+   and requires the matching coercion. This one is about the wire too, and the
+   failure it caught was silent: ten temporal terms — `rkaf:attestedAt`,
+   `rkaf:revokedAt`, `rkaf:adoptedAt`, `rkaf:openedAt`, `rkaf:closedAt`,
+   `rkaf:declaredAt`, `rkaf:resolvedAt`, `rkaf:validatedAt`,
+   `rkaf:retroactiveFrom`, and `rkaf:sunsetAt` — had no entry at all, so an
+   attestation timestamp expanded to a plain string while `rkaf:assertedAt`,
+   one record away and carrying the same temporal semantics, expanded to
+   `xsd:dateTime`. The compiled shapes for those terms check cardinality, not
+   datatype, so nothing objected.
+
 ## Conventions — not gated
 
-The two below are conventions the file follows by hand. No gate enforces them,
-and roughly 32 of the 295 CUE property terms currently have no entry here at
-all. Adding a term that follows them is right; a term that does not will not be
-caught by CI, so it has to be caught in review.
+The one below is a convention the file follows by hand. No gate enforces it,
+and 20 of the 296 CUE property terms currently have no entry here at all.
+Adding a term that follows it is right; a term that does not will not be caught
+by CI, so it has to be caught in review.
 
-3. **Reference-valued properties carry `@type: @id`**, and repeatable ones add
+4. **Reference-valued properties carry `@type: @id`**, and repeatable ones add
    `"@container": "@set"` so a single value and a one-element array expand
    identically. A reference-valued term with no entry expands as a string
    literal, which nothing downstream flags unless the property also carries a
    declared class range in a `constraints/**/semantics/l0-ranges.cue`.
-
-4. **Digest and timestamp properties carry their XSD datatype**
-   (`xsd:string` for `sha256:`-prefixed digests, `xsd:dateTime` /`xsd:date` for
-   times) so the value survives an expand/compact round-trip as a typed
-   literal rather than a bare string. Ten timestamp terms (`rkaf:attestedAt`,
-   `rkaf:revokedAt`, `rkaf:adoptedAt`, and seven more) are the current
-   deviations.
 
 ## Hosting (planned)
 
