@@ -312,6 +312,23 @@ are batched into one revision rather than deferred into compatibility debt.
       `sha256:162eb506…` -> `sha256:6b957d68cf91f3bf6d95979debdbf3205ab592bdd0a346a197d173352f23d636`.
       `make test` exit 0 — 154 cargo tests, 186 Python unit tests, 429
       conformance fixtures, 0 divergences.
+- [x] G2 / J4 — no document→docket predicate; the only docket edge hangs off
+      `Proceeding`, so a producer with dockets and no proceedings model cannot
+      express an FR-native fact.
+      Done 2026-07-28: `rkaf:publishedInDocket` (domain `rkaf:Artifact`, range
+      `rkaf:Docket`, 0..*) added to the US rulemaking profile and registered in
+      its `l0-ranges.cue`, so the compiled SHACL carries `sh:class
+      rkaf:Docket`. New rulemaking §5.3 states how it relates to the
+      Proceeding-scoped `rkaf:hasDocket`: independent, not substitutes; neither
+      implies the other; a consumer MUST NOT infer either from the other; and
+      §3.2's rule that docket membership never establishes proceeding identity
+      is unchanged. Purely additive — no existing document changes verdict.
+      Coverage: 1 positive with a parity row, 1 class-range negative gated via
+      `tools/validate_negatives.py` (the route every `sh:class` negative takes,
+      since JSON Schema cannot follow a reference). Contract digest MOVED
+      `sha256:6b957d68…` -> `sha256:7d45dcd2f5ff6391b185fd98099740b34d3b6cac8ed66c99196e6ac368806553`.
+      `make test` exit 0 — 154 cargo tests, 186 Python unit tests, 431
+      conformance fixtures, 0 divergences.
 - [x] G6 — `rkaf:attestedAt`, `rkaf:revokedAt`, and `rkaf:rationale` have no
       context terms, so attestation timestamps expand as plain strings while
       `rkaf:assertedAt` expands as `xsd:dateTime`.

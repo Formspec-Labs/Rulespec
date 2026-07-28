@@ -42,6 +42,10 @@
       "@type": "@id",
       "@container": "@set"
     },
+    "rkaf:publishedInDocket": {
+      "@type": "@id",
+      "@container": "@set"
+    },
     "dcterms:hasFormat": {
       "@type": "@id",
       "@container": "@set"

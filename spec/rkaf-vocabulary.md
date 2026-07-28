@@ -224,6 +224,7 @@ These terms are defined by `spec/rkaf-rulemaking.md` and codified under `constra
 | rkaf:proceedingProduces | https://rulespec.org/ns/v1#proceedingProduces | Property | rkaf:Proceeding | rkaf:Artifact | 0..* | proceeding-partner-positive |
 | rkaf:proceedingSupersedes | https://rulespec.org/ns/v1#proceedingSupersedes | Property | rkaf:Proceeding | rkaf:Proceeding | 0..* | proceeding-continuity-positive |
 | rkaf:publishedInProceeding | https://rulespec.org/ns/v1#publishedInProceeding | Property | rkaf:Artifact | rkaf:Proceeding | 0..* | artifact-us-frdoc-positive |
+| rkaf:publishedInDocket | https://rulespec.org/ns/v1#publishedInDocket | Property | rkaf:Artifact | rkaf:Docket | 0..* | artifact-published-in-docket-positive |
 | rkaf:commentPeriodFor | https://rulespec.org/ns/v1#commentPeriodFor | Property | rkaf:CommentPeriod | rkaf:Proceeding | 0..*; at least one Proceeding or Docket anchor | commentperiod-positive |
 | rkaf:commentPeriodDocket | https://rulespec.org/ns/v1#commentPeriodDocket | Property | rkaf:CommentPeriod | rkaf:Docket | 0..*; at least one Proceeding or Docket anchor | commentperiod-docket-only-positive |
 | rkaf:commentPeriodOpenedBy | https://rulespec.org/ns/v1#commentPeriodOpenedBy | Property | rkaf:CommentPeriod | rkaf:Artifact | 0..* | commentperiod-positive |

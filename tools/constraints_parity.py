@@ -149,6 +149,12 @@ FIXTURE_BINDINGS: list[tuple[str, str, str, str]] = [
     ("us-regulatory-artifact", "USRegulatoryArtifact", "fixtures/artifact-us-pl-positive.jsonld", "PASS"),
     ("us-regulatory-artifact", "USRegulatoryArtifact", "fixtures/artifact-us-eo-positive.jsonld", "PASS"),
     ("us-regulatory-artifact", "USRegulatoryArtifact", "fixtures/artifact-cross-posting-positive.jsonld", "PASS"),
+    # Document -> Docket, direct (rulemaking §5.3). No parity row for its
+    # class-range negative
+    # (artifact-published-in-docket-wrong-class-negative) for the reason
+    # recorded below: `sh:class` follows a reference and JSON Schema cannot,
+    # so tools/validate_negatives.py gates it against the full shape suite.
+    ("us-regulatory-artifact", "USRegulatoryArtifact", "fixtures/artifact-published-in-docket-positive.jsonld", "PASS"),
     ("us-regulatory-artifact", "USRegulatoryArtifact", "fixtures/negatives/artifact-regulatory-identifier-missing-scheme-negative.jsonld", "FAIL"),
     ("us-regulatory-artifact", "USRegulatoryArtifact", "fixtures/negatives/artifact-regulatory-scheme-missing-identifier-negative.jsonld", "FAIL"),
     ("us-regulatory-artifact", "USRegulatoryArtifact", "fixtures/negatives/artifact-us-cfr-malformed-negative.jsonld", "FAIL"),

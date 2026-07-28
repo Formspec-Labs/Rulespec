@@ -74,6 +74,9 @@ pub struct USRegulatoryArtifact {
     /// JSON-LD property `rkaf:publishedInProceeding`.
     #[serde(rename = "rkaf:publishedInProceeding", skip_serializing_if = "Option::is_none", default)]
     pub published_in_proceeding: Option<crate::OneOrMany<String>>,
+    /// JSON-LD property `rkaf:publishedInDocket`.
+    #[serde(rename = "rkaf:publishedInDocket", skip_serializing_if = "Option::is_none", default)]
+    pub published_in_docket: Option<crate::OneOrMany<String>>,
     /// Additional JSON-LD properties preserved during round trips.
     #[serde(flatten)]
     pub extra: BTreeMap<String, serde_json::Value>,

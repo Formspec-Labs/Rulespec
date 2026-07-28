@@ -220,8 +220,9 @@ Federal Register documents remain ordinary `rkaf:Artifact` nodes.
 `rkaf:hasArtifactIdentifier` identifies the immutable publication, normally
 with its permanent federalregister.gov document URL, while
 `rkaf:hasRegulatoryIdentifier` may carry the normalized `rkaf:us-frdoc`
-identifier. `rkaf:publishedInProceeding` links an Artifact to one or more
-Proceedings.
+identifier. `rkaf:publishedInProceeding` (0..*) links an Artifact to one or
+more Proceedings, and `rkaf:publishedInDocket` (0..*) links it to one or more
+Dockets. Both are optional; absence means unknown, never "no such membership".
 
 The `rkaf:us-frdoc` grammar is deliberately strict. If an official source
 document number does not match `YYYY-NNNNN`, the Artifact MUST still use its
@@ -333,6 +334,38 @@ reason: a Proceeding is a rulemaking construct, so a universal Artifact cannot
 own a relation into it. Its range is `rkaf:Proceeding`, declared in
 `constraints/profiles/us-rulemaking/semantics/l0-ranges.cue`.
 
+
+### 5.3 Document-to-docket membership
+
+`rkaf:publishedInDocket` (0..*, domain `rkaf:Artifact`, range `rkaf:Docket`)
+states that a published document belongs to a docket. Federal Register metadata
+says this outright — an FR document record carries its docket identifiers — so
+it is a source-native fact, not a derivation.
+
+It is NOT a restatement of `rkaf:hasDocket` (§3), and neither edge implies the
+other. `rkaf:hasDocket` is Proceeding → Docket: which administrative containers
+a proceeding's activity lives in. `rkaf:publishedInDocket` is Artifact →
+Docket: which container THIS publication was filed under. A proceeding may span
+dockets that a given one of its documents is not filed in, and a docket
+routinely holds documents from several proceedings (§3.2). A consumer MUST NOT
+infer either edge from the other, and MUST NOT infer a Proceeding from a shared
+docket: docket membership never establishes proceeding identity, and that rule
+is unchanged by this predicate.
+
+The term exists because the composed path was not available to every producer.
+Before it, the only way to say "this document belongs to docket X" was to route
+through a Proceeding — assert `rkaf:publishedInProceeding` and let the
+Proceeding assert `rkaf:hasDocket` — which requires modelling proceedings at
+all. A producer holding a documents table and a dockets table and no
+proceedings model could not express a fact its source states directly, and its
+only alternatives were to mint a surrogate Proceeding it had no evidence for or
+to drop the fact. Both are worse than a direct edge.
+
+A producer that has all three facts MAY emit all three edges; they are
+independent statements and none is redundant given the others. A producer
+emitting `rkaf:publishedInDocket` MUST NOT mint the Docket node from the
+document alone: a Docket carries its own required identity (§3.2), and an edge
+to a container with no `rkaf:hasDocketIdentifier` names nothing.
 
 ## 6. Lifecycle events
 

@@ -27,6 +27,13 @@ import "list"
 	"rkaf:hasRegulatoryIdentifier"?:    string & =~"^[A-Za-z][A-Za-z0-9+.-]*:[^\\s]+$"
 	"rkaf:regulatoryIdentifierScheme"?: #USRegulatoryIdentifierScheme
 	"rkaf:publishedInProceeding"?:      [...(string & =~"^[A-Za-z][A-Za-z0-9+.-]*:[^\\s]+$")] & list.MinItems(1)
+	// Document -> Docket, direct. Federal Register metadata natively says
+	// which docket a document belongs to, and until this term existed the only
+	// docket edge in the profile was `rkaf:hasDocket` on `#Proceeding` — so a
+	// producer holding dockets and documents but modelling no proceedings
+	// could not state a fact its source states outright. The two edges are
+	// independent, not substitutes: see spec/rkaf-rulemaking.md §5.3.
+	"rkaf:publishedInDocket"?:          [...(string & =~"^[A-Za-z][A-Za-z0-9+.-]*:[^\\s]+$")] & list.MinItems(1)
 
 	if A["rkaf:hasRegulatoryIdentifier"] != _|_ {
 		"rkaf:regulatoryIdentifierScheme": #USRegulatoryIdentifierScheme

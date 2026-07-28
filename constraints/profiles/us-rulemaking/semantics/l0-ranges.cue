@@ -7,6 +7,7 @@ package semantics
 // these predicates.
 #USRulemakingL0RangeRegistry: {
 	"rkaf:publishedInProceeding":  "rkaf:Proceeding"
+	"rkaf:publishedInDocket":      "rkaf:Docket"
 	"dcat:qualifiedRelation":      "rkaf:AgendaProceedingRelationship"
 	"dcterms:relation":            "rkaf:Proceeding"
 	"rkaf:hasDocket":              "rkaf:Docket"

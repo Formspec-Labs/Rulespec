@@ -55,7 +55,7 @@ current `sha256:<64 lowercase hex>` contract digest. Every block in one
 document MUST use the same digest.
 
 ```yaml rkaf-l0-mapping
-rulespec_version: "sha256:6b957d68cf91f3bf6d95979debdbf3205ab592bdd0a346a197d173352f23d636"
+rulespec_version: "sha256:7d45dcd2f5ff6391b185fd98099740b34d3b6cac8ed66c99196e6ac368806553"
 mappings:
   - table: proceedings
     column: current_stage
@@ -194,7 +194,7 @@ The mapping below is the worked example. It is audited by
 `tools/test_l0_mapping_audit.py`, so it is executable rather than illustrative:
 
 ```yaml rkaf-l0-mapping
-rulespec_version: "sha256:6b957d68cf91f3bf6d95979debdbf3205ab592bdd0a346a197d173352f23d636"
+rulespec_version: "sha256:7d45dcd2f5ff6391b185fd98099740b34d3b6cac8ed66c99196e6ac368806553"
 mappings:
   - table: attestations
     column: attestor_id
@@ -301,7 +301,7 @@ digest covers the selected text. The mapping mints one from columns the carrier
 already stores, and declares the scheme it minted under:
 
 ```yaml rkaf-l0-mapping
-rulespec_version: "sha256:6b957d68cf91f3bf6d95979debdbf3205ab592bdd0a346a197d173352f23d636"
+rulespec_version: "sha256:7d45dcd2f5ff6391b185fd98099740b34d3b6cac8ed66c99196e6ac368806553"
 mappings:
   - table: concept_assignments
     columns:

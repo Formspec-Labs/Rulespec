@@ -1,0 +1,18 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@graph": [
+    {
+      "@id": "urn:rkaf:fixture:negative:artifact:docket-edge-to-proceeding",
+      "@type": "rkaf:Artifact",
+      "rkaf:hasArtifactIdentifier": "urn:rkaf:fixture:negative:artifact:docket-edge-to-proceeding",
+      "rkaf:artifactIdentifierScheme": "rkaf:urn-persistent",
+      "rkaf:publishedInDocket": "urn:rkaf:fixture:negative:proceeding:not-a-docket"
+    },
+    {
+      "@id": "urn:rkaf:fixture:negative:proceeding:not-a-docket",
+      "@type": "rkaf:Proceeding",
+      "rkaf:hasProceedingIdentifier": "urn:rkaf:partner:fixture:proceeding:fsis-line-speed",
+      "rkaf:proceedingIdentifierScheme": "rkaf:partner-defined"
+    }
+  ]
+}

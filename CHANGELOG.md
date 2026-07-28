@@ -9,6 +9,38 @@ adapted for a specification + shape + fixture project.
 
 ### Added
 
+- **`rkaf:publishedInDocket` — document-to-docket membership, stated directly**
+  (rulemaking §5, new §5.3;
+  `constraints/profiles/us-rulemaking/us-regulatory-artifact.cue`). Domain
+  `rkaf:Artifact`, range `rkaf:Docket`, 0..*, registered in the profile's
+  `l0-ranges.cue` so the compiled SHACL carries `sh:class rkaf:Docket`.
+
+  Federal Register metadata says which docket a document belongs to; the
+  profile had no way to write it down. The only docket edge was
+  `rkaf:hasDocket` on `rkaf:Proceeding`, so the fact was reachable only by
+  routing through a Proceeding — which requires a producer to model
+  proceedings at all. A producer holding a documents table and a dockets table
+  and no proceedings model had two options, mint a surrogate Proceeding it had
+  no evidence for or drop the fact, and both are worse than a direct edge.
+
+  §5.3 states how the two edges relate: they are independent, not substitutes.
+  `rkaf:hasDocket` is Proceeding → Docket (which containers a proceeding's
+  activity lives in); `rkaf:publishedInDocket` is Artifact → Docket (which
+  container THIS publication was filed under). Neither implies the other, a
+  consumer MUST NOT infer either from the other, and the standing §3.2 rule
+  that docket membership never establishes proceeding identity is unchanged. A
+  producer with all three facts MAY emit all three edges, and MUST NOT mint a
+  Docket node from a document alone — a Docket carries its own required
+  identity.
+
+  Purely additive: no existing document changes verdict. Coverage: one
+  positive fixture with a parity row, one class-range negative gated through
+  `tools/validate_negatives.py` (the route every `sh:class` negative takes,
+  since JSON Schema cannot follow a reference).
+
+  Driven by consumer evidence: `../spicy-regs/docs/evidence/`
+  `single-document-rulespec-projection-2026-07-28/README.md`, finding G2 and
+  judgment call J4.
 - **`rkaf:deterministicExtraction`, a seventh `rkaf:assertionOrigin` value**
   (Core §2.4, "Deterministic origin"). The v0.1 set had six values and none of
   them meant "a deterministic parser or join produced this". A producer with
