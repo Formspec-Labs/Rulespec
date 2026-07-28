@@ -504,6 +504,45 @@ adapted for a specification + shape + fixture project.
 
 ### Changed
 
+- **Core §2.1 decides the direct-edge / reified-assertion pair** ("Projected
+  edges and reified assertions"). The same edge could be stated twice — as a
+  profile predicate on a node and as a `rkaf:RelationshipAssertion` over the
+  same triple — and the contract said nothing about when a producer should
+  emit which or how a consumer reconciles them, so a provenance-stripping
+  projection double-counted. Both forms stay; neither is deprecated. The
+  decision fixes their roles:
+
+  - a **direct edge is the queryable projection** — traversable by a consumer
+    that does not reason over assertions, carrying no provenance, polarity,
+    confidence, or disposition;
+  - a **`rkaf:RelationshipAssertion` is the provenance-bearing source of
+    truth** — the record every primitive keyed to an assertion IRI points at.
+
+  Deduplication is the rule that makes emitting both safe: where a direct
+  edge's subject, predicate, and object equal an assertion's, the edge IS that
+  assertion's projection, and a consumer MUST treat the pair as one statement —
+  never as two independent sources agreeing.
+
+  Producer obligations: a producer emitting a `rkaf:affirmed` assertion whose
+  triple a profile predicate can express SHOULD also emit that edge, and MUST
+  NOT emit it for a `rkaf:denied`, superseded, or retracted assertion — a plain
+  edge carries no polarity, so projecting a denial asserts its opposite. A
+  graph whose direct edge is denied by a co-present assertion is
+  non-conforming; the assertion wins. Consumer obligation: a direct edge with
+  no matching assertion is legal and unbacked — a consumer MUST NOT assume an
+  assertion exists elsewhere and MUST NOT manufacture one.
+
+  Stated as producer obligations and consumer rules rather than shapes, and
+  the spec says why: no shape can require a producer to project an edge it
+  chose not to project, and matching a direct predicate against a reified
+  triple means comparing a predicate IRI to a property VALUE, which SHACL does
+  not express. `spec/rkaf-rulemaking.md` §5.3 and §8 point at the rule instead
+  of restating it. Documentation only; the contract digest is unchanged.
+
+  Driven by consumer evidence: `../spicy-regs/docs/evidence/`
+  `single-document-rulespec-projection-2026-07-28/README.md`, finding G5 — that
+  projection states proceeding→docket twice, as `rkaf:hasDocket` and as a
+  reified assertion, with nothing telling a consumer they are one fact.
 - **`rkaf:requestContractDigest` is REQUIRED for `rkaf:modelExtraction` and
   OPTIONAL for the other four methods** (Core §2.4,
   `constraints/core/extraction-activity.cue`). The field presumes a

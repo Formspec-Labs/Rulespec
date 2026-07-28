@@ -367,6 +367,12 @@ emitting `rkaf:publishedInDocket` MUST NOT mint the Docket node from the
 document alone: a Docket carries its own required identity (§3.2), and an edge
 to a container with no `rkaf:hasDocketIdentifier` names nothing.
 
+Where a producer also states the same membership as a
+`rkaf:RelationshipAssertion`, `spec/rkaf-core.md` §2.1, "Projected edges and
+reified assertions", governs the pair: the direct edge is the projection, the
+assertion is the source of truth, and a consumer seeing both counts one
+statement.
+
 ## 6. Lifecycle events
 
 Proceeding stage transitions use `rkaf:LifecycleEvent`; this module defines no
@@ -501,6 +507,17 @@ decision and public-ontology domain/range audit are recorded in
 `dcterms:hasFormat` and `dcterms:isFormatOf` are mode-1 predicate imports for
 Artifact-to-Artifact cross-posting links. Rulespec does not redefine their
 meaning.
+
+Every direct predicate this module defines — `rkaf:hasDocket`,
+`rkaf:publishedInProceeding`, `rkaf:publishedInDocket`,
+`rkaf:proceedingAffects`, `rkaf:proceedingProduces`,
+`rkaf:proceedingSupersedes`, and the comment-period anchors — can also be
+stated as a `rkaf:RelationshipAssertion` over the same subject, predicate, and
+object. `spec/rkaf-core.md` §2.1, "Projected edges and reified assertions",
+governs that pair for the whole contract and is not restated here: the profile
+edge is the queryable projection, the assertion is the provenance-bearing
+source of truth, a consumer that sees both MUST count one statement, and a
+producer MUST NOT project a denied or retracted assertion as a plain edge.
 
 ## 9. Experimental stabilization gate
 

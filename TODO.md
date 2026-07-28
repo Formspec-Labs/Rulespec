@@ -329,6 +329,29 @@ are batched into one revision rather than deferred into compatibility debt.
       `sha256:6b957d68…` -> `sha256:7d45dcd2f5ff6391b185fd98099740b34d3b6cac8ed66c99196e6ac368806553`.
       `make test` exit 0 — 154 cargo tests, 186 Python unit tests, 431
       conformance fixtures, 0 divergences.
+- [x] G5 — direct profile edges and reified `RelationshipAssertion`s can state
+      the same edge twice with no guidance, so a provenance-stripping consumer
+      double-counts.
+      Maintainer decision 2026-07-28, implemented the same day in
+      `spec/rkaf-core.md` §2.1 ("Projected edges and reified assertions"):
+      the direct edge is the QUERYABLE PROJECTION and the assertion is the
+      PROVENANCE-BEARING SOURCE OF TRUTH; where both are present over the same
+      triple the edge IS that assertion's projection and a consumer MUST count
+      one statement, never two agreeing sources. A producer emitting an
+      affirmed assertion whose triple a profile predicate can express SHOULD
+      also emit the edge; it MUST NOT emit the edge for a denied, superseded,
+      or retracted assertion, because a plain edge carries no polarity and
+      projecting a denial asserts its opposite. A direct edge with no matching
+      assertion is legal and unbacked — a consumer MUST NOT manufacture the
+      missing assertion. `spec/rkaf-rulemaking.md` §5.3 and §8 point at the
+      rule rather than restating it.
+      Not mechanically checked, and the spec says why: no shape can require a
+      producer to project an edge it declined to project, and matching a
+      direct predicate against a reified triple compares a predicate IRI to a
+      property VALUE, which SHACL does not express. Same class as §4.7.3 rule
+      3. Documentation only; contract digest unchanged at `sha256:7d45dcd2…`.
+      `make test` exit 0 — 154 cargo tests, 186 Python unit tests, 431
+      conformance fixtures, 0 divergences.
 - [x] G6 — `rkaf:attestedAt`, `rkaf:revokedAt`, and `rkaf:rationale` have no
       context terms, so attestation timestamps expand as plain strings while
       `rkaf:assertedAt` expands as `xsd:dateTime`.

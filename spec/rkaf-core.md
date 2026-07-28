@@ -65,6 +65,54 @@ assertion with a stringified object. Formal deontic operators such as
 permission, prohibition, and duty belong in domain profiles aligned with ODRL
 or LegalRuleML rather than a universal ordered “force” field.
 
+**Projected edges and reified assertions [Normative].** The same edge can be
+stated twice: once as a direct predicate on a node — `rkaf:hasDocket` on a
+`rkaf:Proceeding`, `rkaf:publishedInProceeding` on an `rkaf:Artifact` — and
+once as a `rkaf:RelationshipAssertion` whose subject, predicate, and object are
+that same triple. The two are not competing designs and neither is deprecated.
+They have fixed and different roles:
+
+- A **direct edge is the queryable projection.** It is what a consumer that
+  does not reason over assertions can traverse, and it carries no provenance,
+  no polarity, no confidence, and no consumer disposition.
+- A **`rkaf:RelationshipAssertion` is the provenance-bearing source of truth.**
+  It carries the origin, the evidence, the claimant, the extraction run, the
+  attestations, and the polarity, and it is the record every other primitive
+  keyed to an assertion IRI points at.
+
+Where both are present in one graph and the direct edge's subject, predicate,
+and object equal an assertion's `rkaf:assertsSubject`,
+`rkaf:assertsPredicate`, and `rkaf:assertsObject`, the direct edge IS the
+projection of that assertion. A consumer MUST treat the pair as ONE statement —
+the edge derived from the assertion — and MUST NOT count it twice, aggregate it
+twice, or read the redundancy as two independent sources agreeing. This is the
+deduplication rule; it is what makes emitting both safe.
+
+A producer emitting a `rkaf:affirmed` assertion whose triple a profile predicate
+can express SHOULD also emit that direct edge. The projection is what makes the
+fact reachable to a consumer that has not adopted the assertion model, and the
+deduplication rule above is what makes the redundancy free.
+
+A producer MUST NOT emit the direct edge for a `rkaf:denied` assertion, for an
+assertion it has superseded, or for one whose attestations retract it. A plain
+edge carries no polarity and no disposition, so projecting a denial asserts its
+opposite, and projecting a retracted claim asserts a claim the producer has
+withdrawn. A graph containing a direct edge that a co-present assertion denies
+is non-conforming; the assertion is the source of truth and the edge is the
+error.
+
+A direct edge with no matching assertion in the graph is legal and common. It
+is a statement the producer makes on its own account with no provenance record
+attached. A consumer that requires provenance MUST treat such an edge as
+unbacked — it MUST NOT assume an assertion exists elsewhere, and it MUST NOT
+manufacture one.
+
+None of this is mechanically checked, and it cannot be: no shape can require a
+producer to project an edge it chose not to project, and matching a direct
+predicate against a reified triple means comparing a predicate IRI to a
+property VALUE, which SHACL does not express. These are producer obligations
+and consumer rules, in the same class as §4.7.3 rule 3.
+
 ### 2.2 Value assertions [Normative]
 
 `rkaf:ValueAssertion` is the second proposition-bearing specialization of
