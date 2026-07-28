@@ -252,6 +252,20 @@ RULE-005 is satisfied: every item names a consumer finding, not a repo-internal
 preference. The contract is unreleased with one consumer, so the breaking items
 are batched into one revision rather than deferred into compatibility debt.
 
+- [x] G1 — the `prov:Entity` class range on `prov:wasDerivedFrom` is enforced
+      by every compiled shape and stated by no prose.
+      Done 2026-07-28: Core §2.4 gains a **Derivation** paragraph — the range
+      is `prov:Entity`, a producer citing a derivation source at L1–L4 MUST
+      materialize it as a typed node in the same document, an IRI described
+      nowhere stays legal as a cross-document reference, and the typed node
+      needs nothing but `@id` and `@type`. Documentation only; no shape,
+      fixture, or generated artifact moved and the contract digest is
+      unchanged at `sha256:50929102…`.
+      NOT closed by this item: the `prov:wasDerivedFrom` row in
+      `spec/rkaf-vocabulary.md` still sits in the rulemaking-profile table and
+      names only the two profile domains, so the kernel assertion envelope's
+      use of the edge has no vocabulary row. Fixing that means restructuring
+      the universal-primitives table, which is a separate change.
 - [x] G6 — `rkaf:attestedAt`, `rkaf:revokedAt`, and `rkaf:rationale` have no
       context terms, so attestation timestamps expand as plain strings while
       `rkaf:assertedAt` expands as `xsd:dateTime`.

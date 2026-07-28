@@ -265,6 +265,31 @@ revocation marker. Minting a parallel approval record would create two places
 to look for the same fact. A reviewer approving an extraction records an
 `rkaf:Attestation` whose `rkaf:targets` includes the assertion IRI.
 
+**Derivation.** `prov:wasDerivedFrom` (0..*) records what a record was derived
+from. Its object is not a bare IRI: the declared range is `prov:Entity`
+(`constraints/semantics/l0-ranges.cue`), and every compiled shape that carries
+the edge enforces it with `sh:class prov:Entity` —
+`compiled/shacl/core/assertion.ttl`, `relationship-assertion.ttl`, and
+`concept-assignment.ttl` all do.
+
+At L1–L4, where the unit of validation is a graph, a producer citing a
+derivation source MUST therefore materialize that source as a node typed
+`prov:Entity` in the same document. An IRI that is described nowhere is legal —
+a cross-document reference does not require the graph to inline the world — but
+an IRI described in the document under some OTHER type, or a document that
+names its derivation sources and describes none of them while the shape can see
+them, does not conform. The typed node is the whole requirement; it may carry
+nothing but its `@id` and `@type`.
+
+The rule is stated here because it is otherwise undiscoverable from prose. This
+section formerly presented `prov:wasDerivedFrom` as an IRI list and left the
+class to the compiled SHACL, which is where the one authoring failure in the
+2026-07-28 single-document consumer projection landed — six `sh:class
+prov:Entity` violations, all mechanical, none predictable from the spec. The
+same class discipline applies wherever the edge appears: `rkaf:CommentPeriod`
+and `rkaf:AgendaProceedingRelationship` require it 1..* rather than 0..*
+(`spec/rkaf-rulemaking.md` §4, §2.2), and the range is the same.
+
 **Confidence, evidence, applicability, time, access scope.** Each remains its
 own record, reached by its own edge: `rkaf:hasConfidence` (0..*, to
 `rkaf:ConfidenceRecord`), `rkaf:EvidenceBinding` (which points AT the assertion

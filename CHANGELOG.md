@@ -425,6 +425,24 @@ adapted for a specification + shape + fixture project.
 
 ### Changed
 
+- **Core §2.4 states the `prov:wasDerivedFrom` class range in prose.** The
+  declared range has been `prov:Entity` since the range registry shipped
+  (`constraints/semantics/l0-ranges.cue`), and every compiled shape carrying
+  the edge enforces it with `sh:class prov:Entity`
+  (`compiled/shacl/core/{assertion,relationship-assertion,concept-assignment}.ttl`).
+  §2.4 presented the field as a plain IRI list and said nothing about the
+  class, so the requirement was reachable only by reading generated Turtle. The
+  new **Derivation** paragraph says it normatively: a producer citing a
+  derivation source at L1–L4 MUST materialize that source as a node typed
+  `prov:Entity` in the same document, an IRI described nowhere stays legal as a
+  cross-document reference, and the typed node may carry nothing but `@id` and
+  `@type`. Documentation only — no shape, fixture, or generated artifact moved,
+  and the contract digest is unchanged.
+
+  Driven by consumer evidence: `../spicy-regs/docs/evidence/`
+  `single-document-rulespec-projection-2026-07-28/README.md`, finding G1 — the
+  single authoring failure in that projection was six `sh:class prov:Entity`
+  violations, mechanical to fix and unpredictable from the spec.
 - **Ten temporal terms now expand as `xsd:dateTime` instead of as plain
   strings** (`context/rkaf-context.jsonld`). `rkaf:attestedAt`,
   `rkaf:revokedAt`, `rkaf:adoptedAt`, `rkaf:openedAt`, `rkaf:closedAt`,
