@@ -19,6 +19,9 @@ pub enum NoEvidenceReason {
     /// Wire value `rkaf:permitted-by-safety-label`.
     #[serde(rename = "rkaf:permitted-by-safety-label")]
     PermittedBySafetyLabel,
+    /// Wire value `rkaf:declared-hypothesis`.
+    #[serde(rename = "rkaf:declared-hypothesis")]
+    DeclaredHypothesis,
 }
 
 use std::collections::BTreeMap;

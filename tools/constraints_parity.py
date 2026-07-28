@@ -293,6 +293,22 @@ FIXTURE_BINDINGS: list[tuple[str, str, str, str]] = [
     ("evidence-binding",  "EvidenceBinding",  "fixtures/evidencebinding-positive.jsonld", "PASS"),
     ("evidence-binding",  "EvidenceBinding",  "fixtures/evidencebinding-no-evidence-reason-positive.jsonld", "PASS"),
     ("evidence-binding",  "EvidenceBinding",  "fixtures/evidencebinding-missing-negative.jsonld", "FAIL"),
+    # Declared hypothesis (§4.3). The positive sits at `rkaf:searchOnly` to
+    # DEMONSTRATE the eligibility cap; it cannot test it, because the cap is a
+    # producer obligation with no compiled enforcement — eligibility lives on
+    # the assertion envelope and the reason on the binding.
+    ("evidence-binding",  "EvidenceBinding",
+     "fixtures/evidencebinding-declared-hypothesis-positive.jsonld", "PASS"),
+    # The matching negative — `rkaf:hypothesis`, the unregistered Formspec-side
+    # spelling — is deliberately NOT bound here. `noEvidenceReason` reaches
+    # SHACL inside a Pattern-C `sh:or`, and the disjunction emitter carries
+    # only `sh:minCount` into each branch, not the branch property's `sh:in`.
+    # The compiled EvidenceBinding shape therefore cannot see an unregistered
+    # value, while the JSON Schema target can — binding the row would report a
+    # real target divergence that says nothing about this change. The fixture
+    # is exercised by tools/validate_negatives.py against the FULL shape suite,
+    # where `shapes/rkaf-shapes-warrant.ttl` carries the closure and rejects
+    # it, which is the §10 validation contract that matters for the value.
     ("relationship-assertion", "RelationshipAssertion",
      "fixtures/relationshipassertion-denied-positive.jsonld", "PASS"),
     ("relationship-assertion", "RelationshipAssertion",

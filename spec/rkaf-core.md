@@ -726,13 +726,49 @@ Required properties:
 - `rkaf:bindsAssertion` (1) — the assertion being bound.
 - One of:
   - `rkaf:bindsSourceFragment` (1..*) — at least one SourceFragment, OR
-  - `rkaf:noEvidenceReason` (1) — closed enum: `rkaf:axiomatic`, `rkaf:inferred-from-warrant-class`, `rkaf:consensus-without-citation`, `rkaf:permitted-by-safety-label`. The Assertion's `rkaf:hasSafetyLabel` MUST permit the chosen reason.
+  - `rkaf:noEvidenceReason` (1) — closed enum: `rkaf:axiomatic`, `rkaf:inferred-from-warrant-class`, `rkaf:consensus-without-citation`, `rkaf:permitted-by-safety-label`, `rkaf:declared-hypothesis`. The Assertion's `rkaf:hasSafetyLabel` MUST permit the chosen reason. This rule is uniform over the enum: it applies to every member, including `rkaf:declared-hypothesis`, with no per-value exceptions.
 
 Optional properties:
 - `rkaf:warrantKind` (0..1) — overrides the Assertion's warrant kind for this binding.
 - `rkaf:hasAccessScope` (0..1) — narrows the binding's visibility.
 
 An assertion lacking either an EvidenceBinding-with-fragment OR an explicit `noEvidenceReason` permitted by its safety level is **not operationally valid**. Layer 2 enforces this.
+
+**Declared hypothesis.** `rkaf:declared-hypothesis` means the assertion is a
+deliberately held, not-yet-validated belief. It is distinct from both
+neighbours, and the distinction is the point:
+
+| Value | Means |
+| --- | --- |
+| `rkaf:axiomatic` | needs no evidence; evidence would be circular |
+| `rkaf:consensus-without-citation` | has social grounding, just no citable source |
+| `rkaf:declared-hypothesis` | has no grounding at all, says so, and intends to be validated |
+
+Without it a hypothesis has no honest landing. A producer holding one must
+choose between fabricating evidence and claiming
+`rkaf:consensus-without-citation`, which asserts social grounding the producer
+does not have. Both are worse than the gap, and declared absence over silent
+absence is this framework's own posture.
+
+An assertion whose binding carries `rkaf:declared-hypothesis` MUST NOT exceed
+`rkaf:searchOnly` or `rkaf:reviewQueueOnly` in `rkaf:usageEligibility` until
+an EvidenceBinding-with-fragment replaces the reason. The cap is graded rather
+than binary on purpose: a hypothesis that is invisible is worse than one that
+is findable but not actionable, which is the whole reason the value exists.
+The rule above — that the safety label must permit the reason — GRANTS
+operational validity and does not bound it, so it cannot express this cap;
+the two rules compose rather than substitute.
+
+This cap is a **producer obligation, not a mechanical check**, and no compiled
+target enforces it. `rkaf:usageEligibility` is a property of the assertion
+envelope (§2.3) while `rkaf:noEvidenceReason` is a property of the binding,
+and `rkaf:bindsAssertion` is a bare IRI: the conditional idiom that carries
+every other conditional requirement in this specification needs the guard and
+the requirement to be properties of ONE shape. Putting eligibility on the
+binding would create two places to look for the same consumer-scoped fact,
+which §2.3 forbids. This is the same posture as §4.7.3 rule 3 and the
+`rkaf:extractionMethod` agreement in §2.4 — a shape cannot require what it
+cannot see — and closing it mechanically is tracked in TODO.md.
 
 ### 4.4 Warrant
 

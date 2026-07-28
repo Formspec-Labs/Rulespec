@@ -43,7 +43,8 @@ rkaf:EvidenceBindingShape a sh:NodeShape ;
     [ sh:property [ sh:path rkaf:bindsSourceFragment ; sh:minCount 1 ; ] ]
     [ sh:property [ sh:path rkaf:noEvidenceReason ; sh:minCount 1 ; sh:maxCount 1 ;
         sh:in ( rkaf:axiomatic rkaf:inferred-from-warrant-class
-                rkaf:consensus-without-citation rkaf:permitted-by-safety-label ) ; ] ]
+                rkaf:consensus-without-citation rkaf:permitted-by-safety-label
+                rkaf:declared-hypothesis ) ; ] ]
   ) ;
   sh:message "EvidenceBinding MUST either bind ≥1 SourceFragment OR carry a permitted noEvidenceReason (§4.3 — operational-validity invariant)." .
 

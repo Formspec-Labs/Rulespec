@@ -1,0 +1,18 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@graph": [
+    {
+      "@id": "urn:rkaf:fixture:negative:unregistered-reason:assertion",
+      "@type": "rkaf:Assertion",
+      "rkaf:assertionOrigin": "rkaf:humanAsserted",
+      "rkaf:hasSafetyLabel": "rkaf:R2Review"
+    },
+    {
+      "@id": "urn:rkaf:fixture:negative:unregistered-reason:binding",
+      "@type": "rkaf:EvidenceBinding",
+      "rkaf:bindsAssertion": "urn:rkaf:fixture:negative:unregistered-reason:assertion",
+      "rkaf:noEvidenceReason": "rkaf:hypothesis"
+    }
+  ],
+  "_comment": "`rkaf:hypothesis` is the Formspec-side ungroundedReason spelling and is NOT a registered rkaf:noEvidenceReason value — the registered one is rkaf:declared-hypothesis. The binding carries no SourceFragment either, so both arms of the §4.3 disjunction fail and the record is rejected. This is the closure test for the new value: only the registered spelling lands."
+}

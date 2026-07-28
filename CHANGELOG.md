@@ -9,6 +9,73 @@ adapted for a specification + shape + fixture project.
 
 ### Added
 
+- **`rkaf:declared-hypothesis`, a fifth `rkaf:noEvidenceReason` value**
+  (Core §4.3, "Declared hypothesis"). It means the assertion is a deliberately
+  held, not-yet-validated belief: no grounding at all, said out loud, with the
+  intent to validate. `rkaf:axiomatic` needs no evidence because evidence would
+  be circular; `rkaf:consensus-without-citation` has social grounding and no
+  citable source; this one has neither. Without it, a producer holding a
+  hypothesis had to choose between fabricating evidence and claiming social
+  grounding it did not have — both worse than the gap, and both against this
+  framework's own declared-absence-over-silent-absence posture.
+
+  **The cap decision, and why it went the way it did.** The proposal stated the
+  cap on `rkaf:usageEligibility`; §4.3 as written couples `noEvidenceReason` to
+  `rkaf:hasSafetyLabel`. The safety-label rule GRANTS operational validity —
+  "an assertion lacking either an EvidenceBinding-with-fragment OR an explicit
+  `noEvidenceReason` permitted by its safety level is not operationally valid"
+  — and does not bound it. Routing the cap through it could only work by never
+  permitting the value under any label, which yields binary operational
+  invisibility rather than the graded findable-but-not-actionable state the
+  value exists to express. A hypothesis nobody can find is worse than one
+  nobody may act on. So the eligibility cap lands as its own rule and the
+  safety-label rule keeps applying uniformly to all five members, with no
+  per-value exception and no orphaned member; the two compose rather than
+  substitute.
+
+  **The cap is a producer obligation, not a mechanical check, and this is a
+  known gap.** `rkaf:usageEligibility` is a property of the assertion envelope
+  (§2.3); `rkaf:noEvidenceReason` is a property of the binding; and
+  `rkaf:bindsAssertion` is a bare IRI. Every conditional requirement in this
+  specification compiles from an idiom that needs the guard and the requirement
+  to be properties of ONE shape, and the compiler flattens nested objects
+  rather than traversing them — visible in
+  `compiled/shacl/adversarial/nested-noevidencereason.ttl`, which targets the
+  wrong class for exactly this reason. Raw SHACL could express the traversal
+  with a sequence path, but no shape in this repo uses one, and a SHACL-only
+  constraint would put the compiled targets out of parity with each other.
+  Putting eligibility on the binding instead would create two places to look
+  for the same consumer-scoped fact, which §2.3 forbids. The obligation is
+  therefore stated normatively and tracked in TODO.md — the same posture as
+  §4.7.3 rule 3 and the `rkaf:extractionMethod` agreement in §2.4.
+  **Acceptance criterion 2 of the proposal — "shape constraint expressing the
+  eligibility cap" — is NOT met, and is recorded as open rather than papered
+  over.**
+
+  Note for anyone reading the proposal alongside this: its correspondence table
+  assumed a three-value enum. The enum has had four values
+  (`rkaf:axiomatic`, `rkaf:inferred-from-warrant-class`,
+  `rkaf:consensus-without-citation`, `rkaf:permitted-by-safety-label`) since
+  v0.2; the hole it names is real, but it is one of four, now five.
+
+  Coverage: one positive fixture (the assertion sits at `rkaf:searchOnly`,
+  demonstrating the obligation it cannot test), one negative
+  (`rkaf:hypothesis`, the unregistered Formspec-side spelling, rejected by the
+  closed set), one parity row, the `sh:in` closure in
+  `shapes/rkaf-shapes-warrant.ttl`, and a `rkaf:NoEvidenceReason` entry in the
+  vocabulary's closed-enum list, which had none. The negative is deliberately
+  unbound in `tools/constraints_parity.py`: `noEvidenceReason` reaches SHACL
+  inside a Pattern-C `sh:or`, and the disjunction emitter carries only
+  `sh:minCount` into each branch and not the branch property's `sh:in`, so the
+  compiled shape alone cannot see an unregistered value. The full shape suite
+  can, and `tools/validate_negatives.py` exercises it there.
+
+  BREAKING under §3's reject-unrecognized-values rule: a consumer pinned to the
+  four-value set rejects the fifth. It lands before the first release for
+  exactly that reason.
+
+  Proposal of record: `thoughts/specs/2026-07-27-declared-hypothesis-no-evidence-reason.md`
+  (RS-P6), from the Formspec Needs Specification's Appendix C.
 - **`rkaf:formspec-need`, a thirteenth `rkaf:artifactIdentifierScheme` value**
   (Core §4.1, "Formspec Need identity"). It denotes a Formspec Needs Document
   `url` + `need.id` pair — `<docUrl>#<needId>`, with an OPTIONAL `@<revision>`

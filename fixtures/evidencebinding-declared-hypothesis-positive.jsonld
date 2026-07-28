@@ -1,0 +1,24 @@
+{
+  "@context": "../context/rkaf-context.jsonld",
+  "@graph": [
+    {
+      "@id": "urn:rkaf:fixture:declared-hypothesis:assertion",
+      "@type": "rkaf:RelationshipAssertion",
+      "rkaf:assertionOrigin": "rkaf:humanAsserted",
+      "rkaf:assertsSubject": "urn:rkaf:fixture:program:assistance-intake",
+      "rkaf:assertsPredicate": "urn:rkaf:fixture:predicate:isConstrainedBy",
+      "rkaf:assertsObject": "urn:rkaf:fixture:requirement:prior-year-filing",
+      "rkaf:assertionPolarity": "rkaf:affirmed",
+      "rkaf:usageEligibility": "rkaf:searchOnly",
+      "rkaf:hasSafetyLabel": "rkaf:R2Review",
+      "rkaf:assertedAt": "2026-07-28T11:30:00Z"
+    },
+    {
+      "@id": "urn:rkaf:fixture:declared-hypothesis:binding",
+      "@type": "rkaf:EvidenceBinding",
+      "rkaf:bindsAssertion": "urn:rkaf:fixture:declared-hypothesis:assertion",
+      "rkaf:noEvidenceReason": "rkaf:declared-hypothesis"
+    }
+  ],
+  "_comment": "A deliberately held, not-yet-validated belief (§4.3, 'Declared hypothesis'). The assertion sits at rkaf:searchOnly, honouring the cap that keeps a hypothesis findable but not actionable until an EvidenceBinding-with-fragment replaces the reason. That cap is a PRODUCER OBLIGATION: rkaf:usageEligibility lives on the assertion envelope and rkaf:noEvidenceReason on the binding, so no compiled shape sees both. This fixture demonstrates the obligation; it does not prove enforcement, because there is none."
+}

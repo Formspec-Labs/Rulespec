@@ -433,7 +433,7 @@ charter cost, and the open questions the maintainer owns.
   BREAKING under §3's reject-unrecognized-values rule.
   → [`thoughts/specs/2026-07-27-formspec-need-identifier-scheme.md`](thoughts/specs/2026-07-27-formspec-need-identifier-scheme.md)
 
-- [ ] **RS-P6 — `rkaf:declared-hypothesis` in `noEvidenceReason`.** One value
+- [x] **RS-P6 — `rkaf:declared-hypothesis` in `noEvidenceReason`.** One value
   added to the closed enum (§4.3): a deliberately held, not-yet-validated
   belief, distinct from `rkaf:axiomatic` and
   `rkaf:consensus-without-citation`. Closes the only hole in the correspondence
@@ -443,7 +443,58 @@ charter cost, and the open questions the maintainer owns.
   as written) or `rkaf:usageEligibility` (as Formspec proposed).
   **Done when:** the enum value, its shape constraint, and positive/negative
   fixtures land per the §10 validation contract.
+  Done 2026-07-28, with the shape constraint OPEN — see the follow-up below.
+  Cap decision: **`rkaf:usageEligibility`**. §4.3's safety-label rule GRANTS
+  operational validity and does not bound it, so routing the cap through it
+  could only work by never permitting the value under any label — binary
+  invisibility instead of the graded findable-but-not-actionable state the
+  value exists for. The safety-label rule keeps applying uniformly to all five
+  members; the two rules compose. The enum had FOUR members before this, not
+  the three the proposal's correspondence table assumed. Coverage: 1 positive,
+  1 negative, 1 parity row, the `sh:in` closure in
+  `shapes/rkaf-shapes-warrant.ttl`, and a `rkaf:NoEvidenceReason` vocabulary
+  entry. Contract digest MOVED
+  `sha256:8166af8a…` -> `sha256:6e5506001343c55af2530c89070c79c4f74f54f666ef823c2687bd1460d173ce`.
+  BREAKING under §3's reject-unrecognized-values rule.
   → [`thoughts/specs/2026-07-27-declared-hypothesis-no-evidence-reason.md`](thoughts/specs/2026-07-27-declared-hypothesis-no-evidence-reason.md)
+
+- [ ] **RS-P6 follow-up — mechanize the declared-hypothesis eligibility cap.**
+  §4.3 requires an assertion whose binding carries `rkaf:declared-hypothesis`
+  to stay at `rkaf:searchOnly` or `rkaf:reviewQueueOnly`, and nothing enforces
+  it. `rkaf:usageEligibility` is a property of the assertion envelope (§2.3),
+  `rkaf:noEvidenceReason` a property of the binding, and `rkaf:bindsAssertion`
+  a bare IRI — the conditional idiom needs both on ONE shape, and the compiler
+  flattens nested objects instead of traversing them
+  (`compiled/shacl/adversarial/nested-noevidencereason.ttl` targets the wrong
+  class for exactly this reason). Three candidate routes, none costed:
+  teach the compiler a cross-reference conditional; teach it to emit SHACL
+  sequence paths (no shape in this repo uses one today, and a SHACL-only
+  constraint would break target parity); or accept it permanently as a
+  producer obligation alongside §4.7.3 rule 3. **Do NOT** solve it by putting
+  `rkaf:usageEligibility` on the EvidenceBinding — that creates two places to
+  look for the same consumer-scoped fact, which §2.3 forbids.
+  **Done when:** the cap is enforced on every compiled target, or the spec
+  records the producer-obligation posture as final.
+
+- [ ] **Decide the `rkaf:permits-*` safety-label family.** Surfaced while
+  landing RS-P6. §4.3 says the Assertion's `rkaf:hasSafetyLabel` MUST permit
+  the chosen `noEvidenceReason`, but no per-reason permission table exists.
+  `#SafetyLabel` holds seven lettered values plus one orphan,
+  `rkaf:permits-axiomatic`; `constraints/adversarial/conditional-silent-pass.cue`
+  and `nested-noevidencereason.cue` require
+  `rkaf:permits-consensus-without-citation` and `rkaf:permits-all`, neither of
+  which is an enum member; and `fixtures/evidencebinding-no-evidence-reason-positive.jsonld`
+  pairs a LETTERED label (`rkaf:A3AdvisoryAggregated`) with `rkaf:axiomatic`
+  and passes. So the rule is producer-obligation-only, and the `permits-*`
+  family is a vestige that is neither complete nor consistent with the
+  lettered scheme. RS-P6 deliberately did NOT mint a
+  `rkaf:permits-declared-hypothesis`: that would extend a v0.1-INHERITED
+  closed enum (§3 currently records `rkaf:assertionOrigin` as the one
+  inherited enum v0.2 extends) and would add a fourth partial member to an
+  already-incoherent family.
+  **Done when:** either the `permits-*` values are completed and declared as a
+  real table, or they are retired and §4.3's rule is restated against the
+  lettered labels.
 
 **Sequencing:** RS-P6 before RS-P1 — the mapping is incomplete without the
 enum value, and landing the companion first would document a promotion path
