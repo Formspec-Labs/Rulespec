@@ -452,7 +452,8 @@ Required properties:
 - `rkaf:artifactIdentifierScheme` (1..*) — closed enum:
   `rkaf:eli`, `rkaf:eli-dl`, `rkaf:eli-i`, `rkaf:uslm`,
   `rkaf:aknt-eId`, `rkaf:doi`, `rkaf:isbn`, `rkaf:issn`, `rkaf:cid`,
-  `rkaf:hash-sha256`, `rkaf:urn-persistent`, `rkaf:partner-defined`.
+  `rkaf:hash-sha256`, `rkaf:urn-persistent`, `rkaf:formspec-need`,
+  `rkaf:partner-defined`.
 
 An Artifact identifier MUST resolve to, or be derived from, one immutable
 edition, publication, snapshot, or content payload. Examples include a
@@ -460,6 +461,34 @@ content hash, an edition-scoped GovInfo package or granule URL, a permanent
 Federal Register document URL, and a producer-scoped snapshot URN. A current
 eCFR URL, an unversioned U.S. Code locator, or a citation such as “40 CFR
 60.1” does not establish Artifact identity.
+
+**Formspec Need identity.** `rkaf:formspec-need` names a Formspec Needs
+Document `url` plus `need.id` pair — `<docUrl>#<needId>`, with an OPTIONAL
+`@<revision>` suffix. A Formspec Need carries an integer `revision` covering
+its statement and its grounding: an assertion pinning the wording it saw uses
+the suffixed form, one tracking the Need as currently worded omits it.
+
+The value exists to buy one edge Formspec cannot reach from its own side. A
+Need already cites a Rulespec assertion as evidence that the need is
+legitimate; registering the scheme makes the reverse direction first-class, so
+a compliance finding, an adopted policy position, or a regulator's
+determination can name the product commitment it is about. Without the value
+the same citation is expressible under `rkaf:partner-defined`, but a Need
+citation is then indistinguishable from any other partner URI in federation
+queries — which is the whole cost of not registering it.
+
+The scheme tag is a declaration of the grammar the producer is claiming, not a
+mechanical check on it. A bare Needs Document URL is a current-state URL, the
+class this section rejects for eCFR; the `#<needId>@<revision>` form is what
+makes the identifier an edition rather than a live page, and a producer
+asserting the scheme over a bare document URL is non-conforming. The kernel
+does NOT close a grammar over the value: `rkaf:hasArtifactIdentifier` and
+`rkaf:artifactIdentifierScheme` are both 1..*, so no positional
+correspondence exists between an identifier and a scheme, and the per-scheme
+grammar idiom is available only where the pair is scalar — as it is for the US
+regulatory identifiers in `spec/rkaf-rulemaking.md` §5.2. This is the same
+producer-obligation posture as §4.7.3 rule 3 and the `rkaf:extractionMethod`
+agreement in §2.4: a shape cannot require what it cannot see.
 
 An Artifact MAY use `foaf:primaryTopic` (0..1) to name its one durable main
 subject. This is the general document-to-subject seam: it applies equally to a

@@ -408,7 +408,7 @@ charter cost, and the open questions the maintainer owns.
   JSON-LD out) lives in `fixtures/` and is exercised by `tools/vocab_audit.py`.
   → [`thoughts/specs/2026-07-27-formspec-observation-intake-profile.md`](thoughts/specs/2026-07-27-formspec-observation-intake-profile.md)
 
-- [ ] **RS-P3 — `rkaf:formspec-need` identifier scheme.** One value added to the
+- [x] **RS-P3 — `rkaf:formspec-need` identifier scheme.** One value added to the
   closed `rkaf:artifactIdentifierScheme` enum (§4.1), denoting a Needs Document
   `url` + `need.id` pair. Release-gated per §3. Buys the reverse edge: an
   assertion citing a product commitment first-class, which is unreachable from
@@ -416,6 +416,21 @@ charter cost, and the open questions the maintainer owns.
   **Done when:** the enum value is declared, one positive fixture cites a
   product Need as evidence subject, and one negative fixture rejects a mutable
   URL carried without the scheme tag.
+  Done 2026-07-28: all three criteria met, with one correction to the third.
+  The enum is now 13 values (Core §4.1 "Formspec Need identity", vocabulary
+  closed-enum list). The kernel closes the VALUE SET but NOT a grammar over
+  it: `rkaf:hasArtifactIdentifier` and `rkaf:artifactIdentifierScheme` are
+  both 1..*, so there is no positional correspondence to hang a per-scheme
+  pattern on, and the scalar-pair idiom the six US regulatory schemes use
+  (rulemaking §5.2) does not apply. §4.1's immutable-edition rule has never
+  been mechanically checked for ANY scheme, so the negative fails on the
+  MISSING DECLARATION rather than on detected mutability — the proposal's
+  "a mutable URL … is rejected" reads as if mutability were checkable, and it
+  is not. Both facts are now stated in §4.1 as producer obligations, the same
+  posture as §4.7.3 rule 3. Coverage: 1 positive, 1 negative, 2 parity rows.
+  Contract digest MOVED
+  `sha256:7d45dcd2…` -> `sha256:8166af8af1e06823e224dd2344b211bc66ff3ed5d5911a22426ddeb6fe334047`.
+  BREAKING under §3's reject-unrecognized-values rule.
   → [`thoughts/specs/2026-07-27-formspec-need-identifier-scheme.md`](thoughts/specs/2026-07-27-formspec-need-identifier-scheme.md)
 
 - [ ] **RS-P6 — `rkaf:declared-hypothesis` in `noEvidenceReason`.** One value

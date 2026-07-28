@@ -1,0 +1,39 @@
+{
+  "@context": "../context/rkaf-context.jsonld",
+  "@graph": [
+    {
+      "@id": "urn:rkaf:fixture:formspec-need:artifact",
+      "@type": "rkaf:Artifact",
+      "rkaf:hasArtifactIdentifier": "https://benefits.example.gov/apps/assistance/needs#proof-of-filing@2",
+      "rkaf:artifactIdentifierScheme": "rkaf:formspec-need",
+      "rkaf:hasContentDigest": "sha256:9f2c4e1a7b30d5648ac913f0e27b6d84551cf3a2e908b74d6c1fa03e5b28d417"
+    },
+    {
+      "@id": "urn:rkaf:fixture:formspec-need:fragment",
+      "@type": "rkaf:SourceFragment",
+      "oa:hasSource": "urn:rkaf:fixture:formspec-need:artifact",
+      "oa:hasSelector": {
+        "@type": "oa:TextQuoteSelector",
+        "oa:exact": "the applicant must supply proof that the prior-year return was filed"
+      },
+      "rkaf:selectorKind": "oa:TextQuoteSelector"
+    },
+    {
+      "@id": "urn:rkaf:fixture:formspec-need:assertion",
+      "@type": "rkaf:RelationshipAssertion",
+      "rkaf:assertionOrigin": "rkaf:humanAsserted",
+      "rkaf:assertsSubject": "urn:rkaf:fixture:program:assistance-intake",
+      "rkaf:assertsPredicate": "urn:rkaf:fixture:predicate:collectsEvidenceFor",
+      "rkaf:assertsObject": "urn:rkaf:fixture:requirement:prior-year-filing",
+      "rkaf:assertionPolarity": "rkaf:affirmed",
+      "rkaf:assertedAt": "2026-07-28T11:00:00Z"
+    },
+    {
+      "@id": "urn:rkaf:fixture:formspec-need:binding",
+      "@type": "rkaf:EvidenceBinding",
+      "rkaf:bindsAssertion": "urn:rkaf:fixture:formspec-need:assertion",
+      "rkaf:bindsSourceFragment": "urn:rkaf:fixture:formspec-need:fragment"
+    }
+  ],
+  "_comment": "The reverse edge RS-P3 buys (§4.1, 'Formspec Need identity'): a policy-corpus assertion citing a product Need as its evidence subject, which is the direction Formspec cannot reach from its own side. The `@2` suffix pins the Need revision this citation saw, and the scheme tag is what makes the identifier an edition rather than the live Needs Document URL."
+}

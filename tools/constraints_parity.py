@@ -111,6 +111,16 @@ FIXTURE_BINDINGS: list[tuple[str, str, str, str]] = [
     ("artifact", "Artifact", "fixtures/artifact-primary-topic-positive.jsonld", "PASS"),
     ("artifact", "Artifact", "fixtures/artifact-version-lineage-positive.jsonld", "PASS"),
     ("artifact", "Artifact", "fixtures/artifact-content-digest-positive.jsonld", "PASS"),
+    # Formspec Need identity (§4.1). The pair says what the scheme value buys
+    # and what it does not: the tag is a DECLARATION of the grammar, so the
+    # positive passes on the tag alone and the negative fails on the tag's
+    # absence. Neither row detects mutability — §4.1's immutable-edition rule
+    # is a producer obligation, and no shape checks it for any scheme.
+    ("artifact", "Artifact",
+     "fixtures/artifact-formspec-need-positive.jsonld", "PASS"),
+    ("artifact", "Artifact",
+     "fixtures/negatives/artifact-formspec-need-without-scheme-negative.jsonld",
+     "FAIL"),
     # Version identity (§4.1). A format sibling is NOT a version claim, so the
     # cross-posting edge must stay PASS while every row below it FAILs — that
     # contrast is the whole point of guarding on the two lineage predicates

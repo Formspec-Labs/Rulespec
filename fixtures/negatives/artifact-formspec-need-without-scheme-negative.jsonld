@@ -1,0 +1,7 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@id": "urn:rkaf:fixture:negative:artifact-formspec-need-without-scheme",
+  "@type": "rkaf:Artifact",
+  "rkaf:hasArtifactIdentifier": "https://benefits.example.gov/apps/assistance/needs",
+  "_comment": "A bare Needs Document URL — a current-state page, not an edition — carried with no rkaf:artifactIdentifierScheme. The scheme tag is REQUIRED (1..*), so the record is rejected. §4.1's immutability rule is itself a producer obligation with no mechanical check, so what the gate catches here is the missing declaration, not the mutability."
+}

@@ -40,6 +40,9 @@ pub enum ArtifactIdentifierScheme {
     /// Wire value `rkaf:urn-persistent`.
     #[serde(rename = "rkaf:urn-persistent")]
     UrnPersistent,
+    /// Wire value `rkaf:formspec-need`.
+    #[serde(rename = "rkaf:formspec-need")]
+    FormspecNeed,
     /// Wire value `rkaf:partner-defined`.
     #[serde(rename = "rkaf:partner-defined")]
     PartnerDefined,

@@ -3,9 +3,20 @@ package rkaf
 import "list"
 
 // Closed enum of artifact identifier schemes (§4.1).
+//
+// `rkaf:formspec-need` is the v0.2 addition: a Formspec Needs Document `url`
+// plus `need.id` pair, `<docUrl>#<needId>` with an OPTIONAL `@<revision>`
+// suffix pinning the wording an assertion saw. The kernel does not close a
+// grammar over it, because `rkaf:hasArtifactIdentifier` and this scheme list
+// are both 1..* and no positional correspondence exists between them — the
+// per-scheme grammar idiom is available only where the identifier/scheme pair
+// is scalar, as in the US rulemaking profile (§5.2). The tag is a declaration
+// of which grammar the producer is claiming, which is the same job it does
+// for `rkaf:eli` and `rkaf:doi`.
 #ArtifactIdentifierScheme: "rkaf:eli" | "rkaf:eli-dl" | "rkaf:eli-i" |
 	"rkaf:uslm" | "rkaf:aknt-eId" | "rkaf:doi" | "rkaf:isbn" | "rkaf:issn" |
-	"rkaf:cid" | "rkaf:hash-sha256" | "rkaf:urn-persistent" | "rkaf:partner-defined"
+	"rkaf:cid" | "rkaf:hash-sha256" | "rkaf:urn-persistent" |
+	"rkaf:formspec-need" | "rkaf:partner-defined"
 
 // The universal Artifact. Jurisdiction-specific citation identity — the US
 // regulatory identifier pair and its per-scheme grammars — and the rulemaking

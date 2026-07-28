@@ -9,6 +9,66 @@ adapted for a specification + shape + fixture project.
 
 ### Added
 
+- **`rkaf:formspec-need`, a thirteenth `rkaf:artifactIdentifierScheme` value**
+  (Core §4.1, "Formspec Need identity"). It denotes a Formspec Needs Document
+  `url` + `need.id` pair — `<docUrl>#<needId>`, with an OPTIONAL `@<revision>`
+  suffix pinning the wording a citation saw. A Need carries an integer
+  `revision` covering its statement and grounding, so an assertion that pins
+  the wording it read uses the suffixed form and one tracking the Need as
+  currently worded omits it.
+
+  The value buys exactly one thing: the **reverse edge**. A Formspec Need
+  already cites a Rulespec assertion as evidence that the need is legitimate;
+  registering the scheme makes the other direction first-class, so a compliance
+  finding, an adopted policy position, or a regulator's determination can name
+  the product commitment it is about. The same citation was always expressible
+  under `rkaf:partner-defined`, but a Need citation was then
+  indistinguishable from any other partner URI in federation queries. That
+  indistinguishability was the whole cost of not registering it, and it is a
+  cost only Rulespec could remove — the enum is closed and Rulespec owns it,
+  so this is the one direction Formspec cannot reach from its own side.
+
+  Precedent for naming an external scheme in the universal vocabulary is
+  already thick: `rkaf:eli`, `rkaf:uslm`, `rkaf:aknt-eId`, `rkaf:doi`,
+  `rkaf:isbn`, and `rkaf:issn` all do it. The charter's "universal ontology,
+  not consumer-coupled" boundary is about SHAPES, and this adds none — it adds
+  one value to a list whose entire purpose is naming external identifier
+  grammars.
+
+  **The kernel closes the value set but NOT a grammar over it**, and the
+  distinction is worth stating because the proposal assumed otherwise.
+  `rkaf:hasArtifactIdentifier` and `rkaf:artifactIdentifierScheme` are both
+  1..*, so no positional correspondence exists between an identifier and a
+  scheme; the per-scheme grammar idiom — a conditional keyed on the scheme
+  value, as in `rkaf:us-cfr` and its five siblings — is available only where
+  the identifier/scheme pair is scalar, which it is in the US rulemaking
+  profile (rulemaking §5.2) and is not here. Closing a pattern over the
+  1..* identifier list would force EVERY co-declared identifier on a
+  multi-scheme Artifact to match the Needs grammar, which is wrong.
+
+  So the tag is a DECLARATION of the grammar the producer claims, not a check
+  on it. A producer asserting `rkaf:formspec-need` over a bare Needs Document
+  URL is non-conforming — that URL is a current-state page, the class §4.1
+  rejects for eCFR — but the non-conformance is a producer obligation in the
+  same posture as §4.7.3 rule 3 and the `rkaf:extractionMethod` agreement in
+  §2.4: a shape cannot require what it cannot see. §4.1's immutable-edition
+  rule has never been mechanically checked for ANY scheme, so the negative
+  fixture below fails on the missing declaration rather than on detected
+  mutability.
+
+  Coverage: one positive fixture (an assertion citing a product Need as its
+  evidence subject, through the full Assertion → EvidenceBinding →
+  SourceFragment → Artifact chain), one negative (a bare Needs Document URL
+  carried with no scheme tag), two parity rows, and a
+  `rkaf:ArtifactIdentifierScheme` entry in the vocabulary's closed-enum list,
+  which had none.
+
+  BREAKING under §3's reject-unrecognized-values rule: a consumer pinned to
+  the twelve-value set rejects the thirteenth. It lands before the first
+  release for exactly that reason.
+
+  Proposal of record: `thoughts/specs/2026-07-27-formspec-need-identifier-scheme.md`
+  (RS-P3), from the Formspec Needs Specification's Appendix C.
 - **`rkaf:publishedInDocket` — document-to-docket membership, stated directly**
   (rulemaking §5, new §5.3;
   `constraints/profiles/us-rulemaking/us-regulatory-artifact.cue`). Domain
