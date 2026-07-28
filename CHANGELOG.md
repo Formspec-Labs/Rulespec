@@ -472,6 +472,56 @@ adapted for a specification + shape + fixture project.
 
 ### Changed
 
+- **`rkaf:requestContractDigest` is REQUIRED for `rkaf:modelExtraction` and
+  OPTIONAL for the other four methods** (Core §2.4,
+  `constraints/core/extraction-activity.cue`). The field presumes a
+  REQUEST-SHAPED extraction — a run that sent instructions, a schema, and a
+  configuration somewhere and got an answer back. A deterministic table parse
+  sends nothing and has no such contract, so a universal requirement left a
+  producer exactly one conforming move: define an envelope, hash it, cite the
+  result. That yields a real digest naming a contract the run never published,
+  which is worse than an absent field, and it is what a real consumer had to do.
+
+  Expressed as a conditional rather than made optional everywhere, using the
+  same `if extractionMethod == …` idiom the shape already used for
+  `rkaf:extractionModelRef` — so the guard that requires a model call to name
+  its model now requires it to name its contract too, in one branch. The other
+  four methods MAY still carry the digest and SHOULD whenever the run genuinely
+  issued a contract (`rkaf:ruleBasedExtraction` over a versioned published
+  ruleset is the common case). When present under any method it MUST name a
+  contract the run actually issued; a digest over an envelope minted to satisfy
+  the field is non-conforming. Consumers MUST NOT read an absent digest as an
+  unaudited run — for a deterministic method the reproduction handles are
+  `rkaf:inputDigest`, `rkaf:extractedBy`, and `rkaf:extractorVersion`.
+
+  `fixtures/negatives/extraction-activity-missing-request-contract-digest-negative.jsonld`
+  was re-pointed from a deterministic parse to a model call, because that is
+  now where the defect lives; it keeps its name and its FAIL verdict.
+  `fixtures/extractionactivity-deterministic-no-request-contract-positive.jsonld`
+  is the new capability, gated at L1–L3 with a parity row.
+
+  BREAKING only in the permissive direction for producers. Breaking for a
+  consumer that treated the digest as always-present on an `ExtractionActivity`.
+
+  Driven by consumer evidence: `../spicy-regs/docs/evidence/`
+  `single-document-rulespec-projection-2026-07-28/README.md`, findings J2 and
+  G4.
+- **The SHACL emitter carries every requirement of a conditional, not the
+  first** (`tools/constraints_compile.py`). A `ConditionalBranch` with two
+  `then_require` entries compiled to a Pattern-C `sh:or` naming only
+  `then_require[0]`; the JSON Schema and TypeScript legs already emitted both,
+  so the divergence was SHACL-only. No conditional in the tree had ever
+  required more than one property, so nothing exercised it until
+  `rkaf:modelExtraction` came to require both a model reference and a request
+  digest — at which point `tools/constraints_parity.py` reported the negative
+  fixture passing SHACL and failing JSON Schema. This is the silent-pass class
+  `constraints/adversarial/conditional-silent-pass.cue` is about, one layer
+  down: the shape file reads as a correct conditional while enforcing a strict
+  subset of the source. Each requirement is now its own `sh:property` inside
+  the same branch node, so the branch holds only when all of them hold.
+  `ShapeCompositionTests::test_a_conditional_requiring_two_properties_reaches_shacl_intact`
+  is the regression, and it fails on the old emitter. Every single-requirement
+  guard in the tree compiles byte-identically.
 - **Core §2.4 states the `prov:wasDerivedFrom` class range in prose.** The
   declared range has been `prov:Entity` since the range registry shipped
   (`constraints/semantics/l0-ranges.cue`), and every compiled shape carrying

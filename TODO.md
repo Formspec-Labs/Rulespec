@@ -287,6 +287,31 @@ are batched into one revision rather than deferred into compatibility debt.
       `make test` exit 0 — 154 cargo tests, 185 Python unit tests, 428
       conformance fixtures, 0 divergences.
       BREAKING under §3's reject-unrecognized-values rule.
+- [x] J2 / G4 — `rkaf:requestContractDigest` is REQUIRED on every
+      `rkaf:ExtractionActivity` but presumes a request-shaped extraction, so a
+      deterministic table parse had to fabricate a canonical-json envelope to
+      satisfy it.
+      Done 2026-07-28: the digest is now REQUIRED for `rkaf:modelExtraction`
+      and OPTIONAL for the other four methods, expressed with the shape's own
+      `if extractionMethod == …` idiom rather than made optional everywhere —
+      the guard that requires a model call to name its model now requires it
+      to name its contract too. Core §2.4 states the producer rule (a digest
+      over an envelope minted to satisfy the field is non-conforming) and the
+      consumer rule (an absent digest is not an unaudited run; for a
+      deterministic method the reproduction handles are `rkaf:inputDigest`,
+      `rkaf:extractedBy`, `rkaf:extractorVersion`). The existing negative
+      fixture was re-pointed from a deterministic parse to a model call and
+      keeps its name and verdict; one new positive covers the new capability.
+      Surfaced a real compiler bug en route: the SHACL emitter wrote only
+      `then_require[0]` of a conditional, so the two-property guard compiled to
+      a one-property guard while JSON Schema and TypeScript carried both.
+      `tools/constraints_parity.py` caught it as a core divergence. Fixed, with
+      `ShapeCompositionTests::test_a_conditional_requiring_two_properties_reaches_shacl_intact`
+      as the regression; every single-requirement guard compiles
+      byte-identically. Contract digest MOVED
+      `sha256:162eb506…` -> `sha256:6b957d68cf91f3bf6d95979debdbf3205ab592bdd0a346a197d173352f23d636`.
+      `make test` exit 0 — 154 cargo tests, 186 Python unit tests, 429
+      conformance fixtures, 0 divergences.
 - [x] G6 — `rkaf:attestedAt`, `rkaf:revokedAt`, and `rkaf:rationale` have no
       context terms, so attestation timestamps expand as plain strings while
       `rkaf:assertedAt` expands as `xsd:dateTime`.

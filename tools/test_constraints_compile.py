@@ -564,6 +564,64 @@ package rkaf
                 },
             )
 
+    def test_a_conditional_requiring_two_properties_reaches_shacl_intact(
+        self,
+    ) -> None:
+        """The SHACL guard must carry EVERY requirement, not the first one.
+
+        Until `rkaf:modelExtraction` came to require both a model reference and
+        a request-contract digest, no conditional in the tree required more
+        than one property, and the emitter wrote `then_require[0]` and dropped
+        the rest. The failure is the silent-pass class
+        `constraints/adversarial/conditional-silent-pass.cue` names, one layer
+        down: the shape file still reads as a correct conditional while
+        enforcing a strict subset of the source. JSON Schema and TypeScript
+        already emitted both, so the divergence was SHACL-only and invisible to
+        any single-target check.
+        """
+        with tempfile.TemporaryDirectory() as temporary:
+            source = Path(temporary) / "multi-conditional.cue"
+            source.write_text(
+                """
+package rkaf
+
+#MultiCond: shape={
+	"@type":       "rkaf:MultiCond"
+	"rkaf:method": string
+	if shape["rkaf:method"] == "rkaf:model" {
+		"rkaf:modelRef": string & =~"^urn:"
+		"rkaf:digest":   string & =~"^sha256:"
+	}
+}
+"""
+            )
+            document = parse_cue_file(source)
+            shacl = target_shacl(document)
+            # The guard's requirement branch is the only line the emitter
+            # writes at four spaces of indent starting `[ sh:property`; the
+            # node shape's own declarations sit at two.
+            guard = [
+                line
+                for line in shacl.splitlines()
+                if line.startswith("    [ sh:property")
+            ]
+            self.assertEqual(len(guard), 1, "expected exactly one guard branch")
+            for term, pattern in (
+                ("rkaf:modelRef", "^urn:"),
+                ("rkaf:digest", "^sha256:"),
+            ):
+                with self.subTest(term=term):
+                    self.assertIn(f"sh:path {term} ; sh:minCount 1 ;", guard[0])
+                    self.assertIn(pattern, guard[0])
+
+            schema = json.loads(target_json_schema(document))
+            self.assertEqual(
+                sorted(schema["$defs"]["MultiCond"]["allOf"][0]["then"]["required"]),
+                ["rkaf:digest", "rkaf:modelRef"],
+                "control: JSON Schema already carried both, which is why the "
+                "SHACL leg had to be checked on its own",
+            )
+
     def test_conflicting_facets_raise_unsupported_composition(self) -> None:
         """Two different values for the same facet are a conjunction the flat
         projector cannot carry. It must raise, never pick one silently."""

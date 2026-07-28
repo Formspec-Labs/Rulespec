@@ -1,9 +1,10 @@
 {
   "@context": "../../context/rkaf-context.jsonld",
-  "@id": "urn:rkaf:fixture:extraction-activity:deterministic-run",
+  "@id": "urn:rkaf:fixture:extraction-activity:model-run-uncontracted",
   "@type": "rkaf:ExtractionActivity",
-  "rkaf:extractionMethod": "rkaf:deterministicParse",
-  "rkaf:extractionRun": "urn:rkaf:fixture:run:citation-parse-0007",
-  "rkaf:extractedBy": "urn:rkaf:fixture:extractor:citation-parser",
-  "rkaf:extractorVersion": "1.4.2"
+  "rkaf:extractionMethod": "rkaf:modelExtraction",
+  "rkaf:extractionRun": "urn:rkaf:fixture:run:obligation-extract-0011",
+  "rkaf:extractedBy": "urn:rkaf:fixture:extractor:obligation-extractor",
+  "rkaf:extractorVersion": "2.1.0",
+  "rkaf:extractionModelRef": "urn:rkaf:fixture:model:text-extractor-v3"
 }

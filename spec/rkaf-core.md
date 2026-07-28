@@ -193,20 +193,42 @@ own `rkaf:EvidenceBinding`.
 **Extraction provenance.** `rkaf:ExtractionActivity` records the run. It MUST
 carry `rkaf:extractionMethod` (closed set: `rkaf:deterministicParse`,
 `rkaf:ruleBasedExtraction`, `rkaf:modelExtraction`, `rkaf:humanExtraction`,
-`rkaf:importedRecord`), `rkaf:extractionRun`, `rkaf:extractedBy`,
-`rkaf:extractorVersion`, and `rkaf:requestContractDigest`.
+`rkaf:importedRecord`), `rkaf:extractionRun`, `rkaf:extractedBy`, and
+`rkaf:extractorVersion`.
 
-`rkaf:requestContractDigest` MUST be a lowercase `sha256:<64 hex>` digest of
-the complete, secret-free request contract — instructions, schema, model
-configuration, and input payload hashed together. One digest, because the
-question a consumer asks is whether a candidate came from the contract they
-audited, and that question has a single answer only if the whole contract is
-covered. Schema descriptions and LLM hints are part of the contract; they do
-not substitute for it.
+When `rkaf:extractionMethod` is `rkaf:modelExtraction`, two further properties
+are REQUIRED: `rkaf:extractionModelRef` and `rkaf:requestContractDigest`. A
+record that says a model produced a candidate while leaving the model unnamed
+is not provenance, and a model call whose contract is unnamed cannot be checked
+against the contract a consumer audited.
 
-When `rkaf:extractionMethod` is `rkaf:modelExtraction`,
-`rkaf:extractionModelRef` is REQUIRED. A record that says a model produced a
-candidate while leaving the model unnamed is not provenance.
+`rkaf:requestContractDigest` is REQUIRED for `rkaf:modelExtraction` and
+OPTIONAL for the other four methods, because the field presumes a
+REQUEST-SHAPED extraction: a run that sent instructions, a schema, and a
+configuration somewhere and received an answer. A deterministic table parse
+sends nothing and has no such contract. Requiring the digest universally left a
+producer one conforming move — define an envelope, hash it, and cite the
+result — which yields a real digest naming a contract the run never published.
+An absent field is the honest record; a fabricated contract is not.
+
+A producer using one of the other four methods MAY still supply the digest, and
+SHOULD whenever the run genuinely issued a contract — a
+`rkaf:ruleBasedExtraction` over a versioned, published ruleset is the common
+case. When present, under any method, `rkaf:requestContractDigest` MUST be a
+lowercase `sha256:<64 hex>` digest of the complete, secret-free request
+contract — instructions, schema, model configuration, and input payload hashed
+together — and it MUST name a contract the run actually issued. One digest,
+because the question a consumer asks is whether a candidate came from the
+contract they audited, and that question has a single answer only if the whole
+contract is covered. Schema descriptions and LLM hints are part of the
+contract; they do not substitute for it. A digest over an envelope minted to
+satisfy the field is non-conforming.
+
+Consumers MUST NOT read an absent `rkaf:requestContractDigest` as an unaudited
+run. Absence under a non-model method means the run had no request contract to
+name; what it did consume is recorded by `rkaf:inputDigest`,
+`rkaf:extractedBy`, and `rkaf:extractorVersion`, which are the reproduction
+handles for a deterministic method.
 
 `rkaf:ExtractionActivity` MUST NOT require a human approver, and the kernel
 declares none. An unreviewed model candidate is representable exactly as it

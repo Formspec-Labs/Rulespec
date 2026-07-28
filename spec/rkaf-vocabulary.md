@@ -72,7 +72,7 @@
 | rkaf:extractionRun | https://rulespec.org/ns/v1#extractionRun | Property | rkaf:ExtractionActivity | IRI | 1 | extractionactivity-model-positive |
 | rkaf:extractedBy | https://rulespec.org/ns/v1#extractedBy | Property | rkaf:ExtractionActivity | IRI | 1 | extractionactivity-model-positive |
 | rkaf:extractorVersion | https://rulespec.org/ns/v1#extractorVersion | Property | rkaf:ExtractionActivity | xsd:string | 1 | extractionactivity-model-positive |
-| rkaf:requestContractDigest | https://rulespec.org/ns/v1#requestContractDigest | Property | rkaf:ExtractionActivity | xsd:string (`sha256:<64 hex>`) | 1 | extractionactivity-model-positive |
+| rkaf:requestContractDigest | https://rulespec.org/ns/v1#requestContractDigest | Property | rkaf:ExtractionActivity | xsd:string (`sha256:<64 hex>`) | 0..1 (REQUIRED if extractionMethod is rkaf:modelExtraction) | extractionactivity-model-positive |
 | rkaf:extractionModelRef | https://rulespec.org/ns/v1#extractionModelRef | Property | rkaf:ExtractionActivity | IRI | 0..1 (1 when modelExtraction) | extractionactivity-model-positive |
 | rkaf:extractionPromptRef | https://rulespec.org/ns/v1#extractionPromptRef | Property | rkaf:ExtractionActivity | IRI | 0..1 | extractionactivity-model-positive |
 | rkaf:inputDigest | https://rulespec.org/ns/v1#inputDigest | Property | rkaf:ExtractionActivity | xsd:string (`sha256:<64 hex>`) | 0..* | extractionactivity-model-positive |

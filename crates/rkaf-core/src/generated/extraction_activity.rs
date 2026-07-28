@@ -48,8 +48,8 @@ pub struct ExtractionActivity {
     #[serde(rename = "rkaf:extractorVersion")]
     pub extractor_version: String,
     /// JSON-LD property `rkaf:requestContractDigest`.
-    #[serde(rename = "rkaf:requestContractDigest")]
-    pub request_contract_digest: String,
+    #[serde(rename = "rkaf:requestContractDigest", skip_serializing_if = "Option::is_none", default)]
+    pub request_contract_digest: Option<String>,
     /// JSON-LD property `rkaf:extractionModelRef`.
     #[serde(rename = "rkaf:extractionModelRef", skip_serializing_if = "Option::is_none", default)]
     pub extraction_model_ref: Option<String>,

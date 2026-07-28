@@ -2051,17 +2051,24 @@ def target_shacl(
                 )
             out.append("      ] ] ]")
             if c.then_require:
-                requirement = c.then_require[0]
-                line = (
-                    f"    [ sh:property [ sh:path {requirement.name} ; "
-                    "sh:minCount 1 ;"
-                )
-                if requirement.pattern:
-                    line += f" sh:pattern {json.dumps(requirement.pattern)} ;"
-                if requirement.string_format == "date":
-                    line += " sh:datatype xsd:date ;"
-                line += " ] ]"
-                out.append(line)
+                # EVERY requirement, not just the first. A guard that emitted
+                # `then_require[0]` and dropped the rest is the silent-pass
+                # failure `constraints/adversarial/conditional-silent-pass.cue`
+                # is about, one layer down: the shape file still reads as a
+                # correct conditional while enforcing a strict subset of what
+                # the source declares. Each requirement is its own
+                # `sh:property` inside the same branch node, so the branch
+                # holds only when all of them hold.
+                requirements: list[str] = []
+                for requirement in c.then_require:
+                    part = f"sh:property [ sh:path {requirement.name} ; sh:minCount 1 ;"
+                    if requirement.pattern:
+                        part += f" sh:pattern {json.dumps(requirement.pattern)} ;"
+                    if requirement.string_format == "date":
+                        part += " sh:datatype xsd:date ;"
+                    part += " ]"
+                    requirements.append(part)
+                out.append("    [ " + " ; ".join(requirements) + " ]")
             else:
                 out.append("    [ sh:property [ sh:path rkaf:_unsatisfiable ; sh:minCount 1 ] ]")
             out.append("  ) ;")

@@ -36,7 +36,16 @@ package rkaf
 	// — and that question has one answer only if the whole contract is hashed
 	// together. Schema descriptions and prose hints are part of the contract;
 	// they are not a substitute for it.
-	"rkaf:requestContractDigest": string & =~"^sha256:[0-9a-f]{64}$"
+	//
+	// CONDITIONAL, not universal (see the guard below). The field presumes a
+	// REQUEST-shaped extraction: a run that sent instructions, a schema, and a
+	// configuration somewhere and got an answer back. A deterministic table
+	// parse sends nothing and has no such contract, so requiring the digest of
+	// one made the only conforming move to invent an envelope and hash it —
+	// which yields a real digest naming a contract the run never published,
+	// and that is worse than an absent field. When the field IS present it
+	// MUST name a contract the run actually issued.
+	"rkaf:requestContractDigest"?: string & =~"^sha256:[0-9a-f]{64}$"
 
 	// Opaque references to the model and prompt contract, present only when a
 	// model was involved. These are NOT a second AILineage: AILineage (§5.3)
@@ -59,10 +68,20 @@ package rkaf
 	// Attempt ordinal. Retries are part of run lineage, not a quality signal.
 	"rkaf:extractionAttempt"?: >=1
 
-	// A model extraction must name the model it used. Without it the record
-	// says "a model did this" while making the model unauditable, which is
-	// the provenance gap this contract exists to close.
+	// A model extraction must name the model it used, and must name the
+	// contract it sent. Without the first the record says "a model did this"
+	// while making the model unauditable; without the second a consumer cannot
+	// answer "was this produced by the contract I audited", and those two
+	// together are the provenance gap this contract exists to close.
+	//
+	// The digest is required HERE and not at the top level because a request
+	// contract is what a model call has and a deterministic parse does not.
+	// The other four methods may still carry the digest whenever the run
+	// genuinely published a contract — `rkaf:ruleBasedExtraction` over a
+	// versioned ruleset is the common case — but they are not made to
+	// manufacture one.
 	if activity["rkaf:extractionMethod"] == "rkaf:modelExtraction" {
-		"rkaf:extractionModelRef": string & =~"^[A-Za-z][A-Za-z0-9+.-]*:[^\\s]+$"
+		"rkaf:extractionModelRef":    string & =~"^[A-Za-z][A-Za-z0-9+.-]*:[^\\s]+$"
+		"rkaf:requestContractDigest": string & =~"^sha256:[0-9a-f]{64}$"
 	}
 }

@@ -358,10 +358,16 @@ FIXTURE_BINDINGS: list[tuple[str, str, str, str]] = [
     # The model-without-model-ref row proves a run cannot claim a model
     # produced it while leaving that model unauditable; the malformed-digest
     # row proves the request-contract digest is a digest, not a free string.
+    # The two request-contract rows are a matched pair: the digest is REQUIRED
+    # for a model call and absent-and-conforming for a deterministic parse,
+    # which has no request contract to name.
     ("extraction-activity", "ExtractionActivity",
      "fixtures/extractionactivity-model-positive.jsonld", "PASS"),
     ("extraction-activity", "ExtractionActivity",
      "fixtures/extractionactivity-deterministic-positive.jsonld", "PASS"),
+    ("extraction-activity", "ExtractionActivity",
+     "fixtures/extractionactivity-deterministic-no-request-contract-positive.jsonld",
+     "PASS"),
     ("extraction-activity", "ExtractionActivity",
      "fixtures/edges/extraction-activity-retry-edge.jsonld", "PASS"),
     ("extraction-activity", "ExtractionActivity",
