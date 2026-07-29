@@ -1,0 +1,31 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@graph": [
+    {
+      "@id": "urn:rkaf:fixture:event:overlapping-participants",
+      "@type": "rkaf:LifecycleEvent",
+      "rkaf:lifecycleEventKind": "rkaf:conceptLifecycle",
+      "rkaf:conceptLifecycleOperation": "rkaf:replacement",
+      "rkaf:effectiveDate": "2026-07-29T12:00:00Z",
+      "rkaf:emittedBy": "urn:rkaf:fixture:registry:editor",
+      "rkaf:appliesTo": ["urn:rkaf:fixture:concept:same"],
+      "rkaf:predecessorConcepts": ["urn:rkaf:fixture:concept:same"],
+      "rkaf:successorConcepts": ["urn:rkaf:fixture:concept:same"],
+      "rkaf:predecessorConceptRelease": "urn:rkaf:fixture:release:before",
+      "rkaf:successorConceptRelease": "urn:rkaf:fixture:release:after"
+    },
+    {
+      "@id": "urn:rkaf:fixture:release:before",
+      "@type": "rkaf:ReferenceResourceRelease",
+      "rkaf:membershipMode": "rkaf:completeMembership",
+      "prov:hadMember": ["urn:rkaf:fixture:concept:same"]
+    },
+    {
+      "@id": "urn:rkaf:fixture:release:after",
+      "@type": "rkaf:ReferenceResourceRelease",
+      "rkaf:membershipMode": "rkaf:completeMembership",
+      "prov:hadMember": ["urn:rkaf:fixture:concept:same"]
+    }
+  ],
+  "_comment": "Negative: one concept cannot be both predecessor and successor in the same lifecycle change."
+}

@@ -53,7 +53,13 @@ adoption_depth: D1
 
 # Test corpus identification.
 test_corpus_run_at: "<ISO 8601 datetime>"
+# Exact source revision tested. A local uncommitted candidate may use null, but
+# that candidate cannot support a published release or immutable claim.
+source_revision: "<commit/tag, or null for a local uncommitted candidate>"
 test_corpus_version: "<immutable fixture or carrier-corpus version>"
+# Exact digest printed by tools/l0_mapping_audit.py --print-contract-version.
+# L0 already carries this value in rulespec_version; L1-L4 record it here.
+constraint_contract_digest: "sha256:<64 lowercase hex>"
 
 # Per-level results from the conformance reporter run. `pass` means every
 # positive fixture passed and every negative fixture failed as expected at

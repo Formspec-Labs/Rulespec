@@ -1,0 +1,13 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@id": "urn:rkaf:fixture:lifecycle-negative:concept-fields-on-amendment",
+  "@type": "rkaf:LifecycleEvent",
+  "rkaf:lifecycleEventKind": "rkaf:amendment",
+  "rkaf:effectiveDate": "2026-07-29T12:00:00Z",
+  "rkaf:emittedBy": "urn:rkaf:fixture:actor:editor",
+  "rkaf:appliesTo": ["urn:rkaf:fixture:assertion:one"],
+  "rkaf:conceptLifecycleOperation": "rkaf:deprecation",
+  "rkaf:predecessorConcepts": ["urn:rkaf:fixture:concept:old"],
+  "rkaf:predecessorConceptRelease": "urn:rkaf:fixture:release:before",
+  "_comment": "Negative: concept participant fields are forbidden on non-concept lifecycle kinds."
+}

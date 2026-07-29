@@ -4,7 +4,10 @@
   "@type": "rkaf:ConceptResolutionResult",
   "rkaf:inputConcept": "urn:rkaf:fixture:concept:tx-grossEarnedIncome",
   "rkaf:resolutionStatus": "rkaf:resolved",
+  "rkaf:resolutionMethod": "rkaf:exactMatchTrusted",
   "rkaf:resolvedConcept": "urn:rkaf:fixture:concept:household-income",
+  "rkaf:mappingAssertion": "urn:rkaf:fixture:mapping:income-exact",
+  "rkaf:cacheStatus": "rkaf:notCached",
   "rkaf:usageCeiling": "rkaf:localOperationalUse",
   "rkaf:resolvedAt": "2026-04-15T10:00:00Z"
 }

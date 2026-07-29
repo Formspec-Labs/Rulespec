@@ -1,0 +1,24 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@graph": [
+    {
+      "@id": "urn:rkaf:fixture:concept:typed-source",
+      "@type": "rkaf:RegisteredConcept",
+      "skos:prefLabel": {
+        "en": "Typed source"
+      },
+      "skos:inScheme": "urn:rkaf:fixture:scheme:shared",
+      "skos:broader": [
+        "urn:rkaf:fixture:resource:not-a-concept"
+      ],
+      "rkaf:managedByRegistry": "urn:rkaf:fixture:registry:shared",
+      "rkaf:conceptScope": "shared/source",
+      "rkaf:registeredAt": "2026-07-29T12:00:00Z"
+    },
+    {
+      "@id": "urn:rkaf:fixture:resource:not-a-concept",
+      "skos:inScheme": "urn:rkaf:fixture:scheme:shared"
+    }
+  ],
+  "_comment": "Negative: a hierarchy target with the same scheme but no RegisteredConcept or LocalConcept type is not a concept."
+}

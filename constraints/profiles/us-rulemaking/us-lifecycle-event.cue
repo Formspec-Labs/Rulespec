@@ -16,11 +16,11 @@ package rkaf
 // (spec/rkaf-rulemaking.md §6, "this module defines no parallel event class").
 //
 // Value-set assembly: `#ComposedLifecycleEventKind` is the closed
-// whole-contract kind set — the kernel's ten universal kinds unioned with this
+// whole-contract kind set — the kernel's eight universal kinds unioned with this
 // profile's twelve. The compiler resolves the union across files at build time
 // (tools/constraints_compile.py `_resolve_enum_values`), so every compiled
-// target of THIS file carries all 22 values while every compiled kernel target
-// carries only the ten the kernel owns.
+// target of THIS file carries all 20 values while every compiled kernel target
+// carries only the eight the kernel owns.
 #USProceedingLifecycleEventKind: "rkaf:proceedingPrerule" |
 	"rkaf:proceedingProposed" | "rkaf:proceedingSupplemental" |
 	"rkaf:proceedingFinal" | "rkaf:proceedingWithdrawn" |

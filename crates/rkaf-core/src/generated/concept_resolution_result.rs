@@ -27,6 +27,46 @@ pub enum ConceptResolutionStatus {
     StaleCacheFallback,
 }
 
+/// Closed Rulespec values for `ConceptResolutionMethod`.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub enum ConceptResolutionMethod {
+    /// Wire value `rkaf:directRegistry`.
+    #[serde(rename = "rkaf:directRegistry")]
+    DirectRegistry,
+    /// Wire value `rkaf:exactMatchTrusted`.
+    #[serde(rename = "rkaf:exactMatchTrusted")]
+    ExactMatchTrusted,
+    /// Wire value `rkaf:closeMatchLocallyAdopted`.
+    #[serde(rename = "rkaf:closeMatchLocallyAdopted")]
+    CloseMatchLocallyAdopted,
+    /// Wire value `rkaf:closeMatchAwaitingAdoption`.
+    #[serde(rename = "rkaf:closeMatchAwaitingAdoption")]
+    CloseMatchAwaitingAdoption,
+    /// Wire value `rkaf:broadOrNarrowMatchDiscoveryOnly`.
+    #[serde(rename = "rkaf:broadOrNarrowMatchDiscoveryOnly")]
+    BroadOrNarrowMatchDiscoveryOnly,
+    /// Wire value `rkaf:cacheServed`.
+    #[serde(rename = "rkaf:cacheServed")]
+    CacheServed,
+    /// Wire value `rkaf:staleCacheServed`.
+    #[serde(rename = "rkaf:staleCacheServed")]
+    StaleCacheServed,
+}
+
+/// Closed Rulespec values for `ConceptResolutionCacheStatus`.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub enum ConceptResolutionCacheStatus {
+    /// Wire value `rkaf:fresh`.
+    #[serde(rename = "rkaf:fresh")]
+    Fresh,
+    /// Wire value `rkaf:stale`.
+    #[serde(rename = "rkaf:stale")]
+    Stale,
+    /// Wire value `rkaf:notCached`.
+    #[serde(rename = "rkaf:notCached")]
+    NotCached,
+}
+
 use std::collections::BTreeMap;
 
 /// Generated JSON-LD carrier for `ConceptResolutionResult`.
@@ -44,12 +84,21 @@ pub struct ConceptResolutionResult {
     /// JSON-LD property `rkaf:resolutionStatus`.
     #[serde(rename = "rkaf:resolutionStatus")]
     pub resolution_status: ConceptResolutionStatus,
+    /// JSON-LD property `rkaf:resolutionMethod`.
+    #[serde(rename = "rkaf:resolutionMethod")]
+    pub resolution_method: ConceptResolutionMethod,
     /// JSON-LD property `rkaf:resolvedConcept`.
     #[serde(rename = "rkaf:resolvedConcept", skip_serializing_if = "Option::is_none", default)]
     pub resolved_concept: Option<String>,
+    /// JSON-LD property `rkaf:mappingAssertion`.
+    #[serde(rename = "rkaf:mappingAssertion", skip_serializing_if = "Option::is_none", default)]
+    pub mapping_assertion: Option<String>,
+    /// JSON-LD property `rkaf:cacheStatus`.
+    #[serde(rename = "rkaf:cacheStatus")]
+    pub cache_status: ConceptResolutionCacheStatus,
     /// JSON-LD property `rkaf:usageCeiling`.
-    #[serde(rename = "rkaf:usageCeiling", skip_serializing_if = "Option::is_none", default)]
-    pub usage_ceiling: Option<crate::generated::usage_eligibility::UsageEligibility>,
+    #[serde(rename = "rkaf:usageCeiling")]
+    pub usage_ceiling: crate::generated::usage_eligibility::UsageEligibility,
     /// JSON-LD property `rkaf:resolvedAt`.
     #[serde(rename = "rkaf:resolvedAt")]
     pub resolved_at: String,

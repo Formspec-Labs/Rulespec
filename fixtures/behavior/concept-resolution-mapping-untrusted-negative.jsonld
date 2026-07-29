@@ -1,0 +1,66 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@id": "urn:rkaf:fixture:beh:mapping-untrusted:case1",
+  "@type": "rkaf:BehaviorTestCase",
+  "rkaf:behaviorContract": "rkaf:ConceptResolutionWithConflict",
+  "rkaf:evaluationTime": "2026-07-29T12:00:00Z",
+  "rkaf:subjectConcept": "urn:rkaf:fixture:concept:X",
+  "rkaf:rationale": "Publication approval and exact endpoint membership do not turn an untrusted, unadopted exactMatch into exactMatchTrusted.",
+  "rkaf:input": {
+    "@graph": [
+      {
+        "@id": "urn:rkaf:fixture:concept:X",
+        "@type": "rkaf:LocalConcept",
+        "skos:prefLabel": {"en": "X"},
+        "skos:inScheme": "urn:rkaf:fixture:scheme:local",
+        "rkaf:definedInScope": "urn:rkaf:fixture:scope:test",
+        "rkaf:conceptScope": "fixture/local"
+      },
+      {
+        "@id": "urn:rkaf:fixture:mapping:m1",
+        "@type": "rkaf:ConceptMapping",
+        "rkaf:assertionOrigin": "rkaf:humanAsserted",
+        "rkaf:epistemicBasis": "rkaf:editorialAssertion",
+        "rkaf:assertsSubject": "urn:rkaf:fixture:concept:X",
+        "rkaf:assertsPredicate": "skos:exactMatch",
+        "rkaf:assertsObject": "canon:A",
+        "rkaf:assertionPolarity": "rkaf:affirmed",
+        "rkaf:sourceConceptRelease": "urn:rkaf:fixture:release:complete",
+        "rkaf:targetConceptRelease": "urn:rkaf:fixture:release:complete",
+        "rkaf:managedByRegistry": "urn:rkaf:fixture:registry:untrusted"
+      },
+      {
+        "@id": "urn:rkaf:fixture:release:complete",
+        "@type": "rkaf:ReferenceResourceRelease",
+        "dcterms:isVersionOf": "urn:rkaf:fixture:registry:untrusted",
+        "dcat:version": "1.0.0",
+        "dcterms:type": "skos:ConceptScheme",
+        "rkaf:membershipMode": "rkaf:completeMembership",
+        "prov:hadMember": ["urn:rkaf:fixture:concept:X", "canon:A"],
+        "dcat:distribution": "urn:rkaf:fixture:distribution:untrusted-1",
+        "rkaf:referenceReleaseDigest": "sha256:0000000000000000000000000000000000000000000000000000000000000000"
+      },
+      {
+        "@id": "att1",
+        "@type": "rkaf:Attestation",
+        "rkaf:attestor": "urn:rkaf:fixture:actor:registry-reviewer",
+        "rkaf:attestorKind": "rkaf:formalReviewer",
+        "rkaf:targets": ["urn:rkaf:fixture:mapping:m1"],
+        "rkaf:decision": "rkaf:approved",
+        "rkaf:attestationScope": "rkaf:registryPublication",
+        "rkaf:attestedAt": "2026-07-28T12:00:00Z"
+      }
+    ]
+  },
+  "rkaf:expectedOutput": {
+    "conceptResolutionResult": {
+      "inputConcept": "urn:rkaf:fixture:concept:X",
+      "resolutionStatus": "rkaf:unresolved",
+      "resolutionMethod": "rkaf:directRegistry",
+      "cacheStatus": "rkaf:notCached",
+      "usageCeiling": "rkaf:notEligible",
+      "resolvedAt": "2026-07-29T12:00:00Z",
+      "resolverId": "urn:rulespec:runtime:reference"
+    }
+  }
+}

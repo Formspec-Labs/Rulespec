@@ -12,7 +12,13 @@ Normative architecture and conformance — the load-bearing surface above the vo
 
 Enumerates every codified Rulespec class and predicate. Two documentation tiers, and the difference is deliberate:
 
-- **Per-term tables** — one row per term, with IRI, kind, domain, range, cardinality, and required fixtures. These cover the universal primitives (§§4.1–4.6 of `rkaf-core.md`), the concept vocabulary and assignments (§4.7), the document-analysis module, the Experimental US rulemaking-process module, the Studio-derived promotions, and the abstract anchoring contract.
+- **Per-term tables** — one row per term, with IRI, kind, domain, range,
+  cardinality, and required fixtures. These cover the universal primitives
+  (§§4.1–4.6 of `rkaf-core.md`), concept vocabulary, lifecycle, assignments,
+  and resolution (§4.7 plus `rkaf-concept-registry.md`), the document-analysis
+  module, the Experimental US rulemaking-process module, the RefSpec
+  application profile, the Studio-derived promotions, and the abstract
+  anchoring contract.
 - **Per-class tier (§6)** — one row per class with its CUE source, fixture, and purpose, plus bullet sections for the closed enums and the traversal predicates. A class here is fully specified by its CUE file; the row records what it is FOR.
 
 `tools/vocab_audit.py` enforces the floor across both tiers: every class a CUE file compiles must appear as `rkaf:<Term>`, and every fixture named in a `Required fixtures` cell must exist.
@@ -35,7 +41,22 @@ and authority chains.
 
 ### `rkaf-concept-registry.md`
 
-The concept registry specification — companion to `rkaf-vocabulary.md`. Defines `RegisteredConcept`, `LocalConcept`, `ConceptRegistry`, `ConceptMintingAuthority`, the nine SKOS mapping predicates, `MappingApplicabilityContext`, `ConceptResolutionResult`, and the three conformance levels (Core, Lifecycle, Federated). `ConceptScheme` (§2.6) and `ConceptAssignment` (§2.8) are normatively defined in `rkaf-core.md` §4.7 and referenced here for their registry consequences rather than restated.
+The governed-concept specification — companion to `rkaf-vocabulary.md`.
+Defines multilingual native SKOS carriage, typed notation, scheme-internal
+multi-parent hierarchy, `RegisteredConcept`, `LocalConcept`, mappings,
+complete-membership release pins, concept lifecycle events, and
+`ConceptResolutionResult`. Registry and actor IRIs remain externally
+described; the retired v0.1 `ConceptRegistry` and `ConceptMintingAuthority`
+object models are not active classes. `ConceptScheme` and `ConceptAssignment`
+are normatively introduced in `rkaf-core.md` §4.7 and detailed here.
+
+### `rkaf-refspec.md`
+
+The RefSpec application-profile vocabulary owned by Rulespec. Defines the
+portable `rkaf:openLabel` `ValueAssertion`, its required facet and assignment
+role, language materialization, provenance, and grounded evidence. RefSpec owns
+permission tuples, operational decisions, evaluation, and deployment; the
+Rulespec kernel does not depend on the profile.
 
 ### `rkaf-behavior.md`
 

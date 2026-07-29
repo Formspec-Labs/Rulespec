@@ -1,0 +1,13 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@id": "urn:rkaf:fixture:concept-resolution-result:conflicting-eligible-ceiling",
+  "@type": "rkaf:ConceptResolutionResult",
+  "rkaf:inputConcept": "urn:rkaf:fixture:concept:input",
+  "rkaf:resolutionStatus": "rkaf:conflicting",
+  "rkaf:resolutionMethod": "rkaf:exactMatchTrusted",
+  "rkaf:mappingAssertion": "urn:rkaf:fixture:mapping:selected-for-diagnostics",
+  "rkaf:cacheStatus": "rkaf:notCached",
+  "rkaf:usageCeiling": "rkaf:draftGenerationAllowed",
+  "rkaf:resolvedAt": "2026-07-29T12:00:00Z",
+  "_comment": "Negative: a conflict cannot authorize use."
+}

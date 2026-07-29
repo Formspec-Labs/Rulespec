@@ -47,8 +47,8 @@ kernel class. `rkaf:lifecycleEventKind` is the worked example:
 
 | Layer | Declares | Compiled artifact |
 |---|---|---|
-| `core/lifecycle-event.cue` | `#LifecycleEventKind` — the ten universal kinds — and a kind property left deliberately OPEN | `compiled/*/core/lifecycle-event.*`: the ten kinds as a named type, no closure on the property |
-| `profiles/us-rulemaking/us-lifecycle-event.cue` | `#USProceedingLifecycleEventKind` (twelve `proceeding` kinds), the assembled union `#ComposedLifecycleEventKind`, and `#USLifecycleEvent` composing the kernel shape | `compiled/*/profiles/us-rulemaking/us-lifecycle-event.*`: all 22 values, closed, bound to `rkaf:LifecycleEvent` |
+| `core/lifecycle-event.cue` | `#LifecycleEventKind` — the eight universal kinds — and a kind property left deliberately OPEN | `compiled/*/core/lifecycle-event.*`: the eight kinds as a named type, no closure on the property |
+| `profiles/us-rulemaking/us-lifecycle-event.cue` | `#USProceedingLifecycleEventKind` (twelve `proceeding` kinds), the assembled union `#ComposedLifecycleEventKind`, and `#USLifecycleEvent` composing the kernel shape | `compiled/*/profiles/us-rulemaking/us-lifecycle-event.*`: all 20 values, closed, bound to `rkaf:LifecycleEvent` |
 
 Why the kernel carrier stays open: SHACL is conjunctive and the compiled shapes
 are loaded together, so a kernel `sh:in` over ten values would reject every
@@ -59,7 +59,7 @@ constrained by the profile — and the composed artifact is the one
 class. Ownership is not left to review habit: `LifecycleKindOwnershipTests` in
 `tools/test_constraints_compile.py` proves every value in every compiled
 artifact has exactly one declaring module, that the kernel's part is exactly
-the ten universal kinds, and that the assembled union equals kernel +
+the eight universal kinds, and that the assembled union equals kernel +
 sum(profiles).
 
 "Every compiled artifact" is meant literally, and the audit walks each sink in
@@ -78,7 +78,7 @@ Rego is the reason this table exists rather than a sentence. It is the one
 target that cannot express "this property is closed over that set" at all — it
 emits value sets and leaves the `deny` rules to the policy author — and it is
 also the target no gate loads. When `target_rego` iterated `doc.enums` only, the
-assembled 22-value union existed in every other artifact and in none of the
+assembled 20-value union existed in every other artifact and in none of the
 Rego ones, and nothing failed. `test_every_target_carries_the_assembled_closure`
 now asserts per-sink, so the next target to lose a union names itself.
 

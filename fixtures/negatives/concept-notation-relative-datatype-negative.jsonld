@@ -1,0 +1,19 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@id": "urn:rkaf:fixture:concept:relative-notation-datatype",
+  "@type": "rkaf:RegisteredConcept",
+  "skos:prefLabel": {
+    "en": "Household income"
+  },
+  "skos:notation": [
+    {
+      "@value": "HI-001",
+      "@type": "topic-code"
+    }
+  ],
+  "skos:inScheme": "urn:rkaf:fixture:scheme:topics",
+  "rkaf:managedByRegistry": "urn:rkaf:fixture:registry:topics",
+  "rkaf:conceptScope": "benefits/income",
+  "rkaf:registeredAt": "2026-07-29T12:00:00Z",
+  "_comment": "Negative authored JSON: a notation datatype is an absolute IRI, not a relative token."
+}

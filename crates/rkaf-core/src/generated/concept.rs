@@ -17,13 +17,37 @@ pub struct ConceptScheme {
     pub id: Option<String>,
     /// JSON-LD property `skos:prefLabel`.
     #[serde(rename = "skos:prefLabel")]
-    pub pref_label: String,
+    pub pref_label: crate::generated::vocabulary_text::PreferredLabelMap,
+    /// JSON-LD property `skos:altLabel`.
+    #[serde(rename = "skos:altLabel", skip_serializing_if = "Option::is_none", default)]
+    pub alt_label: Option<crate::generated::vocabulary_text::VocabularyTextMap>,
+    /// JSON-LD property `skos:hiddenLabel`.
+    #[serde(rename = "skos:hiddenLabel", skip_serializing_if = "Option::is_none", default)]
+    pub hidden_label: Option<crate::generated::vocabulary_text::VocabularyTextMap>,
+    /// JSON-LD property `skos:definition`.
+    #[serde(rename = "skos:definition", skip_serializing_if = "Option::is_none", default)]
+    pub definition: Option<crate::generated::vocabulary_text::VocabularyTextMap>,
+    /// JSON-LD property `skos:example`.
+    #[serde(rename = "skos:example", skip_serializing_if = "Option::is_none", default)]
+    pub example: Option<crate::generated::vocabulary_text::VocabularyTextMap>,
+    /// JSON-LD property `skos:note`.
+    #[serde(rename = "skos:note", skip_serializing_if = "Option::is_none", default)]
+    pub note: Option<crate::generated::vocabulary_text::VocabularyTextMap>,
+    /// JSON-LD property `skos:scopeNote`.
+    #[serde(rename = "skos:scopeNote", skip_serializing_if = "Option::is_none", default)]
+    pub scope_note: Option<crate::generated::vocabulary_text::VocabularyTextMap>,
+    /// JSON-LD property `skos:changeNote`.
+    #[serde(rename = "skos:changeNote", skip_serializing_if = "Option::is_none", default)]
+    pub change_note: Option<crate::generated::vocabulary_text::VocabularyTextMap>,
+    /// JSON-LD property `skos:editorialNote`.
+    #[serde(rename = "skos:editorialNote", skip_serializing_if = "Option::is_none", default)]
+    pub editorial_note: Option<crate::generated::vocabulary_text::VocabularyTextMap>,
+    /// JSON-LD property `skos:historyNote`.
+    #[serde(rename = "skos:historyNote", skip_serializing_if = "Option::is_none", default)]
+    pub history_note: Option<crate::generated::vocabulary_text::VocabularyTextMap>,
     /// JSON-LD property `rkaf:schemeFacet`.
     #[serde(rename = "rkaf:schemeFacet")]
     pub scheme_facet: String,
-    /// JSON-LD property `skos:definition`.
-    #[serde(rename = "skos:definition", skip_serializing_if = "Option::is_none", default)]
-    pub definition: Option<String>,
     /// JSON-LD property `skos:hasTopConcept`.
     #[serde(rename = "skos:hasTopConcept", skip_serializing_if = "Option::is_none", default)]
     pub has_top_concept: Option<crate::OneOrMany<String>>,
@@ -47,7 +71,37 @@ pub struct RegisteredConcept {
     pub id: Option<String>,
     /// JSON-LD property `skos:prefLabel`.
     #[serde(rename = "skos:prefLabel")]
-    pub pref_label: String,
+    pub pref_label: crate::generated::vocabulary_text::PreferredLabelMap,
+    /// JSON-LD property `skos:altLabel`.
+    #[serde(rename = "skos:altLabel", skip_serializing_if = "Option::is_none", default)]
+    pub alt_label: Option<crate::generated::vocabulary_text::VocabularyTextMap>,
+    /// JSON-LD property `skos:hiddenLabel`.
+    #[serde(rename = "skos:hiddenLabel", skip_serializing_if = "Option::is_none", default)]
+    pub hidden_label: Option<crate::generated::vocabulary_text::VocabularyTextMap>,
+    /// JSON-LD property `skos:definition`.
+    #[serde(rename = "skos:definition", skip_serializing_if = "Option::is_none", default)]
+    pub definition: Option<crate::generated::vocabulary_text::VocabularyTextMap>,
+    /// JSON-LD property `skos:example`.
+    #[serde(rename = "skos:example", skip_serializing_if = "Option::is_none", default)]
+    pub example: Option<crate::generated::vocabulary_text::VocabularyTextMap>,
+    /// JSON-LD property `skos:note`.
+    #[serde(rename = "skos:note", skip_serializing_if = "Option::is_none", default)]
+    pub note: Option<crate::generated::vocabulary_text::VocabularyTextMap>,
+    /// JSON-LD property `skos:scopeNote`.
+    #[serde(rename = "skos:scopeNote", skip_serializing_if = "Option::is_none", default)]
+    pub scope_note: Option<crate::generated::vocabulary_text::VocabularyTextMap>,
+    /// JSON-LD property `skos:changeNote`.
+    #[serde(rename = "skos:changeNote", skip_serializing_if = "Option::is_none", default)]
+    pub change_note: Option<crate::generated::vocabulary_text::VocabularyTextMap>,
+    /// JSON-LD property `skos:editorialNote`.
+    #[serde(rename = "skos:editorialNote", skip_serializing_if = "Option::is_none", default)]
+    pub editorial_note: Option<crate::generated::vocabulary_text::VocabularyTextMap>,
+    /// JSON-LD property `skos:historyNote`.
+    #[serde(rename = "skos:historyNote", skip_serializing_if = "Option::is_none", default)]
+    pub history_note: Option<crate::generated::vocabulary_text::VocabularyTextMap>,
+    /// JSON-LD property `skos:notation`.
+    #[serde(rename = "skos:notation", skip_serializing_if = "Option::is_none", default)]
+    pub notation: Option<Vec<crate::generated::vocabulary_text::NotationLiteral>>,
     /// JSON-LD property `skos:inScheme`.
     #[serde(rename = "skos:inScheme")]
     pub in_scheme: String,
@@ -57,15 +111,12 @@ pub struct RegisteredConcept {
     /// JSON-LD property `rkaf:conceptScope`.
     #[serde(rename = "rkaf:conceptScope")]
     pub concept_scope: String,
-    /// JSON-LD property `skos:altLabel`.
-    #[serde(rename = "skos:altLabel", skip_serializing_if = "Option::is_none", default)]
-    pub alt_label: Option<crate::OneOrMany<String>>,
-    /// JSON-LD property `skos:definition`.
-    #[serde(rename = "skos:definition", skip_serializing_if = "Option::is_none", default)]
-    pub definition: Option<String>,
+    /// JSON-LD property `rkaf:registeredAt`.
+    #[serde(rename = "rkaf:registeredAt")]
+    pub registered_at: String,
     /// JSON-LD property `skos:broader`.
     #[serde(rename = "skos:broader", skip_serializing_if = "Option::is_none", default)]
-    pub broader: Option<String>,
+    pub broader: Option<crate::OneOrMany<String>>,
     /// JSON-LD property `skos:narrower`.
     #[serde(rename = "skos:narrower", skip_serializing_if = "Option::is_none", default)]
     pub narrower: Option<crate::OneOrMany<String>>,
@@ -92,7 +143,37 @@ pub struct LocalConcept {
     pub id: Option<String>,
     /// JSON-LD property `skos:prefLabel`.
     #[serde(rename = "skos:prefLabel")]
-    pub pref_label: String,
+    pub pref_label: crate::generated::vocabulary_text::PreferredLabelMap,
+    /// JSON-LD property `skos:altLabel`.
+    #[serde(rename = "skos:altLabel", skip_serializing_if = "Option::is_none", default)]
+    pub alt_label: Option<crate::generated::vocabulary_text::VocabularyTextMap>,
+    /// JSON-LD property `skos:hiddenLabel`.
+    #[serde(rename = "skos:hiddenLabel", skip_serializing_if = "Option::is_none", default)]
+    pub hidden_label: Option<crate::generated::vocabulary_text::VocabularyTextMap>,
+    /// JSON-LD property `skos:definition`.
+    #[serde(rename = "skos:definition", skip_serializing_if = "Option::is_none", default)]
+    pub definition: Option<crate::generated::vocabulary_text::VocabularyTextMap>,
+    /// JSON-LD property `skos:example`.
+    #[serde(rename = "skos:example", skip_serializing_if = "Option::is_none", default)]
+    pub example: Option<crate::generated::vocabulary_text::VocabularyTextMap>,
+    /// JSON-LD property `skos:note`.
+    #[serde(rename = "skos:note", skip_serializing_if = "Option::is_none", default)]
+    pub note: Option<crate::generated::vocabulary_text::VocabularyTextMap>,
+    /// JSON-LD property `skos:scopeNote`.
+    #[serde(rename = "skos:scopeNote", skip_serializing_if = "Option::is_none", default)]
+    pub scope_note: Option<crate::generated::vocabulary_text::VocabularyTextMap>,
+    /// JSON-LD property `skos:changeNote`.
+    #[serde(rename = "skos:changeNote", skip_serializing_if = "Option::is_none", default)]
+    pub change_note: Option<crate::generated::vocabulary_text::VocabularyTextMap>,
+    /// JSON-LD property `skos:editorialNote`.
+    #[serde(rename = "skos:editorialNote", skip_serializing_if = "Option::is_none", default)]
+    pub editorial_note: Option<crate::generated::vocabulary_text::VocabularyTextMap>,
+    /// JSON-LD property `skos:historyNote`.
+    #[serde(rename = "skos:historyNote", skip_serializing_if = "Option::is_none", default)]
+    pub history_note: Option<crate::generated::vocabulary_text::VocabularyTextMap>,
+    /// JSON-LD property `skos:notation`.
+    #[serde(rename = "skos:notation", skip_serializing_if = "Option::is_none", default)]
+    pub notation: Option<Vec<crate::generated::vocabulary_text::NotationLiteral>>,
     /// JSON-LD property `skos:inScheme`.
     #[serde(rename = "skos:inScheme")]
     pub in_scheme: String,
@@ -102,15 +183,9 @@ pub struct LocalConcept {
     /// JSON-LD property `rkaf:conceptScope`.
     #[serde(rename = "rkaf:conceptScope")]
     pub concept_scope: String,
-    /// JSON-LD property `skos:altLabel`.
-    #[serde(rename = "skos:altLabel", skip_serializing_if = "Option::is_none", default)]
-    pub alt_label: Option<crate::OneOrMany<String>>,
-    /// JSON-LD property `skos:definition`.
-    #[serde(rename = "skos:definition", skip_serializing_if = "Option::is_none", default)]
-    pub definition: Option<String>,
     /// JSON-LD property `skos:broader`.
     #[serde(rename = "skos:broader", skip_serializing_if = "Option::is_none", default)]
-    pub broader: Option<String>,
+    pub broader: Option<crate::OneOrMany<String>>,
     /// JSON-LD property `skos:narrower`.
     #[serde(rename = "skos:narrower", skip_serializing_if = "Option::is_none", default)]
     pub narrower: Option<crate::OneOrMany<String>>,

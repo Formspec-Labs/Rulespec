@@ -3,7 +3,7 @@
 //! Carrier convention: `spec/projectors/openapi.md`.
 
 use async_trait::async_trait;
-use rkaf_projector_core::{Projector, ProjectorError, TargetId};
+use rkaf_projector_core::{validate_overlay_with_schema_root, Projector, ProjectorError, TargetId};
 use serde_json::{json, Map, Value};
 use std::path::{Path, PathBuf};
 
@@ -82,9 +82,17 @@ impl Projector for OpenApiProjector {
         Ok((Value::Object(doc), overlay))
     }
 
-    async fn validate(&self, _overlay: Value) -> Result<(), ProjectorError> {
-        // Delegated to the JSON Schema projector when composed (the overlay payload is identical).
-        Ok(())
+    async fn validate(&self, overlay: Value) -> Result<(), ProjectorError> {
+        let repo_root = self
+            .constraints_compile_script
+            .parent()
+            .and_then(Path::parent)
+            .ok_or_else(|| {
+                ProjectorError::Validate(
+                    "constraints_compile_script does not resolve under a repository root".into(),
+                )
+            })?;
+        validate_overlay_with_schema_root(&overlay, &repo_root.join("compiled/json-schema"))
     }
 
     async fn derive(&self, profile_cue_path: &str) -> Result<Value, ProjectorError> {

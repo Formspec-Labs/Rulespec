@@ -27,7 +27,9 @@ The native artifact's `@context` is preserved; the v0.2 Rulespec context is appe
 
 - **Attach:** merges `@graph` arrays; appends rkaf-context to `@context`.
 - **Extract:** partitions `@graph` into (native nodes — those with no `rkaf:` prefix in `@type`) and (overlay nodes — those with `rkaf:` prefix in `@type`).
-- **Validate:** validates each overlay node against its compiled JSON Schema 2020-12 (matched by `@type`).
+- **Validate:** dispatches every typed overlay node to every generated JSON
+  Schema 2020-12 definition targeting that `@type`; it uses the same
+  executable validator path as the JSON Schema and OpenAPI projectors.
 - **Round-trip:** `Attach(native, overlay) → Extract` MUST equal `(native, overlay)` after canonical normalization (the Rust reference implementation also preserves byte-equality on the common shape — single-element `@context` is unwrapped back to a string on Extract).
 - **Derive:** invokes `tools/constraints_compile.py --in <profile.cue> --target cue`. Emits a JSON-LD context fragment plus a companion SHACL pointer keyed at the canonical rkaf context URL.
 

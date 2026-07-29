@@ -20,6 +20,12 @@ For the full provenance story, read in order:
 
 7. **`v0.1.1-release-manifest.md`** — The combined v0.1.1 release manifest. Final SHA-256 hashes, conformance signature (1,206 triples, 0 violations), full per-shape coverage matrix with 4 accepted coverage gaps, synthetic defect coverage table, runtime conformance test layer outline.
 
+8. **`2026-07-29-batch-e-vocabulary-closure.md`** — Local
+   `0.2.0-pre.9` vocabulary-closure evidence. Records the initial parity and
+   fixture failures, their classifications and corrections, the final complete
+   gate, and the generated-artifact digests. The report preserves the
+   uncommitted candidate boundary with `source_revision: null`.
+
 ## What the reports preserve
 
 These reports are kept in the repo (rather than treated as ephemeral notes) because they preserve:

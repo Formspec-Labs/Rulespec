@@ -1,0 +1,59 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@graph": [
+    {
+      "@id": "urn:rkaf:fixture:lifecycle-edge:distinct-releases",
+      "@type": "rkaf:LifecycleEvent",
+      "rkaf:lifecycleEventKind": "rkaf:conceptLifecycle",
+      "rkaf:conceptLifecycleOperation": "rkaf:replacement",
+      "rkaf:effectiveDate": "2026-07-29T12:00:00Z",
+      "rkaf:emittedBy": "urn:rkaf:fixture:registry:topics",
+      "rkaf:appliesTo": ["urn:rkaf:fixture:concept:old"],
+      "rkaf:predecessorConcepts": ["urn:rkaf:fixture:concept:old"],
+      "rkaf:successorConcepts": ["urn:rkaf:fixture:concept:new"],
+      "rkaf:predecessorConceptRelease": "urn:rkaf:fixture:release:distinct-before",
+      "rkaf:successorConceptRelease": "urn:rkaf:fixture:release:distinct-after"
+    },
+    {
+      "@id": "urn:rkaf:fixture:release:distinct-before",
+      "@type": "rkaf:ReferenceResourceRelease",
+      "dcterms:isVersionOf": "urn:rkaf:fixture:registry:topics",
+      "dcat:version": "before",
+      "dcterms:type": "skos:ConceptScheme",
+      "rkaf:membershipMode": "rkaf:completeMembership",
+      "prov:hadMember": ["urn:rkaf:fixture:concept:old"],
+      "dcat:distribution": ["urn:rkaf:fixture:distribution:distinct-before"],
+      "rkaf:referenceReleaseDigest": "sha256:4d2fb7770cde4b50f4037b1e5b423c8003a93a877d48ea36e5e92787b4a57071",
+      "rkaf:versionBasis": "rkaf:publisherAssigned"
+    },
+    {
+      "@id": "urn:rkaf:fixture:release:distinct-after",
+      "@type": "rkaf:ReferenceResourceRelease",
+      "dcterms:isVersionOf": "urn:rkaf:fixture:registry:topics",
+      "dcat:version": "after",
+      "dcterms:type": "skos:ConceptScheme",
+      "rkaf:membershipMode": "rkaf:completeMembership",
+      "prov:hadMember": ["urn:rkaf:fixture:concept:new"],
+      "dcat:distribution": ["urn:rkaf:fixture:distribution:distinct-after"],
+      "rkaf:referenceReleaseDigest": "sha256:727487ad4fa7c66c9309ae475b46f283b08e06ae62464ad0ec4ba5c46b2626b0",
+      "rkaf:versionBasis": "rkaf:publisherAssigned"
+    },
+    {
+      "@id": "urn:rkaf:fixture:distribution:distinct-before",
+      "@type": "rkaf:Artifact",
+      "rkaf:hasArtifactIdentifier": ["urn:rkaf:fixture:distribution:distinct-before"],
+      "rkaf:artifactIdentifierScheme": ["rkaf:partner-defined"],
+      "dcterms:format": "application/ld+json",
+      "rkaf:hasContentDigest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    {
+      "@id": "urn:rkaf:fixture:distribution:distinct-after",
+      "@type": "rkaf:Artifact",
+      "rkaf:hasArtifactIdentifier": ["urn:rkaf:fixture:distribution:distinct-after"],
+      "rkaf:artifactIdentifierScheme": ["rkaf:partner-defined"],
+      "dcterms:format": "application/ld+json",
+      "rkaf:hasContentDigest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+    }
+  ],
+  "_comment": "Edge: a replacement crosses two distinct complete-membership release states."
+}

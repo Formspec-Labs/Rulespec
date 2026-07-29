@@ -1,0 +1,13 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@id": "urn:rkaf:fixture:concept-resolution-result:stale-cache-served-fresh",
+  "@type": "rkaf:ConceptResolutionResult",
+  "rkaf:inputConcept": "urn:rkaf:fixture:concept:input",
+  "rkaf:resolutionStatus": "rkaf:staleCacheFallback",
+  "rkaf:resolutionMethod": "rkaf:staleCacheServed",
+  "rkaf:resolvedConcept": "urn:rkaf:fixture:concept:input",
+  "rkaf:cacheStatus": "rkaf:fresh",
+  "rkaf:usageCeiling": "rkaf:searchOnly",
+  "rkaf:resolvedAt": "2026-07-29T12:00:00Z",
+  "_comment": "Negative: staleCacheServed requires a stale cache status."
+}

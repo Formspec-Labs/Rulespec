@@ -19,6 +19,7 @@ from tools.constraints_compile import (
     _scan_reference_class_registry,
     parse_cue_file,
     target_json_schema,
+    target_cue,
     target_rego,
     target_rust,
     target_shacl,
@@ -541,6 +542,56 @@ package rkaf
                 shacl, r"sh:path rkaf:required ;[^\n]*sh:minCount 1"
             )
 
+    def test_composed_list_keeps_scalar_jsonld_shorthand(self) -> None:
+        """Composition must not turn an inherited OneOrMany list into Vec.
+
+        LifecycleEvent exposed this at the real profile boundary: the kernel
+        accepted scalar-or-array `rkaf:appliesTo`, while the composed US
+        profile silently narrowed the same inherited property to array-only.
+        """
+        with tempfile.TemporaryDirectory() as temporary:
+            source = Path(temporary) / "one-or-many.cue"
+            source.write_text(
+                """
+package rkaf
+
+import "list"
+
+#OneOrManyBase: {
+	"rkaf:items": [...string] & list.MinItems(1)
+}
+
+#OneOrManyOverlay: {
+	#OneOrManyBase
+	"@type": "rkaf:OneOrManyOverlay"
+}
+"""
+            )
+            document = parse_cue_file(source)
+            schema = json.loads(target_json_schema(document))
+            items = schema["$defs"]["OneOrManyOverlay"]["properties"]["rkaf:items"]
+            self.assertEqual(
+                [branch.get("type") for branch in items["anyOf"]],
+                ["string", "array"],
+            )
+            rust = target_rust(document)
+            self.assertIn(
+                "pub items: crate::OneOrMany<String>",
+                rust,
+            )
+            overlay = next(
+                shape
+                for shape in document.shapes
+                if shape.name == "OneOrManyOverlay"
+            )
+            self.assertTrue(
+                next(
+                    prop
+                    for prop in overlay.properties
+                    if prop.name == "rkaf:items"
+                ).list_allow_scalar
+            )
+
     def test_conditional_narrowing_keeps_one_branch_and_the_base_guard(
         self,
     ) -> None:
@@ -689,6 +740,53 @@ package rkaf
                 ["rkaf:digest", "rkaf:modelRef"],
                 "control: JSON Schema already carried both, which is why the "
                 "SHACL leg had to be checked on its own",
+            )
+
+    def test_conditional_inline_literal_union_reaches_shacl_as_closed_set(
+        self,
+    ) -> None:
+        """An inline union in a conditional is a value rule, not minCount.
+
+        ConceptResolutionResult exposed this gap: JSON Schema retained the
+        method-specific usage-ceiling union while generated SHACL required only
+        that some ceiling exist.
+        """
+        with tempfile.TemporaryDirectory() as temporary:
+            source = Path(temporary) / "conditional-inline-union.cue"
+            source.write_text(
+                """
+package rkaf
+
+#ConditionalInlineUnion: result={
+	"@type":               "rkaf:ConditionalInlineUnion"
+	"rkaf:method":         string
+	"rkaf:usageCeiling":   string
+	if result["rkaf:method"] == "rkaf:discovery" {
+		"rkaf:usageCeiling": "rkaf:notEligible" | "rkaf:searchOnly"
+	}
+}
+"""
+            )
+            document = parse_cue_file(source)
+            shacl = target_shacl(document)
+            self.assertIn(
+                "sh:path rkaf:usageCeiling ; sh:minCount 1 ; "
+                "sh:in ( rkaf:notEligible rkaf:searchOnly ) ;",
+                shacl,
+            )
+            typescript = target_typescript(document)
+            self.assertIn(
+                '![\"rkaf:notEligible\", \"rkaf:searchOnly\"].includes('
+                'record[\"rkaf:usageCeiling\"] as string)',
+                typescript,
+            )
+
+            schema = json.loads(target_json_schema(document))
+            self.assertEqual(
+                schema["$defs"]["ConditionalInlineUnion"]["allOf"][0]["then"][
+                    "properties"
+                ]["rkaf:usageCeiling"]["enum"],
+                ["rkaf:notEligible", "rkaf:searchOnly"],
             )
 
     def test_conflicting_facets_raise_unsupported_composition(self) -> None:
@@ -1298,6 +1396,64 @@ import "time"
                 typescript,
             )
 
+    def test_cross_field_inequality_projects_to_executable_targets(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            source = Path(temporary) / "transition.cue"
+            source.write_text(
+                """
+package rkaf
+
+#Transition: transition={
+    "@type": "rkaf:Transition"
+    "rkaf:before": string
+    "rkaf:after"?: string
+    if transition["rkaf:after"] != _|_ && transition["rkaf:before"] == transition["rkaf:after"] { _|_ }
+}
+"""
+            )
+
+            document = parse_cue_file(source)
+            shape = document.shapes[0]
+            self.assertEqual(
+                [
+                    (constraint.left_property, constraint.right_property)
+                    for constraint in shape.not_equals
+                ],
+                [("rkaf:before", "rkaf:after")],
+            )
+
+            schema = json.loads(target_json_schema(document))
+            self.assertEqual(
+                schema["$defs"]["Transition"]["x-rkaf-not-equal"],
+                [{"left": "rkaf:before", "right": "rkaf:after"}],
+            )
+
+            shacl = target_shacl(document)
+            self.assertIn("sh:path rkaf:after ; sh:minCount 1", shacl)
+            self.assertIn("sh:path rkaf:before ; sh:equals rkaf:after", shacl)
+
+            typescript = target_typescript(document)
+            self.assertIn(
+                'rkaf:before: must differ from rkaf:after',
+                typescript,
+            )
+
+            rego = target_rego(document)
+            self.assertIn(
+                '"not_equals": [{"left": "rkaf:before", '
+                '"right": "rkaf:after"}]',
+                rego,
+            )
+            self.assertIn(
+                'left := input["rkaf:before"]',
+                rego,
+            )
+            self.assertIn(
+                'right := input["rkaf:after"]',
+                rego,
+            )
+            self.assertIn("left == right", rego)
+
     def test_reference_ranges_project_to_shacl_classes(self) -> None:
         root = Path(__file__).resolve().parent.parent
         source = (
@@ -1626,7 +1782,7 @@ class LifecycleKindOwnershipTests(unittest.TestCase):
 
       (i)   no value appears in a compiled artifact without a declaring module,
             and no value is declared by two modules;
-      (ii)  the kernel's part is exactly the ten universal kinds;
+      (ii)  the kernel's part is exactly the eight universal kinds;
       (iii) the assembled union equals kernel + sum(profiles) — no orphan
             (declared but never assembled) and no duplicate.
 
@@ -1646,7 +1802,7 @@ class LifecycleKindOwnershipTests(unittest.TestCase):
     KIND_PROPERTY = "rkaf:lifecycleEventKind"
     EVENT_CLASS = "rkaf:LifecycleEvent"
 
-    # The ten kinds the KERNEL owns: events that happen to a governed assertion
+    # The eight kinds the KERNEL owns: events that happen to a governed assertion
     # in ANY jurisdiction. FROZEN — this is what turns the audit from a
     # `rkaf:proceeding*` prefix scan into a real gate. A kernel kind that is not
     # on this list fails whatever it is called, so smuggling a domain value into
@@ -1660,8 +1816,6 @@ class LifecycleKindOwnershipTests(unittest.TestCase):
         "rkaf:materialRevision",
         "rkaf:editorialRevision",
         "rkaf:conceptLifecycle",
-        "rkaf:promotion",
-        "rkaf:demotion",
     )
 
     # ---- declaration side (CUE source) --------------------------------
@@ -1751,9 +1905,17 @@ class LifecycleKindOwnershipTests(unittest.TestCase):
                 if f"sh:path {prop} ;" not in line:
                     continue
                 closure = re.search(r"sh:in \(([^)]*)\)", line)
-                found[path.relative_to(self.COMPILED_SHACL).as_posix()] = (
-                    frozenset(closure.group(1).split()) if closure else None
-                )
+                relative = path.relative_to(self.COMPILED_SHACL).as_posix()
+                # A compiled shape can mention the same property again as a
+                # conditional guard after declaring its top-level closure.
+                # The closure is the strongest statement in that artifact;
+                # a later guard with no `sh:in` must not overwrite it as open.
+                if relative not in found or closure:
+                    found[relative] = (
+                        frozenset(closure.group(1).split())
+                        if closure
+                        else None
+                    )
         return found
 
     def _compiled_schema_closures(
@@ -1882,7 +2044,7 @@ class LifecycleKindOwnershipTests(unittest.TestCase):
         closure" is necessarily asked as "does it carry the assembled union's
         value set", not "how is the property typed". That is exactly the
         question the Rego emitter used to answer wrongly: it iterated
-        `doc.enums` only, so the composed 22-value set existed in every other
+        `doc.enums` only, so the composed 20-value set existed in every other
         target and in NO Rego artifact.
         """
         symbol = f"{_rego_symbol(union_name)}_values"
@@ -2024,7 +2186,7 @@ class LifecycleKindOwnershipTests(unittest.TestCase):
         """The shipped Rego artifact, named and counted.
 
         Rego was the target that lost the union: `compiled/rego/core/
-        lifecycle-event.rego` carried the kernel's ten and no artifact anywhere
+        lifecycle-event.rego` carried the kernel's eight and no artifact anywhere
         under `compiled/rego/` carried the assembled set. This asserts the
         profile artifact specifically, so a failure points at a file rather
         than at a sink.
@@ -2040,7 +2202,7 @@ class LifecycleKindOwnershipTests(unittest.TestCase):
             "missing, target_rego has stopped emitting enum unions.",
         )
         self.assertEqual(sorted(expected), sorted(composed))
-        self.assertEqual(22, len(composed), "the whole-contract set is 22 kinds")
+        self.assertEqual(20, len(composed), "the whole-contract set is 20 kinds")
 
     def test_every_target_carries_the_assembled_closure(self) -> None:
         """One target silently short of the union is the failure mode here.
@@ -2048,7 +2210,7 @@ class LifecycleKindOwnershipTests(unittest.TestCase):
         The composed set has to arrive in EVERY projection, not just the ones
         a gate happens to load. Rego is the worked example of why: no gate
         walks `compiled/rego/`, so when the emitter shipped only `doc.enums`
-        the artifact carried 10 values instead of 22 and every other check
+        the artifact carried 8 values instead of 20 and every other check
         stayed green. Asserting per-sink means the next target to lose the
         union names itself.
         """
@@ -2088,7 +2250,7 @@ class LifecycleKindOwnershipTests(unittest.TestCase):
         """The deliberate half of the layering, pinned so it cannot drift.
 
         A kernel carrier does NOT close an extension point. Closing the kind
-        property at the kernel's ten would make the kernel carriers REJECT
+        property at the kernel's eight would make the kernel carriers REJECT
         events whose kinds a profile in this same contract declares — the
         compiled artifacts would then disagree with each other. Same semantics
         the kernel `#Artifact` has for US identifier terms: unconstrained, not
@@ -2741,6 +2903,383 @@ class SchemaBindingCollisionTests(unittest.TestCase):
             "Binding it to the kernel would leave every lifecycle-event kind "
             "unchecked, because the kernel carrier is deliberately open on it.",
         )
+
+
+class NamedVocabularyCarrierTests(unittest.TestCase):
+    """Named language maps and typed-literal lists project without field rules."""
+
+    SOURCE = r"""
+package rkaf
+
+import (
+	"list"
+	"struct"
+)
+
+#PreferredLabelMap: struct.MinFields(1) & {
+	[language=string & =~"^[A-Za-z]{2,3}(?:-[A-Za-z]{4})?$" & !~"^@none$"]: string
+}
+
+#TextLabelMap: struct.MinFields(1) & {
+	[language=string & =~"^[A-Za-z]{2,3}(?:-[A-Za-z]{4})?$" & !~"^@none$"]: string | ([...string] & list.MinItems(1))
+}
+
+#NotationLiteral: {
+	"@value": string
+	"@type":  string & =~"^[A-Za-z][A-Za-z0-9+.-]*:[^\\s]+$"
+}
+
+#VocabularyConcept: {
+	"@type":          "skos:Concept"
+	"skos:prefLabel": #PreferredLabelMap
+	"skos:altLabel"?: #TextLabelMap
+	"skos:notation"?: #NotationLiteral | ([...#NotationLiteral] & list.MinItems(1))
+}
+"""
+
+    def _source(self, root: str) -> Path:
+        source = Path(root) / "vocabulary-carriers.cue"
+        source.write_text(self.SOURCE)
+        return source
+
+    @staticmethod
+    def _concept_schema(compiled: dict) -> dict:
+        schema = dict(compiled["$defs"]["VocabularyConcept"])
+        schema["$defs"] = compiled["$defs"]
+        return schema
+
+    def test_parser_uses_reusable_named_types(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            document = parse_cue_file(self._source(temporary))
+        self.assertEqual(
+            [definition.name for definition in document.pattern_maps],
+            ["PreferredLabelMap", "TextLabelMap"],
+        )
+        self.assertEqual(
+            [definition.name for definition in document.object_types],
+            ["NotationLiteral"],
+        )
+        concept = next(
+            shape for shape in document.shapes if shape.name == "VocabularyConcept"
+        )
+        properties = {prop.name: prop for prop in concept.properties}
+        self.assertEqual(properties["skos:prefLabel"].type_ref, "named")
+        self.assertEqual(
+            properties["skos:prefLabel"].named_ref, "PreferredLabelMap"
+        )
+        self.assertEqual(
+            properties["skos:notation"].list_inner_named, "NotationLiteral"
+        )
+        self.assertEqual(properties["skos:notation"].list_min_items, 1)
+
+    def test_json_schema_accepts_multilingual_and_one_or_many_notation(
+        self,
+    ) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            document = parse_cue_file(self._source(temporary))
+            compiled = json.loads(target_json_schema(document))
+        validator = Draft202012Validator(self._concept_schema(compiled))
+        base = {
+            "@type": "skos:Concept",
+            "skos:prefLabel": {
+                "en": "Permit",
+                "es": "Permiso",
+                "zh-Hant": "許可證",
+            },
+            "skos:altLabel": {
+                "en": ["License", "Authorization"],
+                "es": "Licencia",
+            },
+        }
+        scalar = {
+            **base,
+            "skos:notation": {
+                "@value": "A-17",
+                "@type": "https://example.org/datatypes/permit-code",
+            },
+        }
+        array = {
+            **base,
+            "skos:notation": [
+                {
+                    "@value": "A-17",
+                    "@type": "https://example.org/datatypes/permit-code",
+                },
+                {
+                    "@value": "17",
+                    "@type": "urn:example:datatype:numeric-code",
+                },
+            ],
+        }
+        self.assertEqual(list(validator.iter_errors(scalar)), [])
+        self.assertEqual(list(validator.iter_errors(array)), [])
+
+    def test_json_schema_rejects_bad_or_empty_carriers(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            document = parse_cue_file(self._source(temporary))
+            compiled = json.loads(target_json_schema(document))
+        validator = Draft202012Validator(self._concept_schema(compiled))
+        base = {
+            "@type": "skos:Concept",
+            "skos:prefLabel": {"en": "Permit"},
+        }
+        invalid = (
+            {**base, "skos:prefLabel": {}},
+            {**base, "skos:prefLabel": {"@none": "Permit"}},
+            {**base, "skos:prefLabel": {"en_US": "Permit"}},
+            {**base, "skos:prefLabel": {"en": ["Permit"]}},
+            {**base, "skos:altLabel": {}},
+            {**base, "skos:altLabel": {"en": []}},
+            {**base, "skos:notation": []},
+            {
+                **base,
+                "skos:notation": {
+                    "@value": "A-17",
+                    "@type": "relative/datatype",
+                },
+            },
+            {
+                **base,
+                "skos:notation": {
+                    "@value": "A-17",
+                    "@type": "https://example.org/datatype",
+                    "extra": "not closed",
+                },
+            },
+        )
+        for payload in invalid:
+            with self.subTest(payload=payload):
+                self.assertTrue(list(validator.iter_errors(payload)))
+
+    def test_sdk_targets_keep_map_and_typed_literal_shapes(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            source = self._source(temporary)
+            document = parse_cue_file(source)
+            rust = target_rust(document, source_file=source)
+            typescript = target_typescript(document, source_file=source)
+
+        self.assertIn(
+            "pub type PreferredLabelMap = BTreeMap<String, String>;",
+            rust,
+        )
+        self.assertIn(
+            "pub type TextLabelMap = "
+            "BTreeMap<String, crate::OneOrMany<String>>;",
+            rust,
+        )
+        self.assertIn("#[serde(deny_unknown_fields)]", rust)
+        self.assertIn("pub struct NotationLiteral {", rust)
+        self.assertIn(
+            "pub notation: Option<crate::OneOrMany<NotationLiteral>>,",
+            rust,
+        )
+
+        self.assertIn(
+            "export type PreferredLabelMap = Record<string, string>;",
+            typescript,
+        )
+        self.assertIn(
+            "export type TextLabelMap = "
+            "Record<string, string | string[]>;",
+            typescript,
+        )
+        self.assertIn(
+            '"skos:notation"?: NotationLiteral | NotationLiteral[];',
+            typescript,
+        )
+        self.assertIn("malformed language tag", typescript)
+        self.assertIn("forbidden language key", typescript)
+        self.assertIn("member outside the closed object", typescript)
+        self.assertIn("@type pattern mismatch", typescript)
+
+    def test_shacl_carries_expanded_rdf_semantics(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            source = self._source(temporary)
+            document = parse_cue_file(source)
+            shacl = target_shacl(document, source_file=source)
+        pref_line = next(
+            line for line in shacl.splitlines()
+            if "sh:path skos:prefLabel" in line
+        )
+        alt_line = next(
+            line for line in shacl.splitlines()
+            if "sh:path skos:altLabel" in line
+        )
+        notation_line = next(
+            line for line in shacl.splitlines()
+            if "sh:path skos:notation" in line
+        )
+        self.assertIn("sh:datatype rdf:langString", pref_line)
+        self.assertIn("sh:uniqueLang true", pref_line)
+        self.assertNotIn("sh:maxCount 1", pref_line)
+        self.assertIn("sh:datatype rdf:langString", alt_line)
+        self.assertNotIn("sh:uniqueLang true", alt_line)
+        self.assertIn("sh:nodeKind sh:Literal", notation_line)
+        self.assertIn(
+            "sh:not [ sh:datatype rdf:langString", notation_line
+        )
+
+    def test_cue_passthrough_and_rego_metadata_keep_source_meaning(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            source = self._source(temporary)
+            document = parse_cue_file(source)
+            self.assertEqual(target_cue(document, source), self.SOURCE)
+            rego = target_rego(document, source_file=source)
+        self.assertIn('"kind": "pattern_map"', rego)
+        self.assertIn('"value_cardinality": "oneOrMany"', rego)
+        self.assertIn('"kind": "closed_typed_literal"', rego)
+        self.assertIn('"datatype_pattern"', rego)
+
+    def test_named_typed_literal_requires_an_absolute_iri_pattern(self) -> None:
+        bad = self.SOURCE.replace(
+            'string & =~"^[A-Za-z][A-Za-z0-9+.-]*:[^\\\\s]+$"',
+            'string & =~"^[A-Za-z]+$"',
+        )
+        with tempfile.TemporaryDirectory() as temporary:
+            source = Path(temporary) / "bad.cue"
+            source.write_text(bad)
+            with self.assertRaises(CompileError) as caught:
+                parse_cue_file(source)
+        self.assertIn("arbitrary absolute IRIs", str(caught.exception))
+
+
+class CrossFileVocabularyCarrierTests(unittest.TestCase):
+    """One BCP 47 grammar and exact list facets survive every projection."""
+
+    SHARED = r'''
+package rkaf
+
+import (
+    "list"
+    "struct"
+)
+
+#BCP47LanguageTag: string & =~"^[A-Za-z]{2,3}(?:-[A-Za-z]{4})?$" & !~"^@none$"
+#NonEmptyText: string & =~"(?s).+"
+
+#PreferredLabelMap: struct.MinFields(1) & {
+    [language=#BCP47LanguageTag]: #NonEmptyText
+}
+
+#TextLanguageMap: struct.MinFields(1) & {
+    [language=#BCP47LanguageTag]: #NonEmptyText |
+        ([...#NonEmptyText] & list.MinItems(1))
+}
+
+#NotationLiteral: {
+    "@value": #NonEmptyText
+    "@type": string & =~"^[A-Za-z][A-Za-z0-9+.-]*:[^\\s]+$"
+}
+'''
+
+    CONSUMER = r'''
+package rkaf
+
+import "list"
+
+#VocabularyRecord: record={
+    "@type": "rkaf:VocabularyRecord"
+    "skos:prefLabel": #PreferredLabelMap
+    "skos:altLabel"?: #TextLanguageMap
+    "skos:notation"?: [...#NotationLiteral] & list.MinItems(1) @rkafStrictList()
+    "rkaf:participants": [...string] & list.MinItems(1) & list.MaxItems(2) @rkafStrictList()
+    if !list.UniqueItems(record["rkaf:participants"]) { _|_ }
+}
+
+#LanguageValue: {
+    "@type": "rkaf:LanguageValue"
+    "rkaf:value": {
+        "@value": string
+        {
+            "@language": #BCP47LanguageTag
+        }
+    }
+}
+'''
+
+    def _tree(self, root: str) -> tuple[Path, Path]:
+        constraints = Path(root) / "constraints" / "core"
+        constraints.mkdir(parents=True)
+        shared = constraints / "vocabulary-text.cue"
+        consumer = constraints / "consumer.cue"
+        shared.write_text(self.SHARED)
+        consumer.write_text(self.CONSUMER)
+        return shared, consumer
+
+    def test_cross_file_scalar_maps_and_objects_are_self_contained(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            _, source = self._tree(temporary)
+            document = parse_cue_file(source)
+            registry = _scan_global_enum_registry(source)
+            schema = json.loads(target_json_schema(document, registry=registry))
+            record = {
+                **schema["$defs"]["VocabularyRecord"],
+                "$defs": schema["$defs"],
+            }
+            language = schema["$defs"]["LanguageValue"]["properties"]["rkaf:value"]
+        self.assertIn("PreferredLabelMap", schema["$defs"])
+        self.assertIn("TextLanguageMap", schema["$defs"])
+        self.assertIn("NotationLiteral", schema["$defs"])
+        self.assertIn(
+            "pattern",
+            schema["$defs"]["PreferredLabelMap"]["propertyNames"],
+        )
+        self.assertIn(
+            "pattern",
+            language["properties"]["@language"],
+        )
+        validator = Draft202012Validator(record)
+        valid = {
+            "@type": "rkaf:VocabularyRecord",
+            "skos:prefLabel": {"en": "Permit", "zh-Hant": "許可證"},
+            "skos:notation": [
+                {
+                    "@value": "A-17",
+                    "@type": "https://example.org/type/code",
+                }
+            ],
+            "rkaf:participants": ["urn:a", "urn:b"],
+        }
+        self.assertEqual([], list(validator.iter_errors(valid)))
+        for invalid in (
+            {**valid, "skos:prefLabel": {"@none": "Permit"}},
+            {**valid, "skos:prefLabel": {"en": ""}},
+            {**valid, "skos:notation": valid["skos:notation"][0]},
+            {**valid, "rkaf:participants": "urn:a"},
+            {**valid, "rkaf:participants": ["urn:a", "urn:a"]},
+            {**valid, "rkaf:participants": ["urn:a", "urn:b", "urn:c"]},
+        ):
+            with self.subTest(invalid=invalid):
+                self.assertTrue(list(validator.iter_errors(invalid)))
+
+    def test_strict_maximum_and_uniqueness_reach_all_carriers(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            _, source = self._tree(temporary)
+            document = parse_cue_file(source)
+            registry = _scan_global_enum_registry(source)
+            rust = target_rust(document, registry=registry, source_file=source)
+            typescript = target_typescript(
+                document, registry=registry, source_file=source
+            )
+            shacl = target_shacl(
+                document, registry=registry, source_file=source
+            )
+            rego = target_rego(
+                document, registry=registry, source_file=source
+            )
+        self.assertIn("pub notation: Option<Vec<", rust)
+        self.assertIn("pub participants: Vec<String>", rust)
+        self.assertIn("participants: must be an array", typescript)
+        self.assertIn("participants: > 2 items", typescript)
+        self.assertIn("participants: duplicate items", typescript)
+        participant_line = next(
+            line for line in shacl.splitlines()
+            if "sh:path rkaf:participants" in line
+        )
+        self.assertIn("sh:minCount 1", participant_line)
+        self.assertIn("sh:maxCount 2", participant_line)
+        self.assertIn('"strict_array": true', rego)
+        self.assertIn('"unique_items": true', rego)
 
 
 class TypedLiteralCarriageTests(unittest.TestCase):
@@ -3904,6 +4443,83 @@ class ConceptSchemeTests(unittest.TestCase):
             )
         )
         self.assertEqual(authored_values, cue_values)
+
+
+class ConceptLifecycleTests(unittest.TestCase):
+    """Concept lifecycle transitions cross distinct release identities."""
+
+    def setUp(self) -> None:
+        self.source = (
+            REPO_ROOT / "constraints" / "core" / "lifecycle-event.cue"
+        )
+        self.document = parse_cue_file(self.source)
+        self.registry = _scan_global_enum_registry(self.source)
+        self.shape = next(
+            shape
+            for shape in self.document.shapes
+            if shape.name == "LifecycleEvent"
+        )
+
+    def test_release_inequality_survives_the_deliberately_last_set_loop(
+        self,
+    ) -> None:
+        self.assertEqual(
+            [
+                (constraint.left_property, constraint.right_property)
+                for constraint in self.shape.not_equals
+            ],
+            [
+                (
+                    "rkaf:predecessorConceptRelease",
+                    "rkaf:successorConceptRelease",
+                )
+            ],
+        )
+
+    def test_release_inequality_reaches_every_executable_projection(self) -> None:
+        schema = json.loads(
+            target_json_schema(self.document, registry=self.registry)
+        )
+        self.assertEqual(
+            schema["$defs"]["LifecycleEvent"]["x-rkaf-not-equal"],
+            [
+                {
+                    "left": "rkaf:predecessorConceptRelease",
+                    "right": "rkaf:successorConceptRelease",
+                }
+            ],
+        )
+
+        shacl = target_shacl(self.document, registry=self.registry)
+        self.assertIn(
+            "sh:path rkaf:predecessorConceptRelease ; "
+            "sh:equals rkaf:successorConceptRelease",
+            shacl,
+        )
+
+        typescript = target_typescript(
+            self.document,
+            registry=self.registry,
+        )
+        self.assertIn(
+            "rkaf:predecessorConceptRelease: must differ from "
+            "rkaf:successorConceptRelease",
+            typescript,
+        )
+
+        rego = target_rego(
+            self.document,
+            registry=self.registry,
+            source_file=self.source,
+        )
+        self.assertIn(
+            'left := input["rkaf:predecessorConceptRelease"]',
+            rego,
+        )
+        self.assertIn(
+            'right := input["rkaf:successorConceptRelease"]',
+            rego,
+        )
 
 
 TURTLE_PREAMBLE = """

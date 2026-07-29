@@ -3,6 +3,8 @@
   "@id": "urn:rkaf:fixture:beh:cm-resolved:case1",
   "@type": "rkaf:BehaviorTestCase",
   "rkaf:behaviorContract": "rkaf:ConceptResolutionWithConflict",
+  "rkaf:evaluationTime": "2026-07-29T12:00:00Z",
+  "rkaf:subjectConcept": "urn:rkaf:fixture:concept:X",
   "rkaf:rationale": "A LocalConcept with exactly one mapping target resolves to that canonical RegisteredConcept; no RegistryConflict is emitted.",
   "rkaf:input": {
     "@graph": [
@@ -11,19 +13,20 @@
         "@type": "rkaf:LocalConcept",
         "rkaf:definedInScope": "urn:rkaf:scope:test",
         "rkaf:conceptScope": "urn:rkaf:scope:test",
-        "skos:prefLabel": "X",
+        "skos:prefLabel": {"en": "X"},
         "skos:inScheme": "urn:rkaf:scheme:test-topic"
       },
       {
         "@id": "canon:A",
         "@type": "rkaf:RegisteredConcept",
         "rkaf:managedByRegistry": "urn:rkaf:registry:canonical",
+        "rkaf:registeredAt": "2026-07-29T12:00:00Z",
         "rkaf:conceptScope": "urn:rkaf:scope:canonical",
-        "skos:prefLabel": "Canon A",
+        "skos:prefLabel": {"en": "Canon A"},
         "skos:inScheme": "urn:rkaf:scheme:canonical-topic"
       },
       {
-        "@id": "m1",
+        "@id": "urn:rkaf:fixture:mapping:m1",
         "@type": "rkaf:ConceptMapping",
         "rkaf:assertionOrigin": "rkaf:humanAsserted",
         "rkaf:epistemicBasis": "rkaf:editorialAssertion",
@@ -31,13 +34,59 @@
         "rkaf:assertsPredicate": "skos:exactMatch",
         "rkaf:assertsObject": "canon:A",
         "rkaf:assertionPolarity": "rkaf:affirmed",
-        "rkaf:sourceConceptRelease": "urn:rkaf:fixture:release:test-source",
-        "rkaf:targetConceptRelease": "urn:rkaf:fixture:release:test-target"
+        "rkaf:sourceConceptRelease": "urn:rkaf:fixture:release:endpoints",
+        "rkaf:targetConceptRelease": "urn:rkaf:fixture:release:endpoints",
+        "rkaf:managedByRegistry": "urn:rkaf:registry:canonical"
+      },
+      {
+        "@id": "urn:rkaf:fixture:release:endpoints",
+        "@type": "rkaf:ReferenceResourceRelease",
+        "dcterms:isVersionOf": "urn:rkaf:registry:canonical",
+        "dcat:version": "1.0.0",
+        "dcterms:type": "skos:ConceptScheme",
+        "rkaf:membershipMode": "rkaf:completeMembership",
+        "prov:hadMember": [
+          "urn:rkaf:fixture:concept:X",
+          "canon:A"
+        ],
+        "dcat:distribution": "urn:rkaf:fixture:distribution:canonical-1",
+        "rkaf:referenceReleaseDigest": "sha256:0000000000000000000000000000000000000000000000000000000000000000"
+      },
+      {
+        "@id": "urn:rkaf:fixture:attestation:m1-publication",
+        "@type": "rkaf:Attestation",
+        "rkaf:attestor": "urn:rkaf:fixture:actor:registry-reviewer",
+        "rkaf:attestorKind": "rkaf:formalReviewer",
+        "rkaf:targets": ["urn:rkaf:fixture:mapping:m1"],
+        "rkaf:decision": "rkaf:approved",
+        "rkaf:attestationScope": "rkaf:registryPublication",
+        "rkaf:attestedAt": "2026-07-28T12:00:00Z"
+      },
+      {
+        "@id": "urn:rkaf:fixture:consumer:trusted",
+        "@type": "rkaf:BridgeConsumerRegistration",
+        "rkaf:consumer": "urn:rkaf:fixture:consumer",
+        "rkaf:bridgeContractVersion": "rkaf-bridge/1.0",
+        "rkaf:registeredAt": "2026-07-28T12:00:00Z",
+        "rkaf:supportedEvaluationAnchors": ["rkaf:applicationSubmissionTime"],
+        "rkaf:supportsRegistryVersionRange": ["^1.0"],
+        "rkaf:supportedAutomaticMigrations": [],
+        "rkaf:supportedAuthorityKinds": ["rkaf:statutory"],
+        "rkaf:trustedRegistries": ["urn:rkaf:registry:canonical"]
       }
     ]
   },
   "rkaf:expectedOutput": {
-    "resolutionResult": "rkaf:resolved",
-    "canonicalConcept": "canon:A"
+    "conceptResolutionResult": {
+      "inputConcept": "urn:rkaf:fixture:concept:X",
+      "resolutionStatus": "rkaf:resolved",
+      "resolutionMethod": "rkaf:exactMatchTrusted",
+      "resolvedConcept": "canon:A",
+      "mappingAssertion": "urn:rkaf:fixture:mapping:m1",
+      "cacheStatus": "rkaf:notCached",
+      "usageCeiling": "rkaf:localOperationalUse",
+      "resolvedAt": "2026-07-29T12:00:00Z",
+      "resolverId": "urn:rulespec:runtime:reference"
+    }
   }
 }

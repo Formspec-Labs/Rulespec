@@ -155,6 +155,7 @@ pub mod generated {
     pub mod trust_and_safety                   { include!("generated/trust_and_safety.rs"); }
     pub mod usage_eligibility                  { include!("generated/usage_eligibility.rs"); }
     pub mod value_assertion                    { include!("generated/value_assertion.rs"); }
+    pub mod vocabulary_text                    { include!("generated/vocabulary_text.rs"); }
     pub mod warrant                            { include!("generated/warrant.rs"); }
     pub mod workspace                          { include!("generated/workspace.rs"); }
 
@@ -174,6 +175,9 @@ pub mod generated {
     /// `constraints/profiles/<profile>/` and may compose kernel shapes; no
     /// kernel module above depends on anything below this line.
     pub mod profiles {
+        pub mod refspec {
+            pub mod open_label            { include!("generated/profiles/refspec/open_label.rs"); }
+        }
         pub mod us_rulemaking {
             pub mod rulemaking             { include!("generated/profiles/us_rulemaking/rulemaking.rs"); }
             pub mod us_lifecycle_event     { include!("generated/profiles/us_rulemaking/us_lifecycle_event.rs"); }
@@ -235,6 +239,7 @@ pub use generated::registry_conflict::RegistryConflict;
 pub use generated::relationship_assertion::RelationshipAssertion;
 pub use generated::retention_policy::RetentionPolicy;
 pub use generated::revalidation_event::{RevalidationClosureEvent, RevalidationEvent};
+pub use generated::profiles::refspec::open_label::RefSpecOpenLabelValueAssertion;
 // Document-analysis module (spec/rkaf-analysis.md). Generic comparison and
 // change contracts; `ClosureClaim` is Experimental and DISABLED — its only
 // legal `rkaf:closureClaimStatus` is `rkaf:closureClaimDisabled`, and no
@@ -258,12 +263,12 @@ pub use generated::profiles::us_rulemaking::rulemaking::{
     AgendaProceedingRelationship, CommentPeriod, Docket, Proceeding, RegulatoryAgendaItem,
     RegulatoryAgendaObservation,
 };
-// The COMPOSED lifecycle-event kind set — the kernel's ten universal kinds
+// The COMPOSED lifecycle-event kind set — the kernel's eight universal kinds
 // plus this profile's twelve `rkaf:proceeding*` kinds — and the composed
 // carrier that types its `lifecycleEventKind` field with it. The kernel
 // `LifecycleEvent` re-exported above stays open on that property (its field is
 // `String`), matching the compiled kernel schema and shape; consumers that
-// want the closed 22-value type use `ComposedLifecycleEventKind`.
+// want the closed 20-value type use `ComposedLifecycleEventKind`.
 pub use generated::profiles::us_rulemaking::us_lifecycle_event::{
     ComposedLifecycleEventKind, USLifecycleEvent, USProceedingLifecycleEventKind,
 };

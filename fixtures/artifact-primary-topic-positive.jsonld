@@ -11,7 +11,7 @@
     {
       "@id": "https://example.org/watersheds/potomac",
       "@type": "skos:Concept",
-      "skos:prefLabel": "Potomac River watershed"
+      "skos:prefLabel": {"en": "Potomac River watershed"}
     }
   ]
 }

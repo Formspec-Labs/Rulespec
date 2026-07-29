@@ -1,0 +1,17 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@id": "urn:rkaf:fixture:concept:scalar-notation",
+  "@type": "rkaf:RegisteredConcept",
+  "skos:prefLabel": {
+    "en": "Household income"
+  },
+  "skos:notation": {
+    "@value": "HI-001",
+    "@type": "urn:rkaf:fixture:notation-system:benefit-topic-code"
+  },
+  "skos:inScheme": "urn:rkaf:fixture:scheme:topics",
+  "rkaf:managedByRegistry": "urn:rkaf:fixture:registry:topics",
+  "rkaf:conceptScope": "benefits/income",
+  "rkaf:registeredAt": "2026-07-29T12:00:00Z",
+  "_comment": "Negative authored JSON: notation is always an array, even with one typed literal."
+}

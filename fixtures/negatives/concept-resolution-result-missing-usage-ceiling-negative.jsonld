@@ -1,0 +1,11 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@id": "urn:rkaf:fixture:cres-negative:missing-usage-ceiling",
+  "@type": "rkaf:ConceptResolutionResult",
+  "rkaf:inputConcept": "urn:rkaf:fixture:concept:local",
+  "rkaf:resolutionStatus": "rkaf:resolved",
+  "rkaf:resolutionMethod": "rkaf:directRegistry",
+  "rkaf:resolvedConcept": "urn:rkaf:fixture:concept:canonical",
+  "rkaf:cacheStatus": "rkaf:notCached",
+  "rkaf:resolvedAt": "2026-07-29T12:00:00Z"
+}

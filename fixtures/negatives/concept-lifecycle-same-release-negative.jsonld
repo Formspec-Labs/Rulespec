@@ -1,0 +1,42 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@graph": [
+    {
+      "@id": "urn:rkaf:fixture:lifecycle-negative:same-release",
+      "@type": "rkaf:LifecycleEvent",
+      "rkaf:lifecycleEventKind": "rkaf:conceptLifecycle",
+      "rkaf:conceptLifecycleOperation": "rkaf:replacement",
+      "rkaf:effectiveDate": "2026-07-29T12:00:00Z",
+      "rkaf:emittedBy": "urn:rkaf:fixture:registry:topics",
+      "rkaf:appliesTo": ["urn:rkaf:fixture:concept:old"],
+      "rkaf:predecessorConcepts": ["urn:rkaf:fixture:concept:old"],
+      "rkaf:successorConcepts": ["urn:rkaf:fixture:concept:new"],
+      "rkaf:predecessorConceptRelease": "urn:rkaf:fixture:release:same",
+      "rkaf:successorConceptRelease": "urn:rkaf:fixture:release:same"
+    },
+    {
+      "@id": "urn:rkaf:fixture:release:same",
+      "@type": "rkaf:ReferenceResourceRelease",
+      "dcterms:isVersionOf": "urn:rkaf:fixture:registry:topics",
+      "dcat:version": "same",
+      "dcterms:type": "skos:ConceptScheme",
+      "rkaf:membershipMode": "rkaf:completeMembership",
+      "prov:hadMember": [
+        "urn:rkaf:fixture:concept:old",
+        "urn:rkaf:fixture:concept:new"
+      ],
+      "dcat:distribution": ["urn:rkaf:fixture:distribution:same"],
+      "rkaf:referenceReleaseDigest": "sha256:80059e8b3154837ac22bf81e67a5e0cdc2b8dd638b5d8ec505aeba75a0bae0c6",
+      "rkaf:versionBasis": "rkaf:publisherAssigned"
+    },
+    {
+      "@id": "urn:rkaf:fixture:distribution:same",
+      "@type": "rkaf:Artifact",
+      "rkaf:hasArtifactIdentifier": ["urn:rkaf:fixture:distribution:same"],
+      "rkaf:artifactIdentifierScheme": ["rkaf:partner-defined"],
+      "dcterms:format": "application/ld+json",
+      "rkaf:hasContentDigest": "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+    }
+  ],
+  "_comment": "Negative: one complete-membership release cannot be both the predecessor and successor state."
+}

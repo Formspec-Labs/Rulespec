@@ -31,6 +31,26 @@ pub enum LifecycleEventKind {
     /// Wire value `rkaf:conceptLifecycle`.
     #[serde(rename = "rkaf:conceptLifecycle")]
     ConceptLifecycle,
+}
+
+/// Closed Rulespec values for `ConceptLifecycleOperation`.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub enum ConceptLifecycleOperation {
+    /// Wire value `rkaf:deprecation`.
+    #[serde(rename = "rkaf:deprecation")]
+    Deprecation,
+    /// Wire value `rkaf:withdrawal`.
+    #[serde(rename = "rkaf:withdrawal")]
+    Withdrawal,
+    /// Wire value `rkaf:replacement`.
+    #[serde(rename = "rkaf:replacement")]
+    Replacement,
+    /// Wire value `rkaf:split`.
+    #[serde(rename = "rkaf:split")]
+    Split,
+    /// Wire value `rkaf:merge`.
+    #[serde(rename = "rkaf:merge")]
+    Merge,
     /// Wire value `rkaf:promotion`.
     #[serde(rename = "rkaf:promotion")]
     Promotion,
@@ -71,6 +91,21 @@ pub struct LifecycleEvent {
     /// JSON-LD property `rkaf:safeAutomaticMigration`.
     #[serde(rename = "rkaf:safeAutomaticMigration", skip_serializing_if = "Option::is_none", default)]
     pub safe_automatic_migration: Option<String>,
+    /// JSON-LD property `rkaf:conceptLifecycleOperation`.
+    #[serde(rename = "rkaf:conceptLifecycleOperation", skip_serializing_if = "Option::is_none", default)]
+    pub concept_lifecycle_operation: Option<ConceptLifecycleOperation>,
+    /// JSON-LD property `rkaf:predecessorConcepts`.
+    #[serde(rename = "rkaf:predecessorConcepts", skip_serializing_if = "Option::is_none", default)]
+    pub predecessor_concepts: Option<Vec<String>>,
+    /// JSON-LD property `rkaf:successorConcepts`.
+    #[serde(rename = "rkaf:successorConcepts", skip_serializing_if = "Option::is_none", default)]
+    pub successor_concepts: Option<Vec<String>>,
+    /// JSON-LD property `rkaf:predecessorConceptRelease`.
+    #[serde(rename = "rkaf:predecessorConceptRelease", skip_serializing_if = "Option::is_none", default)]
+    pub predecessor_concept_release: Option<String>,
+    /// JSON-LD property `rkaf:successorConceptRelease`.
+    #[serde(rename = "rkaf:successorConceptRelease", skip_serializing_if = "Option::is_none", default)]
+    pub successor_concept_release: Option<String>,
     /// Additional JSON-LD properties preserved during round trips.
     #[serde(flatten)]
     pub extra: BTreeMap<String, serde_json::Value>,

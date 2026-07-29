@@ -1,0 +1,57 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@id": "urn:rkaf:fixture:beh:concept-direct:case1",
+  "@type": "rkaf:BehaviorTestCase",
+  "rkaf:behaviorContract": "rkaf:ConceptResolutionWithConflict",
+  "rkaf:evaluationTime": "2026-07-29T12:00:00Z",
+  "rkaf:subjectConcept": "urn:rkaf:fixture:concept:registered",
+  "rkaf:rationale": "A RegisteredConcept in an exact complete release resolves directly to itself; trusted-registry evidence supports the local operational ceiling.",
+  "rkaf:input": {
+    "@graph": [
+      {
+        "@id": "urn:rkaf:fixture:concept:registered",
+        "@type": "rkaf:RegisteredConcept",
+        "skos:prefLabel": {"en": "Registered concept"},
+        "skos:inScheme": "urn:rkaf:fixture:scheme:canonical",
+        "rkaf:managedByRegistry": "urn:rkaf:fixture:registry:trusted",
+        "rkaf:conceptScope": "fixture/registered",
+        "rkaf:registeredAt": "2026-07-28T12:00:00Z"
+      },
+      {
+        "@id": "urn:rkaf:fixture:release:complete",
+        "@type": "rkaf:ReferenceResourceRelease",
+        "dcterms:isVersionOf": "urn:rkaf:fixture:registry:trusted",
+        "dcat:version": "1.0.0",
+        "dcterms:type": "skos:ConceptScheme",
+        "rkaf:membershipMode": "rkaf:completeMembership",
+        "prov:hadMember": ["urn:rkaf:fixture:concept:registered"],
+        "dcat:distribution": "urn:rkaf:fixture:distribution:trusted-1",
+        "rkaf:referenceReleaseDigest": "sha256:0000000000000000000000000000000000000000000000000000000000000000"
+      },
+      {
+        "@id": "urn:rkaf:fixture:consumer:trusted",
+        "@type": "rkaf:BridgeConsumerRegistration",
+        "rkaf:consumer": "urn:rkaf:fixture:consumer",
+        "rkaf:bridgeContractVersion": "rkaf-bridge/1.0",
+        "rkaf:registeredAt": "2026-07-28T12:00:00Z",
+        "rkaf:supportedEvaluationAnchors": ["rkaf:applicationSubmissionTime"],
+        "rkaf:supportsRegistryVersionRange": ["^1.0"],
+        "rkaf:supportedAutomaticMigrations": [],
+        "rkaf:supportedAuthorityKinds": ["rkaf:statutory"],
+        "rkaf:trustedRegistries": ["urn:rkaf:fixture:registry:trusted"]
+      }
+    ]
+  },
+  "rkaf:expectedOutput": {
+    "conceptResolutionResult": {
+      "inputConcept": "urn:rkaf:fixture:concept:registered",
+      "resolutionStatus": "rkaf:resolved",
+      "resolutionMethod": "rkaf:directRegistry",
+      "resolvedConcept": "urn:rkaf:fixture:concept:registered",
+      "cacheStatus": "rkaf:notCached",
+      "usageCeiling": "rkaf:localOperationalUse",
+      "resolvedAt": "2026-07-29T12:00:00Z",
+      "resolverId": "urn:rulespec:runtime:reference"
+    }
+  }
+}

@@ -3,5 +3,6 @@
   "@id": "urn:rkaf:fixture:concept:household-income",
   "@type": "rkaf:RegisteredConcept",
   "rkaf:conceptScope": "fns/snap/eligibility/income",
+  "rkaf:registeredAt": "2026-07-29T12:00:00Z",
   "skos:inScheme": "urn:rkaf:fixture:scheme:fns-snap-topic"
 }

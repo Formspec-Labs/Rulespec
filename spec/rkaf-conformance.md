@@ -13,7 +13,7 @@ Five levels are defined:
 |---|---|
 | **L0 — Vocabulary** | A non-JSON-LD carrier maps its fields to registered Rulespec terms, identifier schemes, and closed-enum values. |
 | **L1 — Parse** | Documents claiming to be Rulespec parseable as JSON-LD without error. |
-| **L2 — Shape** | Every Rulespec node validates against its compiled JSON Schema. |
+| **L2 — Shape** | Every Rulespec node validates against its compiled JSON Schema, including the `x-rkaf-order` and `x-rkaf-not-equal` Rulespec extensions. |
 | **L3 — Constraint** | Every Rulespec node also passes SHACL constraints, including Pattern-C cross-property invariants, and all registered semantic-integrity checks. |
 | **L4 — Behavior** | Implementation honors the runtime contracts in `spec/rkaf-behavior.md` (reducer, CascadeClosureV1, 10 bridge rules, point-in-time exceptions, stale transition). |
 
@@ -55,7 +55,7 @@ current `sha256:<64 lowercase hex>` contract digest. Every block in one
 document MUST use the same digest.
 
 ```yaml rkaf-l0-mapping
-rulespec_version: "sha256:71250f67b81fd54af3f6e6c45f2100f9a2307da589b364593e6708e5674b7172"
+rulespec_version: "sha256:8feadf8f4037a60a18667c6f7ee920ff1285ccb05a72fe5352b6cd82b38a252c"
 mappings:
   - table: proceedings
     column: current_stage
@@ -193,7 +193,7 @@ The mapping below is the worked example. It is audited by
 `tools/test_l0_mapping_audit.py`, so it is executable rather than illustrative:
 
 ```yaml rkaf-l0-mapping
-rulespec_version: "sha256:71250f67b81fd54af3f6e6c45f2100f9a2307da589b364593e6708e5674b7172"
+rulespec_version: "sha256:8feadf8f4037a60a18667c6f7ee920ff1285ccb05a72fe5352b6cd82b38a252c"
 mappings:
   - table: attestations
     column: attestor_id
@@ -299,7 +299,7 @@ digest covers the selected text. The SourceFragment declares
 node and independently records evidence kind and function:
 
 ```yaml rkaf-l0-mapping
-rulespec_version: "sha256:71250f67b81fd54af3f6e6c45f2100f9a2307da589b364593e6708e5674b7172"
+rulespec_version: "sha256:8feadf8f4037a60a18667c6f7ee920ff1285ccb05a72fe5352b6cd82b38a252c"
 mappings:
   - table: evidence_bindings
     column: assertion_iri
@@ -506,7 +506,7 @@ An L4 implementation MUST:
 
 ### 4.2 Gate
 
-L4 conformance is gated by `crates/rkaf-runtime-cli/src/main.rs` (the `rkaf-behavior-validate` binary). `tools/conformance_report.py` shells out to this binary for every fixture under `fixtures/behavior/`, parses the per-fixture JSON verdict, and populates the L4 column with `pass` / `fail` / `error` / `skip`. Exit 0 from the binary across all behavior fixtures (45 today: 3 cascade — base fanout + all declared cascade predicates + as_of; 9 reducer — baseline workspace, applicability gate, capability cap, local broadens, stale narrows, stale-with-honored-PIT, freshness fresh/stale/malformed; 2 PIT — supported anchor + unsupported anchor; 6 concept-resolution — unresolved, resolved, and all 4 conflict severities (informational, operationalConflict, publicationBlocking, authorityCritical); 25 bridge-rule — positive + negative per all 10 contract rules plus Rule 5 safeAutomaticMigration exemption and targeted-finding/attestation boundary cases) is the L4 verdict gate.
+L4 conformance is gated by `crates/rkaf-runtime-cli/src/main.rs` (the `rkaf-behavior-validate` binary). `tools/conformance_report.py` shells out to this binary for every fixture under `fixtures/behavior/`, parses the per-fixture JSON verdict, and populates the L4 column with `pass` / `fail` / `error` / `skip`. Exit 0 from the binary across all behavior fixtures (56 today: 3 cascade — base fanout + all declared cascade predicates + as_of; 9 reducer — baseline workspace, applicability gate, capability cap, local broadens, stale narrows, stale-with-honored-PIT, freshness fresh/stale/malformed; 2 PIT — supported anchor + unsupported anchor; 17 concept-resolution — all seven methods, all three cache states, direct and mapping eligibility failures, and all 4 conflict severities; 25 bridge-rule — positive + negative per all 10 contract rules plus Rule 5 safeAutomaticMigration exemption and targeted-finding/attestation boundary cases) is the L4 verdict gate.
 
 `tools/l4_coverage_audit.py` is the branch-coverage gate. It verifies that the behavior corpus covers all five contracts, all 10 bridge rules with accepted/rejected outcomes, the reducer's normative branches, supported/unsupported PIT handling, concept resolution outcomes plus the severity ladder, every cascade predicate, cascade `as_of`, and Rule 5 safeAutomaticMigration.
 
@@ -522,10 +522,10 @@ The conformance test corpus lives under `fixtures/`. The §10.1 coverage target 
 
 | Coverage | Target | Current |
 |---|---|---|
-| Per-class positive fixtures | every embedded compiled schema type | 74 positive fixtures; `rkaf-validate` asserts coverage for all 38 embedded `@type` schemas |
-| Per-class negative fixtures | every codified class with required fields | 143 negative fixtures; `tools/validate_negatives.py` discovers and gates all of them |
-| Per-class edge fixtures | every codified class | 39 edge fixtures; `tools/l0_l3_coverage_audit.py` asserts coverage for all 38 compiled schema classes |
-| Behavior fixtures | every L4 contract family and normative branch | 45 behavior fixtures |
+| Per-class positive fixtures | every embedded compiled schema type | 110 positive fixtures; `rkaf-validate` asserts coverage for all 53 embedded `@type` schemas |
+| Per-class negative fixtures | every codified class with required fields | 275 negative fixtures; `tools/validate_negatives.py` discovers and gates all of them |
+| Per-class edge fixtures | every codified class | 56 edge fixtures; `tools/l0_l3_coverage_audit.py` asserts coverage for all 53 compiled schema classes |
+| Behavior fixtures | every L4 contract family and normative branch | 56 behavior fixtures |
 | Adversarial fixtures | ≥5 | 6 (in `fixtures/adversarial/`) |
 | AI-extraction adversarial fixtures | ≥3 | 3 (in `fixtures/ai-extraction/`) |
 | Projector round-trip fixtures | every projector × Attach/Extract | 7 (in `fixtures/projectors/`) |
@@ -543,7 +543,9 @@ implementation: "<package@version>"
 rulespec_version: "<commit hash or pre-release tag; L0 uses contract sha256>"
 declared_levels: [L1, L2, L3, L4]   # cumulative JSON-LD subset, or [L0] alone
 test_corpus_run_at: "<date>"
+source_revision: "<exact tested revision, or null for a local uncommitted candidate>"
 test_corpus_version: "<immutable fixture/corpus version>"
+constraint_contract_digest: "sha256:<exact tested constraint-contract digest>"
 results:
   L0: not-claimed
   L1: pass
@@ -555,6 +557,14 @@ notes: |
 ```
 
 The conformance reporter (`tools/conformance_report.py --self-certify > conformance/partners/<implementation>.yaml`) produces this document from a test run.
+
+For an L1–L4 declaration, `source_revision` identifies the exact source
+revision tested and `constraint_contract_digest` identifies the generated
+constraint contract. A local uncommitted candidate MAY set
+`source_revision: null` so that it does not invent an immutable revision. A
+self-certification with a null source revision MUST NOT support a published
+release or immutable conformance claim. Its final release evidence MUST name
+the tested committed revision and reproduce the same contract digest.
 
 An L0 document also includes:
 

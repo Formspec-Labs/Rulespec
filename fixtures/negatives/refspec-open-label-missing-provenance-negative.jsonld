@@ -1,0 +1,17 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@id": "urn:rkaf:fixture:open-label-negative:missing-provenance",
+  "@type": "rkaf:ValueAssertion",
+  "rkaf:assertionOrigin": "rkaf:humanAsserted",
+  "rkaf:epistemicBasis": "rkaf:sourceExplicit",
+  "rkaf:assertsSubject": "urn:rkaf:fixture:artifact:one",
+  "rkaf:assertsPredicate": "rkaf:openLabel",
+  "rkaf:assertsValue": {
+    "@value": "rental help",
+    "@language": "en"
+  },
+  "rkaf:assertionPolarity": "rkaf:affirmed",
+  "rkaf:openLabelFacet": "urn:ref:facet:topic",
+  "rkaf:openLabelRole": "rkaf:assignmentMention",
+  "rkaf:assertedAt": "2026-07-29T12:00:00Z"
+}

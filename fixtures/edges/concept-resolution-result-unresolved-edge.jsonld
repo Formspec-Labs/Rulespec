@@ -4,6 +4,8 @@
   "@type": "rkaf:ConceptResolutionResult",
   "rkaf:inputConcept": "urn:rkaf:fixture:concept:local-only",
   "rkaf:resolutionStatus": "rkaf:unresolved",
-  "rkaf:usageCeiling": "rkaf:reviewQueueOnly",
+  "rkaf:resolutionMethod": "rkaf:directRegistry",
+  "rkaf:cacheStatus": "rkaf:notCached",
+  "rkaf:usageCeiling": "rkaf:notEligible",
   "rkaf:resolvedAt": "2026-04-15T10:00:00Z"
 }

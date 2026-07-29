@@ -1,0 +1,13 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@id": "urn:rkaf:fixture:concept:malformed-language",
+  "@type": "rkaf:RegisteredConcept",
+  "skos:prefLabel": {
+    "en-abcdefghi": "Household income"
+  },
+  "skos:inScheme": "urn:rkaf:fixture:scheme:topics",
+  "rkaf:managedByRegistry": "urn:rkaf:fixture:registry:topics",
+  "rkaf:conceptScope": "benefits/income",
+  "rkaf:registeredAt": "2026-07-29T12:00:00Z",
+  "_comment": "Negative authored JSON: the nine-character subtag exceeds the BCP 47 maximum while remaining parseable JSON-LD."
+}

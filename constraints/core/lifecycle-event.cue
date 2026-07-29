@@ -1,43 +1,102 @@
 package rkaf
 
-// LifecycleEvent (§4): a typed audit-trail entry recording transitions across
-// an Artifact's, Warrant's, or Assertion's lifecycle. Concrete kinds include
-// revalidation, amendment, supersession, rescission, material revision, and
-// concept lifecycle. The event itself is a portable substrate concern; the
-// workflow-state machine consuming events is the consumer's responsibility.
-//
-// `#LifecycleEventKind` is the kernel's CONTRIBUTION to the event-kind value
-// set, not the whole of it: these ten kinds are the ones that happen to a
-// governed assertion in ANY jurisdiction. A domain profile contributes its own
-// kinds and declares the assembled closed union — see
-// `constraints/profiles/us-rulemaking/us-lifecycle-event.cue`, which unions
-// this definition with the twelve US proceeding kinds and binds the
-// result to `rkaf:LifecycleEvent`. One class, one property, values owned by
-// exactly one module each (audited by `LifecycleKindOwnershipTests` in
-// tools/test_constraints_compile.py).
+import "list"
+
+// Kernel lifecycle kinds. Promotion and demotion are no longer standalone
+// event kinds; both are operations of rkaf:conceptLifecycle.
 #LifecycleEventKind: "rkaf:revalidation" | "rkaf:revalidationClosure" |
 	"rkaf:amendment" | "rkaf:supersession" | "rkaf:rescission" |
 	"rkaf:materialRevision" | "rkaf:editorialRevision" |
-	"rkaf:conceptLifecycle" | "rkaf:promotion" | "rkaf:demotion"
+	"rkaf:conceptLifecycle"
 
-#LifecycleEvent: {
-	"@type":                          "rkaf:LifecycleEvent"
-	// Extension point. The kernel deliberately leaves this property OPEN at
-	// the carrier level, exactly as the kernel #Artifact treats US identifier
-	// terms: a profile-contributed kind is UNCONSTRAINED by the kernel
-	// carriers rather than rejected by them, and the composed profile shape
-	// carries the closed union of every declared kind.
-	// Closing it here at the kernel's ten would make the kernel reject events
-	// whose kinds a profile in this same contract declares.
-	"rkaf:lifecycleEventKind":        string
-	"rkaf:effectiveDate":             string // xsd:dateTime
-	"rkaf:emittedBy":                 string // IRI of the actor / system
-	"rkaf:appliesTo":                 [...string] // IRIs of affected resources (cascade-closure seed set)
-	"rkaf:bridgeContractVersion"?:    string
-	"rkaf:cascadeAlgorithm"?:         string // e.g. "rkaf:CascadeClosureV1"
-	// L4 stale-transition input (rkaf-behavior.md §3.5 / §5). When the event
-	// declares a safeAutomaticMigration kind that the consumer supports
-	// (BridgeConsumerRegistration.supportedAutomaticMigrations), the affected
-	// assertions skip the staleForCurrentUse transition.
-	"rkaf:safeAutomaticMigration"?:   string // migration kind IRI
+#ConceptLifecycleOperation: "rkaf:deprecation" | "rkaf:withdrawal" |
+	"rkaf:replacement" | "rkaf:split" | "rkaf:merge" |
+	"rkaf:promotion" | "rkaf:demotion"
+
+#LifecycleEvent: event={
+	"@type":                       "rkaf:LifecycleEvent"
+	// Extension point. A profile assembles and closes the whole-contract set.
+	"rkaf:lifecycleEventKind":     string
+	"rkaf:effectiveDate":          string // xsd:dateTime
+	"rkaf:emittedBy":              string & =~"^[A-Za-z][A-Za-z0-9+.-]*:[^\\s]+$"
+	"rkaf:appliesTo":              [...(string & =~"^[A-Za-z][A-Za-z0-9+.-]*:[^\\s]+$")] & list.MinItems(1)
+	"rkaf:bridgeContractVersion"?: string
+	"rkaf:cascadeAlgorithm"?:      string & =~"^[A-Za-z][A-Za-z0-9+.-]*:[^\\s]+$"
+	"rkaf:safeAutomaticMigration"?: string & =~"^[A-Za-z][A-Za-z0-9+.-]*:[^\\s]+$"
+
+	// Concept-lifecycle fields stay absent on other event kinds.
+	"rkaf:conceptLifecycleOperation"?:  #ConceptLifecycleOperation
+	"rkaf:predecessorConcepts"?:        [...(string & =~"^[A-Za-z][A-Za-z0-9+.-]*:[^\\s]+$")] & list.MinItems(1) @rkafStrictList()
+	"rkaf:successorConcepts"?:          [...(string & =~"^[A-Za-z][A-Za-z0-9+.-]*:[^\\s]+$")] & list.MinItems(1) @rkafStrictList()
+	"rkaf:predecessorConceptRelease"?:  string & =~"^[A-Za-z][A-Za-z0-9+.-]*:[^\\s]+$"
+	"rkaf:successorConceptRelease"?:    string & =~"^[A-Za-z][A-Za-z0-9+.-]*:[^\\s]+$"
+
+	if !list.UniqueItems(event["rkaf:appliesTo"]) { _|_ }
+	if event["rkaf:predecessorConcepts"] != _|_ { if !list.UniqueItems(event["rkaf:predecessorConcepts"]) { _|_ } }
+	if event["rkaf:successorConcepts"] != _|_ { if !list.UniqueItems(event["rkaf:successorConcepts"]) { _|_ } }
+
+	// Concept participants and pins are forbidden on every other event kind.
+	if event["rkaf:lifecycleEventKind"] != "rkaf:conceptLifecycle" {
+		"rkaf:conceptLifecycleOperation"?: _|_
+		"rkaf:predecessorConcepts"?:       _|_
+		"rkaf:successorConcepts"?:         _|_
+		"rkaf:predecessorConceptRelease"?: _|_
+		"rkaf:successorConceptRelease"?:   _|_
+	}
+
+	if event["rkaf:lifecycleEventKind"] == "rkaf:conceptLifecycle" {
+		"rkaf:conceptLifecycleOperation": #ConceptLifecycleOperation
+		"rkaf:predecessorConcepts":       [...(string & =~"^[A-Za-z][A-Za-z0-9+.-]*:[^\\s]+$")] & list.MinItems(1) @rkafStrictList()
+		"rkaf:predecessorConceptRelease": string & =~"^[A-Za-z][A-Za-z0-9+.-]*:[^\\s]+$"
+	}
+
+	if event["rkaf:conceptLifecycleOperation"] == "rkaf:deprecation" {
+		"rkaf:predecessorConcepts":       [...(string & =~"^[A-Za-z][A-Za-z0-9+.-]*:[^\\s]+$")] & list.MinItems(1) & list.MaxItems(1) @rkafStrictList()
+		"rkaf:successorConcepts"?:        _|_
+		"rkaf:successorConceptRelease"?:  _|_
+	}
+	if event["rkaf:conceptLifecycleOperation"] == "rkaf:withdrawal" {
+		"rkaf:predecessorConcepts":       [...(string & =~"^[A-Za-z][A-Za-z0-9+.-]*:[^\\s]+$")] & list.MinItems(1) & list.MaxItems(1) @rkafStrictList()
+		"rkaf:successorConcepts"?:        _|_
+		"rkaf:successorConceptRelease"?:  _|_
+	}
+	if event["rkaf:conceptLifecycleOperation"] == "rkaf:replacement" {
+		"rkaf:predecessorConcepts":       [...(string & =~"^[A-Za-z][A-Za-z0-9+.-]*:[^\\s]+$")] & list.MinItems(1) & list.MaxItems(1) @rkafStrictList()
+		"rkaf:successorConcepts":         [...(string & =~"^[A-Za-z][A-Za-z0-9+.-]*:[^\\s]+$")] & list.MinItems(1) & list.MaxItems(1) @rkafStrictList()
+		"rkaf:successorConceptRelease":   string & =~"^[A-Za-z][A-Za-z0-9+.-]*:[^\\s]+$"
+	}
+	if event["rkaf:conceptLifecycleOperation"] == "rkaf:split" {
+		"rkaf:predecessorConcepts":       [...(string & =~"^[A-Za-z][A-Za-z0-9+.-]*:[^\\s]+$")] & list.MinItems(1) & list.MaxItems(1) @rkafStrictList()
+		"rkaf:successorConcepts":         [...(string & =~"^[A-Za-z][A-Za-z0-9+.-]*:[^\\s]+$")] & list.MinItems(2) @rkafStrictList()
+		"rkaf:successorConceptRelease":   string & =~"^[A-Za-z][A-Za-z0-9+.-]*:[^\\s]+$"
+	}
+	if event["rkaf:conceptLifecycleOperation"] == "rkaf:merge" {
+		"rkaf:predecessorConcepts":       [...(string & =~"^[A-Za-z][A-Za-z0-9+.-]*:[^\\s]+$")] & list.MinItems(2) @rkafStrictList()
+		"rkaf:successorConcepts":         [...(string & =~"^[A-Za-z][A-Za-z0-9+.-]*:[^\\s]+$")] & list.MinItems(1) & list.MaxItems(1) @rkafStrictList()
+		"rkaf:successorConceptRelease":   string & =~"^[A-Za-z][A-Za-z0-9+.-]*:[^\\s]+$"
+	}
+	if event["rkaf:conceptLifecycleOperation"] == "rkaf:promotion" {
+		"rkaf:predecessorConcepts":       [...(string & =~"^[A-Za-z][A-Za-z0-9+.-]*:[^\\s]+$")] & list.MinItems(1) & list.MaxItems(1) @rkafStrictList()
+		"rkaf:successorConcepts":         [...(string & =~"^[A-Za-z][A-Za-z0-9+.-]*:[^\\s]+$")] & list.MinItems(1) & list.MaxItems(1) @rkafStrictList()
+		"rkaf:successorConceptRelease":   string & =~"^[A-Za-z][A-Za-z0-9+.-]*:[^\\s]+$"
+	}
+	if event["rkaf:conceptLifecycleOperation"] == "rkaf:demotion" {
+		"rkaf:predecessorConcepts":       [...(string & =~"^[A-Za-z][A-Za-z0-9+.-]*:[^\\s]+$")] & list.MinItems(1) & list.MaxItems(1) @rkafStrictList()
+		"rkaf:successorConcepts":         [...(string & =~"^[A-Za-z][A-Za-z0-9+.-]*:[^\\s]+$")] & list.MinItems(1) & list.MaxItems(1) @rkafStrictList()
+		"rkaf:successorConceptRelease":   string & =~"^[A-Za-z][A-Za-z0-9+.-]*:[^\\s]+$"
+	}
+
+	// One lifecycle transition must cross release states. A successor-less
+	// operation has no right-hand pin; otherwise one release IRI cannot serve
+	// as both the before and after state.
+	if event["rkaf:successorConceptRelease"] != _|_ && event["rkaf:predecessorConceptRelease"] == event["rkaf:successorConceptRelease"] { _|_ }
+
+	// Keep this graph-wide set check after every portable scalar/list
+	// constraint. Its nested loop is deliberately last because the compiler
+	// delegates the expanded-graph equivalent to SHACL.
+	if event["rkaf:predecessorConcepts"] != _|_ && event["rkaf:successorConcepts"] != _|_ {
+		for predecessor in event["rkaf:predecessorConcepts"] {
+			if list.Contains(event["rkaf:successorConcepts"], predecessor) { _|_ }
+		}
+	}
 }

@@ -2,10 +2,9 @@
 
 *Making rules legible to software.*
 
-**Version** `0.2.0-pre.8` · **Working tree** Reference-resource and assertion
-model candidate · **Bridge contract** `rkaf-bridge/1.0` ·
-**Conformance corpus** 301 L1-L4 fixtures plus L0 carrier-mapping and vocabulary
-audits
+**Version** `0.2.0-pre.9` · **Working tree** Vocabulary carriage and lifecycle
+closure candidate · **Bridge contract** `rkaf-bridge/1.0` · **Conformance
+corpus** L1-L4 fixtures plus L0 carrier-mapping and vocabulary audits
 
 ---
 

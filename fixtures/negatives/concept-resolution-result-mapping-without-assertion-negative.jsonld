@@ -1,0 +1,12 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@id": "urn:rkaf:fixture:cres-negative:mapping-without-assertion",
+  "@type": "rkaf:ConceptResolutionResult",
+  "rkaf:inputConcept": "urn:rkaf:fixture:concept:local",
+  "rkaf:resolutionStatus": "rkaf:resolved",
+  "rkaf:resolutionMethod": "rkaf:exactMatchTrusted",
+  "rkaf:resolvedConcept": "urn:rkaf:fixture:concept:canonical",
+  "rkaf:cacheStatus": "rkaf:notCached",
+  "rkaf:usageCeiling": "rkaf:localOperationalUse",
+  "rkaf:resolvedAt": "2026-07-29T12:00:00Z"
+}

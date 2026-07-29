@@ -27,7 +27,7 @@
         ]
       },
       {
-        "@id": "a1",
+        "@id": "urn:rkaf:fixture:assertion:a1",
         "@type": "rkaf:Assertion",
         "rkaf:assertionOrigin": "rkaf:humanAsserted",
         "rkaf:epistemicBasis": "rkaf:editorialAssertion",
@@ -39,7 +39,7 @@
         "rkaf:lifecycleEventKind": "rkaf:materialRevision",
         "rkaf:effectiveDate": "2026-04-15T00:00:00Z",
         "rkaf:emittedBy": "urn:rkaf:actor:agency",
-        "rkaf:appliesTo": "a1",
+        "rkaf:appliesTo": "urn:rkaf:fixture:assertion:a1",
         "rkaf:cascadeAlgorithm": "rkaf:CascadeClosureV1",
         "rkaf:safeAutomaticMigration": "rkaf:autoMigration:statute-update-2026"
       }

@@ -16,7 +16,15 @@ constraints/ai-extraction/):
   - `#Name: "lit" | "lit" | "lit"`          → closed enum
   - `#Whole: #PartA | #PartB`                → closed enum assembled from parts
                                                that may live in other files
+  - `#Name: string & =~"..." & !~"..."`     → reusable scalar string carrier
   - `#Name: { "field": #TypeRef, ... }`     → shape with typed properties
+  - `#Map: struct.MinFields(1) & {`
+    `  [language=<BCP47>]: string | [...string] }`
+                                              → named JSON-LD language map
+  - `#Literal: { "@value": string,`
+    `             "@type": <absolute IRI> }` → named typed-literal object
+  - `"field": #T | ([...#T] & list.MinItems(1))`
+                                              → named one-or-many carrier
   - `"field": { "@value": string, "@type": #D }` → JSON-LD value object
                                                (typed literal; see below)
   - `#Name: { #Base, ... }`                  → shape composed from `#Base`
@@ -25,7 +33,9 @@ constraints/ai-extraction/):
   - `if X["x"] == "v" { "y": T }`           → conditional branch
   - `if X["start"] > X["end"] { _|_ }`       → ordered-field invariant
   - `{...} | {...}`                          → disjunction branch
-  - `list.MinItems(N)` / `[...#X] & list.MinItems(N)` → list cardinality
+  - `list.MinItems(N)` / `list.MaxItems(N)`  → list cardinality
+  - `@rkafStrictList()`                      → preserve array-only authoring
+  - `if !list.UniqueItems(X["x"]) { _|_ }`   → unique list members
   - `string & =~"..." & !~"..."`             → allowed + forbidden pattern
   - `time.Format("2006-01-02")`              → JSON Schema/SHACL date
 
@@ -76,12 +86,29 @@ class EnumUnion:
 
 
 @dataclass
+class ScalarTypeDef:
+    """A reusable constrained scalar such as the shared BCP 47 language tag."""
+
+    name: str
+    value: "PropDef"
+
+
+@dataclass
 class PropDef:
     name: str
-    type_ref: str             # "string" | "int" | "float" | "bool" | "enum" | "enum_union" | "list"
+    type_ref: str             # "string" | "int" | "float" | "bool" | "enum" | "named" | "enum_union" | "list"
     enum_ref: Optional[str] = None
+    named_ref: Optional[str] = None
     list_inner_enum: Optional[str] = None
+    list_inner_named: Optional[str] = None
     list_min_items: int = 0
+    list_max_items: Optional[int] = None
+    list_unique_items: bool = False
+    # Most Rulespec lists accept JSON-LD's scalar shorthand in projections.
+    # `@rkafStrictList()` keeps an authoring form array-only when the
+    # specification requires the literal JSON array (notation and lifecycle
+    # participants).
+    list_allow_scalar: bool = True
     list_of_string: bool = False
     optional: bool = False
     fixed_value: Optional[str] = None
@@ -108,6 +135,7 @@ class ConditionalBranch:
     when_property: str
     when_equals: Optional[str]
     then_require: list[PropDef]
+    when_not_equals: bool = False
     then_forbid: list[str] = field(default_factory=list)
 
 
@@ -115,6 +143,12 @@ class ConditionalBranch:
 class OrderConstraint:
     lower_property: str
     upper_property: str
+
+
+@dataclass
+class NotEqualConstraint:
+    left_property: str
+    right_property: str
 
 
 @dataclass
@@ -129,19 +163,53 @@ class ShapeDef:
     properties: list[PropDef] = field(default_factory=list)
     conditionals: list[ConditionalBranch] = field(default_factory=list)
     orders: list[OrderConstraint] = field(default_factory=list)
+    not_equals: list[NotEqualConstraint] = field(default_factory=list)
     disjunctions: list[list[DisjunctionBranch]] = field(default_factory=list)
     # Names of shapes this shape is composed from (`#Base` embedded in the
     # body, or `#Base & {...}`). Resolved into `properties` / `conditionals` /
-    # `orders` / `disjunctions` by `_resolve_shape_compositions` so that every
-    # emitter sees one flat, fully-composed shape.
+    # `orders` / `not_equals` / `disjunctions` by
+    # `_resolve_shape_compositions` so that every emitter sees one flat,
+    # fully-composed shape.
     base_refs: list[str] = field(default_factory=list)
+
+
+@dataclass
+class PatternMapDef:
+    """A named CUE map whose string keys and values are constrained.
+
+    Rulespec uses this generic carrier for JSON-LD language maps. The compiler
+    does not key behavior on SKOS property names: any field may reference the
+    named map, and every target receives the same key/value constraints.
+    """
+
+    name: str
+    key: PropDef
+    value: PropDef
+    min_properties: int = 0
+
+
+@dataclass
+class ObjectTypeDef:
+    """A closed named object used as a property value rather than an RDF node."""
+
+    name: str
+    properties: list[PropDef] = field(default_factory=list)
 
 
 @dataclass
 class ConstraintDoc:
     package: str
+    # Keep the authoritative CUE source attached to parsed documents so every
+    # emitter can resolve sibling-file scalar/map/object definitions even when
+    # a caller invokes the emitter directly. CLI compilation already passed a
+    # registry explicitly; compiler tests and library callers did not, which
+    # made the same parsed document depend on the call path.
+    source_file: Optional[Path] = None
     enums: list[EnumDef] = field(default_factory=list)
     enum_unions: list[EnumUnion] = field(default_factory=list)
+    scalar_types: list[ScalarTypeDef] = field(default_factory=list)
+    pattern_maps: list[PatternMapDef] = field(default_factory=list)
+    object_types: list[ObjectTypeDef] = field(default_factory=list)
     shapes: list[ShapeDef] = field(default_factory=list)
 
 
@@ -154,6 +222,10 @@ ENUM_MULTI_RE = re.compile(r'"([^"]+)"')
 # Closed-enum-of-refs: `#Name: #A | #B | #C`
 ENUM_UNION_RE = re.compile(r'^#(\w+):\s*((?:#\w+\s*\|\s*)+#\w+)\s*$')
 ENUM_UNION_REFS_RE = re.compile(r'#(\w+)')
+SCALAR_TYPE_RE = re.compile(
+    r'^#(\w+):\s*(string(?:\s*&\s*=~"[^"]+")?'
+    r'(?:\s*&\s*!~"[^"]+")?)\s*$'
+)
 
 
 # Shape composition spellings. `#Name: {` + an embedded `#Base` line is handled
@@ -170,6 +242,16 @@ EMBEDDED_BASE_RE = re.compile(r"^#(\w+)$")
 # `"rkaf:assertsValue": {` — a property whose value is an inline nested struct.
 NESTED_OBJECT_OPEN_RE = re.compile(r'^"([^"]+)"(\?)?:\s*\{$')
 
+# A named pattern-keyed map. `struct.MinFields` is part of the source meaning:
+# without it an optional SKOS language-map property could be present as `{}` and
+# disappear during JSON-LD expansion.
+PATTERN_MAP_OPEN_RE = re.compile(
+    r"^#(\w+):\s*struct\.MinFields\((\d+)\)\s*&\s*\{$"
+)
+PATTERN_MAP_FIELD_RE = re.compile(
+    r"^\[(?:\w+=)?(.+)\]:\s*(.+)$"
+)
+
 # JSON-LD reserves exactly these members for a value object (JSON-LD 1.1
 # §4.2.1). `@value` is what MAKES a struct a value object, so the projector
 # recognizes the nested struct by that member rather than by a marker name.
@@ -185,7 +267,7 @@ def parse_cue_file(path: Path, *, resolve_composition: bool = True) -> Constrain
     """
     src = path.read_text()
 
-    doc = ConstraintDoc(package=path.stem)
+    doc = ConstraintDoc(package=path.stem, source_file=path.resolve())
 
     # Pre-pass: join any line that ends with `|` into the next line (CUE
     # disjunction continuation). This works for both top-level enum unions and
@@ -276,13 +358,60 @@ def parse_cue_file(path: Path, *, resolve_composition: bool = True) -> Constrain
             doc.enum_unions.append(EnumUnion(name=name, refs=refs))
             idx += 1
             continue
+        # Reusable constrained scalar. The shared language-tag grammar is the
+        # motivating case: language maps and JSON-LD value objects must not
+        # carry separate copies of the same BCP 47 regular expression.
+        scalar = SCALAR_TYPE_RE.match(line)
+        if scalar:
+            value = parse_property_line(f'"__value": {scalar.group(2)}')
+            if value is None or value.type_ref != "string":
+                raise CompileError(
+                    f"scalar type #{scalar.group(1)} is not a projectable string"
+                )
+            doc.scalar_types.append(
+                ScalarTypeDef(name=scalar.group(1), value=value)
+            )
+            idx += 1
+            continue
+        # Named pattern-keyed map:
+        #
+        #   #PrefLabelMap: struct.MinFields(1) & {
+        #       [language=string & =~"..." & !~"^@none$"]: string
+        #   }
+        #
+        # The value expression may instead be one-or-many strings. Keeping
+        # this as a named type lets any vocabulary property reuse it without
+        # teaching the compiler field-name exceptions.
+        mm = PATTERN_MAP_OPEN_RE.match(line)
+        if mm:
+            map_def, consumed = parse_pattern_map_body(
+                joined_lines,
+                idx + 1,
+                name=mm.group(1),
+                min_properties=int(mm.group(2)),
+            )
+            doc.pattern_maps.append(map_def)
+            idx += 1 + consumed
+            continue
         # Shape opening: `#Name: {` or `#Name: Alias={`
         sm = re.match(r"^#(\w+):\s*(?:\w+=)?\{$", line)
         if sm:
             shape_name = sm.group(1)
             shape, consumed = parse_shape_body(joined_lines, idx + 1)
             shape.name = shape_name
-            doc.shapes.append(shape)
+            # A top-level JSON-LD value object is a named property carrier, not
+            # an RDF node shape. Resource shapes may compose other shapes and
+            # normally carry a fixed class-valued `@type`; a named typed
+            # literal instead carries `@value` plus a pattern-constrained
+            # datatype `@type`.
+            if any(prop.name == "@value" for prop in shape.properties):
+                object_type = ObjectTypeDef(
+                    name=shape_name,
+                    properties=shape.properties,
+                )
+                doc.object_types.append(object_type)
+            else:
+                doc.shapes.append(shape)
             idx += 1 + consumed
             continue
         # Shape composition by conjunction: `#Name: #Base & { ... }`.
@@ -312,9 +441,132 @@ def parse_cue_file(path: Path, *, resolve_composition: bool = True) -> Constrain
             continue
         idx += 1
 
+    _classify_local_named_references(doc)
+    for pattern_map in doc.pattern_maps:
+        _validate_pattern_map(pattern_map, allow_unresolved=True)
+    for object_type in doc.object_types:
+        _validate_named_value_object(object_type)
+    _validate_document_value_objects(doc, allow_unresolved=True)
     if resolve_composition:
         _resolve_shape_compositions(doc, path)
     return doc
+
+
+def parse_pattern_map_body(
+    lines: list[tuple[int, str]],
+    start: int,
+    *,
+    name: str,
+    min_properties: int,
+) -> tuple[PatternMapDef, int]:
+    """Parse the single pattern field inside a named CUE map definition."""
+    entries: list[tuple[PropDef, PropDef]] = []
+    i = start
+    while i < len(lines):
+        line = lines[i][1].strip()
+        if line == "}":
+            i += 1
+            break
+        match = PATTERN_MAP_FIELD_RE.match(line)
+        if match:
+            key = parse_property_line(f'"__key": {match.group(1)}')
+            value = parse_property_line(f'"__value": {match.group(2)}')
+            if key is None or value is None:
+                raise CompileError(
+                    f"named map #{name} contains an unprojectable pattern field"
+                )
+            entries.append((key, value))
+        elif line:
+            raise CompileError(
+                f"named map #{name} contains an unsupported member: {line}"
+            )
+        i += 1
+    if len(entries) != 1:
+        raise CompileError(
+            f"named map #{name} MUST declare exactly one pattern field; "
+            f"found {len(entries)}"
+        )
+    key, value = entries[0]
+    if min_properties < 1:
+        raise CompileError(
+            f"named map #{name} MUST require at least one language entry"
+        )
+    return (
+        PatternMapDef(
+            name=name,
+            key=key,
+            value=value,
+            min_properties=min_properties,
+        ),
+        i - start,
+    )
+
+
+def _validate_pattern_map(definition: PatternMapDef, *, allow_unresolved: bool) -> None:
+    """Prove that a named map key is the shared BCP 47 scalar grammar."""
+    key = definition.key
+    value = definition.value
+    if value.type_ref != "string" and not (
+        value.type_ref == "list" and value.list_of_string
+    ):
+        if not (
+            allow_unresolved
+            and (
+                (value.type_ref == "enum" and value.enum_ref)
+                or (
+                    value.type_ref == "list"
+                    and value.list_inner_enum
+                )
+            )
+        ):
+            raise CompileError(
+                f"named map #{definition.name} values MUST be strings or "
+                "one-or-many strings"
+            )
+    if value.type_ref == "list" and value.list_min_items < 1:
+        raise CompileError(
+            f"named map #{definition.name} list values MUST contain at least "
+            "one string"
+        )
+    if key.type_ref != "string" or not key.pattern:
+        if allow_unresolved and key.type_ref == "enum" and key.enum_ref:
+            return
+        raise CompileError(
+            f"named map #{definition.name} MUST constrain string keys with a pattern"
+        )
+    try:
+        key_pattern = re.compile(key.pattern)
+        forbidden_key_pattern = (
+            re.compile(key.forbidden_pattern)
+            if key.forbidden_pattern
+            else None
+        )
+    except re.error as exc:
+        raise CompileError(
+            f"named map #{definition.name} has an invalid key pattern: {exc}"
+        ) from exc
+    valid_language_tags = ("en", "es", "zh-Hant", "und")
+    invalid_language_tags = ("", "@none", "en_US", "en--US")
+    if any(
+        key_pattern.fullmatch(tag) is None
+        or (
+            forbidden_key_pattern is not None
+            and forbidden_key_pattern.search(tag) is not None
+        )
+        for tag in valid_language_tags
+    ) or any(
+        key_pattern.fullmatch(tag) is not None
+        and not (
+            forbidden_key_pattern is not None
+            and forbidden_key_pattern.search(tag) is not None
+        )
+        for tag in invalid_language_tags
+    ):
+        raise CompileError(
+            f"named map #{definition.name} key constraints MUST accept BCP 47 "
+            "language tags including script subtags and `und`, and reject "
+            "`@none` and malformed tags"
+        )
 
 
 def parse_composed_disjunction(
@@ -374,6 +626,70 @@ def parse_shape_body(lines: list[tuple[int, str]], start: int) -> tuple[ShapeDef
                 break
             i += 1
             continue
+        # CUE enforces member uniqueness directly. Carry the same rule into
+        # JSON Schema and TypeScript before JSON-LD expansion deduplicates RDF
+        # triples and makes duplicate source members impossible to observe.
+        unique = re.match(
+            r'^if\s+!list\.UniqueItems\(\w+\["([^"]+)"\]\)\s*'
+            r'\{\s*_\|_\s*\}$',
+            line,
+        )
+        if unique is None:
+            unique = re.match(
+                r'^if\s+\w+\["([^"]+)"\]\s*!=\s*_\|_\s*\{\s*'
+                r'if\s+!list\.UniqueItems\(\w+\["\1"\]\)\s*'
+                r'\{\s*_\|_\s*\}\s*\}$',
+                line,
+            )
+        if unique:
+            property_name = unique.group(1)
+            prop = next(
+                (
+                    candidate
+                    for candidate in shape.properties
+                    if candidate.name == property_name
+                ),
+                None,
+            )
+            if prop is None or prop.type_ref != "list":
+                raise CompileError(
+                    "list.UniqueItems references non-list property "
+                    f"{property_name!r}"
+                )
+            prop.list_unique_items = True
+            i += 1
+            continue
+        # Cross-field inequality. The optional presence guard keeps a missing
+        # right-hand property valid; when both scalar properties exist, equal
+        # values make the CUE branch bottom.
+        not_equal_match = re.match(
+            r'^if\s+(?:\w+\["[^"]+"\]\s*!=\s*_\|_\s*&&\s*)?'
+            r'\w+\["([^"]+)"\]\s*==\s*\w+\["([^"]+)"\]\s*'
+            r'\{\s*_\|_\s*\}$',
+            line,
+        )
+        if not_equal_match:
+            left_property, right_property = not_equal_match.groups()
+            by_name = {prop.name: prop for prop in shape.properties}
+            for property_name in (left_property, right_property):
+                prop = by_name.get(property_name)
+                if prop is None or prop.type_ref == "list":
+                    raise CompileError(
+                        "cross-field inequality references missing or "
+                        f"non-scalar property {property_name!r}"
+                    )
+            if left_property == right_property:
+                raise CompileError(
+                    "cross-field inequality must name two different properties"
+                )
+            shape.not_equals.append(
+                NotEqualConstraint(
+                    left_property=left_property,
+                    right_property=right_property,
+                )
+            )
+            i += 1
+            continue
         # Cross-field ordering. The CUE branch makes values where lower >
         # upper bottom; projections carry the equivalent lower <= upper rule.
         order_match = re.match(
@@ -395,15 +711,20 @@ def parse_shape_body(lines: list[tuple[int, str]], start: int) -> tuple[ShapeDef
         # Conditional
         if line.startswith("if ") and "{" in line:
             mc = re.match(
-                r'^if\s+\w+\["([^"]+)"\]\s*==\s*"([^"]+)"\s*\{',
+                r'^if\s+\w+\["([^"]+)"\]\s*(==|!=)\s*"([^"]+)"\s*\{',
                 line,
             )
+            not_equals = False
             if mc is None:
                 # Backward-compatible parser for the repository's early
                 # condition spelling. New CUE must use the alias form above.
                 mc = re.match(r'^if\s+"([^"]+)"\s*==\s*"([^"]+)"\s*\{', line)
             if mc:
-                when_prop, when_eq = mc.group(1), mc.group(2)
+                if len(mc.groups()) == 3:
+                    when_prop, operator, when_eq = mc.groups()
+                    not_equals = operator == "!="
+                else:
+                    when_prop, when_eq = mc.group(1), mc.group(2)
                 req_props: list[PropDef] = []
                 forbidden_props: list[str] = []
                 j = i + 1
@@ -412,6 +733,28 @@ def parse_shape_body(lines: list[tuple[int, str]], start: int) -> tuple[ShapeDef
                     l2 = l2_raw.strip()
                     if l2 == "}":
                         break
+                    nested = NESTED_OBJECT_OPEN_RE.match(l2)
+                    if nested:
+                        inner: list[PropDef] = []
+                        j += 1
+                        while j < len(lines):
+                            nested_line = lines[j][1].strip()
+                            if nested_line == "}":
+                                break
+                            inner_prop = parse_property_line(nested_line)
+                            if inner_prop:
+                                inner.append(inner_prop)
+                            j += 1
+                        prop = PropDef(
+                            name=nested.group(1),
+                            type_ref="value_object",
+                            optional=nested.group(2) == "?",
+                            object_properties=inner,
+                            object_alternatives=[inner],
+                        )
+                        req_props.append(prop)
+                        j += 1
+                        continue
                     forbidden = re.match(r'^"([^"]+)"\?:\s*_\|_\s*$', l2)
                     if forbidden:
                         forbidden_props.append(forbidden.group(1))
@@ -425,6 +768,7 @@ def parse_shape_body(lines: list[tuple[int, str]], start: int) -> tuple[ShapeDef
                     when_property=when_prop,
                     when_equals=when_eq,
                     then_require=req_props,
+                    when_not_equals=not_equals,
                     then_forbid=forbidden_props,
                 ))
                 i = j + 1
@@ -548,7 +892,6 @@ def parse_shape_body(lines: list[tuple[int, str]], start: int) -> tuple[ShapeDef
                     object_properties=value_branches[0],
                     object_alternatives=value_branches,
                 )
-                _validate_value_object(prop)
                 shape.properties.append(prop)
                 i = j + 1
                 continue
@@ -609,7 +952,36 @@ def parse_property_line(line: str) -> Optional[PropDef]:
     rhs = m.group(3).rstrip()
 
     p = PropDef(name=name, type_ref="string", optional=optional)
+    if rhs.endswith("@rkafStrictList()"):
+        p.list_allow_scalar = False
+        rhs = rhs[: -len("@rkafStrictList()")].rstrip()
 
+    # JSON-LD one-or-many reference. The source explicitly admits the scalar
+    # spelling and a non-empty array spelling; all generated carriers preserve
+    # that union. Reference classification (closed enum versus named object)
+    # happens after the complete document has been parsed.
+    one_or_many_ref = re.match(
+        r"^#(\w+)\s*\|\s*\(\s*\[\.\.\.#\1\]\s*&\s*"
+        r"list\.MinItems\((\d+)\)\s*\)$",
+        rhs,
+    )
+    if one_or_many_ref:
+        p.type_ref = "list"
+        p.list_inner_enum = one_or_many_ref.group(1)
+        p.list_min_items = int(one_or_many_ref.group(2))
+        return p
+    # JSON-LD one-or-many string. This is the value range of the reusable
+    # multi-valued language-map carrier.
+    one_or_many_string = re.match(
+        r"^string\s*\|\s*\(\s*\[\.\.\.string\]\s*&\s*"
+        r"list\.MinItems\((\d+)\)\s*\)$",
+        rhs,
+    )
+    if one_or_many_string:
+        p.type_ref = "list"
+        p.list_of_string = True
+        p.list_min_items = int(one_or_many_string.group(1))
+        return p
     # Fixed string literal: `"v"`
     lit = re.match(r'^"([^"]+)"$', rhs)
     if lit:
@@ -622,52 +994,63 @@ def parse_property_line(line: str) -> Optional[PropDef]:
         p.type_ref = "enum"
         p.enum_ref = em.group(1)
         return p
-    # `[...#Enum] & list.MinItems(N)`
-    lm = re.match(r"^\[\.\.\.#(\w+)\]\s*&\s*list\.MinItems\((\d+)\)$", rhs)
-    if lm:
-        p.type_ref = "list"
-        p.list_inner_enum = lm.group(1)
-        p.list_min_items = int(lm.group(2))
-        return p
-    # `[...string] & list.MinItems(N)`
-    ls = re.match(r"^\[\.\.\.string\]\s*&\s*list\.MinItems\((\d+)\)$", rhs)
-    if ls:
-        p.type_ref = "list"
-        p.list_of_string = True
-        p.list_min_items = int(ls.group(1))
-        return p
-    # `[...(string & =~"pattern")] & list.MinItems(N)`
-    lsp = re.match(
-        r'^\[\.\.\.\(string\s*&\s*=~"([^"]+)"\)\]'
-        r'(?:\s*&\s*list\.MinItems\((\d+)\))?$',
+    # Strict or JSON-LD-one-or-many list. Bounds may appear in either order;
+    # an explicit maximum is required for exact lifecycle cardinalities.
+    list_match = re.match(
+        r'^\[\.\.\.(#\w+|string|\(string\s*&\s*=~"[^"]+"\))\](.*)$',
         rhs,
     )
-    if lsp:
+    if list_match:
+        item = list_match.group(1)
+        tail = list_match.group(2)
+        bounds = re.findall(
+            r'\s*&\s*list\.(Min|Max)Items\((\d+)\)',
+            tail,
+        )
+        consumed = "".join(
+            f" & list.{kind}Items({value})" for kind, value in bounds
+        )
+        if re.sub(r"\s+", "", consumed) != re.sub(r"\s+", "", tail):
+            return p
         p.type_ref = "list"
-        p.list_of_string = True
-        p.pattern = _decode_cue_string(lsp.group(1))
-        p.list_min_items = int(lsp.group(2) or 0)
+        if item.startswith("#"):
+            p.list_inner_enum = item[1:]
+        else:
+            p.list_of_string = True
+            pattern = re.match(r'^\(string\s*&\s*=~"([^"]+)"\)$', item)
+            if pattern:
+                p.pattern = _decode_cue_string(pattern.group(1))
+        for kind, value in bounds:
+            if kind == "Min":
+                p.list_min_items = int(value)
+            else:
+                p.list_max_items = int(value)
+        if (
+            p.list_max_items is not None
+            and p.list_max_items < p.list_min_items
+        ):
+            raise CompileError(
+                f'property "{name}" has list.MaxItems below list.MinItems'
+            )
         return p
-    # `[...#Enum]`
-    le = re.match(r"^\[\.\.\.#(\w+)\]$", rhs)
-    if le:
-        p.type_ref = "list"
-        p.list_inner_enum = le.group(1)
-        return p
-    # `[...string]`
-    if rhs == "[...string]":
-        p.type_ref = "list"
-        p.list_of_string = True
-        return p
-    # `list.MinItems(N)` — bare list with no item-type constraint. Items may
-    # be any JSON value (string, object, array, …). Note: we deliberately do
-    # NOT set `list_of_string` here; the previous behavior degraded structured
-    # OA selector objects to string, which broke `SourceFragment.hasSelector`.
-    lmo = re.match(r"^list\.MinItems\((\d+)\)$", rhs)
-    if lmo:
-        p.type_ref = "list"
-        p.list_min_items = int(lmo.group(1))
-        return p
+    # Bare list bounds with no item-type constraint. Items may be any JSON
+    # value. This preserves the SourceFragment selector carrier behavior.
+    bare_bounds = re.findall(
+        r'(?:^|\s*&\s*)list\.(Min|Max)Items\((\d+)\)',
+        rhs,
+    )
+    if bare_bounds:
+        consumed = " & ".join(
+            f"list.{kind}Items({value})" for kind, value in bare_bounds
+        )
+        if re.sub(r"\s+", "", consumed) == re.sub(r"\s+", "", rhs):
+            p.type_ref = "list"
+            for kind, value in bare_bounds:
+                if kind == "Min":
+                    p.list_min_items = int(value)
+                else:
+                    p.list_max_items = int(value)
+            return p
     # `>=N.M & <=N.M`
     nm = re.match(r"^>=\s*(-?[\d.]+)\s*&\s*<=\s*(-?[\d.]+)$", rhs)
     if nm:
@@ -737,7 +1120,203 @@ def parse_property_line(line: str) -> Optional[PropDef]:
     return p
 
 
-def _validate_value_object(prop: PropDef) -> None:
+def _all_document_properties(doc: ConstraintDoc) -> list[PropDef]:
+    """Every property occurrence that can reference a named carrier."""
+    properties: list[PropDef] = []
+    for shape in doc.shapes:
+        properties.extend(shape.properties)
+        properties.extend(
+            prop
+            for conditional in shape.conditionals
+            for prop in conditional.then_require
+        )
+        properties.extend(
+            prop
+            for disjunction in shape.disjunctions
+            for branch in disjunction
+            for prop in branch.properties
+        )
+    for object_type in doc.object_types:
+        properties.extend(object_type.properties)
+    for pattern_map in doc.pattern_maps:
+        properties.extend((pattern_map.key, pattern_map.value))
+    return properties
+
+
+def _classify_local_named_references(doc: ConstraintDoc) -> None:
+    """Distinguish enum refs from refs to reusable map/object carrier types.
+
+    CUE uses the same `#Name` syntax for both. Parsing the full document before
+    classification avoids brittle field-name rules and lets any resource
+    property reuse any named carrier.
+    """
+    named = {
+        definition.name
+        for definition in [
+            *doc.scalar_types,
+            *doc.pattern_maps,
+            *doc.object_types,
+        ]
+    }
+    scalars = {definition.name: definition for definition in doc.scalar_types}
+    if not named:
+        return
+    for prop in _all_document_properties(doc):
+        if prop.type_ref == "enum" and prop.enum_ref in named:
+            scalar = scalars.get(prop.enum_ref)
+            if scalar is not None:
+                replacement = replace(
+                    scalar.value,
+                    name=prop.name,
+                    optional=prop.optional,
+                )
+                prop.__dict__.update(replacement.__dict__)
+                continue
+            prop.type_ref = "named"
+            prop.named_ref = prop.enum_ref
+            prop.enum_ref = None
+        if prop.type_ref == "list" and prop.list_inner_enum in named:
+            scalar = scalars.get(prop.list_inner_enum)
+            if scalar is not None:
+                prop.list_of_string = True
+                prop.pattern = scalar.value.pattern
+                prop.forbidden_pattern = scalar.value.forbidden_pattern
+                prop.list_inner_enum = None
+                continue
+            prop.list_inner_named = prop.list_inner_enum
+            prop.list_inner_enum = None
+        if prop.type_ref == "value_object":
+            for branch in _value_object_branches(prop):
+                for inner in branch:
+                    if inner.type_ref == "enum" and inner.enum_ref in named:
+                        inner.type_ref = "named"
+                        inner.named_ref = inner.enum_ref
+                        inner.enum_ref = None
+
+
+def _classify_global_named_references(
+    doc: ConstraintDoc, registry: dict[str, object]
+) -> None:
+    """Resolve scalar/map/object carrier references declared in sibling files."""
+    for prop in _all_document_properties(doc):
+        if prop.type_ref == "enum" and prop.enum_ref:
+            definition = registry.get(prop.enum_ref)
+            if isinstance(definition, ScalarTypeDef):
+                replacement = replace(
+                    definition.value,
+                    name=prop.name,
+                    optional=prop.optional,
+                )
+                prop.__dict__.update(replacement.__dict__)
+            elif isinstance(definition, (PatternMapDef, ObjectTypeDef)):
+                prop.type_ref = "named"
+                prop.named_ref = prop.enum_ref
+                prop.enum_ref = None
+        if prop.type_ref == "list" and prop.list_inner_enum:
+            definition = registry.get(prop.list_inner_enum)
+            if isinstance(definition, ScalarTypeDef):
+                prop.list_of_string = True
+                prop.pattern = definition.value.pattern
+                prop.forbidden_pattern = definition.value.forbidden_pattern
+                prop.list_inner_enum = None
+            elif isinstance(definition, (PatternMapDef, ObjectTypeDef)):
+                prop.list_inner_named = prop.list_inner_enum
+                prop.list_inner_enum = None
+        if prop.type_ref == "value_object":
+            for branch in _value_object_branches(prop):
+                for inner in branch:
+                    if inner.type_ref != "enum" or not inner.enum_ref:
+                        continue
+                    definition = registry.get(inner.enum_ref)
+                    if isinstance(definition, ScalarTypeDef):
+                        replacement = replace(
+                            definition.value,
+                            name=inner.name,
+                            optional=inner.optional,
+                        )
+                        inner.__dict__.update(replacement.__dict__)
+                    elif isinstance(definition, (PatternMapDef, ObjectTypeDef)):
+                        inner.type_ref = "named"
+                        inner.named_ref = inner.enum_ref
+                        inner.enum_ref = None
+
+
+def _prepare_named_references(
+    doc: ConstraintDoc,
+    registry: Optional[dict],
+    source_file: Optional[Path] = None,
+) -> None:
+    if source_file is None:
+        source_file = doc.source_file
+    if registry is None and source_file is not None:
+        registry = _scan_global_enum_registry(source_file)
+    if registry:
+        _classify_global_named_references(doc, registry)
+    for pattern_map in doc.pattern_maps:
+        _validate_pattern_map(pattern_map, allow_unresolved=False)
+    _validate_document_value_objects(doc, allow_unresolved=False)
+
+
+def _validate_named_value_object(definition: ObjectTypeDef) -> None:
+    """Validate the closed named typed-literal carrier.
+
+    The public CUE syntax is a normal named object. It becomes this carrier
+    only when it declares `@value`, so the behavior follows JSON-LD semantics
+    rather than a vocabulary field name.
+    """
+    by_name = {prop.name: prop for prop in definition.properties}
+    unknown = sorted(set(by_name) - {"@value", "@type"})
+    if unknown:
+        raise CompileError(
+            f"named value object #{definition.name} declares unsupported "
+            f"member(s) {unknown}; typed literals contain only @value and @type"
+        )
+    if set(by_name) != {"@value", "@type"}:
+        raise CompileError(
+            f"named value object #{definition.name} MUST carry exactly "
+            "`@value` and `@type`"
+        )
+    lexical = by_name["@value"]
+    datatype = by_name["@type"]
+    if (
+        lexical.optional
+        or lexical.type_ref != "string"
+        or lexical.fixed_value is not None
+    ):
+        raise CompileError(
+            f"named value object #{definition.name} MUST require a string "
+            "`@value`"
+        )
+    if (
+        datatype.optional
+        or datatype.type_ref != "string"
+        or not datatype.pattern
+    ):
+        raise CompileError(
+            f"named value object #{definition.name} MUST require `@type` "
+            "with an absolute-datatype-IRI pattern"
+        )
+    try:
+        compiled = re.compile(datatype.pattern)
+    except re.error as exc:
+        raise CompileError(
+            f"named value object #{definition.name} has an invalid datatype "
+            f"pattern: {exc}"
+        ) from exc
+    if (
+        compiled.fullmatch("https://example.org/datatype") is None
+        or compiled.fullmatch("urn:example:datatype") is None
+        or compiled.fullmatch("relative/type") is not None
+    ):
+        raise CompileError(
+            f"named value object #{definition.name} `@type` pattern MUST "
+            "accept arbitrary absolute IRIs and reject relative IRIs"
+        )
+
+
+def _validate_value_object(
+    prop: PropDef, *, allow_unresolved: bool = False
+) -> None:
     """Reject an inline nested object that is not a JSON-LD value object.
 
     A value object is a struct whose `@value` holds the lexical form and whose
@@ -775,9 +1354,26 @@ def _validate_value_object(prop: PropDef) -> None:
                 "with a closed datatype enum."
             )
         if language is not None and not language.pattern:
+            if (
+                allow_unresolved
+                and language.type_ref == "enum"
+                and language.enum_ref
+            ):
+                continue
             raise CompileError(
                 f'value object "{prop.name}" does not validate its `@language` '
                 "member as a BCP 47 language tag."
+            )
+
+
+def _validate_document_value_objects(
+    doc: ConstraintDoc, *, allow_unresolved: bool
+) -> None:
+    for prop in _all_document_properties(doc):
+        if prop.type_ref == "value_object":
+            _validate_value_object(
+                prop,
+                allow_unresolved=allow_unresolved,
             )
 
 
@@ -878,8 +1474,13 @@ def _shape_registry(source_file: Path) -> dict[str, ShapeDef]:
 _PROPERTY_FACET_DEFAULTS: dict[str, object] = {
     "type_ref": "string",
     "enum_ref": None,
+    "named_ref": None,
     "list_inner_enum": None,
+    "list_inner_named": None,
     "list_min_items": 0,
+    "list_max_items": None,
+    "list_unique_items": False,
+    "list_allow_scalar": True,
     "list_of_string": False,
     "fixed_value": None,
     "pattern": None,
@@ -901,6 +1502,9 @@ _PROPERTY_FACET_DEFAULTS: dict[str, object] = {
 _NARROWING_FACETS = {
     "min_inclusive": max,
     "list_min_items": max,
+    "list_max_items": min,
+    "list_unique_items": lambda base, derived: bool(base or derived),
+    "list_allow_scalar": lambda base, derived: bool(base and derived),
     "max_inclusive": min,
 }
 
@@ -979,6 +1583,7 @@ def _unify_conditional(
         when_property=base.when_property,
         when_equals=base.when_equals,
         then_require=then_require,
+        when_not_equals=base.when_not_equals,
         then_forbid=then_forbid,
     )
 
@@ -988,9 +1593,17 @@ def _append_conditional(
     branch: ConditionalBranch,
     shape_name: str,
 ) -> None:
-    key = (branch.when_property, branch.when_equals)
+    key = (
+        branch.when_property,
+        branch.when_equals,
+        branch.when_not_equals,
+    )
     for index, existing in enumerate(branches):
-        if (existing.when_property, existing.when_equals) == key:
+        if (
+            existing.when_property,
+            existing.when_equals,
+            existing.when_not_equals,
+        ) == key:
             branches[index] = _unify_conditional(existing, branch, shape_name)
             return
     branches.append(
@@ -998,6 +1611,7 @@ def _append_conditional(
             when_property=branch.when_property,
             when_equals=branch.when_equals,
             then_require=[_copy_property(p) for p in branch.then_require],
+            when_not_equals=branch.when_not_equals,
             then_forbid=list(branch.then_forbid),
         )
     )
@@ -1039,6 +1653,9 @@ def _compose_shape(
         for branch in base.conditionals:
             _append_conditional(merged.conditionals, branch, shape.name)
         merged.orders.extend(base.orders)
+        for constraint in base.not_equals:
+            if constraint not in merged.not_equals:
+                merged.not_equals.append(constraint)
         merged.disjunctions.extend(base.disjunctions)
     # `type_iri` is deliberately NOT inherited. A shape's `@type` binds the
     # generated artifacts to an RDF class: inheriting it would make the derived
@@ -1052,6 +1669,9 @@ def _compose_shape(
     for branch in shape.conditionals:
         _append_conditional(merged.conditionals, branch, shape.name)
     merged.orders.extend(shape.orders)
+    for constraint in shape.not_equals:
+        if constraint not in merged.not_equals:
+            merged.not_equals.append(constraint)
     merged.disjunctions.extend(shape.disjunctions)
     return merged
 
@@ -1141,10 +1761,12 @@ def _resolve_enum_values(
 # ---- JSON Schema target --------------------------------------------------
 
 def _scan_global_enum_registry(source_file: Path) -> dict:
-    """Scan all sibling CUE files for enum definitions, building a global
-    registry so cross-file `$ref`s can resolve. Returns `{enum_name: EnumDef
-    | EnumUnion}`. Falls back to empty dict if the source file isn't inside
-    a recognizable `constraints/` tree.
+    """Scan sibling CUE files for globally reusable definitions.
+
+    The historical function name remains for callers, but the registry now
+    contains enums, enum unions, constrained scalars, pattern maps, and closed
+    object carriers. Cross-file language carriage requires the same
+    deterministic single-owner rule as cross-file value sets.
     """
     registry: dict = {}
     p = source_file.resolve()
@@ -1173,11 +1795,17 @@ def _scan_global_enum_registry(source_file: Path) -> dict:
             continue
         package = cue_file.stem  # e.g. "usage-eligibility"
         relpath = cue_file.resolve().relative_to(constraints_root).with_suffix("")
-        for definition in [*sibling.enums, *sibling.enum_unions]:
+        for definition in [
+            *sibling.enums,
+            *sibling.enum_unions,
+            *sibling.scalar_types,
+            *sibling.pattern_maps,
+            *sibling.object_types,
+        ]:
             name = definition.name
             if name in registry:
                 raise CompileError(
-                    f"enum/union #{name} is declared by both "
+                    f"definition #{name} is declared by both "
                     f"{_REGISTRY_RELPATHS[name]}.cue and {relpath.as_posix()}"
                     ".cue. A cross-file reference to #"
                     f"{name} would resolve to whichever file the scan reached "
@@ -1264,6 +1892,7 @@ def _scan_reference_class_registry(source_file: Path) -> dict[str, str]:
 
 
 def target_json_schema(doc: ConstraintDoc, registry: Optional[dict] = None) -> str:
+    _prepare_named_references(doc, registry)
     schemas: dict = {}
     for e in doc.enums:
         schemas[e.name] = {"type": "string", "enum": e.values}
@@ -1275,6 +1904,35 @@ def target_json_schema(doc: ConstraintDoc, registry: Optional[dict] = None) -> s
             "type": "string",
             "enum": _resolve_enum_values(u.name, doc, registry),
         }
+    for scalar in doc.scalar_types:
+        schemas[scalar.name] = property_to_jsonschema(
+            scalar.value, doc, registry
+        )
+    for map_def in doc.pattern_maps:
+        schemas[map_def.name] = {
+            "type": "object",
+            "propertyNames": property_to_jsonschema(map_def.key, doc, registry),
+            "additionalProperties": property_to_jsonschema(
+                map_def.value, doc, registry
+            ),
+            "minProperties": map_def.min_properties,
+        }
+    for object_type in doc.object_types:
+        object_properties = {
+            prop.name: property_to_jsonschema(prop, doc, registry)
+            for prop in object_type.properties
+        }
+        required = [
+            prop.name for prop in object_type.properties if not prop.optional
+        ]
+        schema: dict = {
+            "type": "object",
+            "properties": object_properties,
+            "additionalProperties": False,
+        }
+        if required:
+            schema["required"] = required
+        schemas[object_type.name] = schema
 
     # Inline cross-file enum definitions referenced by this doc's properties /
     # disjunctions / conditionals so the resulting schema is self-contained.
@@ -1290,9 +1948,48 @@ def target_json_schema(doc: ConstraintDoc, registry: Optional[dict] = None) -> s
             "enum": _resolve_enum_values(enum_name, doc, registry),
         }
 
+    def _inline_cross_file_carrier(name: str) -> None:
+        if name in schemas or registry is None:
+            return
+        definition = registry.get(name)
+        if isinstance(definition, ScalarTypeDef):
+            schemas[name] = property_to_jsonschema(
+                definition.value, doc, registry
+            )
+        elif isinstance(definition, PatternMapDef):
+            schemas[name] = {
+                "type": "object",
+                "propertyNames": property_to_jsonschema(
+                    definition.key, doc, registry
+                ),
+                "additionalProperties": property_to_jsonschema(
+                    definition.value, doc, registry
+                ),
+                "minProperties": definition.min_properties,
+            }
+        elif isinstance(definition, ObjectTypeDef):
+            properties = {
+                prop.name: property_to_jsonschema(prop, doc, registry)
+                for prop in definition.properties
+            }
+            schemas[name] = {
+                "type": "object",
+                "properties": properties,
+                "required": [
+                    prop.name
+                    for prop in definition.properties
+                    if not prop.optional
+                ],
+                "additionalProperties": False,
+            }
+
     if registry:
         for s in doc.shapes:
             for p in s.properties:
+                if p.type_ref == "named" and p.named_ref:
+                    _inline_cross_file_carrier(p.named_ref)
+                if p.type_ref == "list" and p.list_inner_named:
+                    _inline_cross_file_carrier(p.list_inner_named)
                 if p.type_ref == "enum" and p.enum_ref:
                     _inline_cross_file(p.enum_ref)
                 if p.type_ref == "list" and p.list_inner_enum:
@@ -1341,7 +2038,7 @@ def target_json_schema(doc: ConstraintDoc, registry: Optional[dict] = None) -> s
             if c.when_equals is None:
                 condition = {"required": [c.when_property]}
             else:
-                condition = {
+                equals_condition = {
                     "properties": {
                         c.when_property: {
                             "anyOf": [
@@ -1355,6 +2052,11 @@ def target_json_schema(doc: ConstraintDoc, registry: Optional[dict] = None) -> s
                     },
                     "required": [c.when_property],
                 }
+                condition = (
+                    {"not": equals_condition}
+                    if c.when_not_equals
+                    else equals_condition
+                )
             then_schema: dict = {}
             if then_props:
                 then_schema["properties"] = then_props
@@ -1391,6 +2093,14 @@ def target_json_schema(doc: ConstraintDoc, registry: Optional[dict] = None) -> s
                     "upper": order.upper_property,
                 }
                 for order in s.orders
+            ]
+        if s.not_equals:
+            schema["x-rkaf-not-equal"] = [
+                {
+                    "left": constraint.left_property,
+                    "right": constraint.right_property,
+                }
+                for constraint in s.not_equals
             ]
         schemas[s.name] = schema
 
@@ -1446,10 +2156,14 @@ def property_to_jsonschema(
         return {"type": "string", "enum": vals}
     if p.type_ref == "enum":
         return {"$ref": f"#/$defs/{p.enum_ref}"}
+    if p.type_ref == "named":
+        return {"$ref": f"#/$defs/{p.named_ref}"}
     if p.type_ref == "list":
         items: dict
         if p.list_inner_enum:
             items = {"$ref": f"#/$defs/{p.list_inner_enum}"}
+        elif p.list_inner_named:
+            items = {"$ref": f"#/$defs/{p.list_inner_named}"}
         elif p.list_of_string:
             items = {"type": "string"}
         else:
@@ -1462,10 +2176,19 @@ def property_to_jsonschema(
         arr: dict = {"type": "array", "items": items}
         if p.list_min_items > 0:
             arr["minItems"] = p.list_min_items
+        if p.list_max_items is not None:
+            arr["maxItems"] = p.list_max_items
+        if p.list_unique_items:
+            arr["uniqueItems"] = True
         # JSON-LD coercion: a single scalar is semantically a one-element list.
-        # Accept either form: scalar of items type OR array. minItems>=1 is
-        # automatically satisfied by the scalar form.
-        return {"anyOf": [items, arr]}
+        # Strict authored arrays, lists requiring two or more members, and
+        # impossible one-member maxima must stay arrays at the source layer.
+        scalar_allowed = (
+            p.list_allow_scalar
+            and p.list_min_items <= 1
+            and (p.list_max_items is None or p.list_max_items >= 1)
+        )
+        return {"anyOf": [items, arr]} if scalar_allowed else arr
     if p.type_ref == "int":
         out = {"type": "integer"}
         if p.min_inclusive is not None:
@@ -1508,6 +2231,7 @@ def target_rust(
     registry: Optional[dict] = None,
     source_file: Optional[Path] = None,
 ) -> str:
+    _prepare_named_references(doc, registry, source_file)
     out: list[str] = [
         "// AUTO-GENERATED by tools/constraints_compile.py",
         f"// Source: {_source_header(doc, source_file)}",
@@ -1543,7 +2267,13 @@ def target_rust(
 
     # Local enum index — used by _rust_type to decide whether an enum reference
     # is local (bare name) or cross-file (fully-qualified path).
-    local_enums = {e.name for e in doc.enums} | {u.name for u in doc.enum_unions}
+    local_enums = (
+        {e.name for e in doc.enums}
+        | {u.name for u in doc.enum_unions}
+        | {definition.name for definition in doc.scalar_types}
+        | {definition.name for definition in doc.pattern_maps}
+        | {definition.name for definition in doc.object_types}
+    )
 
     # Some composed conditionals narrow a broadly typed carrier field to a
     # cross-file enum without changing the struct field's broad Rust type.
@@ -1602,8 +2332,61 @@ def target_rust(
     if external_enum_paths:
         out.append("")
 
-    if doc.shapes:
+    if doc.shapes or doc.pattern_maps:
         out.append("use std::collections::BTreeMap;")
+        out.append("")
+
+    for scalar in doc.scalar_types:
+        out.append(
+            f"/// Reusable constrained scalar carrier for `{scalar.name}`; "
+            "generated validators enforce its lexical grammar."
+        )
+        out.append(f"pub type {scalar.name} = String;")
+        out.append("")
+
+    for map_def in doc.pattern_maps:
+        value_type = _rust_type(
+            map_def.value,
+            local_enums=local_enums,
+            registry=registry,
+        )
+        out.append(
+            f"/// Pattern-keyed map carrier for `{map_def.name}`; generated "
+            "validators enforce its key and cardinality rules."
+        )
+        out.append(
+            f"pub type {map_def.name} = BTreeMap<String, {value_type}>;"
+        )
+        out.append("")
+
+    for object_type in doc.object_types:
+        out.append(
+            f"/// Closed generated property carrier for `{object_type.name}`."
+        )
+        out.append(
+            "#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]"
+        )
+        out.append("#[serde(deny_unknown_fields)]")
+        out.append(f"pub struct {object_type.name} {{")
+        used_field_names: set[str] = set()
+        for prop in object_type.properties:
+            field_name = _rust_unique_field_name(prop.name, used_field_names)
+            rust_type = _rust_type(
+                prop,
+                local_enums=local_enums,
+                registry=registry,
+            )
+            out.append(f"    /// JSON-LD member `{prop.name}`.")
+            if prop.optional:
+                out.append(
+                    f'    #[serde(rename = "{prop.name}", '
+                    'skip_serializing_if = "Option::is_none", default)]'
+                )
+                out.append(f"    pub {field_name}: Option<{rust_type}>,")
+            else:
+                out.append(f'    #[serde(rename = "{prop.name}")]')
+                out.append(f"    pub {field_name}: {rust_type},")
+        out.append("}")
         out.append("")
 
     for s in doc.shapes:
@@ -1804,20 +2587,43 @@ def _rust_type(p: PropDef, local_enums: Optional[set] = None,
             if fq:
                 return fq
         return name
+    if p.type_ref == "named":
+        name = p.named_ref or "serde_json::Value"
+        if (
+            local_enums is not None
+            and name not in local_enums
+            and registry is not None
+        ):
+            fq = _cross_file_enum_path(name, registry)
+            if fq:
+                return fq
+        return name
     if p.type_ref == "list":
-        # JSON-LD wire shorthand: scalar OR array. The matching JSON Schema
-        # emits `anyOf: [scalar, array]`; mirror with `crate::OneOrMany<T>`.
+        # Strict authoring lists stay Vec; other one-member JSON-LD relations
+        # retain the scalar-or-array shorthand.
+        carrier = "Vec" if not p.list_allow_scalar else "crate::OneOrMany"
         if p.list_inner_enum:
             inner = p.list_inner_enum
             if local_enums is not None and inner not in local_enums and registry is not None:
                 fq = _cross_file_enum_path(inner, registry)
                 if fq:
                     inner = fq
-            return f"crate::OneOrMany<{inner}>"
+            return f"{carrier}<{inner}>"
+        if p.list_inner_named:
+            inner = p.list_inner_named
+            if (
+                local_enums is not None
+                and inner not in local_enums
+                and registry is not None
+            ):
+                fq = _cross_file_enum_path(inner, registry)
+                if fq:
+                    inner = fq
+            return f"{carrier}<{inner}>"
         if p.list_of_string:
-            return "crate::OneOrMany<String>"
+            return f"{carrier}<String>"
         # Bare `list.MinItems(N)` with no item-type constraint — any JSON value.
-        return "crate::OneOrMany<serde_json::Value>"
+        return f"{carrier}<serde_json::Value>"
     if p.type_ref == "int":
         return "i64"
     if p.type_ref == "float":
@@ -1859,15 +2665,38 @@ def target_typescript(
     registry: Optional[dict] = None,
     source_file: Optional[Path] = None,
 ) -> str:
+    _prepare_named_references(doc, registry, source_file)
     out: list[str] = [
         "// AUTO-GENERATED by tools/constraints_compile.py",
         f"// Source: {_source_header(doc, source_file)}",
         "// DO NOT EDIT.",
         "",
     ]
+
+    def _conditional_scalar_values(prop: PropDef) -> list[str]:
+        if prop.inline_enum_values:
+            return list(prop.inline_enum_values)
+        if prop.enum_union_refs:
+            values: list[str] = []
+            for ref in prop.enum_union_refs:
+                values.extend(
+                    _resolve_enum_values(
+                        ref, doc, registry, ("<inline union>",)
+                    )
+                )
+            return values
+        if prop.type_ref == "enum" and prop.enum_ref:
+            return _resolve_enum_values(prop.enum_ref, doc, registry)
+        return []
+
     local_enums = {e.name for e in doc.enums} | {
         union.name for union in doc.enum_unions
     }
+    local_carriers = (
+        {definition.name for definition in doc.scalar_types}
+        | {definition.name for definition in doc.pattern_maps}
+        | {definition.name for definition in doc.object_types}
+    )
     def _referenced_enums(prop: PropDef) -> tuple[Optional[str], ...]:
         """Enum names a property names directly or through a value object."""
         if prop.type_ref == "value_object":
@@ -1907,6 +2736,20 @@ def target_typescript(
             and enum_name in registry
         }
     )
+    external_carriers = sorted(
+        {
+            carrier_name
+            for prop in referenced_props
+            for carrier_name in (prop.named_ref, prop.list_inner_named)
+            if carrier_name
+            and carrier_name not in local_carriers
+            and registry is not None
+            and isinstance(
+                registry.get(carrier_name),
+                (ScalarTypeDef, PatternMapDef, ObjectTypeDef),
+            )
+        }
+    )
     own_relpath = _source_relpath(source_file) if source_file is not None else None
     for enum_name in external_enums:
         specifier = _ts_import_specifier(enum_name, own_relpath)
@@ -1914,7 +2757,14 @@ def target_typescript(
             out.append(
                 f'import type {{ {enum_name} }} from "{specifier}";'
             )
-    if external_enums:
+    for carrier_name in external_carriers:
+        specifier = _ts_import_specifier(carrier_name, own_relpath)
+        if specifier:
+            out.append(
+                f'import {{ type {carrier_name}, validate{carrier_name} }} '
+                f'from "{specifier}";'
+            )
+    if external_enums or external_carriers:
         out.append("")
     for e in doc.enums:
         lits = " | ".join(f'"{v}"' for v in e.values)
@@ -1925,6 +2775,133 @@ def target_typescript(
             f'"{v}"' for v in _resolve_enum_values(u.name, doc, registry)
         )
         out.append(f"export type {u.name} = {lits};")
+        out.append("")
+    for scalar in doc.scalar_types:
+        pattern = json.dumps(scalar.value.pattern)
+        out.append(f"export type {scalar.name} = string;")
+        out.append("")
+        out.append(
+            f"export function validate{scalar.name}(v: unknown): string[] {{"
+        )
+        out.append("  const errs: string[] = [];")
+        out.append(
+            f'  if (typeof v !== "string") return ["{scalar.name}: must be a string"];'
+        )
+        if scalar.value.pattern:
+            out.append(
+                f"  if (!new RegExp({pattern}).test(v)) "
+                f'errs.push("{scalar.name}: pattern mismatch");'
+            )
+        if scalar.value.forbidden_pattern:
+            forbidden = json.dumps(scalar.value.forbidden_pattern)
+            out.append(
+                f"  if (new RegExp({forbidden}).test(v)) "
+                f'errs.push("{scalar.name}: forbidden pattern match");'
+            )
+        out.append("  return errs;")
+        out.append("}")
+        out.append("")
+    for map_def in doc.pattern_maps:
+        value_type = (
+            "string | string[]"
+            if map_def.value.type_ref == "list"
+            else "string"
+        )
+        key_pattern = json.dumps(map_def.key.pattern)
+        out.append(
+            f"export type {map_def.name} = Record<string, {value_type}>;"
+        )
+        out.append("")
+        out.append(
+            f"export function validate{map_def.name}(v: unknown): string[] {{"
+        )
+        out.append("  const errs: string[] = [];")
+        out.append(
+            '  if (typeof v !== "object" || v === null || Array.isArray(v)) '
+            f'return ["{map_def.name}: must be a language map"];'
+        )
+        out.append("  const entries = Object.entries(v);")
+        out.append(
+            f'  if (entries.length < {map_def.min_properties}) '
+            f'errs.push("{map_def.name}: < {map_def.min_properties} entries");'
+        )
+        out.append(
+            f"  if (entries.some(([key]) => !new RegExp({key_pattern}).test(key))) "
+            f'errs.push("{map_def.name}: malformed language tag");'
+        )
+        if map_def.key.forbidden_pattern:
+            forbidden = json.dumps(map_def.key.forbidden_pattern)
+            out.append(
+                f"  if (entries.some(([key]) => new RegExp({forbidden}).test(key))) "
+                f'errs.push("{map_def.name}: forbidden language key");'
+            )
+        if map_def.value.type_ref == "list":
+            out.append(
+                "  if (entries.some(([, value]) => "
+                'typeof value !== "string" && (!Array.isArray(value) || '
+                f"value.length < {map_def.value.list_min_items} || "
+                'value.some((item) => typeof item !== "string")))) '
+                f'errs.push("{map_def.name}: values must be one-or-more strings");'
+            )
+        else:
+            out.append(
+                "  if (entries.some(([, value]) => typeof value !== "
+                f'"string")) errs.push("{map_def.name}: values must be strings");'
+            )
+        out.append("  return errs;")
+        out.append("}")
+        out.append("")
+    for object_type in doc.object_types:
+        out.append(f"export interface {object_type.name} {{")
+        for prop in object_type.properties:
+            optional = "?" if prop.optional else ""
+            out.append(
+                f'  "{prop.name}"{optional}: {_ts_type(prop)};'
+            )
+        out.append("}")
+        out.append("")
+        out.append(
+            f"export function validate{object_type.name}(v: unknown): string[] {{"
+        )
+        out.append("  const errs: string[] = [];")
+        out.append(
+            '  if (typeof v !== "object" || v === null || Array.isArray(v)) '
+            f'return ["{object_type.name}: must be an object"];'
+        )
+        out.append("  const record = v as Record<string, unknown>;")
+        allowed = json.dumps([prop.name for prop in object_type.properties])
+        out.append(
+            f"  if (Object.keys(record).some((key) => !{allowed}.includes(key))) "
+            f'errs.push("{object_type.name}: member outside the closed object");'
+        )
+        for prop in object_type.properties:
+            if not prop.optional:
+                out.append(
+                    f'  if (record["{prop.name}"] === undefined) '
+                    f'errs.push("{object_type.name}: {prop.name} is required");'
+                )
+            if prop.type_ref == "string":
+                out.append(
+                    f'  if (record["{prop.name}"] !== undefined && '
+                    f'typeof record["{prop.name}"] !== "string") '
+                    f'errs.push("{object_type.name}: {prop.name} must be a string");'
+                )
+            if prop.pattern:
+                pattern = json.dumps(prop.pattern)
+                out.append(
+                    f'  if (typeof record["{prop.name}"] === "string" && '
+                    f'!new RegExp({pattern}).test(record["{prop.name}"] as string)) '
+                    f'errs.push("{object_type.name}: {prop.name} pattern mismatch");'
+                )
+            if prop.forbidden_pattern:
+                pattern = json.dumps(prop.forbidden_pattern)
+                out.append(
+                    f'  if (typeof record["{prop.name}"] === "string" && '
+                    f'new RegExp({pattern}).test(record["{prop.name}"] as string)) '
+                    f'errs.push("{object_type.name}: {prop.name} forbidden pattern match");'
+                )
+        out.append("  return errs;")
+        out.append("}")
         out.append("")
     has_date = any(
         prop.string_format == "date"
@@ -1964,7 +2941,58 @@ def target_typescript(
                 "  const record = v as unknown as Record<string, unknown>;"
             )
         for p in s.properties:
-            if p.type_ref == "list" and p.list_min_items > 0 and not p.optional:
+            if p.type_ref == "named" and p.named_ref:
+                out.append(
+                    f'  if (v["{p.name}"] !== undefined) '
+                    f'errs.push(...validate{p.named_ref}(v["{p.name}"]));'
+                )
+            if p.type_ref == "list" and p.list_inner_named:
+                if not p.list_allow_scalar:
+                    out.append(
+                        f'  if (v["{p.name}"] !== undefined && '
+                        f'!Array.isArray(v["{p.name}"])) '
+                        f'errs.push("{p.name}: must be an array");'
+                    )
+                out.append(
+                    f'  if (Array.isArray(v["{p.name}"]) && '
+                    f'v["{p.name}"].length < {p.list_min_items}) '
+                    f'errs.push("{p.name}: < {p.list_min_items} items");'
+                )
+                out.append(
+                    f'  if (v["{p.name}"] !== undefined) '
+                    f'errs.push(...([] as unknown[]).concat(v["{p.name}"] as '
+                    f'unknown[]).flatMap((value) => '
+                    f"validate{p.list_inner_named}(value)));"
+                )
+            if p.type_ref == "list" and p.list_max_items is not None:
+                out.append(
+                    f'  if (Array.isArray(v["{p.name}"]) && '
+                    f'v["{p.name}"].length > {p.list_max_items}) '
+                    f'errs.push("{p.name}: > {p.list_max_items} items");'
+                )
+            if p.type_ref == "list" and p.list_unique_items:
+                out.append(
+                    f'  if (Array.isArray(v["{p.name}"]) && '
+                    f'new Set(v["{p.name}"].map((item) => '
+                    f'JSON.stringify(item))).size !== v["{p.name}"].length) '
+                    f'errs.push("{p.name}: duplicate items");'
+                )
+            if (
+                p.type_ref == "list"
+                and not p.list_allow_scalar
+                and not p.list_inner_named
+            ):
+                out.append(
+                    f'  if (v["{p.name}"] !== undefined && '
+                    f'!Array.isArray(v["{p.name}"])) '
+                    f'errs.push("{p.name}: must be an array");'
+                )
+            if (
+                p.type_ref == "list"
+                and p.list_min_items > 0
+                and not p.optional
+                and not p.list_inner_named
+            ):
                 out.append(f'  if (!Array.isArray(v["{p.name}"]) || v["{p.name}"].length < {p.list_min_items}) errs.push("{p.name}: < {p.list_min_items} items");')
             if p.pattern:
                 pattern = json.dumps(p.pattern)
@@ -2059,6 +3087,8 @@ def target_typescript(
                     f"(Array.isArray({when_value}) && "
                     f"{when_value}.includes({expected}))"
                 )
+                if conditional.when_not_equals:
+                    expression = f"!({expression})"
             out.append(f"  const {when_name} = {expression};")
             for requirement in conditional.then_require:
                 required_value = f'record["{requirement.name}"]'
@@ -2079,6 +3109,43 @@ def target_typescript(
                         f'errs.push("{requirement.name}: < '
                         f'{requirement.list_min_items} items");'
                     )
+                if (
+                    requirement.type_ref == "list"
+                    and requirement.list_max_items is not None
+                ):
+                    out.append(
+                        f"  if ({when_name} && Array.isArray({required_value}) && "
+                        f"{required_value}.length > "
+                        f"{requirement.list_max_items}) "
+                        f'errs.push("{requirement.name}: > '
+                        f'{requirement.list_max_items} items");'
+                    )
+                if requirement.type_ref == "value_object":
+                    literal = (
+                        f"({required_value} as Record<string, unknown> | "
+                        "undefined)"
+                    )
+                    language = _value_object_member(
+                        requirement, "@language"
+                    )
+                    out.append(
+                        f"  if ({when_name} && ({literal} === undefined || "
+                        f'typeof {literal}!["@value"] !== "string" || '
+                        f'typeof {literal}!["@language"] !== "string" || '
+                        f'{literal}!["@type"] !== undefined)) '
+                        f'errs.push("{requirement.name}: must be a '
+                        'language-tagged value");'
+                    )
+                    if language and language.pattern:
+                        pattern = json.dumps(language.pattern)
+                        out.append(
+                            f"  if ({when_name} && {literal} !== undefined && "
+                            f'typeof {literal}!["@language"] === "string" && '
+                            f'!new RegExp({pattern}).test('
+                            f'{literal}!["@language"] as string)) '
+                            f'errs.push("{requirement.name}: malformed '
+                            'language tag");'
+                        )
                 if requirement.pattern:
                     pattern = json.dumps(requirement.pattern)
                     if requirement.type_ref == "list":
@@ -2105,13 +3172,9 @@ def target_typescript(
                         f'errs.push("{requirement.name}: must equal '
                         f'{requirement.fixed_value}");'
                     )
-                elif requirement.type_ref == "enum" and requirement.enum_ref:
+                elif _conditional_scalar_values(requirement):
                     allowed = json.dumps(
-                        _resolve_enum_values(
-                            requirement.enum_ref,
-                            doc,
-                            registry,
-                        )
+                        _conditional_scalar_values(requirement)
                     )
                     out.append(
                         f"  if ({when_name} && {required_value} !== undefined && "
@@ -2155,6 +3218,15 @@ def target_typescript(
                 f'errs.push("{order.lower_property}: must be on or before '
                 f'{order.upper_property}");'
             )
+        for constraint in s.not_equals:
+            out.append(
+                f'  if (v["{constraint.left_property}"] !== undefined && '
+                f'v["{constraint.right_property}"] !== undefined && '
+                f'v["{constraint.left_property}"] === '
+                f'v["{constraint.right_property}"]) '
+                f'errs.push("{constraint.left_property}: must differ from '
+                f'{constraint.right_property}");'
+            )
         out.append("  return errs;")
         out.append("}")
         out.append("")
@@ -2180,7 +3252,15 @@ def _ts_type(p: PropDef) -> str:
         return " | ".join(alternatives)
     if p.type_ref == "enum":
         return p.enum_ref or "string"
+    if p.type_ref == "named":
+        return p.named_ref or "unknown"
     if p.type_ref == "list":
+        if p.list_inner_named:
+            return (
+                f"{p.list_inner_named}[]"
+                if not p.list_allow_scalar
+                else f"{p.list_inner_named} | {p.list_inner_named}[]"
+            )
         inner = p.list_inner_enum or "string"
         return f"{inner}[]"
     if p.type_ref == "int" or p.type_ref == "float":
@@ -2191,6 +3271,32 @@ def _ts_type(p: PropDef) -> str:
 
 
 # ---- SHACL target (Pattern C only) ---------------------------------------
+
+def _pattern_map_definition(
+    doc: ConstraintDoc, name: Optional[str], registry: Optional[dict] = None
+) -> Optional[PatternMapDef]:
+    local = next(
+        (definition for definition in doc.pattern_maps if definition.name == name),
+        None,
+    )
+    if local is not None:
+        return local
+    external = registry.get(name) if registry and name else None
+    return external if isinstance(external, PatternMapDef) else None
+
+
+def _object_type_definition(
+    doc: ConstraintDoc, name: Optional[str], registry: Optional[dict] = None
+) -> Optional[ObjectTypeDef]:
+    local = next(
+        (definition for definition in doc.object_types if definition.name == name),
+        None,
+    )
+    if local is not None:
+        return local
+    external = registry.get(name) if registry and name else None
+    return external if isinstance(external, ObjectTypeDef) else None
+
 
 def target_shacl(
     doc: ConstraintDoc,
@@ -2216,6 +3322,7 @@ def target_shacl(
     the matching coercion turns a passing document into a violation whose
     message names the value that is already in the list.
     """
+    _prepare_named_references(doc, registry, source_file)
     out: list[str] = [
         "# AUTO-GENERATED by tools/constraints_compile.py (target=shacl, Pattern C only).",
         f"# Source: {_source_header(doc, source_file)}",
@@ -2242,6 +3349,30 @@ def target_shacl(
         if not name:
             return []
         return _resolve_enum_values(name, doc, registry)
+
+    def resolve_property_values(prop: PropDef) -> list[str]:
+        """Return every closed scalar value carried by one property.
+
+        A CUE field may close its values by naming an enum, by spelling an
+        inline literal union, or by assembling named enums inline. JSON Schema
+        already projects all three forms; SHACL must use the same resolution
+        path or a conditional such as a usage ceiling becomes presence-only.
+        """
+        if prop.inline_enum_values:
+            return list(prop.inline_enum_values)
+        if prop.enum_union_refs:
+            values: list[str] = []
+            for ref in prop.enum_union_refs:
+                values.extend(
+                    _resolve_enum_values(
+                        ref, doc, registry, ("<inline union>",)
+                    )
+                )
+            return values
+        if prop.type_ref == "enum" and prop.enum_ref:
+            return resolve_enum(prop.enum_ref)
+        return []
+
     for s in doc.shapes:
         if not s.type_iri:
             continue
@@ -2249,6 +3380,12 @@ def target_shacl(
         out.append(f"rkaf:{s.name}Shape a sh:NodeShape ;")
         out.append(f"  sh:targetClass {type_iri} ;")
         for p in s.properties:
+            named_map = _pattern_map_definition(
+                doc, p.named_ref or p.list_inner_named, registry
+            )
+            named_object = _object_type_definition(
+                doc, p.named_ref or p.list_inner_named, registry
+            )
             line = f"  sh:property [ sh:path {p.name} ;"
             # Consolidate min-cardinality: max(required ? 1 : 0, list min items).
             # Emitting both sh:minCount predicates yields a malformed SHACL shape
@@ -2262,12 +3399,14 @@ def target_shacl(
             # A scalar CUE field is exactly-one when required and at-most-one
             # when optional. RDF permits repeated predicates, so SHACL must
             # carry the upper bound explicitly.
-            if p.type_ref != "list":
+            if p.type_ref != "list" and named_map is None:
                 line += " sh:maxCount 1 ;"
-            if p.type_ref == "enum":
-                values = " ".join(resolve_enum(p.enum_ref or ""))
-                if values:
-                    line += f" sh:in ( {values} ) ;"
+            if p.type_ref == "list" and p.list_max_items is not None:
+                line += f" sh:maxCount {p.list_max_items} ;"
+            scalar_values = resolve_property_values(p)
+            if scalar_values:
+                values = " ".join(scalar_values)
+                line += f" sh:in ( {values} ) ;"
             if p.type_ref == "list" and p.list_inner_enum:
                 values = " ".join(resolve_enum(p.list_inner_enum))
                 if values:
@@ -2294,6 +3433,23 @@ def target_shacl(
                 if alternatives_list:
                     alternatives = " ".join(alternatives_list)
                     line += f" sh:or ( {alternatives} ) ;"
+            if named_map is not None:
+                # A JSON-LD language map expands to one rdf:langString literal
+                # per value. The wire keys no longer exist in RDF; datatype
+                # validation proves every expanded value remains tagged, and
+                # `sh:uniqueLang` carries the one-preferred-label-per-language
+                # rule for a single-valued map.
+                line += " sh:nodeKind sh:Literal ;"
+                line += " sh:datatype rdf:langString ;"
+                if named_map.value.type_ref == "string":
+                    line += " sh:uniqueLang true ;"
+            if named_object is not None:
+                # A named JSON-LD typed-literal object expands to the literal
+                # itself. RDF guarantees datatype identifiers are IRIs. Exclude
+                # the language-tagged branch because this carrier requires
+                # `@type`, not `@language`.
+                line += " sh:nodeKind sh:Literal ;"
+                line += " sh:not [ sh:datatype rdf:langString ; ] ;"
             if p.pattern:
                 line += f" sh:pattern {json.dumps(p.pattern)} ;"
             if p.forbidden_pattern:
@@ -2310,14 +3466,23 @@ def target_shacl(
         # Conditional branches → Pattern C (sh:or with sh:not)
         for c in s.conditionals:
             out.append("  sh:or (")
-            out.append("    [ sh:not [ sh:property [")
             if c.when_equals is None:
+                out.append("    [ sh:not [ sh:property [")
                 out.append(f"        sh:path {c.when_property} ; sh:minCount 1")
+                out.append("      ] ] ]")
+            elif c.when_not_equals:
+                out.append("    [ sh:property [")
+                out.append(
+                    f"        sh:path {c.when_property} ; "
+                    f"sh:hasValue {c.when_equals}"
+                )
+                out.append("      ] ]")
             else:
+                out.append("    [ sh:not [ sh:property [")
                 out.append(
                     f"        sh:path {c.when_property} ; sh:hasValue {c.when_equals}"
                 )
-            out.append("      ] ] ]")
+                out.append("      ] ] ]")
             if c.then_require or c.then_forbid:
                 # EVERY requirement, not just the first. A guard that emitted
                 # `then_require[0]` and dropped the rest is the silent-pass
@@ -2329,7 +3494,39 @@ def target_shacl(
                 # holds only when all of them hold.
                 requirements: list[str] = []
                 for requirement in c.then_require:
-                    part = f"sh:property [ sh:path {requirement.name} ; sh:minCount 1 ;"
+                    min_count = max(1, requirement.list_min_items)
+                    part = (
+                        f"sh:property [ sh:path {requirement.name} ; "
+                        f"sh:minCount {min_count} ;"
+                    )
+                    if requirement.list_max_items is not None:
+                        part += f" sh:maxCount {requirement.list_max_items} ;"
+                    if requirement.fixed_value is not None:
+                        part += f" sh:hasValue {requirement.fixed_value} ;"
+                    scalar_values = resolve_property_values(requirement)
+                    if scalar_values:
+                        values = " ".join(scalar_values)
+                        part += f" sh:in ( {values} ) ;"
+                    if (
+                        requirement.type_ref == "list"
+                        and requirement.list_inner_enum
+                    ):
+                        values = " ".join(
+                            resolve_enum(requirement.list_inner_enum)
+                        )
+                        part += f" sh:in ( {values} ) ;"
+                    if requirement.type_ref == "value_object":
+                        part += " sh:nodeKind sh:Literal ;"
+                        has_language = any(
+                            _branch_member(branch, "@language") is not None
+                            for branch in _value_object_branches(requirement)
+                        )
+                        has_datatype = any(
+                            _branch_member(branch, "@type") is not None
+                            for branch in _value_object_branches(requirement)
+                        )
+                        if has_language and not has_datatype:
+                            part += " sh:datatype rdf:langString ;"
                     if requirement.pattern:
                         part += f" sh:pattern {json.dumps(requirement.pattern)} ;"
                     if requirement.string_format == "date":
@@ -2349,6 +3546,20 @@ def target_shacl(
                 f"  sh:property [ sh:path {order.lower_property} ; "
                 f"sh:lessThanOrEquals {order.upper_property} ; ] ;"
             )
+        for constraint in s.not_equals:
+            out.append("  sh:or (")
+            out.append("    [ sh:not [ sh:property [")
+            out.append(
+                f"        sh:path {constraint.right_property} ; sh:minCount 1"
+            )
+            out.append("      ] ] ]")
+            out.append("    [ sh:not [ sh:property [")
+            out.append(
+                f"        sh:path {constraint.left_property} ; "
+                f"sh:equals {constraint.right_property}"
+            )
+            out.append("      ] ] ]")
+            out.append("  ) ;")
         # Disjunctions → Pattern C
         for disj in s.disjunctions:
             out.append("  sh:or (")
@@ -2380,6 +3591,7 @@ def target_rego(
     registry: Optional[dict] = None,
     source_file: Optional[Path] = None,
 ) -> str:
+    _prepare_named_references(doc, registry, source_file)
     out: list[str] = [
         "# AUTO-GENERATED by tools/constraints_compile.py (target=rego).",
         f"# Source: {_source_header(doc, source_file)}",
@@ -2399,8 +3611,103 @@ def target_rego(
             f'"{v}"' for v in _resolve_enum_values(u.name, doc, registry)
         )
         out.append(f"{_rego_symbol(u.name)}_values := [{vals}]")
+    carrier_metadata: dict[str, dict] = {}
+    for scalar in doc.scalar_types:
+        carrier_metadata[scalar.name] = {
+            "kind": "constrained_scalar",
+            "pattern": scalar.value.pattern,
+            "forbidden_pattern": scalar.value.forbidden_pattern,
+        }
+    for map_def in doc.pattern_maps:
+        carrier_metadata[map_def.name] = {
+            "kind": "pattern_map",
+            "key_pattern": map_def.key.pattern,
+            "key_forbidden_pattern": map_def.key.forbidden_pattern,
+            "min_properties": map_def.min_properties,
+            "value_cardinality": (
+                "oneOrMany"
+                if map_def.value.type_ref == "list"
+                else "exactlyOne"
+            ),
+            "min_items": map_def.value.list_min_items,
+        }
+    for object_type in doc.object_types:
+        datatype = next(
+            (
+                prop
+                for prop in object_type.properties
+                if prop.name == "@type"
+            ),
+            None,
+        )
+        carrier_metadata[object_type.name] = {
+            "kind": "closed_typed_literal",
+            "members": [prop.name for prop in object_type.properties],
+            "datatype_pattern": datatype.pattern if datatype else None,
+        }
+    if carrier_metadata:
+        out.append(
+            "named_carrier_metadata := "
+            + json.dumps(carrier_metadata, sort_keys=True)
+        )
+    shape_constraint_metadata: dict[str, dict] = {}
+    for shape in doc.shapes:
+        lists = {
+            prop.name: {
+                "min_items": prop.list_min_items,
+                "max_items": prop.list_max_items,
+                "unique_items": prop.list_unique_items,
+                "strict_array": not prop.list_allow_scalar,
+            }
+            for prop in shape.properties
+            if prop.type_ref == "list"
+            and (
+                prop.list_min_items
+                or prop.list_max_items is not None
+                or prop.list_unique_items
+                or not prop.list_allow_scalar
+            )
+        }
+        constraints: dict[str, object] = {}
+        if lists:
+            constraints["lists"] = lists
+        if shape.not_equals:
+            constraints["not_equals"] = [
+                {
+                    "left": constraint.left_property,
+                    "right": constraint.right_property,
+                }
+                for constraint in shape.not_equals
+            ]
+        if constraints:
+            shape_constraint_metadata[shape.name] = constraints
+    if shape_constraint_metadata:
+        out.append(
+            "shape_constraint_metadata := "
+            + json.dumps(shape_constraint_metadata, sort_keys=True)
+        )
     out.append("")
     out.append("# Validators emit `deny[msg]` for each violation.")
+    for shape in doc.shapes:
+        if not shape.type_iri:
+            continue
+        for constraint in shape.not_equals:
+            message = (
+                f"{constraint.left_property} must differ from "
+                f"{constraint.right_property}"
+            )
+            out.extend(
+                [
+                    "deny[msg] if {",
+                    f'  input["@type"] == "{shape.type_iri}"',
+                    f'  left := input["{constraint.left_property}"]',
+                    f'  right := input["{constraint.right_property}"]',
+                    "  left == right",
+                    f"  msg := {json.dumps(message)}",
+                    "}",
+                    "",
+                ]
+            )
     return "\n".join(out)
 
 
@@ -2439,6 +3746,10 @@ def main() -> int:
         # emitted schema is self-contained) and by the Rust target to resolve
         # cross-file enum names to fully-qualified module paths.
         enum_registry = _scan_global_enum_registry(args.input)
+        _classify_global_named_references(doc, enum_registry)
+        for pattern_map in doc.pattern_maps:
+            _validate_pattern_map(pattern_map, allow_unresolved=False)
+        _validate_document_value_objects(doc, allow_unresolved=False)
         reference_classes = _scan_reference_class_registry(args.input)
 
         if args.target == "cue":

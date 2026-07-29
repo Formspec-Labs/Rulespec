@@ -406,22 +406,82 @@ The transition is deterministic. `closureDecision == rkaf:retired` moves the sta
 
 ## §6 — Concept resolution with conflict
 
-Given a `LocalConcept` `X` and the set `M = {m₁, m₂, ...}` of
-`ConceptMapping`s where `m.assertsSubject == X`:
+Concept resolution emits the complete portable
+`rkaf:ConceptResolutionResult` defined in
+`spec/rkaf-concept-registry.md` §8. The resolver first records whether it used
+live data, a fresh cache, or a stale cache. It then evaluates a direct
+registered-concept lookup or the set `M = {m₁, m₂, ...}` of
+`ConceptMapping`s where `m.assertsSubject` equals the input concept.
+
+A mapping participates only when:
+
+1. it uses `skos:exactMatch`, `skos:closeMatch`, `skos:broadMatch`, or
+   `skos:narrowMatch`; `skos:relatedMatch` remains discovery evidence but is
+   not a resolution path;
+2. both endpoint release pins identify `rkaf:completeMembership` releases and
+   each endpoint is a `prov:hadMember` of its pinned release;
+3. its applicability includes the requested purpose and excludes no requested
+   purpose;
+4. its publication Attestation and lifecycle state are effective at the
+   resolution time; and
+5. its trust or local-adoption evidence supports the proposed method and usage
+   ceiling.
+
+Mappings that fail those conditions may remain discoverable evidence, but they
+do not silently authorize a resolution.
+
+For executable conformance fixtures, the non-RDF `resolutionContext` harness
+object supplies `cacheStatus`, `registryAvailable`, `requestedPurposes`, and
+`consumerCapability`. It is test input, not a Rulespec graph record. Omitted
+values mean `notCached`, registry available, no purpose restriction, and
+`officialUse` capability respectively. Production runtimes obtain the same
+facts from their registry, cache, request, and consumer configuration.
+
+An effective registry-publication Attestation is required for every mapping
+path. Exact and close mappings additionally require either a
+`managedByRegistry` value trusted by the selected
+`BridgeConsumerRegistration` or an active `LocalAdoption` targeting the
+mapping. Broad and narrow mappings need no adoption because they remain
+discovery-only and cannot exceed `searchOnly`.
 
 ```text
-fn resolve_concept(local_concept: &LocalConcept, graph: &Graph) -> ResolutionVerdict:
-    let mappings = graph.nodes_by_type("rkaf:ConceptMapping")
-                        .filter(|m| m.assertsSubject == local_concept.@id)
-                        .collect()
+fn resolve_concept(input: IRI, graph: &Graph, context: ResolutionContext)
+    -> ConceptResolutionResult:
+
+    if input is a usable RegisteredConcept in an exact complete release:
+        return result(
+            status = resolved,
+            method = context.direct_method,       // directRegistry/cacheServed/staleCacheServed
+            resolvedConcept = input,
+            mappingAssertion = absent,
+            cacheStatus = context.cache_status,
+            usageCeiling = context.direct_ceiling,
+        )
+
+    let mappings = eligible_mappings(input, graph, context)
 
     if mappings.is_empty():
-        return ResolutionVerdict::Unresolved
+        return result(
+            status = context.unavailable ? registryUnavailable : unresolved,
+            method = context.attempted_method,
+            resolvedConcept = absent,
+            mappingAssertion = absent,
+            cacheStatus = context.cache_status,
+            usageCeiling = context.failure_ceiling,
+        )
 
     let unique_targets = mappings.iter().map(|m| m.assertsObject).unique().count()
 
     if unique_targets == 1:
-        return ResolutionVerdict::Resolved { canonical: mappings[0].assertsObject }
+        let selected = strongest_applicable_mapping(mappings)
+        return result(
+            status = selected.is_discovery_only ? unresolved : resolved,
+            method = method_for(selected),
+            resolvedConcept = selected.is_discovery_only ? absent : selected.assertsObject,
+            mappingAssertion = selected.@id,
+            cacheStatus = context.cache_status,
+            usageCeiling = ceiling_for(selected, context),
+        )
 
     // Multiple distinct targets → conflict
     let severity = if mappings.any(|m| m.assertsPredicate == "skos:exactMatch"):
@@ -429,13 +489,54 @@ fn resolve_concept(local_concept: &LocalConcept, graph: &Graph) -> ResolutionVer
                    else:
                        rkaf:informational
 
-    return ResolutionVerdict::Conflict {
+    let selected = strongest_applicable_mapping(mappings)
+    return result(
+        status = conflicting,
+        method = method_for(selected),
+        resolvedConcept = absent,
+        mappingAssertion = selected.@id,
+        cacheStatus = context.cache_status,
+        usageCeiling = context.conflict_ceiling,
         registryConflict: RegistryConflict {
             conflictingEntries: mappings.iter().map(|m| m.@id).collect(),
             severity,
         }
-    }
+    )
 ```
+
+`strongest_applicable_mapping` ranks trusted `skos:exactMatch`, locally adopted
+`skos:closeMatch`, close match awaiting adoption, and broad/narrow discovery in
+that order. `skos:relatedMatch` is useful for discovery but does not resolve a
+concept and has no resolution-method value. Equal-strength mappings to the same
+target are equivalent for target selection; the implementation chooses the
+lexically smallest mapping IRI so the emitted `rkaf:mappingAssertion` is
+deterministic.
+
+A mapped result MUST name its selected mapping assertion. A direct result MUST
+not. Cached mapping resolution retains the underlying mapping method and
+mapping assertion; `rkaf:cacheStatus` records whether the cached evidence is
+fresh or stale. The `rkaf:cacheServed` and `rkaf:staleCacheServed` methods are
+reserved for cached direct resolution.
+
+Complete release membership proves direct concept identity; it does not by
+itself authorize operational use. Without an effective trust input, direct
+identity resolution is capped at `searchOnly`. A trusted registry or effective
+publication Attestation may raise that ceiling only as far as consumer
+capability and narrower policy allow.
+
+The method supplies an upper bound before consumer-specific narrowing:
+
+| Method | Maximum ceiling before narrower policy |
+| --- | --- |
+| `rkaf:directRegistry` / `rkaf:exactMatchTrusted` / `rkaf:cacheServed` | ceiling supported by the exact release, trust, and consumer capability |
+| `rkaf:closeMatchLocallyAdopted` | `rkaf:localOperationalUse` |
+| `rkaf:closeMatchAwaitingAdoption` | `rkaf:draftGenerationAllowed` |
+| `rkaf:broadOrNarrowMatchDiscoveryOnly` | `rkaf:searchOnly` |
+| `rkaf:staleCacheServed` | the fresh direct ceiling, narrowed by cache and risk policy |
+
+The emitted `rkaf:usageCeiling` is the minimum of that method ceiling,
+applicability, lifecycle, cache freshness, registry trust, local adoption, and
+consumer capability. Resolution never broadens another eligibility input.
 
 ### §6.1 — Severity ladder
 
@@ -464,10 +565,29 @@ implementation is `crates/rkaf-runtime/src/concept.rs::compute_severity`.
 ### §6.2 — Output shape
 
 ```
-{ resolutionResult: "rkaf:resolved" | "rkaf:conflict",
-  canonicalConcept?: "<@id>",
-  registryConflict?: { conflictingEntries: ["<@id>", ...], severity: "<rkaf:severity>" } }
+{
+  conceptResolutionResult: {
+    inputConcept: "<@id>",
+    resolutionStatus: "<rkaf:resolutionStatus>",
+    resolutionMethod: "<rkaf:resolutionMethod>",
+    resolvedConcept?: "<@id>",
+    mappingAssertion?: "<@id>",
+    cacheStatus: "rkaf:fresh" | "rkaf:stale" | "rkaf:notCached",
+    usageCeiling: "<rkaf:usageEligibility>",
+    resolvedAt: "<xsd:dateTime>",
+    resolverId?: "<@id>"
+  },
+  registryConflict?: {
+    conflictingEntries: ["<@id>", ...],
+    severity: "<rkaf:severity>"
+  }
+}
 ```
+
+The conditional presence rules for `resolvedConcept` and `mappingAssertion`
+are normative even when a carrier does not use the compact key spelling shown
+above. `registryConflict` supplements a conflicting result; it never replaces
+the required `ConceptResolutionResult`.
 
 ---
 
@@ -481,7 +601,7 @@ The runtime's `BehaviorVerdict` is compared deep-equal to `BehaviorTestCase.rkaf
 | `rkaf:CascadeClosureV1` | `affectedSet: [<@id>, ...]` (set-equal) + `algorithm: "rkaf:CascadeClosureV1"` |
 | `rkaf:BridgeContractRule` (per rule) | `bridgeValidationResult: <verdict>` + optional `errorClass: <iri>` + optional `rationale: <str>` |
 | `rkaf:PointInTimeException` | `"<assertion-id>.effectiveStateForAnchor:<anchor-name>": <state>` + `"<assertion-id>.effectiveStateForCurrentUse": <state>` |
-| `rkaf:ConceptResolutionWithConflict` | `resolutionResult: <verdict>` + optional `canonicalConcept: <@id>` + optional `registryConflict: { conflictingEntries: [<@id>+], severity: <severity> }` |
+| `rkaf:ConceptResolutionWithConflict` | `conceptResolutionResult: { inputConcept, resolutionStatus, resolutionMethod, cacheStatus, usageCeiling, resolvedAt, ...conditional fields }` + optional `registryConflict: { conflictingEntries: [<@id>+], severity: <severity> }` |
 
 ### §7.1 — errorClass IRI registry (closed; extension via §13.4 RFC)
 

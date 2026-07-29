@@ -1,13 +1,26 @@
 {
   "@context": "../context/rkaf-context.jsonld",
-  "@id": "urn:rkaf:fixture:scheme:fns-snap-topic",
-  "@type": "rkaf:ConceptScheme",
-  "skos:prefLabel": "FNS SNAP topic scheme",
-  "rkaf:schemeFacet": "urn:rkaf:facet:topic",
-  "skos:definition": "Subject-matter topics of SNAP eligibility policy. Organizations, places, document states, and dates are OTHER facets and are not members of this scheme.",
-  "skos:hasTopConcept": [
-    "urn:rkaf:fixture:concept:household-income"
+  "@graph": [
+    {
+      "@id": "urn:rkaf:fixture:scheme:fns-snap-topic",
+      "@type": "rkaf:ConceptScheme",
+      "skos:prefLabel": {"en": "FNS SNAP topic scheme"},
+      "rkaf:schemeFacet": "urn:rkaf:facet:topic",
+      "skos:definition": {"en": "Subject-matter topics of SNAP eligibility policy. Organizations, places, document states, and dates are OTHER facets and are not members of this scheme."},
+      "skos:hasTopConcept": [
+        "urn:rkaf:fixture:concept:household-income"
+      ],
+      "rkaf:managedByRegistry": "urn:rkaf:fixture:registry:fns-snap-canonical"
+    },
+    {
+      "@id": "urn:rkaf:fixture:concept:household-income",
+      "@type": "rkaf:RegisteredConcept",
+      "skos:prefLabel": {"en": "Household income"},
+      "skos:inScheme": "urn:rkaf:fixture:scheme:fns-snap-topic",
+      "rkaf:managedByRegistry": "urn:rkaf:fixture:registry:fns-snap-canonical",
+      "rkaf:conceptScope": "fns/snap/eligibility/income",
+      "rkaf:registeredAt": "2026-07-29T12:00:00Z"
+    }
   ],
-  "rkaf:managedByRegistry": "urn:rkaf:fixture:registry:fns-snap-canonical",
-  "_comment": "ConceptScheme §4.7, registry-governed branch. rkaf:schemeFacet names WHICH facet the scheme controls; SKOS owns prefLabel, definition, and hasTopConcept, and this shape restates none of their semantics."
+  "_comment": "ConceptScheme registry-governed branch. The top concept is included so conformance can prove scheme-internal membership."
 }

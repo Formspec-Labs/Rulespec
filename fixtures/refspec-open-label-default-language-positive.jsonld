@@ -1,0 +1,55 @@
+{
+  "@context": "../context/rkaf-context.jsonld",
+  "@graph": [
+    {
+      "@id": "urn:rkaf:fixture:open-label:artifact",
+      "@type": "rkaf:Artifact",
+      "rkaf:hasArtifactIdentifier": ["urn:rkaf:fixture:open-label:artifact"],
+      "rkaf:artifactIdentifierScheme": ["rkaf:partner-defined"]
+    },
+    {
+      "@id": "urn:rkaf:fixture:open-label:fragment",
+      "@type": "rkaf:SourceFragment",
+      "oa:hasSource": "urn:rkaf:fixture:open-label:artifact",
+      "oa:hasSelector": {
+        "@type": "oa:TextQuoteSelector",
+        "oa:exact": "ayuda para el alquiler"
+      },
+      "rkaf:selectorKind": ["oa:TextQuoteSelector"]
+    },
+    {
+      "@id": "urn:rkaf:fixture:open-label:extraction",
+      "@type": "rkaf:ExtractionActivity",
+      "rkaf:extractionMethod": "rkaf:deterministicParse",
+      "rkaf:extractionRun": "urn:rkaf:fixture:run:open-label-0001",
+      "rkaf:extractedBy": "urn:rkaf:fixture:extractor:phrase-parser",
+      "rkaf:extractorVersion": "2.0.0"
+    },
+    {
+      "@id": "urn:rkaf:fixture:open-label:assertion",
+      "@type": "rkaf:ValueAssertion",
+      "rkaf:assertionOrigin": "rkaf:deterministicExtraction",
+      "rkaf:epistemicBasis": "rkaf:sourceExplicit",
+      "rkaf:assertsSubject": "urn:rkaf:fixture:open-label:artifact",
+      "rkaf:assertsPredicate": "rkaf:openLabel",
+      "rkaf:assertsValue": {
+        "@value": "ayuda para el alquiler",
+        "@language": "es"
+      },
+      "rkaf:assertionPolarity": "rkaf:affirmed",
+      "rkaf:openLabelFacet": "urn:ref:facet:topic",
+      "rkaf:openLabelRole": "rkaf:assignmentMention",
+      "rkaf:hasExtractionProvenance": "urn:rkaf:fixture:open-label:extraction",
+      "rkaf:assertedAt": "2026-07-29T12:00:00Z"
+    },
+    {
+      "@id": "urn:rkaf:fixture:open-label:evidence",
+      "@type": "rkaf:EvidenceBinding",
+      "rkaf:bindsAssertion": "urn:rkaf:fixture:open-label:assertion",
+      "rkaf:bindsSourceFragment": ["urn:rkaf:fixture:open-label:fragment"],
+      "rkaf:evidenceRole": "rkaf:textualEvidence",
+      "rkaf:evidentiaryFunction": "rkaf:supports"
+    }
+  ],
+  "_comment": "Positive: RefSpec's declared Spanish default has already been materialized into the final language-tagged value; Rulespec validates the portable result, facet, role, provenance, and evidence."
+}

@@ -449,7 +449,7 @@
       "@type": "@id"
     },
     "rkaf:evaluationAnchor": {
-      "@type": "@vocab"
+      "@type": "@id"
     },
     "rkaf:retainsAssertion": {
       "@type": "@id"
@@ -461,13 +461,14 @@
       "@type": "@id"
     },
     "rkaf:justifiedByAssertion": {
-      "@type": "@id"
+      "@type": "@id",
+      "@container": "@set"
     },
     "rkaf:consumerLifecycleState": {
-      "@type": "@vocab"
+      "@type": "@id"
     },
     "rkaf:proposedUsageEligibility": {
-      "@type": "@vocab"
+      "@type": "@id"
     },
     "rkaf:RevalidationEvent": {
       "@type": "@id"
@@ -491,7 +492,7 @@
       "@type": "xsd:dateTime"
     },
     "rkaf:closureDecision": {
-      "@type": "@vocab"
+      "@type": "@id"
     },
     "rkaf:successorAssertion": {
       "@type": "@id"
@@ -762,9 +763,6 @@
     "rkaf:transitionTo": {
       "@type": "@id"
     },
-    "rkaf:closureDecision": {
-      "@type": "@id"
-    },
     "rkaf:status": {
       "@type": "@id"
     },
@@ -781,9 +779,6 @@
       "@type": "@id"
     },
     "rkaf:effectiveUsageEligibility": {
-      "@type": "@id"
-    },
-    "rkaf:proposedUsageEligibility": {
       "@type": "@id"
     },
     "rkaf:safeAutomaticMigration": {
@@ -823,9 +818,6 @@
       "@type": "@id"
     },
     "rkaf:reviewStatus": {
-      "@type": "@id"
-    },
-    "rkaf:consumerLifecycleState": {
       "@type": "@id"
     },
     "rkaf:newWorkProductStatus": {
@@ -894,15 +886,9 @@
     "rkaf:closesRevalidationEvent": {
       "@type": "@id"
     },
-    "rkaf:successorAssertion": {
-      "@type": "@id"
-    },
     "rkaf:successorAssertions": {
       "@type": "@id",
       "@container": "@set"
-    },
-    "rkaf:successorWorkProduct": {
-      "@type": "@id"
     },
     "rkaf:closedBy": {
       "@type": "@id"
@@ -1005,9 +991,22 @@
       "@type": "@id",
       "@container": "@set"
     },
+    "rkaf:conceptLifecycleOperation": {
+      "@type": "@vocab"
+    },
+    "rkaf:predecessorConcepts": {
+      "@type": "@id",
+      "@container": "@set"
+    },
     "rkaf:successorConcepts": {
       "@type": "@id",
       "@container": "@set"
+    },
+    "rkaf:predecessorConceptRelease": {
+      "@type": "@id"
+    },
+    "rkaf:successorConceptRelease": {
+      "@type": "@id"
     },
     "rkaf:subjectConcept": {
       "@type": "@id"
@@ -1036,6 +1035,12 @@
     },
     "rkaf:mappingAssertion": {
       "@type": "@id"
+    },
+    "rkaf:openLabelFacet": {
+      "@type": "@id"
+    },
+    "rkaf:openLabelRole": {
+      "@type": "@vocab"
     },
     "rkaf:resolutionTrustedVia": {
       "@type": "@id"
@@ -1075,15 +1080,6 @@
       "@type": "@id"
     },
     "rkaf:publisher": {
-      "@type": "@id"
-    },
-    "rkaf:retainsAssertion": {
-      "@type": "@id"
-    },
-    "rkaf:retainsWorkProduct": {
-      "@type": "@id"
-    },
-    "rkaf:evaluationAnchor": {
       "@type": "@id"
     },
     "rkaf:appliesTo": {
@@ -1148,10 +1144,6 @@
       "@container": "@set"
     },
     "rkaf:supportedAuthorityKinds": {
-      "@type": "@id",
-      "@container": "@set"
-    },
-    "rkaf:justifiedByAssertion": {
       "@type": "@id",
       "@container": "@set"
     },
@@ -1231,14 +1223,41 @@
       "@type": "@id"
     },
     "skos:prefLabel": {
-      "@type": "xsd:string"
+      "@container": "@language"
     },
     "skos:altLabel": {
-      "@type": "xsd:string",
-      "@container": "@set"
+      "@container": "@language"
+    },
+    "skos:hiddenLabel": {
+      "@container": "@language"
+    },
+    "skos:definition": {
+      "@container": "@language"
+    },
+    "skos:example": {
+      "@container": "@language"
+    },
+    "skos:note": {
+      "@container": "@language"
+    },
+    "skos:scopeNote": {
+      "@container": "@language"
+    },
+    "skos:changeNote": {
+      "@container": "@language"
+    },
+    "skos:editorialNote": {
+      "@container": "@language"
+    },
+    "skos:historyNote": {
+      "@container": "@language"
+    },
+    "skos:notation": {
+      "@id": "http://www.w3.org/2004/02/skos/core#notation"
     },
     "skos:broader": {
-      "@type": "@id"
+      "@type": "@id",
+      "@container": "@set"
     },
     "skos:narrower": {
       "@type": "@id",
@@ -1247,9 +1266,6 @@
     "skos:related": {
       "@type": "@id",
       "@container": "@set"
-    },
-    "skos:definition": {
-      "@type": "xsd:string"
     },
     "skos:inScheme": {
       "@type": "@id"
@@ -1299,12 +1315,6 @@
     "rkaf:effectiveDate": {
       "@type": "xsd:dateTime"
     },
-    "rkaf:effectivePeriodStart": {
-      "@type": "xsd:dateTime"
-    },
-    "rkaf:effectivePeriodEnd": {
-      "@type": "xsd:dateTime"
-    },
     "rkaf:exceptionEffectivePeriodEnd": {
       "@type": "xsd:dateTime"
     },
@@ -1351,7 +1361,6 @@
       "@type": "@id",
       "@container": "@set"
     },
-
     "rkaf:RelationChangeEvent": {
       "@type": "@id"
     },
@@ -1530,7 +1539,7 @@
     }
   },
   "_meta": {
-    "version": "v0.2.0-pre.8",
+    "version": "v0.2.0-pre.9",
     "supersedes": "v0.1.1",
     "relationship": "Vocabulary v0.2 — first-class Warrant/Artifact/SourceFragment/EvidenceBinding/ConfidenceRecord/AccessScope/AILineage/RetentionPolicy/MappingState/Workspace primitives; OA/PROV-O/SKOS/ELI predicate-level imports; AKN/USLM/DPV/ODRL alignments; legacy v0.1 ontology aspirations demoted per the §9 four-mode reshape (PKA-03og). v0.1.x is editorial baseline only — wholesale supersession.",
     "delta_from_v0.1": [

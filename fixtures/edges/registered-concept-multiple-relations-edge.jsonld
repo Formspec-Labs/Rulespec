@@ -1,23 +1,75 @@
 {
   "@context": "../../context/rkaf-context.jsonld",
-  "@id": "urn:rkaf:fixture:concept:household-income",
-  "@type": "rkaf:RegisteredConcept",
-  "skos:prefLabel": "Household income",
-  "skos:altLabel": [
-    "Family income",
-    "Countable household income"
+  "@graph": [
+    {
+      "@id": "urn:rkaf:fixture:concept:household-income",
+      "@type": "rkaf:RegisteredConcept",
+      "skos:prefLabel": {"en": "Household income"},
+      "skos:altLabel": {
+        "en": ["Family income", "Countable household income"]
+      },
+      "skos:definition": {"en": "Income attributable to a household under the governing program definition."},
+      "skos:inScheme": "urn:rkaf:fixture:scheme:canonical-benefit-topics",
+      "skos:broader": [
+        "urn:rkaf:fixture:concept:financial-eligibility",
+        "urn:rkaf:fixture:concept:household-resources"
+      ],
+      "skos:narrower": [
+        "urn:rkaf:fixture:concept:earned-income",
+        "urn:rkaf:fixture:concept:unearned-income"
+      ],
+      "skos:related": [
+        "urn:rkaf:fixture:concept:household-composition"
+      ],
+      "rkaf:managedByRegistry": "urn:rkaf:fixture:registry:canonical-benefit-topics",
+      "rkaf:registeredAt": "2026-07-29T12:00:00Z",
+      "rkaf:conceptScope": "benefits/eligibility/income"
+    },
+    {
+      "@id": "urn:rkaf:fixture:concept:financial-eligibility",
+      "@type": "rkaf:RegisteredConcept",
+      "skos:prefLabel": {"en": "Financial eligibility"},
+      "skos:inScheme": "urn:rkaf:fixture:scheme:canonical-benefit-topics",
+      "rkaf:managedByRegistry": "urn:rkaf:fixture:registry:canonical-benefit-topics",
+      "rkaf:registeredAt": "2026-07-29T12:00:00Z",
+      "rkaf:conceptScope": "benefits/eligibility"
+    },
+    {
+      "@id": "urn:rkaf:fixture:concept:household-resources",
+      "@type": "rkaf:RegisteredConcept",
+      "skos:prefLabel": {"en": "Household resources"},
+      "skos:inScheme": "urn:rkaf:fixture:scheme:canonical-benefit-topics",
+      "rkaf:managedByRegistry": "urn:rkaf:fixture:registry:canonical-benefit-topics",
+      "rkaf:registeredAt": "2026-07-29T12:00:00Z",
+      "rkaf:conceptScope": "benefits/resources"
+    },
+    {
+      "@id": "urn:rkaf:fixture:concept:earned-income",
+      "@type": "rkaf:RegisteredConcept",
+      "skos:prefLabel": {"en": "Earned income"},
+      "skos:inScheme": "urn:rkaf:fixture:scheme:canonical-benefit-topics",
+      "rkaf:managedByRegistry": "urn:rkaf:fixture:registry:canonical-benefit-topics",
+      "rkaf:registeredAt": "2026-07-29T12:00:00Z",
+      "rkaf:conceptScope": "benefits/eligibility/income/earned"
+    },
+    {
+      "@id": "urn:rkaf:fixture:concept:unearned-income",
+      "@type": "rkaf:RegisteredConcept",
+      "skos:prefLabel": {"en": "Unearned income"},
+      "skos:inScheme": "urn:rkaf:fixture:scheme:canonical-benefit-topics",
+      "rkaf:managedByRegistry": "urn:rkaf:fixture:registry:canonical-benefit-topics",
+      "rkaf:registeredAt": "2026-07-29T12:00:00Z",
+      "rkaf:conceptScope": "benefits/eligibility/income/unearned"
+    },
+    {
+      "@id": "urn:rkaf:fixture:concept:household-composition",
+      "@type": "rkaf:RegisteredConcept",
+      "skos:prefLabel": {"en": "Household composition"},
+      "skos:inScheme": "urn:rkaf:fixture:scheme:canonical-benefit-topics",
+      "rkaf:managedByRegistry": "urn:rkaf:fixture:registry:canonical-benefit-topics",
+      "rkaf:registeredAt": "2026-07-29T12:00:00Z",
+      "rkaf:conceptScope": "benefits/household/composition"
+    }
   ],
-  "skos:definition": "Income attributable to a household under the governing program definition.",
-  "skos:inScheme": "urn:rkaf:fixture:scheme:canonical-benefit-topics",
-  "skos:broader": "urn:rkaf:fixture:concept:financial-eligibility",
-  "skos:narrower": [
-    "urn:rkaf:fixture:concept:earned-income",
-    "urn:rkaf:fixture:concept:unearned-income"
-  ],
-  "skos:related": [
-    "urn:rkaf:fixture:concept:household-composition"
-  ],
-  "rkaf:managedByRegistry": "urn:rkaf:fixture:registry:canonical-benefit-topics",
-  "rkaf:conceptScope": "benefits/eligibility/income",
-  "_comment": "Edge: a registered SKOS concept may have multiple alternate, narrower, and related terms. Review and publication state remain separate attestations and release membership."
+  "_comment": "Edge: multiple broader parents and other in-scheme relations survive as distinct IRIs; every target is carried with the same scheme."
 }

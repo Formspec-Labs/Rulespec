@@ -1,0 +1,54 @@
+{
+  "@context": "../context/rkaf-context.jsonld",
+  "@id": "urn:rkaf:fixture:concept:multilingual-income",
+  "@type": "rkaf:RegisteredConcept",
+  "skos:prefLabel": {
+    "en": "Household income",
+    "es": "Ingresos del hogar",
+    "zh-Hant": "家庭收入"
+  },
+  "skos:altLabel": {
+    "en": ["Family income", "Countable household income"],
+    "es": "Ingresos familiares"
+  },
+  "skos:hiddenLabel": {
+    "en": "HH income"
+  },
+  "skos:definition": {
+    "en": "Income attributable to a household under the governing program definition.",
+    "es": "Ingresos atribuibles a un hogar según la definición del programa."
+  },
+  "skos:example": {
+    "en": "Wages and countable self-employment proceeds."
+  },
+  "skos:note": {
+    "en": "General editorial note."
+  },
+  "skos:scopeNote": {
+    "en": "Use for household-level income, not individual wage records."
+  },
+  "skos:changeNote": {
+    "en": "Spanish and Traditional Chinese labels added in this release."
+  },
+  "skos:editorialNote": {
+    "en": "Terminology reviewed by the registry editor."
+  },
+  "skos:historyNote": {
+    "en": "Previously published only in English."
+  },
+  "skos:notation": [
+    {
+      "@value": "HI-001",
+      "@type": "urn:rkaf:fixture:notation-system:benefit-topic-code"
+    },
+    {
+      "@value": "TOPIC-42",
+      "@type": "https://example.org/datatypes/topic-code"
+    }
+  ],
+  "skos:inScheme": "urn:rkaf:fixture:scheme:canonical-benefit-topics",
+  "rkaf:managedByRegistry": "urn:rkaf:fixture:registry:canonical-benefit-topics",
+  "rkaf:conceptScope": "benefits/eligibility/income",
+  "rkaf:registeredAt": "2026-07-29T12:00:00Z",
+  "_comment": "Positive: language maps preserve English, Spanish, and zh-Hant; every supported SKOS note and typed notation survives the authored JSON form."
+}

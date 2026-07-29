@@ -1,14 +1,36 @@
 {
   "@context": "../../context/rkaf-context.jsonld",
-  "@id": "urn:rkaf:fixture:scheme:multi-root-topic",
-  "@type": "rkaf:ConceptScheme",
-  "skos:prefLabel": "Multi-root benefit topic scheme",
-  "skos:definition": "A governed topic scheme whose hierarchy has more than one top concept.",
-  "skos:hasTopConcept": [
-    "urn:rkaf:fixture:concept:eligibility",
-    "urn:rkaf:fixture:concept:benefit-delivery"
+  "@graph": [
+    {
+      "@id": "urn:rkaf:fixture:scheme:multi-root-topic",
+      "@type": "rkaf:ConceptScheme",
+      "skos:prefLabel": {"en": "Multi-root benefit topic scheme"},
+      "skos:definition": {"en": "A governed topic scheme whose hierarchy has more than one top concept."},
+      "skos:hasTopConcept": [
+        "urn:rkaf:fixture:concept:eligibility",
+        "urn:rkaf:fixture:concept:benefit-delivery"
+      ],
+      "rkaf:schemeFacet": "urn:rkaf:facet:topic",
+      "rkaf:managedByRegistry": "urn:rkaf:fixture:registry:benefit-topics"
+    },
+    {
+      "@id": "urn:rkaf:fixture:concept:eligibility",
+      "@type": "rkaf:RegisteredConcept",
+      "skos:prefLabel": {"en": "Eligibility"},
+      "skos:inScheme": "urn:rkaf:fixture:scheme:multi-root-topic",
+      "rkaf:managedByRegistry": "urn:rkaf:fixture:registry:benefit-topics",
+      "rkaf:conceptScope": "benefits/eligibility",
+      "rkaf:registeredAt": "2026-07-29T12:00:00Z"
+    },
+    {
+      "@id": "urn:rkaf:fixture:concept:benefit-delivery",
+      "@type": "rkaf:RegisteredConcept",
+      "skos:prefLabel": {"en": "Benefit delivery"},
+      "skos:inScheme": "urn:rkaf:fixture:scheme:multi-root-topic",
+      "rkaf:managedByRegistry": "urn:rkaf:fixture:registry:benefit-topics",
+      "rkaf:conceptScope": "benefits/delivery",
+      "rkaf:registeredAt": "2026-07-29T12:00:00Z"
+    }
   ],
-  "rkaf:schemeFacet": "urn:rkaf:facet:topic",
-  "rkaf:managedByRegistry": "urn:rkaf:fixture:registry:benefit-topics",
-  "_comment": "Edge: SKOS permits a concept scheme to have multiple top concepts. Publication or retirement state belongs to release membership, attestations, and lifecycle events, not a mutable status field on the scheme."
+  "_comment": "Edge: SKOS permits multiple top concepts; both are carried so their scheme membership is executable."
 }

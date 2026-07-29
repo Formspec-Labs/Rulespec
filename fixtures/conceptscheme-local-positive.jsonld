@@ -2,7 +2,7 @@
   "@context": "../context/rkaf-context.jsonld",
   "@id": "urn:rkaf:fixture:scheme:county-industry",
   "@type": "rkaf:ConceptScheme",
-  "skos:prefLabel": "County industry scheme (workspace-local)",
+  "skos:prefLabel": {"en": "County industry scheme (workspace-local)"},
   "rkaf:schemeFacet": "urn:rkaf:facet:industry",
   "rkaf:definedInScope": "urn:rkaf:scope:county-benefits",
   "_comment": "ConceptScheme §4.7, workspace-defined branch. Industry and topic are different facets: keeping them in separate schemes is what stops `manufacturing` the industry from merging with `manufacturing` the topic because the labels match."

@@ -1,0 +1,28 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@graph": [
+    {
+      "@id": "urn:rkaf:fixture:lifecycle-negative:partial-release",
+      "@type": "rkaf:LifecycleEvent",
+      "rkaf:lifecycleEventKind": "rkaf:conceptLifecycle",
+      "rkaf:conceptLifecycleOperation": "rkaf:deprecation",
+      "rkaf:effectiveDate": "2026-07-29T12:00:00Z",
+      "rkaf:emittedBy": "urn:rkaf:fixture:registry:topics",
+      "rkaf:appliesTo": ["urn:rkaf:fixture:concept:old"],
+      "rkaf:predecessorConcepts": ["urn:rkaf:fixture:concept:old"],
+      "rkaf:predecessorConceptRelease": "urn:rkaf:fixture:release:partial"
+    },
+    {
+      "@id": "urn:rkaf:fixture:release:partial",
+      "@type": "rkaf:ReferenceResourceRelease",
+      "dcterms:isVersionOf": "urn:rkaf:fixture:registry:topics",
+      "dcat:version": "partial",
+      "dcterms:type": "skos:ConceptScheme",
+      "rkaf:membershipMode": "rkaf:partialMembership",
+      "prov:hadMember": ["urn:rkaf:fixture:concept:old"],
+      "dcat:distribution": ["urn:rkaf:fixture:distribution:partial"],
+      "rkaf:referenceReleaseDigest": "sha256:0000000000000000000000000000000000000000000000000000000000000000"
+    }
+  ],
+  "_comment": "Negative graph rule: a concept lifecycle pin must name a complete-membership release."
+}

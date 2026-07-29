@@ -5,6 +5,41 @@ All notable changes to Rulespec are documented in this file.
 The format is loosely based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 adapted for a specification + shape + fixture project.
 
+## 0.2.0-pre.9 — Vocabulary carriage and lifecycle closure
+
+### Changed
+
+- Replaced flat SKOS text values with BCP 47 language maps. Preferred labels
+  carry one value per language; alternate and hidden labels, definitions,
+  examples, and SKOS notes carry one or more. Notation now uses explicit,
+  absolute datatype IRIs.
+- Preserved every in-scheme hierarchy relation, including multiple broader
+  parents, and required each target to be a typed concept in the same scheme.
+- Required `rkaf:registeredAt` on registered concepts and moved concept
+  deprecation, withdrawal, replacement, split, merge, promotion, and demotion
+  into one participant- and release-pinned lifecycle record. Events with
+  successors now require distinct predecessor and successor release IRIs.
+- Completed `rkaf:ConceptResolutionResult` with method, cache status, usage
+  ceiling, and conditional mapping evidence. The reference runtime now emits
+  the complete record deterministically.
+- Added the RefSpec `rkaf:openLabel` profile with required language, facet,
+  role, provenance, and evidence.
+
+### Validation
+
+- Added positive and negative fixtures for multilingual labels, label
+  collisions, typed notation, multiple parents, same-scheme typing, every
+  lifecycle operation and cardinality, open labels, and concept resolution.
+- Extended the constraint compiler, generated JSON Schema, SHACL, Rust,
+  TypeScript, CUE, and Rego outputs, and cross-target parity checks for the new
+  vocabulary carriers and conditional rules.
+- Added the `x-rkaf-not-equal` JSON Schema extension and shared Python and Rust
+  enforcement for CUE sibling-value inequalities. Generated SHACL, TypeScript,
+  and Rego validators enforce the same comparison.
+- Updated the negative-fixture gate to test authored JSON form alongside the
+  expanded RDF graph so JSON-LD distinctions that disappear during expansion
+  remain enforceable.
+
 ## 0.2.0-pre.8 — Portable evidence and reference-resource semantics
 
 ### Changed

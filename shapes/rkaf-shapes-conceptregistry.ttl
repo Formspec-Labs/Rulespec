@@ -3,6 +3,8 @@
 # Spec anchor: spec/rkaf-concept-registry.md §§2.2, 2.4
 
 @prefix sh:    <http://www.w3.org/ns/shacl#> .
+@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix prov:  <http://www.w3.org/ns/prov#> .
 @prefix skos:  <http://www.w3.org/2004/02/skos/core#> .
 @prefix rkaf:  <https://rulespec.org/ns/v1#> .
 
@@ -143,4 +145,290 @@ rkaf:ConceptWorkspaceShape a sh:NodeShape ;
   sh:property [ sh:path rkaf:scopedToWorkspace ; sh:minCount 1 ; sh:maxCount 1 ;
     sh:nodeKind sh:IRI ;
     sh:message "scopedToWorkspace MUST reference a Workspace IRI (concept-registry-v0.2 §2.4)." ;
+  ] .
+
+# Preferred, alternate, and hidden labels are disjoint per language on one
+# concept or scheme. JSON Schema checks the authored language-map structure;
+# this graph rule checks the collision after JSON-LD expansion.
+rkaf:SkosLabelCollisionShape a sh:NodeShape ;
+  sh:targetClass rkaf:ConceptScheme ;
+  sh:targetClass rkaf:RegisteredConcept ;
+  sh:targetClass rkaf:LocalConcept ;
+  sh:sparql [
+    a sh:SPARQLConstraint ;
+    sh:message "The same language-tagged literal MUST NOT occur under more than one of skos:prefLabel, skos:altLabel, and skos:hiddenLabel." ;
+    sh:select """
+      PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+      SELECT $this
+      WHERE {
+        $this ?left ?a ; ?right ?b .
+        FILTER (
+          (
+            (?left = skos:prefLabel && ?right = skos:altLabel) ||
+            (?left = skos:prefLabel && ?right = skos:hiddenLabel) ||
+            (?left = skos:altLabel && ?right = skos:hiddenLabel)
+          ) &&
+          STR(?a) = STR(?b) &&
+          LCASE(LANG(?a)) = LCASE(LANG(?b))
+        )
+      }
+    """ ;
+  ] .
+
+# In-scheme semantic relations must resolve to another concept in exactly the
+# same scheme. Cross-scheme claims use ConceptMapping.
+rkaf:SkosInSchemeRelationShape a sh:NodeShape ;
+  sh:targetClass rkaf:RegisteredConcept ;
+  sh:targetClass rkaf:LocalConcept ;
+  sh:sparql [
+    a sh:SPARQLConstraint ;
+    sh:message "skos:broader, skos:narrower, and skos:related MUST target a concept in the same skos:inScheme." ;
+    sh:select """
+      PREFIX rkaf: <https://rulespec.org/ns/v1#>
+      PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+      SELECT $this
+      WHERE {
+        $this skos:inScheme ?scheme ; ?relation ?other .
+        FILTER (?relation IN (skos:broader, skos:narrower, skos:related))
+        FILTER NOT EXISTS {
+          ?other a ?conceptType ;
+                 skos:inScheme ?scheme .
+          FILTER (?conceptType IN (rkaf:RegisteredConcept, rkaf:LocalConcept))
+        }
+      }
+    """ ;
+  ] .
+
+rkaf:SkosTopConceptMembershipShape a sh:NodeShape ;
+  sh:targetClass rkaf:ConceptScheme ;
+  sh:sparql [
+    a sh:SPARQLConstraint ;
+    sh:message "Every skos:hasTopConcept target MUST be a member of that scheme." ;
+    sh:select """
+      PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+      SELECT $this
+      WHERE {
+        $this skos:hasTopConcept ?concept .
+        FILTER NOT EXISTS { ?concept skos:inScheme $this }
+      }
+    """ ;
+  ] .
+
+# Concept lifecycle pins are proofs of exact participation, not version
+# labels. Every participant must occur in its complete-membership release.
+rkaf:ConceptLifecycleReleaseMembershipShape a sh:NodeShape ;
+  sh:targetClass rkaf:LifecycleEvent ;
+  sh:sparql [
+    a sh:SPARQLConstraint ;
+    sh:message "Concept lifecycle predecessor and successor pins MUST be complete-membership releases containing every participant." ;
+    sh:select """
+      PREFIX rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+      PREFIX prov: <http://www.w3.org/ns/prov#>
+      PREFIX rkaf: <https://rulespec.org/ns/v1#>
+      SELECT $this
+      WHERE {
+        $this rkaf:lifecycleEventKind rkaf:conceptLifecycle .
+        {
+          $this rkaf:predecessorConceptRelease ?release .
+          FILTER NOT EXISTS {
+            ?release rdf:type rkaf:ReferenceResourceRelease ;
+                     rkaf:membershipMode rkaf:completeMembership .
+          }
+        }
+        UNION
+        {
+          $this rkaf:predecessorConceptRelease ?release ;
+                rkaf:predecessorConcepts ?concept .
+          FILTER NOT EXISTS { ?release prov:hadMember ?concept }
+        }
+        UNION
+        {
+          $this rkaf:successorConceptRelease ?release .
+          FILTER NOT EXISTS {
+            ?release rdf:type rkaf:ReferenceResourceRelease ;
+                     rkaf:membershipMode rkaf:completeMembership .
+          }
+        }
+        UNION
+        {
+          $this rkaf:successorConceptRelease ?release ;
+                rkaf:successorConcepts ?concept .
+          FILTER NOT EXISTS { ?release prov:hadMember ?concept }
+        }
+      }
+    """ ;
+  ] .
+
+# A participant cannot be both consumed and produced by one concept change.
+rkaf:ConceptLifecycleParticipantDisjointnessShape a sh:NodeShape ;
+  sh:targetClass rkaf:LifecycleEvent ;
+  sh:sparql [
+    a sh:SPARQLConstraint ;
+    sh:message "Concept lifecycle predecessor and successor sets MUST be disjoint." ;
+    sh:select """
+      PREFIX rkaf: <https://rulespec.org/ns/v1#>
+      SELECT $this
+      WHERE {
+        $this rkaf:lifecycleEventKind rkaf:conceptLifecycle ;
+              rkaf:predecessorConcepts ?concept ;
+              rkaf:successorConcepts ?concept .
+      }
+    """ ;
+  ] .
+
+# Cascade seeds are exactly the predecessor set. Both directions are checked
+# so an overlap or a strict subset cannot pass.
+rkaf:ConceptLifecycleAppliesToShape a sh:NodeShape ;
+  sh:targetClass rkaf:LifecycleEvent ;
+  sh:sparql [
+    a sh:SPARQLConstraint ;
+    sh:message "For concept lifecycle, rkaf:appliesTo MUST equal the predecessor concept set exactly." ;
+    sh:select """
+      PREFIX rkaf: <https://rulespec.org/ns/v1#>
+      SELECT $this
+      WHERE {
+        $this rkaf:lifecycleEventKind rkaf:conceptLifecycle .
+        {
+          $this rkaf:appliesTo ?concept .
+          FILTER NOT EXISTS {
+            $this rkaf:predecessorConcepts ?concept .
+          }
+        }
+        UNION
+        {
+          $this rkaf:predecessorConcepts ?concept .
+          FILTER NOT EXISTS {
+            $this rkaf:appliesTo ?concept .
+          }
+        }
+      }
+    """ ;
+  ] .
+
+rkaf:ConceptLifecycleGovernanceTransitionShape a sh:NodeShape ;
+  sh:targetClass rkaf:LifecycleEvent ;
+  sh:sparql [
+    a sh:SPARQLConstraint ;
+    sh:message "Promotion is LocalConcept to RegisteredConcept; demotion is the reverse." ;
+    sh:select """
+      PREFIX rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+      PREFIX rkaf: <https://rulespec.org/ns/v1#>
+      SELECT $this
+      WHERE {
+        $this rkaf:conceptLifecycleOperation ?operation ;
+              rkaf:predecessorConcepts ?predecessor ;
+              rkaf:successorConcepts ?successor .
+        FILTER (
+          (?operation = rkaf:promotion &&
+           (NOT EXISTS { ?predecessor rdf:type rkaf:LocalConcept } ||
+            NOT EXISTS { ?successor rdf:type rkaf:RegisteredConcept }))
+          ||
+          (?operation = rkaf:demotion &&
+           (NOT EXISTS { ?predecessor rdf:type rkaf:RegisteredConcept } ||
+            NOT EXISTS { ?successor rdf:type rkaf:LocalConcept }))
+        )
+      }
+    """ ;
+  ] .
+
+rkaf:RetiredStandaloneConceptTransitionShape a sh:NodeShape ;
+  sh:targetClass rkaf:LifecycleEvent ;
+  sh:sparql [
+    a sh:SPARQLConstraint ;
+    sh:message "Standalone promotion/demotion event kinds are retired; use rkaf:conceptLifecycleOperation." ;
+    sh:select """
+      PREFIX rkaf: <https://rulespec.org/ns/v1#>
+      SELECT $this
+      WHERE {
+        $this rkaf:lifecycleEventKind ?kind .
+        FILTER (?kind IN (rkaf:promotion, rkaf:demotion))
+      }
+    """ ;
+  ] .
+
+# A mapping method's assurance level bounds how the result may be used. These
+# graph constraints mirror the authored CUE unions, which JSON Schema enforces
+# for compact JSON-LD inputs.
+rkaf:ConceptResolutionUsageCeilingShape a sh:NodeShape ;
+  sh:targetClass rkaf:ConceptResolutionResult ;
+  sh:sparql [
+    a sh:SPARQLConstraint ;
+    sh:message "ConceptResolutionResult usageCeiling MUST stay within the resolution method's permitted assurance level." ;
+    sh:select """
+      PREFIX rkaf: <https://rulespec.org/ns/v1#>
+      SELECT $this
+      WHERE {
+        $this rkaf:resolutionMethod ?method ;
+              rkaf:usageCeiling ?ceiling .
+        FILTER (
+          (
+            ?method = rkaf:broadOrNarrowMatchDiscoveryOnly &&
+            ?ceiling NOT IN (rkaf:notEligible, rkaf:searchOnly)
+          )
+          ||
+          (
+            ?method = rkaf:closeMatchAwaitingAdoption &&
+            ?ceiling NOT IN (
+              rkaf:notEligible, rkaf:searchOnly, rkaf:reviewQueueOnly,
+              rkaf:draftGenerationAllowed
+            )
+          )
+          ||
+          (
+            ?method = rkaf:closeMatchLocallyAdopted &&
+            ?ceiling NOT IN (
+              rkaf:notEligible, rkaf:searchOnly, rkaf:reviewQueueOnly,
+              rkaf:draftGenerationAllowed, rkaf:localOperationalUse
+            )
+          )
+        )
+      }
+    """ ;
+  ] .
+
+# An open label is a grounded ValueAssertion. The generated RefSpec overlay
+# carries the conditional scalar fields and language-only value branch; these
+# rules cover inverse evidence and forbidden concept masquerading.
+rkaf:RefSpecOpenLabelEvidenceShape a sh:NodeShape ;
+  sh:targetClass rkaf:ValueAssertion ;
+  sh:sparql [
+    a sh:SPARQLConstraint ;
+    sh:message "rkaf:openLabel requires a fragment-backed supporting EvidenceBinding with role and function." ;
+    sh:select """
+      PREFIX rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+      PREFIX rkaf: <https://rulespec.org/ns/v1#>
+      SELECT $this
+      WHERE {
+        $this rkaf:assertsPredicate rkaf:openLabel .
+        FILTER NOT EXISTS {
+          ?binding rdf:type rkaf:EvidenceBinding ;
+                   rkaf:bindsAssertion $this ;
+                   rkaf:bindsSourceFragment ?fragment ;
+                   rkaf:evidenceRole ?role ;
+                   rkaf:evidentiaryFunction rkaf:supports .
+          ?fragment rdf:type rkaf:SourceFragment .
+        }
+      }
+    """ ;
+  ] ;
+  sh:sparql [
+    a sh:SPARQLConstraint ;
+    sh:message "An rkaf:openLabel ValueAssertion MUST NOT masquerade as a controlled concept or carry skos:inScheme." ;
+    sh:select """
+      PREFIX rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+      PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+      PREFIX rkaf: <https://rulespec.org/ns/v1#>
+      SELECT $this
+      WHERE {
+        $this rkaf:assertsPredicate rkaf:openLabel .
+        {
+          $this skos:inScheme ?scheme .
+        }
+        UNION
+        {
+          $this rdf:type ?forbidden .
+          FILTER (?forbidden IN (rkaf:LocalConcept, rkaf:RegisteredConcept))
+        }
+      }
+    """ ;
   ] .

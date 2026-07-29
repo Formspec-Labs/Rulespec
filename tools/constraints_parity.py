@@ -23,13 +23,14 @@ from __future__ import annotations
 
 import json
 import logging
+import re
 import sys
 from pathlib import Path
 import rdflib
 from jsonschema import Draft202012Validator, FormatChecker
 from pyshacl import validate as shacl_validate
 
-from conformance_lib import violates_order
+from conformance_lib import violates_not_equal, violates_order
 
 ROOT = Path(__file__).resolve().parent.parent
 
@@ -57,10 +58,10 @@ CONSTRAINTS: dict[str, str] = {
     "retention-policy":        "core",
     "workspace":               "core",
     "mapping-state":           "core",
-    "concept-registry":        "core",
     "concept":                 "core",
     "concept-assignment":      "core",
     "concept-mapping":         "core",
+    "concept-resolution-result": "core",
     "reference-resource-release": "core",
     "assertion":               "core",
     "relationship-assertion":  "core",
@@ -76,6 +77,7 @@ CONSTRAINTS: dict[str, str] = {
     "rulemaking":              "profiles/us-rulemaking",
     "us-regulatory-artifact":  "profiles/us-rulemaking",
     "us-lifecycle-event":      "profiles/us-rulemaking",
+    "open-label":              "profiles/refspec",
     "conditional-silent-pass": "adversarial",
     "cross-property-coupling": "adversarial",
     "enum-drift":              "adversarial",
@@ -178,15 +180,19 @@ FIXTURE_BINDINGS: list[tuple[str, str, str, str]] = [
      "fixtures/negatives/artifact-regulatory-scheme-unregistered-negative.jsonld",
      "FAIL"),
     # Lifecycle-event kinds are layered the same way the Artifact terms are.
-    # The kernel owns the ten universal kinds but its carriers are OPEN on
+    # The kernel owns the eight universal kinds but its carriers are OPEN on
     # `rkaf:lifecycleEventKind`: an event carrying a profile-contributed kind
     # — or an unregistered one — is UNCONSTRAINED by the kernel schema/shape
     # rather than rejected by it. These three rows pin that deliberate
     # openness; the composed rows below close the same property over the
-    # assembled 22-value union, so the SAME unregistered-kind document that
+    # assembled 20-value union, so the SAME unregistered-kind document that
     # PASSES the kernel FAILS the composed artifact.
     ("lifecycle-event", "LifecycleEvent",
      "fixtures/lifecycleevent-positive.jsonld", "PASS"),
+    ("lifecycle-event", "LifecycleEvent",
+     "fixtures/concept-lifecycle-operations-positive.jsonld", "PASS"),
+    ("lifecycle-event", "LifecycleEvent",
+     "fixtures/edges/concept-lifecycle-distinct-releases-edge.jsonld", "PASS"),
     ("lifecycle-event", "LifecycleEvent",
      "fixtures/lifecycleevent-composed-kind-positive.jsonld", "PASS"),
     ("lifecycle-event", "LifecycleEvent",
@@ -195,11 +201,48 @@ FIXTURE_BINDINGS: list[tuple[str, str, str, str]] = [
     ("us-lifecycle-event", "USLifecycleEvent",
      "fixtures/lifecycleevent-positive.jsonld", "PASS"),
     ("us-lifecycle-event", "USLifecycleEvent",
+     "fixtures/concept-lifecycle-operations-positive.jsonld", "PASS"),
+    ("us-lifecycle-event", "USLifecycleEvent",
+     "fixtures/edges/concept-lifecycle-distinct-releases-edge.jsonld", "PASS"),
+    ("us-lifecycle-event", "USLifecycleEvent",
      "fixtures/lifecycleevent-composed-kind-positive.jsonld", "PASS"),
     ("us-lifecycle-event", "USLifecycleEvent",
      "fixtures/lifecycleevent-proceeding-stages-positive.jsonld", "PASS"),
     ("us-lifecycle-event", "USLifecycleEvent",
      "fixtures/negatives/lifecycleevent-unregistered-kind-negative.jsonld",
+     "FAIL"),
+    ("lifecycle-event", "LifecycleEvent",
+     "fixtures/negatives/concept-lifecycle-deprecation-successor-negative.jsonld",
+     "FAIL"),
+    ("lifecycle-event", "LifecycleEvent",
+     "fixtures/negatives/concept-lifecycle-withdrawal-successor-negative.jsonld",
+     "FAIL"),
+    ("lifecycle-event", "LifecycleEvent",
+     "fixtures/negatives/concept-lifecycle-replacement-cardinality-negative.jsonld",
+     "FAIL"),
+    ("lifecycle-event", "LifecycleEvent",
+     "fixtures/negatives/concept-lifecycle-split-cardinality-negative.jsonld",
+     "FAIL"),
+    ("lifecycle-event", "LifecycleEvent",
+     "fixtures/negatives/concept-lifecycle-merge-cardinality-negative.jsonld",
+     "FAIL"),
+    ("lifecycle-event", "LifecycleEvent",
+     "fixtures/negatives/concept-lifecycle-promotion-cardinality-negative.jsonld",
+     "FAIL"),
+    ("lifecycle-event", "LifecycleEvent",
+     "fixtures/negatives/concept-lifecycle-demotion-cardinality-negative.jsonld",
+     "FAIL"),
+    ("lifecycle-event", "LifecycleEvent",
+     "fixtures/negatives/concept-lifecycle-same-release-negative.jsonld",
+     "FAIL"),
+    ("us-lifecycle-event", "USLifecycleEvent",
+     "fixtures/negatives/concept-lifecycle-same-release-negative.jsonld",
+     "FAIL"),
+    ("lifecycle-event", "LifecycleEvent",
+     "fixtures/negatives/lifecycle-event-concept-fields-on-nonconcept-negative.jsonld",
+     "FAIL"),
+    ("us-lifecycle-event", "USLifecycleEvent",
+     "fixtures/negatives/concept-lifecycle-retired-standalone-negative.jsonld",
      "FAIL"),
     ("rulemaking", "Docket", "fixtures/docket-us-regsgov-positive.jsonld", "PASS"),
     ("rulemaking", "Docket", "fixtures/negatives/docket-missing-has-docket-identifier-negative.jsonld", "FAIL"),
@@ -371,6 +414,23 @@ FIXTURE_BINDINGS: list[tuple[str, str, str, str]] = [
      "fixtures/negatives/value-assertion-missing-assertion-origin-negative.jsonld", "FAIL"),
     ("value-assertion", "ValueAssertion",
      "fixtures/negatives/value-assertion-ai-missing-lineage-negative.jsonld", "FAIL"),
+    # RefSpec's portable open-label overlay. The graph-only missing-evidence
+    # fixture stays in validate_negatives.py because inverse EvidenceBinding
+    # lookup cannot be expressed by JSON Schema.
+    ("open-label", "RefSpecOpenLabelValueAssertion",
+     "fixtures/refspec-open-label-default-language-positive.jsonld", "PASS"),
+    ("open-label", "RefSpecOpenLabelValueAssertion",
+     "fixtures/negatives/refspec-open-label-missing-language-negative.jsonld",
+     "FAIL"),
+    ("open-label", "RefSpecOpenLabelValueAssertion",
+     "fixtures/negatives/refspec-open-label-missing-facet-negative.jsonld",
+     "FAIL"),
+    ("open-label", "RefSpecOpenLabelValueAssertion",
+     "fixtures/negatives/refspec-open-label-missing-role-negative.jsonld",
+     "FAIL"),
+    ("open-label", "RefSpecOpenLabelValueAssertion",
+     "fixtures/negatives/refspec-open-label-missing-provenance-negative.jsonld",
+     "FAIL"),
     # SourceClaimant — who the SOURCE says asserts it (Core §2.4). The
     # named-without-text row is the semantic one: a record may not claim the
     # document names a claimant while withholding the naming text.
@@ -434,11 +494,25 @@ FIXTURE_BINDINGS: list[tuple[str, str, str, str]] = [
     ("concept", "RegisteredConcept",
      "fixtures/concept-registered-positive.jsonld", "PASS"),
     ("concept", "RegisteredConcept",
+     "fixtures/concept-vocabulary-text-multilingual-positive.jsonld", "PASS"),
+    ("concept", "RegisteredConcept",
      "fixtures/edges/registered-concept-multiple-relations-edge.jsonld", "PASS"),
+    ("concept", "RegisteredConcept",
+     "fixtures/edges/concepts-identical-label-different-schemes-edge.jsonld", "PASS"),
     ("concept", "RegisteredConcept",
      "fixtures/negatives/registered-concept-missing-in-scheme-negative.jsonld", "FAIL"),
     ("concept", "RegisteredConcept",
      "fixtures/negatives/registered-concept-missing-pref-label-negative.jsonld", "FAIL"),
+    ("concept", "RegisteredConcept",
+     "fixtures/negatives/registered-concept-missing-registered-at-negative.jsonld",
+     "FAIL"),
+    ("concept", "RegisteredConcept",
+     "fixtures/negatives/concept-language-map-untagged-negative.jsonld", "FAIL"),
+    ("concept", "RegisteredConcept",
+     "fixtures/negatives/concept-language-map-at-none-negative.jsonld", "FAIL"),
+    ("concept", "RegisteredConcept",
+     "fixtures/negatives/concept-label-duplicate-pref-language-negative.jsonld",
+     "FAIL"),
     ("concept", "LocalConcept",
      "fixtures/localconcept-positive.jsonld", "PASS"),
     ("concept", "LocalConcept",
@@ -515,6 +589,60 @@ FIXTURE_BINDINGS: list[tuple[str, str, str, str]] = [
      "FAIL"),
     ("reference-resource-release", "ReferenceResourceRelease",
      "fixtures/negatives/reference-resource-release-missing-canonical-required-fields-negative.jsonld",
+     "FAIL"),
+    # Complete concept-resolution decisions. Mapping-based methods name the
+    # exact mapping assertion; direct and cache methods forbid one.
+    ("concept-resolution-result", "ConceptResolutionResult",
+     "fixtures/conceptresolutionresult-positive.jsonld", "PASS"),
+    ("concept-resolution-result", "ConceptResolutionResult",
+     "fixtures/edges/concept-resolution-result-unresolved-edge.jsonld", "PASS"),
+    ("concept-resolution-result", "ConceptResolutionResult",
+     "fixtures/negatives/concept-resolution-result-missing-input-concept-negative.jsonld",
+     "FAIL"),
+    ("concept-resolution-result", "ConceptResolutionResult",
+     "fixtures/negatives/concept-resolution-result-missing-resolution-status-negative.jsonld",
+     "FAIL"),
+    ("concept-resolution-result", "ConceptResolutionResult",
+     "fixtures/negatives/concept-resolution-result-missing-resolution-method-negative.jsonld",
+     "FAIL"),
+    ("concept-resolution-result", "ConceptResolutionResult",
+     "fixtures/negatives/concept-resolution-result-missing-cache-status-negative.jsonld",
+     "FAIL"),
+    ("concept-resolution-result", "ConceptResolutionResult",
+     "fixtures/negatives/concept-resolution-result-missing-usage-ceiling-negative.jsonld",
+     "FAIL"),
+    ("concept-resolution-result", "ConceptResolutionResult",
+     "fixtures/negatives/concept-resolution-result-missing-resolved-at-negative.jsonld",
+     "FAIL"),
+    ("concept-resolution-result", "ConceptResolutionResult",
+     "fixtures/negatives/concept-resolution-result-mapping-without-assertion-negative.jsonld",
+     "FAIL"),
+    ("concept-resolution-result", "ConceptResolutionResult",
+     "fixtures/negatives/concept-resolution-result-direct-with-mapping-negative.jsonld",
+     "FAIL"),
+    ("concept-resolution-result", "ConceptResolutionResult",
+     "fixtures/negatives/concept-resolution-result-unresolved-with-concept-negative.jsonld",
+     "FAIL"),
+    ("concept-resolution-result", "ConceptResolutionResult",
+     "fixtures/negatives/concept-resolution-result-broad-resolved-negative.jsonld",
+     "FAIL"),
+    ("concept-resolution-result", "ConceptResolutionResult",
+     "fixtures/negatives/concept-resolution-result-broad-over-ceiling-negative.jsonld",
+     "FAIL"),
+    ("concept-resolution-result", "ConceptResolutionResult",
+     "fixtures/negatives/concept-resolution-result-close-awaiting-over-ceiling-negative.jsonld",
+     "FAIL"),
+    ("concept-resolution-result", "ConceptResolutionResult",
+     "fixtures/negatives/concept-resolution-result-close-local-over-ceiling-negative.jsonld",
+     "FAIL"),
+    ("concept-resolution-result", "ConceptResolutionResult",
+     "fixtures/negatives/concept-resolution-result-cache-served-not-cached-negative.jsonld",
+     "FAIL"),
+    ("concept-resolution-result", "ConceptResolutionResult",
+     "fixtures/negatives/concept-resolution-result-stale-cache-served-fresh-negative.jsonld",
+     "FAIL"),
+    ("concept-resolution-result", "ConceptResolutionResult",
+     "fixtures/negatives/concept-resolution-result-conflicting-eligible-ceiling-negative.jsonld",
      "FAIL"),
     # Document-analysis module (spec/rkaf-analysis.md).
     ("relation-change-event", "RelationChangeEvent",
@@ -657,6 +785,17 @@ def run_jsonschema(constraint: str, shape: str, fixture_path: Path) -> str:
                         f"{order['lower']} must be less than or equal to {order['upper']}"
                     )
                 )
+        for constraint in target_schema.get("x-rkaf-not-equal", []):
+            if violates_not_equal(
+                node.get(constraint["left"]),
+                node.get(constraint["right"]),
+            ):
+                errs.append(
+                    ValueError(
+                        f"{constraint['left']} must differ from "
+                        f"{constraint['right']}"
+                    )
+                )
         if errs:
             return "FAIL"
     return "PASS"
@@ -731,6 +870,11 @@ def structural_parity_typescript(constraint: str) -> bool:
             f"export type {name}" not in ts
             and f"export interface {name}" not in ts
             and f"import type {{ {name} }}" not in ts
+            and not re.search(
+                rf"^import \{{[^}}]*\btype\s+{re.escape(name)}\b[^}}]*\}}",
+                ts,
+                re.MULTILINE,
+            )
         ):
             return False
     return True

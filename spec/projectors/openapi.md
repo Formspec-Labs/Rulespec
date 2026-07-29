@@ -18,7 +18,9 @@ The reference Rust implementation supports document-level Attach/Extract; operat
 
 - **Attach:** writes `x-rkaf` at the requested level (default: document).
 - **Extract:** walks the document and returns the OpenAPI document minus every `x-rkaf` plus the overlay graph. The MVP returns only the document-level overlay; partial-level Extract is reserved for v0.3.
-- **Validate:** validates the overlay against the v0.2 Vocabulary's compiled JSON Schema (delegated to the JSON Schema projector when composed).
+- **Validate:** dispatches every typed overlay node to every generated JSON
+  Schema 2020-12 definition targeting that `@type`; it uses the same
+  executable validator path as the JSON Schema and JSON-LD projectors.
 - **Round-trip:** Attach → Extract MUST be the identity (byte-equality).
 - **Derive:** invokes `tools/constraints_compile.py --in <profile.cue> --target json-schema` and wraps the `$defs` into an OpenAPI 3.1 document with `components.schemas` populated from the profile. Output is a complete OpenAPI document consumable by API tooling.
 

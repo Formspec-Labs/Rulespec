@@ -1,0 +1,13 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@id": "urn:rkaf:fixture:concept-resolution-result:cache-served-not-cached",
+  "@type": "rkaf:ConceptResolutionResult",
+  "rkaf:inputConcept": "urn:rkaf:fixture:concept:input",
+  "rkaf:resolutionStatus": "rkaf:resolved",
+  "rkaf:resolutionMethod": "rkaf:cacheServed",
+  "rkaf:resolvedConcept": "urn:rkaf:fixture:concept:input",
+  "rkaf:cacheStatus": "rkaf:notCached",
+  "rkaf:usageCeiling": "rkaf:searchOnly",
+  "rkaf:resolvedAt": "2026-07-29T12:00:00Z",
+  "_comment": "Negative: cacheServed requires a fresh cache status."
+}

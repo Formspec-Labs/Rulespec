@@ -210,7 +210,11 @@ def main() -> int:
         print(f"ERROR: compiled JSON Schema dir {COMPILED_JSON_SCHEMA_DIR} missing", file=sys.stderr)
         return 2
 
-    present = {p.stem for p in FIXTURE_DIR.glob("*.jsonld")}
+    # Required-fixture names are logical corpus identifiers, not a promise
+    # that every case lives at the fixture root. Edge and negative regression
+    # cases intentionally live in named subdirectories, so discover the whole
+    # corpus just as the conformance and validation gates do.
+    present = {p.stem for p in FIXTURE_DIR.rglob("*.jsonld")}
     missing_fixtures = sorted(required - present)
     extra = sorted(present - required)
     missing_terms = cue_coverage_check(vocab_text)

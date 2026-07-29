@@ -46,12 +46,19 @@ pub enum ValidatorError {
 pub struct Validator {
     compiled: HashMap<String, JSONSchema>,
     orders: HashMap<String, Vec<OrderConstraint>>,
+    not_equals: HashMap<String, Vec<NotEqualConstraint>>,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 struct OrderConstraint {
     lower: String,
     upper: String,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+struct NotEqualConstraint {
+    left: String,
+    right: String,
 }
 
 impl Validator {
@@ -67,6 +74,7 @@ impl Validator {
     pub fn try_new() -> Result<Self, ValidatorError> {
         let mut compiled = HashMap::new();
         let mut orders = HashMap::new();
+        let mut not_equals = HashMap::new();
         for (type_iri, class_name, raw) in EMBEDDED_SCHEMAS {
             let parsed: Value =
                 serde_json::from_str(raw).map_err(|source| ValidatorError::Parse {
@@ -80,6 +88,13 @@ impl Validator {
                     message,
                 }
             })?;
+            let class_not_equals =
+                parse_not_equal_constraints(class_schema).map_err(|message| {
+                    ValidatorError::Compile {
+                        class: (*class_name).into(),
+                        message,
+                    }
+                })?;
             let defs = parsed.get("$defs").cloned().unwrap_or(json!({}));
             let wrapped = json!({
                 "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -96,8 +111,13 @@ impl Validator {
                 })?;
             compiled.insert((*type_iri).into(), schema);
             orders.insert((*type_iri).into(), class_orders);
+            not_equals.insert((*type_iri).into(), class_not_equals);
         }
-        Ok(Self { compiled, orders })
+        Ok(Self {
+            compiled,
+            orders,
+            not_equals,
+        })
     }
 
     /// Validate a single JSON-LD node against the schema for its `@type` IRI.
@@ -130,6 +150,21 @@ impl Validator {
                     message: format!(
                         "{} must be less than or equal to {}",
                         order.lower, order.upper
+                    ),
+                });
+            }
+        }
+        for constraint in self.not_equals.get(type_iri).into_iter().flatten() {
+            if violates_not_equal(node.get(&constraint.left), node.get(&constraint.right)) {
+                errors.push(ValidationError {
+                    type_iri: type_iri.to_string(),
+                    pointer: format!(
+                        "/{}",
+                        constraint.left.replace('~', "~0").replace('/', "~1")
+                    ),
+                    message: format!(
+                        "{} must differ from {}",
+                        constraint.left, constraint.right
                     ),
                 });
             }
@@ -193,6 +228,15 @@ fn violates_order(lower: Option<&Value>, upper: Option<&Value>) -> bool {
     }
 }
 
+/// True when both fields exist and carry the same JSON value.
+///
+/// `x-rkaf-not-equal` carries a CUE cross-field inequality into JSON Schema.
+/// Draft 2020-12 processors ignore extension keywords, so the reference
+/// validator applies it after structural validation.
+fn violates_not_equal(left: Option<&Value>, right: Option<&Value>) -> bool {
+    matches!((left, right), (Some(left), Some(right)) if left == right)
+}
+
 fn parse_order_constraints(class_schema: Option<&Value>) -> Result<Vec<OrderConstraint>, String> {
     let Some(raw_orders) = class_schema.and_then(|schema| schema.get("x-rkaf-order")) else {
         return Ok(Vec::new());
@@ -214,6 +258,40 @@ fn parse_order_constraints(class_schema: Option<&Value>) -> Result<Vec<OrderCons
             Ok(OrderConstraint {
                 lower: lower.into(),
                 upper: upper.into(),
+            })
+        })
+        .collect()
+}
+
+fn parse_not_equal_constraints(
+    class_schema: Option<&Value>,
+) -> Result<Vec<NotEqualConstraint>, String> {
+    let Some(raw_constraints) =
+        class_schema.and_then(|schema| schema.get("x-rkaf-not-equal"))
+    else {
+        return Ok(Vec::new());
+    };
+    let Some(entries) = raw_constraints.as_array() else {
+        return Err("x-rkaf-not-equal must be an array".into());
+    };
+    entries
+        .iter()
+        .map(|entry| {
+            let left = entry
+                .get("left")
+                .and_then(Value::as_str)
+                .ok_or_else(|| {
+                    "x-rkaf-not-equal entry requires string left".to_string()
+                })?;
+            let right = entry
+                .get("right")
+                .and_then(Value::as_str)
+                .ok_or_else(|| {
+                    "x-rkaf-not-equal entry requires string right".to_string()
+                })?;
+            Ok(NotEqualConstraint {
+                left: left.into(),
+                right: right.into(),
             })
         })
         .collect()
@@ -310,5 +388,48 @@ mod tests {
         assert!(errors
             .iter()
             .any(|error| error.message.contains("is not a \"date\"")));
+    }
+
+    #[test]
+    fn concept_lifecycle_release_pins_must_differ() {
+        let validator = Validator::new();
+        let event = json!({
+            "@type": "rkaf:LifecycleEvent",
+            "rkaf:lifecycleEventKind": "rkaf:conceptLifecycle",
+            "rkaf:conceptLifecycleOperation": "rkaf:replacement",
+            "rkaf:effectiveDate": "2026-07-29T12:00:00Z",
+            "rkaf:emittedBy": "urn:rkaf:fixture:registry:topics",
+            "rkaf:appliesTo": ["urn:rkaf:fixture:concept:old"],
+            "rkaf:predecessorConcepts": ["urn:rkaf:fixture:concept:old"],
+            "rkaf:successorConcepts": ["urn:rkaf:fixture:concept:new"],
+            "rkaf:predecessorConceptRelease": "urn:rkaf:fixture:release:same",
+            "rkaf:successorConceptRelease": "urn:rkaf:fixture:release:same"
+        });
+
+        let errors = validator.validate(&event).unwrap_err();
+        assert!(errors.iter().any(|error| {
+            error
+                .message
+                .contains("predecessorConceptRelease must differ from")
+        }));
+    }
+
+    #[test]
+    fn concept_lifecycle_distinct_release_pins_pass_l2() {
+        let validator = Validator::new();
+        let event = json!({
+            "@type": "rkaf:LifecycleEvent",
+            "rkaf:lifecycleEventKind": "rkaf:conceptLifecycle",
+            "rkaf:conceptLifecycleOperation": "rkaf:replacement",
+            "rkaf:effectiveDate": "2026-07-29T12:00:00Z",
+            "rkaf:emittedBy": "urn:rkaf:fixture:registry:topics",
+            "rkaf:appliesTo": ["urn:rkaf:fixture:concept:old"],
+            "rkaf:predecessorConcepts": ["urn:rkaf:fixture:concept:old"],
+            "rkaf:successorConcepts": ["urn:rkaf:fixture:concept:new"],
+            "rkaf:predecessorConceptRelease": "urn:rkaf:fixture:release:before",
+            "rkaf:successorConceptRelease": "urn:rkaf:fixture:release:after"
+        });
+
+        validator.validate(&event).unwrap();
     }
 }

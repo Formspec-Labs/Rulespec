@@ -1,0 +1,28 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@graph": [
+    {
+      "@id": "urn:rkaf:fixture:lifecycle-negative:missing-member",
+      "@type": "rkaf:LifecycleEvent",
+      "rkaf:lifecycleEventKind": "rkaf:conceptLifecycle",
+      "rkaf:conceptLifecycleOperation": "rkaf:deprecation",
+      "rkaf:effectiveDate": "2026-07-29T12:00:00Z",
+      "rkaf:emittedBy": "urn:rkaf:fixture:registry:topics",
+      "rkaf:appliesTo": ["urn:rkaf:fixture:concept:old"],
+      "rkaf:predecessorConcepts": ["urn:rkaf:fixture:concept:old"],
+      "rkaf:predecessorConceptRelease": "urn:rkaf:fixture:release:wrong-members"
+    },
+    {
+      "@id": "urn:rkaf:fixture:release:wrong-members",
+      "@type": "rkaf:ReferenceResourceRelease",
+      "dcterms:isVersionOf": "urn:rkaf:fixture:registry:topics",
+      "dcat:version": "wrong-members",
+      "dcterms:type": "skos:ConceptScheme",
+      "rkaf:membershipMode": "rkaf:completeMembership",
+      "prov:hadMember": ["urn:rkaf:fixture:concept:someone-else"],
+      "dcat:distribution": ["urn:rkaf:fixture:distribution:wrong-members"],
+      "rkaf:referenceReleaseDigest": "sha256:0000000000000000000000000000000000000000000000000000000000000000"
+    }
+  ],
+  "_comment": "Negative graph rule: every predecessor must be a member of the exact pinned release."
+}

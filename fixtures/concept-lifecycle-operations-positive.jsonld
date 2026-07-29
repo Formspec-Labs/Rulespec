@@ -1,0 +1,192 @@
+{
+  "@context": "../context/rkaf-context.jsonld",
+  "@graph": [
+    {
+      "@id": "urn:rkaf:fixture:lifecycle:deprecation",
+      "@type": "rkaf:LifecycleEvent",
+      "rkaf:lifecycleEventKind": "rkaf:conceptLifecycle",
+      "rkaf:conceptLifecycleOperation": "rkaf:deprecation",
+      "rkaf:effectiveDate": "2026-07-29T12:00:00Z",
+      "rkaf:emittedBy": "urn:rkaf:fixture:registry:topics",
+      "rkaf:appliesTo": ["urn:rkaf:fixture:concept:deprecated"],
+      "rkaf:predecessorConcepts": ["urn:rkaf:fixture:concept:deprecated"],
+      "rkaf:predecessorConceptRelease": "urn:rkaf:fixture:release:concepts-before"
+    },
+    {
+      "@id": "urn:rkaf:fixture:lifecycle:withdrawal",
+      "@type": "rkaf:LifecycleEvent",
+      "rkaf:lifecycleEventKind": "rkaf:conceptLifecycle",
+      "rkaf:conceptLifecycleOperation": "rkaf:withdrawal",
+      "rkaf:effectiveDate": "2026-07-29T12:00:00Z",
+      "rkaf:emittedBy": "urn:rkaf:fixture:registry:topics",
+      "rkaf:appliesTo": ["urn:rkaf:fixture:concept:withdrawn"],
+      "rkaf:predecessorConcepts": ["urn:rkaf:fixture:concept:withdrawn"],
+      "rkaf:predecessorConceptRelease": "urn:rkaf:fixture:release:concepts-before"
+    },
+    {
+      "@id": "urn:rkaf:fixture:lifecycle:replacement",
+      "@type": "rkaf:LifecycleEvent",
+      "rkaf:lifecycleEventKind": "rkaf:conceptLifecycle",
+      "rkaf:conceptLifecycleOperation": "rkaf:replacement",
+      "rkaf:effectiveDate": "2026-07-29T12:00:00Z",
+      "rkaf:emittedBy": "urn:rkaf:fixture:registry:topics",
+      "rkaf:appliesTo": ["urn:rkaf:fixture:concept:replacement-old"],
+      "rkaf:predecessorConcepts": ["urn:rkaf:fixture:concept:replacement-old"],
+      "rkaf:successorConcepts": ["urn:rkaf:fixture:concept:replacement-new"],
+      "rkaf:predecessorConceptRelease": "urn:rkaf:fixture:release:concepts-before",
+      "rkaf:successorConceptRelease": "urn:rkaf:fixture:release:concepts-after"
+    },
+    {
+      "@id": "urn:rkaf:fixture:lifecycle:split",
+      "@type": "rkaf:LifecycleEvent",
+      "rkaf:lifecycleEventKind": "rkaf:conceptLifecycle",
+      "rkaf:conceptLifecycleOperation": "rkaf:split",
+      "rkaf:effectiveDate": "2026-07-29T12:00:00Z",
+      "rkaf:emittedBy": "urn:rkaf:fixture:registry:topics",
+      "rkaf:appliesTo": ["urn:rkaf:fixture:concept:split-old"],
+      "rkaf:predecessorConcepts": ["urn:rkaf:fixture:concept:split-old"],
+      "rkaf:successorConcepts": [
+        "urn:rkaf:fixture:concept:split-new-a",
+        "urn:rkaf:fixture:concept:split-new-b"
+      ],
+      "rkaf:predecessorConceptRelease": "urn:rkaf:fixture:release:concepts-before",
+      "rkaf:successorConceptRelease": "urn:rkaf:fixture:release:concepts-after"
+    },
+    {
+      "@id": "urn:rkaf:fixture:lifecycle:merge",
+      "@type": "rkaf:LifecycleEvent",
+      "rkaf:lifecycleEventKind": "rkaf:conceptLifecycle",
+      "rkaf:conceptLifecycleOperation": "rkaf:merge",
+      "rkaf:effectiveDate": "2026-07-29T12:00:00Z",
+      "rkaf:emittedBy": "urn:rkaf:fixture:registry:topics",
+      "rkaf:appliesTo": [
+        "urn:rkaf:fixture:concept:merge-old-a",
+        "urn:rkaf:fixture:concept:merge-old-b"
+      ],
+      "rkaf:predecessorConcepts": [
+        "urn:rkaf:fixture:concept:merge-old-a",
+        "urn:rkaf:fixture:concept:merge-old-b"
+      ],
+      "rkaf:successorConcepts": ["urn:rkaf:fixture:concept:merge-new"],
+      "rkaf:predecessorConceptRelease": "urn:rkaf:fixture:release:concepts-before",
+      "rkaf:successorConceptRelease": "urn:rkaf:fixture:release:concepts-after"
+    },
+    {
+      "@id": "urn:rkaf:fixture:lifecycle:promotion",
+      "@type": "rkaf:LifecycleEvent",
+      "rkaf:lifecycleEventKind": "rkaf:conceptLifecycle",
+      "rkaf:conceptLifecycleOperation": "rkaf:promotion",
+      "rkaf:effectiveDate": "2026-07-29T12:00:00Z",
+      "rkaf:emittedBy": "urn:rkaf:fixture:registry:topics",
+      "rkaf:appliesTo": ["urn:rkaf:fixture:concept:promotion-local"],
+      "rkaf:predecessorConcepts": ["urn:rkaf:fixture:concept:promotion-local"],
+      "rkaf:successorConcepts": ["urn:rkaf:fixture:concept:promotion-registered"],
+      "rkaf:predecessorConceptRelease": "urn:rkaf:fixture:release:concepts-before",
+      "rkaf:successorConceptRelease": "urn:rkaf:fixture:release:concepts-after"
+    },
+    {
+      "@id": "urn:rkaf:fixture:lifecycle:demotion",
+      "@type": "rkaf:LifecycleEvent",
+      "rkaf:lifecycleEventKind": "rkaf:conceptLifecycle",
+      "rkaf:conceptLifecycleOperation": "rkaf:demotion",
+      "rkaf:effectiveDate": "2026-07-29T12:00:00Z",
+      "rkaf:emittedBy": "urn:rkaf:fixture:registry:topics",
+      "rkaf:appliesTo": ["urn:rkaf:fixture:concept:demotion-registered"],
+      "rkaf:predecessorConcepts": ["urn:rkaf:fixture:concept:demotion-registered"],
+      "rkaf:successorConcepts": ["urn:rkaf:fixture:concept:demotion-local"],
+      "rkaf:predecessorConceptRelease": "urn:rkaf:fixture:release:concepts-before",
+      "rkaf:successorConceptRelease": "urn:rkaf:fixture:release:concepts-after"
+    },
+    {
+      "@id": "urn:rkaf:fixture:release:concepts-before",
+      "@type": "rkaf:ReferenceResourceRelease",
+      "dcterms:isVersionOf": "urn:rkaf:fixture:registry:topics",
+      "dcat:version": "before-2026-07-29",
+      "dcterms:type": "skos:ConceptScheme",
+      "rkaf:membershipMode": "rkaf:completeMembership",
+      "prov:hadMember": [
+        "urn:rkaf:fixture:concept:deprecated",
+        "urn:rkaf:fixture:concept:withdrawn",
+        "urn:rkaf:fixture:concept:replacement-old",
+        "urn:rkaf:fixture:concept:split-old",
+        "urn:rkaf:fixture:concept:merge-old-a",
+        "urn:rkaf:fixture:concept:merge-old-b",
+        "urn:rkaf:fixture:concept:promotion-local",
+        "urn:rkaf:fixture:concept:demotion-registered"
+      ],
+      "dcat:distribution": ["urn:rkaf:fixture:distribution:concepts-before"],
+      "rkaf:referenceReleaseDigest": "sha256:3e2319ccd4fdad1ff8f515cc7e6f1be1fe28b01259c678220bed3573a7264c5f",
+      "rkaf:versionBasis": "rkaf:publisherAssigned"
+    },
+    {
+      "@id": "urn:rkaf:fixture:release:concepts-after",
+      "@type": "rkaf:ReferenceResourceRelease",
+      "dcterms:isVersionOf": "urn:rkaf:fixture:registry:topics",
+      "dcat:version": "after-2026-07-29",
+      "dcterms:type": "skos:ConceptScheme",
+      "rkaf:membershipMode": "rkaf:completeMembership",
+      "prov:hadMember": [
+        "urn:rkaf:fixture:concept:replacement-new",
+        "urn:rkaf:fixture:concept:split-new-a",
+        "urn:rkaf:fixture:concept:split-new-b",
+        "urn:rkaf:fixture:concept:merge-new",
+        "urn:rkaf:fixture:concept:promotion-registered",
+        "urn:rkaf:fixture:concept:demotion-local"
+      ],
+      "dcat:distribution": ["urn:rkaf:fixture:distribution:concepts-after"],
+      "rkaf:referenceReleaseDigest": "sha256:3375950328a291c78da00118ef2678c6ea6685c4905cbb889482bb901983135e",
+      "rkaf:versionBasis": "rkaf:publisherAssigned"
+    },
+    {
+      "@id": "urn:rkaf:fixture:distribution:concepts-before",
+      "@type": "rkaf:Artifact",
+      "rkaf:hasArtifactIdentifier": ["urn:rkaf:fixture:distribution:concepts-before"],
+      "rkaf:artifactIdentifierScheme": ["rkaf:partner-defined"],
+      "dcterms:format": "application/ld+json",
+      "rkaf:hasContentDigest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    {
+      "@id": "urn:rkaf:fixture:distribution:concepts-after",
+      "@type": "rkaf:Artifact",
+      "rkaf:hasArtifactIdentifier": ["urn:rkaf:fixture:distribution:concepts-after"],
+      "rkaf:artifactIdentifierScheme": ["rkaf:partner-defined"],
+      "dcterms:format": "application/ld+json",
+      "rkaf:hasContentDigest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+    },
+    {
+      "@id": "urn:rkaf:fixture:concept:promotion-local",
+      "@type": "rkaf:LocalConcept",
+      "skos:prefLabel": {"en": "Promotion source"},
+      "skos:inScheme": "urn:rkaf:fixture:scheme:workspace-topics",
+      "rkaf:definedInScope": "urn:rkaf:fixture:scope:workspace",
+      "rkaf:conceptScope": "workspace/promotion-source"
+    },
+    {
+      "@id": "urn:rkaf:fixture:concept:promotion-registered",
+      "@type": "rkaf:RegisteredConcept",
+      "skos:prefLabel": {"en": "Promotion target"},
+      "skos:inScheme": "urn:rkaf:fixture:scheme:canonical-topics",
+      "rkaf:managedByRegistry": "urn:rkaf:fixture:registry:topics",
+      "rkaf:conceptScope": "canonical/promotion-target",
+      "rkaf:registeredAt": "2026-07-29T12:00:00Z"
+    },
+    {
+      "@id": "urn:rkaf:fixture:concept:demotion-registered",
+      "@type": "rkaf:RegisteredConcept",
+      "skos:prefLabel": {"en": "Demotion source"},
+      "skos:inScheme": "urn:rkaf:fixture:scheme:canonical-topics",
+      "rkaf:managedByRegistry": "urn:rkaf:fixture:registry:topics",
+      "rkaf:conceptScope": "canonical/demotion-source",
+      "rkaf:registeredAt": "2026-07-29T12:00:00Z"
+    },
+    {
+      "@id": "urn:rkaf:fixture:concept:demotion-local",
+      "@type": "rkaf:LocalConcept",
+      "skos:prefLabel": {"en": "Demotion target"},
+      "skos:inScheme": "urn:rkaf:fixture:scheme:workspace-topics",
+      "rkaf:definedInScope": "urn:rkaf:fixture:scope:workspace",
+      "rkaf:conceptScope": "workspace/demotion-target"
+    }
+  ],
+  "_comment": "Positive: all seven concept lifecycle operations satisfy participant cardinality, exact appliesTo equality, complete-membership release pins, and promotion/demotion type transitions."
+}

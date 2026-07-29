@@ -1,0 +1,18 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@id": "urn:rkaf:fixture:open-label-negative:missing-language",
+  "@type": "rkaf:ValueAssertion",
+  "rkaf:assertionOrigin": "rkaf:deterministicExtraction",
+  "rkaf:epistemicBasis": "rkaf:sourceExplicit",
+  "rkaf:assertsSubject": "urn:rkaf:fixture:artifact:one",
+  "rkaf:assertsPredicate": "rkaf:openLabel",
+  "rkaf:assertsValue": {
+    "@value": "rental help",
+    "@type": "xsd:string"
+  },
+  "rkaf:assertionPolarity": "rkaf:affirmed",
+  "rkaf:openLabelFacet": "urn:ref:facet:topic",
+  "rkaf:openLabelRole": "rkaf:assignmentMention",
+  "rkaf:hasExtractionProvenance": "urn:rkaf:fixture:extraction:one",
+  "rkaf:assertedAt": "2026-07-29T12:00:00Z"
+}

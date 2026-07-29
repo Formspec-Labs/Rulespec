@@ -3,7 +3,7 @@
 //! Carrier convention: `spec/projectors/json-schema.md`.
 
 use async_trait::async_trait;
-use rkaf_projector_core::{Projector, ProjectorError, TargetId};
+use rkaf_projector_core::{validate_overlay_with_schema_root, Projector, ProjectorError, TargetId};
 use serde_json::{json, Value};
 use std::path::{Path, PathBuf};
 
@@ -85,28 +85,39 @@ impl Projector for JsonSchemaProjector {
     }
 
     async fn validate(&self, overlay: Value) -> Result<(), ProjectorError> {
-        let Some(schema_path) = &self.overlay_validator_schema_path else {
-            return Ok(());
-        };
-        let schema_bytes = std::fs::read(schema_path)
-            .map_err(|e| ProjectorError::Validate(format!("read schema: {e}")))?;
-        let schema: Value = serde_json::from_slice(&schema_bytes)
-            .map_err(|e| ProjectorError::Validate(format!("parse schema: {e}")))?;
-        let validator = jsonschema::JSONSchema::options()
-            .with_draft(jsonschema::Draft::Draft202012)
-            .compile(&schema)
-            .map_err(|e| ProjectorError::Validate(format!("compile schema: {e}")))?;
-        let errors: Vec<String> = validator
-            .validate(&overlay)
-            .err()
-            .into_iter()
-            .flatten()
-            .map(|e| e.to_string())
-            .collect();
-        if errors.is_empty() {
-            Ok(())
+        if let Some(schema_path) = &self.overlay_validator_schema_path {
+            let schema_bytes = std::fs::read(schema_path)
+                .map_err(|e| ProjectorError::Validate(format!("read schema: {e}")))?;
+            let schema: Value = serde_json::from_slice(&schema_bytes)
+                .map_err(|e| ProjectorError::Validate(format!("parse schema: {e}")))?;
+            let validator = jsonschema::JSONSchema::options()
+                .with_draft(jsonschema::Draft::Draft202012)
+                .compile(&schema)
+                .map_err(|e| ProjectorError::Validate(format!("compile schema: {e}")))?;
+            let errors: Vec<String> = validator
+                .validate(&overlay)
+                .err()
+                .into_iter()
+                .flatten()
+                .map(|e| e.to_string())
+                .collect();
+            if errors.is_empty() {
+                Ok(())
+            } else {
+                Err(ProjectorError::Validate(errors.join("; ")))
+            }
         } else {
-            Err(ProjectorError::Validate(errors.join("; ")))
+            let repo_root = self
+                .constraints_compile_script
+                .parent()
+                .and_then(Path::parent)
+                .ok_or_else(|| {
+                    ProjectorError::Validate(
+                        "constraints_compile_script does not resolve under a repository root"
+                            .into(),
+                    )
+                })?;
+            validate_overlay_with_schema_root(&overlay, &repo_root.join("compiled/json-schema"))
         }
     }
 

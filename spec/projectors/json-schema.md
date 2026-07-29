@@ -12,7 +12,7 @@ A Rulespec overlay attaches to a JSON document via a single root-level extension
 {
   "<native fields>": "...",
   "x-rkaf": {
-    "rkaf-version": "0.2.0-pre.6",
+    "rkaf-version": "<current Rulespec VERSION>",
     "rkaf-depth":   "D1" | "D2" | "D3" | "D4" | "D5",
     "rkaf:overlay": "<a JSON-LD graph using context/rkaf-context.jsonld>"
   }
@@ -25,9 +25,22 @@ The `x-rkaf` key is reserved; native artifacts MUST NOT use `x-rkaf` for any oth
 
 - **Attach:** writes `merged = {...native, "x-rkaf": {rkaf-version, rkaf-depth, "rkaf:overlay": overlay}}`.
 - **Extract:** returns `(native, overlay)` where `native` is `merged - "x-rkaf"` and `overlay` is `merged["x-rkaf"]["rkaf:overlay"]`.
-- **Validate:** runs the compiled JSON Schema 2020-12 validator (from `compiled/json-schema/`) over the overlay graph.
+- **Validate:** dispatches every typed overlay node to every generated JSON
+  Schema 2020-12 definition targeting that `@type` under
+  `compiled/json-schema/`.
 - **Round-trip:** `Attach(native, overlay) → Extract` MUST equal `(native, overlay)` byte-identically when serialized canonically.
 - **Derive:** invokes `tools/constraints_compile.py --in <profile.cue> --target json-schema`. Output is a JSON Schema Draft 2020-12 document expressing the profile.
+
+Generated definitions use two Rulespec extension keywords for CUE constraints
+that JSON Schema Draft 2020-12 cannot express:
+
+- `x-rkaf-order` compares two sibling values and rejects an inverted pair.
+- `x-rkaf-not-equal` compares two sibling values and rejects the record when
+  both are present and equal.
+
+The **Validate** operation MUST enforce both keywords. A generic JSON Schema
+processor may ignore them as annotations, so its verdict alone does not
+satisfy the Rulespec L2 gate.
 
 ## 3. Carrier collision
 

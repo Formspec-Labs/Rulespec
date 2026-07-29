@@ -4,7 +4,9 @@
 For every `round-trip-*.{jsonld,yaml}` fixture under
 `fixtures/projectors/<target>/`, invoke the `projector-harness` CLI to
 run Attach → Extract on the matching projector and assert that round-trip
-identity holds.
+identity holds. Then run the same valid and invalid
+`ConceptResolutionResult` through every target's Validate operation so no
+carrier can silently bypass the shared generated constraints.
 
 Targets:
   - json-schema  (fixtures: *.jsonld)
@@ -50,6 +52,15 @@ def run_round_trip(target: str, fixture: Path) -> bool:
     return res.returncode == 0
 
 
+def run_validate(target: str, fixture: Path) -> bool:
+    res = subprocess.run(
+        [str(HARNESS), "--target", target, "validate", "--fixture", str(fixture)],
+        capture_output=True,
+        cwd=ROOT,
+    )
+    return res.returncode == 0
+
+
 def main() -> int:
     err = ensure_harness()
     if err is not None:
@@ -72,7 +83,31 @@ def main() -> int:
             if not ok:
                 fails += 1
 
-    print(f"\n{total - fails}/{total} round-trip fixtures passed")
+    validation_cases = [
+        (ROOT / "fixtures" / "conceptresolutionresult-positive.jsonld", True),
+        (
+            ROOT
+            / "fixtures"
+            / "negatives"
+            / "concept-resolution-result-broad-resolved-negative.jsonld",
+            False,
+        ),
+    ]
+    for target in TARGETS:
+        for fixture, expected_valid in validation_cases:
+            total += 1
+            actual_valid = run_validate(target, fixture)
+            ok = actual_valid == expected_valid
+            tag = "OK" if ok else "FAIL"
+            expectation = "PASS" if expected_valid else "FAIL"
+            print(
+                f"  [{tag}] {target}/validate "
+                f"{fixture.name} expected={expectation}"
+            )
+            if not ok:
+                fails += 1
+
+    print(f"\n{total - fails}/{total} projector parity checks passed")
     return 1 if fails else 0
 
 

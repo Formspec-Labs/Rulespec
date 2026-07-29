@@ -95,7 +95,7 @@ def l0_vocab_coverage() -> tuple[list[str], int, int, int, int]:
     issues: list[str] = []
     vocab_text = TERM_DOC.read_text()
     required = parse_required_fixtures(vocab_text)
-    present = {path.stem for path in FIXTURE_DIR.glob("*.jsonld")}
+    present = {path.stem for path in FIXTURE_DIR.rglob("*.jsonld")}
     cue_count = len(constraint_sources())
     missing_fixtures = sorted(required - present)
     missing_terms = cue_coverage_check(vocab_text)

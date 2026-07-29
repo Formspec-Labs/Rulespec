@@ -1,0 +1,13 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@id": "urn:rkaf:fixture:concept:duplicate-pref-language",
+  "@type": "rkaf:RegisteredConcept",
+  "skos:prefLabel": {
+    "en": ["Household income", "Family income"]
+  },
+  "skos:inScheme": "urn:rkaf:fixture:scheme:topics",
+  "rkaf:managedByRegistry": "urn:rkaf:fixture:registry:topics",
+  "rkaf:conceptScope": "benefits/income",
+  "rkaf:registeredAt": "2026-07-29T12:00:00Z",
+  "_comment": "Negative authored JSON: prefLabel permits exactly one string per language."
+}

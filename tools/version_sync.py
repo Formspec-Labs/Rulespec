@@ -6,6 +6,7 @@ into every other call site, or verifies they're already in sync.
 
 Call sites kept in lock-step:
   - crates/Cargo.toml         (workspace.package.version)
+  - crates/Cargo.lock         (every workspace member package)
   - context/rkaf-context.jsonld  (top-level "version" field)
 
 Rust source files and tests read `env!("CARGO_PKG_VERSION")` so they auto-track
@@ -28,6 +29,7 @@ import argparse
 import json
 import re
 import sys
+import tomllib
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -94,6 +96,50 @@ def sync_jsonld_context(truth: str, write: bool) -> bool:
     return True
 
 
+def sync_cargo_lock(truth: str, write: bool) -> bool:
+    """Keep every workspace member package in Cargo.lock on VERSION.
+
+    Dependency versions remain untouched. The member list comes from the
+    workspace manifest so a newly added in-tree crate automatically enters
+    this gate.
+    """
+
+    manifest_path = ROOT / "crates" / "Cargo.toml"
+    lock_path = ROOT / "crates" / "Cargo.lock"
+    manifest = tomllib.loads(manifest_path.read_text(encoding="utf-8"))
+    members = {
+        Path(member).name
+        for member in manifest.get("workspace", {}).get("members", [])
+        if isinstance(member, str)
+    }
+    src = lock_path.read_text(encoding="utf-8")
+    block_re = re.compile(
+        r'(\[\[package\]\]\nname = "([^"]+)"\nversion = ")([^"]+)(")',
+    )
+    drift: list[tuple[str, str]] = []
+
+    def replace(match: re.Match[str]) -> str:
+        name, current = match.group(2), match.group(3)
+        if name not in members or current == truth:
+            return match.group(0)
+        drift.append((name, current))
+        return f"{match.group(1)}{truth}{match.group(4)}"
+
+    updated = block_re.sub(replace, src)
+    if not drift:
+        return True
+    if not write:
+        for name, current in drift:
+            print(f"  [DRIFT] crates/Cargo.lock ({name}): {current!r} != {truth!r}")
+        return False
+    lock_path.write_text(updated, encoding="utf-8")
+    print(
+        "  [WROTE] crates/Cargo.lock: "
+        + ", ".join(f"{name} {current!r} → {truth!r}" for name, current in drift)
+    )
+    return True
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
     mode = ap.add_mutually_exclusive_group(required=True)
@@ -104,7 +150,7 @@ def main() -> int:
     truth = read_truth()
     print(f"truth: VERSION = {truth!r}")
 
-    syncs = [sync_cargo_toml, sync_jsonld_context]
+    syncs = [sync_cargo_toml, sync_cargo_lock, sync_jsonld_context]
     ok = True
     for fn in syncs:
         if not fn(truth, write=args.write):

@@ -90,30 +90,75 @@
 | rkaf:inputDigest | https://rulespec.org/ns/v1#inputDigest | Property | rkaf:ExtractionActivity | xsd:string (`sha256:<64 hex>`) | 0..* | extractionactivity-model-positive |
 | rkaf:extractionAttempt | https://rulespec.org/ns/v1#extractionAttempt | Property | rkaf:ExtractionActivity | xsd:integer (>= 1) | 0..1 | extractionactivity-model-positive |
 
-## v0.2 concept vocabulary and assignments (§4.7 of `spec/rkaf-core.md`)
+## v0.2 concept vocabulary, lifecycle, and resolution
 
-SKOS owns concept-scheme semantics. The rows below add only what SKOS leaves
-open and Rulespec must check mechanically: which facet a scheme controls, who
-governs the scheme, and the evidence an assignment stands on. `skos:inScheme`,
-`skos:definition`, and `skos:hasTopConcept` are mode-1 SKOS imports used with
-their own semantics; Rulespec declares no class range over them, because a
-concept or scheme may live in an external thesaurus.
+SKOS owns concept-scheme semantics. Rulespec narrows project-authored JSON-LD
+carriage so every generated target preserves languages, scripts, typed
+notation, and all hierarchy parents. Registry and actor IRIs are external
+identifiers; the v0.1 `rkaf:ConceptRegistry` and
+`rkaf:ConceptMintingAuthority` object models are not active classes.
 
 | Term | IRI | Kind | Domain | Range | Cardinality | Required fixtures |
 |---|---|---|---|---|---|---|
 | rkaf:ConceptScheme | https://rulespec.org/ns/v1#ConceptScheme | Class (skos:ConceptScheme-compatible) | — | — | — | conceptscheme-registry-positive, conceptscheme-local-positive |
-| rkaf:schemeFacet | https://rulespec.org/ns/v1#schemeFacet | Property | rkaf:ConceptScheme | IRI | 1 | conceptscheme-registry-positive |
-| rkaf:managedByRegistry | https://rulespec.org/ns/v1#managedByRegistry | Property | rkaf:ConceptScheme / rkaf:RegisteredConcept / rkaf:ConceptMapping | IRI of a concept registry | 1 on rkaf:RegisteredConcept; on rkaf:ConceptScheme exactly one of managedByRegistry or definedInScope; 0..1 on rkaf:ConceptMapping | conceptscheme-registry-positive, concept-registered-positive |
-| rkaf:definedInScope | https://rulespec.org/ns/v1#definedInScope | Property | rkaf:ConceptScheme / rkaf:LocalConcept | IRI of the owning Workspace or organizational scope | 1 on rkaf:LocalConcept; on rkaf:ConceptScheme exactly one of managedByRegistry or definedInScope | conceptscheme-local-positive, localconcept-positive |
+| rkaf:RegisteredConcept | https://rulespec.org/ns/v1#RegisteredConcept | Class (skos:Concept-compatible) | — | — | — | concept-registered-positive |
+| rkaf:LocalConcept | https://rulespec.org/ns/v1#LocalConcept | Class (skos:Concept-compatible) | — | — | — | localconcept-positive |
+| rkaf:schemeFacet | https://rulespec.org/ns/v1#schemeFacet | Property | rkaf:ConceptScheme | absolute IRI | 1 | conceptscheme-registry-positive |
+| rkaf:managedByRegistry | https://rulespec.org/ns/v1#managedByRegistry | Property | rkaf:ConceptScheme / rkaf:RegisteredConcept / rkaf:ConceptMapping | absolute IRI of an externally described registry | 1 on rkaf:RegisteredConcept; on rkaf:ConceptScheme exactly one of managedByRegistry or definedInScope; 0..1 on rkaf:ConceptMapping | conceptscheme-registry-positive, concept-registered-positive |
+| rkaf:definedInScope | https://rulespec.org/ns/v1#definedInScope | Property | rkaf:ConceptScheme / rkaf:LocalConcept | absolute IRI of the owning Workspace or organizational scope | 1 on rkaf:LocalConcept; on rkaf:ConceptScheme exactly one of managedByRegistry or definedInScope | conceptscheme-local-positive, localconcept-positive |
 | rkaf:conceptScope | https://rulespec.org/ns/v1#conceptScope | Property | rkaf:RegisteredConcept / rkaf:LocalConcept | xsd:string | 1 | concept-registered-positive, localconcept-positive |
-| skos:inScheme | http://www.w3.org/2004/02/skos/core#inScheme | Property (SKOS mode-1 import) | rkaf:RegisteredConcept / rkaf:LocalConcept | IRI of a concept scheme | 1 | concept-registered-positive, localconcept-positive |
-| skos:definition | http://www.w3.org/2004/02/skos/core#definition | Property (SKOS mode-1 import) | rkaf:RegisteredConcept / rkaf:LocalConcept / rkaf:ConceptScheme | language-tagged literal | 0..1 | conceptscheme-registry-positive |
-| skos:hasTopConcept | http://www.w3.org/2004/02/skos/core#hasTopConcept | Property (SKOS mode-1 import) | rkaf:ConceptScheme | IRI | 0..* | conceptscheme-registry-positive |
+| rkaf:registeredAt | https://rulespec.org/ns/v1#registeredAt | Property | rkaf:RegisteredConcept / rkaf:BridgeConsumerRegistration | xsd:dateTime | 1 on either bearer | bridgeconsumerregistration-positive, concept-registered-positive |
+| skos:prefLabel | http://www.w3.org/2004/02/skos/core#prefLabel | Property (SKOS mode-1 import) | rkaf:ConceptScheme / rkaf:RegisteredConcept / rkaf:LocalConcept | non-empty BCP 47 language map; one string per language | 1 map | conceptscheme-registry-positive, concept-registered-positive, localconcept-positive |
+| skos:altLabel | http://www.w3.org/2004/02/skos/core#altLabel | Property (SKOS mode-1 import) | rkaf:ConceptScheme / rkaf:RegisteredConcept / rkaf:LocalConcept | BCP 47 language map; one-or-more strings per present language | 0..1 map | concept-vocabulary-text-multilingual-positive |
+| skos:hiddenLabel | http://www.w3.org/2004/02/skos/core#hiddenLabel | Property (SKOS mode-1 import) | rkaf:ConceptScheme / rkaf:RegisteredConcept / rkaf:LocalConcept | BCP 47 language map; one-or-more strings per present language | 0..1 map | concept-vocabulary-text-multilingual-positive |
+| skos:definition | http://www.w3.org/2004/02/skos/core#definition | Property (SKOS mode-1 import) | rkaf:ConceptScheme / rkaf:RegisteredConcept / rkaf:LocalConcept | BCP 47 language map; one-or-more strings per present language | 0..1 map | conceptscheme-registry-positive |
+| skos:example | http://www.w3.org/2004/02/skos/core#example | Property (SKOS mode-1 import) | rkaf:ConceptScheme / rkaf:RegisteredConcept / rkaf:LocalConcept | BCP 47 language map; one-or-more strings per present language | 0..1 map | concept-vocabulary-text-multilingual-positive |
+| skos:note | http://www.w3.org/2004/02/skos/core#note | Property (SKOS mode-1 import) | rkaf:ConceptScheme / rkaf:RegisteredConcept / rkaf:LocalConcept | BCP 47 language map; one-or-more strings per present language | 0..1 map | concept-vocabulary-text-multilingual-positive |
+| skos:scopeNote | http://www.w3.org/2004/02/skos/core#scopeNote | Property (SKOS mode-1 import) | rkaf:ConceptScheme / rkaf:RegisteredConcept / rkaf:LocalConcept | BCP 47 language map; one-or-more strings per present language | 0..1 map | concept-vocabulary-text-multilingual-positive |
+| skos:changeNote | http://www.w3.org/2004/02/skos/core#changeNote | Property (SKOS mode-1 import) | rkaf:ConceptScheme / rkaf:RegisteredConcept / rkaf:LocalConcept | BCP 47 language map; one-or-more strings per present language | 0..1 map | concept-vocabulary-text-multilingual-positive |
+| skos:editorialNote | http://www.w3.org/2004/02/skos/core#editorialNote | Property (SKOS mode-1 import) | rkaf:ConceptScheme / rkaf:RegisteredConcept / rkaf:LocalConcept | BCP 47 language map; one-or-more strings per present language | 0..1 map | concept-vocabulary-text-multilingual-positive |
+| skos:historyNote | http://www.w3.org/2004/02/skos/core#historyNote | Property (SKOS mode-1 import) | rkaf:ConceptScheme / rkaf:RegisteredConcept / rkaf:LocalConcept | BCP 47 language map; one-or-more strings per present language | 0..1 map | concept-vocabulary-text-multilingual-positive |
+| skos:notation | http://www.w3.org/2004/02/skos/core#notation | Property (SKOS mode-1 import) | rkaf:RegisteredConcept / rkaf:LocalConcept | closed typed-literal object with string `@value` and absolute datatype IRI `@type` | 0..* | concept-vocabulary-text-multilingual-positive |
+| skos:inScheme | http://www.w3.org/2004/02/skos/core#inScheme | Property (SKOS mode-1 import) | rkaf:RegisteredConcept / rkaf:LocalConcept | absolute IRI of a concept scheme | 1 | concept-registered-positive, localconcept-positive |
+| skos:hasTopConcept | http://www.w3.org/2004/02/skos/core#hasTopConcept | Property (SKOS mode-1 import; scheme-internal) | rkaf:ConceptScheme | IRI of a concept in the same scheme | 0..* | conceptscheme-registry-positive |
+| skos:broader | http://www.w3.org/2004/02/skos/core#broader | Property (SKOS mode-1 import; scheme-internal) | rkaf:RegisteredConcept / rkaf:LocalConcept | IRI of a typed concept in the same scheme | 0..* | registered-concept-multiple-relations-edge |
+| skos:narrower | http://www.w3.org/2004/02/skos/core#narrower | Property (SKOS mode-1 import; scheme-internal) | rkaf:RegisteredConcept / rkaf:LocalConcept | IRI of a typed concept in the same scheme | 0..* | registered-concept-multiple-relations-edge |
+| skos:related | http://www.w3.org/2004/02/skos/core#related | Property (SKOS mode-1 import; scheme-internal) | rkaf:RegisteredConcept / rkaf:LocalConcept | IRI of a typed concept in the same scheme | 0..* | registered-concept-multiple-relations-edge |
+| rkaf:LifecycleEvent | https://rulespec.org/ns/v1#LifecycleEvent | Class | — | — | — | lifecycleevent-positive |
+| rkaf:lifecycleEventKind | https://rulespec.org/ns/v1#lifecycleEventKind | Property (profile-assembled closed enum) | rkaf:LifecycleEvent | IRI-valued lifecycle kind | 1 | lifecycleevent-positive |
+| rkaf:conceptLifecycleOperation | https://rulespec.org/ns/v1#conceptLifecycleOperation | Property (closed enum) | rkaf:LifecycleEvent with kind rkaf:conceptLifecycle | rkaf:ConceptLifecycleOperation | 1 on concept lifecycle | concept-lifecycle-operations-positive |
+| rkaf:predecessorConcepts | https://rulespec.org/ns/v1#predecessorConcepts | Property | rkaf:LifecycleEvent with kind rkaf:conceptLifecycle | IRI of predecessor concept | operation-dependent 1 or 2..* | concept-lifecycle-operations-positive |
+| rkaf:successorConcepts | https://rulespec.org/ns/v1#successorConcepts | Property | rkaf:LifecycleEvent with kind rkaf:conceptLifecycle | IRI of successor concept | operation-dependent 0, 1, or 2..* | concept-lifecycle-operations-positive |
+| rkaf:predecessorConceptRelease | https://rulespec.org/ns/v1#predecessorConceptRelease | Property | rkaf:LifecycleEvent with kind rkaf:conceptLifecycle | rkaf:ReferenceResourceRelease with complete membership | 1 | concept-lifecycle-operations-positive |
+| rkaf:successorConceptRelease | https://rulespec.org/ns/v1#successorConceptRelease | Property | rkaf:LifecycleEvent with kind rkaf:conceptLifecycle | rkaf:ReferenceResourceRelease with complete membership | 1 iff successors exist | concept-lifecycle-operations-positive |
+| rkaf:deprecation, rkaf:withdrawal, rkaf:replacement, rkaf:split, rkaf:merge, rkaf:promotion, rkaf:demotion | `https://rulespec.org/ns/v1#` + each local name in the Term cell | Values of rkaf:ConceptLifecycleOperation | rkaf:LifecycleEvent with kind rkaf:conceptLifecycle | — | — | — |
 | rkaf:ConceptAssignment | https://rulespec.org/ns/v1#ConceptAssignment | Class (RelationshipAssertion specialization) | — | — | — | conceptassignment-fragment-direct-positive, conceptassignment-document-derived-positive |
-| rkaf:assignedConceptRelease | https://rulespec.org/ns/v1#assignedConceptRelease | Property | rkaf:ConceptAssignment | rkaf:ReferenceResourceRelease | 1 | conceptassignment-fragment-direct-positive |
+| rkaf:assignedConceptRelease | https://rulespec.org/ns/v1#assignedConceptRelease | Property | rkaf:ConceptAssignment | rkaf:ReferenceResourceRelease with complete membership | 1 | conceptassignment-fragment-direct-positive |
 | rkaf:ConceptMapping | https://rulespec.org/ns/v1#ConceptMapping | Class (RelationshipAssertion specialization) | — | — | — | conceptmapping-positive |
-| rkaf:sourceConceptRelease | https://rulespec.org/ns/v1#sourceConceptRelease | Property | rkaf:ConceptMapping | rkaf:ReferenceResourceRelease | 1 | conceptmapping-positive |
-| rkaf:targetConceptRelease | https://rulespec.org/ns/v1#targetConceptRelease | Property | rkaf:ConceptMapping | rkaf:ReferenceResourceRelease | 1 | conceptmapping-positive |
+| rkaf:sourceConceptRelease | https://rulespec.org/ns/v1#sourceConceptRelease | Property | rkaf:ConceptMapping | rkaf:ReferenceResourceRelease with complete membership | 1 | conceptmapping-positive |
+| rkaf:targetConceptRelease | https://rulespec.org/ns/v1#targetConceptRelease | Property | rkaf:ConceptMapping | rkaf:ReferenceResourceRelease with complete membership | 1 | conceptmapping-positive |
+| rkaf:ConceptResolutionResult | https://rulespec.org/ns/v1#ConceptResolutionResult | Class | — | — | — | conceptresolutionresult-positive |
+| rkaf:inputConcept | https://rulespec.org/ns/v1#inputConcept | Property | rkaf:ConceptResolutionResult | absolute IRI | 1 | conceptresolutionresult-positive |
+| rkaf:resolutionStatus | https://rulespec.org/ns/v1#resolutionStatus | Property (closed enum) | rkaf:ConceptResolutionResult | rkaf:ConceptResolutionStatus | 1 | conceptresolutionresult-positive |
+| rkaf:resolutionMethod | https://rulespec.org/ns/v1#resolutionMethod | Property (closed enum) | rkaf:ConceptResolutionResult | rkaf:ConceptResolutionMethod | 1 | conceptresolutionresult-positive |
+| rkaf:resolvedConcept | https://rulespec.org/ns/v1#resolvedConcept | Property | rkaf:ConceptResolutionResult | absolute IRI | 1 when one concept is selected; otherwise 0 | conceptresolutionresult-positive |
+| rkaf:mappingAssertion | https://rulespec.org/ns/v1#mappingAssertion | Property | rkaf:ConceptResolutionResult | IRI of rkaf:ConceptMapping | 1 when the selected path uses a mapping; otherwise 0 | conceptresolutionresult-positive |
+| rkaf:cacheStatus | https://rulespec.org/ns/v1#cacheStatus | Property (closed enum) | rkaf:ConceptResolutionResult | rkaf:ConceptResolutionCacheStatus | 1 | conceptresolutionresult-positive |
+| rkaf:usageCeiling | https://rulespec.org/ns/v1#usageCeiling | Property (closed enum) | rkaf:ConceptResolutionResult | rkaf:UsageEligibility | 1 | conceptresolutionresult-positive |
+| rkaf:resolvedAt | https://rulespec.org/ns/v1#resolvedAt | Property | rkaf:ConceptResolutionResult | xsd:dateTime | 1 | conceptresolutionresult-positive |
+| rkaf:resolverId | https://rulespec.org/ns/v1#resolverId | Property | rkaf:ConceptResolutionResult | absolute IRI | 0..1 | — |
+
+## RefSpec application profile (`spec/rkaf-refspec.md`)
+
+Rulespec owns the portable open-label predicate and structural shape. RefSpec
+owns facet definitions, complete permission tuples, candidate and accepted
+output authorization, evaluation, and deployment.
+
+| Term | IRI | Kind | Domain | Range | Cardinality | Required fixtures |
+|---|---|---|---|---|---|---|
+| rkaf:openLabel | https://rulespec.org/ns/v1#openLabel | Profile predicate | rkaf:ValueAssertion via rkaf:assertsPredicate | BCP 47 language-tagged literal in rkaf:assertsValue | exactly 1 predicate value on an open-label assertion | refspec-open-label-default-language-positive |
+| rkaf:openLabelFacet | https://rulespec.org/ns/v1#openLabelFacet | Profile property | rkaf:ValueAssertion whose predicate is rkaf:openLabel | absolute facet IRI | 1 on an open-label assertion | refspec-open-label-default-language-positive |
+| rkaf:openLabelRole | https://rulespec.org/ns/v1#openLabelRole | Profile property (closed enum) | rkaf:ValueAssertion whose predicate is rkaf:openLabel | one rkaf:ConceptAssignmentPredicate value | 1 on an open-label assertion | refspec-open-label-default-language-positive |
 
 ## Document-analysis module (`spec/rkaf-analysis.md`)
 
@@ -192,7 +237,7 @@ The module declares **no legal-effect vocabulary**. There is no policy-exclusion
 
 ## Experimental US rulemaking-process module
 
-These terms are defined by `spec/rkaf-rulemaking.md` and codified under `constraints/profiles/us-rulemaking/`, which compiles to `compiled/<target>/profiles/us-rulemaking/` and `crates/rkaf-core/src/generated/profiles/us_rulemaking/`. They are jurisdiction-specific: the universal-primitives table above and the kernel CUE under `constraints/core/` do not declare any of them, and a consumer that does not adopt this profile never sees them. `rkaf:hasRegulatoryIdentifier`, `rkaf:regulatoryIdentifierScheme`, and `rkaf:publishedInProceeding` have `rkaf:Artifact` as their domain because the profile shape `#USRegulatoryArtifact` composes the kernel `#Artifact` rather than minting a parallel class. The twelve proceeding lifecycle kinds below are the same arrangement applied to a VALUE set rather than a property set: they have `rkaf:LifecycleEvent` as their domain because the profile shape `#USLifecycleEvent` composes the kernel `#LifecycleEvent` and binds the assembled union `#ComposedLifecycleEventKind` (kernel ten + profile twelve, the profile's part being `#USProceedingLifecycleEventKind`) to `rkaf:lifecycleEventKind`. The kernel carrier stays open on that property — the compiled kernel types it as a plain string and emits no `sh:in` — so a consumer that loads only the kernel is unconstrained by the property entirely, by the kernel's own ten universal kinds as much as by these twelve, rather than rejecting anything. The closed 22-value set is enforced only by the profile artifacts. Their status is Experimental; inclusion in the mechanically checked vocabulary does not satisfy the module's stabilization gate.
+These terms are defined by `spec/rkaf-rulemaking.md` and codified under `constraints/profiles/us-rulemaking/`, which compiles to `compiled/<target>/profiles/us-rulemaking/` and `crates/rkaf-core/src/generated/profiles/us_rulemaking/`. They are jurisdiction-specific: the universal-primitives table above and the kernel CUE under `constraints/core/` do not declare any of them, and a consumer that does not adopt this profile never sees them. `rkaf:hasRegulatoryIdentifier`, `rkaf:regulatoryIdentifierScheme`, and `rkaf:publishedInProceeding` have `rkaf:Artifact` as their domain because the profile shape `#USRegulatoryArtifact` composes the kernel `#Artifact` rather than minting a parallel class. The twelve proceeding lifecycle kinds below are the same arrangement applied to a VALUE set rather than a property set: they have `rkaf:LifecycleEvent` as their domain because the profile shape `#USLifecycleEvent` composes the kernel `#LifecycleEvent` and binds the assembled union `#ComposedLifecycleEventKind` (kernel eight + profile twelve, the profile's part being `#USProceedingLifecycleEventKind`) to `rkaf:lifecycleEventKind`. The kernel carrier stays open on that property — the compiled kernel types it as a plain string and emits no `sh:in` — so a consumer that loads only the kernel is unconstrained by the property entirely, by the kernel's own eight universal kinds as much as by these twelve, rather than rejecting anything. The closed 20-value set is enforced only by the profile artifacts. Their status is Experimental; inclusion in the mechanically checked vocabulary does not satisfy the module's stabilization gate.
 
 | Term | IRI | Kind | Domain | Range | Cardinality | Required fixtures |
 |---|---|---|---|---|---|---|
@@ -273,6 +318,12 @@ These terms are defined by `spec/rkaf-rulemaking.md` and codified under `constra
 
 Beyond the v0.2 normative tier in §5, the following terms are codified as CUE constraints under `constraints/core/` and generated into JSON Schema (`compiled/json-schema/core/`), Rust (`crates/rkaf-core/src/generated/`), TypeScript, and SHACL targets via `tools/constraints_compile.py`. Each carries at least one positive fixture under `fixtures/`.
 
+**Shared carrier primitive** (generated for reuse; not an RDF node class):
+
+| Term | CUE | Fixture | Purpose |
+|---|---|---|---|
+| `rkaf:VocabularyText` | `vocabulary-text.cue` | `concept-vocabulary-text-multilingual-positive.jsonld` | Vocabulary-register name for the shared BCP 47 language-tag, preferred-label map, one-or-many text map, typed-notation, and SKOS-authored-text carriers. It MUST NOT appear as an RDF `@type`; resource classes compose these carriers and keep their own RDF identities. |
+
 **Classes** (each backed by a CUE shape, a JSON Schema, and a Rust struct):
 
 | Term | CUE | Fixture | Purpose |
@@ -286,20 +337,15 @@ Beyond the v0.2 normative tier in §5, the following terms are codified as CUE c
 | `rkaf:LocalAdoption` | `local-adoption.cue` | `localadoption-positive.jsonld` | Workspace-scoped authorization of an Assertion (Core §3.2). Restricted `adoptionAuthorityKind` per §2.5 invariant. |
 | `rkaf:ApplicabilityScope` | `applicability-scope.cue` | `applicabilityscope-positive.jsonld` | Where/to-whom/when a Warrant applies. ELI / ISO 3166 / agency-code IRIs. |
 | `rkaf:EffectivePeriod` | `effective-period.cue` | `effectiveperiod-positive.jsonld` | Temporal window. Start required; end / sunset / retroactive optional. |
-| `rkaf:LifecycleEvent` | `lifecycle-event.cue` | `lifecycleevent-positive.jsonld` | Audit-trail event for assertion, concept, and proceeding-stage transitions. |
-| `rkaf:RegisteredConcept` | `concept.cue` | `concept-registered-positive.jsonld` | Federation-shared Concept minted by a `rkaf:ConceptMintingAuthority`. Requires `skos:prefLabel(1)` and `skos:inScheme(1)`. |
-| `rkaf:LocalConcept` | `concept.cue` | `localconcept-positive.jsonld` | Workspace-defined Concept, candidate for federation promotion. Requires `skos:prefLabel(1)` and `skos:inScheme(1)`. |
-| `rkaf:ConceptScheme` | `concept.cue` | `conceptscheme-registry-positive.jsonld` | One facet, one controlled category system (Core §4.7). Requires a declared `rkaf:schemeFacet` and either a governing registry or a defining workspace scope. |
+| `rkaf:LifecycleEvent` | `lifecycle-event.cue` | `lifecycleevent-positive.jsonld` | Audit-trail event for assertion, concept, and proceeding-stage transitions. Concept changes use `lifecycleEventKind = conceptLifecycle`, an explicit operation, predecessor/successor sets, and complete-membership release pins. |
+| `rkaf:RegisteredConcept` | `concept.cue` | `concept-registered-positive.jsonld` | Externally governed shared Concept. Requires multilingual `skos:prefLabel`, one `skos:inScheme`, external `managedByRegistry`, and `registeredAt`; Rulespec does not require a ConceptRegistry or ConceptMintingAuthority object. |
+| `rkaf:LocalConcept` | `concept.cue` | `localconcept-positive.jsonld` | Workspace-defined Concept, candidate for governed promotion. Requires multilingual `skos:prefLabel` and one `skos:inScheme`. |
+| `rkaf:ConceptScheme` | `concept.cue` | `conceptscheme-registry-positive.jsonld` | One facet, one controlled category system (Core §4.7). Requires multilingual `skos:prefLabel`, a declared `rkaf:schemeFacet`, and either an external governing registry IRI or a defining workspace scope. |
 | `rkaf:ConceptAssignment` | `concept-assignment.cue` | `conceptassignment-fragment-direct-positive.jsonld` | RelationshipAssertion specialization using canonical subject/predicate/object fields, affirmed polarity, exact concept-release pin, and the universal inverse EvidenceBinding path (Core §4.7). |
 | `rkaf:ReferenceResourceRelease` | `reference-resource-release.cue` | `reference-resource-release-digest-positive.jsonld` | Immutable semantic manifest for any governed reference resource, including an ontology, thesaurus, code list, identifier authority, classification, entity registry, mapping set, or schema; carries membership mode, distributions, and an RDFC-1.0 digest. |
-| `skos:prefLabel` | `http://www.w3.org/2004/02/skos/core#prefLabel` | Property (SKOS 2.0 import) | `rkaf:RegisteredConcept`, `rkaf:LocalConcept` | `xsd:string` | **1** (required) | `concept-registered-positive.jsonld`, `localconcept-positive.jsonld` |
-| `skos:altLabel` | `http://www.w3.org/2004/02/skos/core#altLabel` | Property (SKOS 2.0 import) | `rkaf:RegisteredConcept`, `rkaf:LocalConcept` | `xsd:string` | 0..* | — |
-| `skos:broader` | `http://www.w3.org/2004/02/skos/core#broader` | Property (SKOS 2.0 import) | `rkaf:RegisteredConcept`, `rkaf:LocalConcept` | IRI | 0..1 | — |
-| `skos:narrower` | `http://www.w3.org/2004/02/skos/core#narrower` | Property (SKOS 2.0 import) | `rkaf:RegisteredConcept`, `rkaf:LocalConcept` | IRI | 0..* | — |
-| `skos:related` | `http://www.w3.org/2004/02/skos/core#related` | Property (SKOS 2.0 import) | `rkaf:RegisteredConcept`, `rkaf:LocalConcept` | IRI | 0..* | — |
 | `rkaf:ConceptMapping` | `concept-mapping.cue` | `conceptmapping-positive.jsonld` | RelationshipAssertion specialization over one of the five concrete SKOS mapping predicates, with exact release pins for both endpoints. |
 | `rkaf:MappingApplicabilityContext` | `concept-mapping.cue` | `mappingapplicabilitycontext-positive.jsonld` | Scopes a mapping by application-domain + evidence-purpose. |
-| `rkaf:ConceptResolutionResult` | `concept-resolution-result.cue` | `conceptresolutionresult-positive.jsonld` | Output of resolving a concept reference against the federation. |
+| `rkaf:ConceptResolutionResult` | `concept-resolution-result.cue` | `conceptresolutionresult-positive.jsonld` | Complete resolver output with required status, method, cache state, usage ceiling, time, and conditional resolved-concept and mapping-assertion fields. |
 | `rkaf:BridgeValidationResult` | `bridge-validation-result.cue` | `bridgevalidationresult-positive.jsonld` | Control-plane record per packet ingestion: verdict + effective eligibility + authority-chain status + `findings: [rkaf:Finding @id, …]` (ADR-0093 Phase C replaces the prior flat `warnings/errors/staleDependencies/registryUnavailable/registryVersionOutOfRange` arrays with this typed IRI list). |
 | `rkaf:BridgeConsumerRegistration` | `bridge-consumer-registration.cue` | `bridgeconsumerregistration-positive.jsonld` | Bridge consumer capability declaration (Core §5.1): supported authority kinds, evaluation anchors, registry version ranges, automatic migrations. |
 | `rkaf:RegistryConflict` | `registry-conflict.cue` | `registryconflict-positive.jsonld` | Two or more registry entries disagree on the same canonical claim (Appendix A; v0.1.2 §8 MappingConflict generalization). Closed severity enum. |
@@ -320,8 +366,12 @@ Beyond the v0.2 normative tier in §5, the following terms are codified as CUE c
 - `rkaf:hasTrustZone` — `rkaf:Z0` through `rkaf:Z8`. Structural property (kind of object).
 - `rkaf:hasSafetyLabel` — `D0` / `S1` / `R2` / `A3` / `P4` plus advisory + authority-critical refinements. Operational property (what the consumer may do).
 - `rkaf:authorityKind` — 8-value closed enum, hop-local. Federation refuses unsupported kinds.
-- `rkaf:lifecycleEventKind` — closed enum ASSEMBLED from per-module parts. The kernel (`lifecycle-event.cue`) owns ten universal values: revalidation, revalidation closure, amendment, supersession, rescission, material and editorial revision, concept lifecycle, promotion, demotion. The Experimental US rulemaking module (`profiles/us-rulemaking/us-lifecycle-event.cue`) contributes twelve more — seven proceeding-stage transitions and five judicial/congressional proceeding events — giving a 22-value closed set on the composed artifact. The compiler assembles the union at build time; `LifecycleKindOwnershipTests` in `tools/test_constraints_compile.py` proves every value has exactly one declaring module and that the assembled set equals kernel + sum(profiles).
+- `rkaf:lifecycleEventKind` — closed enum ASSEMBLED from per-module parts. The kernel (`lifecycle-event.cue`) owns eight universal values: revalidation, revalidation closure, amendment, supersession, rescission, material revision, editorial revision, and concept lifecycle. Promotion and demotion are no longer standalone event kinds; they are concept lifecycle operations. The Experimental US rulemaking module (`profiles/us-rulemaking/us-lifecycle-event.cue`) contributes twelve more — seven proceeding-stage transitions and five judicial/congressional proceeding events — giving a 20-value closed set on the composed artifact. The compiler assembles the union at build time; `LifecycleKindOwnershipTests` in `tools/test_constraints_compile.py` proves every value has exactly one declaring module and that the assembled set equals kernel + sum(profiles).
+- `rkaf:ConceptLifecycleOperation` — 7-value closed set: `rkaf:deprecation`, `rkaf:withdrawal`, `rkaf:replacement`, `rkaf:split`, `rkaf:merge`, `rkaf:promotion`, and `rkaf:demotion`. It is present exactly once when `lifecycleEventKind` is `rkaf:conceptLifecycle`; participant cardinalities and complete-membership release pins are defined in `spec/rkaf-concept-registry.md` §6.
 - `rkaf:SkosMappingPredicate` — 5-value closed set: `skos:exactMatch`, `skos:closeMatch`, `skos:broadMatch`, `skos:narrowMatch`, and `skos:relatedMatch`. In-scheme `skos:broader`, `skos:narrower`, and `skos:related`, plus abstract `skos:mappingRelation`, are not legal ConceptMapping predicates.
+- `rkaf:ConceptResolutionStatus` — 6-value closed set: `rkaf:resolved`, `rkaf:unresolved`, `rkaf:ambiguous`, `rkaf:conflicting`, `rkaf:registryUnavailable`, and `rkaf:staleCacheFallback`.
+- `rkaf:ConceptResolutionMethod` — 7-value closed set: `rkaf:directRegistry`, `rkaf:exactMatchTrusted`, `rkaf:closeMatchLocallyAdopted`, `rkaf:closeMatchAwaitingAdoption`, `rkaf:broadOrNarrowMatchDiscoveryOnly`, `rkaf:cacheServed`, and `rkaf:staleCacheServed`.
+- `rkaf:ConceptResolutionCacheStatus` — 3-value closed set: `rkaf:fresh`, `rkaf:stale`, and `rkaf:notCached`.
 - `rkaf:CoordinateSystem` — 6-value closed set naming the unit an offset-bearing selector counts in: `rkaf:unicode-codepoint`, `rkaf:utf8-byte`, `rkaf:utf16-code-unit`, `rkaf:xml-node-path`, `rkaf:page-region`, `rkaf:partner-defined`. Required on `oa:TextPositionSelector`; an offset with no declared unit names three different regions (Core §4.2).
 - `rkaf:FragmentIdentityScheme` — 2-value closed set naming HOW a cited region is identified: `rkaf:published-fragment` (the IRI names a `rkaf:SourceFragment` node the producer publishes) and `rkaf:carrier-local-fragment` (the IRI is a carrier-local fragment URN, `urn:rkaf:fragment:<percent-encoded artifact IRI>:<start>:<end>:sha256-<64 hex>`, which carries the bindings itself). The scheme fixes the unit at `rkaf:unicode-codepoint` and the selector kind at `oa:TextPositionSelector`, and the interval is half-open `[start, end)`. A tabular carrier that already stores an artifact id, two offsets, and a region digest can cite evidence without publishing a fragments table; the class range, the same-Artifact rule, and every other §4.7.3 rule are unchanged (Core §4.2).
 - `rkaf:ConceptAssignmentPredicate` — 4-value closed set: `rkaf:assignmentPrimary`, `rkaf:assignmentSubstantive`, `rkaf:assignmentMention`, `rkaf:assignmentContextual`. The value appears in the canonical `rkaf:assertsPredicate` slot.

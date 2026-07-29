@@ -1,0 +1,13 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@id": "urn:rkaf:fixture:concept-resolution-result:broad-over-ceiling",
+  "@type": "rkaf:ConceptResolutionResult",
+  "rkaf:inputConcept": "urn:rkaf:fixture:concept:input",
+  "rkaf:resolutionStatus": "rkaf:unresolved",
+  "rkaf:resolutionMethod": "rkaf:broadOrNarrowMatchDiscoveryOnly",
+  "rkaf:mappingAssertion": "urn:rkaf:fixture:mapping:broad",
+  "rkaf:cacheStatus": "rkaf:notCached",
+  "rkaf:usageCeiling": "rkaf:officialUse",
+  "rkaf:resolvedAt": "2026-07-29T12:00:00Z",
+  "_comment": "Negative: broad/narrow discovery cannot exceed searchOnly."
+}

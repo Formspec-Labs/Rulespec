@@ -429,7 +429,16 @@ retired draft values `rkaf:aiPromoted`, `rkaf:humanQualified`, and
 `rkaf:humanRevalidation` are non-conforming because they mixed construction
 with later review state.
 
-The closed enums inherited from v0.1 retain their definitions: `rkaf:assertionOrigin`, `rkaf:hasSafetyLabel`, `rkaf:hasTrustZone`, `rkaf:usageEligibility`, `rkaf:authorityKind`, `rkaf:adoptionAuthorityKind`, `rkaf:adoptionStatus`, `rkaf:result`, `rkaf:resolutionStatus`, `rkaf:resolutionMethod`, `rkaf:cacheStatus`, `rkaf:usageCeiling`, `rkaf:cascadeAlgorithm`, `rkaf:evidenceRole`, `rkaf:severity`, `rkaf:decision`, `rkaf:visibility`, `rkaf:lifecycleEvent`.
+The retained closed enums include `rkaf:hasSafetyLabel`,
+`rkaf:hasTrustZone`, `rkaf:usageEligibility`, `rkaf:authorityKind`,
+`rkaf:adoptionAuthorityKind`, `rkaf:adoptionStatus`, `rkaf:result`,
+`rkaf:resolutionStatus`, `rkaf:resolutionMethod`, `rkaf:cacheStatus`,
+`rkaf:cascadeAlgorithm`, `rkaf:evidenceRole`, `rkaf:severity`,
+`rkaf:decision`, `rkaf:visibility`, and `rkaf:lifecycleEventKind`.
+`rkaf:conceptLifecycleOperation` is the v0.2 concept-change taxonomy defined in
+`spec/rkaf-concept-registry.md` §6. `rkaf:usageCeiling` ranges over the same
+closed `rkaf:UsageEligibility` values as `rkaf:usageEligibility`; it is a
+property, not a separate enum.
 
 ## 4. Universal primitives [Normative]
 
@@ -895,18 +904,38 @@ Aligned with **W3C ODRL** (rights expression — overlay-attached, not inline) a
 ### 4.7 SKOS concepts and ConceptAssignment
 
 SKOS remains the multilingual vocabulary carrier. Producers use native
-`skos:ConceptScheme`, `skos:Concept`, `skos:prefLabel`, `skos:altLabel`,
-`skos:definition`, `skos:inScheme`, `skos:broader`, `skos:narrower`, and
-`skos:related` semantics. Rulespec adds governance and assertion records; it
-does not replace SKOS labels, definitions, hierarchy, or language handling.
+`skos:ConceptScheme`, `skos:Concept`, label, note, notation, membership,
+hierarchy, and related-concept semantics. Rulespec adds governance and
+assertion records; it does not replace SKOS meaning or create a second label
+model.
+
+Project-authored `rkaf:ConceptScheme`, `rkaf:RegisteredConcept`, and
+`rkaf:LocalConcept` records use JSON-LD language maps. `skos:prefLabel` is a
+non-empty map with exactly one string per well-formed BCP 47 language key.
+Alternate and hidden labels, definitions, examples, and SKOS note properties
+use one-or-more strings per present language. Untagged strings and `@none` are
+non-conforming; `und` is reserved for genuinely unknown language; script stays
+in the language tag, such as `zh-Hant`. `skos:notation` uses closed
+`@value`/`@type` objects whose datatype is an absolute IRI. The complete
+authoring rules and label-disjointness invariant are in
+`spec/rkaf-concept-registry.md` §2.
 
 `rkaf:ConceptScheme` MUST carry `skos:prefLabel`, `rkaf:schemeFacet`, and
 exactly one governing edge: `rkaf:managedByRegistry` or
 `rkaf:definedInScope`. `rkaf:RegisteredConcept` and `rkaf:LocalConcept` MUST
-carry exactly one `skos:inScheme` plus their class-specific governance fields.
-`rkaf:conceptStatus` is not part of the current model. Release membership,
-`rkaf:Attestation`, and `rkaf:LifecycleEvent` record publication, review, and
-lifecycle facts without mutating the concept.
+carry exactly one `skos:inScheme` plus their class-specific governance fields;
+`rkaf:RegisteredConcept` also requires `rkaf:registeredAt`.
+`skos:broader`, `skos:narrower`, and `skos:related` are zero-or-more,
+scheme-internal IRIs, and every projection preserves multiple parents.
+Cross-scheme relations are `rkaf:ConceptMapping` assertions, never hierarchy.
+
+Registry IRIs remain external descriptions. Rulespec does not revive the v0.1
+`rkaf:ConceptRegistry` or `rkaf:ConceptMintingAuthority` object models;
+`rkaf:Authority` and `rkaf:Attestation` carry governance. `rkaf:conceptStatus`
+is not part of the current model. Release membership, `rkaf:Attestation`, and
+the concept lifecycle form in `spec/rkaf-concept-registry.md` §6 record
+publication, review, deprecation, withdrawal, replacement, split, merge,
+promotion, and demotion without mutating the concept.
 
 **rkaf:ConceptAssignment** is a strict `rkaf:RelationshipAssertion`
 specialization:
@@ -1012,9 +1041,19 @@ Inherited name-for-name from `archive/v0.1/spec/rkaf-core-v0.1.md`:
 - **Attestation / adoption:** `rkaf:Attestation`, `rkaf:LocalAdoption`, `rkaf:adoptionAuthorityKind`, `rkaf:adoptionStatus`.
 - **Justification:** `rkaf:Justification`, `rkaf:hasJustification`, `rkaf:justifiedByAssertion`, `rkaf:GeneratedWorkProduct`.
 - **Authority (now specialization of Warrant):** `rkaf:Authority`, `rkaf:hasAuthority`, `rkaf:derivesAuthorityFrom`, `rkaf:DelegationInstrument`.
-- **Lifecycle:** `rkaf:LifecycleEvent`, `rkaf:supersedesAssertion`, `rkaf:lifecycleEvent` enum, amendment / rescission / supersession / material-revision packets, `rkaf:RevalidationEvent`, `rkaf:PointInTimeException`.
+- **Lifecycle:** `rkaf:LifecycleEvent`, `rkaf:supersedesAssertion`,
+  `rkaf:lifecycleEventKind`, amendment / rescission / supersession /
+  material-revision packets, concept lifecycle operations
+  (`spec/rkaf-concept-registry.md` §6), `rkaf:RevalidationEvent`, and
+  `rkaf:PointInTimeException`.
 - **Usage / trust / safety:** `rkaf:usageEligibility` lattice, `rkaf:hasTrustZone` (Z0–Z8), `rkaf:hasSafetyLabel` (D0/S1/R2/A3/P4).
-- **Concepts:** `rkaf:Concept`, `rkaf:RegisteredConcept`, `rkaf:LocalConcept`, `rkaf:ConceptRegistry`, `rkaf:ConceptMapping`, `rkaf:ConceptResolutionResult`, `rkaf:ConceptCacheEntry`. v0.2 adds `rkaf:ConceptScheme` and `rkaf:ConceptAssignment` (§4.7) and requires `skos:inScheme` on both concept flavors.
+- **Concepts:** `rkaf:Concept`, `rkaf:RegisteredConcept`,
+  `rkaf:LocalConcept`, `rkaf:ConceptMapping`, and
+  `rkaf:ConceptResolutionResult`. v0.2 adds `rkaf:ConceptScheme` and
+  `rkaf:ConceptAssignment` (§4.7), requires `skos:inScheme` on both concept
+  flavors, and treats registry and actor IRIs as externally described. The
+  v0.1 `rkaf:ConceptRegistry`, `rkaf:ConceptMintingAuthority`, and
+  `rkaf:ConceptCacheEntry` object models are not inherited active classes.
 - **Bridge contract:** `rkaf:bridgeContractVersion`, `rkaf:BridgeValidationResult`, `rkaf:FullBridgeValidationResult`.
 
 `rkaf:Authority rdfs:subClassOf rkaf:Warrant`. Existing v0.1 producers' use of `rkaf:hasAuthority` remains valid; new producers MAY use either `rkaf:hasWarrant` (universal) or `rkaf:hasAuthority` (legal-family specialization).

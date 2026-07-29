@@ -37,6 +37,12 @@ enum Op {
         #[arg(long)]
         profile: PathBuf,
     },
+    /// Validate an overlay through the target projector's shared Layer 2
+    /// constraint path.
+    Validate {
+        #[arg(long)]
+        fixture: PathBuf,
+    },
 }
 
 fn repo_root() -> PathBuf {
@@ -99,6 +105,10 @@ async fn main() -> anyhow::Result<()> {
         Op::Derive { profile } => {
             let v = projector.derive(profile.to_str().unwrap()).await?;
             print_derive(&cli.target, &v)?;
+        }
+        Op::Validate { fixture } => {
+            let overlay = load_fixture(&cli.target, &fixture)?;
+            projector.validate(overlay).await?;
         }
     }
     Ok(())

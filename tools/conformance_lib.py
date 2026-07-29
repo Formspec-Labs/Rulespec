@@ -65,6 +65,18 @@ def violates_order(lower: object, upper: object) -> bool:
     return False
 
 
+def violates_not_equal(left: object, right: object) -> bool:
+    """True when two present values violate `x-rkaf-not-equal`.
+
+    JSON Schema Draft 2020-12 cannot compare sibling property values. The
+    compiler therefore carries a CUE cross-field inequality in an extension
+    keyword, and every Rulespec L2 validator applies it after structural
+    validation. `None` means absent or structurally invalid here; the ordinary
+    schema reports a present JSON null before this check runs.
+    """
+    return left is not None and right is not None and left == right
+
+
 def compiled_json_schema_paths() -> list[Path]:
     """Kernel schemas, then the analysis module, then each profile's overlays.
 

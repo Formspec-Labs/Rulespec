@@ -1,0 +1,14 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@id": "urn:rkaf:fixture:lifecycle-negative:withdrawal-successor",
+  "@type": "rkaf:LifecycleEvent",
+  "rkaf:lifecycleEventKind": "rkaf:conceptLifecycle",
+  "rkaf:conceptLifecycleOperation": "rkaf:withdrawal",
+  "rkaf:effectiveDate": "2026-07-29T12:00:00Z",
+  "rkaf:emittedBy": "urn:rkaf:fixture:registry:topics",
+  "rkaf:appliesTo": ["urn:rkaf:fixture:concept:old"],
+  "rkaf:predecessorConcepts": ["urn:rkaf:fixture:concept:old"],
+  "rkaf:successorConcepts": ["urn:rkaf:fixture:concept:new"],
+  "rkaf:predecessorConceptRelease": "urn:rkaf:fixture:release:before",
+  "rkaf:successorConceptRelease": "urn:rkaf:fixture:release:after"
+}

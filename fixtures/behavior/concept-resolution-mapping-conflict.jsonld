@@ -3,6 +3,8 @@
   "@id": "urn:rkaf:fixture:beh:cmc:case1",
   "@type": "rkaf:BehaviorTestCase",
   "rkaf:behaviorContract": "rkaf:ConceptResolutionWithConflict",
+  "rkaf:evaluationTime": "2026-07-29T12:00:00Z",
+  "rkaf:subjectConcept": "urn:rkaf:fixture:concept:X",
   "rkaf:rationale": "Two trusted registries map local-concept X to different canonical concepts. Resolver MUST surface a RegistryConflict with operationalConflict severity per §5 of rkaf-behavior.md + §6.",
   "rkaf:input": {
     "@graph": [
@@ -11,11 +13,11 @@
         "@type": "rkaf:LocalConcept",
         "rkaf:definedInScope": "urn:rkaf:scope:test",
         "rkaf:conceptScope": "urn:rkaf:scope:test",
-        "skos:prefLabel": "X",
+        "skos:prefLabel": {"en": "X"},
         "skos:inScheme": "urn:rkaf:scheme:test-topic"
       },
       {
-        "@id": "m1",
+        "@id": "urn:rkaf:fixture:mapping:m1",
         "@type": "rkaf:ConceptMapping",
         "rkaf:assertionOrigin": "rkaf:humanAsserted",
         "rkaf:epistemicBasis": "rkaf:editorialAssertion",
@@ -23,11 +25,12 @@
         "rkaf:assertsPredicate": "skos:exactMatch",
         "rkaf:assertsObject": "canon:A",
         "rkaf:assertionPolarity": "rkaf:affirmed",
-        "rkaf:sourceConceptRelease": "urn:rkaf:fixture:release:test-source",
-        "rkaf:targetConceptRelease": "urn:rkaf:fixture:release:test-target"
+        "rkaf:sourceConceptRelease": "urn:rkaf:fixture:release:endpoints",
+        "rkaf:targetConceptRelease": "urn:rkaf:fixture:release:endpoints",
+        "rkaf:managedByRegistry": "urn:rkaf:registry:trusted"
       },
       {
-        "@id": "m2",
+        "@id": "urn:rkaf:fixture:mapping:m2",
         "@type": "rkaf:ConceptMapping",
         "rkaf:assertionOrigin": "rkaf:humanAsserted",
         "rkaf:epistemicBasis": "rkaf:editorialAssertion",
@@ -35,17 +38,74 @@
         "rkaf:assertsPredicate": "skos:exactMatch",
         "rkaf:assertsObject": "canon:B",
         "rkaf:assertionPolarity": "rkaf:affirmed",
-        "rkaf:sourceConceptRelease": "urn:rkaf:fixture:release:test-source",
-        "rkaf:targetConceptRelease": "urn:rkaf:fixture:release:test-target"
+        "rkaf:sourceConceptRelease": "urn:rkaf:fixture:release:endpoints",
+        "rkaf:targetConceptRelease": "urn:rkaf:fixture:release:endpoints",
+        "rkaf:managedByRegistry": "urn:rkaf:registry:trusted"
+      },
+      {
+        "@id": "urn:rkaf:fixture:release:endpoints",
+        "@type": "rkaf:ReferenceResourceRelease",
+        "dcterms:isVersionOf": "urn:rkaf:registry:trusted",
+        "dcat:version": "1.0.0",
+        "dcterms:type": "skos:ConceptScheme",
+        "rkaf:membershipMode": "rkaf:completeMembership",
+        "prov:hadMember": [
+          "urn:rkaf:fixture:concept:X",
+          "canon:A",
+          "canon:B"
+        ],
+        "dcat:distribution": "urn:rkaf:fixture:distribution:trusted-1",
+        "rkaf:referenceReleaseDigest": "sha256:0000000000000000000000000000000000000000000000000000000000000000"
+      },
+      {
+        "@id": "att1",
+        "@type": "rkaf:Attestation",
+        "rkaf:attestor": "urn:rkaf:fixture:actor:registry-reviewer",
+        "rkaf:attestorKind": "rkaf:formalReviewer",
+        "rkaf:targets": ["urn:rkaf:fixture:mapping:m1"],
+        "rkaf:decision": "rkaf:approved",
+        "rkaf:attestationScope": "rkaf:registryPublication",
+        "rkaf:attestedAt": "2026-07-28T12:00:00Z"
+      },
+      {
+        "@id": "att2",
+        "@type": "rkaf:Attestation",
+        "rkaf:attestor": "urn:rkaf:fixture:actor:registry-reviewer",
+        "rkaf:attestorKind": "rkaf:formalReviewer",
+        "rkaf:targets": ["urn:rkaf:fixture:mapping:m2"],
+        "rkaf:decision": "rkaf:approved",
+        "rkaf:attestationScope": "rkaf:registryPublication",
+        "rkaf:attestedAt": "2026-07-28T12:00:00Z"
+      },
+      {
+        "@id": "urn:rkaf:fixture:consumer:trusted",
+        "@type": "rkaf:BridgeConsumerRegistration",
+        "rkaf:consumer": "urn:rkaf:fixture:consumer",
+        "rkaf:bridgeContractVersion": "rkaf-bridge/1.0",
+        "rkaf:registeredAt": "2026-07-28T12:00:00Z",
+        "rkaf:supportedEvaluationAnchors": ["rkaf:applicationSubmissionTime"],
+        "rkaf:supportsRegistryVersionRange": ["^1.0"],
+        "rkaf:supportedAutomaticMigrations": [],
+        "rkaf:supportedAuthorityKinds": ["rkaf:statutory"],
+        "rkaf:trustedRegistries": ["urn:rkaf:registry:trusted"]
       }
     ]
   },
   "rkaf:expectedOutput": {
-    "resolutionResult": "rkaf:conflict",
+    "conceptResolutionResult": {
+      "inputConcept": "urn:rkaf:fixture:concept:X",
+      "resolutionStatus": "rkaf:conflicting",
+      "resolutionMethod": "rkaf:exactMatchTrusted",
+      "mappingAssertion": "urn:rkaf:fixture:mapping:m1",
+      "cacheStatus": "rkaf:notCached",
+      "usageCeiling": "rkaf:notEligible",
+      "resolvedAt": "2026-07-29T12:00:00Z",
+      "resolverId": "urn:rulespec:runtime:reference"
+    },
     "registryConflict": {
       "conflictingEntries": [
-        "m1",
-        "m2"
+        "urn:rkaf:fixture:mapping:m1",
+        "urn:rkaf:fixture:mapping:m2"
       ],
       "severity": "rkaf:operationalConflict"
     }

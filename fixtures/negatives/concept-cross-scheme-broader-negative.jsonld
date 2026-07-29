@@ -1,0 +1,31 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@graph": [
+    {
+      "@id": "urn:rkaf:fixture:concept:source-topic",
+      "@type": "rkaf:RegisteredConcept",
+      "skos:prefLabel": {
+        "en": "Source topic"
+      },
+      "skos:inScheme": "urn:rkaf:fixture:scheme:source",
+      "skos:broader": [
+        "urn:rkaf:fixture:concept:target-topic"
+      ],
+      "rkaf:managedByRegistry": "urn:rkaf:fixture:registry:source",
+      "rkaf:conceptScope": "source/topic",
+      "rkaf:registeredAt": "2026-07-29T12:00:00Z"
+    },
+    {
+      "@id": "urn:rkaf:fixture:concept:target-topic",
+      "@type": "rkaf:RegisteredConcept",
+      "skos:prefLabel": {
+        "en": "Target topic"
+      },
+      "skos:inScheme": "urn:rkaf:fixture:scheme:target",
+      "rkaf:managedByRegistry": "urn:rkaf:fixture:registry:target",
+      "rkaf:conceptScope": "target/topic",
+      "rkaf:registeredAt": "2026-07-29T12:00:00Z"
+    }
+  ],
+  "_comment": "Negative: cross-scheme hierarchy is not skos:broader; publish a ConceptMapping instead."
+}

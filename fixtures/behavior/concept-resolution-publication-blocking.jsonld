@@ -3,6 +3,8 @@
   "@id": "urn:rkaf:fixture:beh:cmpb:case1",
   "@type": "rkaf:BehaviorTestCase",
   "rkaf:behaviorContract": "rkaf:ConceptResolutionWithConflict",
+  "rkaf:evaluationTime": "2026-07-29T12:00:00Z",
+  "rkaf:subjectConcept": "urn:rkaf:fixture:concept:X",
   "rkaf:rationale": "Both mappings are members of a reference-resource release and have unrevoked registry-publication approval Attestations. Because they target different concepts, §6.1 upgrades severity to publicationBlocking.",
   "rkaf:input": {
     "@graph": [
@@ -11,7 +13,7 @@
         "@type": "rkaf:LocalConcept",
         "rkaf:definedInScope": "urn:rkaf:scope:test",
         "rkaf:conceptScope": "urn:rkaf:scope:test",
-        "skos:prefLabel": "X",
+        "skos:prefLabel": {"en": "X"},
         "skos:inScheme": "urn:rkaf:scheme:test-topic"
       },
       {
@@ -23,8 +25,8 @@
         "rkaf:assertsPredicate": "skos:exactMatch",
         "rkaf:assertsObject": "canon:A",
         "rkaf:assertionPolarity": "rkaf:affirmed",
-        "rkaf:sourceConceptRelease": "urn:rkaf:fixture:release:test-source",
-        "rkaf:targetConceptRelease": "urn:rkaf:fixture:release:test-target",
+        "rkaf:sourceConceptRelease": "urn:rkaf:fixture:beh:cmpb:release",
+        "rkaf:targetConceptRelease": "urn:rkaf:fixture:beh:cmpb:release",
         "rkaf:managedByRegistry": "urn:rkaf:registry:r1"
       },
       {
@@ -36,8 +38,8 @@
         "rkaf:assertsPredicate": "skos:exactMatch",
         "rkaf:assertsObject": "canon:B",
         "rkaf:assertionPolarity": "rkaf:affirmed",
-        "rkaf:sourceConceptRelease": "urn:rkaf:fixture:release:test-source",
-        "rkaf:targetConceptRelease": "urn:rkaf:fixture:release:test-target",
+        "rkaf:sourceConceptRelease": "urn:rkaf:fixture:beh:cmpb:release",
+        "rkaf:targetConceptRelease": "urn:rkaf:fixture:beh:cmpb:release",
         "rkaf:managedByRegistry": "urn:rkaf:registry:r2"
       },
       {
@@ -48,6 +50,9 @@
         "dcterms:type": "skos:ConceptScheme",
         "rkaf:membershipMode": "rkaf:completeMembership",
         "prov:hadMember": [
+          "urn:rkaf:fixture:concept:X",
+          "canon:A",
+          "canon:B",
           "urn:rkaf:fixture:beh:cmpb:m1",
           "urn:rkaf:fixture:beh:cmpb:m2"
         ],
@@ -87,11 +92,44 @@
         "rkaf:decision": "rkaf:approved",
         "rkaf:attestationScope": "rkaf:registryPublication",
         "rkaf:attestedAt": "2026-07-28T12:00:00Z"
+      },
+      {
+        "@id": "urn:rkaf:fixture:beh:cmpb:adoption:m1",
+        "@type": "rkaf:LocalAdoption",
+        "rkaf:organization": "urn:rkaf:fixture:organization:local",
+        "rkaf:targetAssertion": "urn:rkaf:fixture:beh:cmpb:m1",
+        "rkaf:adoptionStatus": "rkaf:active",
+        "rkaf:usageEligibility": "rkaf:localOperationalUse",
+        "rkaf:adoptionAuthorityKind": "rkaf:localOperational",
+        "rkaf:adoptionScope": "urn:rkaf:fixture:scope:local",
+        "rkaf:authorizedBy": "urn:rkaf:fixture:actor:reviewer",
+        "rkaf:adoptedAt": "2026-07-28T12:00:00Z"
+      },
+      {
+        "@id": "urn:rkaf:fixture:beh:cmpb:adoption:m2",
+        "@type": "rkaf:LocalAdoption",
+        "rkaf:organization": "urn:rkaf:fixture:organization:local",
+        "rkaf:targetAssertion": "urn:rkaf:fixture:beh:cmpb:m2",
+        "rkaf:adoptionStatus": "rkaf:active",
+        "rkaf:usageEligibility": "rkaf:localOperationalUse",
+        "rkaf:adoptionAuthorityKind": "rkaf:localOperational",
+        "rkaf:adoptionScope": "urn:rkaf:fixture:scope:local",
+        "rkaf:authorizedBy": "urn:rkaf:fixture:actor:reviewer",
+        "rkaf:adoptedAt": "2026-07-28T12:00:00Z"
       }
     ]
   },
   "rkaf:expectedOutput": {
-    "resolutionResult": "rkaf:conflict",
+    "conceptResolutionResult": {
+      "inputConcept": "urn:rkaf:fixture:concept:X",
+      "resolutionStatus": "rkaf:conflicting",
+      "resolutionMethod": "rkaf:exactMatchTrusted",
+      "mappingAssertion": "urn:rkaf:fixture:beh:cmpb:m1",
+      "cacheStatus": "rkaf:notCached",
+      "usageCeiling": "rkaf:notEligible",
+      "resolvedAt": "2026-07-29T12:00:00Z",
+      "resolverId": "urn:rulespec:runtime:reference"
+    },
     "registryConflict": {
       "conflictingEntries": [
         "urn:rkaf:fixture:beh:cmpb:m1",

@@ -1,0 +1,28 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@graph": [
+    {
+      "@id": "urn:rkaf:fixture:benefits:concept:income",
+      "@type": "rkaf:RegisteredConcept",
+      "skos:prefLabel": {
+        "en": "Income"
+      },
+      "skos:inScheme": "urn:rkaf:fixture:benefits:scheme",
+      "rkaf:managedByRegistry": "urn:rkaf:fixture:benefits:registry",
+      "rkaf:registeredAt": "2026-07-29T12:00:00Z",
+      "rkaf:conceptScope": "benefits/eligibility/income"
+    },
+    {
+      "@id": "urn:rkaf:fixture:tax:concept:income",
+      "@type": "rkaf:RegisteredConcept",
+      "skos:prefLabel": {
+        "en": "Income"
+      },
+      "skos:inScheme": "urn:rkaf:fixture:tax:scheme",
+      "rkaf:managedByRegistry": "urn:rkaf:fixture:tax:registry",
+      "rkaf:registeredAt": "2026-07-29T12:00:00Z",
+      "rkaf:conceptScope": "tax/reporting/income"
+    }
+  ],
+  "_comment": "Edge: identical lexical labels in different schemes remain distinct concepts; no mapping or identity relation is inferred from text."
+}

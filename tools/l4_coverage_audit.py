@@ -71,7 +71,25 @@ PIT_BRANCHES = {
 CONCEPT_RESULTS = {
     "rkaf:unresolved",
     "rkaf:resolved",
-    "rkaf:conflict",
+    "rkaf:conflicting",
+    "rkaf:registryUnavailable",
+    "rkaf:staleCacheFallback",
+}
+
+CONCEPT_METHODS = {
+    "rkaf:directRegistry",
+    "rkaf:exactMatchTrusted",
+    "rkaf:closeMatchLocallyAdopted",
+    "rkaf:closeMatchAwaitingAdoption",
+    "rkaf:broadOrNarrowMatchDiscoveryOnly",
+    "rkaf:cacheServed",
+    "rkaf:staleCacheServed",
+}
+
+CONCEPT_CACHE_STATUSES = {
+    "rkaf:fresh",
+    "rkaf:stale",
+    "rkaf:notCached",
 }
 
 CONCEPT_SEVERITIES = {
@@ -261,12 +279,21 @@ def collect_pit_branch(doc: dict[str, Any], branches: set[str]) -> None:
 def collect_concept_branch(
     doc: dict[str, Any],
     results: set[str],
+    methods: set[str],
+    cache_statuses: set[str],
     severities: set[str],
 ) -> None:
     expected = doc.get("rkaf:expectedOutput", {})
-    result = expected.get("resolutionResult")
+    resolution = expected.get("conceptResolutionResult", {})
+    result = resolution.get("resolutionStatus") if isinstance(resolution, dict) else None
     if isinstance(result, str):
         results.add(result)
+    method = resolution.get("resolutionMethod") if isinstance(resolution, dict) else None
+    if isinstance(method, str):
+        methods.add(method)
+    cache_status = resolution.get("cacheStatus") if isinstance(resolution, dict) else None
+    if isinstance(cache_status, str):
+        cache_statuses.add(cache_status)
     conflict = expected.get("registryConflict")
     if isinstance(conflict, dict):
         severity = conflict.get("severity")
@@ -283,6 +310,8 @@ def main() -> int:
     reducer_branches: set[str] = set()
     pit_branches: set[str] = set()
     concept_results: set[str] = set()
+    concept_methods: set[str] = set()
+    concept_cache_statuses: set[str] = set()
     concept_severities: set[str] = set()
     cascade_edges: set[str] = set()
     cascade_as_of = False
@@ -307,7 +336,13 @@ def main() -> int:
         elif contract == "rkaf:PointInTimeException":
             collect_pit_branch(doc, pit_branches)
         elif contract == "rkaf:ConceptResolutionWithConflict":
-            collect_concept_branch(doc, concept_results, concept_severities)
+            collect_concept_branch(
+                doc,
+                concept_results,
+                concept_methods,
+                concept_cache_statuses,
+                concept_severities,
+            )
 
     missing_contracts = CONTRACTS - contracts
     if missing_contracts:
@@ -334,6 +369,16 @@ def main() -> int:
     if missing_results:
         issues.append(f"concept resolution outcomes missing: {sorted(missing_results)}")
 
+    missing_methods = CONCEPT_METHODS - concept_methods
+    if missing_methods:
+        issues.append(f"concept resolution methods missing: {sorted(missing_methods)}")
+
+    missing_cache_statuses = CONCEPT_CACHE_STATUSES - concept_cache_statuses
+    if missing_cache_statuses:
+        issues.append(
+            f"concept resolution cache statuses missing: {sorted(missing_cache_statuses)}"
+        )
+
     missing_severities = CONCEPT_SEVERITIES - concept_severities
     if missing_severities:
         issues.append(f"concept conflict severities missing: {sorted(missing_severities)}")
@@ -351,8 +396,10 @@ def main() -> int:
     print(f"  reducer branches: {len(reducer_branches)}/{len(REDUCER_BRANCHES)}")
     print(f"  PIT branches: {len(pit_branches)}/{len(PIT_BRANCHES)}")
     print(
-        "  concept outcomes/severities: "
+        "  concept outcomes/methods/cache/severities: "
         f"{len(concept_results)}/{len(CONCEPT_RESULTS)} + "
+        f"{len(concept_methods)}/{len(CONCEPT_METHODS)} + "
+        f"{len(concept_cache_statuses)}/{len(CONCEPT_CACHE_STATUSES)} + "
         f"{len(concept_severities)}/{len(CONCEPT_SEVERITIES)}"
     )
     print(f"  cascade predicates: {len(cascade_edges)}/{len(CASCADE_EDGES)}")

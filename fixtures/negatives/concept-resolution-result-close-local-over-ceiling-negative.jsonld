@@ -1,0 +1,14 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@id": "urn:rkaf:fixture:concept-resolution-result:close-local-over-ceiling",
+  "@type": "rkaf:ConceptResolutionResult",
+  "rkaf:inputConcept": "urn:rkaf:fixture:concept:input",
+  "rkaf:resolutionStatus": "rkaf:resolved",
+  "rkaf:resolutionMethod": "rkaf:closeMatchLocallyAdopted",
+  "rkaf:resolvedConcept": "urn:rkaf:fixture:concept:target",
+  "rkaf:mappingAssertion": "urn:rkaf:fixture:mapping:close",
+  "rkaf:cacheStatus": "rkaf:notCached",
+  "rkaf:usageCeiling": "rkaf:publicationAllowed",
+  "rkaf:resolvedAt": "2026-07-29T12:00:00Z",
+  "_comment": "Negative: local close-match adoption cannot exceed localOperationalUse."
+}

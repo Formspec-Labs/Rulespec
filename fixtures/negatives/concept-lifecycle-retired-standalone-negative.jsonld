@@ -1,0 +1,10 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@id": "urn:rkaf:fixture:lifecycle-negative:standalone-promotion",
+  "@type": "rkaf:LifecycleEvent",
+  "rkaf:lifecycleEventKind": "rkaf:promotion",
+  "rkaf:effectiveDate": "2026-07-29T12:00:00Z",
+  "rkaf:emittedBy": "urn:rkaf:fixture:registry:topics",
+  "rkaf:appliesTo": ["urn:rkaf:fixture:concept:old"],
+  "_comment": "Negative migration fixture: promotion and demotion are conceptLifecycle operations, not standalone event kinds."
+}

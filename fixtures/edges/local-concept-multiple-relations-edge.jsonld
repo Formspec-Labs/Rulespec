@@ -1,22 +1,60 @@
 {
   "@context": "../../context/rkaf-context.jsonld",
-  "@id": "urn:rkaf:fixture:local-concept:income-evidence",
-  "@type": "rkaf:LocalConcept",
-  "skos:prefLabel": "Income evidence",
-  "skos:altLabel": [
-    "Income proof",
-    "Proof of earnings"
+  "@graph": [
+    {
+      "@id": "urn:rkaf:fixture:local-concept:income-evidence",
+      "@type": "rkaf:LocalConcept",
+      "skos:prefLabel": {"en": "Income evidence"},
+      "skos:altLabel": {
+        "en": ["Income proof", "Proof of earnings"]
+      },
+      "skos:definition": {"en": "Evidence used locally to establish household income."},
+      "skos:inScheme": "urn:rkaf:fixture:scheme:workspace-topics",
+      "skos:broader": [
+        "urn:rkaf:fixture:local-concept:evidence"
+      ],
+      "skos:narrower": [
+        "urn:rkaf:fixture:local-concept:wage-statement",
+        "urn:rkaf:fixture:local-concept:self-employment-ledger"
+      ],
+      "skos:related": [
+        "urn:rkaf:fixture:local-concept:eligibility-verification"
+      ],
+      "rkaf:definedInScope": "urn:rkaf:scope:benefit-workspace",
+      "rkaf:conceptScope": "benefit-workspace/evidence/income"
+    },
+    {
+      "@id": "urn:rkaf:fixture:local-concept:evidence",
+      "@type": "rkaf:LocalConcept",
+      "skos:prefLabel": {"en": "Evidence"},
+      "skos:inScheme": "urn:rkaf:fixture:scheme:workspace-topics",
+      "rkaf:definedInScope": "urn:rkaf:scope:benefit-workspace",
+      "rkaf:conceptScope": "benefit-workspace/evidence"
+    },
+    {
+      "@id": "urn:rkaf:fixture:local-concept:wage-statement",
+      "@type": "rkaf:LocalConcept",
+      "skos:prefLabel": {"en": "Wage statement"},
+      "skos:inScheme": "urn:rkaf:fixture:scheme:workspace-topics",
+      "rkaf:definedInScope": "urn:rkaf:scope:benefit-workspace",
+      "rkaf:conceptScope": "benefit-workspace/evidence/income/wages"
+    },
+    {
+      "@id": "urn:rkaf:fixture:local-concept:self-employment-ledger",
+      "@type": "rkaf:LocalConcept",
+      "skos:prefLabel": {"en": "Self-employment ledger"},
+      "skos:inScheme": "urn:rkaf:fixture:scheme:workspace-topics",
+      "rkaf:definedInScope": "urn:rkaf:scope:benefit-workspace",
+      "rkaf:conceptScope": "benefit-workspace/evidence/income/self-employment"
+    },
+    {
+      "@id": "urn:rkaf:fixture:local-concept:eligibility-verification",
+      "@type": "rkaf:LocalConcept",
+      "skos:prefLabel": {"en": "Eligibility verification"},
+      "skos:inScheme": "urn:rkaf:fixture:scheme:workspace-topics",
+      "rkaf:definedInScope": "urn:rkaf:scope:benefit-workspace",
+      "rkaf:conceptScope": "benefit-workspace/eligibility/verification"
+    }
   ],
-  "skos:definition": "Evidence used locally to establish household income.",
-  "skos:inScheme": "urn:rkaf:fixture:scheme:workspace-topics",
-  "skos:narrower": [
-    "urn:rkaf:fixture:local-concept:wage-statement",
-    "urn:rkaf:fixture:local-concept:self-employment-ledger"
-  ],
-  "skos:related": [
-    "urn:rkaf:fixture:local-concept:eligibility-verification"
-  ],
-  "rkaf:definedInScope": "urn:rkaf:scope:benefit-workspace",
-  "rkaf:conceptScope": "benefit-workspace/evidence/income",
-  "_comment": "Edge: a workspace-local SKOS concept may carry several labels and semantic neighbors without becoming a cross-scheme ConceptMapping."
+  "_comment": "Edge: workspace-local semantic relations remain scheme-internal and do not become ConceptMappings."
 }

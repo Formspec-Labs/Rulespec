@@ -1,0 +1,36 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@id": "urn:rkaf:fixture:beh:concept-registry-unavailable:case1",
+  "@type": "rkaf:BehaviorTestCase",
+  "rkaf:behaviorContract": "rkaf:ConceptResolutionWithConflict",
+  "rkaf:evaluationTime": "2026-07-29T12:00:00Z",
+  "rkaf:subjectConcept": "urn:rkaf:fixture:concept:local",
+  "resolutionContext": {
+    "cacheStatus": "rkaf:notCached",
+    "registryAvailable": false
+  },
+  "rkaf:rationale": "When the registry is unavailable and no cache exists, graph records cannot be treated as live resolution evidence.",
+  "rkaf:input": {
+    "@graph": [
+      {
+        "@id": "urn:rkaf:fixture:concept:local",
+        "@type": "rkaf:LocalConcept",
+        "skos:prefLabel": {"en": "Local concept"},
+        "skos:inScheme": "urn:rkaf:fixture:scheme:local",
+        "rkaf:definedInScope": "urn:rkaf:fixture:scope:test",
+        "rkaf:conceptScope": "fixture/local"
+      }
+    ]
+  },
+  "rkaf:expectedOutput": {
+    "conceptResolutionResult": {
+      "inputConcept": "urn:rkaf:fixture:concept:local",
+      "resolutionStatus": "rkaf:registryUnavailable",
+      "resolutionMethod": "rkaf:directRegistry",
+      "cacheStatus": "rkaf:notCached",
+      "usageCeiling": "rkaf:notEligible",
+      "resolvedAt": "2026-07-29T12:00:00Z",
+      "resolverId": "urn:rulespec:runtime:reference"
+    }
+  }
+}

@@ -3,6 +3,7 @@
   "@id": "urn:rkaf:fixture:concept:missing-pref-label",
   "@type": "rkaf:RegisteredConcept",
   "rkaf:managedByRegistry": "urn:rkaf:fixture:registry:fns-snap-canonical",
+  "rkaf:registeredAt": "2026-07-29T12:00:00Z",
   "rkaf:conceptScope": "fns/snap/eligibility/income",
   "skos:inScheme": "urn:rkaf:fixture:scheme:fns-snap-topic"
 }

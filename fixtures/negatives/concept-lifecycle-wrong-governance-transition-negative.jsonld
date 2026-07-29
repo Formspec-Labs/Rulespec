@@ -1,0 +1,36 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@graph": [
+    {
+      "@id": "urn:rkaf:fixture:lifecycle-negative:wrong-promotion",
+      "@type": "rkaf:LifecycleEvent",
+      "rkaf:lifecycleEventKind": "rkaf:conceptLifecycle",
+      "rkaf:conceptLifecycleOperation": "rkaf:promotion",
+      "rkaf:effectiveDate": "2026-07-29T12:00:00Z",
+      "rkaf:emittedBy": "urn:rkaf:fixture:registry:topics",
+      "rkaf:appliesTo": ["urn:rkaf:fixture:concept:registered-source"],
+      "rkaf:predecessorConcepts": ["urn:rkaf:fixture:concept:registered-source"],
+      "rkaf:successorConcepts": ["urn:rkaf:fixture:concept:local-target"],
+      "rkaf:predecessorConceptRelease": "urn:rkaf:fixture:release:before",
+      "rkaf:successorConceptRelease": "urn:rkaf:fixture:release:after"
+    },
+    {
+      "@id": "urn:rkaf:fixture:concept:registered-source",
+      "@type": "rkaf:RegisteredConcept",
+      "skos:prefLabel": {"en": "Registered source"},
+      "skos:inScheme": "urn:rkaf:fixture:scheme:canonical",
+      "rkaf:managedByRegistry": "urn:rkaf:fixture:registry:topics",
+      "rkaf:conceptScope": "canonical/source",
+      "rkaf:registeredAt": "2026-07-29T12:00:00Z"
+    },
+    {
+      "@id": "urn:rkaf:fixture:concept:local-target",
+      "@type": "rkaf:LocalConcept",
+      "skos:prefLabel": {"en": "Local target"},
+      "skos:inScheme": "urn:rkaf:fixture:scheme:local",
+      "rkaf:definedInScope": "urn:rkaf:fixture:scope:workspace",
+      "rkaf:conceptScope": "local/target"
+    }
+  ],
+  "_comment": "Negative graph rule: promotion is LocalConcept to RegisteredConcept, not the reverse."
+}

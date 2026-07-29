@@ -1,0 +1,20 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@id": "urn:rkaf:fixture:lifecycle-negative:applies-to-mismatch",
+  "@type": "rkaf:LifecycleEvent",
+  "rkaf:lifecycleEventKind": "rkaf:conceptLifecycle",
+  "rkaf:conceptLifecycleOperation": "rkaf:merge",
+  "rkaf:effectiveDate": "2026-07-29T12:00:00Z",
+  "rkaf:emittedBy": "urn:rkaf:fixture:registry:topics",
+  "rkaf:appliesTo": [
+    "urn:rkaf:fixture:concept:old-a"
+  ],
+  "rkaf:predecessorConcepts": [
+    "urn:rkaf:fixture:concept:old-a",
+    "urn:rkaf:fixture:concept:old-b"
+  ],
+  "rkaf:successorConcepts": ["urn:rkaf:fixture:concept:new"],
+  "rkaf:predecessorConceptRelease": "urn:rkaf:fixture:release:before",
+  "rkaf:successorConceptRelease": "urn:rkaf:fixture:release:after",
+  "_comment": "Negative graph rule: appliesTo must equal the predecessor set in both directions."
+}

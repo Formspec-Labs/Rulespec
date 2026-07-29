@@ -1543,6 +1543,14 @@ class ProfileIsolationCarrierTests(unittest.TestCase):
         # profile restates them on its own composers.
         "prov:wasDerivedFrom",
         "rkaf:hasAuthority",
+        # RefSpec's open-label overlay narrows four universal ValueAssertion
+        # fields when the predicate is rkaf:openLabel. The fields remain
+        # kernel-owned; the profile adds only openLabelFacet/openLabelRole and
+        # the predicate value.
+        "rkaf:assertionPolarity",
+        "rkaf:assertsValue",
+        "rkaf:hasExtractionProvenance",
+        "rkaf:assertedAt",
         # The kernel LifecycleEvent property whose value set the profile
         # EXTENDS — the whole point of `#USLifecycleEvent` composing
         # `#LifecycleEvent` rather than minting a class (spec/rkaf-behavior.md

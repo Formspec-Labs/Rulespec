@@ -4,6 +4,8 @@
   "@type": "rkaf:ConceptResolutionResult",
   "rkaf:inputConcept": "urn:rkaf:fixture:concept:tx-grossEarnedIncome",
   "rkaf:resolutionStatus": "rkaf:resolved",
+  "rkaf:resolutionMethod": "rkaf:directRegistry",
   "rkaf:resolvedConcept": "urn:rkaf:fixture:concept:household-income",
+  "rkaf:cacheStatus": "rkaf:notCached",
   "rkaf:usageCeiling": "rkaf:localOperationalUse"
 }

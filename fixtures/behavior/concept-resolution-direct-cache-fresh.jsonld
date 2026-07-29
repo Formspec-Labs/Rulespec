@@ -1,0 +1,49 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@id": "urn:rkaf:fixture:beh:concept-cache-fresh:case1",
+  "@type": "rkaf:BehaviorTestCase",
+  "rkaf:behaviorContract": "rkaf:ConceptResolutionWithConflict",
+  "rkaf:evaluationTime": "2026-07-29T12:00:00Z",
+  "rkaf:subjectConcept": "urn:rkaf:fixture:concept:registered",
+  "resolutionContext": {
+    "cacheStatus": "rkaf:fresh",
+    "registryAvailable": false
+  },
+  "rkaf:rationale": "A fresh exact complete-release cache resolves a RegisteredConcept directly while cacheServed records the source; absent trust keeps the ceiling at searchOnly.",
+  "rkaf:input": {
+    "@graph": [
+      {
+        "@id": "urn:rkaf:fixture:concept:registered",
+        "@type": "rkaf:RegisteredConcept",
+        "skos:prefLabel": {"en": "Registered concept"},
+        "skos:inScheme": "urn:rkaf:fixture:scheme:canonical",
+        "rkaf:managedByRegistry": "urn:rkaf:fixture:registry:canonical",
+        "rkaf:conceptScope": "fixture/registered",
+        "rkaf:registeredAt": "2026-07-28T12:00:00Z"
+      },
+      {
+        "@id": "urn:rkaf:fixture:release:complete",
+        "@type": "rkaf:ReferenceResourceRelease",
+        "dcterms:isVersionOf": "urn:rkaf:fixture:registry:canonical",
+        "dcat:version": "1.0.0",
+        "dcterms:type": "skos:ConceptScheme",
+        "rkaf:membershipMode": "rkaf:completeMembership",
+        "prov:hadMember": ["urn:rkaf:fixture:concept:registered"],
+        "dcat:distribution": "urn:rkaf:fixture:distribution:canonical-1",
+        "rkaf:referenceReleaseDigest": "sha256:0000000000000000000000000000000000000000000000000000000000000000"
+      }
+    ]
+  },
+  "rkaf:expectedOutput": {
+    "conceptResolutionResult": {
+      "inputConcept": "urn:rkaf:fixture:concept:registered",
+      "resolutionStatus": "rkaf:resolved",
+      "resolutionMethod": "rkaf:cacheServed",
+      "resolvedConcept": "urn:rkaf:fixture:concept:registered",
+      "cacheStatus": "rkaf:fresh",
+      "usageCeiling": "rkaf:searchOnly",
+      "resolvedAt": "2026-07-29T12:00:00Z",
+      "resolverId": "urn:rulespec:runtime:reference"
+    }
+  }
+}
