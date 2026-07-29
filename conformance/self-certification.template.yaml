@@ -2,7 +2,8 @@
 #
 # Copy this template to conformance/partners/<implementation>.yaml and fill in
 # the fields. A populated document can be generated automatically via:
-#   python3 tools/conformance_report.py --self-certify
+#   python3 tools/conformance_report.py --self-certify \
+#     --source-revision <40-character-tested-commit>
 #
 # Conformance levels are defined in spec/rkaf-conformance.md.
 

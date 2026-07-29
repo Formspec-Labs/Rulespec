@@ -15,8 +15,9 @@ declared_levels:
 adoption_depth: D3   # reference consumer; this repo IS the reference implementation
 
 test_corpus_run_at: "2026-07-29T15:18:43+00:00"
-# This is a local uncommitted candidate, so no Git revision is invented.
-source_revision: null
+# Exact source commit whose tree passed the recorded gate. The follow-up
+# certification commit changes evidence metadata only.
+source_revision: "0eb94257b70783688b55220e7a84dcc61bbd7507"
 test_corpus_version: "sha256:a16ddbf58996dc1e136a99ebf37abbeed0a3adfef724b203347c301cdd5972b2"
 constraint_contract_digest: "sha256:8feadf8f4037a60a18667c6f7ee920ff1285ccb05a72fe5352b6cd82b38a252c"
 

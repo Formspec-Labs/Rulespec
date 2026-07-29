@@ -14,9 +14,11 @@ successfully. It covers the Rust implementation, source and graph validation,
 behavior rules, generated-target parity, vocabulary coverage, version
 consistency, code-generation drift, and the 497-fixture conformance corpus.
 
-This report describes an uncommitted candidate. It does not claim a published
-release or immutable source revision. The self-certification therefore records
-`source_revision: null`.
+The tested source tree is captured by commit
+`0eb94257b70783688b55220e7a84dcc61bbd7507`. This report does not claim that
+the candidate is tagged, pushed, published, or released. The self-certification
+records that exact tested source revision; the follow-up certification commit
+changes evidence metadata only.
 
 ## Scope
 
@@ -178,10 +180,9 @@ artifacts:
 
 ## Delivery boundary
 
-The local candidate is internally consistent and fully tested. A clean
-checkout cannot reproduce an uncommitted tree by revision, so immutable
-clean-checkout reproduction remains a delivery gate. It requires an authorized
-commit, followed by the same `make test` run from that exact revision.
+The local candidate is internally consistent, fully tested, and captured by an
+exact source commit. Publishing that commit, tagging `0.2.0-pre.9`, or declaring
+a release remains a separate delivery decision.
 
 No work in this batch stages, commits, pushes, tags, publishes packages, or
 updates RefSpec's Rulespec gitlink.

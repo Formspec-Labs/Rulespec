@@ -556,7 +556,11 @@ notes: |
   Free-form. Document what the implementation does and does not enforce.
 ```
 
-The conformance reporter (`tools/conformance_report.py --self-certify > conformance/partners/<implementation>.yaml`) produces this document from a test run.
+The conformance reporter
+(`tools/conformance_report.py --self-certify --source-revision
+<40-character-tested-commit> > conformance/partners/<implementation>.yaml`)
+produces this document from a committed test run. A local uncommitted candidate
+omits `--source-revision` and produces `source_revision: null`.
 
 For an L1–L4 declaration, `source_revision` identifies the exact source
 revision tested and `constraint_contract_digest` identifies the generated
