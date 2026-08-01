@@ -175,9 +175,6 @@ pub mod generated {
     /// `constraints/profiles/<profile>/` and may compose kernel shapes; no
     /// kernel module above depends on anything below this line.
     pub mod profiles {
-        pub mod refspec {
-            pub mod open_label            { include!("generated/profiles/refspec/open_label.rs"); }
-        }
         pub mod us_rulemaking {
             pub mod rulemaking             { include!("generated/profiles/us_rulemaking/rulemaking.rs"); }
             pub mod us_lifecycle_event     { include!("generated/profiles/us_rulemaking/us_lifecycle_event.rs"); }
@@ -193,10 +190,11 @@ pub mod generated {
 // precise boundary, and it is narrower than that phrase sounds.
 // `tools/test_semantic_carriers.py::CompositionCarrierTests::
 // test_every_schema_bound_class_carries_a_crate_root_reexport` fails the build
-// if a generated struct that a compiled JSON Schema binds to a `@type` has no
-// re-export here. That is what covers the 52 dispatch classes, including the
-// two typed OA selectors: a consumer reading a fragment's typed selector must
-// not have to reach into `generated::`.
+// if a Core-owned generated struct that a compiled JSON Schema binds to an
+// `@type` has no re-export here. Extrapolator-only profiles are an explicit
+// audited exclusion. The sweep covers the Core dispatch classes, including
+// the two typed OA selectors: a consumer reading a fragment's typed selector
+// must not have to reach into `generated::`.
 //
 // It does NOT cover the shared shapes. `AssertionEnvelope`,
 // `AssertionProposition`, `ConsumerDisposition`, and `MappingStateCarrier`
@@ -239,7 +237,6 @@ pub use generated::registry_conflict::RegistryConflict;
 pub use generated::relationship_assertion::RelationshipAssertion;
 pub use generated::retention_policy::RetentionPolicy;
 pub use generated::revalidation_event::{RevalidationClosureEvent, RevalidationEvent};
-pub use generated::profiles::refspec::open_label::RefSpecOpenLabelValueAssertion;
 // Document-analysis module (spec/rkaf-analysis.md). Generic comparison and
 // change contracts; `ClosureClaim` is Experimental and DISABLED — its only
 // legal `rkaf:closureClaimStatus` is `rkaf:closureClaimDisabled`, and no

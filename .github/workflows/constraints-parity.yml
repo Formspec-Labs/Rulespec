@@ -38,13 +38,14 @@ jobs:
       # `test_semantic_carriers` is the only gate that catches a meaning-level
       # regression a conforming document can carry — an `xsd:date` that comes
       # back as a plain string passes `ci_validate` with zero violations.
-      - name: Contract unit suites (compile parity, L0 mapping, semantic carriers, release digest)
+      - name: Contract unit suites (compile parity, semantics, and release records)
         run: |
           python3 -m unittest \
             tools.test_constraints_compile \
             tools.test_l0_mapping_audit \
             tools.test_semantic_carriers \
-            tools.test_reference_release_digest
+            tools.test_reference_release_digest \
+            tools.test_rulespec_releases
 
       - name: SHACL Pattern-C lint (no sh:if/sh:then in compiled output)
         run: |

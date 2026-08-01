@@ -838,8 +838,12 @@ def structural_parity_rust(constraint: str) -> bool:
     # Canonical Rust sink is crates/rkaf-core/src/generated/<snake>.rs for the
     # kernel, .../generated/analysis/<snake>.rs for the document-analysis
     # module, and .../generated/profiles/<profile>/<snake>.rs for a domain
-    # profile. adversarial/ + ai-extraction/ constraints are not compiled to
-    # Rust (Plan 7a-7c restriction); skip parity for those.
+    # profile. The RefSpec profile is released with Rulespec Extrapolator and
+    # deliberately has no `rkaf-core` Rust output. adversarial/ +
+    # ai-extraction/ constraints are also not compiled to Rust (Plan 7a-7c
+    # restriction); skip parity for those.
+    if subdir == "profiles/refspec":
+        return True
     if subdir not in {"core", "analysis"} and not subdir.startswith("profiles/"):
         return True
     rs_path = rust_module_path(constraint)

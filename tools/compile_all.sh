@@ -11,12 +11,16 @@
 #                   the Rust workspace re-exports from this path. No kebab
 #                   copy is produced — see ADR or constraints/README.md.)
 #
-# Domain profiles under constraints/profiles/<profile>/ compile to the same six
+# Domain profiles under constraints/profiles/<profile>/ compile to portable
 # targets under a `profiles/<profile>` sub-path, e.g.
 #   compiled/json-schema/profiles/us-rulemaking/rulemaking.schema.json
 #   crates/rkaf-core/src/generated/profiles/us_rulemaking/rulemaking.rs
 # The sub-path keeps the dependency direction legible: a profile may compose a
 # kernel shape, never the reverse.
+#
+# The RefSpec open-label profile belongs to the independently released Rulespec
+# Extrapolator boundary. It still compiles to portable schema targets, but it is
+# intentionally excluded from the generated `rkaf-core` Rust crate.
 #
 # The document-analysis module under constraints/analysis/ compiles the same
 # way, under an `analysis` sub-path:
@@ -85,6 +89,7 @@ compile_one() {
             case "$sub" in
                 core)        outdir="crates/rkaf-core/src/generated" ;;
                 analysis)    outdir="crates/rkaf-core/src/generated/analysis" ;;
+                profiles/refspec) return 0 ;;
                 profiles/*)  outdir="crates/rkaf-core/src/generated/profiles/$(snake_case "${sub#profiles/}")" ;;
                 *)           return 0 ;;
             esac
@@ -109,6 +114,10 @@ main() {
         constraints/profiles/*/*.cue
     )
     local targets=(json-schema typescript shacl cue rego rust)
+
+    # Remove output from compilers that predate the Core/Extrapolator split.
+    # `profiles/refspec` no longer has a valid Rust sink in `rkaf-core`.
+    rm -f crates/rkaf-core/src/generated/profiles/refspec/open_label.rs
 
     for src in "${sources[@]}"; do
         for t in "${targets[@]}"; do

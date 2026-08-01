@@ -1375,11 +1375,18 @@ class CompositionCarrierTests(unittest.TestCase):
         "MappingStateCarrier",
     )
 
+    # This source-specific profile remains schema-bound so the independently
+    # released Extrapolator can validate it, but it is not part of the
+    # generated Rulespec Core crate or its public Rust API.
+    EXTRAPOLATOR_ONLY_CLASSES = ("RefSpecOpenLabelValueAssertion",)
+
     def test_every_schema_bound_class_carries_a_crate_root_reexport(self) -> None:
-        """`crates/rkaf-core/src/lib.rs` re-exports every class a compiled JSON
-        Schema binds to a `@type`, plus the named shared shapes above. An SDK
-        consumer that has to reach into `generated::` for a class the validator
-        dispatches on is reading an undocumented path.
+        """`crates/rkaf-core/src/lib.rs` re-exports every Core class a compiled
+        JSON Schema binds to a `@type`, plus the named shared shapes above. An
+        SDK consumer that has to reach into `generated::` for a Core class the
+        validator dispatches on is reading an undocumented path. Independently
+        released Extrapolator profile classes are checked as deliberate
+        exclusions.
 
         The two halves are checked separately because only the first is
         derivable. `schema_bindings()` cannot see a shape with no `@type`
@@ -1406,6 +1413,7 @@ class CompositionCarrierTests(unittest.TestCase):
         missing = sorted(
             binding.class_name
             for binding in schema_bindings().values()
+            if binding.class_name not in self.EXTRAPOLATOR_ONLY_CLASSES
             if binding.class_name not in reexported
         )
         self.assertEqual(
@@ -1417,6 +1425,14 @@ class CompositionCarrierTests(unittest.TestCase):
         bound_class_names = {
             binding.class_name for binding in schema_bindings().values()
         }
+        for name in self.EXTRAPOLATOR_ONLY_CLASSES:
+            with self.subTest(extrapolator_only_class=name):
+                self.assertIn(name, bound_class_names)
+                self.assertNotIn(
+                    name,
+                    reexported,
+                    f"{name} belongs to Rulespec Extrapolator, not rkaf-core",
+                )
         for name in self.SHARED_SHAPES_REEXPORTED_BY_JUDGEMENT:
             with self.subTest(shared_shape=name):
                 self.assertNotIn(

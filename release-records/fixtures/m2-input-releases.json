@@ -1,0 +1,1675 @@
+{
+  "fixture_type": "PinnedReleaseBundle",
+  "records": [
+    {
+      "acquisition_coverage": {
+        "capture_refs": [
+          "urn:spicyregs:source-observation-capture:2c28cec792922e0c2d3795d5e61dccfaa2827c24809b88ce6600123eec7e6159",
+          "urn:spicyregs:source-observation-capture:ae85b8f363db1063690e978374c33d5c8840de0586d6948b1a253cd262857350",
+          "urn:spicyregs:source-observation-capture:cb005be4abb1bad600feb67e9ce8bce6338f0cbf83fd591ec586935bfaf3312c",
+          "urn:spicyregs:source-rendition-capture:3b42ca0da6c000bd8e80afe2658311c688545e4a67bd42e7e122c99ca3b80222",
+          "urn:spicyregs:source-rendition-capture:508842480e889396bfcc12660bb59d18879a554625a65b4c6524f2f19b3843bb",
+          "urn:spicyregs:source-rendition-capture:51e907667eb46d8fb7d65bbdd27dbf84a3441ac5478fdf58fd3d7b0073d0b027",
+          "urn:spicyregs:source-rendition-capture:ac0e3836e5b04e48a07a18b1ebe4624b7c54c0175d9323777ddc694b850cc90c",
+          "urn:spicyregs:source-rendition-capture:b18325c174c581dec2d32be85735c43b0963a18cb459c1b5b21bbb70cef352bb"
+        ],
+        "coverage_id": "urn:spicyregs:acquisition-coverage:221c21d7431637545cf4fd3c7f69a8b1f6949827f09ad248f3d7dcf0f9f72806",
+        "entries": [
+          {
+            "collection": "comments",
+            "reason": "document-only policy classifies record as public-comment",
+            "record_ref": "urn:spicyregs:source-record-version:2cd283837a4586bfdde841ddb955415196e1d10e394c23fa5ee4cf0909e276a8",
+            "source": "regulations.gov",
+            "state": "excluded"
+          },
+          {
+            "collection": "dockets",
+            "reason": "document-only policy classifies record as relationship-context",
+            "record_ref": "urn:spicyregs:source-record-version:de1ba1570755b07577aef5dc612548298d5448cf2908a2a635283e40e40dc97b",
+            "source": "regulations.gov",
+            "state": "excluded"
+          },
+          {
+            "collection": "documents",
+            "reason": "fixture records a requested Regulations.gov document outside the sealed capture",
+            "record_ref": null,
+            "source": "regulations.gov",
+            "state": "unprocessed"
+          },
+          {
+            "collection": "documents",
+            "reason": "fixture records an unavailable requested Federal Register document",
+            "record_ref": null,
+            "source": "federal-register",
+            "state": "unavailable"
+          },
+          {
+            "collection": "documents",
+            "reason": null,
+            "record_ref": "urn:spicyregs:source-record-version:07b6eaff9840c6a3c5da08cd766eb5814fa447e3802514dc838c18ca44882574",
+            "source": "regulations.gov",
+            "state": "captured"
+          },
+          {
+            "collection": "documents",
+            "reason": null,
+            "record_ref": "urn:spicyregs:source-record-version:a968fdc78edcbcb23025c3bd3be07513edec50a58c7e671ac71a719da1e83287",
+            "source": "federal-register",
+            "state": "captured"
+          },
+          {
+            "collection": "documents",
+            "reason": null,
+            "record_ref": "urn:spicyregs:source-record-version:cf6bff766ae48b0622e26a99c4aede702fbe4218646ed4d7f08ae7d887e1e392",
+            "source": "regulations.gov",
+            "state": "captured"
+          },
+          {
+            "collection": "documents",
+            "reason": null,
+            "record_ref": "urn:spicyregs:source-record-version:d609cd9acdc90f8c35e86e52a4226ec39edea789783baac27eb680aa41d24bfb",
+            "source": "federal-register",
+            "state": "captured"
+          }
+        ],
+        "policy_version": "spicyregs-document-only/v1",
+        "requested_sources": [
+          "federal-register:documents",
+          "regulations.gov:comments",
+          "regulations.gov:dockets",
+          "regulations.gov:documents"
+        ]
+      },
+      "document_versions": [
+        {
+          "artifact_projection": {
+            "artifact_id": "urn:spicyregs:artifact:8bd8c685f6473efd7534f6a08fb5b9a6de7a29af1d7c1d9efe1c719fcbb44a7f",
+            "artifact_type": "Artifact",
+            "content_digest": "sha256:c0e2e88a65bb9d633327d165cae823ff705c3fb79a67208f3d81bb727dd35a17",
+            "coordinate_system": "document-version",
+            "evidence_grade": "source-exact",
+            "media_type": "text/plain; charset=utf-8"
+          },
+          "content_digest": "sha256:c0e2e88a65bb9d633327d165cae823ff705c3fb79a67208f3d81bb727dd35a17",
+          "document_type": "Supporting and Related Material",
+          "document_version_id": "urn:spicyregs:document-version:3580a2e0c44e7177367b041384fdb81e6cc2fb5cbd29e24da2287dcef3938286",
+          "publisher": "regulations.gov",
+          "source_issued_version_id": "FSIS-2025-0012-9999",
+          "source_record_id": "FSIS-2025-0012-9999"
+        },
+        {
+          "artifact_projection": {
+            "artifact_id": "urn:spicyregs:artifact:36f48e8032ec783cd3ba0279d877361c780ac812f651a34e103b0b9d3457b852",
+            "artifact_type": "Artifact",
+            "content_digest": "sha256:34beaeabd769b0f9f666320f905370048d49af68e0e158a1ab4b6dcf2520cb98",
+            "coordinate_system": "document-version",
+            "evidence_grade": "source-exact",
+            "media_type": "text/plain; charset=utf-8"
+          },
+          "content_digest": "sha256:34beaeabd769b0f9f666320f905370048d49af68e0e158a1ab4b6dcf2520cb98",
+          "document_type": "Proposed Rule Cross-post",
+          "document_version_id": "urn:spicyregs:document-version:69db2caae0f39c6581f87597e275048f6f3bc9decdb5ebcaba879ef756e997c6",
+          "publisher": "regulations.gov",
+          "source_issued_version_id": "FSIS-2025-0012-0003",
+          "source_record_id": "FSIS-2025-0012-0003"
+        },
+        {
+          "artifact_projection": {
+            "artifact_id": "urn:spicyregs:artifact:b72e4f582f54eba60eed6a0bd850751d14ad41e602e7350a22dba7ee77a729da",
+            "artifact_type": "Artifact",
+            "content_digest": "sha256:65665508b54d7a3a83e7f74d6a1f89ae924ffe7b6a976c6e4105af6bfd0d8678",
+            "coordinate_system": "document-version",
+            "evidence_grade": "source-exact",
+            "media_type": "text/plain; charset=utf-8"
+          },
+          "content_digest": "sha256:65665508b54d7a3a83e7f74d6a1f89ae924ffe7b6a976c6e4105af6bfd0d8678",
+          "document_type": "Notice",
+          "document_version_id": "urn:spicyregs:document-version:745ebeab341da974a59e1eaffc2d9d9b69384695b607faeda81cbc777de5bdef",
+          "publisher": "federal-register",
+          "source_issued_version_id": "2026-03228",
+          "source_record_id": "2026-03228"
+        },
+        {
+          "artifact_projection": {
+            "artifact_id": "urn:spicyregs:artifact:ec1f19077074c2895d4968af2c329d554dcdf523be130fef492631b1886ec98f",
+            "artifact_type": "Artifact",
+            "content_digest": "sha256:4146e670bc0c96cc80dd8fe84cf2e70e3500da70e6ba574a2ba7ff606facab24",
+            "coordinate_system": "document-version",
+            "evidence_grade": "source-exact",
+            "media_type": "text/plain; charset=utf-8"
+          },
+          "content_digest": "sha256:4146e670bc0c96cc80dd8fe84cf2e70e3500da70e6ba574a2ba7ff606facab24",
+          "document_type": "Proposed Rule",
+          "document_version_id": "urn:spicyregs:document-version:f3e747bb7d6782c1ad93f10e750587bc485218b435d16360078a1e9f4f60c2f8",
+          "publisher": "federal-register",
+          "source_issued_version_id": "2026-03227",
+          "source_record_id": "2026-03227"
+        }
+      ],
+      "format_version": "spicyregs-document-release/v1",
+      "link_verification_receipts": [
+        {
+          "checks": [
+            {
+              "check": "source-record-resolves",
+              "passed": true
+            },
+            {
+              "check": "target-record-resolves",
+              "passed": true
+            },
+            {
+              "check": "source-digest-resolves",
+              "passed": true
+            },
+            {
+              "check": "target-digest-resolves",
+              "passed": true
+            },
+            {
+              "check": "fr-doc-num-grammar",
+              "passed": true
+            },
+            {
+              "check": "exact-document-number-match",
+              "passed": false
+            }
+          ],
+          "comparison_method": "federal-register-document-number-exact-match",
+          "comparison_method_version": "1",
+          "failure_reason": "document-number-mismatch",
+          "outcome": "failed",
+          "raw_value": "2026-99999",
+          "source_field": "documents.fr_doc_num",
+          "source_link_ref": "urn:spicyregs:source-link:02b5406e448715d0a7b5d6995236482ceed99970a3070c18cbac43d362eeeb11",
+          "source_record_digest": "sha256:a4e4032c0a743828c6e25d3a5fcb3de53d358d54de855fe605298849f894e06f",
+          "source_record_ref": "urn:spicyregs:source-record-version:07b6eaff9840c6a3c5da08cd766eb5814fa447e3802514dc838c18ca44882574",
+          "target_record_digest": "sha256:cae90911e0a66f4988a4b3ac6f1d43d1c36454605ccd36447994e6378a0fb875",
+          "target_record_ref": "urn:spicyregs:source-record-version:a968fdc78edcbcb23025c3bd3be07513edec50a58c7e671ac71a719da1e83287",
+          "verification_id": "urn:spicyregs:link-verification-receipt:12d2b6de092fd17a1319ff909c79b89bfbdbcf9f66a18b0c3fe0f29a19e7d281"
+        },
+        {
+          "checks": [
+            {
+              "check": "source-record-resolves",
+              "passed": true
+            },
+            {
+              "check": "target-record-resolves",
+              "passed": true
+            },
+            {
+              "check": "source-digest-resolves",
+              "passed": true
+            },
+            {
+              "check": "target-digest-resolves",
+              "passed": true
+            },
+            {
+              "check": "fr-doc-num-grammar",
+              "passed": true
+            },
+            {
+              "check": "exact-document-number-match",
+              "passed": true
+            }
+          ],
+          "comparison_method": "federal-register-document-number-exact-match",
+          "comparison_method_version": "1",
+          "failure_reason": null,
+          "outcome": "verified",
+          "raw_value": "2026-03227",
+          "source_field": "documents.fr_doc_num",
+          "source_link_ref": "urn:spicyregs:source-link:e8a494f680fe0e74481b6f9f264c70dd2b309b4d4e1be575b0df79a5fd2408cb",
+          "source_record_digest": "sha256:945dc0ef5b69584dd12e8d0cc9a80a2eb117ad511a50914c9e2523fba9d32004",
+          "source_record_ref": "urn:spicyregs:source-record-version:cf6bff766ae48b0622e26a99c4aede702fbe4218646ed4d7f08ae7d887e1e392",
+          "target_record_digest": "sha256:cae90911e0a66f4988a4b3ac6f1d43d1c36454605ccd36447994e6378a0fb875",
+          "target_record_ref": "urn:spicyregs:source-record-version:a968fdc78edcbcb23025c3bd3be07513edec50a58c7e671ac71a719da1e83287",
+          "verification_id": "urn:spicyregs:link-verification-receipt:f0682b5d32033f298422a44e561870c805bff863b71328f5c5d302a35b6cfba2"
+        }
+      ],
+      "passage_coverage": [
+        {
+          "coverage_id": "urn:spicyregs:passage-coverage:28081a0746b5381a9841543cd6d79968e8953b1bd050945910dd710e4f4ee433",
+          "passage_policy_version": "spicyregs-structural-passages/v1",
+          "regions": [
+            {
+              "end": 42,
+              "passage_ref": "urn:spicyregs:structural-passage:7848a50de5e0856f7f983cac28bdbdcefa3f3bc5f6182fba67edf1a0376177c4",
+              "reason": null,
+              "start": 0,
+              "state": "processed"
+            }
+          ],
+          "text_representation_ref": "urn:spicyregs:text-representation:397f9b201525641d507603c943cd74c2003de9df73382f3dd3f10385cd256d79"
+        },
+        {
+          "coverage_id": "urn:spicyregs:passage-coverage:59446b617e4b48864f0b71eee69cbac2873f1af182cc0a45d612ecdf030c3852",
+          "passage_policy_version": "spicyregs-structural-passages/v1",
+          "regions": [
+            {
+              "end": 2282,
+              "passage_ref": null,
+              "reason": "outside-sealed-structural-passages",
+              "start": 0,
+              "state": "excluded"
+            },
+            {
+              "end": 2307,
+              "passage_ref": "urn:spicyregs:structural-passage:27df6e9730f68b3586e0566ef098e8c7a8e761e033758b09ac31f2d58aa951b1",
+              "reason": null,
+              "start": 2282,
+              "state": "processed"
+            },
+            {
+              "end": 2308,
+              "passage_ref": null,
+              "reason": "outside-sealed-structural-passages",
+              "start": 2307,
+              "state": "excluded"
+            },
+            {
+              "end": 2352,
+              "passage_ref": "urn:spicyregs:structural-passage:2a1746ea609214153fdf14d1348b0fd5864708d5357b387fc33fc2a55248ab1a",
+              "reason": null,
+              "start": 2308,
+              "state": "processed"
+            },
+            {
+              "end": 2353,
+              "passage_ref": null,
+              "reason": "outside-sealed-structural-passages",
+              "start": 2352,
+              "state": "excluded"
+            },
+            {
+              "end": 2381,
+              "passage_ref": "urn:spicyregs:structural-passage:4d474b8907084352d0c66354b08cd66c25d7b6bff353bad48f98b47493f22d9b",
+              "reason": null,
+              "start": 2353,
+              "state": "processed"
+            }
+          ],
+          "text_representation_ref": "urn:spicyregs:text-representation:f3f4bec2a9672f87ca5a9a047722e3bfa73e162f67fbf6606c8c6036626923fb"
+        },
+        {
+          "coverage_id": "urn:spicyregs:passage-coverage:a0a797ac3565125c9b3ad33ac8c89e6e92917bc4804898c8a2cede69136006cc",
+          "passage_policy_version": "spicyregs-structural-passages/v1",
+          "regions": [
+            {
+              "end": 42,
+              "passage_ref": "urn:spicyregs:structural-passage:6ebb83f466ca206f301435955aec12843efff937c0132a41eaca2e408a7ff893",
+              "reason": null,
+              "start": 0,
+              "state": "processed"
+            }
+          ],
+          "text_representation_ref": "urn:spicyregs:text-representation:f9d68ccce953868160d2a0bc7e35a8da2f6cde0f3bb1918462e4f5c1f7f5806b"
+        },
+        {
+          "coverage_id": "urn:spicyregs:passage-coverage:a8f0ec007510efaa253af26e11b4b4a714c03a381d8482e3652432de81e4e583",
+          "passage_policy_version": "spicyregs-structural-passages/v1",
+          "regions": [
+            {
+              "end": 118,
+              "passage_ref": "urn:spicyregs:structural-passage:c9794b27e6c4b5068fed81df2a1b346747b3dc1fba01dceda2800b9c8a395e15",
+              "reason": null,
+              "start": 0,
+              "state": "processed"
+            }
+          ],
+          "text_representation_ref": "urn:spicyregs:text-representation:f981fbca30a734ece8a5249e43c6d7599fef5d7d5483292edbe28fd46cfa11ef"
+        }
+      ],
+      "policies": {
+        "document_eligibility": "spicyregs-document-only/v1",
+        "passage_generation": "spicyregs-structural-passages/v1"
+      },
+      "record_type": "DocumentRelease",
+      "release_digest": "sha256:d0a148e2791a0c537d49a9d6cab87869e21c4dbfb9966da63d59a0c5165f71e4",
+      "release_id": "urn:spicyregs:document-release:d0a148e2791a0c537d49a9d6cab87869e21c4dbfb9966da63d59a0c5165f71e4",
+      "released_at": "2026-07-31T12:10:00Z",
+      "rulespec_core_release": {
+        "release_digest": "sha256:5ac6ba59929eca874ec603cab0e90f7b15ab1a008b394cec5aefebdafe22564b",
+        "release_id": "urn:rulespec:core:5ac6ba59929eca874ec603cab0e90f7b15ab1a008b394cec5aefebdafe22564b"
+      },
+      "source_fixture": {
+        "fixture_digest": "sha256:cdf76ffacd5552245d5fa191fd7d4b64e14dab6e249e89d47503d8171138b699",
+        "fixture_id": "spicyregs-m1-source-fixture-v1"
+      },
+      "source_links": [
+        {
+          "origin": "source-stated",
+          "raw_value": "2026-99999",
+          "source_field": "documents.fr_doc_num",
+          "source_link_id": "urn:spicyregs:source-link:02b5406e448715d0a7b5d6995236482ceed99970a3070c18cbac43d362eeeb11",
+          "source_record_version_ref": "urn:spicyregs:source-record-version:07b6eaff9840c6a3c5da08cd766eb5814fa447e3802514dc838c18ca44882574",
+          "target_source_record_version_ref": "urn:spicyregs:source-record-version:a968fdc78edcbcb23025c3bd3be07513edec50a58c7e671ac71a719da1e83287"
+        },
+        {
+          "origin": "source-stated",
+          "raw_value": "2026-03227",
+          "source_field": "documents.fr_doc_num",
+          "source_link_id": "urn:spicyregs:source-link:e8a494f680fe0e74481b6f9f264c70dd2b309b4d4e1be575b0df79a5fd2408cb",
+          "source_record_version_ref": "urn:spicyregs:source-record-version:cf6bff766ae48b0622e26a99c4aede702fbe4218646ed4d7f08ae7d887e1e392",
+          "target_source_record_version_ref": "urn:spicyregs:source-record-version:a968fdc78edcbcb23025c3bd3be07513edec50a58c7e671ac71a719da1e83287"
+        }
+      ],
+      "source_observation_captures": [
+        {
+          "acquisition_release_ref": "urn:spicyregs:acquisition-release:m1-2026-07-31",
+          "capture_id": "urn:spicyregs:source-observation-capture:2c28cec792922e0c2d3795d5e61dccfaa2827c24809b88ce6600123eec7e6159",
+          "observed_at": "2026-07-31T12:00:00Z",
+          "retrieval_receipt_ref": "urn:spicyregs:retrieval-receipt:fr-2026-03227:first",
+          "source_observation_ref": "urn:spicyregs:source-observation:20e6e527a0febeffc8d4b118c889776ce0957c401dfcabd3571152b816397891"
+        },
+        {
+          "acquisition_release_ref": "urn:spicyregs:acquisition-release:m1-2026-07-31",
+          "capture_id": "urn:spicyregs:source-observation-capture:ae85b8f363db1063690e978374c33d5c8840de0586d6948b1a253cd262857350",
+          "observed_at": "2026-07-31T12:02:00Z",
+          "retrieval_receipt_ref": "urn:spicyregs:retrieval-receipt:fr-2026-03228",
+          "source_observation_ref": "urn:spicyregs:source-observation:10400fc98b904f8b4db7c3e20907c7db55ef40fa4c14208191081d997cb66481"
+        },
+        {
+          "acquisition_release_ref": "urn:spicyregs:acquisition-release:m1-2026-07-31",
+          "capture_id": "urn:spicyregs:source-observation-capture:cb005be4abb1bad600feb67e9ce8bce6338f0cbf83fd591ec586935bfaf3312c",
+          "observed_at": "2026-07-31T12:05:00Z",
+          "retrieval_receipt_ref": "urn:spicyregs:retrieval-receipt:fr-2026-03227:repeat",
+          "source_observation_ref": "urn:spicyregs:source-observation:20e6e527a0febeffc8d4b118c889776ce0957c401dfcabd3571152b816397891"
+        }
+      ],
+      "source_observations": [
+        {
+          "document_version_ref": "urn:spicyregs:document-version:745ebeab341da974a59e1eaffc2d9d9b69384695b607faeda81cbc777de5bdef",
+          "observation_id": "urn:spicyregs:source-observation:10400fc98b904f8b4db7c3e20907c7db55ef40fa4c14208191081d997cb66481",
+          "observation_kind": "federal-register-api-topic",
+          "raw_value": "Meat inspection",
+          "source_native_key_or_ordinal": "0",
+          "source_native_path": "topics",
+          "source_record_digest": "sha256:e14568973c6cb790887566294d663d38ad0fbbc4578b0b99e31478f0f35ac4fd",
+          "source_record_version_ref": "urn:spicyregs:source-record-version:d609cd9acdc90f8c35e86e52a4226ec39edea789783baac27eb680aa41d24bfb"
+        },
+        {
+          "document_version_ref": "urn:spicyregs:document-version:f3e747bb7d6782c1ad93f10e750587bc485218b435d16360078a1e9f4f60c2f8",
+          "observation_id": "urn:spicyregs:source-observation:20e6e527a0febeffc8d4b118c889776ce0957c401dfcabd3571152b816397891",
+          "observation_kind": "federal-register-api-topic",
+          "raw_value": "Meat inspection",
+          "source_native_key_or_ordinal": "0",
+          "source_native_path": "topics",
+          "source_record_digest": "sha256:cae90911e0a66f4988a4b3ac6f1d43d1c36454605ccd36447994e6378a0fb875",
+          "source_record_version_ref": "urn:spicyregs:source-record-version:a968fdc78edcbcb23025c3bd3be07513edec50a58c7e671ac71a719da1e83287"
+        }
+      ],
+      "source_record_versions": [
+        {
+          "collection": "documents",
+          "content": {
+            "docket_id": "FSIS-2025-0012",
+            "fr_doc_num": "2026-99999",
+            "title": "Mismatched Federal Register Number Control"
+          },
+          "publisher": "regulations.gov",
+          "source_record_digest": "sha256:a4e4032c0a743828c6e25d3a5fcb3de53d358d54de855fe605298849f894e06f",
+          "source_record_id": "FSIS-2025-0012-9999",
+          "source_record_version_id": "urn:spicyregs:source-record-version:07b6eaff9840c6a3c5da08cd766eb5814fa447e3802514dc838c18ca44882574",
+          "source_url": "https://www.regulations.gov/document/FSIS-2025-0012-9999"
+        },
+        {
+          "collection": "comments",
+          "content": {
+            "comment": "Public comment text is not a document-search input.",
+            "document_id": "FSIS-2025-0012-0003"
+          },
+          "publisher": "regulations.gov",
+          "source_record_digest": "sha256:e19226d986bd4fdeea073bbabcd41b5750274ee04e4d01e3a013fba3bd28dee3",
+          "source_record_id": "FSIS-2025-0012-0042",
+          "source_record_version_id": "urn:spicyregs:source-record-version:2cd283837a4586bfdde841ddb955415196e1d10e394c23fa5ee4cf0909e276a8",
+          "source_url": "https://www.regulations.gov/comment/FSIS-2025-0012-0042"
+        },
+        {
+          "collection": "documents",
+          "content": {
+            "agency": "Food Safety and Inspection Service",
+            "body_html": "                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          Poultry Inspection System\nWorker safety attestations document hazards.\nWorkers receive protections.",
+            "document_number": "2026-03227",
+            "document_type": "Proposed Rule",
+            "publication_date": "2026-02-19",
+            "title": "Maximum Line Speed Rates for Young Chicken and Turkey Establishments Operating Under the New Poultry Inspection System",
+            "topics": [
+              "Meat inspection"
+            ]
+          },
+          "publisher": "federal-register",
+          "source_record_digest": "sha256:cae90911e0a66f4988a4b3ac6f1d43d1c36454605ccd36447994e6378a0fb875",
+          "source_record_id": "2026-03227",
+          "source_record_version_id": "urn:spicyregs:source-record-version:a968fdc78edcbcb23025c3bd3be07513edec50a58c7e671ac71a719da1e83287",
+          "source_url": "https://www.federalregister.gov/d/2026-03227"
+        },
+        {
+          "collection": "documents",
+          "content": {
+            "docket_id": "FSIS-2025-0012",
+            "fr_doc_num": "2026-03227",
+            "title": "Maximum Line Speed Rates for Young Chicken and Turkey Establishments Operating Under the New Poultry Inspection System"
+          },
+          "publisher": "regulations.gov",
+          "source_record_digest": "sha256:945dc0ef5b69584dd12e8d0cc9a80a2eb117ad511a50914c9e2523fba9d32004",
+          "source_record_id": "FSIS-2025-0012-0003",
+          "source_record_version_id": "urn:spicyregs:source-record-version:cf6bff766ae48b0622e26a99c4aede702fbe4218646ed4d7f08ae7d887e1e392",
+          "source_url": "https://www.regulations.gov/document/FSIS-2025-0012-0003"
+        },
+        {
+          "collection": "documents",
+          "content": {
+            "document_number": "2026-03228",
+            "document_type": "Notice",
+            "publication_date": "2026-02-19",
+            "title": "Meat and Poultry Inspection Program Notice",
+            "topics": [
+              "Meat inspection"
+            ]
+          },
+          "publisher": "federal-register",
+          "source_record_digest": "sha256:e14568973c6cb790887566294d663d38ad0fbbc4578b0b99e31478f0f35ac4fd",
+          "source_record_id": "2026-03228",
+          "source_record_version_id": "urn:spicyregs:source-record-version:d609cd9acdc90f8c35e86e52a4226ec39edea789783baac27eb680aa41d24bfb",
+          "source_url": "https://www.federalregister.gov/d/2026-03228"
+        },
+        {
+          "collection": "dockets",
+          "content": {
+            "docket_id": "FSIS-2025-0012",
+            "title": "Poultry line-speed rulemaking docket"
+          },
+          "publisher": "regulations.gov",
+          "source_record_digest": "sha256:0b3a9f897fa45e9b650acd7ea283da5f144567d209caac31e7b4ae5424864f02",
+          "source_record_id": "FSIS-2025-0012",
+          "source_record_version_id": "urn:spicyregs:source-record-version:de1ba1570755b07577aef5dc612548298d5448cf2908a2a635283e40e40dc97b",
+          "source_url": "https://www.regulations.gov/docket/FSIS-2025-0012"
+        }
+      ],
+      "source_rendition_captures": [
+        {
+          "acquisition_release_ref": "urn:spicyregs:acquisition-release:m1-2026-07-31",
+          "capture_id": "urn:spicyregs:source-rendition-capture:3b42ca0da6c000bd8e80afe2658311c688545e4a67bd42e7e122c99ca3b80222",
+          "observed_at": "2026-07-31T12:00:00Z",
+          "retrieval_receipt_ref": "urn:spicyregs:retrieval-receipt:fr-2026-03227:first",
+          "source_rendition_ref": "urn:spicyregs:source-rendition:02fd6b073f2a4ca6f27f36c80818a776e848aff38db93f0147186142a2a7b4eb"
+        },
+        {
+          "acquisition_release_ref": "urn:spicyregs:acquisition-release:m1-2026-07-31",
+          "capture_id": "urn:spicyregs:source-rendition-capture:508842480e889396bfcc12660bb59d18879a554625a65b4c6524f2f19b3843bb",
+          "observed_at": "2026-07-31T12:05:00Z",
+          "retrieval_receipt_ref": "urn:spicyregs:retrieval-receipt:fr-2026-03227:repeat",
+          "source_rendition_ref": "urn:spicyregs:source-rendition:02fd6b073f2a4ca6f27f36c80818a776e848aff38db93f0147186142a2a7b4eb"
+        },
+        {
+          "acquisition_release_ref": "urn:spicyregs:acquisition-release:m1-2026-07-31",
+          "capture_id": "urn:spicyregs:source-rendition-capture:51e907667eb46d8fb7d65bbdd27dbf84a3441ac5478fdf58fd3d7b0073d0b027",
+          "observed_at": "2026-07-31T12:03:00Z",
+          "retrieval_receipt_ref": "urn:spicyregs:retrieval-receipt:mismatch-control",
+          "source_rendition_ref": "urn:spicyregs:source-rendition:2e1d23ceb2813ba0f0f83cc7972355a6d56a5bafe46e998ecfe4aad291fbe948"
+        },
+        {
+          "acquisition_release_ref": "urn:spicyregs:acquisition-release:m1-2026-07-31",
+          "capture_id": "urn:spicyregs:source-rendition-capture:ac0e3836e5b04e48a07a18b1ebe4624b7c54c0175d9323777ddc694b850cc90c",
+          "observed_at": "2026-07-31T12:01:00Z",
+          "retrieval_receipt_ref": "urn:spicyregs:retrieval-receipt:FSIS-2025-0012-0003",
+          "source_rendition_ref": "urn:spicyregs:source-rendition:6a412ba1f6f5a581e9c0d83c550b9b9d91d3c1bd09fa5f0013028c22ade826c6"
+        },
+        {
+          "acquisition_release_ref": "urn:spicyregs:acquisition-release:m1-2026-07-31",
+          "capture_id": "urn:spicyregs:source-rendition-capture:b18325c174c581dec2d32be85735c43b0963a18cb459c1b5b21bbb70cef352bb",
+          "observed_at": "2026-07-31T12:02:00Z",
+          "retrieval_receipt_ref": "urn:spicyregs:retrieval-receipt:fr-2026-03228",
+          "source_rendition_ref": "urn:spicyregs:source-rendition:ef2e9c944f5c7da82e3c47d3f9a0c4f5006494bda393a3650956789e39f57b83"
+        }
+      ],
+      "source_renditions": [
+        {
+          "bytes_digest": "sha256:cae90911e0a66f4988a4b3ac6f1d43d1c36454605ccd36447994e6378a0fb875",
+          "document_version_ref": "urn:spicyregs:document-version:f3e747bb7d6782c1ad93f10e750587bc485218b435d16360078a1e9f4f60c2f8",
+          "media_type": "application/json",
+          "rendition_id": "urn:spicyregs:source-rendition:02fd6b073f2a4ca6f27f36c80818a776e848aff38db93f0147186142a2a7b4eb",
+          "source_native_path": "documents:2026-03227",
+          "source_url": "https://www.federalregister.gov/d/2026-03227"
+        },
+        {
+          "bytes_digest": "sha256:a4e4032c0a743828c6e25d3a5fcb3de53d358d54de855fe605298849f894e06f",
+          "document_version_ref": "urn:spicyregs:document-version:3580a2e0c44e7177367b041384fdb81e6cc2fb5cbd29e24da2287dcef3938286",
+          "media_type": "application/json",
+          "rendition_id": "urn:spicyregs:source-rendition:2e1d23ceb2813ba0f0f83cc7972355a6d56a5bafe46e998ecfe4aad291fbe948",
+          "source_native_path": "documents:FSIS-2025-0012-9999",
+          "source_url": "https://www.regulations.gov/document/FSIS-2025-0012-9999"
+        },
+        {
+          "bytes_digest": "sha256:945dc0ef5b69584dd12e8d0cc9a80a2eb117ad511a50914c9e2523fba9d32004",
+          "document_version_ref": "urn:spicyregs:document-version:69db2caae0f39c6581f87597e275048f6f3bc9decdb5ebcaba879ef756e997c6",
+          "media_type": "application/json",
+          "rendition_id": "urn:spicyregs:source-rendition:6a412ba1f6f5a581e9c0d83c550b9b9d91d3c1bd09fa5f0013028c22ade826c6",
+          "source_native_path": "documents:FSIS-2025-0012-0003",
+          "source_url": "https://www.regulations.gov/document/FSIS-2025-0012-0003"
+        },
+        {
+          "bytes_digest": "sha256:e14568973c6cb790887566294d663d38ad0fbbc4578b0b99e31478f0f35ac4fd",
+          "document_version_ref": "urn:spicyregs:document-version:745ebeab341da974a59e1eaffc2d9d9b69384695b607faeda81cbc777de5bdef",
+          "media_type": "application/json",
+          "rendition_id": "urn:spicyregs:source-rendition:ef2e9c944f5c7da82e3c47d3f9a0c4f5006494bda393a3650956789e39f57b83",
+          "source_native_path": "documents:2026-03228",
+          "source_url": "https://www.federalregister.gov/d/2026-03228"
+        }
+      ],
+      "structural_passages": [
+        {
+          "coordinate_system": "unicode-codepoints-half-open",
+          "document_version_ref": "urn:spicyregs:document-version:f3e747bb7d6782c1ad93f10e750587bc485218b435d16360078a1e9f4f60c2f8",
+          "end": 2307,
+          "evidence_grade": "source-exact",
+          "passage_id": "urn:spicyregs:structural-passage:27df6e9730f68b3586e0566ef098e8c7a8e761e033758b09ac31f2d58aa951b1",
+          "passage_policy_version": "spicyregs-structural-passages/v1",
+          "representation_digest": "sha256:4146e670bc0c96cc80dd8fe84cf2e70e3500da70e6ba574a2ba7ff606facab24",
+          "selected_text_digest": "sha256:835e00f8fcc5ccda804abc09b0c5f2535fce530c4acd7090a51bd3b765b29125",
+          "selector_kind": "TextPositionSelector",
+          "source_fragment_projection": {
+            "fragment_id": "urn:spicyregs:source-fragment:e49e6d2854efbe502f1291d665e9f20a5282d5585458e9b8b93d5eff6c30b21d",
+            "fragment_type": "SourceFragment",
+            "selected_text_digest": "sha256:835e00f8fcc5ccda804abc09b0c5f2535fce530c4acd7090a51bd3b765b29125",
+            "selector": {
+              "coordinate_system": "unicode-codepoints-half-open",
+              "end": 2307,
+              "selector_type": "TextPositionSelector",
+              "start": 2282
+            },
+            "source_artifact_digest": "sha256:4146e670bc0c96cc80dd8fe84cf2e70e3500da70e6ba574a2ba7ff606facab24",
+            "source_artifact_ref": "urn:spicyregs:artifact:8ecdcfc1de9e71ef141e165c370d649ef996eca733576b5197484ecb14364a8e"
+          },
+          "start": 2282,
+          "text_representation_ref": "urn:spicyregs:text-representation:f3f4bec2a9672f87ca5a9a047722e3bfa73e162f67fbf6606c8c6036626923fb"
+        },
+        {
+          "coordinate_system": "unicode-codepoints-half-open",
+          "document_version_ref": "urn:spicyregs:document-version:f3e747bb7d6782c1ad93f10e750587bc485218b435d16360078a1e9f4f60c2f8",
+          "end": 2352,
+          "evidence_grade": "source-exact",
+          "passage_id": "urn:spicyregs:structural-passage:2a1746ea609214153fdf14d1348b0fd5864708d5357b387fc33fc2a55248ab1a",
+          "passage_policy_version": "spicyregs-structural-passages/v1",
+          "representation_digest": "sha256:4146e670bc0c96cc80dd8fe84cf2e70e3500da70e6ba574a2ba7ff606facab24",
+          "selected_text_digest": "sha256:0e184a45e10d2a8c0bb8954c1606c8841176d12020b37d5a5a85bbb726383d80",
+          "selector_kind": "TextPositionSelector",
+          "source_fragment_projection": {
+            "fragment_id": "urn:spicyregs:source-fragment:8b1ec44153407557c9b58422b100613b60e75896d55b229f95c6efbc393fb07e",
+            "fragment_type": "SourceFragment",
+            "selected_text_digest": "sha256:0e184a45e10d2a8c0bb8954c1606c8841176d12020b37d5a5a85bbb726383d80",
+            "selector": {
+              "coordinate_system": "unicode-codepoints-half-open",
+              "end": 2352,
+              "selector_type": "TextPositionSelector",
+              "start": 2308
+            },
+            "source_artifact_digest": "sha256:4146e670bc0c96cc80dd8fe84cf2e70e3500da70e6ba574a2ba7ff606facab24",
+            "source_artifact_ref": "urn:spicyregs:artifact:8ecdcfc1de9e71ef141e165c370d649ef996eca733576b5197484ecb14364a8e"
+          },
+          "start": 2308,
+          "text_representation_ref": "urn:spicyregs:text-representation:f3f4bec2a9672f87ca5a9a047722e3bfa73e162f67fbf6606c8c6036626923fb"
+        },
+        {
+          "coordinate_system": "unicode-codepoints-half-open",
+          "document_version_ref": "urn:spicyregs:document-version:f3e747bb7d6782c1ad93f10e750587bc485218b435d16360078a1e9f4f60c2f8",
+          "end": 2381,
+          "evidence_grade": "source-exact",
+          "passage_id": "urn:spicyregs:structural-passage:4d474b8907084352d0c66354b08cd66c25d7b6bff353bad48f98b47493f22d9b",
+          "passage_policy_version": "spicyregs-structural-passages/v1",
+          "representation_digest": "sha256:4146e670bc0c96cc80dd8fe84cf2e70e3500da70e6ba574a2ba7ff606facab24",
+          "selected_text_digest": "sha256:76dfd036c25ab40a2a0478d5ebf5f1f040a93904365a9ecc8508cfb11934e4a4",
+          "selector_kind": "TextPositionSelector",
+          "source_fragment_projection": {
+            "fragment_id": "urn:spicyregs:source-fragment:caae8e6231e12ccdc153a7891dac479fa8a1ff380c658acf846a604541af34b3",
+            "fragment_type": "SourceFragment",
+            "selected_text_digest": "sha256:76dfd036c25ab40a2a0478d5ebf5f1f040a93904365a9ecc8508cfb11934e4a4",
+            "selector": {
+              "coordinate_system": "unicode-codepoints-half-open",
+              "end": 2381,
+              "selector_type": "TextPositionSelector",
+              "start": 2353
+            },
+            "source_artifact_digest": "sha256:4146e670bc0c96cc80dd8fe84cf2e70e3500da70e6ba574a2ba7ff606facab24",
+            "source_artifact_ref": "urn:spicyregs:artifact:8ecdcfc1de9e71ef141e165c370d649ef996eca733576b5197484ecb14364a8e"
+          },
+          "start": 2353,
+          "text_representation_ref": "urn:spicyregs:text-representation:f3f4bec2a9672f87ca5a9a047722e3bfa73e162f67fbf6606c8c6036626923fb"
+        },
+        {
+          "coordinate_system": "unicode-codepoints-half-open",
+          "document_version_ref": "urn:spicyregs:document-version:745ebeab341da974a59e1eaffc2d9d9b69384695b607faeda81cbc777de5bdef",
+          "end": 42,
+          "evidence_grade": "source-exact",
+          "passage_id": "urn:spicyregs:structural-passage:6ebb83f466ca206f301435955aec12843efff937c0132a41eaca2e408a7ff893",
+          "passage_policy_version": "spicyregs-structural-passages/v1",
+          "representation_digest": "sha256:65665508b54d7a3a83e7f74d6a1f89ae924ffe7b6a976c6e4105af6bfd0d8678",
+          "selected_text_digest": "sha256:65665508b54d7a3a83e7f74d6a1f89ae924ffe7b6a976c6e4105af6bfd0d8678",
+          "selector_kind": "TextPositionSelector",
+          "source_fragment_projection": {
+            "fragment_id": "urn:spicyregs:source-fragment:0ea0d2a2352ddc92ac10a1d078aa480a5ffae47123c6408e5358b61af31f427f",
+            "fragment_type": "SourceFragment",
+            "selected_text_digest": "sha256:65665508b54d7a3a83e7f74d6a1f89ae924ffe7b6a976c6e4105af6bfd0d8678",
+            "selector": {
+              "coordinate_system": "unicode-codepoints-half-open",
+              "end": 42,
+              "selector_type": "TextPositionSelector",
+              "start": 0
+            },
+            "source_artifact_digest": "sha256:65665508b54d7a3a83e7f74d6a1f89ae924ffe7b6a976c6e4105af6bfd0d8678",
+            "source_artifact_ref": "urn:spicyregs:artifact:f6e33d38652534cf10ef313c121e938896339f58a810a151ade8439bfcec6a49"
+          },
+          "start": 0,
+          "text_representation_ref": "urn:spicyregs:text-representation:f9d68ccce953868160d2a0bc7e35a8da2f6cde0f3bb1918462e4f5c1f7f5806b"
+        },
+        {
+          "coordinate_system": "unicode-codepoints-half-open",
+          "document_version_ref": "urn:spicyregs:document-version:3580a2e0c44e7177367b041384fdb81e6cc2fb5cbd29e24da2287dcef3938286",
+          "end": 42,
+          "evidence_grade": "source-exact",
+          "passage_id": "urn:spicyregs:structural-passage:7848a50de5e0856f7f983cac28bdbdcefa3f3bc5f6182fba67edf1a0376177c4",
+          "passage_policy_version": "spicyregs-structural-passages/v1",
+          "representation_digest": "sha256:c0e2e88a65bb9d633327d165cae823ff705c3fb79a67208f3d81bb727dd35a17",
+          "selected_text_digest": "sha256:c0e2e88a65bb9d633327d165cae823ff705c3fb79a67208f3d81bb727dd35a17",
+          "selector_kind": "TextPositionSelector",
+          "source_fragment_projection": {
+            "fragment_id": "urn:spicyregs:source-fragment:9357b96cf6ea8361d99be33728b31a4930b15b7e2e0d1b9d8fb3d28cbcf0538c",
+            "fragment_type": "SourceFragment",
+            "selected_text_digest": "sha256:c0e2e88a65bb9d633327d165cae823ff705c3fb79a67208f3d81bb727dd35a17",
+            "selector": {
+              "coordinate_system": "unicode-codepoints-half-open",
+              "end": 42,
+              "selector_type": "TextPositionSelector",
+              "start": 0
+            },
+            "source_artifact_digest": "sha256:c0e2e88a65bb9d633327d165cae823ff705c3fb79a67208f3d81bb727dd35a17",
+            "source_artifact_ref": "urn:spicyregs:artifact:f52bfd33de0bf78cc64b4400b1c4bf3d1dbde278bb7af65c6837b471dff8ab69"
+          },
+          "start": 0,
+          "text_representation_ref": "urn:spicyregs:text-representation:397f9b201525641d507603c943cd74c2003de9df73382f3dd3f10385cd256d79"
+        },
+        {
+          "coordinate_system": "unicode-codepoints-half-open",
+          "document_version_ref": "urn:spicyregs:document-version:69db2caae0f39c6581f87597e275048f6f3bc9decdb5ebcaba879ef756e997c6",
+          "end": 118,
+          "evidence_grade": "source-exact",
+          "passage_id": "urn:spicyregs:structural-passage:c9794b27e6c4b5068fed81df2a1b346747b3dc1fba01dceda2800b9c8a395e15",
+          "passage_policy_version": "spicyregs-structural-passages/v1",
+          "representation_digest": "sha256:34beaeabd769b0f9f666320f905370048d49af68e0e158a1ab4b6dcf2520cb98",
+          "selected_text_digest": "sha256:34beaeabd769b0f9f666320f905370048d49af68e0e158a1ab4b6dcf2520cb98",
+          "selector_kind": "TextPositionSelector",
+          "source_fragment_projection": {
+            "fragment_id": "urn:spicyregs:source-fragment:68f507f265e2921f0721cc05f714796b4ea027daf85549048d87db6d23e70c94",
+            "fragment_type": "SourceFragment",
+            "selected_text_digest": "sha256:34beaeabd769b0f9f666320f905370048d49af68e0e158a1ab4b6dcf2520cb98",
+            "selector": {
+              "coordinate_system": "unicode-codepoints-half-open",
+              "end": 118,
+              "selector_type": "TextPositionSelector",
+              "start": 0
+            },
+            "source_artifact_digest": "sha256:34beaeabd769b0f9f666320f905370048d49af68e0e158a1ab4b6dcf2520cb98",
+            "source_artifact_ref": "urn:spicyregs:artifact:11c582ceb4c2fe3f0ef5b6a12e9f5758b4b41596c35f8c35fe35e29d4ced8fb8"
+          },
+          "start": 0,
+          "text_representation_ref": "urn:spicyregs:text-representation:f981fbca30a734ece8a5249e43c6d7599fef5d7d5483292edbe28fd46cfa11ef"
+        }
+      ],
+      "text_representations": [
+        {
+          "artifact_projection": {
+            "artifact_id": "urn:spicyregs:artifact:f52bfd33de0bf78cc64b4400b1c4bf3d1dbde278bb7af65c6837b471dff8ab69",
+            "artifact_type": "Artifact",
+            "content_digest": "sha256:c0e2e88a65bb9d633327d165cae823ff705c3fb79a67208f3d81bb727dd35a17",
+            "coordinate_system": "unicode-codepoints-half-open",
+            "evidence_grade": "source-exact",
+            "media_type": "text/plain; charset=utf-8"
+          },
+          "coordinate_system": "unicode-codepoints-half-open",
+          "document_version_ref": "urn:spicyregs:document-version:3580a2e0c44e7177367b041384fdb81e6cc2fb5cbd29e24da2287dcef3938286",
+          "evidence_grade": "source-exact",
+          "method": "json-field-decoding",
+          "method_config_digest": "sha256:f9e7e5c41f21f1d5fb317124b639fdaac3e77ba20d8d1ff8cb2d22dc640e6448",
+          "method_version": "1",
+          "representation_id": "urn:spicyregs:text-representation:397f9b201525641d507603c943cd74c2003de9df73382f3dd3f10385cd256d79",
+          "representation_kind_and_path": "source-record-field:title",
+          "source_rendition_ref": "urn:spicyregs:source-rendition:2e1d23ceb2813ba0f0f83cc7972355a6d56a5bafe46e998ecfe4aad291fbe948",
+          "text_digest": "sha256:c0e2e88a65bb9d633327d165cae823ff705c3fb79a67208f3d81bb727dd35a17",
+          "unicode_text": "Mismatched Federal Register Number Control"
+        },
+        {
+          "artifact_projection": {
+            "artifact_id": "urn:spicyregs:artifact:8ecdcfc1de9e71ef141e165c370d649ef996eca733576b5197484ecb14364a8e",
+            "artifact_type": "Artifact",
+            "content_digest": "sha256:4146e670bc0c96cc80dd8fe84cf2e70e3500da70e6ba574a2ba7ff606facab24",
+            "coordinate_system": "unicode-codepoints-half-open",
+            "evidence_grade": "source-exact",
+            "media_type": "text/plain; charset=utf-8"
+          },
+          "coordinate_system": "unicode-codepoints-half-open",
+          "document_version_ref": "urn:spicyregs:document-version:f3e747bb7d6782c1ad93f10e750587bc485218b435d16360078a1e9f4f60c2f8",
+          "evidence_grade": "source-exact",
+          "method": "json-field-decoding",
+          "method_config_digest": "sha256:d6cc39120a42cdaa0f8ee99aab58da67f526f81791cd0c344b940c0392d28b27",
+          "method_version": "1",
+          "representation_id": "urn:spicyregs:text-representation:f3f4bec2a9672f87ca5a9a047722e3bfa73e162f67fbf6606c8c6036626923fb",
+          "representation_kind_and_path": "source-record-field:body_html",
+          "source_rendition_ref": "urn:spicyregs:source-rendition:02fd6b073f2a4ca6f27f36c80818a776e848aff38db93f0147186142a2a7b4eb",
+          "text_digest": "sha256:4146e670bc0c96cc80dd8fe84cf2e70e3500da70e6ba574a2ba7ff606facab24",
+          "unicode_text": "                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          Poultry Inspection System\nWorker safety attestations document hazards.\nWorkers receive protections."
+        },
+        {
+          "artifact_projection": {
+            "artifact_id": "urn:spicyregs:artifact:11c582ceb4c2fe3f0ef5b6a12e9f5758b4b41596c35f8c35fe35e29d4ced8fb8",
+            "artifact_type": "Artifact",
+            "content_digest": "sha256:34beaeabd769b0f9f666320f905370048d49af68e0e158a1ab4b6dcf2520cb98",
+            "coordinate_system": "unicode-codepoints-half-open",
+            "evidence_grade": "source-exact",
+            "media_type": "text/plain; charset=utf-8"
+          },
+          "coordinate_system": "unicode-codepoints-half-open",
+          "document_version_ref": "urn:spicyregs:document-version:69db2caae0f39c6581f87597e275048f6f3bc9decdb5ebcaba879ef756e997c6",
+          "evidence_grade": "source-exact",
+          "method": "json-field-decoding",
+          "method_config_digest": "sha256:f9e7e5c41f21f1d5fb317124b639fdaac3e77ba20d8d1ff8cb2d22dc640e6448",
+          "method_version": "1",
+          "representation_id": "urn:spicyregs:text-representation:f981fbca30a734ece8a5249e43c6d7599fef5d7d5483292edbe28fd46cfa11ef",
+          "representation_kind_and_path": "source-record-field:title",
+          "source_rendition_ref": "urn:spicyregs:source-rendition:6a412ba1f6f5a581e9c0d83c550b9b9d91d3c1bd09fa5f0013028c22ade826c6",
+          "text_digest": "sha256:34beaeabd769b0f9f666320f905370048d49af68e0e158a1ab4b6dcf2520cb98",
+          "unicode_text": "Maximum Line Speed Rates for Young Chicken and Turkey Establishments Operating Under the New Poultry Inspection System"
+        },
+        {
+          "artifact_projection": {
+            "artifact_id": "urn:spicyregs:artifact:f6e33d38652534cf10ef313c121e938896339f58a810a151ade8439bfcec6a49",
+            "artifact_type": "Artifact",
+            "content_digest": "sha256:65665508b54d7a3a83e7f74d6a1f89ae924ffe7b6a976c6e4105af6bfd0d8678",
+            "coordinate_system": "unicode-codepoints-half-open",
+            "evidence_grade": "source-exact",
+            "media_type": "text/plain; charset=utf-8"
+          },
+          "coordinate_system": "unicode-codepoints-half-open",
+          "document_version_ref": "urn:spicyregs:document-version:745ebeab341da974a59e1eaffc2d9d9b69384695b607faeda81cbc777de5bdef",
+          "evidence_grade": "source-exact",
+          "method": "json-field-decoding",
+          "method_config_digest": "sha256:f9e7e5c41f21f1d5fb317124b639fdaac3e77ba20d8d1ff8cb2d22dc640e6448",
+          "method_version": "1",
+          "representation_id": "urn:spicyregs:text-representation:f9d68ccce953868160d2a0bc7e35a8da2f6cde0f3bb1918462e4f5c1f7f5806b",
+          "representation_kind_and_path": "source-record-field:title",
+          "source_rendition_ref": "urn:spicyregs:source-rendition:ef2e9c944f5c7da82e3c47d3f9a0c4f5006494bda393a3650956789e39f57b83",
+          "text_digest": "sha256:65665508b54d7a3a83e7f74d6a1f89ae924ffe7b6a976c6e4105af6bfd0d8678",
+          "unicode_text": "Meat and Poultry Inspection Program Notice"
+        }
+      ]
+    },
+    {
+      "agent_validation_receipts": [
+        {
+          "attempt_id": "refspec-first-slice-conformance-a1",
+          "check_outcomes": [
+            {
+              "check_id": "official-and-variant-targets",
+              "evidence_refs": [
+                {
+                  "digest": "sha256:d3631a97784a1edc6af5a12d408b80ead3d5068fefcdf0b7b6b61141c429a305",
+                  "id": "urn:refspec:support-record:d3631a97784a1edc6af5a12d408b80ead3d5068fefcdf0b7b6b61141c429a305"
+                },
+                {
+                  "digest": "sha256:5400c8579e06b6a067bbb085afe92c73aab7fad58a0f1f58883e207bca1a50b6",
+                  "id": "urn:refspec:support-record:5400c8579e06b6a067bbb085afe92c73aab7fad58a0f1f58883e207bca1a50b6"
+                }
+              ],
+              "outcome": "pass",
+              "rationale": "The sealed examples distinguish official terms from the publisher-authored recognized variant."
+            },
+            {
+              "check_id": "open-and-unresolved-terms",
+              "evidence_refs": [
+                {
+                  "digest": "sha256:5400c8579e06b6a067bbb085afe92c73aab7fad58a0f1f58883e207bca1a50b6",
+                  "id": "urn:refspec:support-record:5400c8579e06b6a067bbb085afe92c73aab7fad58a0f1f58883e207bca1a50b6"
+                }
+              ],
+              "outcome": "pass",
+              "rationale": "Open and ambiguous terms remain untargeted and fail closed."
+            }
+          ],
+          "completed_at": "2026-07-31T16:00:00Z",
+          "execution_status": "completed",
+          "independence_group": "conformance-validator-family-a",
+          "input_manifest_ref_and_digest": {
+            "digest": "sha256:874a9827084f2409346d5967f6535503f3f9343c7c6969fb5db21e71afc2b088",
+            "id": "urn:refspec:support-record:874a9827084f2409346d5967f6535503f3f9343c7c6969fb5db21e71afc2b088"
+          },
+          "overall_recommendation": "supports",
+          "owner": "RefSpec conformance fixture",
+          "protocol_and_version": "refspec-vocabulary-baseline-v1",
+          "provider_and_model_id": "conformance-fixture/validator-a-v1",
+          "receipt_digest": "sha256:f0d802947c8c5a9c30cb7a967ee29906e2681ec52cfda15076c2e51c7375ba89",
+          "receipt_id": "urn:refspec:agent-validation-receipt:f0d802947c8c5a9c30cb7a967ee29906e2681ec52cfda15076c2e51c7375ba89",
+          "request_contract_ref_and_digest": {
+            "digest": "sha256:975120683283e11f6f6a28b79c68b3c184e0e1f7c5bf76a95648d62e849d9bd0",
+            "id": "urn:refspec:support-record:975120683283e11f6f6a28b79c68b3c184e0e1f7c5bf76a95648d62e849d9bd0"
+          },
+          "response_artifact_ref_and_digest": {
+            "digest": "sha256:dcd2ec0e00eac9f2a22a241f104ed223e847d33af2c28c94b67b7703eae070b2",
+            "id": "urn:refspec:support-record:dcd2ec0e00eac9f2a22a241f104ed223e847d33af2c28c94b67b7703eae070b2"
+          },
+          "started_at": "2026-07-31T16:00:00Z",
+          "target_ref_and_digest": {
+            "digest": "sha256:5543afe63f691cd8a2ac29725c27865c3d5981d917d90caeaed0b5378566c744",
+            "id": "urn:refspec:vocabulary:federal-register-thesaurus:2025-04-01:first-slice:reference-resource-release"
+          },
+          "validator_actor_ref": "urn:refspec:fixture-validator:independent-a",
+          "validator_kind": "aiAgent"
+        },
+        {
+          "attempt_id": "refspec-first-slice-conformance-b1",
+          "check_outcomes": [
+            {
+              "check_id": "official-and-variant-targets",
+              "evidence_refs": [
+                {
+                  "digest": "sha256:d3631a97784a1edc6af5a12d408b80ead3d5068fefcdf0b7b6b61141c429a305",
+                  "id": "urn:refspec:support-record:d3631a97784a1edc6af5a12d408b80ead3d5068fefcdf0b7b6b61141c429a305"
+                },
+                {
+                  "digest": "sha256:5400c8579e06b6a067bbb085afe92c73aab7fad58a0f1f58883e207bca1a50b6",
+                  "id": "urn:refspec:support-record:5400c8579e06b6a067bbb085afe92c73aab7fad58a0f1f58883e207bca1a50b6"
+                }
+              ],
+              "outcome": "pass",
+              "rationale": "The sealed examples distinguish official terms from the publisher-authored recognized variant."
+            },
+            {
+              "check_id": "open-and-unresolved-terms",
+              "evidence_refs": [
+                {
+                  "digest": "sha256:5400c8579e06b6a067bbb085afe92c73aab7fad58a0f1f58883e207bca1a50b6",
+                  "id": "urn:refspec:support-record:5400c8579e06b6a067bbb085afe92c73aab7fad58a0f1f58883e207bca1a50b6"
+                }
+              ],
+              "outcome": "pass",
+              "rationale": "Open and ambiguous terms remain untargeted and fail closed."
+            }
+          ],
+          "completed_at": "2026-07-31T16:00:00Z",
+          "execution_status": "completed",
+          "independence_group": "conformance-validator-family-b",
+          "input_manifest_ref_and_digest": {
+            "digest": "sha256:874a9827084f2409346d5967f6535503f3f9343c7c6969fb5db21e71afc2b088",
+            "id": "urn:refspec:support-record:874a9827084f2409346d5967f6535503f3f9343c7c6969fb5db21e71afc2b088"
+          },
+          "overall_recommendation": "supports",
+          "owner": "RefSpec conformance fixture",
+          "protocol_and_version": "refspec-vocabulary-baseline-v1",
+          "provider_and_model_id": "conformance-fixture/validator-b-v1",
+          "receipt_digest": "sha256:c58c9c5a32f569833a5f5dd8d69648392b698bdf478c1579510420826aee9409",
+          "receipt_id": "urn:refspec:agent-validation-receipt:c58c9c5a32f569833a5f5dd8d69648392b698bdf478c1579510420826aee9409",
+          "request_contract_ref_and_digest": {
+            "digest": "sha256:975120683283e11f6f6a28b79c68b3c184e0e1f7c5bf76a95648d62e849d9bd0",
+            "id": "urn:refspec:support-record:975120683283e11f6f6a28b79c68b3c184e0e1f7c5bf76a95648d62e849d9bd0"
+          },
+          "response_artifact_ref_and_digest": {
+            "digest": "sha256:19d1ac838b5fe5929e8aadac47a971ab2597e6c9cced612b9b43345c8c6e9210",
+            "id": "urn:refspec:support-record:19d1ac838b5fe5929e8aadac47a971ab2597e6c9cced612b9b43345c8c6e9210"
+          },
+          "started_at": "2026-07-31T16:00:00Z",
+          "target_ref_and_digest": {
+            "digest": "sha256:5543afe63f691cd8a2ac29725c27865c3d5981d917d90caeaed0b5378566c744",
+            "id": "urn:refspec:vocabulary:federal-register-thesaurus:2025-04-01:first-slice:reference-resource-release"
+          },
+          "validator_actor_ref": "urn:refspec:fixture-validator:independent-b",
+          "validator_kind": "aiAgent"
+        }
+      ],
+      "baseline_validation_receipts": [
+        {
+          "agent_validation_receipt_refs": [
+            {
+              "digest": "sha256:f0d802947c8c5a9c30cb7a967ee29906e2681ec52cfda15076c2e51c7375ba89",
+              "id": "urn:refspec:agent-validation-receipt:f0d802947c8c5a9c30cb7a967ee29906e2681ec52cfda15076c2e51c7375ba89"
+            },
+            {
+              "digest": "sha256:c58c9c5a32f569833a5f5dd8d69648392b698bdf478c1579510420826aee9409",
+              "id": "urn:refspec:agent-validation-receipt:c58c9c5a32f569833a5f5dd8d69648392b698bdf478c1579510420826aee9409"
+            }
+          ],
+          "aggregate_result": "usable_for_search",
+          "aggregation_policy_and_version": "refspec-independent-baseline-v1",
+          "deterministic_check_outcomes": [
+            {
+              "check_id": "release-integrity",
+              "outcome": "pass",
+              "receipt_ref": {
+                "digest": "sha256:c0d646115f0371fc461a7480eccc982effe4faf74d7bbff6c30c231beecab7b4",
+                "id": "urn:refspec:support-record:c0d646115f0371fc461a7480eccc982effe4faf74d7bbff6c30c231beecab7b4"
+              }
+            }
+          ],
+          "deterministic_check_receipt_refs": [
+            {
+              "digest": "sha256:c0d646115f0371fc461a7480eccc982effe4faf74d7bbff6c30c231beecab7b4",
+              "id": "urn:refspec:support-record:c0d646115f0371fc461a7480eccc982effe4faf74d7bbff6c30c231beecab7b4"
+            }
+          ],
+          "disagreements_and_flags": [],
+          "evaluated_at": "2026-07-31T16:00:00Z",
+          "known_limitations": [
+            "This sealed first-slice fixture publishes five of 705 source concepts.",
+            "Its validation receipts are conformance examples, not production claims."
+          ],
+          "owner": "RefSpec conformance fixture",
+          "receipt_digest": "sha256:13b1b141e61e52f38c173c32d23dfde59682a65b0631d41e89401dc15d3b692e",
+          "receipt_id": "urn:refspec:baseline-validation-receipt:13b1b141e61e52f38c173c32d23dfde59682a65b0631d41e89401dc15d3b692e",
+          "rubric_and_version": "refspec-vocabulary-rubric-v1",
+          "sample_manifest_ref_and_digest": {
+            "digest": "sha256:874a9827084f2409346d5967f6535503f3f9343c7c6969fb5db21e71afc2b088",
+            "id": "urn:refspec:support-record:874a9827084f2409346d5967f6535503f3f9343c7c6969fb5db21e71afc2b088"
+          },
+          "target_profile_and_release_ref": {
+            "digest": "sha256:5543afe63f691cd8a2ac29725c27865c3d5981d917d90caeaed0b5378566c744",
+            "id": "urn:refspec:vocabulary:federal-register-thesaurus:2025-04-01:first-slice:reference-resource-release"
+          }
+        }
+      ],
+      "concepts": [
+        {
+          "concept_digest": "sha256:6527e1908be1dc2a91eaf2249d4630a262522bef44efc67c1f7eeb4d93eb0c9f",
+          "concept_id": "urn:refspec:vocabulary:federal-register-thesaurus:2025-04-01:concept:0219",
+          "language": "en",
+          "preferred_label": "Food grades and standards",
+          "scheme_id": "urn:refspec:vocabulary:federal-register-thesaurus:2025-04-01:first-slice",
+          "source_locator": {
+            "pdf_page": 52,
+            "printed_page": 49,
+            "source_ordinal": 1183
+          }
+        },
+        {
+          "concept_digest": "sha256:3713a025c7b6919be274cea5f9a1e5a85723a1cf3d9ec90d67b9a66843295bd3",
+          "concept_id": "urn:refspec:vocabulary:federal-register-thesaurus:2025-04-01:concept:0414",
+          "language": "en",
+          "preferred_label": "Meat and meat products",
+          "scheme_id": "urn:refspec:vocabulary:federal-register-thesaurus:2025-04-01:first-slice",
+          "source_locator": {
+            "pdf_page": 83,
+            "printed_page": 80,
+            "source_ordinal": 1966
+          }
+        },
+        {
+          "concept_digest": "sha256:8bb13eac05c32254373f56476f92cdac6ed6ed003c866bae0b43d010e04f3fa5",
+          "concept_id": "urn:refspec:vocabulary:federal-register-thesaurus:2025-04-01:concept:0415",
+          "language": "en",
+          "preferred_label": "Meat inspection",
+          "scheme_id": "urn:refspec:vocabulary:federal-register-thesaurus:2025-04-01:first-slice",
+          "source_locator": {
+            "pdf_page": 83,
+            "printed_page": 80,
+            "source_ordinal": 1971
+          }
+        },
+        {
+          "concept_digest": "sha256:58bf844562fab2836683aa697f97fb153d41d5889645eba6b4ddbc202831f5a8",
+          "concept_id": "urn:refspec:vocabulary:federal-register-thesaurus:2025-04-01:concept:0517",
+          "language": "en",
+          "preferred_label": "Poultry and poultry products",
+          "scheme_id": "urn:refspec:vocabulary:federal-register-thesaurus:2025-04-01:first-slice",
+          "source_locator": {
+            "pdf_page": 104,
+            "printed_page": 101,
+            "source_ordinal": 2480
+          }
+        },
+        {
+          "concept_digest": "sha256:00930e3ee0c7f03360ca4a4776b989d06ec29cc6af114bdcb2083ddc41ddfaa8",
+          "concept_id": "urn:refspec:vocabulary:federal-register-thesaurus:2025-04-01:concept:0570",
+          "language": "en",
+          "preferred_label": "Safety",
+          "scheme_id": "urn:refspec:vocabulary:federal-register-thesaurus:2025-04-01:first-slice",
+          "source_locator": {
+            "pdf_page": 116,
+            "printed_page": 113,
+            "source_ordinal": 2784
+          }
+        }
+      ],
+      "coverage": {
+        "coverage_digest": "sha256:ffaaddad1e52d88461abdfa952bf883f29e5e6ff847612a4136192e2ed985601",
+        "coverage_id": "urn:refspec:vocabulary-coverage:ffaaddad1e52d88461abdfa952bf883f29e5e6ff847612a4136192e2ed985601",
+        "excluded_scope": [
+          "Concepts outside the sealed five-concept first slice",
+          "Document observations and their capture history",
+          "Search indexes, ranking, and result records"
+        ],
+        "included_source_locators": [
+          {
+            "pdf_page": 52,
+            "printed_page": 49,
+            "source_ordinal": 1183
+          },
+          {
+            "pdf_page": 83,
+            "printed_page": 80,
+            "source_ordinal": 1966
+          },
+          {
+            "pdf_page": 83,
+            "printed_page": 80,
+            "source_ordinal": 1971
+          },
+          {
+            "pdf_page": 104,
+            "printed_page": 101,
+            "source_ordinal": 2480
+          },
+          {
+            "pdf_page": 116,
+            "printed_page": 113,
+            "source_ordinal": 2784
+          }
+        ],
+        "published_concept_count": 5,
+        "resolution_counts_by_status": {
+          "officialTerm": 1,
+          "recognizedVariant": 1,
+          "sourceLocalOpenTerm": 1,
+          "unresolved": 2
+        },
+        "resolution_key_count": 5,
+        "source_complete_concept_count": 705
+      },
+      "hierarchy": [],
+      "labels": [
+        {
+          "concept_id": "urn:refspec:vocabulary:federal-register-thesaurus:2025-04-01:concept:0219",
+          "label": "Food grades and standards",
+          "label_digest": "sha256:9d40b702459669af8eb71ef984594bae8c819d7aee86b1b24c979fa40f4274a5",
+          "label_id": "urn:refspec:label:9d40b702459669af8eb71ef984594bae8c819d7aee86b1b24c979fa40f4274a5",
+          "label_kind": "preferred",
+          "language": "en",
+          "source_locator": {
+            "pdf_page": 52,
+            "printed_page": 49,
+            "source_ordinal": 1183
+          }
+        },
+        {
+          "concept_id": "urn:refspec:vocabulary:federal-register-thesaurus:2025-04-01:concept:0414",
+          "label": "Meat and meat products",
+          "label_digest": "sha256:b1f526d2e2c1f35dca698e948088f697dd40998a1e0580af1ae6706fe790fbde",
+          "label_id": "urn:refspec:label:b1f526d2e2c1f35dca698e948088f697dd40998a1e0580af1ae6706fe790fbde",
+          "label_kind": "preferred",
+          "language": "en",
+          "source_locator": {
+            "pdf_page": 83,
+            "printed_page": 80,
+            "source_ordinal": 1966
+          }
+        },
+        {
+          "concept_id": "urn:refspec:vocabulary:federal-register-thesaurus:2025-04-01:concept:0415",
+          "label": "Meat inspection",
+          "label_digest": "sha256:9b5c0bd6776b359868c5f5254b25059adfa04c9deb9056f3b398897f750a4416",
+          "label_id": "urn:refspec:label:9b5c0bd6776b359868c5f5254b25059adfa04c9deb9056f3b398897f750a4416",
+          "label_kind": "preferred",
+          "language": "en",
+          "source_locator": {
+            "pdf_page": 83,
+            "printed_page": 80,
+            "source_ordinal": 1971
+          }
+        },
+        {
+          "concept_id": "urn:refspec:vocabulary:federal-register-thesaurus:2025-04-01:concept:0517",
+          "label": "Poultry and poultry products",
+          "label_digest": "sha256:1f8c90c2bad2e2f94b58d479b58aceb10b339562ca5e16b58d4e20a55ebc9400",
+          "label_id": "urn:refspec:label:1f8c90c2bad2e2f94b58d479b58aceb10b339562ca5e16b58d4e20a55ebc9400",
+          "label_kind": "preferred",
+          "language": "en",
+          "source_locator": {
+            "pdf_page": 104,
+            "printed_page": 101,
+            "source_ordinal": 2480
+          }
+        },
+        {
+          "concept_id": "urn:refspec:vocabulary:federal-register-thesaurus:2025-04-01:concept:0570",
+          "label": "Safety",
+          "label_digest": "sha256:ddf300369a8dbb768a3ee3755146c140cb94d360ee2cb7482f20b48da2200e3b",
+          "label_id": "urn:refspec:label:ddf300369a8dbb768a3ee3755146c140cb94d360ee2cb7482f20b48da2200e3b",
+          "label_kind": "preferred",
+          "language": "en",
+          "source_locator": {
+            "pdf_page": 116,
+            "printed_page": 113,
+            "source_ordinal": 2784
+          }
+        },
+        {
+          "concept_id": "urn:refspec:vocabulary:federal-register-thesaurus:2025-04-01:concept:0570",
+          "label": "Accidents",
+          "label_digest": "sha256:47ced2cf71592ba6ddb3c4ab1e3003e377d0662d5fdaf75762e1e0f38ba11ad9",
+          "label_id": "urn:refspec:label:47ced2cf71592ba6ddb3c4ab1e3003e377d0662d5fdaf75762e1e0f38ba11ad9",
+          "label_kind": "recognizedVariant",
+          "language": "en",
+          "source_locator": {
+            "pdf_page": 5,
+            "printed_page": 2,
+            "source_ordinal": 1
+          }
+        }
+      ],
+      "mappings": [],
+      "redirects": [
+        {
+          "basis": "publisher-authored recognized variant",
+          "language": "en",
+          "redirect_digest": "sha256:48b7c5f5b9acc1c52a822398f3d2164cf0264f956c92c0b6ff2f4c4d2b454082",
+          "redirect_id": "urn:refspec:redirect:48b7c5f5b9acc1c52a822398f3d2164cf0264f956c92c0b6ff2f4c4d2b454082",
+          "source_label": "Accidents",
+          "source_locator": {
+            "pdf_page": 5,
+            "printed_page": 2,
+            "source_ordinal": 1
+          },
+          "target_concept_id": "urn:refspec:vocabulary:federal-register-thesaurus:2025-04-01:concept:0570"
+        }
+      ],
+      "reference_resource_release": {
+        "@context": {
+          "dcat": "http://www.w3.org/ns/dcat#",
+          "dcat:distribution": {
+            "@container": "@set",
+            "@type": "@id"
+          },
+          "dcat:version": {
+            "@type": "xsd:string"
+          },
+          "dcterms": "http://purl.org/dc/terms/",
+          "dcterms:format": {
+            "@type": "xsd:string"
+          },
+          "dcterms:isVersionOf": {
+            "@container": "@set",
+            "@type": "@id"
+          },
+          "dcterms:type": {
+            "@type": "@id"
+          },
+          "prov": "http://www.w3.org/ns/prov#",
+          "prov:hadMember": {
+            "@container": "@set",
+            "@type": "@id"
+          },
+          "rkaf": "https://rulespec.org/ns/v1#",
+          "rkaf:artifactIdentifierScheme": {
+            "@type": "@vocab"
+          },
+          "rkaf:hasArtifactIdentifier": {
+            "@type": "@id"
+          },
+          "rkaf:hasContentDigest": {
+            "@type": "xsd:string"
+          },
+          "rkaf:membershipMode": {
+            "@type": "@vocab"
+          },
+          "rkaf:referenceReleaseDigest": {
+            "@type": "xsd:string"
+          },
+          "rkaf:versionBasis": {
+            "@type": "@vocab"
+          },
+          "skos": "http://www.w3.org/2004/02/skos/core#",
+          "xsd": "http://www.w3.org/2001/XMLSchema#"
+        },
+        "@graph": [
+          {
+            "@id": "urn:refspec:vocabulary:federal-register-thesaurus:2025-04-01:first-slice:reference-resource-release",
+            "@type": "rkaf:ReferenceResourceRelease",
+            "dcat:distribution": [
+              "urn:refspec:vocabulary-distribution:bb3baf2682af6ee80982e26357ce1125cbf5226a7e27883c6799f4eff343e149"
+            ],
+            "dcat:version": "2025-04-01-first-slice-v1",
+            "dcterms:isVersionOf": "urn:refspec:vocabulary:federal-register-thesaurus:2025-04-01:first-slice",
+            "dcterms:type": "skos:ConceptScheme",
+            "prov:hadMember": [
+              "urn:refspec:vocabulary:federal-register-thesaurus:2025-04-01:concept:0219",
+              "urn:refspec:vocabulary:federal-register-thesaurus:2025-04-01:concept:0414",
+              "urn:refspec:vocabulary:federal-register-thesaurus:2025-04-01:concept:0415",
+              "urn:refspec:vocabulary:federal-register-thesaurus:2025-04-01:concept:0517",
+              "urn:refspec:vocabulary:federal-register-thesaurus:2025-04-01:concept:0570"
+            ],
+            "rkaf:membershipMode": "rkaf:completeMembership",
+            "rkaf:referenceReleaseDigest": "sha256:5543afe63f691cd8a2ac29725c27865c3d5981d917d90caeaed0b5378566c744",
+            "rkaf:versionBasis": "rkaf:contentDerived"
+          },
+          {
+            "@id": "urn:refspec:vocabulary-distribution:bb3baf2682af6ee80982e26357ce1125cbf5226a7e27883c6799f4eff343e149",
+            "@type": "rkaf:Artifact",
+            "dcterms:format": "application/vnd.refspec.vocabulary-membership+json",
+            "rkaf:artifactIdentifierScheme": [
+              "rkaf:partner-defined"
+            ],
+            "rkaf:hasArtifactIdentifier": [
+              "urn:refspec:vocabulary-distribution:bb3baf2682af6ee80982e26357ce1125cbf5226a7e27883c6799f4eff343e149"
+            ],
+            "rkaf:hasContentDigest": "sha256:bb3baf2682af6ee80982e26357ce1125cbf5226a7e27883c6799f4eff343e149"
+          }
+        ]
+      },
+      "release_digest": "sha256:85d675be32b43c15a58435c0faa0c5775de86141352dd6ce8f34890a55835828",
+      "release_id": "urn:refspec:vocabulary-release:85d675be32b43c15a58435c0faa0c5775de86141352dd6ce8f34890a55835828",
+      "resolution_policy": {
+        "human_approval_required": false,
+        "missing_resolution_behavior": "failClosed",
+        "policy_and_version": "federal-register-source-term-resolution-v1",
+        "targeted_statuses": [
+          "officialTerm",
+          "recognizedVariant"
+        ],
+        "untargeted_statuses": [
+          "sourceLocalOpenTerm",
+          "unresolved"
+        ]
+      },
+      "rulespec_core_fixture": {
+        "reference_resource_release_fixture_digest": "sha256:40ad919ba8b6a717b1395f37b5ca0ff569df723bc93070dc925e9b356e081213",
+        "reference_resource_release_fixture_name": "fixtures/reference-resource-release-digest-positive.jsonld",
+        "reference_resource_release_schema_digest": "sha256:737d0a5577c1cd6d4d3fd3c78ef13e7c0d102ce8cfada7bc444a1a66b4e66d84",
+        "reference_resource_release_schema_name": "compiled/json-schema/core/reference-resource-release.schema.json",
+        "rulespec_core_release_fixture_name": "rulespec-core-release-m2.json",
+        "rulespec_core_release_fixture_sha256": "sha256:06adfaf4d3ee8532c9ae76719d48a4844a4b012c7fea31e83e4a89f8033d1a63",
+        "rulespec_core_release_status": "fixture",
+        "rulespec_core_release_version": "0.2.0-pre.9+m2-fixture"
+      },
+      "rulespec_core_release": {
+        "release_digest": "sha256:5ac6ba59929eca874ec603cab0e90f7b15ab1a008b394cec5aefebdafe22564b",
+        "release_id": "urn:rulespec:core:5ac6ba59929eca874ec603cab0e90f7b15ab1a008b394cec5aefebdafe22564b"
+      },
+      "schema_version": "refspec-vocabulary-release-v1",
+      "source_fixture_pin": {
+        "fixture_id": "urn:refspec:fixture:federal-register-thesaurus:2025-04-01:first-slice-v1",
+        "fixture_sha256": "sha256:8d44a0560e2f929a45f4fb7a027fbc46800efdcd1471734ccbfab9861a3b50b7",
+        "parser_version": "federal-register-thesaurus-2025-styled-pdf-v1"
+      },
+      "source_term_keys": [
+        {
+          "key_digest": "sha256:d2ff4eb181b972af1982996f519ceae80162973eec1102f53025034688718809",
+          "key_id": "urn:refspec:source-term-key:d2ff4eb181b972af1982996f519ceae80162973eec1102f53025034688718809",
+          "language": "en",
+          "observation_kind": "listsOfSubjects",
+          "raw_value": "Meat inspection",
+          "source_native_path": "documents.lists_of_subjects[0]",
+          "source_system_and_profile_version": "federalregister.gov/federal-register-document-v1"
+        },
+        {
+          "key_digest": "sha256:8a7bf93404af76d8ee7d1c19705dd709ffe0ce947c69f10d9ae5afedac7f8b2e",
+          "key_id": "urn:refspec:source-term-key:8a7bf93404af76d8ee7d1c19705dd709ffe0ce947c69f10d9ae5afedac7f8b2e",
+          "language": "en",
+          "observation_kind": "listsOfSubjects",
+          "raw_value": "Accidents",
+          "source_native_path": "documents.lists_of_subjects[1]",
+          "source_system_and_profile_version": "federalregister.gov/federal-register-document-v1"
+        },
+        {
+          "key_digest": "sha256:1f1a60c6f8e555b13f57d8b29b995ff8eaac277471677cff90ec5b269f2aef20",
+          "key_id": "urn:refspec:source-term-key:1f1a60c6f8e555b13f57d8b29b995ff8eaac277471677cff90ec5b269f2aef20",
+          "language": "en",
+          "observation_kind": "listsOfSubjects",
+          "raw_value": "Project-specific novel subject",
+          "source_context_discriminator": "FR-2026-03227",
+          "source_native_path": "documents.lists_of_subjects[2]",
+          "source_system_and_profile_version": "federalregister.gov/federal-register-document-v1"
+        },
+        {
+          "key_digest": "sha256:5413b78cd0cb612e3f10fbff2b8881bfb2f75f3074bbe1493a690e81fae8f44c",
+          "key_id": "urn:refspec:source-term-key:5413b78cd0cb612e3f10fbff2b8881bfb2f75f3074bbe1493a690e81fae8f44c",
+          "language": "en",
+          "observation_kind": "listsOfSubjects",
+          "raw_value": "Discrimination",
+          "source_native_path": "documents.lists_of_subjects[3]",
+          "source_system_and_profile_version": "federalregister.gov/federal-register-document-v1"
+        },
+        {
+          "key_digest": "sha256:5907df7debf49b74bb967c8f5caa9c56509645803145dfb11c3df42cdf36483a",
+          "key_id": "urn:refspec:source-term-key:5907df7debf49b74bb967c8f5caa9c56509645803145dfb11c3df42cdf36483a",
+          "language": "en",
+          "observation_kind": "federalRegisterApiTopic",
+          "raw_value": "Meat inspection",
+          "source_native_path": "documents.api_topics[0]",
+          "source_system_and_profile_version": "federalregister.gov/federal-register-document-v1"
+        }
+      ],
+      "source_term_resolutions": [
+        {
+          "baseline_validation_receipt_ref": {
+            "digest": "sha256:13b1b141e61e52f38c173c32d23dfde59682a65b0631d41e89401dc15d3b692e",
+            "id": "urn:refspec:baseline-validation-receipt:13b1b141e61e52f38c173c32d23dfde59682a65b0631d41e89401dc15d3b692e"
+          },
+          "evidence_refs": [
+            {
+              "digest": "sha256:d3631a97784a1edc6af5a12d408b80ead3d5068fefcdf0b7b6b61141c429a305",
+              "id": "urn:refspec:support-record:d3631a97784a1edc6af5a12d408b80ead3d5068fefcdf0b7b6b61141c429a305"
+            },
+            {
+              "digest": "sha256:5400c8579e06b6a067bbb085afe92c73aab7fad58a0f1f58883e207bca1a50b6",
+              "id": "urn:refspec:support-record:5400c8579e06b6a067bbb085afe92c73aab7fad58a0f1f58883e207bca1a50b6"
+            }
+          ],
+          "optional_review_refs": [],
+          "policy_and_version": "federal-register-source-term-resolution-v1",
+          "reason": "Exact match to an official April 1 2025 indexing term.",
+          "resolution_digest": "sha256:352c9ad443ddc9bd57dbb92c0b9258ab6e6eeef808aaf6e76cae845ee380a662",
+          "resolution_id": "urn:refspec:source-term-resolution:352c9ad443ddc9bd57dbb92c0b9258ab6e6eeef808aaf6e76cae845ee380a662",
+          "resolution_status": "officialTerm",
+          "source_term_key_ref": {
+            "digest": "sha256:d2ff4eb181b972af1982996f519ceae80162973eec1102f53025034688718809",
+            "id": "urn:refspec:source-term-key:d2ff4eb181b972af1982996f519ceae80162973eec1102f53025034688718809"
+          },
+          "target_concept_and_release": {
+            "concept_id": "urn:refspec:vocabulary:federal-register-thesaurus:2025-04-01:concept:0415",
+            "reference_resource_release_digest": "sha256:5543afe63f691cd8a2ac29725c27865c3d5981d917d90caeaed0b5378566c744",
+            "reference_resource_release_id": "urn:refspec:vocabulary:federal-register-thesaurus:2025-04-01:first-slice:reference-resource-release"
+          }
+        },
+        {
+          "baseline_validation_receipt_ref": {
+            "digest": "sha256:13b1b141e61e52f38c173c32d23dfde59682a65b0631d41e89401dc15d3b692e",
+            "id": "urn:refspec:baseline-validation-receipt:13b1b141e61e52f38c173c32d23dfde59682a65b0631d41e89401dc15d3b692e"
+          },
+          "evidence_refs": [
+            {
+              "digest": "sha256:d3631a97784a1edc6af5a12d408b80ead3d5068fefcdf0b7b6b61141c429a305",
+              "id": "urn:refspec:support-record:d3631a97784a1edc6af5a12d408b80ead3d5068fefcdf0b7b6b61141c429a305"
+            },
+            {
+              "digest": "sha256:5400c8579e06b6a067bbb085afe92c73aab7fad58a0f1f58883e207bca1a50b6",
+              "id": "urn:refspec:support-record:5400c8579e06b6a067bbb085afe92c73aab7fad58a0f1f58883e207bca1a50b6"
+            }
+          ],
+          "optional_review_refs": [],
+          "policy_and_version": "federal-register-source-term-resolution-v1",
+          "reason": "The publisher-authored variant resolves to one official term.",
+          "resolution_digest": "sha256:5fd7d854292631991cd25b2445cd6c7d93bf29a647c66c8ca416cb6ba74f3050",
+          "resolution_id": "urn:refspec:source-term-resolution:5fd7d854292631991cd25b2445cd6c7d93bf29a647c66c8ca416cb6ba74f3050",
+          "resolution_status": "recognizedVariant",
+          "source_term_key_ref": {
+            "digest": "sha256:8a7bf93404af76d8ee7d1c19705dd709ffe0ce947c69f10d9ae5afedac7f8b2e",
+            "id": "urn:refspec:source-term-key:8a7bf93404af76d8ee7d1c19705dd709ffe0ce947c69f10d9ae5afedac7f8b2e"
+          },
+          "target_concept_and_release": {
+            "concept_id": "urn:refspec:vocabulary:federal-register-thesaurus:2025-04-01:concept:0570",
+            "reference_resource_release_digest": "sha256:5543afe63f691cd8a2ac29725c27865c3d5981d917d90caeaed0b5378566c744",
+            "reference_resource_release_id": "urn:refspec:vocabulary:federal-register-thesaurus:2025-04-01:first-slice:reference-resource-release"
+          }
+        },
+        {
+          "baseline_validation_receipt_ref": {
+            "digest": "sha256:13b1b141e61e52f38c173c32d23dfde59682a65b0631d41e89401dc15d3b692e",
+            "id": "urn:refspec:baseline-validation-receipt:13b1b141e61e52f38c173c32d23dfde59682a65b0631d41e89401dc15d3b692e"
+          },
+          "evidence_refs": [
+            {
+              "digest": "sha256:d3631a97784a1edc6af5a12d408b80ead3d5068fefcdf0b7b6b61141c429a305",
+              "id": "urn:refspec:support-record:d3631a97784a1edc6af5a12d408b80ead3d5068fefcdf0b7b6b61141c429a305"
+            },
+            {
+              "digest": "sha256:5400c8579e06b6a067bbb085afe92c73aab7fad58a0f1f58883e207bca1a50b6",
+              "id": "urn:refspec:support-record:5400c8579e06b6a067bbb085afe92c73aab7fad58a0f1f58883e207bca1a50b6"
+            }
+          ],
+          "optional_review_refs": [],
+          "policy_and_version": "federal-register-source-term-resolution-v1",
+          "reason": "Preserve the source-authored open term without minting a concept.",
+          "resolution_digest": "sha256:5bf1e436fdb428cc20d1827cf7368be504821431546b33a5b940cb2b8d3a70f7",
+          "resolution_id": "urn:refspec:source-term-resolution:5bf1e436fdb428cc20d1827cf7368be504821431546b33a5b940cb2b8d3a70f7",
+          "resolution_status": "sourceLocalOpenTerm",
+          "source_term_key_ref": {
+            "digest": "sha256:1f1a60c6f8e555b13f57d8b29b995ff8eaac277471677cff90ec5b269f2aef20",
+            "id": "urn:refspec:source-term-key:1f1a60c6f8e555b13f57d8b29b995ff8eaac277471677cff90ec5b269f2aef20"
+          }
+        },
+        {
+          "baseline_validation_receipt_ref": {
+            "digest": "sha256:13b1b141e61e52f38c173c32d23dfde59682a65b0631d41e89401dc15d3b692e",
+            "id": "urn:refspec:baseline-validation-receipt:13b1b141e61e52f38c173c32d23dfde59682a65b0631d41e89401dc15d3b692e"
+          },
+          "evidence_refs": [
+            {
+              "digest": "sha256:d3631a97784a1edc6af5a12d408b80ead3d5068fefcdf0b7b6b61141c429a305",
+              "id": "urn:refspec:support-record:d3631a97784a1edc6af5a12d408b80ead3d5068fefcdf0b7b6b61141c429a305"
+            },
+            {
+              "digest": "sha256:5400c8579e06b6a067bbb085afe92c73aab7fad58a0f1f58883e207bca1a50b6",
+              "id": "urn:refspec:support-record:5400c8579e06b6a067bbb085afe92c73aab7fad58a0f1f58883e207bca1a50b6"
+            }
+          ],
+          "optional_review_refs": [],
+          "policy_and_version": "federal-register-source-term-resolution-v1",
+          "reason": "The publisher variant has more than one possible target.",
+          "resolution_digest": "sha256:f8db22d51b970c05e3b9c646c283413be5228b8362c60ef6540917e301070e59",
+          "resolution_id": "urn:refspec:source-term-resolution:f8db22d51b970c05e3b9c646c283413be5228b8362c60ef6540917e301070e59",
+          "resolution_status": "unresolved",
+          "source_term_key_ref": {
+            "digest": "sha256:5413b78cd0cb612e3f10fbff2b8881bfb2f75f3074bbe1493a690e81fae8f44c",
+            "id": "urn:refspec:source-term-key:5413b78cd0cb612e3f10fbff2b8881bfb2f75f3074bbe1493a690e81fae8f44c"
+          }
+        },
+        {
+          "baseline_validation_receipt_ref": {
+            "digest": "sha256:13b1b141e61e52f38c173c32d23dfde59682a65b0631d41e89401dc15d3b692e",
+            "id": "urn:refspec:baseline-validation-receipt:13b1b141e61e52f38c173c32d23dfde59682a65b0631d41e89401dc15d3b692e"
+          },
+          "evidence_refs": [
+            {
+              "digest": "sha256:d3631a97784a1edc6af5a12d408b80ead3d5068fefcdf0b7b6b61141c429a305",
+              "id": "urn:refspec:support-record:d3631a97784a1edc6af5a12d408b80ead3d5068fefcdf0b7b6b61141c429a305"
+            },
+            {
+              "digest": "sha256:5400c8579e06b6a067bbb085afe92c73aab7fad58a0f1f58883e207bca1a50b6",
+              "id": "urn:refspec:support-record:5400c8579e06b6a067bbb085afe92c73aab7fad58a0f1f58883e207bca1a50b6"
+            }
+          ],
+          "optional_review_refs": [],
+          "policy_and_version": "federal-register-source-term-resolution-v1",
+          "reason": "The mutable API topic remains an input key pending separate evidence-backed resolution.",
+          "resolution_digest": "sha256:2354c1dd8397340f07142c29cc025375d3dccdc9386d445450be8160e4df1857",
+          "resolution_id": "urn:refspec:source-term-resolution:2354c1dd8397340f07142c29cc025375d3dccdc9386d445450be8160e4df1857",
+          "resolution_status": "unresolved",
+          "source_term_key_ref": {
+            "digest": "sha256:5907df7debf49b74bb967c8f5caa9c56509645803145dfb11c3df42cdf36483a",
+            "id": "urn:refspec:source-term-key:5907df7debf49b74bb967c8f5caa9c56509645803145dfb11c3df42cdf36483a"
+          }
+        }
+      ],
+      "support_records": [
+        {
+          "payload": {
+            "issued": "2025-04-01",
+            "media_type": "application/pdf",
+            "page_count": 180,
+            "parser_version": "federal-register-thesaurus-2025-styled-pdf-v1",
+            "publisher": "Office of the Federal Register, National Archives and Records Administration",
+            "source_byte_length": 1051423,
+            "source_digest": "sha256:66dd28fff5defedfb151d04dc4ef255181085cce76618cb10c9372db6540810f",
+            "url": "https://www.archives.gov/files/federal-register/cfr/thesaurus-4-1-2025.pdf"
+          },
+          "record_digest": "sha256:d3631a97784a1edc6af5a12d408b80ead3d5068fefcdf0b7b6b61141c429a305",
+          "record_id": "urn:refspec:support-record:d3631a97784a1edc6af5a12d408b80ead3d5068fefcdf0b7b6b61141c429a305",
+          "record_type": "VocabularySourceEvidence"
+        },
+        {
+          "payload": {
+            "examples": [
+              {
+                "language": "en",
+                "observation_kind": "listsOfSubjects",
+                "raw_value": "Meat inspection",
+                "reason": "Exact match to an official April 1 2025 indexing term.",
+                "source_native_path": "documents.lists_of_subjects[0]",
+                "source_system_and_profile_version": "federalregister.gov/federal-register-document-v1",
+                "status": "officialTerm",
+                "target_concept_id": "urn:refspec:vocabulary:federal-register-thesaurus:2025-04-01:concept:0415"
+              },
+              {
+                "language": "en",
+                "observation_kind": "listsOfSubjects",
+                "raw_value": "Accidents",
+                "reason": "The publisher-authored variant resolves to one official term.",
+                "source_native_path": "documents.lists_of_subjects[1]",
+                "source_system_and_profile_version": "federalregister.gov/federal-register-document-v1",
+                "status": "recognizedVariant",
+                "target_concept_id": "urn:refspec:vocabulary:federal-register-thesaurus:2025-04-01:concept:0570"
+              },
+              {
+                "language": "en",
+                "observation_kind": "listsOfSubjects",
+                "raw_value": "Project-specific novel subject",
+                "reason": "Preserve the source-authored open term without minting a concept.",
+                "source_context_discriminator": "FR-2026-03227",
+                "source_native_path": "documents.lists_of_subjects[2]",
+                "source_system_and_profile_version": "federalregister.gov/federal-register-document-v1",
+                "status": "sourceLocalOpenTerm"
+              },
+              {
+                "language": "en",
+                "observation_kind": "listsOfSubjects",
+                "raw_value": "Discrimination",
+                "reason": "The publisher variant has more than one possible target.",
+                "source_native_path": "documents.lists_of_subjects[3]",
+                "source_system_and_profile_version": "federalregister.gov/federal-register-document-v1",
+                "status": "unresolved"
+              },
+              {
+                "language": "en",
+                "observation_kind": "federalRegisterApiTopic",
+                "raw_value": "Meat inspection",
+                "reason": "The mutable API topic remains an input key pending separate evidence-backed resolution.",
+                "source_native_path": "documents.api_topics[0]",
+                "source_system_and_profile_version": "federalregister.gov/federal-register-document-v1",
+                "status": "unresolved"
+              }
+            ],
+            "recognized_variants": [
+              {
+                "label": "Accidents",
+                "source_locator": {
+                  "pdf_page": 5,
+                  "printed_page": 2,
+                  "source_ordinal": 1
+                },
+                "target_concept_id": "urn:refspec:vocabulary:federal-register-thesaurus:2025-04-01:concept:0570",
+                "variant_id": "frt25-variant-0001"
+              }
+            ],
+            "source_fixture_id": "urn:refspec:fixture:federal-register-thesaurus:2025-04-01:first-slice-v1"
+          },
+          "record_digest": "sha256:5400c8579e06b6a067bbb085afe92c73aab7fad58a0f1f58883e207bca1a50b6",
+          "record_id": "urn:refspec:support-record:5400c8579e06b6a067bbb085afe92c73aab7fad58a0f1f58883e207bca1a50b6",
+          "record_type": "SourceTermResolutionEvidence"
+        },
+        {
+          "payload": {
+            "concept_ids": [
+              "urn:refspec:vocabulary:federal-register-thesaurus:2025-04-01:concept:0219",
+              "urn:refspec:vocabulary:federal-register-thesaurus:2025-04-01:concept:0414",
+              "urn:refspec:vocabulary:federal-register-thesaurus:2025-04-01:concept:0415",
+              "urn:refspec:vocabulary:federal-register-thesaurus:2025-04-01:concept:0517",
+              "urn:refspec:vocabulary:federal-register-thesaurus:2025-04-01:concept:0570"
+            ],
+            "fixture_id": "urn:refspec:fixture:federal-register-thesaurus:2025-04-01:first-slice-v1",
+            "reference_resource_release_ref": {
+              "digest": "sha256:5543afe63f691cd8a2ac29725c27865c3d5981d917d90caeaed0b5378566c744",
+              "id": "urn:refspec:vocabulary:federal-register-thesaurus:2025-04-01:first-slice:reference-resource-release"
+            },
+            "required_resolution_states": [
+              "officialTerm",
+              "recognizedVariant",
+              "sourceLocalOpenTerm",
+              "unresolved"
+            ]
+          },
+          "record_digest": "sha256:874a9827084f2409346d5967f6535503f3f9343c7c6969fb5db21e71afc2b088",
+          "record_id": "urn:refspec:support-record:874a9827084f2409346d5967f6535503f3f9343c7c6969fb5db21e71afc2b088",
+          "record_type": "ValidationSampleManifest"
+        },
+        {
+          "payload": {
+            "instructions": [
+              "Inspect only the sealed source and resolution evidence.",
+              "Check target meaning, ambiguity, and unsupported claims.",
+              "Return a result for each named check and cite evidence records."
+            ],
+            "protocol_and_version": "refspec-vocabulary-baseline-v1",
+            "secret_fields": []
+          },
+          "record_digest": "sha256:975120683283e11f6f6a28b79c68b3c184e0e1f7c5bf76a95648d62e849d9bd0",
+          "record_id": "urn:refspec:support-record:975120683283e11f6f6a28b79c68b3c184e0e1f7c5bf76a95648d62e849d9bd0",
+          "record_type": "ValidationRequestContract"
+        },
+        {
+          "payload": {
+            "fixture_role": "independent conformance example A",
+            "outcomes": {
+              "official-and-variant-targets": "pass",
+              "open-and-unresolved-terms": "pass"
+            }
+          },
+          "record_digest": "sha256:dcd2ec0e00eac9f2a22a241f104ed223e847d33af2c28c94b67b7703eae070b2",
+          "record_id": "urn:refspec:support-record:dcd2ec0e00eac9f2a22a241f104ed223e847d33af2c28c94b67b7703eae070b2",
+          "record_type": "AgentResponseArtifact"
+        },
+        {
+          "payload": {
+            "fixture_role": "independent conformance example B",
+            "outcomes": {
+              "official-and-variant-targets": "pass",
+              "open-and-unresolved-terms": "pass"
+            }
+          },
+          "record_digest": "sha256:19d1ac838b5fe5929e8aadac47a971ab2597e6c9cced612b9b43345c8c6e9210",
+          "record_id": "urn:refspec:support-record:19d1ac838b5fe5929e8aadac47a971ab2597e6c9cced612b9b43345c8c6e9210",
+          "record_type": "AgentResponseArtifact"
+        },
+        {
+          "payload": {
+            "checks": [
+              "canonical-json",
+              "stable-identifiers",
+              "complete-membership",
+              "reference-closure",
+              "resolution-cardinality"
+            ],
+            "fixture_role": "conformance example",
+            "outcome": "pass"
+          },
+          "record_digest": "sha256:c0d646115f0371fc461a7480eccc982effe4faf74d7bbff6c30c231beecab7b4",
+          "record_id": "urn:refspec:support-record:c0d646115f0371fc461a7480eccc982effe4faf74d7bbff6c30c231beecab7b4",
+          "record_type": "DeterministicValidationReceipt"
+        }
+      ],
+      "vocabulary": {
+        "default_for_source_profiles": [
+          "federal-register-document-v1"
+        ],
+        "publisher": "Office of the Federal Register, National Archives and Records Administration",
+        "release_scope": "sealedFirstSliceFixture",
+        "root_ontology": false,
+        "scheme_id": "urn:refspec:vocabulary:federal-register-thesaurus:2025-04-01:first-slice",
+        "source_distribution": {
+          "digest": "sha256:66dd28fff5defedfb151d04dc4ef255181085cce76618cb10c9372db6540810f",
+          "issued": "2025-04-01",
+          "url": "https://www.archives.gov/files/federal-register/cfr/thesaurus-4-1-2025.pdf"
+        },
+        "title": "Federal Register Thesaurus, April 1 2025, sealed first-slice fixture",
+        "version": "2025-04-01-first-slice-v1"
+      }
+    }
+  ]
+}

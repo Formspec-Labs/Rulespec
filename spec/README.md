@@ -27,6 +27,13 @@ Enumerates every codified Rulespec class and predicate. Two documentation tiers,
 
 Defines the two conformance paths: L0 vocabulary fidelity for non-JSON-LD carriers, and the cumulative L1–L4 JSON-LD parse, shape, constraint, and behavior levels. It also specifies the L0 carrier-mapping block and partner self-certification formats.
 
+### `rulespec-releases.md`
+
+Defines the independent `RulespecCoreRelease` and `ExtrapolationRelease`
+artifacts, canonical JSON and stable identifiers, pinned upstream inputs,
+validation and selection receipts, reversible processing-segment projections,
+coverage, and the sealed M2 fail-closed controls.
+
 ### `rkaf-analysis.md`
 
 The document-analysis module — generic, jurisdiction-free contracts for comparing relations across document versions. Defines `RelationChangeEvent` (source-stated adoption, removal, suspension, replacement, with polarity structurally absent), `RelationComparisonContext` (the immutable frame and the five closed comparison outcomes), `ResolverProofRecord` / `ResolverProofIssuer` (content-bound gate decisions, `pass`/`fail`/`unknown` plus the six scope relations), the neutral `RelationFinding`, and the Experimental, **disabled** `ClosureClaim`. It sits between the kernel and the profiles: the kernel never depends on it, it may compose kernel shapes, and profiles may depend on it. Domain interpretation — legal effect, policy exclusion, rescission — belongs to profiles, never here.
@@ -52,11 +59,12 @@ are normatively introduced in `rkaf-core.md` §4.7 and detailed here.
 
 ### `rkaf-refspec.md`
 
-The RefSpec application-profile vocabulary owned by Rulespec. Defines the
-portable `rkaf:openLabel` `ValueAssertion`, its required facet and assignment
-role, language materialization, provenance, and grounded evidence. RefSpec owns
-permission tuples, operational decisions, evaluation, and deployment; the
-Rulespec kernel does not depend on the profile.
+The portable open-label profile used with RefSpec vocabulary releases. It
+defines the `rkaf:openLabel` `ValueAssertion`, its required facet and assignment
+role, language materialization, provenance, and grounded evidence. Rulespec
+Extrapolator owns the portable profile release boundary; RefSpec owns source
+capture, permission tuples, operational decisions, evaluation, and deployment.
+Rulespec Core neither depends on nor exports the profile.
 
 ### `rkaf-behavior.md`
 

@@ -12,7 +12,9 @@ candidate generation, review workflow, output profiles, deployment, or
 evaluation.
 
 Rulespec owns the `rkaf:openLabel` predicate and the structural and semantic
-requirements on the resulting `rkaf:ValueAssertion`. RefSpec owns:
+requirements on the resulting `rkaf:ValueAssertion`. Rulespec publishes this
+profile with the independently released Extrapolator, not with Rulespec Core.
+RefSpec owns:
 
 - the facet IRIs and their definitions;
 - the complete facet, role, release, mapping, and open-label permission tuples;
@@ -128,13 +130,18 @@ as required by the universal inverse evidence path.
 
 The executable profile is downstream of the Rulespec kernel: it may compose
 `rkaf:ValueAssertion`, but the kernel MUST NOT depend on RefSpec. Generated
-targets and graph-wide validation MUST agree on:
+portable targets and graph-wide validation MUST agree on:
 
 - the fixed `rkaf:openLabel` predicate and affirmed polarity;
 - the language-tagged-only value branch;
 - required absolute-IRI facet and closed assignment-role value;
 - required extraction provenance and assertion time; and
 - the fragment-backed supporting-evidence rule.
+
+The generated `rkaf-core` Rust crate MUST NOT contain or re-export the profile.
+An Extrapolator release may pin the portable profile schema alongside an exact
+RefSpec `VocabularyRelease`; that operation does not transfer vocabulary
+authority to Rulespec Core.
 
 RefSpec validators separately enforce that the exact facet, role, open-label
 mode, configuration, and accepted-output permission all match one complete

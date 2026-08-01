@@ -1,0 +1,1100 @@
+{
+  "$id": "https://rulespec.org/schemas/releases/extrapolation-release-v1.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "agent_validation_receipts": {
+      "items": {
+        "$ref": "#/$defs/agentValidationReceipt"
+      },
+      "minItems": 2,
+      "type": "array"
+    },
+    "ai_lineage_records": {
+      "items": {
+        "$ref": "#/$defs/aiLineage"
+      },
+      "minItems": 1,
+      "type": "array"
+    },
+    "baseline_validation_receipts": {
+      "items": {
+        "$ref": "#/$defs/baselineValidationReceipt"
+      },
+      "minItems": 1,
+      "type": "array"
+    },
+    "concept_assignments": {
+      "items": {
+        "$ref": "#/$defs/conceptAssignment"
+      },
+      "minItems": 1,
+      "type": "array"
+    },
+    "coverage": {
+      "$ref": "#/$defs/coverage"
+    },
+    "derived_text_projections": {
+      "items": {
+        "$ref": "#/$defs/derivedTextProjection"
+      },
+      "minItems": 1,
+      "type": "array"
+    },
+    "evidence_bindings": {
+      "items": {
+        "$ref": "#/$defs/evidenceBinding"
+      },
+      "minItems": 1,
+      "type": "array"
+    },
+    "extraction_activities": {
+      "items": {
+        "$ref": "#/$defs/extractionActivity"
+      },
+      "minItems": 1,
+      "type": "array"
+    },
+    "input_releases": {
+      "additionalProperties": false,
+      "properties": {
+        "document_release": {
+          "$ref": "#/$defs/releasePin"
+        },
+        "rulespec_core_release": {
+          "$ref": "#/$defs/releasePin"
+        },
+        "vocabulary_release": {
+          "$ref": "#/$defs/releasePin"
+        }
+      },
+      "required": [
+        "rulespec_core_release",
+        "document_release",
+        "vocabulary_release"
+      ],
+      "type": "object"
+    },
+    "processing_segments": {
+      "items": {
+        "$ref": "#/$defs/processingSegment"
+      },
+      "minItems": 1,
+      "type": "array"
+    },
+    "profile": {
+      "additionalProperties": false,
+      "properties": {
+        "profile_id": {
+          "$ref": "#/$defs/absoluteId"
+        },
+        "profile_version": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "usage_cap": {
+          "const": "searchOnly"
+        }
+      },
+      "required": [
+        "profile_id",
+        "profile_version",
+        "usage_cap"
+      ],
+      "type": "object"
+    },
+    "record_type": {
+      "const": "ExtrapolationRelease"
+    },
+    "release_digest": {
+      "$ref": "#/$defs/digest"
+    },
+    "release_id": {
+      "pattern": "^urn:rulespec:extrapolation:[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "release_status": {
+      "enum": [
+        "fixture",
+        "candidate",
+        "published"
+      ]
+    },
+    "selected_assignment_refs": {
+      "items": {
+        "$ref": "#/$defs/absoluteId"
+      },
+      "minItems": 1,
+      "type": "array",
+      "uniqueItems": true
+    },
+    "selection_receipts": {
+      "items": {
+        "$ref": "#/$defs/extrapolationSelectionReceipt"
+      },
+      "minItems": 1,
+      "type": "array"
+    },
+    "selection_context_digest": {
+      "$ref": "#/$defs/digest"
+    },
+    "validation_artifacts": {
+      "items": {
+        "$ref": "#/$defs/portableArtifact"
+      },
+      "minItems": 3,
+      "type": "array"
+    },
+    "validation_sample_manifest": {
+      "additionalProperties": false,
+      "properties": {
+        "manifest_digest": {
+          "$ref": "#/$defs/digest"
+        },
+        "record_refs": {
+          "items": {
+            "$ref": "#/$defs/absoluteId"
+          },
+          "minItems": 1,
+          "type": "array",
+          "uniqueItems": true
+        }
+      },
+      "required": [
+        "record_refs",
+        "manifest_digest"
+      ],
+      "type": "object"
+    },
+    "version": {
+      "minLength": 1,
+      "type": "string"
+    }
+  },
+  "required": [
+    "record_type",
+    "release_id",
+    "release_digest",
+    "release_status",
+    "version",
+    "profile",
+    "input_releases",
+    "validation_sample_manifest",
+    "concept_assignments",
+    "evidence_bindings",
+    "extraction_activities",
+    "ai_lineage_records",
+    "processing_segments",
+    "derived_text_projections",
+    "agent_validation_receipts",
+    "baseline_validation_receipts",
+    "selection_context_digest",
+    "selection_receipts",
+    "validation_artifacts",
+    "selected_assignment_refs",
+    "coverage"
+  ],
+  "title": "ExtrapolationRelease",
+  "type": "object",
+  "$defs": {
+    "absoluteId": {
+      "pattern": "^[A-Za-z][A-Za-z0-9+.-]*:[^\\s]+$",
+      "type": "string"
+    },
+    "agentValidationReceipt": {
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "execution_status": {
+                "const": "completed"
+              }
+            },
+            "required": [
+              "execution_status"
+            ]
+          },
+          "then": {
+            "required": [
+              "response_artifact_ref",
+              "response_artifact_digest",
+              "overall_recommendation"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "execution_status": {
+                "const": "failed"
+              }
+            },
+            "required": [
+              "execution_status"
+            ]
+          },
+          "then": {
+            "not": {
+              "anyOf": [
+                {
+                  "required": [
+                    "overall_recommendation"
+                  ]
+                },
+                {
+                  "required": [
+                    "response_artifact_ref"
+                  ]
+                },
+                {
+                  "required": [
+                    "response_artifact_digest"
+                  ]
+                }
+              ]
+            },
+            "required": [
+              "failure_reason"
+            ]
+          }
+        }
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "attempt_id": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "check_outcomes": {
+          "items": {
+            "$ref": "#/$defs/checkOutcome"
+          },
+          "minItems": 1,
+          "type": "array"
+        },
+        "completed_at": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "execution_status": {
+          "enum": [
+            "completed",
+            "failed"
+          ]
+        },
+        "failure_artifact_digest": {
+          "$ref": "#/$defs/digest"
+        },
+        "failure_artifact_ref": {
+          "$ref": "#/$defs/absoluteId"
+        },
+        "failure_reason": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "independence_group": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "input_manifest_digest": {
+          "$ref": "#/$defs/digest"
+        },
+        "input_manifest_ref": {
+          "$ref": "#/$defs/absoluteId"
+        },
+        "overall_recommendation": {
+          "enum": [
+            "supports",
+            "flags",
+            "abstains"
+          ]
+        },
+        "owner": {
+          "$ref": "#/$defs/absoluteId"
+        },
+        "protocol": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "request_contract_digest": {
+          "$ref": "#/$defs/digest"
+        },
+        "request_contract_ref": {
+          "$ref": "#/$defs/absoluteId"
+        },
+        "response_artifact_digest": {
+          "$ref": "#/$defs/digest"
+        },
+        "response_artifact_ref": {
+          "$ref": "#/$defs/absoluteId"
+        },
+        "provider_model_id": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "record_id": {
+          "$ref": "#/$defs/absoluteId"
+        },
+        "record_type": {
+          "const": "AgentValidationReceipt"
+        },
+        "started_at": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "target_ref": {
+          "$ref": "#/$defs/absoluteId"
+        },
+        "target_digest": {
+          "$ref": "#/$defs/digest"
+        },
+        "validator_actor_ref": {
+          "$ref": "#/$defs/absoluteId"
+        },
+        "validator_kind": {
+          "enum": [
+            "aiModel",
+            "aiAgent"
+          ]
+        }
+      },
+      "required": [
+        "record_type",
+        "record_id",
+        "attempt_id",
+        "owner",
+        "target_ref",
+        "target_digest",
+        "protocol",
+        "input_manifest_ref",
+        "input_manifest_digest",
+        "validator_kind",
+        "validator_actor_ref",
+        "independence_group",
+        "provider_model_id",
+        "request_contract_ref",
+        "request_contract_digest",
+        "execution_status",
+        "check_outcomes",
+        "started_at",
+        "completed_at"
+      ],
+      "type": "object"
+    },
+    "aiLineage": {
+      "additionalProperties": false,
+      "properties": {
+        "input_context_digest": {
+          "$ref": "#/$defs/digest"
+        },
+        "model_id": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "model_version": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "prompt_contract_digest": {
+          "$ref": "#/$defs/digest"
+        },
+        "record_id": {
+          "$ref": "#/$defs/absoluteId"
+        },
+        "record_type": {
+          "const": "AILineage"
+        },
+        "seed": {
+          "type": "integer"
+        },
+        "temperature": {
+          "maximum": 2,
+          "minimum": 0,
+          "type": "number"
+        }
+      },
+      "required": [
+        "record_type",
+        "record_id",
+        "model_id",
+        "model_version",
+        "prompt_contract_digest",
+        "input_context_digest",
+        "temperature",
+        "seed"
+      ],
+      "type": "object"
+    },
+    "baselineValidationReceipt": {
+      "additionalProperties": false,
+      "properties": {
+        "agent_validation_receipt_refs": {
+          "items": {
+            "$ref": "#/$defs/absoluteId"
+          },
+          "minItems": 2,
+          "type": "array"
+        },
+        "aggregate_result": {
+          "enum": [
+            "usable_for_search",
+            "usable_with_nonblocking_limits",
+            "deferred",
+            "failed"
+          ]
+        },
+        "aggregation_policy": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "deterministic_check_receipt_refs": {
+          "items": {
+            "$ref": "#/$defs/absoluteId"
+          },
+          "type": "array"
+        },
+        "deterministic_check_outcomes": {
+          "items": {
+            "$ref": "#/$defs/checkOutcome"
+          },
+          "minItems": 1,
+          "type": "array"
+        },
+        "evaluated_at": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "known_limitations": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "disagreements_and_flags": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "owner": {
+          "$ref": "#/$defs/absoluteId"
+        },
+        "record_id": {
+          "$ref": "#/$defs/absoluteId"
+        },
+        "record_type": {
+          "const": "BaselineValidationReceipt"
+        },
+        "rubric": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "sample_manifest_digest": {
+          "$ref": "#/$defs/digest"
+        },
+        "sample_manifest_ref": {
+          "$ref": "#/$defs/absoluteId"
+        },
+        "target_profile_ref": {
+          "$ref": "#/$defs/absoluteId"
+        },
+        "target_release_ref": {
+          "$ref": "#/$defs/absoluteId"
+        }
+      },
+      "required": [
+        "record_type",
+        "record_id",
+        "owner",
+        "target_profile_ref",
+        "target_release_ref",
+        "sample_manifest_ref",
+        "sample_manifest_digest",
+        "rubric",
+        "aggregation_policy",
+        "deterministic_check_outcomes",
+        "deterministic_check_receipt_refs",
+        "agent_validation_receipt_refs",
+        "aggregate_result",
+        "disagreements_and_flags",
+        "known_limitations",
+        "evaluated_at"
+      ],
+      "type": "object"
+    },
+    "checkOutcome": {
+      "additionalProperties": false,
+      "properties": {
+        "check_id": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "evidence_refs": {
+          "items": {
+            "$ref": "#/$defs/absoluteId"
+          },
+          "type": "array"
+        },
+        "outcome": {
+          "enum": [
+            "pass",
+            "fail",
+            "abstain",
+            "not_applicable"
+          ]
+        },
+        "rationale": {
+          "minLength": 1,
+          "type": "string"
+        }
+      },
+      "required": [
+        "check_id",
+        "outcome",
+        "rationale",
+        "evidence_refs"
+      ],
+      "type": "object"
+    },
+    "conceptAssignment": {
+      "additionalProperties": false,
+      "properties": {
+        "ai_lineage_ref": {
+          "$ref": "#/$defs/absoluteId"
+        },
+        "assertion_origin": {
+          "enum": [
+            "aiSuggested",
+            "deterministicExtraction"
+          ]
+        },
+        "assertion_polarity": {
+          "const": "affirmed"
+        },
+        "asserts_object_ref": {
+          "$ref": "#/$defs/absoluteId"
+        },
+        "asserts_predicate": {
+          "enum": [
+            "assignmentPrimary",
+            "assignmentSubstantive",
+            "assignmentMention",
+            "assignmentContextual"
+          ]
+        },
+        "asserts_subject_ref": {
+          "$ref": "#/$defs/absoluteId"
+        },
+        "assigned_concept_release_ref": {
+          "$ref": "#/$defs/absoluteId"
+        },
+        "evidence_binding_refs": {
+          "items": {
+            "$ref": "#/$defs/absoluteId"
+          },
+          "minItems": 1,
+          "type": "array"
+        },
+        "extraction_activity_ref": {
+          "$ref": "#/$defs/absoluteId"
+        },
+        "record_id": {
+          "$ref": "#/$defs/absoluteId"
+        },
+        "record_type": {
+          "const": "ConceptAssignment"
+        },
+        "subject_kind": {
+          "enum": [
+            "Artifact",
+            "SourceFragment",
+            "ProcessingSegment"
+          ]
+        },
+        "usage_eligibility": {
+          "enum": [
+            "notEligible",
+            "searchOnly",
+            "reviewQueueOnly"
+          ]
+        }
+      },
+      "required": [
+        "record_type",
+        "record_id",
+        "asserts_subject_ref",
+        "subject_kind",
+        "asserts_predicate",
+        "asserts_object_ref",
+        "assertion_polarity",
+        "assigned_concept_release_ref",
+        "assertion_origin",
+        "usage_eligibility",
+        "evidence_binding_refs",
+        "extraction_activity_ref",
+        "ai_lineage_ref"
+      ],
+      "type": "object"
+    },
+    "coverage": {
+      "additionalProperties": false,
+      "properties": {
+        "candidate_count": {
+          "minimum": 1,
+          "type": "integer"
+        },
+        "deferred_count": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "coverage_digest": {
+          "$ref": "#/$defs/digest"
+        },
+        "coverage_id": {
+          "pattern": "^urn:rulespec:extrapolation-coverage:[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "failure_count": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "not_selected_count": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "selected_count": {
+          "minimum": 1,
+          "type": "integer"
+        },
+        "record_type": {
+          "const": "ExtrapolationCoverage"
+        }
+      },
+      "required": [
+        "record_type",
+        "coverage_id",
+        "coverage_digest",
+        "candidate_count",
+        "selected_count",
+        "not_selected_count",
+        "deferred_count",
+        "failure_count"
+      ],
+      "type": "object"
+    },
+    "derivedTextProjection": {
+      "additionalProperties": false,
+      "properties": {
+        "construction_method": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "derived_coordinate_system": {
+          "const": "unicode-code-points"
+        },
+        "derived_text_digest": {
+          "$ref": "#/$defs/digest"
+        },
+        "derived_unit_ref": {
+          "$ref": "#/$defs/absoluteId"
+        },
+        "input_fragment_refs": {
+          "items": {
+            "$ref": "#/$defs/absoluteId"
+          },
+          "minItems": 1,
+          "type": "array",
+          "uniqueItems": true
+        },
+        "join_delimiter": {
+          "type": "string"
+        },
+        "normalization_policy": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "omitted_source_ranges": {
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "reason": {
+                "minLength": 1,
+                "type": "string"
+              },
+              "source_end": {
+                "minimum": 0,
+                "type": "integer"
+              },
+              "source_start": {
+                "minimum": 0,
+                "type": "integer"
+              },
+              "source_text_representation_ref": {
+                "$ref": "#/$defs/absoluteId"
+              }
+            },
+            "required": [
+              "source_text_representation_ref",
+              "source_start",
+              "source_end",
+              "reason"
+            ],
+            "type": "object"
+          },
+          "type": "array"
+        },
+        "ordered_slices": {
+          "items": {
+            "$ref": "#/$defs/projectionSlice"
+          },
+          "minItems": 1,
+          "type": "array"
+        },
+        "record_id": {
+          "$ref": "#/$defs/absoluteId"
+        },
+        "record_type": {
+          "const": "DerivedTextProjection"
+        }
+      },
+      "required": [
+        "record_type",
+        "record_id",
+        "derived_unit_ref",
+        "derived_text_digest",
+        "derived_coordinate_system",
+        "input_fragment_refs",
+        "ordered_slices",
+        "omitted_source_ranges",
+        "join_delimiter",
+        "normalization_policy",
+        "construction_method"
+      ],
+      "type": "object"
+    },
+    "digest": {
+      "pattern": "^sha256:[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "evidenceBinding": {
+      "additionalProperties": false,
+      "properties": {
+        "binds_assignment_ref": {
+          "$ref": "#/$defs/absoluteId"
+        },
+        "evidence_role": {
+          "enum": [
+            "textualEvidence",
+            "structuralEvidence"
+          ]
+        },
+        "evidence_spans": {
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "selected_text_digest": {
+                "$ref": "#/$defs/digest"
+              },
+              "source_fragment_ref": {
+                "$ref": "#/$defs/absoluteId"
+              }
+            },
+            "required": [
+              "source_fragment_ref",
+              "selected_text_digest"
+            ],
+            "type": "object"
+          },
+          "minItems": 1,
+          "type": "array"
+        },
+        "evidentiary_function": {
+          "enum": [
+            "supports",
+            "qualifies",
+            "contradicts",
+            "definesScope",
+            "providesContext"
+          ]
+        },
+        "record_id": {
+          "$ref": "#/$defs/absoluteId"
+        },
+        "record_type": {
+          "const": "EvidenceBinding"
+        }
+      },
+      "required": [
+        "record_type",
+        "record_id",
+        "binds_assignment_ref",
+        "evidence_spans",
+        "evidence_role",
+        "evidentiary_function"
+      ],
+      "type": "object"
+    },
+    "extractionActivity": {
+      "additionalProperties": false,
+      "properties": {
+        "extracted_by": {
+          "$ref": "#/$defs/absoluteId"
+        },
+        "extraction_attempt": {
+          "minimum": 1,
+          "type": "integer"
+        },
+        "extraction_method": {
+          "enum": [
+            "modelExtraction",
+            "deterministicParse",
+            "ruleBasedExtraction"
+          ]
+        },
+        "extraction_run_id": {
+          "$ref": "#/$defs/absoluteId"
+        },
+        "extractor_version": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "input_release_refs": {
+          "items": {
+            "$ref": "#/$defs/absoluteId"
+          },
+          "minItems": 3,
+          "type": "array"
+        },
+        "processing_segment_ref": {
+          "$ref": "#/$defs/absoluteId"
+        },
+        "record_id": {
+          "$ref": "#/$defs/absoluteId"
+        },
+        "record_type": {
+          "const": "ExtractionActivity"
+        },
+        "request_contract_digest": {
+          "$ref": "#/$defs/digest"
+        }
+      },
+      "required": [
+        "record_type",
+        "record_id",
+        "extraction_run_id",
+        "extraction_attempt",
+        "extraction_method",
+        "extracted_by",
+        "extractor_version",
+        "request_contract_digest",
+        "input_release_refs",
+        "processing_segment_ref"
+      ],
+      "type": "object"
+    },
+    "extrapolationSelectionReceipt": {
+      "additionalProperties": false,
+      "properties": {
+        "assignment_ref": {
+          "$ref": "#/$defs/absoluteId"
+        },
+        "baseline_validation_receipt_ref": {
+          "$ref": "#/$defs/absoluteId"
+        },
+        "checks": {
+          "items": {
+            "$ref": "#/$defs/checkOutcome"
+          },
+          "minItems": 1,
+          "type": "array"
+        },
+        "effective_as_of": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "evaluator_ref": {
+          "$ref": "#/$defs/absoluteId"
+        },
+        "evaluator_version": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "evaluated_at": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "input_record_refs": {
+          "items": {
+            "$ref": "#/$defs/absoluteId"
+          },
+          "minItems": 1,
+          "type": "array"
+        },
+        "reason": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "record_id": {
+          "$ref": "#/$defs/absoluteId"
+        },
+        "record_type": {
+          "const": "ExtrapolationSelectionReceipt"
+        },
+        "selection_policy": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "selection_context_digest": {
+          "$ref": "#/$defs/digest"
+        },
+        "selection_result": {
+          "enum": [
+            "selected",
+            "not_selected",
+            "deferred"
+          ]
+        }
+      },
+      "required": [
+        "record_type",
+        "record_id",
+        "assignment_ref",
+        "selection_policy",
+        "selection_context_digest",
+        "input_record_refs",
+        "checks",
+        "selection_result",
+        "reason",
+        "baseline_validation_receipt_ref",
+        "evaluator_ref",
+        "evaluator_version",
+        "evaluated_at",
+        "effective_as_of"
+      ],
+      "type": "object"
+    },
+    "portableArtifact": {
+      "additionalProperties": false,
+      "properties": {
+        "artifact_id": {
+          "$ref": "#/$defs/absoluteId"
+        },
+        "artifact_type": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "content_digest": {
+          "$ref": "#/$defs/digest"
+        },
+        "coordinate_system": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "evidence_grade": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "media_type": {
+          "minLength": 1,
+          "type": "string"
+        }
+      },
+      "required": [
+        "artifact_id",
+        "artifact_type",
+        "content_digest",
+        "media_type",
+        "coordinate_system",
+        "evidence_grade"
+      ],
+      "type": "object"
+    },
+    "processingSegment": {
+      "additionalProperties": false,
+      "properties": {
+        "derived_text": {
+          "type": "string"
+        },
+        "derived_text_digest": {
+          "$ref": "#/$defs/digest"
+        },
+        "document_release_ref": {
+          "$ref": "#/$defs/absoluteId"
+        },
+        "input_fragment_refs": {
+          "items": {
+            "$ref": "#/$defs/absoluteId"
+          },
+          "minItems": 1,
+          "type": "array"
+        },
+        "projection_ref": {
+          "$ref": "#/$defs/absoluteId"
+        },
+        "record_id": {
+          "$ref": "#/$defs/absoluteId"
+        },
+        "record_type": {
+          "const": "ProcessingSegment"
+        },
+        "segmentation_policy": {
+          "minLength": 1,
+          "type": "string"
+        }
+      },
+      "required": [
+        "record_type",
+        "record_id",
+        "document_release_ref",
+        "input_fragment_refs",
+        "segmentation_policy",
+        "derived_text",
+        "derived_text_digest",
+        "projection_ref"
+      ],
+      "type": "object"
+    },
+    "projectionSlice": {
+      "additionalProperties": true,
+      "properties": {
+        "derived_end": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "derived_start": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "slice_kind": {
+          "enum": [
+            "source_range",
+            "inserted_text",
+            "transformed_range"
+          ]
+        }
+      },
+      "required": [
+        "derived_start",
+        "derived_end",
+        "slice_kind"
+      ],
+      "type": "object"
+    },
+    "releasePin": {
+      "additionalProperties": false,
+      "properties": {
+        "release_digest": {
+          "$ref": "#/$defs/digest"
+        },
+        "release_id": {
+          "$ref": "#/$defs/absoluteId"
+        }
+      },
+      "required": [
+        "release_id",
+        "release_digest"
+      ],
+      "type": "object"
+    }
+  }
+}

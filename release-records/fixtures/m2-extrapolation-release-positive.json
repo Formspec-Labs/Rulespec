@@ -1,0 +1,496 @@
+{
+  "record_type": "ExtrapolationRelease",
+  "release_status": "fixture",
+  "version": "m2-fixture-1",
+  "profile": {
+    "profile_id": "urn:rulespec:profile:search-only-concept-extraction",
+    "profile_version": "1",
+    "usage_cap": "searchOnly"
+  },
+  "input_releases": {
+    "rulespec_core_release": {
+      "release_id": "urn:rulespec:core:5ac6ba59929eca874ec603cab0e90f7b15ab1a008b394cec5aefebdafe22564b",
+      "release_digest": "sha256:5ac6ba59929eca874ec603cab0e90f7b15ab1a008b394cec5aefebdafe22564b"
+    },
+    "document_release": {
+      "release_id": "urn:spicyregs:document-release:d0a148e2791a0c537d49a9d6cab87869e21c4dbfb9966da63d59a0c5165f71e4",
+      "release_digest": "sha256:d0a148e2791a0c537d49a9d6cab87869e21c4dbfb9966da63d59a0c5165f71e4"
+    },
+    "vocabulary_release": {
+      "release_id": "urn:refspec:vocabulary-release:85d675be32b43c15a58435c0faa0c5775de86141352dd6ce8f34890a55835828",
+      "release_digest": "sha256:85d675be32b43c15a58435c0faa0c5775de86141352dd6ce8f34890a55835828"
+    }
+  },
+  "validation_sample_manifest": {
+    "record_refs": [
+      "urn:rulespec:concept-assignment:9d1ae37d03a77756ed09bdc34288d84694c819e2c00f8508b2f0f1de849c1697",
+      "urn:rulespec:concept-assignment:7188bf4c11861022672ad341cbcb92cda0067b8dae955d4c01a0a9e746cc823f",
+      "urn:rulespec:concept-assignment:731a004a60f0a17b28270928b3bf687973b21d95a567ce548ab65f720fe502c8",
+      "urn:rulespec:evidence-binding:453bfc3be1ae6abf93132a2d088a5338ec8c02461c6da19833a5e050bfc0995f",
+      "urn:rulespec:evidence-binding:a42f5bce8e1846406e3c9e1f93439e3efe737a999bb2075af2b7d5cbe0407efe",
+      "urn:rulespec:evidence-binding:43ed2e26475ffc59896743449cacd67f64ca47749dd0f9a1bc8365da0cc5bfc1",
+      "urn:rulespec:artifact:8551305f67b02c856fba8a601609a593f425d62d4cc7c954a82b56c3ab4650f2",
+      "urn:rulespec:artifact:d30f2b045292adb858acef782d7da2d422905564be4ebbf7033fa624ced5b51b",
+      "urn:rulespec:artifact:aac95ea70a16633a363d533ff38290796fba7d4d1c17e204de1e7cfc9d440aea",
+      "urn:spicyregs:source-fragment:8b1ec44153407557c9b58422b100613b60e75896d55b229f95c6efbc393fb07e",
+      "urn:spicyregs:source-fragment:caae8e6231e12ccdc153a7891dac479fa8a1ff380c658acf846a604541af34b3",
+      "urn:refspec:vocabulary:federal-register-thesaurus:2025-04-01:concept:0570"
+    ],
+    "manifest_digest": "sha256:0f43819bca9b1ffe4ab3bfb49cf9cc6da15ff3ba3192ceed0d40cc80540452cb"
+  },
+  "concept_assignments": [
+    {
+      "record_type": "ConceptAssignment",
+      "asserts_subject_ref": "urn:spicyregs:artifact:ec1f19077074c2895d4968af2c329d554dcdf523be130fef492631b1886ec98f",
+      "subject_kind": "Artifact",
+      "asserts_predicate": "assignmentPrimary",
+      "asserts_object_ref": "urn:refspec:vocabulary:federal-register-thesaurus:2025-04-01:concept:0570",
+      "assertion_polarity": "affirmed",
+      "assigned_concept_release_ref": "urn:refspec:vocabulary:federal-register-thesaurus:2025-04-01:first-slice:reference-resource-release",
+      "assertion_origin": "aiSuggested",
+      "usage_eligibility": "searchOnly",
+      "evidence_binding_refs": [
+        "urn:rulespec:evidence-binding:453bfc3be1ae6abf93132a2d088a5338ec8c02461c6da19833a5e050bfc0995f"
+      ],
+      "extraction_activity_ref": "urn:rulespec:extraction-activity:4c1593e23b7209bffae2dc83e2b5d495fcde63a382c7794ef6861e5f6b6f480a",
+      "ai_lineage_ref": "urn:rulespec:ai-lineage:0f29bcf4abc7102c91eb2f65009d43f74d8dd734ba585cf001cfcb409dbf479a",
+      "record_id": "urn:rulespec:concept-assignment:9d1ae37d03a77756ed09bdc34288d84694c819e2c00f8508b2f0f1de849c1697"
+    },
+    {
+      "record_type": "ConceptAssignment",
+      "asserts_subject_ref": "urn:spicyregs:source-fragment:8b1ec44153407557c9b58422b100613b60e75896d55b229f95c6efbc393fb07e",
+      "subject_kind": "SourceFragment",
+      "asserts_predicate": "assignmentSubstantive",
+      "asserts_object_ref": "urn:refspec:vocabulary:federal-register-thesaurus:2025-04-01:concept:0570",
+      "assertion_polarity": "affirmed",
+      "assigned_concept_release_ref": "urn:refspec:vocabulary:federal-register-thesaurus:2025-04-01:first-slice:reference-resource-release",
+      "assertion_origin": "aiSuggested",
+      "usage_eligibility": "searchOnly",
+      "evidence_binding_refs": [
+        "urn:rulespec:evidence-binding:a42f5bce8e1846406e3c9e1f93439e3efe737a999bb2075af2b7d5cbe0407efe"
+      ],
+      "extraction_activity_ref": "urn:rulespec:extraction-activity:4c1593e23b7209bffae2dc83e2b5d495fcde63a382c7794ef6861e5f6b6f480a",
+      "ai_lineage_ref": "urn:rulespec:ai-lineage:0f29bcf4abc7102c91eb2f65009d43f74d8dd734ba585cf001cfcb409dbf479a",
+      "record_id": "urn:rulespec:concept-assignment:7188bf4c11861022672ad341cbcb92cda0067b8dae955d4c01a0a9e746cc823f"
+    },
+    {
+      "record_type": "ConceptAssignment",
+      "asserts_subject_ref": "urn:spicyregs:source-fragment:caae8e6231e12ccdc153a7891dac479fa8a1ff380c658acf846a604541af34b3",
+      "subject_kind": "SourceFragment",
+      "asserts_predicate": "assignmentMention",
+      "asserts_object_ref": "urn:refspec:vocabulary:federal-register-thesaurus:2025-04-01:concept:0570",
+      "assertion_polarity": "affirmed",
+      "assigned_concept_release_ref": "urn:refspec:vocabulary:federal-register-thesaurus:2025-04-01:first-slice:reference-resource-release",
+      "assertion_origin": "aiSuggested",
+      "usage_eligibility": "searchOnly",
+      "evidence_binding_refs": [
+        "urn:rulespec:evidence-binding:43ed2e26475ffc59896743449cacd67f64ca47749dd0f9a1bc8365da0cc5bfc1"
+      ],
+      "extraction_activity_ref": "urn:rulespec:extraction-activity:4c1593e23b7209bffae2dc83e2b5d495fcde63a382c7794ef6861e5f6b6f480a",
+      "ai_lineage_ref": "urn:rulespec:ai-lineage:0f29bcf4abc7102c91eb2f65009d43f74d8dd734ba585cf001cfcb409dbf479a",
+      "record_id": "urn:rulespec:concept-assignment:731a004a60f0a17b28270928b3bf687973b21d95a567ce548ab65f720fe502c8"
+    }
+  ],
+  "evidence_bindings": [
+    {
+      "record_type": "EvidenceBinding",
+      "binds_assignment_ref": "urn:rulespec:concept-assignment:9d1ae37d03a77756ed09bdc34288d84694c819e2c00f8508b2f0f1de849c1697",
+      "evidence_spans": [
+        {
+          "source_fragment_ref": "urn:spicyregs:source-fragment:8b1ec44153407557c9b58422b100613b60e75896d55b229f95c6efbc393fb07e",
+          "selected_text_digest": "sha256:0e184a45e10d2a8c0bb8954c1606c8841176d12020b37d5a5a85bbb726383d80"
+        }
+      ],
+      "evidence_role": "textualEvidence",
+      "evidentiary_function": "supports",
+      "record_id": "urn:rulespec:evidence-binding:453bfc3be1ae6abf93132a2d088a5338ec8c02461c6da19833a5e050bfc0995f"
+    },
+    {
+      "record_type": "EvidenceBinding",
+      "binds_assignment_ref": "urn:rulespec:concept-assignment:7188bf4c11861022672ad341cbcb92cda0067b8dae955d4c01a0a9e746cc823f",
+      "evidence_spans": [
+        {
+          "source_fragment_ref": "urn:spicyregs:source-fragment:8b1ec44153407557c9b58422b100613b60e75896d55b229f95c6efbc393fb07e",
+          "selected_text_digest": "sha256:0e184a45e10d2a8c0bb8954c1606c8841176d12020b37d5a5a85bbb726383d80"
+        }
+      ],
+      "evidence_role": "textualEvidence",
+      "evidentiary_function": "supports",
+      "record_id": "urn:rulespec:evidence-binding:a42f5bce8e1846406e3c9e1f93439e3efe737a999bb2075af2b7d5cbe0407efe"
+    },
+    {
+      "record_type": "EvidenceBinding",
+      "binds_assignment_ref": "urn:rulespec:concept-assignment:731a004a60f0a17b28270928b3bf687973b21d95a567ce548ab65f720fe502c8",
+      "evidence_spans": [
+        {
+          "source_fragment_ref": "urn:spicyregs:source-fragment:caae8e6231e12ccdc153a7891dac479fa8a1ff380c658acf846a604541af34b3",
+          "selected_text_digest": "sha256:76dfd036c25ab40a2a0478d5ebf5f1f040a93904365a9ecc8508cfb11934e4a4"
+        }
+      ],
+      "evidence_role": "textualEvidence",
+      "evidentiary_function": "supports",
+      "record_id": "urn:rulespec:evidence-binding:43ed2e26475ffc59896743449cacd67f64ca47749dd0f9a1bc8365da0cc5bfc1"
+    }
+  ],
+  "extraction_activities": [
+    {
+      "record_type": "ExtractionActivity",
+      "extraction_run_id": "urn:rulespec:extraction-run:m2-fixture-1",
+      "extraction_attempt": 1,
+      "extraction_method": "modelExtraction",
+      "extracted_by": "urn:rulespec:extrapolator:m2-fixture",
+      "extractor_version": "m2-fixture-1",
+      "request_contract_digest": "sha256:bb024add02827c8687983c764ed1cfd257f999d1cd2f84d9ef0d3642f43c7770",
+      "input_release_refs": [
+        "urn:rulespec:core:5ac6ba59929eca874ec603cab0e90f7b15ab1a008b394cec5aefebdafe22564b",
+        "urn:spicyregs:document-release:d0a148e2791a0c537d49a9d6cab87869e21c4dbfb9966da63d59a0c5165f71e4",
+        "urn:refspec:vocabulary-release:85d675be32b43c15a58435c0faa0c5775de86141352dd6ce8f34890a55835828"
+      ],
+      "processing_segment_ref": "urn:rulespec:processing-segment:a30954ac7c44b7d306db2616a5d29117adb5c619b9fbb265d6ce78e029764325",
+      "record_id": "urn:rulespec:extraction-activity:4c1593e23b7209bffae2dc83e2b5d495fcde63a382c7794ef6861e5f6b6f480a"
+    }
+  ],
+  "ai_lineage_records": [
+    {
+      "record_type": "AILineage",
+      "model_id": "urn:model:fixture-extractor",
+      "model_version": "1.0",
+      "prompt_contract_digest": "sha256:bb024add02827c8687983c764ed1cfd257f999d1cd2f84d9ef0d3642f43c7770",
+      "input_context_digest": "sha256:fa411be2b61c64dd6642cbde9c8793862b976a779451cfcaab76bba7c492a4d8",
+      "temperature": 0,
+      "seed": 7,
+      "record_id": "urn:rulespec:ai-lineage:0f29bcf4abc7102c91eb2f65009d43f74d8dd734ba585cf001cfcb409dbf479a"
+    }
+  ],
+  "processing_segments": [
+    {
+      "record_type": "ProcessingSegment",
+      "document_release_ref": "urn:spicyregs:document-release:d0a148e2791a0c537d49a9d6cab87869e21c4dbfb9966da63d59a0c5165f71e4",
+      "input_fragment_refs": [
+        "urn:spicyregs:source-fragment:8b1ec44153407557c9b58422b100613b60e75896d55b229f95c6efbc393fb07e",
+        "urn:spicyregs:source-fragment:caae8e6231e12ccdc153a7891dac479fa8a1ff380c658acf846a604541af34b3"
+      ],
+      "segmentation_policy": "join-structural-passages-v1",
+      "derived_text": "Worker safety attestations document hazards.\nWorkers receive protections.",
+      "derived_text_digest": "sha256:fa411be2b61c64dd6642cbde9c8793862b976a779451cfcaab76bba7c492a4d8",
+      "projection_ref": "urn:rulespec:derived-text-projection:3eb930531cc61a5f46e2733c2a399be568ab32260cebf3cf38ca8e44007793d4",
+      "record_id": "urn:rulespec:processing-segment:a30954ac7c44b7d306db2616a5d29117adb5c619b9fbb265d6ce78e029764325"
+    }
+  ],
+  "derived_text_projections": [
+    {
+      "record_type": "DerivedTextProjection",
+      "derived_unit_ref": "urn:rulespec:processing-segment:a30954ac7c44b7d306db2616a5d29117adb5c619b9fbb265d6ce78e029764325",
+      "derived_text_digest": "sha256:fa411be2b61c64dd6642cbde9c8793862b976a779451cfcaab76bba7c492a4d8",
+      "derived_coordinate_system": "unicode-code-points",
+      "input_fragment_refs": [
+        "urn:spicyregs:source-fragment:8b1ec44153407557c9b58422b100613b60e75896d55b229f95c6efbc393fb07e",
+        "urn:spicyregs:source-fragment:caae8e6231e12ccdc153a7891dac479fa8a1ff380c658acf846a604541af34b3"
+      ],
+      "ordered_slices": [
+        {
+          "derived_start": 0,
+          "derived_end": 44,
+          "slice_kind": "source_range",
+          "source_text_representation_ref": "urn:spicyregs:text-representation:f3f4bec2a9672f87ca5a9a047722e3bfa73e162f67fbf6606c8c6036626923fb",
+          "source_coordinate_system": "unicode-codepoints-half-open",
+          "source_start": 2308,
+          "source_end": 2352,
+          "source_fragment_refs": [
+            "urn:spicyregs:source-fragment:8b1ec44153407557c9b58422b100613b60e75896d55b229f95c6efbc393fb07e"
+          ],
+          "context_only": false,
+          "overlap_or_truncation_flags": []
+        },
+        {
+          "derived_start": 44,
+          "derived_end": 45,
+          "slice_kind": "inserted_text",
+          "inserted_text": "\n",
+          "inserted_text_digest": "sha256:01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+          "context_only": true,
+          "overlap_or_truncation_flags": []
+        },
+        {
+          "derived_start": 45,
+          "derived_end": 73,
+          "slice_kind": "source_range",
+          "source_text_representation_ref": "urn:spicyregs:text-representation:f3f4bec2a9672f87ca5a9a047722e3bfa73e162f67fbf6606c8c6036626923fb",
+          "source_coordinate_system": "unicode-codepoints-half-open",
+          "source_start": 2353,
+          "source_end": 2381,
+          "source_fragment_refs": [
+            "urn:spicyregs:source-fragment:caae8e6231e12ccdc153a7891dac479fa8a1ff380c658acf846a604541af34b3"
+          ],
+          "context_only": false,
+          "overlap_or_truncation_flags": []
+        }
+      ],
+      "omitted_source_ranges": [
+        {
+          "source_text_representation_ref": "urn:spicyregs:text-representation:f3f4bec2a9672f87ca5a9a047722e3bfa73e162f67fbf6606c8c6036626923fb",
+          "source_start": 2352,
+          "source_end": 2353,
+          "reason": "source separator replaced by declared join delimiter"
+        }
+      ],
+      "join_delimiter": "\n",
+      "normalization_policy": "none",
+      "construction_method": "join-structural-passages-v1",
+      "record_id": "urn:rulespec:derived-text-projection:3eb930531cc61a5f46e2733c2a399be568ab32260cebf3cf38ca8e44007793d4"
+    }
+  ],
+  "agent_validation_receipts": [
+    {
+      "record_type": "AgentValidationReceipt",
+      "attempt_id": "m2-validator-a",
+      "owner": "urn:rulespec:extrapolator:m2-fixture",
+      "target_ref": "urn:rulespec:profile:search-only-concept-extraction",
+      "target_digest": "sha256:fa1f7ad24e3e09acd266a714dfeee890d352aac4d4a671b8e2865e5bf265a7c8",
+      "protocol": "semantic-support-rubric-v1",
+      "input_manifest_ref": "urn:rulespec:validation-sample-manifest:fdde88f723ecc9ba31f2593eb09426481f4f13842220b1442bb6fba9cc17cc10",
+      "input_manifest_digest": "sha256:0f43819bca9b1ffe4ab3bfb49cf9cc6da15ff3ba3192ceed0d40cc80540452cb",
+      "validator_kind": "aiAgent",
+      "validator_actor_ref": "urn:rulespec:validator:m2-fixture-a",
+      "independence_group": "model-family-a",
+      "provider_model_id": "fixture-provider/model-a@1",
+      "request_contract_ref": "urn:rulespec:artifact:8551305f67b02c856fba8a601609a593f425d62d4cc7c954a82b56c3ab4650f2",
+      "request_contract_digest": "sha256:ef728222ec063174841b0f6d56ead965f8cfdccaa28ded540776c39addbd93ba",
+      "response_artifact_ref": "urn:rulespec:artifact:d30f2b045292adb858acef782d7da2d422905564be4ebbf7033fa624ced5b51b",
+      "response_artifact_digest": "sha256:8c713cbfb4ae19d842eecbe30f6290384f988b0db5ae9ab78de06326d5159cec",
+      "execution_status": "completed",
+      "check_outcomes": [
+        {
+          "check_id": "semantic-support",
+          "outcome": "pass",
+          "rationale": "The sealed passages support the candidate assignments.",
+          "evidence_refs": [
+            "urn:rulespec:concept-assignment:9d1ae37d03a77756ed09bdc34288d84694c819e2c00f8508b2f0f1de849c1697",
+            "urn:spicyregs:source-fragment:8b1ec44153407557c9b58422b100613b60e75896d55b229f95c6efbc393fb07e"
+          ]
+        }
+      ],
+      "overall_recommendation": "supports",
+      "started_at": "2026-07-31T12:00:00Z",
+      "completed_at": "2026-07-31T12:00:00Z",
+      "record_id": "urn:rulespec:agent-validation-receipt:27bf7fccccb6d08d220185aa10250f17cdf22ac631b346f1cfd9858a6b655d54"
+    },
+    {
+      "record_type": "AgentValidationReceipt",
+      "attempt_id": "m2-validator-b",
+      "owner": "urn:rulespec:extrapolator:m2-fixture",
+      "target_ref": "urn:rulespec:profile:search-only-concept-extraction",
+      "target_digest": "sha256:fa1f7ad24e3e09acd266a714dfeee890d352aac4d4a671b8e2865e5bf265a7c8",
+      "protocol": "semantic-support-rubric-v1",
+      "input_manifest_ref": "urn:rulespec:validation-sample-manifest:fdde88f723ecc9ba31f2593eb09426481f4f13842220b1442bb6fba9cc17cc10",
+      "input_manifest_digest": "sha256:0f43819bca9b1ffe4ab3bfb49cf9cc6da15ff3ba3192ceed0d40cc80540452cb",
+      "validator_kind": "aiAgent",
+      "validator_actor_ref": "urn:rulespec:validator:m2-fixture-b",
+      "independence_group": "model-family-b",
+      "provider_model_id": "fixture-provider/model-b@1",
+      "request_contract_ref": "urn:rulespec:artifact:8551305f67b02c856fba8a601609a593f425d62d4cc7c954a82b56c3ab4650f2",
+      "request_contract_digest": "sha256:ef728222ec063174841b0f6d56ead965f8cfdccaa28ded540776c39addbd93ba",
+      "response_artifact_ref": "urn:rulespec:artifact:aac95ea70a16633a363d533ff38290796fba7d4d1c17e204de1e7cfc9d440aea",
+      "response_artifact_digest": "sha256:0b6a3bf94ae9f1259d29ffad301328d8cdeebb301b966aae4c563f2fc76bdd92",
+      "execution_status": "completed",
+      "check_outcomes": [
+        {
+          "check_id": "semantic-support",
+          "outcome": "pass",
+          "rationale": "The sealed passages support the candidate assignments.",
+          "evidence_refs": [
+            "urn:rulespec:concept-assignment:9d1ae37d03a77756ed09bdc34288d84694c819e2c00f8508b2f0f1de849c1697",
+            "urn:spicyregs:source-fragment:8b1ec44153407557c9b58422b100613b60e75896d55b229f95c6efbc393fb07e"
+          ]
+        }
+      ],
+      "overall_recommendation": "supports",
+      "started_at": "2026-07-31T12:00:00Z",
+      "completed_at": "2026-07-31T12:00:00Z",
+      "record_id": "urn:rulespec:agent-validation-receipt:88dacc10b6a5a3385891d1b169bf6bf652445a720aab313672c9e1784e82cf6d"
+    }
+  ],
+  "baseline_validation_receipts": [
+    {
+      "record_type": "BaselineValidationReceipt",
+      "owner": "urn:rulespec:extrapolator:m2-fixture",
+      "target_profile_ref": "urn:rulespec:profile:search-only-concept-extraction",
+      "target_release_ref": "urn:refspec:vocabulary-release:85d675be32b43c15a58435c0faa0c5775de86141352dd6ce8f34890a55835828",
+      "sample_manifest_ref": "urn:rulespec:validation-sample-manifest:fdde88f723ecc9ba31f2593eb09426481f4f13842220b1442bb6fba9cc17cc10",
+      "sample_manifest_digest": "sha256:0f43819bca9b1ffe4ab3bfb49cf9cc6da15ff3ba3192ceed0d40cc80540452cb",
+      "rubric": "semantic-support-rubric-v1",
+      "aggregation_policy": "independent-unanimous-v1",
+      "deterministic_check_receipt_refs": [],
+      "deterministic_check_outcomes": [
+        {
+          "check_id": "manifest-closure",
+          "outcome": "pass",
+          "rationale": "Every sampled record resolves in the sealed fixture.",
+          "evidence_refs": [
+            "urn:rulespec:concept-assignment:9d1ae37d03a77756ed09bdc34288d84694c819e2c00f8508b2f0f1de849c1697",
+            "urn:rulespec:concept-assignment:7188bf4c11861022672ad341cbcb92cda0067b8dae955d4c01a0a9e746cc823f",
+            "urn:rulespec:concept-assignment:731a004a60f0a17b28270928b3bf687973b21d95a567ce548ab65f720fe502c8",
+            "urn:rulespec:evidence-binding:453bfc3be1ae6abf93132a2d088a5338ec8c02461c6da19833a5e050bfc0995f",
+            "urn:rulespec:evidence-binding:a42f5bce8e1846406e3c9e1f93439e3efe737a999bb2075af2b7d5cbe0407efe",
+            "urn:rulespec:evidence-binding:43ed2e26475ffc59896743449cacd67f64ca47749dd0f9a1bc8365da0cc5bfc1",
+            "urn:rulespec:artifact:8551305f67b02c856fba8a601609a593f425d62d4cc7c954a82b56c3ab4650f2",
+            "urn:rulespec:artifact:d30f2b045292adb858acef782d7da2d422905564be4ebbf7033fa624ced5b51b",
+            "urn:rulespec:artifact:aac95ea70a16633a363d533ff38290796fba7d4d1c17e204de1e7cfc9d440aea",
+            "urn:spicyregs:source-fragment:8b1ec44153407557c9b58422b100613b60e75896d55b229f95c6efbc393fb07e",
+            "urn:spicyregs:source-fragment:caae8e6231e12ccdc153a7891dac479fa8a1ff380c658acf846a604541af34b3",
+            "urn:refspec:vocabulary:federal-register-thesaurus:2025-04-01:concept:0570"
+          ]
+        }
+      ],
+      "agent_validation_receipt_refs": [
+        "urn:rulespec:agent-validation-receipt:27bf7fccccb6d08d220185aa10250f17cdf22ac631b346f1cfd9858a6b655d54",
+        "urn:rulespec:agent-validation-receipt:88dacc10b6a5a3385891d1b169bf6bf652445a720aab313672c9e1784e82cf6d"
+      ],
+      "aggregate_result": "usable_for_search",
+      "disagreements_and_flags": [],
+      "known_limitations": [
+        "Fixture evidence does not support an adoption claim."
+      ],
+      "evaluated_at": "2026-07-31T12:00:00Z",
+      "record_id": "urn:rulespec:baseline-validation-receipt:242c5d7abef7c70acce5512340623c1b6878c94776d837909645835309cfee9e"
+    }
+  ],
+  "selection_context_digest": "sha256:0d5168301cd1ae1cc2dbd508fbf2be2aef8b8ad612e331c703e1b6ff12b944ba",
+  "selection_receipts": [
+    {
+      "record_type": "ExtrapolationSelectionReceipt",
+      "assignment_ref": "urn:rulespec:concept-assignment:9d1ae37d03a77756ed09bdc34288d84694c819e2c00f8508b2f0f1de849c1697",
+      "selection_policy": "m2-search-only-selection-v1",
+      "selection_context_digest": "sha256:0d5168301cd1ae1cc2dbd508fbf2be2aef8b8ad612e331c703e1b6ff12b944ba",
+      "input_record_refs": [
+        "urn:rulespec:concept-assignment:9d1ae37d03a77756ed09bdc34288d84694c819e2c00f8508b2f0f1de849c1697",
+        "urn:rulespec:evidence-binding:453bfc3be1ae6abf93132a2d088a5338ec8c02461c6da19833a5e050bfc0995f",
+        "urn:rulespec:extraction-activity:4c1593e23b7209bffae2dc83e2b5d495fcde63a382c7794ef6861e5f6b6f480a",
+        "urn:rulespec:ai-lineage:0f29bcf4abc7102c91eb2f65009d43f74d8dd734ba585cf001cfcb409dbf479a",
+        "urn:rulespec:baseline-validation-receipt:242c5d7abef7c70acce5512340623c1b6878c94776d837909645835309cfee9e"
+      ],
+      "checks": [
+        {
+          "check_id": "candidate-policy",
+          "outcome": "pass",
+          "rationale": "The candidate satisfies the M2 selection policy.",
+          "evidence_refs": [
+            "urn:rulespec:concept-assignment:9d1ae37d03a77756ed09bdc34288d84694c819e2c00f8508b2f0f1de849c1697"
+          ]
+        }
+      ],
+      "selection_result": "selected",
+      "reason": "M2 selection fixture",
+      "baseline_validation_receipt_ref": "urn:rulespec:baseline-validation-receipt:242c5d7abef7c70acce5512340623c1b6878c94776d837909645835309cfee9e",
+      "evaluator_ref": "urn:rulespec:extrapolator:m2-fixture",
+      "evaluator_version": "m2-search-only-selection-v1",
+      "evaluated_at": "2026-07-31T12:00:00Z",
+      "effective_as_of": "2026-07-31T12:00:00Z",
+      "record_id": "urn:rulespec:extrapolation-selection-receipt:82a110edbd034f380e0fb8391ddc95ad9f29a4f5c5461114d3befc9c87b9a9bd"
+    },
+    {
+      "record_type": "ExtrapolationSelectionReceipt",
+      "assignment_ref": "urn:rulespec:concept-assignment:7188bf4c11861022672ad341cbcb92cda0067b8dae955d4c01a0a9e746cc823f",
+      "selection_policy": "m2-search-only-selection-v1",
+      "selection_context_digest": "sha256:0d5168301cd1ae1cc2dbd508fbf2be2aef8b8ad612e331c703e1b6ff12b944ba",
+      "input_record_refs": [
+        "urn:rulespec:concept-assignment:7188bf4c11861022672ad341cbcb92cda0067b8dae955d4c01a0a9e746cc823f",
+        "urn:rulespec:evidence-binding:a42f5bce8e1846406e3c9e1f93439e3efe737a999bb2075af2b7d5cbe0407efe",
+        "urn:rulespec:extraction-activity:4c1593e23b7209bffae2dc83e2b5d495fcde63a382c7794ef6861e5f6b6f480a",
+        "urn:rulespec:ai-lineage:0f29bcf4abc7102c91eb2f65009d43f74d8dd734ba585cf001cfcb409dbf479a",
+        "urn:rulespec:baseline-validation-receipt:242c5d7abef7c70acce5512340623c1b6878c94776d837909645835309cfee9e"
+      ],
+      "checks": [
+        {
+          "check_id": "candidate-policy",
+          "outcome": "pass",
+          "rationale": "The candidate satisfies the M2 selection policy.",
+          "evidence_refs": [
+            "urn:rulespec:concept-assignment:7188bf4c11861022672ad341cbcb92cda0067b8dae955d4c01a0a9e746cc823f"
+          ]
+        }
+      ],
+      "selection_result": "selected",
+      "reason": "M2 selection fixture",
+      "baseline_validation_receipt_ref": "urn:rulespec:baseline-validation-receipt:242c5d7abef7c70acce5512340623c1b6878c94776d837909645835309cfee9e",
+      "evaluator_ref": "urn:rulespec:extrapolator:m2-fixture",
+      "evaluator_version": "m2-search-only-selection-v1",
+      "evaluated_at": "2026-07-31T12:00:00Z",
+      "effective_as_of": "2026-07-31T12:00:00Z",
+      "record_id": "urn:rulespec:extrapolation-selection-receipt:d48a0a485d3eef42035c1791b274ca0db08217562619a5adb8ad57d58de00399"
+    },
+    {
+      "record_type": "ExtrapolationSelectionReceipt",
+      "assignment_ref": "urn:rulespec:concept-assignment:731a004a60f0a17b28270928b3bf687973b21d95a567ce548ab65f720fe502c8",
+      "selection_policy": "m2-search-only-selection-v1",
+      "selection_context_digest": "sha256:0d5168301cd1ae1cc2dbd508fbf2be2aef8b8ad612e331c703e1b6ff12b944ba",
+      "input_record_refs": [
+        "urn:rulespec:concept-assignment:731a004a60f0a17b28270928b3bf687973b21d95a567ce548ab65f720fe502c8",
+        "urn:rulespec:evidence-binding:43ed2e26475ffc59896743449cacd67f64ca47749dd0f9a1bc8365da0cc5bfc1",
+        "urn:rulespec:extraction-activity:4c1593e23b7209bffae2dc83e2b5d495fcde63a382c7794ef6861e5f6b6f480a",
+        "urn:rulespec:ai-lineage:0f29bcf4abc7102c91eb2f65009d43f74d8dd734ba585cf001cfcb409dbf479a",
+        "urn:rulespec:baseline-validation-receipt:242c5d7abef7c70acce5512340623c1b6878c94776d837909645835309cfee9e"
+      ],
+      "checks": [
+        {
+          "check_id": "candidate-policy",
+          "outcome": "fail",
+          "rationale": "The control remains outside the selected subset.",
+          "evidence_refs": [
+            "urn:rulespec:concept-assignment:731a004a60f0a17b28270928b3bf687973b21d95a567ce548ab65f720fe502c8"
+          ]
+        }
+      ],
+      "selection_result": "not_selected",
+      "reason": "sealed exclusion control",
+      "baseline_validation_receipt_ref": "urn:rulespec:baseline-validation-receipt:242c5d7abef7c70acce5512340623c1b6878c94776d837909645835309cfee9e",
+      "evaluator_ref": "urn:rulespec:extrapolator:m2-fixture",
+      "evaluator_version": "m2-search-only-selection-v1",
+      "evaluated_at": "2026-07-31T12:00:00Z",
+      "effective_as_of": "2026-07-31T12:00:00Z",
+      "record_id": "urn:rulespec:extrapolation-selection-receipt:970a008231c153909b69d4c3f01e6c5a68ad3dd0ffd884c784227f137600a724"
+    }
+  ],
+  "validation_artifacts": [
+    {
+      "artifact_id": "urn:rulespec:artifact:8551305f67b02c856fba8a601609a593f425d62d4cc7c954a82b56c3ab4650f2",
+      "artifact_type": "agent-validation-request-contract",
+      "content_digest": "sha256:ef728222ec063174841b0f6d56ead965f8cfdccaa28ded540776c39addbd93ba",
+      "media_type": "application/json",
+      "coordinate_system": "not-applicable",
+      "evidence_grade": "sealed-operational-fixture"
+    },
+    {
+      "artifact_id": "urn:rulespec:artifact:d30f2b045292adb858acef782d7da2d422905564be4ebbf7033fa624ced5b51b",
+      "artifact_type": "agent-validation-response",
+      "content_digest": "sha256:8c713cbfb4ae19d842eecbe30f6290384f988b0db5ae9ab78de06326d5159cec",
+      "media_type": "application/json",
+      "coordinate_system": "not-applicable",
+      "evidence_grade": "sealed-operational-fixture"
+    },
+    {
+      "artifact_id": "urn:rulespec:artifact:aac95ea70a16633a363d533ff38290796fba7d4d1c17e204de1e7cfc9d440aea",
+      "artifact_type": "agent-validation-response",
+      "content_digest": "sha256:0b6a3bf94ae9f1259d29ffad301328d8cdeebb301b966aae4c563f2fc76bdd92",
+      "media_type": "application/json",
+      "coordinate_system": "not-applicable",
+      "evidence_grade": "sealed-operational-fixture"
+    }
+  ],
+  "selected_assignment_refs": [
+    "urn:rulespec:concept-assignment:9d1ae37d03a77756ed09bdc34288d84694c819e2c00f8508b2f0f1de849c1697",
+    "urn:rulespec:concept-assignment:7188bf4c11861022672ad341cbcb92cda0067b8dae955d4c01a0a9e746cc823f"
+  ],
+  "coverage": {
+    "record_type": "ExtrapolationCoverage",
+    "candidate_count": 3,
+    "selected_count": 2,
+    "not_selected_count": 1,
+    "deferred_count": 0,
+    "failure_count": 0,
+    "coverage_digest": "sha256:5274a5dd8ee1c32d791db89ec327b68eab4e48c61ffbbda31cc2fb22e552d92e",
+    "coverage_id": "urn:rulespec:extrapolation-coverage:5274a5dd8ee1c32d791db89ec327b68eab4e48c61ffbbda31cc2fb22e552d92e"
+  },
+  "release_digest": "sha256:7fe7cee1549c0be348f843dede0c0b2707bf1bb581b11fae887d2ce2541d9aa9",
+  "release_id": "urn:rulespec:extrapolation:7fe7cee1549c0be348f843dede0c0b2707bf1bb581b11fae887d2ce2541d9aa9"
+}

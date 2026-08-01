@@ -1,0 +1,89 @@
+{
+  "$id": "https://rulespec.org/schemas/releases/rulespec-core-release-v1.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "conformance_fixture_artifacts": {
+      "items": {
+        "$ref": "#/$defs/artifact"
+      },
+      "minItems": 1,
+      "type": "array"
+    },
+    "record_type": {
+      "const": "RulespecCoreRelease"
+    },
+    "release_digest": {
+      "$ref": "#/$defs/digest"
+    },
+    "release_id": {
+      "pattern": "^urn:rulespec:core:[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "release_status": {
+      "enum": [
+        "fixture",
+        "candidate",
+        "published"
+      ]
+    },
+    "schema_artifacts": {
+      "items": {
+        "$ref": "#/$defs/artifact"
+      },
+      "minItems": 1,
+      "type": "array"
+    },
+    "validator_artifacts": {
+      "items": {
+        "$ref": "#/$defs/artifact"
+      },
+      "minItems": 1,
+      "type": "array"
+    },
+    "version": {
+      "minLength": 1,
+      "type": "string"
+    }
+  },
+  "required": [
+    "record_type",
+    "release_id",
+    "release_digest",
+    "release_status",
+    "version",
+    "schema_artifacts",
+    "validator_artifacts",
+    "conformance_fixture_artifacts"
+  ],
+  "title": "RulespecCoreRelease",
+  "type": "object",
+  "$defs": {
+    "artifact": {
+      "additionalProperties": false,
+      "properties": {
+        "artifact_digest": {
+          "$ref": "#/$defs/digest"
+        },
+        "media_type": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "name": {
+          "minLength": 1,
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "media_type",
+        "artifact_digest"
+      ],
+      "type": "object"
+    },
+    "digest": {
+      "pattern": "^sha256:[0-9a-f]{64}$",
+      "type": "string"
+    }
+  }
+}

@@ -1,5 +1,27 @@
 # Rulespec tools
 
+## Canonical release records
+
+[`rulespec_release.py`](rulespec_release.py) validates content-addressed
+`RulespecCoreRelease` and `ExtrapolationRelease` JSON without a sibling
+repository or mutable database. It rejects non-canonical inputs, verifies exact
+release pins and reference closure, checks source coordinates and reversible
+text projections, and applies the baseline and deterministic-selection gates.
+
+[`build_rulespec_release_fixtures.py`](build_rulespec_release_fixtures.py)
+reproduces the sealed M2 positive release and eight negative controls from
+vendored, publisher-owned SpicyRegs and RefSpec release artifacts. Refreshing
+those copies requires both explicit upstream paths; normal tests read only the
+checked-in JSON under `release-records/fixtures/`.
+
+```sh
+python3 tools/rulespec_release.py validate \
+  release-records/fixtures/m2-extrapolation-release-positive.json \
+  --input release-records/fixtures/rulespec-core-release-m2.json \
+  --input release-records/fixtures/m2-input-releases.json
+python3 -m unittest tools.test_rulespec_releases -v
+```
+
 ## Semantic carrier tests
 
 [`test_semantic_carriers.py`](test_semantic_carriers.py) checks that MEANING

@@ -46,7 +46,12 @@ Each used to require a phone call, an email chain, or a careful re-read of a lon
 
 ## What Rulespec is not
 
-A workflow engine, a form builder, a case manager, an AI assistant, a search engine, a document generator, or a policy authoring tool. Rulespec is the substrate underneath those.
+A workflow engine, a form builder, a case manager, an AI assistant, a search
+engine, a document generator, or a policy authoring tool. Rulespec Core is the
+portable substrate underneath those products. The separately released
+Rulespec Extrapolator can produce evidence-bound, search-only candidates, but
+it does not acquire source documents, govern vocabularies, rank results, or
+serve search.
 
 Those tools attach a thin layer of Rulespec metadata to whatever they already build — an *overlay* — and in return they get answers to the questions above. They do not give up their own data model. They attach the overlay where it matters and ignore it where it doesn't.
 
@@ -96,7 +101,8 @@ Anywhere the rules move faster than the developers can rewrite them.
 - **Validation tooling** — [`tools/`](tools/) (Python gates: parse, shape, vocab, conformance report).
 - **Runtime** — [`crates/rkaf-runtime/`](crates/rkaf-runtime/) (Rust engine implementing the five behavioral contracts), [`crates/rkaf-runtime-cli/`](crates/rkaf-runtime-cli/) (the CLI the conformance report shells out to).
 - **Shape source** — [`constraints/`](constraints/) (CUE) compiles into JSON Schema, Rust types, SHACL, and TypeScript.
-- **Decisions and history** — [`thoughts/`](thoughts/) for ADRs and design notes, [`CHANGELOG.md`](CHANGELOG.md) for what changed and why.
+- **Release records** — [`spec/rulespec-releases.md`](spec/rulespec-releases.md) defines independent Core and Extrapolator releases; [`release-records/`](release-records/) contains closed schemas and offline conformance fixtures.
+- **Decisions and history** — [`docs/decisions.md`](docs/decisions.md) records the product boundary, [`thoughts/`](thoughts/) holds earlier ADRs and design notes, and [`CHANGELOG.md`](CHANGELOG.md) records changes.
 - **Contributing** — [`CONTRIBUTING.md`](CONTRIBUTING.md) describes how spec, schemas, validators, and fixtures move together.
 
 ## Where Rulespec is in its life

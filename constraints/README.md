@@ -10,8 +10,11 @@ Selection rationale: see `docs/adr/2026-05-12-rkaf-constraint-source-cue.md`.
 ```
 constraints/
 ├── core/              CUE source for every v0.2 UNIVERSAL vocabulary primitive (§§4-5 of spec).
+├── analysis/          Generic document-analysis contracts above the kernel.
 ├── semantics/         Kernel L0 range registry (class-valued predicate ranges).
 ├── profiles/          Domain profiles. Jurisdiction- or family-specific terms.
+│   ├── refspec/       Open-label extrapolation profile; portable targets only,
+│   │                  excluded from the generated rkaf-core Rust crate.
 │   └── us-rulemaking/ US regulatory identity + the rulemaking-process module
 │                      (spec/rkaf-rulemaking.md), plus its own semantics/l0-ranges.cue.
 ├── adversarial/       Evaluator-class adversarial constraints (≥5 per spec §10.1).
@@ -101,7 +104,7 @@ worth stating outright:
 | Target        | Status | Output                                  |
 |---------------|--------|-----------------------------------------|
 | JSON Schema   | MUST   | `compiled/json-schema/<sub>/<name>.schema.json` (Draft 2020-12) |
-| Rust          | MUST   | `crates/rkaf-core/src/generated/<snake>.rs` for `core/`, `crates/rkaf-core/src/generated/profiles/<profile>/<snake>.rs` for `profiles/` — canonical sink for the Rust workspace; kebab → snake mapping handled by `tools/compile_all.sh`. **Tracked in git.** No parallel `compiled/rust/` copy is produced. |
+| Rust          | MUST for Core and Rust-carried profiles | `crates/rkaf-core/src/generated/<snake>.rs` for `core/` and selected profiles. `profiles/refspec/` belongs to Rulespec Extrapolator and is deliberately excluded from `rkaf-core`. The canonical Rust sink is tracked in git; no parallel `compiled/rust/` copy is produced. |
 | TypeScript    | MUST   | `compiled/typescript/<sub>/<name>.ts`   |
 | SHACL         | MAY    | `compiled/shacl/<sub>/<name>.ttl` (Pattern C only — no `sh:if`/`sh:then`) |
 | CUE           | MAY    | `compiled/cue/<sub>/<name>.cue` (passthrough) |
@@ -118,9 +121,11 @@ tools/compile_all.sh
 ```
 
 `compile_all.sh` is the single canonical driver: it maps each source directory
-to its compiled sub-path (`core`, `adversarial`, `ai-extraction`,
-`profiles/<profile>`), writes Rust for `core/` and `profiles/`, and re-pins the
-embedded L0 contract digests.
+to its compiled sub-path (`core`, `analysis`, `adversarial`, `ai-extraction`,
+`profiles/<profile>`), writes Rust for Core, analysis, and Rust-carried
+profiles, and re-pins the embedded L0 contract digests. The RefSpec profile
+still produces portable JSON Schema, TypeScript, SHACL, CUE, and Rego outputs,
+but never a generated `rkaf-core` module.
 
 CUE packages are directory-scoped, so a profile that composes a kernel shape is
 vetted as one instance with the kernel — which is exactly the dependency it
