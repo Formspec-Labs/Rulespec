@@ -4,26 +4,31 @@ from __future__ import annotations
 
 import copy
 import hashlib
+import io
 import tempfile
 import unittest
+from contextlib import redirect_stderr, redirect_stdout
 from pathlib import Path
 
 import jsonschema
 
-from tools.build_rulespec_release_fixtures import build_all
+from tools.build_rulespec_release_fixtures import build_all, open_vendored_atlas
 from tools.rulespec_release import (
     apply_negative_control,
     canonical_digest,
     canonical_json_bytes,
     compute_release_digest,
+    extrapolation_selection_context_digest,
     index_input_releases,
     load_json,
+)
+from tools.rulespec_release import main as release_main
+from tools.rulespec_release import (
     stable_record_id,
     stamp_release,
     validate_extrapolation_release,
     validate_rulespec_core_release,
 )
-
 
 ROOT = Path(__file__).resolve().parents[1]
 RELEASES = ROOT / "release-records"
@@ -64,7 +69,9 @@ class CanonicalJsonTests(unittest.TestCase):
                 "release_digest": "sha256:" + "1" * 64,
             },
         }
-        expected = canonical_digest({"record_type": "FixtureRelease", "nested": release["nested"]})
+        expected = canonical_digest(
+            {"record_type": "FixtureRelease", "nested": release["nested"]}
+        )
         self.assertEqual(compute_release_digest(release), expected)
         changed = copy.deepcopy(release)
         changed["nested"]["release_id"] = "urn:nested:changed"
@@ -113,29 +120,76 @@ class CoreReleaseTests(unittest.TestCase):
                     self.assertEqual(artifact["artifact_digest"], digest)
 
 
+class InputReleaseIndexTests(unittest.TestCase):
+    def test_compact_standalone_vocabulary_release_is_retired(self) -> None:
+        legacy = {
+            "schema_version": "refspec-vocabulary-release-v1",
+            "release_id": "urn:refspec:vocabulary-release:" + "0" * 64,
+            "release_digest": "sha256:" + "0" * 64,
+        }
+        records, issues = index_input_releases([legacy])
+        self.assertEqual(records, {})
+        self.assertEqual(
+            {issue.code for issue in issues},
+            {"UNSUPPORTED_INPUT_RELEASE"},
+        )
+
+
 class ExtrapolationReleaseTests(unittest.TestCase):
     def setUp(self) -> None:
         self.core = load_json(CORE)
         self.input_bundle = load_json(INPUTS)
         self.release = load_json(EXTRAPOLATION)
+        self.atlas = open_vendored_atlas()
         self.inputs, self.input_issues = index_input_releases(
             [self.core, self.input_bundle]
+        )
+
+    def _restamp_validation_graph(self, changed: dict, agent_index: int) -> dict:
+        agent = changed["agent_validation_receipts"][agent_index]
+        old_agent_id = agent["record_id"]
+        agent["record_id"] = stable_record_id(agent)
+
+        baseline = changed["baseline_validation_receipts"][0]
+        baseline["agent_validation_receipt_refs"] = [
+            agent["record_id"] if ref == old_agent_id else ref
+            for ref in baseline["agent_validation_receipt_refs"]
+        ]
+        old_baseline_id = baseline["record_id"]
+        baseline["record_id"] = stable_record_id(baseline)
+
+        selection_context_digest = extrapolation_selection_context_digest(changed)
+        changed["selection_context_digest"] = selection_context_digest
+        for selection in changed["selection_receipts"]:
+            selection["baseline_validation_receipt_ref"] = baseline["record_id"]
+            selection["input_record_refs"] = [
+                baseline["record_id"] if ref == old_baseline_id else ref
+                for ref in selection["input_record_refs"]
+            ]
+            selection["selection_context_digest"] = selection_context_digest
+            selection["record_id"] = stable_record_id(selection)
+
+        return stamp_release(
+            changed,
+            product="rulespec",
+            release_kind="extrapolation",
         )
 
     def test_checked_in_fixtures_match_the_deterministic_builder(self) -> None:
         built = build_all()
         self.assertEqual(load_json(INPUTS), built["inputs"])
         self.assertEqual(load_json(EXTRAPOLATION), built["extrapolation"])
-        self.assertEqual(
-            load_json(NEGATIVE_CONTROLS), built["negative_controls"]
-        )
+        self.assertEqual(load_json(NEGATIVE_CONTROLS), built["negative_controls"])
 
     def test_positive_release_closes_without_sibling_repositories(self) -> None:
         self.assertEqual(self.input_issues, [])
-        self.assertEqual(validate_extrapolation_release(self.release, self.inputs), [])
+        self.assertEqual(
+            validate_extrapolation_release(self.release, self.inputs, self.atlas),
+            [],
+        )
         self.assertEqual(
             self.release["release_id"],
-            "urn:rulespec:extrapolation:7fe7cee1549c0be348f843dede0c0b2707bf1bb581b11fae887d2ce2541d9aa9",
+            "urn:rulespec:extrapolation:8991fb9140866dceea7b9539da2f5a4b9295e039dc6dd333a75c217de0c443d4",
         )
         selected = set(self.release["selected_assignment_refs"])
         selected_kinds = {
@@ -149,23 +203,51 @@ class ExtrapolationReleaseTests(unittest.TestCase):
             "urn:rulespec:extrapolation-coverage:5274a5dd8ee1c32d791db89ec327b68eab4e48c61ffbbda31cc2fb22e552d92e",
         )
 
+    def test_cli_validates_the_static_file_seam(self) -> None:
+        stdout = io.StringIO()
+        stderr = io.StringIO()
+        with redirect_stdout(stdout), redirect_stderr(stderr):
+            result = release_main(
+                [
+                    "validate",
+                    str(EXTRAPOLATION),
+                    "--input",
+                    str(CORE),
+                    "--input",
+                    str(INPUTS),
+                    "--vocabulary-atlas",
+                    str(UPSTREAM / "refspec-vocabulary-atlas"),
+                ]
+            )
+        self.assertEqual(result, 0, stderr.getvalue())
+        self.assertIn("PASS ExtrapolationRelease", stdout.getvalue())
+
     def test_upstream_records_and_assignment_targets_are_authoritative(self) -> None:
-        document, vocabulary = self.input_bundle["records"]
+        (document,) = self.input_bundle["records"]
         self.assertEqual(
             document,
             load_json(UPSTREAM / "spicyregs-document-release-v1.json"),
         )
         self.assertEqual(
-            vocabulary,
-            load_json(UPSTREAM / "refspec-vocabulary-release-first-slice.json"),
+            self.release["input_releases"]["vocabulary_atlas_asset"],
+            self.atlas.pin(),
         )
         self.assertEqual(
             document["release_id"],
             "urn:spicyregs:document-release:d0a148e2791a0c537d49a9d6cab87869e21c4dbfb9966da63d59a0c5165f71e4",
         )
+        reference_pin = self.atlas.require_member(
+            member_id=self.release["concept_assignments"][0]["asserts_object_ref"],
+            release_id=self.release["input_releases"]["reference_resource_release"][
+                "release_id"
+            ],
+        )
         self.assertEqual(
-            vocabulary["release_id"],
-            "urn:refspec:vocabulary-release:85d675be32b43c15a58435c0faa0c5775de86141352dd6ce8f34890a55835828",
+            self.release["input_releases"]["reference_resource_release"],
+            {
+                "release_id": reference_pin.release_id,
+                "release_digest": reference_pin.release_digest,
+            },
         )
         assignments = self.release["concept_assignments"]
         self.assertEqual(
@@ -178,8 +260,45 @@ class ExtrapolationReleaseTests(unittest.TestCase):
         )
         self.assertEqual(
             {assignment["asserts_object_ref"] for assignment in assignments},
+            {"urn:ref:federal-register-thesaurus:2025-04-01:concept:0570"},
+        )
+
+    def test_every_candidate_target_uses_verified_atlas_membership(self) -> None:
+        class RecordingAtlas:
+            def __init__(self, wrapped):
+                self.wrapped = wrapped
+                self.calls = []
+
+            def pin(self):
+                return self.wrapped.pin()
+
+            def rulespec_core_pin(self):
+                return self.wrapped.rulespec_core_pin()
+
+            def require_member(self, *, member_id, release_id):
+                self.calls.append((member_id, release_id))
+                return self.wrapped.require_member(
+                    member_id=member_id,
+                    release_id=release_id,
+                )
+
+        atlas = RecordingAtlas(self.atlas)
+        self.assertEqual(
+            validate_extrapolation_release(self.release, self.inputs, atlas),
+            [],
+        )
+        self.assertEqual(
+            len(atlas.calls),
+            len(self.release["concept_assignments"]),
+        )
+        self.assertEqual(
+            set(atlas.calls),
             {
-                "urn:refspec:vocabulary:federal-register-thesaurus:2025-04-01:concept:0570"
+                (
+                    assignment["asserts_object_ref"],
+                    assignment["assigned_concept_release_ref"],
+                )
+                for assignment in self.release["concept_assignments"]
             },
         )
 
@@ -202,8 +321,12 @@ class ExtrapolationReleaseTests(unittest.TestCase):
             for artifact in self.release["validation_artifacts"]
         }
         groups = set()
+        actors = set()
+        providers = set()
         for receipt in self.release["agent_validation_receipts"]:
             groups.add(receipt["independence_group"])
+            actors.add(receipt["validator_actor_ref"])
+            providers.add(receipt["provider_model_id"])
             self.assertEqual(receipt["execution_status"], "completed")
             self.assertIn(receipt["request_contract_ref"], artifacts)
             self.assertIn(receipt["response_artifact_ref"], artifacts)
@@ -212,12 +335,142 @@ class ExtrapolationReleaseTests(unittest.TestCase):
                 receipt["response_artifact_digest"],
             )
         self.assertEqual(len(groups), 2)
+        self.assertEqual(len(actors), 2)
+        self.assertEqual(len(providers), 2)
         for receipt in self.release["selection_receipts"]:
             self.assertNotIn("output_extrapolation_release_ref", receipt)
             self.assertEqual(
                 receipt["selection_context_digest"],
                 self.release["selection_context_digest"],
             )
+
+    def test_usable_baseline_requires_distinct_machine_validators(self) -> None:
+        first, second = self.release["agent_validation_receipts"][:2]
+        for field in ("independence_group", "validator_actor_ref"):
+            with self.subTest(field=field):
+                changed = copy.deepcopy(self.release)
+                changed["agent_validation_receipts"][1][field] = first[field]
+                changed = stamp_release(
+                    changed,
+                    product="rulespec",
+                    release_kind="extrapolation",
+                )
+                codes = {
+                    issue.code
+                    for issue in validate_extrapolation_release(
+                        changed, self.inputs, self.atlas
+                    )
+                }
+                self.assertIn("VALIDATORS_NOT_INDEPENDENT", codes)
+
+        changed = copy.deepcopy(self.release)
+        changed_second = changed["agent_validation_receipts"][1]
+        original_ref = changed_second["record_id"]
+        changed_second["provider_model_id"] = first["provider_model_id"]
+        changed_second["record_id"] = stable_record_id(changed_second)
+        changed["baseline_validation_receipts"][0]["agent_validation_receipt_refs"] = [
+            changed_second["record_id"] if value == original_ref else value
+            for value in changed["baseline_validation_receipts"][0][
+                "agent_validation_receipt_refs"
+            ]
+        ]
+        changed = stamp_release(
+            changed,
+            product="rulespec",
+            release_kind="extrapolation",
+        )
+        codes = {
+            issue.code
+            for issue in validate_extrapolation_release(
+                changed, self.inputs, self.atlas
+            )
+        }
+        self.assertIn("VALIDATORS_NOT_INDEPENDENT", codes)
+
+        changed = copy.deepcopy(self.release)
+        changed_first, changed_second = changed["agent_validation_receipts"][:2]
+        original_ref = changed_second["record_id"]
+        changed_second["response_artifact_ref"] = changed_first["response_artifact_ref"]
+        changed_second["response_artifact_digest"] = changed_first[
+            "response_artifact_digest"
+        ]
+        changed_second["record_id"] = stable_record_id(changed_second)
+        changed["baseline_validation_receipts"][0]["agent_validation_receipt_refs"] = [
+            changed_second["record_id"] if value == original_ref else value
+            for value in changed["baseline_validation_receipts"][0][
+                "agent_validation_receipt_refs"
+            ]
+        ]
+        changed = stamp_release(
+            changed,
+            product="rulespec",
+            release_kind="extrapolation",
+        )
+        codes = {
+            issue.code
+            for issue in validate_extrapolation_release(
+                changed, self.inputs, self.atlas
+            )
+        }
+        self.assertIn("VALIDATORS_NOT_INDEPENDENT", codes)
+
+    def test_usable_baseline_rejects_hand_restamped_flags_recommendation(self) -> None:
+        changed = copy.deepcopy(self.release)
+        changed["agent_validation_receipts"][0]["overall_recommendation"] = "flags"
+        changed = self._restamp_validation_graph(changed, 0)
+
+        codes = {
+            issue.code
+            for issue in validate_extrapolation_release(
+                changed, self.inputs, self.atlas
+            )
+        }
+        self.assertIn("BASELINE_VALIDATOR_NOT_SUPPORTIVE", codes)
+        self.assertNotIn("RECORD_ID_MISMATCH", codes)
+        self.assertNotIn("RELEASE_DIGEST_MISMATCH", codes)
+
+    def test_usable_baseline_rejects_hand_restamped_failed_check(self) -> None:
+        changed = copy.deepcopy(self.release)
+        changed["agent_validation_receipts"][0]["check_outcomes"][0]["outcome"] = "fail"
+        changed = self._restamp_validation_graph(changed, 0)
+
+        codes = {
+            issue.code
+            for issue in validate_extrapolation_release(
+                changed, self.inputs, self.atlas
+            )
+        }
+        self.assertIn("BASELINE_VALIDATOR_CHECK_FAILED", codes)
+        self.assertNotIn("RECORD_ID_MISMATCH", codes)
+        self.assertNotIn("RELEASE_DIGEST_MISMATCH", codes)
+
+    def test_usable_baseline_requires_exactly_two_validators(self) -> None:
+        changed = copy.deepcopy(self.release)
+        third = copy.deepcopy(changed["agent_validation_receipts"][0])
+        third.update(
+            {
+                "record_id": "urn:rulespec:agent-validation-receipt:pending",
+                "attempt_id": "m2-validator-c",
+                "independence_group": "model-family-c",
+                "validator_actor_ref": "urn:rulespec:validator:m2-fixture-c",
+                "provider_model_id": "fixture-provider/model-c@1",
+            }
+        )
+        changed["agent_validation_receipts"].append(third)
+        changed["baseline_validation_receipts"][0][
+            "agent_validation_receipt_refs"
+        ].append(third["record_id"])
+        changed = self._restamp_validation_graph(changed, 2)
+
+        codes = {
+            issue.code
+            for issue in validate_extrapolation_release(
+                changed, self.inputs, self.atlas
+            )
+        }
+        self.assertIn("BASELINE_VALIDATOR_COUNT_INVALID", codes)
+        self.assertNotIn("RECORD_ID_MISMATCH", codes)
+        self.assertNotIn("RELEASE_DIGEST_MISMATCH", codes)
 
     def test_terminal_receipt_ids_bind_decisions_and_outcomes(self) -> None:
         mutations = (
@@ -240,7 +493,10 @@ class ExtrapolationReleaseTests(unittest.TestCase):
             changed, product="rulespec", release_kind="extrapolation"
         )
         codes = {
-            issue.code for issue in validate_extrapolation_release(changed, self.inputs)
+            issue.code
+            for issue in validate_extrapolation_release(
+                changed, self.inputs, self.atlas
+            )
         }
         self.assertIn("SELECTION_CONTEXT_MISMATCH", codes)
 
@@ -257,7 +513,8 @@ class ExtrapolationReleaseTests(unittest.TestCase):
         self.assertEqual(
             [control["name"] for control in controls["controls"]],
             [
-                "wrong-vocabulary-release",
+                "wrong-vocabulary-atlas",
+                "reference-release-digest-mismatch",
                 "document-release-digest-mismatch",
                 "missing-evidence",
                 "missing-ai-lineage",
@@ -265,12 +522,15 @@ class ExtrapolationReleaseTests(unittest.TestCase):
                 "processing-segment-target",
                 "validator-abstention",
                 "excluded-assignment-selected",
+                "unselected-assignment-nonmember",
             ],
         )
         for control in controls["controls"]:
             with self.subTest(control=control["name"]):
                 mutated = apply_negative_control(self.release, control)
-                issues = validate_extrapolation_release(mutated, self.inputs)
+                issues = validate_extrapolation_release(
+                    mutated, self.inputs, self.atlas
+                )
                 codes = {issue.code for issue in issues}
                 self.assertIn(control["expected_error"], codes)
                 self.assertNotIn("RELEASE_DIGEST_MISMATCH", codes)
@@ -279,11 +539,10 @@ class ExtrapolationReleaseTests(unittest.TestCase):
     def test_empty_release_fails_closed(self) -> None:
         empty = copy.deepcopy(self.release)
         empty["selected_assignment_refs"] = []
-        empty = stamp_release(
-            empty, product="rulespec", release_kind="extrapolation"
-        )
+        empty = stamp_release(empty, product="rulespec", release_kind="extrapolation")
         codes = {
-            issue.code for issue in validate_extrapolation_release(empty, self.inputs)
+            issue.code
+            for issue in validate_extrapolation_release(empty, self.inputs, self.atlas)
         }
         self.assertIn("EXTRAPOLATION_RELEASE_EMPTY", codes)
 

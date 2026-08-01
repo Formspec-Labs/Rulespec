@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """Validate canonical Rulespec Core and Extrapolator release records.
 
-The module uses only the Python standard library. Consumers can therefore
-validate pinned release fixtures without a Rulespec checkout, a RefSpec
-checkout, a SpicyRegs checkout, or a mutable database.
+The JSON release logic uses only the Python standard library. Extrapolation
+validation receives a product-local reader for the pinned static vocabulary
+atlas. Consumers need no RefSpec or SpicyRegs checkout and no mutable database.
 """
 
 from __future__ import annotations
@@ -14,10 +14,10 @@ import hashlib
 import json
 import re
 import sys
+from collections.abc import Iterable, Mapping, Sequence
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Iterable, Mapping, Sequence
-
+from typing import Any, Protocol
 
 SHA256_RE = re.compile(r"^sha256:[0-9a-f]{64}$")
 ABSOLUTE_ID_RE = re.compile(r"^[A-Za-z][A-Za-z0-9+.-]*:[^\s]+$")
@@ -33,6 +33,28 @@ class ValidationIssue:
 
     def __str__(self) -> str:
         return f"{self.code} {self.path}: {self.message}"
+
+
+class ExactReleaseIdentity(Protocol):
+    """An exact release identity returned by a verified file reader."""
+
+    release_id: str
+    release_digest: str
+
+
+class AtlasMembershipReader(Protocol):
+    """The file-only atlas operations required by ExtrapolationRelease."""
+
+    def pin(self) -> Mapping[str, str]:
+        """Return the selected asset's three exact identity fields."""
+
+    def rulespec_core_pin(self) -> ExactReleaseIdentity:
+        """Return the Rulespec Core release sealed into the atlas manifest."""
+
+    def require_member(
+        self, *, member_id: str, release_id: str
+    ) -> ExactReleaseIdentity:
+        """Prove membership and return the containing release identity."""
 
 
 def _reject_constant(value: str) -> None:
@@ -104,10 +126,7 @@ def extrapolation_selection_context_digest(release: Mapping[str, Any]) -> str:
             and isinstance(receipt.get("selection_policy"), str)
         }
     )
-    preimage = {
-        field: release.get(field)
-        for field in _SELECTION_CONTEXT_FIELDS
-    }
+    preimage = {field: release.get(field) for field in _SELECTION_CONTEXT_FIELDS}
     preimage["selection_policies"] = policies
     return canonical_digest(preimage)
 
@@ -291,9 +310,7 @@ def stable_record_id(record: Mapping[str, Any]) -> str:
         )
     if record_type in CONTENT_ADDRESSED_RECEIPT_TYPES:
         identity = {
-            field: value
-            for field, value in record.items()
-            if field != "record_id"
+            field: value for field, value in record.items() if field != "record_id"
         }
     else:
         identity = {field: record[field] for field in fields}
@@ -309,9 +326,7 @@ def stamp_record(record: Mapping[str, Any]) -> dict[str, Any]:
     return stamped
 
 
-def _issue(
-    issues: list[ValidationIssue], code: str, path: str, message: str
-) -> None:
+def _issue(issues: list[ValidationIssue], code: str, path: str, message: str) -> None:
     issues.append(ValidationIssue(code=code, path=path, message=message))
 
 
@@ -325,9 +340,7 @@ def _required_fields(
     return issues
 
 
-def _check_digest(
-    value: object, issues: list[ValidationIssue], path: str
-) -> None:
+def _check_digest(value: object, issues: list[ValidationIssue], path: str) -> None:
     if not isinstance(value, str) or not SHA256_RE.fullmatch(value):
         _issue(
             issues,
@@ -335,6 +348,32 @@ def _check_digest(
             path,
             "expected lowercase sha256:<64 hex>",
         )
+
+
+def _check_absolute_id(value: object, issues: list[ValidationIssue], path: str) -> None:
+    if not isinstance(value, str) or not ABSOLUTE_ID_RE.fullmatch(value):
+        _issue(
+            issues,
+            "INVALID_IDENTIFIER",
+            path,
+            "expected an absolute identifier",
+        )
+
+
+def _exact_release_pin(value: object) -> dict[str, str]:
+    """Normalize a small product pin returned by a verified reader."""
+
+    if isinstance(value, Mapping):
+        release_id = value.get("release_id")
+        release_digest = value.get("release_digest")
+    else:
+        release_id = getattr(value, "release_id", None)
+        release_digest = getattr(value, "release_digest", None)
+    if not isinstance(release_id, str) or not ABSOLUTE_ID_RE.fullmatch(release_id):
+        raise ValueError("verified reader returned an invalid release identifier")
+    if not isinstance(release_digest, str) or not SHA256_RE.fullmatch(release_digest):
+        raise ValueError("verified reader returned an invalid release digest")
+    return {"release_id": release_id, "release_digest": release_digest}
 
 
 def validate_release_identity(
@@ -444,24 +483,13 @@ def _release_kind(record_type: str) -> tuple[str, str] | None:
     return {
         "RulespecCoreRelease": ("rulespec", "core"),
         "DocumentRelease": ("spicyregs", "document-release"),
-        "VocabularyRelease": ("refspec", "vocabulary-release"),
         "ReferenceResourceRelease": ("rulespec", "reference-resource"),
         "ExtrapolationRelease": ("rulespec", "extrapolation"),
     }.get(record_type)
 
 
 def _record_type(record: Mapping[str, Any]) -> object:
-    record_type = record.get("record_type")
-    if record_type is not None:
-        return record_type
-    if (
-        record.get("schema_version") == "refspec-vocabulary-release-v1"
-        and str(record.get("release_id", "")).startswith(
-            "urn:refspec:vocabulary-release:"
-        )
-    ):
-        return "VocabularyRelease"
-    return None
+    return record.get("record_type")
 
 
 def fixture_records(value: Any) -> list[dict[str, Any]]:
@@ -539,6 +567,13 @@ def _pin_record(
     if not isinstance(pin, dict):
         _issue(issues, "MISSING_FIELD", path, "release pin is required")
         return None
+    if set(pin) != {"release_id", "release_digest"}:
+        _issue(
+            issues,
+            "RELEASE_PIN_INVALID",
+            path,
+            "release pin must contain only release_id and release_digest",
+        )
     release_id = pin.get("release_id")
     digest = pin.get("release_digest")
     target = inputs.get(release_id) if isinstance(release_id, str) else None
@@ -659,8 +694,7 @@ def _document_indexes(
     representations = {
         value["representation_id"]: value
         for value in document.get("text_representations", [])
-        if isinstance(value, dict)
-        and isinstance(value.get("representation_id"), str)
+        if isinstance(value, dict) and isinstance(value.get("representation_id"), str)
     }
     return artifacts, fragments, representations
 
@@ -689,9 +723,7 @@ def _validate_document_records(
     representation_by_artifact = {
         artifact_ref: representation
         for representation in representations.values()
-        if isinstance(
-            artifact_ref := _representation_artifact_ref(representation), str
-        )
+        if isinstance(artifact_ref := _representation_artifact_ref(representation), str)
     }
     for fragment_id, fragment in fragments.items():
         path = f"$inputs/document/source_fragments/{fragment_id}"
@@ -706,9 +738,7 @@ def _validate_document_records(
                 "fragment source must be a published text-representation Artifact",
             )
             continue
-        if fragment.get("source_artifact_digest") != artifact.get(
-            "content_digest"
-        ):
+        if fragment.get("source_artifact_digest") != artifact.get("content_digest"):
             _issue(
                 issues,
                 "FRAGMENT_SOURCE_DIGEST_MISMATCH",
@@ -725,9 +755,10 @@ def _validate_document_records(
             )
             continue
         expected_text_digest = text_digest(source_text)
-        if representation.get("text_digest") != expected_text_digest or artifact.get(
-            "content_digest"
-        ) != expected_text_digest:
+        if (
+            representation.get("text_digest") != expected_text_digest
+            or artifact.get("content_digest") != expected_text_digest
+        ):
             _issue(
                 issues,
                 "TEXT_REPRESENTATION_DIGEST_MISMATCH",
@@ -735,9 +766,10 @@ def _validate_document_records(
                 f"expected {expected_text_digest}",
             )
         selector = fragment.get("selector")
-        if not isinstance(selector, dict) or selector.get(
-            "coordinate_system"
-        ) not in {"unicode-code-points", "unicode-codepoints-half-open"}:
+        if not isinstance(selector, dict) or selector.get("coordinate_system") not in {
+            "unicode-code-points",
+            "unicode-codepoints-half-open",
+        }:
             _issue(
                 issues,
                 "FRAGMENT_SELECTOR_INVALID",
@@ -898,8 +930,10 @@ def _validate_projection(
                         "derived source range differs from pinned representation",
                     )
             refs = item.get("source_fragment_refs")
-            if not isinstance(refs, list) or not refs or any(
-                ref not in fragments for ref in refs
+            if (
+                not isinstance(refs, list)
+                or not refs
+                or any(ref not in fragments for ref in refs)
             ):
                 _issue(
                     issues,
@@ -988,7 +1022,12 @@ def _validate_projection(
     for index, omitted in enumerate(projection.get("omitted_source_ranges", [])):
         path = f"$/derived_text_projections/omitted_source_ranges/{index}"
         if not isinstance(omitted, dict):
-            _issue(issues, "PROJECTION_OMISSION_INVALID", path, "omission must be an object")
+            _issue(
+                issues,
+                "PROJECTION_OMISSION_INVALID",
+                path,
+                "omission must be an object",
+            )
             continue
         representation = representations.get(
             omitted.get("source_text_representation_ref")
@@ -1014,90 +1053,10 @@ def _validate_projection(
             )
 
 
-def _reference_resource_view(
-    vocabulary: Mapping[str, Any] | None, issues: list[ValidationIssue]
-) -> Mapping[str, Any]:
-    if vocabulary is None:
-        return {}
-    candidate = vocabulary.get("reference_resource_release")
-    if not isinstance(candidate, dict):
-        _issue(
-            issues,
-            "REFERENCE_RELEASE_NOT_FOUND",
-            "$inputs/vocabulary/reference_resource_release",
-            "VocabularyRelease must expose a complete ReferenceResourceRelease",
-        )
-        return {}
-    if candidate.get("record_type") == "ReferenceResourceRelease":
-        issues.extend(
-            validate_release_identity(
-                candidate,
-                product="rulespec",
-                release_kind="reference-resource",
-                path="$inputs/vocabulary/reference_resource_release",
-            )
-        )
-        return candidate
-
-    graph = candidate.get("@graph")
-    if not isinstance(graph, list):
-        _issue(
-            issues,
-            "REFERENCE_RELEASE_NOT_FOUND",
-            "$inputs/vocabulary/reference_resource_release/@graph",
-            "portable reference release must carry a JSON-LD graph",
-        )
-        return {}
-    nodes = [
-        value
-        for value in graph
-        if isinstance(value, dict)
-        and value.get("@type") == "rkaf:ReferenceResourceRelease"
-    ]
-    if len(nodes) != 1:
-        _issue(
-            issues,
-            "REFERENCE_RELEASE_NOT_FOUND",
-            "$inputs/vocabulary/reference_resource_release/@graph",
-            "expected one rkaf:ReferenceResourceRelease node",
-        )
-        return {}
-    node = nodes[0]
-    release_id = node.get("@id")
-    release_digest = node.get("rkaf:referenceReleaseDigest")
-    _check_digest(
-        release_digest,
-        issues,
-        "$inputs/vocabulary/reference_resource_release/referenceReleaseDigest",
-    )
-    concepts = vocabulary.get("concepts")
-    concept_ids = {
-        value.get("concept_id")
-        for value in concepts or []
-        if isinstance(value, dict) and isinstance(value.get("concept_id"), str)
-    }
-    members = node.get("prov:hadMember")
-    if (
-        node.get("rkaf:membershipMode") != "rkaf:completeMembership"
-        or not isinstance(members, list)
-        or set(members) != concept_ids
-    ):
-        _issue(
-            issues,
-            "REFERENCE_RELEASE_INCOMPLETE",
-            "$inputs/vocabulary/reference_resource_release",
-            "JSON-LD membership must be complete and match published concepts",
-        )
-    return {
-        "release_id": release_id,
-        "release_digest": release_digest,
-        "membership_mode": "complete",
-        "concepts": concepts if isinstance(concepts, list) else [],
-    }
-
-
 def validate_extrapolation_release(
-    release: Mapping[str, Any], inputs: Mapping[str, Mapping[str, Any]]
+    release: Mapping[str, Any],
+    inputs: Mapping[str, Mapping[str, Any]],
+    atlas: AtlasMembershipReader | None = None,
 ) -> list[ValidationIssue]:
     """Validate one nonempty, evidence-bound ExtrapolationRelease."""
 
@@ -1157,13 +1116,121 @@ def validate_extrapolation_release(
         inputs,
         issues,
     )
-    vocabulary = _pin_record(
-        release,
-        "vocabulary_release",
-        "VocabularyRelease",
-        inputs,
-        issues,
-    )
+    input_pins = release.get("input_releases")
+    if not isinstance(input_pins, dict):
+        input_pins = {}
+    elif set(input_pins) != {
+        "rulespec_core_release",
+        "document_release",
+        "vocabulary_atlas_asset",
+        "reference_resource_release",
+    }:
+        _issue(
+            issues,
+            "INPUT_PIN_SET_INVALID",
+            "$/input_releases",
+            "input pins must be exactly Core, document, atlas, and reference release",
+        )
+
+    atlas_pin = input_pins.get("vocabulary_atlas_asset")
+    atlas_pin_fields = {
+        "asset_id",
+        "manifest_digest",
+        "distribution_digest",
+    }
+    if not isinstance(atlas_pin, dict):
+        _issue(
+            issues,
+            "MISSING_FIELD",
+            "$/input_releases/vocabulary_atlas_asset",
+            "static vocabulary atlas pin is required",
+        )
+        atlas_pin = {}
+    else:
+        if set(atlas_pin) != atlas_pin_fields:
+            _issue(
+                issues,
+                "ATLAS_ASSET_PIN_INVALID",
+                "$/input_releases/vocabulary_atlas_asset",
+                "atlas pin must contain only asset_id, manifest_digest, and distribution_digest",
+            )
+        _check_absolute_id(
+            atlas_pin.get("asset_id"),
+            issues,
+            "$/input_releases/vocabulary_atlas_asset/asset_id",
+        )
+        for field in ("manifest_digest", "distribution_digest"):
+            _check_digest(
+                atlas_pin.get(field),
+                issues,
+                f"$/input_releases/vocabulary_atlas_asset/{field}",
+            )
+
+    reference_release = input_pins.get("reference_resource_release")
+    if not isinstance(reference_release, dict):
+        _issue(
+            issues,
+            "MISSING_FIELD",
+            "$/input_releases/reference_resource_release",
+            "reference resource release pin is required",
+        )
+        reference_release = {}
+    else:
+        if set(reference_release) != {"release_id", "release_digest"}:
+            _issue(
+                issues,
+                "REFERENCE_RELEASE_PIN_INVALID",
+                "$/input_releases/reference_resource_release",
+                "reference release pin must contain only release_id and release_digest",
+            )
+        _check_absolute_id(
+            reference_release.get("release_id"),
+            issues,
+            "$/input_releases/reference_resource_release/release_id",
+        )
+        _check_digest(
+            reference_release.get("release_digest"),
+            issues,
+            "$/input_releases/reference_resource_release/release_digest",
+        )
+
+    if atlas is None:
+        _issue(
+            issues,
+            "ATLAS_NOT_PROVIDED",
+            "$inputs/vocabulary_atlas_asset",
+            "the pinned static vocabulary atlas is required",
+        )
+    else:
+        try:
+            verified_atlas_pin = dict(atlas.pin())
+            verified_core_pin = _exact_release_pin(atlas.rulespec_core_pin())
+        except (AttributeError, TypeError, ValueError) as exc:
+            _issue(
+                issues,
+                "ATLAS_INVALID",
+                "$inputs/vocabulary_atlas_asset",
+                str(exc),
+            )
+        else:
+            if verified_atlas_pin != atlas_pin:
+                _issue(
+                    issues,
+                    "ATLAS_ASSET_PIN_MISMATCH",
+                    "$/input_releases/vocabulary_atlas_asset",
+                    "release pin differs from the verified static atlas",
+                )
+            declared_core_pin = input_pins.get("rulespec_core_release")
+            if not isinstance(declared_core_pin, dict) or verified_core_pin != {
+                "release_id": declared_core_pin.get("release_id"),
+                "release_digest": declared_core_pin.get("release_digest"),
+            }:
+                _issue(
+                    issues,
+                    "ATLAS_CORE_PIN_MISMATCH",
+                    "$/input_releases/rulespec_core_release",
+                    "Rulespec Core pin differs from the release sealed into the atlas",
+                )
     if core is not None:
         issues.extend(validate_rulespec_core_release(core, path="$inputs/core"))
     profile = release.get("profile")
@@ -1207,9 +1274,7 @@ def validate_extrapolation_release(
         "ExtrapolationSelectionReceipt",
         issues,
     )
-    expected_selection_context_digest = extrapolation_selection_context_digest(
-        release
-    )
+    expected_selection_context_digest = extrapolation_selection_context_digest(release)
     if release.get("selection_context_digest") != expected_selection_context_digest:
         _issue(
             issues,
@@ -1282,35 +1347,19 @@ def validate_extrapolation_release(
             "release_id": core.get("release_id"),
             "release_digest": core.get("release_digest"),
         }
-        for name, upstream in (("document", document), ("vocabulary", vocabulary)):
-            if upstream is not None and upstream.get(
-                "rulespec_core_release"
-            ) != expected_core_pin:
-                _issue(
-                    issues,
-                    "UPSTREAM_CORE_PIN_MISMATCH",
-                    f"$inputs/{name}/rulespec_core_release",
-                    "upstream release must pin the same Rulespec Core release",
-                )
-    reference_release = _reference_resource_view(vocabulary, issues)
-    if reference_release and reference_release.get("membership_mode") != "complete":
-        _issue(
-            issues,
-            "REFERENCE_RELEASE_INCOMPLETE",
-            "$inputs/vocabulary/reference_resource_release/membership_mode",
-            "concept assignments require complete membership",
-        )
-    concepts = {
-        concept.get("concept_id")
-        for concept in reference_release.get("concepts", [])
-        if isinstance(concept, dict)
-        and isinstance(concept.get("concept_id"), str)
-    }
+        if (
+            document is not None
+            and document.get("rulespec_core_release") != expected_core_pin
+        ):
+            _issue(
+                issues,
+                "UPSTREAM_CORE_PIN_MISMATCH",
+                "$inputs/document/rulespec_core_release",
+                "upstream document release must pin the same Rulespec Core release",
+            )
 
     for projection in projections.values():
-        _validate_projection(
-            projection, segments, fragments, representations, issues
-        )
+        _validate_projection(projection, segments, fragments, representations, issues)
 
     for segment_id, segment in segments.items():
         if document is None or segment.get("document_release_ref") != document.get(
@@ -1323,8 +1372,10 @@ def validate_extrapolation_release(
                 "segment must pin this ExtrapolationRelease's DocumentRelease",
             )
         refs = segment.get("input_fragment_refs")
-        if not isinstance(refs, list) or not refs or any(
-            ref not in fragments for ref in refs
+        if (
+            not isinstance(refs, list)
+            or not refs
+            or any(ref not in fragments for ref in refs)
         ):
             _issue(
                 issues,
@@ -1333,14 +1384,17 @@ def validate_extrapolation_release(
                 "segment inputs must resolve in the pinned DocumentRelease",
             )
 
-    input_pins = release.get("input_releases")
-    if not isinstance(input_pins, dict):
-        input_pins = {}
     expected_input_refs = {
-        pin.get("release_id")
-        for pin in input_pins.values()
-        if isinstance(pin, dict) and isinstance(pin.get("release_id"), str)
+        pin.get(field)
+        for name, field in (
+            ("rulespec_core_release", "release_id"),
+            ("document_release", "release_id"),
+            ("vocabulary_atlas_asset", "asset_id"),
+            ("reference_resource_release", "release_id"),
+        )
+        if isinstance((pin := input_pins.get(name)), Mapping)
     }
+    expected_input_refs.discard(None)
     for activity_id, activity in activities.items():
         if activity.get("processing_segment_ref") not in segments:
             _issue(
@@ -1350,12 +1404,17 @@ def validate_extrapolation_release(
                 "extraction activity must resolve its processing segment",
             )
         refs = activity.get("input_release_refs")
-        if not isinstance(refs, list) or set(refs) != expected_input_refs:
+        if (
+            not isinstance(refs, list)
+            or not all(isinstance(ref, str) for ref in refs)
+            or len(refs) != len(expected_input_refs)
+            or set(refs) != expected_input_refs
+        ):
             _issue(
                 issues,
                 "EXTRACTION_INPUT_RELEASE_MISMATCH",
                 f"$/extraction_activities/{activity_id}/input_release_refs",
-                "activity inputs must exactly match the three pinned releases",
+                "activity inputs must exactly match the four pinned input resources",
             )
         _check_digest(
             activity.get("request_contract_digest"),
@@ -1406,9 +1465,7 @@ def validate_extrapolation_release(
                     "source fragment does not resolve in DocumentRelease",
                 )
                 continue
-            if span.get("selected_text_digest") != fragment.get(
-                "selected_text_digest"
-            ):
+            if span.get("selected_text_digest") != fragment.get("selected_text_digest"):
                 _issue(
                     issues,
                     "EVIDENCE_DIGEST_MISMATCH",
@@ -1428,9 +1485,10 @@ def validate_extrapolation_release(
         else:
             for binding_ref in binding_refs:
                 binding = evidence.get(binding_ref)
-                if binding is None or binding.get(
-                    "binds_assignment_ref"
-                ) != assignment_id:
+                if (
+                    binding is None
+                    or binding.get("binds_assignment_ref") != assignment_id
+                ):
                     _issue(
                         issues,
                         "MISSING_EVIDENCE",
@@ -1444,15 +1502,55 @@ def validate_extrapolation_release(
                 f"$/concept_assignments/{assignment_id}",
                 "every candidate assignment requires extraction activity lineage",
             )
-        if assignment.get("assertion_origin") == "aiSuggested" and assignment.get(
-            "ai_lineage_ref"
-        ) not in lineages:
+        if (
+            assignment.get("assertion_origin") == "aiSuggested"
+            and assignment.get("ai_lineage_ref") not in lineages
+        ):
             _issue(
                 issues,
                 "MISSING_AI_LINEAGE",
                 f"$/concept_assignments/{assignment_id}",
                 "aiSuggested assignments require AILineage",
             )
+        assigned_release_id = assignment.get("assigned_concept_release_ref")
+        member_id = assignment.get("asserts_object_ref")
+        if assigned_release_id != reference_release.get("release_id"):
+            _issue(
+                issues,
+                "ASSIGNED_CONCEPT_RELEASE_MISMATCH",
+                f"$/concept_assignments/{assignment_id}/assigned_concept_release_ref",
+                "assignment must pin the selected reference resource release",
+            )
+        if not isinstance(assigned_release_id, str) or not isinstance(member_id, str):
+            _issue(
+                issues,
+                "CONCEPT_NOT_IN_RELEASE",
+                f"$/concept_assignments/{assignment_id}/asserts_object_ref",
+                "assignment target and reference release must be absolute identifiers",
+            )
+        elif atlas is not None:
+            try:
+                verified_reference_pin = _exact_release_pin(
+                    atlas.require_member(
+                        member_id=member_id,
+                        release_id=assigned_release_id,
+                    )
+                )
+            except (AttributeError, TypeError, ValueError) as exc:
+                _issue(
+                    issues,
+                    "CONCEPT_NOT_IN_RELEASE",
+                    f"$/concept_assignments/{assignment_id}/asserts_object_ref",
+                    str(exc),
+                )
+            else:
+                if verified_reference_pin != reference_release:
+                    _issue(
+                        issues,
+                        "REFERENCE_RELEASE_PIN_MISMATCH",
+                        "$/input_releases/reference_resource_release",
+                        "reference release pin differs from the atlas membership proof",
+                    )
 
     selected_refs = release.get("selected_assignment_refs")
     if not isinstance(selected_refs, list) or not selected_refs:
@@ -1580,22 +1678,6 @@ def validate_extrapolation_release(
                 f"unsupported subject kind {subject_kind!r}",
             )
 
-        if assignment.get("assigned_concept_release_ref") != reference_release.get(
-            "release_id"
-        ):
-            _issue(
-                issues,
-                "ASSIGNED_CONCEPT_RELEASE_MISMATCH",
-                f"$/concept_assignments/{assignment_ref}",
-                "assignment must pin the complete reference resource release",
-            )
-        if assignment.get("asserts_object_ref") not in concepts:
-            _issue(
-                issues,
-                "CONCEPT_NOT_IN_RELEASE",
-                f"$/concept_assignments/{assignment_ref}",
-                "assigned concept is not a member of the pinned release",
-            )
         if assignment.get("usage_eligibility") != "searchOnly":
             _issue(
                 issues,
@@ -1748,9 +1830,11 @@ def validate_extrapolation_release(
         expected_profile_digest = (
             canonical_digest(profile) if isinstance(profile, dict) else None
         )
-        if receipt.get("target_ref") != (
-            profile.get("profile_id") if isinstance(profile, dict) else None
-        ) or receipt.get("target_digest") != expected_profile_digest:
+        if (
+            receipt.get("target_ref")
+            != (profile.get("profile_id") if isinstance(profile, dict) else None)
+            or receipt.get("target_digest") != expected_profile_digest
+        ):
             _issue(
                 issues,
                 "VALIDATOR_TARGET_MISMATCH",
@@ -1759,9 +1843,7 @@ def validate_extrapolation_release(
             )
         checks = receipt.get("check_outcomes")
         outcomes = {
-            check.get("outcome")
-            for check in checks or []
-            if isinstance(check, dict)
+            check.get("outcome") for check in checks or [] if isinstance(check, dict)
         }
         if "abstain" in outcomes or receipt.get("overall_recommendation") == "abstains":
             _issue(
@@ -1797,6 +1879,10 @@ def validate_extrapolation_release(
             )
 
     for baseline_id, baseline in baseline_receipts.items():
+        baseline_is_usable = baseline.get("aggregate_result") in {
+            "usable_for_search",
+            "usable_with_nonblocking_limits",
+        }
         if baseline.get("sample_manifest_digest") != manifest_digest:
             _issue(
                 issues,
@@ -1811,14 +1897,12 @@ def validate_extrapolation_release(
                 f"$/baseline_validation_receipts/{baseline_id}/sample_manifest_ref",
                 "baseline must name the content-derived sample manifest",
             )
-        if vocabulary is None or baseline.get("target_release_ref") != vocabulary.get(
-            "release_id"
-        ):
+        if baseline.get("target_release_ref") != reference_release.get("release_id"):
             _issue(
                 issues,
                 "BASELINE_TARGET_MISMATCH",
                 f"$/baseline_validation_receipts/{baseline_id}/target_release_ref",
-                "baseline must qualify the pinned vocabulary release and profile",
+                "baseline must qualify the exact reference resource release and profile",
             )
         referenced_agents = [
             agent_receipts.get(ref)
@@ -1832,13 +1916,33 @@ def validate_extrapolation_release(
                 "baseline references an unavailable validator receipt",
             )
             continue
-        groups = {receipt.get("independence_group") for receipt in referenced_agents}
-        if len(groups) < 2:
+        independence_dimensions = {
+            "independence groups": [
+                receipt.get("independence_group") for receipt in referenced_agents
+            ],
+            "validator actors": [
+                receipt.get("validator_actor_ref") for receipt in referenced_agents
+            ],
+            "provider/model identities": [
+                receipt.get("provider_model_id") for receipt in referenced_agents
+            ],
+            "response artifacts": [
+                receipt.get("response_artifact_ref") for receipt in referenced_agents
+            ],
+        }
+        missing_independence = [
+            dimension
+            for dimension, values in independence_dimensions.items()
+            if not all(isinstance(value, str) and value.strip() for value in values)
+            or len(set(values)) < 2
+        ]
+        if baseline_is_usable and missing_independence:
             _issue(
                 issues,
                 "VALIDATORS_NOT_INDEPENDENT",
                 f"$/baseline_validation_receipts/{baseline_id}",
-                "usable baseline requires two independence groups",
+                "usable baseline requires distinct nonempty "
+                + ", ".join(missing_independence),
             )
         if any(
             receipt.get("execution_status") != "completed"
@@ -1850,18 +1954,50 @@ def validate_extrapolation_release(
                 f"$/baseline_validation_receipts/{baseline_id}",
                 "failed validator attempts cannot support a usable baseline",
             )
-        if any(
-            receipt.get("overall_recommendation") == "abstains"
+        if baseline_is_usable and len(referenced_agents) != 2:
+            _issue(
+                issues,
+                "BASELINE_VALIDATOR_COUNT_INVALID",
+                f"$/baseline_validation_receipts/{baseline_id}",
+                "a usable baseline requires exactly two agent validation receipts",
+            )
+        if baseline_is_usable and any(
+            receipt.get("overall_recommendation") != "supports"
+            for receipt in referenced_agents
+        ):
+            _issue(
+                issues,
+                "BASELINE_VALIDATOR_NOT_SUPPORTIVE",
+                f"$/baseline_validation_receipts/{baseline_id}",
+                "each validator in a usable baseline must recommend supports",
+            )
+        if baseline_is_usable and any(
+            not isinstance(receipt.get("check_outcomes"), list)
+            or not receipt["check_outcomes"]
             or any(
-                check.get("outcome") == "abstain"
-                for check in receipt.get("check_outcomes", [])
-                if isinstance(check, dict)
+                not isinstance(check, dict) or check.get("outcome") != "pass"
+                for check in receipt["check_outcomes"]
             )
             for receipt in referenced_agents
-        ) and baseline.get("aggregate_result") in {
-            "usable_for_search",
-            "usable_with_nonblocking_limits",
-        }:
+        ):
+            _issue(
+                issues,
+                "BASELINE_VALIDATOR_CHECK_FAILED",
+                f"$/baseline_validation_receipts/{baseline_id}",
+                "every check from each validator in a usable baseline must pass",
+            )
+        if (
+            any(
+                receipt.get("overall_recommendation") == "abstains"
+                or any(
+                    check.get("outcome") == "abstain"
+                    for check in receipt.get("check_outcomes", [])
+                    if isinstance(check, dict)
+                )
+                for receipt in referenced_agents
+            )
+            and baseline_is_usable
+        ):
             _issue(
                 issues,
                 "BASELINE_ABSTENTION",
@@ -1938,7 +2074,9 @@ def validate_extrapolation_release(
 def _set_pointer(root: Any, pointer: str, value: Any, *, remove: bool) -> None:
     if not pointer.startswith("/"):
         raise ValueError(f"JSON pointer must start with '/': {pointer!r}")
-    tokens = [token.replace("~1", "/").replace("~0", "~") for token in pointer[1:].split("/")]
+    tokens = [
+        token.replace("~1", "/").replace("~0", "~") for token in pointer[1:].split("/")
+    ]
     target = root
     for token in tokens[:-1]:
         target = target[int(token)] if isinstance(target, list) else target[token]
@@ -1989,7 +2127,43 @@ def _validate_command(args: argparse.Namespace) -> int:
     elif release.get("record_type") == "ExtrapolationRelease":
         values = [load_json(Path(path)) for path in args.input]
         inputs, input_issues = index_input_releases(values)
-        issues = input_issues + validate_extrapolation_release(release, inputs)
+        atlas = None
+        if args.vocabulary_atlas is not None:
+            input_pins = release.get("input_releases")
+            atlas_pin = (
+                input_pins.get("vocabulary_atlas_asset")
+                if isinstance(input_pins, Mapping)
+                else None
+            )
+            if not isinstance(atlas_pin, Mapping):
+                input_issues.append(
+                    ValidationIssue(
+                        "ATLAS_ASSET_PIN_INVALID",
+                        "$/input_releases/vocabulary_atlas_asset",
+                        "release does not contain a usable static atlas pin",
+                    )
+                )
+            else:
+                try:
+                    try:
+                        from refspec_atlas import RefSpecVocabularyAtlas
+                    except ModuleNotFoundError:  # imported as a tools package
+                        from tools.refspec_atlas import RefSpecVocabularyAtlas
+
+                    atlas = RefSpecVocabularyAtlas.open(
+                        Path(args.vocabulary_atlas),
+                        expected_manifest_digest=atlas_pin.get("manifest_digest"),
+                        expected_output_digest=atlas_pin.get("distribution_digest"),
+                    )
+                except (OSError, TypeError, ValueError) as exc:
+                    input_issues.append(
+                        ValidationIssue(
+                            "ATLAS_INVALID",
+                            "$inputs/vocabulary_atlas_asset",
+                            str(exc),
+                        )
+                    )
+        issues = input_issues + validate_extrapolation_release(release, inputs, atlas)
     else:
         issues = [
             ValidationIssue(
@@ -2017,9 +2191,7 @@ def _stamp_command(args: argparse.Namespace) -> int:
     if not isinstance(value, dict):
         print("release must be a JSON object", file=sys.stderr)
         return 2
-    stamped = stamp_release(
-        value, product=args.product, release_kind=args.release_kind
-    )
+    stamped = stamp_release(value, product=args.product, release_kind=args.release_kind)
     print(json.dumps(stamped, indent=2, ensure_ascii=False, allow_nan=False))
     return 0
 
@@ -2038,11 +2210,13 @@ def build_parser() -> argparse.ArgumentParser:
         default=[],
         help="pinned input release or fixture bundle; repeat as needed",
     )
+    validate.add_argument(
+        "--vocabulary-atlas",
+        help="directory containing the pinned atlas-manifest.json and atlas.nq",
+    )
     validate.set_defaults(handler=_validate_command)
 
-    canonical = subparsers.add_parser(
-        "canonical", help="write canonical JSON bytes"
-    )
+    canonical = subparsers.add_parser("canonical", help="write canonical JSON bytes")
     canonical.add_argument("file")
     canonical.set_defaults(handler=_canonical_command)
 

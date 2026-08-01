@@ -17,16 +17,28 @@ profile with the independently released Extrapolator, not with Rulespec Core.
 RefSpec owns:
 
 - the facet IRIs and their definitions;
-- the complete facet, role, release, mapping, and open-label permission tuples;
-- candidate and accepted-output authorization;
-- default-language configuration and materialization;
-- operational provenance, evaluation, and deployment decisions.
+- managed vocabulary releases and the exact concepts, labels, mappings, and
+  release membership they contain;
+- closed crosswalk evidence and static vocabulary atlas publication;
+- facet language metadata and vocabulary-language policy;
+- vocabulary acquisition, coverage, reconciliation, and release provenance.
+
+Rulespec Extrapolator owns evidence-bound derived assertions, deterministic
+candidate selection, and accepted-output decisions. SpicySearch owns query
+processing, indexes, and ranking. Exactly two supporting machine validations
+may qualify a mapping for `searchOnly` when their deterministic checks pass and
+they use distinct validator actors, independence groups, providers, provider
+model IDs, and response artifacts. Human feedback is optional later input and
+does not rewrite a published atlas.
 
 An assertion that satisfies this Rulespec profile is portable and
 well-formed. It is not thereby selected, approved, or authorized for use.
-RefSpec permission tuples select which outputs may enter an accepted view.
-Rulespec `rkaf:Attestation`, `rkaf:LocalAdoption`, and
-`rkaf:usageEligibility` carry review and use authorization.
+A RefSpec release constrains the vocabulary facts an assertion may reference;
+it does not select the assertion. Rulespec Extrapolator selection receipts
+select derived candidates for a declared release, while
+`rkaf:usageEligibility` caps downstream use. `rkaf:Attestation` and
+`rkaf:LocalAdoption` remain optional later records and do not gate
+machine-qualified `searchOnly` use.
 
 ## 2. Open-label assertion
 
@@ -54,8 +66,8 @@ concept creates a separate concept, release membership, and lifecycle record;
 it does not mutate the open-label assertion.
 
 The facet and role are independent axes. A producer MUST NOT infer a role from
-the facet, infer a facet from the wording, or combine the facet from one
-RefSpec permission row with the role from another.
+the facet, infer a facet from the wording, or combine the facet from one pinned
+Extrapolator profile configuration with the role from another.
 
 ## 3. Language and script
 
@@ -64,11 +76,12 @@ well-formed BCP 47 `@language` tag. It MUST NOT use the typed-literal branch,
 an untagged string, or `@none`. Script belongs in the language tag, for example
 `zh-Hant`; this profile defines no parallel script property.
 
-RefSpec may require a candidate language or may declare a default language for
-a specific output-profile permission. When a default applies, the producer
-MUST materialize that default into the final `@language` member before
-publishing the Rulespec assertion. A downstream consumer must therefore never
-need RefSpec configuration to recover the accepted literal's language.
+RefSpec may publish language metadata for a vocabulary facet. The Extrapolator
+profile may require a candidate language or declare a default language for a
+specific derived-output use. When a default applies, the producer MUST
+materialize that default into the final `@language` member before publishing
+the Rulespec assertion. A downstream consumer must therefore never need
+producer configuration to recover the selected literal's language.
 
 The tag `und` is permitted only when the language is genuinely unknown after
 the applicable RefSpec language policy runs. It is not a substitute for an
@@ -93,13 +106,13 @@ is grounded source output, not an axiom, consensus statement, or untested
 hypothesis.
 
 Review, acceptance, and deployment state MUST NOT be copied onto the
-`rkaf:ValueAssertion`. RefSpec links the assertion identifier from its own
-immutable decision and configuration records.
+`rkaf:ValueAssertion`. Rulespec Extrapolator links the assertion identifier from
+its immutable release, validation, and selection records.
 
 ## 5. Default-language example
 
-Given a RefSpec output permission whose declared default language is `es`, the
-accepted Rulespec result materializes that language:
+Given an Extrapolator profile configuration whose declared default language is
+`es`, the selected Rulespec result materializes that language:
 
 ```json
 {
@@ -140,10 +153,13 @@ portable targets and graph-wide validation MUST agree on:
 
 The generated `rkaf-core` Rust crate MUST NOT contain or re-export the profile.
 An Extrapolator release may pin the portable profile schema alongside an exact
-RefSpec `VocabularyRelease`; that operation does not transfer vocabulary
-authority to Rulespec Core.
+RefSpec static atlas asset and `ReferenceResourceRelease`; that operation does
+not transfer vocabulary authority to Rulespec Core. Rulespec validates exact
+membership only. Search mapping traversal remains a SpicySearch concern.
 
-RefSpec validators separately enforce that the exact facet, role, open-label
-mode, configuration, and accepted-output permission all match one complete
-RefSpec row. Rulespec validators MUST NOT attempt to reconstruct or duplicate
-those operational tuples.
+RefSpec validators separately enforce managed-release and atlas facts.
+Rulespec Extrapolator validates the exact profile configuration and selection
+records used for derived output. Existing RefSpec accepted-output permission
+tuples are compatibility evidence; they do not make RefSpec the owner of
+derived selection. Validators MUST NOT reconstruct or duplicate the other
+product's records.

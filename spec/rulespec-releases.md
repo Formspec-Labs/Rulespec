@@ -65,15 +65,16 @@ pins `{release_id, release_digest}`.
 
 ## 3. `ExtrapolationRelease`
 
-What goes in? One exact `RulespecCoreRelease`, `DocumentRelease`, and
-`VocabularyRelease`, plus a versioned extraction profile. What happens? The
-Extrapolator builds processing segments, records reversible source mappings,
-creates evidence-bound candidates, captures extraction and AI lineage, runs
-independent baseline validation, and records deterministic selection. What
-comes out? A nonempty immutable release with separate document- and
-fragment-level assignments. How do we check it? Resolve every reference only
-against the three pinned releases and the root's contained records, then apply
-the closed schema and fail-closed semantic gates.
+What goes in? One exact `RulespecCoreRelease`, `DocumentRelease`, static RefSpec
+vocabulary atlas, and `ReferenceResourceRelease` identity proven by that atlas,
+plus a versioned extraction profile. What happens? The Extrapolator builds
+processing segments, records reversible source mappings, creates evidence-bound
+candidates, captures extraction and AI lineage, runs independent baseline
+validation, and records deterministic selection. What comes out? A nonempty
+immutable release with separate document- and fragment-level assignments. How
+do we check it? Resolve source references against the pinned document, verify
+every concept target through the pinned atlas and reference release, and then
+apply the closed schema and fail-closed semantic gates.
 
 The root fields are:
 
@@ -82,7 +83,7 @@ The root fields are:
 | `record_type` | Exactly `ExtrapolationRelease` |
 | `release_id`, `release_digest`, `release_status`, `version` | Root identity and publication state |
 | `profile` | `profile_id`, `profile_version`, and `usage_cap=searchOnly` |
-| `input_releases` | Exact Core, document, and vocabulary `{release_id, release_digest}` pins |
+| `input_releases` | Exact Core and document release pins, the atlas `{asset_id, manifest_digest, distribution_digest}` pin, and the selected reference release pin |
 | `validation_sample_manifest` | Unique `record_refs[]` and their canonical `manifest_digest` |
 | `concept_assignments[]` | Immutable candidate propositions |
 | `evidence_bindings[]` | Exact fragment-backed evidence |
@@ -93,9 +94,11 @@ The root fields are:
 | `selection_context_digest`, `selection_receipts[]`, `selected_assignment_refs[]` | Digest of the complete pre-selection graph, per-candidate decision, and served upstream subset |
 | `coverage` | Content-addressed `ExtrapolationCoverage` with candidate, selected, not-selected, deferred, and failure counts |
 
-The input releases are copied as pinned fixture JSON for offline validation.
-They remain owned by their publishers. Copying an artifact does not transfer
-authority or permit Rulespec to invent a substitute identifier.
+The document release and static atlas files are copied for offline fixture
+validation. They remain owned by their publishers. The validator reads the
+atlas files through a product-local reader and does not import RefSpec source.
+Copying an artifact does not transfer authority or permit Rulespec to invent a
+substitute identifier.
 
 ## 4. Durable contained records
 
@@ -129,20 +132,23 @@ Omissions, the join delimiter, and normalization policy remain explicit.
 ## 5. Validation receipts
 
 An `AgentValidationReceipt` records one immutable attempt: exact target and
-digest, protocol, sealed input manifest, validator identity and independence
-group, request artifact, execution status, per-check outcomes and evidence,
-and either a completed response and recommendation or a failure reason. A
-failed execution has no recommendation. Failure and abstention are distinct.
-The three terminal receipt kinds are fully content-addressed: changing an
-input reference, status, check, rationale, recommendation, selection result,
-or limitation creates a new record identifier.
+digest, protocol, sealed input manifest, validator actor, independence group,
+provider/model identity, request artifact, execution status, per-check outcomes
+and evidence, and either a completed response and recommendation or a failure
+reason. A failed execution has no recommendation. Failure and abstention are
+distinct. The three terminal receipt kinds are fully content-addressed:
+changing an input reference, status, check, rationale, recommendation,
+selection result, or limitation creates a new record identifier.
 
-A `BaselineValidationReceipt` names the exact profile, vocabulary release,
-sample manifest, rubric, aggregation policy, deterministic outcomes, and at
-least two agent attempts from different independence groups. Any unresolved
-abstention blocks a usable result. `usable_for_search` and
-`usable_with_nonblocking_limits` qualify only candidate use; they do not prove
-truth, approval, adoption, or applicability.
+A `BaselineValidationReceipt` names the exact profile, reference resource
+release, sample manifest, rubric, aggregation policy, deterministic outcomes,
+and agent attempts. A usable baseline requires exactly two completed attempts.
+Both must recommend `supports`, every check from both must pass, and the two
+attempts must have distinct validator actors, independence groups,
+provider/model identities, and response artifacts. A flag, failed check,
+abstention, failed execution, or extra attempt blocks a usable result.
+`usable_for_search` and `usable_with_nonblocking_limits` qualify only candidate
+use; they do not prove truth, approval, adoption, or applicability.
 
 An `ExtrapolationSelectionReceipt` records one candidate's policy inputs,
 checks, result, evaluator, and effective time. `selection_result` is
@@ -169,8 +175,8 @@ import coverage.
 
 ## 6. Fail-closed gates and sealed M2 fixtures
 
-Validation rejects a missing or mismatched input release, root or child digest
-mismatch, unresolved reference, incomplete reference-resource membership,
+Validation rejects a missing or mismatched input release or atlas, root or child
+digest mismatch, unresolved reference, unproved reference-resource membership,
 invalid fragment coordinates, non-closing projection, missing evidence or
 lineage, non-`searchOnly` selected assignment, selected processing-segment
 target, unusable baseline, validator abstention, unselected assignment in the
@@ -180,14 +186,17 @@ The checked-in conformance set is:
 
 - [`rulespec-core-release-m2.json`](../release-records/fixtures/rulespec-core-release-m2.json)
 - [`m2-input-releases.json`](../release-records/fixtures/m2-input-releases.json)
+- [`refspec-vocabulary-atlas/`](../release-records/fixtures/upstream/refspec-vocabulary-atlas/)
 - [`m2-extrapolation-release-positive.json`](../release-records/fixtures/m2-extrapolation-release-positive.json)
 - [`m2-negative-controls.json`](../release-records/fixtures/m2-negative-controls.json)
 
-The negative controls cover wrong release, digest mismatch, missing evidence,
-missing AI lineage, broader usage, processing-segment target, validator
-abstention, and inclusion of an excluded assignment. The fixture builder
+The negative controls cover wrong atlas and release pins, a concept outside
+the selected release, digest mismatch, missing evidence, missing AI lineage,
+broader usage, processing-segment target, validator abstention, and inclusion
+of an excluded assignment. The fixture builder
 [`tools/build_rulespec_release_fixtures.py`](../tools/build_rulespec_release_fixtures.py)
 reproduces the static JSON and the test suite checks byte-equivalent data.
 
-These artifacts have `release_status=fixture`. Passing fixture validation is
+These artifacts have `release_status=fixture`. They prove the local file seam,
+not the complete cross-product publication gate. Passing fixture validation is
 not a tag, package publication, deployment, or activation claim.

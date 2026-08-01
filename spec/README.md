@@ -63,8 +63,10 @@ The portable open-label profile used with RefSpec vocabulary releases. It
 defines the `rkaf:openLabel` `ValueAssertion`, its required facet and assignment
 role, language materialization, provenance, and grounded evidence. Rulespec
 Extrapolator owns the portable profile release boundary; RefSpec owns source
-capture, permission tuples, operational decisions, evaluation, and deployment.
-Rulespec Core neither depends on nor exports the profile.
+capture, managed vocabulary releases, coverage, crosswalk evidence, and static
+atlas publication. Rulespec Extrapolator owns derived selection and
+accepted-output decisions; SpicySearch owns query processing, indexes, and
+ranking. Rulespec Core neither depends on nor exports the profile.
 
 ### `rkaf-behavior.md`
 

@@ -1,15 +1,26 @@
 {
   "fixture_type": "RulespecM2NegativeControlSet",
-  "base_release_id": "urn:rulespec:extrapolation:7fe7cee1549c0be348f843dede0c0b2707bf1bb581b11fae887d2ce2541d9aa9",
+  "base_release_id": "urn:rulespec:extrapolation:8991fb9140866dceea7b9539da2f5a4b9295e039dc6dd333a75c217de0c443d4",
   "controls": [
     {
-      "name": "wrong-vocabulary-release",
-      "expected_error": "PINNED_RELEASE_NOT_FOUND",
+      "name": "wrong-vocabulary-atlas",
+      "expected_error": "ATLAS_ASSET_PIN_MISMATCH",
       "operations": [
         {
           "op": "replace",
-          "path": "/input_releases/vocabulary_release/release_id",
-          "value": "urn:refspec:vocabulary:missing"
+          "path": "/input_releases/vocabulary_atlas_asset/asset_id",
+          "value": "urn:ref:vocabulary-atlas:missing"
+        }
+      ]
+    },
+    {
+      "name": "reference-release-digest-mismatch",
+      "expected_error": "REFERENCE_RELEASE_PIN_MISMATCH",
+      "operations": [
+        {
+          "op": "replace",
+          "path": "/input_releases/reference_resource_release/release_digest",
+          "value": "sha256:0000000000000000000000000000000000000000000000000000000000000000"
         }
       ]
     },
@@ -89,7 +100,18 @@
         {
           "op": "replace",
           "path": "/selected_assignment_refs/1",
-          "value": "urn:rulespec:concept-assignment:731a004a60f0a17b28270928b3bf687973b21d95a567ce548ab65f720fe502c8"
+          "value": "urn:rulespec:concept-assignment:539aa58ca6b56a48b6e72ea8ed48674de3e42f3ac823acf1bca510ad96f12b93"
+        }
+      ]
+    },
+    {
+      "name": "unselected-assignment-nonmember",
+      "expected_error": "CONCEPT_NOT_IN_RELEASE",
+      "operations": [
+        {
+          "op": "replace",
+          "path": "/concept_assignments/2/asserts_object_ref",
+          "value": "urn:ref:federal-register-thesaurus:2025-04-01:concept:9999"
         }
       ]
     }

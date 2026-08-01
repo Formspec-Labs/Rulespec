@@ -64,14 +64,18 @@
         "rulespec_core_release": {
           "$ref": "#/$defs/releasePin"
         },
-        "vocabulary_release": {
+        "reference_resource_release": {
           "$ref": "#/$defs/releasePin"
+        },
+        "vocabulary_atlas_asset": {
+          "$ref": "#/$defs/atlasAssetPin"
         }
       },
       "required": [
         "rulespec_core_release",
         "document_release",
-        "vocabulary_release"
+        "vocabulary_atlas_asset",
+        "reference_resource_release"
       ],
       "type": "object"
     },
@@ -197,6 +201,26 @@
   "title": "ExtrapolationRelease",
   "type": "object",
   "$defs": {
+    "atlasAssetPin": {
+      "additionalProperties": false,
+      "properties": {
+        "asset_id": {
+          "$ref": "#/$defs/absoluteId"
+        },
+        "distribution_digest": {
+          "$ref": "#/$defs/digest"
+        },
+        "manifest_digest": {
+          "$ref": "#/$defs/digest"
+        }
+      },
+      "required": [
+        "asset_id",
+        "manifest_digest",
+        "distribution_digest"
+      ],
+      "type": "object"
+    },
     "absoluteId": {
       "pattern": "^[A-Za-z][A-Za-z0-9+.-]*:[^\\s]+$",
       "type": "string"
@@ -862,8 +886,10 @@
           "items": {
             "$ref": "#/$defs/absoluteId"
           },
-          "minItems": 3,
-          "type": "array"
+          "maxItems": 4,
+          "minItems": 4,
+          "type": "array",
+          "uniqueItems": true
         },
         "processing_segment_ref": {
           "$ref": "#/$defs/absoluteId"

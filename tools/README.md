@@ -9,18 +9,42 @@ release pins and reference closure, checks source coordinates and reversible
 text projections, and applies the baseline and deterministic-selection gates.
 
 [`build_rulespec_release_fixtures.py`](build_rulespec_release_fixtures.py)
-reproduces the sealed M2 positive release and eight negative controls from
-vendored, publisher-owned SpicyRegs and RefSpec release artifacts. Refreshing
-those copies requires both explicit upstream paths; normal tests read only the
-checked-in JSON under `release-records/fixtures/`.
+reproduces the sealed M2 positive release and negative controls from a
+publisher-owned SpicyRegs release and static RefSpec atlas. Refreshing those
+copies requires both explicit upstream paths; normal tests read only the
+checked files under `release-records/fixtures/`.
 
 ```sh
 python3 tools/rulespec_release.py validate \
   release-records/fixtures/m2-extrapolation-release-positive.json \
   --input release-records/fixtures/rulespec-core-release-m2.json \
-  --input release-records/fixtures/m2-input-releases.json
+  --input release-records/fixtures/m2-input-releases.json \
+  --vocabulary-atlas release-records/fixtures/upstream/refspec-vocabulary-atlas
 python3 -m unittest tools.test_rulespec_releases -v
 ```
+
+## RefSpec vocabulary atlas reader
+
+[`refspec_atlas.py`](refspec_atlas.py) reads RefSpec's static
+`VocabularyAtlasAsset` without importing RefSpec source. The release selects it
+with only `asset_id`, `manifest_digest`, and `distribution_digest`. The reader
+opens the two files using the manifest and distribution digests; the release
+validator also compares the content-derived asset ID. It checks the Core release
+sealed into the manifest and validates exact reference-release membership for
+every Extrapolator assignment. `require_member(...)` validates a concept against
+one exact `ReferenceResourceRelease` digest. It does not traverse mappings.
+
+SpicySearch owns search-mapping interpretation and expansion.
+
+Run the local gate with:
+
+```sh
+python3 -m unittest tools.test_refspec_atlas -v
+```
+
+Set `REFSPEC_CHECKOUT` to a mature RefSpec checkout to run the optional
+cross-repository producer-consumer proof in
+`tools.test_refspec_atlas_cross_repository`.
 
 ## Semantic carrier tests
 

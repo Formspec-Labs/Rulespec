@@ -10,26 +10,29 @@ from __future__ import annotations
 
 import argparse
 import json
+from collections.abc import Mapping
 from pathlib import Path
-from typing import Any, Mapping
+from typing import Any
 
 try:
     from rulespec_release import (
         canonical_digest,
+        content_digest,
         extrapolation_selection_context_digest,
         load_json,
-        stamp_record,
         stamp_coverage,
+        stamp_record,
         stamp_release,
         text_digest,
     )
 except ModuleNotFoundError:  # imported as tools.build_rulespec_release_fixtures
     from tools.rulespec_release import (
         canonical_digest,
+        content_digest,
         extrapolation_selection_context_digest,
         load_json,
-        stamp_record,
         stamp_coverage,
+        stamp_record,
         stamp_release,
         text_digest,
     )
@@ -39,11 +42,12 @@ ROOT = Path(__file__).resolve().parents[1]
 CORE_FIXTURE = ROOT / "release-records/fixtures/rulespec-core-release-m2.json"
 UPSTREAM_FIXTURES = ROOT / "release-records/fixtures/upstream"
 DOCUMENT_FIXTURE = UPSTREAM_FIXTURES / "spicyregs-document-release-v1.json"
-VOCABULARY_FIXTURE = UPSTREAM_FIXTURES / "refspec-vocabulary-release-first-slice.json"
+VOCABULARY_ATLAS_FIXTURE = UPSTREAM_FIXTURES / "refspec-vocabulary-atlas"
 STAMP = "2026-07-31T12:00:00Z"
 PROFILE_ID = "urn:rulespec:profile:search-only-concept-extraction"
-CONCEPT_ID = (
-    "urn:refspec:vocabulary:federal-register-thesaurus:2025-04-01:concept:0570"
+CONCEPT_ID = "urn:ref:federal-register-thesaurus:2025-04-01:concept:0570"
+REFERENCE_RELEASE_ID = (
+    "urn:ref:federal-register-thesaurus:2025-04-01:reference-resource-release:v1"
 )
 
 
@@ -58,16 +62,33 @@ def build_inputs(core: Mapping[str, Any]) -> dict[str, Any]:
         "release_digest": core["release_digest"],
     }
     document = load_json(DOCUMENT_FIXTURE)
-    vocabulary = load_json(VOCABULARY_FIXTURE)
-    for name, release in (("document", document), ("vocabulary", vocabulary)):
-        if not isinstance(release, dict):
-            raise ValueError(f"vendored {name} release must be a JSON object")
-        if release.get("rulespec_core_release") != core_pin:
-            raise ValueError(f"vendored {name} release pins another Core release")
-    return {"fixture_type": "PinnedReleaseBundle", "records": [document, vocabulary]}
+    if not isinstance(document, dict):
+        raise ValueError("vendored document release must be a JSON object")
+    if document.get("rulespec_core_release") != core_pin:
+        raise ValueError("vendored document release pins another Core release")
+    return {"fixture_type": "PinnedReleaseBundle", "records": [document]}
 
 
-def _check(check_id: str, outcome: str, rationale: str, refs: list[str]) -> dict[str, Any]:
+def open_vendored_atlas() -> Any:
+    """Open the checked RefSpec asset from its exact static bytes."""
+
+    try:
+        from refspec_atlas import RefSpecVocabularyAtlas
+    except ModuleNotFoundError:  # imported as a tools package
+        from tools.refspec_atlas import RefSpecVocabularyAtlas
+
+    manifest_path = VOCABULARY_ATLAS_FIXTURE / "atlas-manifest.json"
+    distribution_path = VOCABULARY_ATLAS_FIXTURE / "atlas.nq"
+    return RefSpecVocabularyAtlas.open(
+        VOCABULARY_ATLAS_FIXTURE,
+        expected_manifest_digest=content_digest(manifest_path.read_bytes()),
+        expected_output_digest=content_digest(distribution_path.read_bytes()),
+    )
+
+
+def _check(
+    check_id: str, outcome: str, rationale: str, refs: list[str]
+) -> dict[str, Any]:
     return {
         "check_id": check_id,
         "outcome": outcome,
@@ -127,32 +148,31 @@ def _document_inputs(
     )
 
 
-def _reference_resource(vocabulary: Mapping[str, Any]) -> dict[str, Any]:
-    graph = vocabulary["reference_resource_release"]["@graph"]
-    node = next(
-        value
-        for value in graph
-        if value.get("@type") == "rkaf:ReferenceResourceRelease"
+def _reference_resource(atlas: Any) -> dict[str, str]:
+    pin = atlas.require_member(
+        member_id=CONCEPT_ID,
+        release_id=REFERENCE_RELEASE_ID,
     )
-    if node.get("rkaf:membershipMode") != "rkaf:completeMembership":
-        raise ValueError("vendored reference release must publish complete membership")
-    members = set(node.get("prov:hadMember", []))
-    concepts = {value["concept_id"] for value in vocabulary["concepts"]}
-    if members != concepts or CONCEPT_ID not in members:
-        raise ValueError("vendored Safety concept must be in the complete release")
     return {
-        "release_id": node["@id"],
-        "release_digest": node["rkaf:referenceReleaseDigest"],
-        "membership_mode": "complete",
-        "concepts": vocabulary["concepts"],
+        "release_id": pin.release_id,
+        "release_digest": pin.release_digest,
     }
 
 
 def build_extrapolation(
-    core: Mapping[str, Any], inputs: Mapping[str, Any]
+    core: Mapping[str, Any], inputs: Mapping[str, Any], atlas: Any
 ) -> dict[str, Any]:
-    document, vocabulary = inputs["records"]
-    reference_resource = _reference_resource(vocabulary)
+    (document,) = inputs["records"]
+    reference_resource = _reference_resource(atlas)
+    core_pin = atlas.rulespec_core_pin()
+    if {
+        "release_id": core_pin.release_id,
+        "release_digest": core_pin.release_digest,
+    } != {
+        "release_id": core["release_id"],
+        "release_digest": core["release_digest"],
+    }:
+        raise ValueError("vendored atlas pins another Rulespec Core release")
     document_artifact, representation, first_fragment, second_fragment = (
         _document_inputs(document)
     )
@@ -189,7 +209,9 @@ def build_extrapolation(
                     "derived_start": 0,
                     "derived_end": 44,
                     "slice_kind": "source_range",
-                    "source_text_representation_ref": representation["representation_id"],
+                    "source_text_representation_ref": representation[
+                        "representation_id"
+                    ],
                     "source_coordinate_system": representation["coordinate_system"],
                     "source_start": first_selector["start"],
                     "source_end": first_selector["end"],
@@ -210,7 +232,9 @@ def build_extrapolation(
                     "derived_start": 45,
                     "derived_end": 73,
                     "slice_kind": "source_range",
-                    "source_text_representation_ref": representation["representation_id"],
+                    "source_text_representation_ref": representation[
+                        "representation_id"
+                    ],
                     "source_coordinate_system": representation["coordinate_system"],
                     "source_start": second_selector["start"],
                     "source_end": second_selector["end"],
@@ -221,7 +245,9 @@ def build_extrapolation(
             ],
             "omitted_source_ranges": [
                 {
-                    "source_text_representation_ref": representation["representation_id"],
+                    "source_text_representation_ref": representation[
+                        "representation_id"
+                    ],
                     "source_start": first_selector["end"],
                     "source_end": second_selector["start"],
                     "reason": "source separator replaced by declared join delimiter",
@@ -248,7 +274,8 @@ def build_extrapolation(
             "input_release_refs": [
                 core["release_id"],
                 document["release_id"],
-                vocabulary["release_id"],
+                atlas.pin()["asset_id"],
+                reference_resource["release_id"],
             ],
             "processing_segment_ref": segment["record_id"],
         }
@@ -266,9 +293,24 @@ def build_extrapolation(
     )
 
     assignment_specs = [
-        (document_artifact["artifact_id"], "Artifact", "assignmentPrimary", first_fragment),
-        (first_fragment["fragment_id"], "SourceFragment", "assignmentSubstantive", first_fragment),
-        (second_fragment["fragment_id"], "SourceFragment", "assignmentMention", second_fragment),
+        (
+            document_artifact["artifact_id"],
+            "Artifact",
+            "assignmentPrimary",
+            first_fragment,
+        ),
+        (
+            first_fragment["fragment_id"],
+            "SourceFragment",
+            "assignmentSubstantive",
+            first_fragment,
+        ),
+        (
+            second_fragment["fragment_id"],
+            "SourceFragment",
+            "assignmentMention",
+            second_fragment,
+        ),
     ]
     assignments: list[dict[str, Any]] = []
     bindings: list[dict[str, Any]] = []
@@ -296,7 +338,9 @@ def build_extrapolation(
                 "evidence_spans": [
                     {
                         "source_fragment_ref": evidence_fragment["fragment_id"],
-                        "selected_text_digest": evidence_fragment["selected_text_digest"],
+                        "selected_text_digest": evidence_fragment[
+                            "selected_text_digest"
+                        ],
                     }
                 ],
                 "evidence_role": "textualEvidence",
@@ -383,7 +427,10 @@ def build_extrapolation(
                             "semantic-support",
                             "pass",
                             "The sealed passages support the candidate assignments.",
-                            [assignments[0]["record_id"], first_fragment["fragment_id"]],
+                            [
+                                assignments[0]["record_id"],
+                                first_fragment["fragment_id"],
+                            ],
                         )
                     ],
                     "overall_recommendation": "supports",
@@ -397,7 +444,7 @@ def build_extrapolation(
             "record_type": "BaselineValidationReceipt",
             "owner": "urn:rulespec:extrapolator:m2-fixture",
             "target_profile_ref": PROFILE_ID,
-            "target_release_ref": vocabulary["release_id"],
+            "target_release_ref": reference_resource["release_id"],
             "sample_manifest_ref": manifest_ref,
             "sample_manifest_digest": manifest_digest,
             "rubric": "semantic-support-rubric-v1",
@@ -416,7 +463,9 @@ def build_extrapolation(
             ],
             "aggregate_result": "usable_for_search",
             "disagreements_and_flags": [],
-            "known_limitations": ["Fixture evidence does not support an adoption claim."],
+            "known_limitations": [
+                "Fixture evidence does not support an adoption claim."
+            ],
             "evaluated_at": STAMP,
         }
     )
@@ -434,10 +483,8 @@ def build_extrapolation(
             "release_id": document["release_id"],
             "release_digest": document["release_digest"],
         },
-        "vocabulary_release": {
-            "release_id": vocabulary["release_id"],
-            "release_digest": vocabulary["release_digest"],
-        },
+        "vocabulary_atlas_asset": dict(atlas.pin()),
+        "reference_resource_release": reference_resource,
     }
     validation_sample_manifest = {
         "record_refs": manifest_refs,
@@ -456,9 +503,7 @@ def build_extrapolation(
         "validation_artifacts": validation_artifacts,
         "agent_validation_receipts": agent_receipts,
         "baseline_validation_receipts": [baseline],
-        "selection_receipts": [
-            {"selection_policy": "m2-search-only-selection-v1"}
-        ],
+        "selection_receipts": [{"selection_policy": "m2-search-only-selection-v1"}],
     }
     selection_context_digest = extrapolation_selection_context_digest(
         selection_context_source
@@ -493,7 +538,11 @@ def build_extrapolation(
                         )
                     ],
                     "selection_result": "selected" if selected else "not_selected",
-                    "reason": "M2 selection fixture" if selected else "sealed exclusion control",
+                    "reason": (
+                        "M2 selection fixture"
+                        if selected
+                        else "sealed exclusion control"
+                    ),
                     "baseline_validation_receipt_ref": baseline["record_id"],
                     "evaluator_ref": "urn:rulespec:extrapolator:m2-fixture",
                     "evaluator_version": "m2-search-only-selection-v1",
@@ -546,14 +595,37 @@ def build_negative_controls(release: Mapping[str, Any]) -> dict[str, Any]:
     excluded_ref = release["concept_assignments"][2]["record_id"]
     controls = [
         (
-            "wrong-vocabulary-release",
-            "PINNED_RELEASE_NOT_FOUND",
-            [{"op": "replace", "path": "/input_releases/vocabulary_release/release_id", "value": "urn:refspec:vocabulary:missing"}],
+            "wrong-vocabulary-atlas",
+            "ATLAS_ASSET_PIN_MISMATCH",
+            [
+                {
+                    "op": "replace",
+                    "path": "/input_releases/vocabulary_atlas_asset/asset_id",
+                    "value": "urn:ref:vocabulary-atlas:missing",
+                }
+            ],
+        ),
+        (
+            "reference-release-digest-mismatch",
+            "REFERENCE_RELEASE_PIN_MISMATCH",
+            [
+                {
+                    "op": "replace",
+                    "path": "/input_releases/reference_resource_release/release_digest",
+                    "value": "sha256:" + "0" * 64,
+                }
+            ],
         ),
         (
             "document-release-digest-mismatch",
             "PINNED_RELEASE_DIGEST_MISMATCH",
-            [{"op": "replace", "path": "/input_releases/document_release/release_digest", "value": "sha256:" + "0" * 64}],
+            [
+                {
+                    "op": "replace",
+                    "path": "/input_releases/document_release/release_digest",
+                    "value": "sha256:" + "0" * 64,
+                }
+            ],
         ),
         (
             "missing-evidence",
@@ -568,25 +640,62 @@ def build_negative_controls(release: Mapping[str, Any]) -> dict[str, Any]:
         (
             "non-search-only-usage",
             "NON_SEARCH_ONLY_ASSIGNMENT",
-            [{"op": "replace", "path": "/concept_assignments/0/usage_eligibility", "value": "reviewQueueOnly"}],
+            [
+                {
+                    "op": "replace",
+                    "path": "/concept_assignments/0/usage_eligibility",
+                    "value": "reviewQueueOnly",
+                }
+            ],
         ),
         (
             "processing-segment-target",
             "PROCESSING_SEGMENT_TARGET",
-            [{"op": "replace", "path": "/concept_assignments/0/subject_kind", "value": "ProcessingSegment"}],
+            [
+                {
+                    "op": "replace",
+                    "path": "/concept_assignments/0/subject_kind",
+                    "value": "ProcessingSegment",
+                }
+            ],
         ),
         (
             "validator-abstention",
             "VALIDATOR_ABSTENTION",
             [
-                {"op": "replace", "path": "/agent_validation_receipts/0/check_outcomes/0/outcome", "value": "abstain"},
-                {"op": "replace", "path": "/agent_validation_receipts/0/overall_recommendation", "value": "abstains"},
+                {
+                    "op": "replace",
+                    "path": "/agent_validation_receipts/0/check_outcomes/0/outcome",
+                    "value": "abstain",
+                },
+                {
+                    "op": "replace",
+                    "path": "/agent_validation_receipts/0/overall_recommendation",
+                    "value": "abstains",
+                },
             ],
         ),
         (
             "excluded-assignment-selected",
             "UNSELECTED_ASSIGNMENT_INCLUDED",
-            [{"op": "replace", "path": "/selected_assignment_refs/1", "value": excluded_ref}],
+            [
+                {
+                    "op": "replace",
+                    "path": "/selected_assignment_refs/1",
+                    "value": excluded_ref,
+                }
+            ],
+        ),
+        (
+            "unselected-assignment-nonmember",
+            "CONCEPT_NOT_IN_RELEASE",
+            [
+                {
+                    "op": "replace",
+                    "path": "/concept_assignments/2/asserts_object_ref",
+                    "value": "urn:ref:federal-register-thesaurus:2025-04-01:concept:9999",
+                }
+            ],
         ),
     ]
     return {
@@ -602,7 +711,8 @@ def build_negative_controls(release: Mapping[str, Any]) -> dict[str, Any]:
 def build_all() -> dict[str, Any]:
     core = load_json(CORE_FIXTURE)
     inputs = build_inputs(core)
-    extrapolation = build_extrapolation(core, inputs)
+    atlas = open_vendored_atlas()
+    extrapolation = build_extrapolation(core, inputs, atlas)
     return {
         "inputs": inputs,
         "extrapolation": extrapolation,
@@ -621,42 +731,51 @@ def write_static_fixtures(fixtures: Mapping[str, Any]) -> None:
     }
     for name, path in targets.items():
         path.write_text(
-            json.dumps(
-                fixtures[name], indent=2, ensure_ascii=False, allow_nan=False
-            )
+            json.dumps(fixtures[name], indent=2, ensure_ascii=False, allow_nan=False)
             + "\n",
             encoding="utf-8",
         )
 
 
-def vendor_upstream_fixtures(
-    document_source: Path, vocabulary_source: Path
-) -> None:
+def vendor_upstream_fixtures(document_source: Path, atlas_source: Path) -> None:
     """Copy publisher-owned release artifacts into the offline fixture set."""
 
-    for source, target in (
-        (document_source, DOCUMENT_FIXTURE),
-        (vocabulary_source, VOCABULARY_FIXTURE),
-    ):
-        load_json(source)
-        target.parent.mkdir(parents=True, exist_ok=True)
-        target.write_bytes(source.read_bytes())
+    load_json(document_source)
+    manifest_source = atlas_source / "atlas-manifest.json"
+    distribution_source = atlas_source / "atlas.nq"
+    try:
+        from refspec_atlas import RefSpecVocabularyAtlas
+    except ModuleNotFoundError:  # imported as a tools package
+        from tools.refspec_atlas import RefSpecVocabularyAtlas
+
+    RefSpecVocabularyAtlas.open(
+        atlas_source,
+        expected_manifest_digest=content_digest(manifest_source.read_bytes()),
+        expected_output_digest=content_digest(distribution_source.read_bytes()),
+    )
+    DOCUMENT_FIXTURE.parent.mkdir(parents=True, exist_ok=True)
+    DOCUMENT_FIXTURE.write_bytes(document_source.read_bytes())
+    VOCABULARY_ATLAS_FIXTURE.mkdir(parents=True, exist_ok=True)
+    for source in (manifest_source, distribution_source):
+        (VOCABULARY_ATLAS_FIXTURE / source.name).write_bytes(source.read_bytes())
 
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("kind", choices=("inputs", "extrapolation", "negative-controls", "all"))
+    parser.add_argument(
+        "kind", choices=("inputs", "extrapolation", "negative-controls", "all")
+    )
     parser.add_argument(
         "--write",
         action="store_true",
         help="rewrite the checked-in static fixtures before printing",
     )
     parser.add_argument("--vendor-document-release", type=Path)
-    parser.add_argument("--vendor-vocabulary-release", type=Path)
+    parser.add_argument("--vendor-vocabulary-atlas", type=Path)
     args = parser.parse_args()
     vendor_sources = (
         args.vendor_document_release,
-        args.vendor_vocabulary_release,
+        args.vendor_vocabulary_atlas,
     )
     if any(vendor_sources) and not all(vendor_sources):
         parser.error("both upstream release paths are required for vendoring")
