@@ -45,7 +45,9 @@ jobs:
             tools.test_l0_mapping_audit \
             tools.test_semantic_carriers \
             tools.test_reference_release_digest \
-            tools.test_rulespec_releases
+            tools.test_rulespec_releases \
+            tools.test_refspec_atlas \
+            tools.test_refspec_atlas_cross_repository
 
       - name: SHACL Pattern-C lint (no sh:if/sh:then in compiled output)
         run: |
