@@ -254,6 +254,62 @@ def _validate_membership_semantics(
             )
 
 
+_INDEPENDENCE_AXES = (
+    ATLAS.validatorActor,
+    ATLAS.independenceGroup,
+    ATLAS.provider,
+    ATLAS.providerModelId,
+)
+
+
+def _validate_search_only_boundary(dataset: Dataset, *, analysis_graph_id: str) -> None:
+    """Reject a mapping that escapes the search-only qualification boundary.
+
+    This reader does not traverse mappings — expansion stays a SpicySearch
+    concern — but it must not hand back a distribution whose analysis graph
+    contradicts the `twoIndependentMachinesSearchOnly` policy the manifest
+    declares. The three checks below are exactly that policy: one searchOnly
+    eligibility per mapping, exactly two machine validations, and validators
+    that do not collapse onto one identity.
+    """
+
+    analysis = dataset.graph(URIRef(analysis_graph_id))
+    for mapping in sorted(analysis.subjects(RDF.type, RKAF.ConceptMapping), key=str):
+        eligibility = set(analysis.objects(mapping, RKAF.usageEligibility))
+        if eligibility != {RKAF.searchOnly}:
+            raise AtlasIntegrityError(
+                f"atlas mapping {mapping} mapping eligibility must be exactly one "
+                "searchOnly value"
+            )
+        validations = set(analysis.objects(mapping, ATLAS.qualifiedBy))
+        if len(validations) != 2 or any(
+            (validation, RDF.type, ATLAS.MachineValidation) not in analysis
+            for validation in validations
+        ):
+            raise AtlasIntegrityError(
+                f"atlas mapping {mapping} needs exactly two machine validations"
+            )
+        identities: list[tuple[str, ...]] = []
+        for validation in sorted(validations, key=str):
+            axis_values: list[str] = []
+            for axis in _INDEPENDENCE_AXES:
+                values = set(analysis.objects(validation, axis))
+                if len(values) != 1:
+                    raise AtlasIntegrityError(
+                        f"atlas machine validation {validation} must declare exactly "
+                        f"one {axis}"
+                    )
+                axis_values.append(str(next(iter(values))))
+            identities.append(tuple(axis_values))
+        if any(
+            len({identity[index] for identity in identities}) != len(identities)
+            for index in range(len(_INDEPENDENCE_AXES))
+        ):
+            raise AtlasIntegrityError(
+                f"atlas mapping {mapping} machine validations are not independent"
+            )
+
+
 @dataclass(frozen=True, slots=True)
 class ExactReleasePin:
     """One exact release identity returned by verified static facts."""
@@ -539,6 +595,9 @@ class RefSpecVocabularyAtlas:
             dataset,
             release_graph_id=str(graph_by_role["releaseFacts"]["id"]),
             analysis_graph_id=str(graph_by_role["analysis"]["id"]),
+        )
+        _validate_search_only_boundary(
+            dataset, analysis_graph_id=str(graph_by_role["analysis"]["id"])
         )
         policies = _mapping(manifest.get("policies"), label="atlas policies")
         if dict(policies) != _POLICIES:

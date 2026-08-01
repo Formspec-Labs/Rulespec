@@ -34,17 +34,31 @@ sealed into the manifest and validates exact reference-release membership for
 every Extrapolator assignment. `require_member(...)` validates a concept against
 one exact `ReferenceResourceRelease` digest. It does not traverse mappings.
 
-SpicySearch owns search-mapping interpretation and expansion.
+SpicySearch owns search-mapping interpretation and expansion. `open()` still
+enforces the `twoIndependentMachinesSearchOnly` policy the manifest declares —
+one `searchOnly` eligibility per `rkaf:ConceptMapping`, exactly two typed
+machine validations, and validators that differ on actor, independence group,
+provider, and provider model. Reading a mapping is SpicySearch's job; handing
+back a distribution that contradicts its own declared policy is nobody's.
 
 Run the local gate with:
 
 ```sh
-python3 -m unittest tools.test_refspec_atlas -v
+python3 -m unittest tools.test_refspec_atlas tools.test_refspec_atlas_conformance -v
 ```
+
+`test_refspec_atlas.py` builds synthetic distributions; `test_refspec_atlas_conformance.py`
+drives the reader over the vendored copy of RefSpec's published conformance
+corpus in `release-records/fixtures/upstream/refspec-atlas-conformance/` — every
+valid and invalid case, offline. Its `STRICTNESS_DELTAS` table is the only place
+this reader may accept a case RefSpec calls invalid, and it is empty today.
+Refresh the vendored copy with
+[`vendor_refspec_atlas_conformance.py`](vendor_refspec_atlas_conformance.py).
 
 Set `REFSPEC_CHECKOUT` to a mature RefSpec checkout to run the optional
 cross-repository producer-consumer proof in
-`tools.test_refspec_atlas_cross_repository`.
+`tools.test_refspec_atlas_cross_repository`, which also proves the vendored
+corpus is still byte-identical to the published one.
 
 ## Semantic carrier tests
 

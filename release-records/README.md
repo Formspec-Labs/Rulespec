@@ -38,3 +38,14 @@ reads only its static manifest and N-Quads distribution through
 RefSpec source or carry a second vocabulary release format. These checked
 files are fixture provenance, not proof that the complete cross-product
 publication gate has run.
+
+`fixtures/upstream/refspec-atlas-conformance/` is a byte-for-byte copy of the
+conformance corpus RefSpec publishes at `bindings/atlas/1.0/fixtures/` — one
+valid distribution and six invalid ones. `corpus.json` notes the digest of
+every case file, and `tools/test_refspec_atlas_conformance.py` notes the digest
+of `corpus.json` itself, so an edited fixture fails the gate instead of
+weakening a verdict. Refresh the copy only through its own tool:
+
+```sh
+python3 tools/vendor_refspec_atlas_conformance.py /path/to/RefSpec
+```

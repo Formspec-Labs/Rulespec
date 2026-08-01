@@ -12,14 +12,13 @@ import unittest
 from pathlib import Path
 
 from tools.refspec_atlas import AtlasIntegrityError, RefSpecVocabularyAtlas
+from tools.test_refspec_atlas_conformance import (
+    CASE_FILES,
+    CORPUS_ROOT,
+    PUBLISHED_CASES,
+)
 
 REFSPEC_CHECKOUT = os.environ.get("REFSPEC_CHECKOUT")
-RULESPEC_OWNED_CASES = {
-    "analysis-membership-must-match-release-facts",
-    "implementation-paths-are-unique",
-    "minimal-valid-distribution",
-    "nquads-lines-are-canonical",
-}
 
 
 @unittest.skipUnless(
@@ -27,12 +26,32 @@ RULESPEC_OWNED_CASES = {
     "set REFSPEC_CHECKOUT to run the cross-repository RefSpec atlas gate",
 )
 class RefSpecAtlasCrossRepositoryTests(unittest.TestCase):
-    def test_rulespec_owned_refspec_conformance_cases(self) -> None:
+    def test_vendored_corpus_still_matches_the_published_corpus(self) -> None:
+        """The offline copy is only trustworthy while it is byte-identical."""
+
+        checkout = Path(str(REFSPEC_CHECKOUT)).resolve(strict=True)
+        root = checkout / "bindings/atlas/1.0/fixtures"
+        self.assertEqual(
+            (root / "corpus.json").read_bytes(),
+            (CORPUS_ROOT / "corpus.json").read_bytes(),
+        )
+        corpus = json.loads((root / "corpus.json").read_text(encoding="utf-8"))
+        for case in corpus["cases"]:
+            for name in CASE_FILES:
+                with self.subTest(case=case["id"], file=name):
+                    self.assertEqual(
+                        (root / case["directory"] / name).read_bytes(),
+                        (CORPUS_ROOT / case["directory"] / name).read_bytes(),
+                    )
+
+    def test_every_refspec_conformance_case(self) -> None:
         checkout = Path(str(REFSPEC_CHECKOUT)).resolve(strict=True)
         root = checkout / "bindings/atlas/1.0/fixtures"
         corpus = json.loads((root / "corpus.json").read_text(encoding="utf-8"))
-        cases = [case for case in corpus["cases"] if case["id"] in RULESPEC_OWNED_CASES]
-        self.assertEqual({case["id"] for case in cases}, RULESPEC_OWNED_CASES)
+        cases = list(corpus["cases"])
+        self.assertEqual(
+            {case["id"]: bool(case["valid"]) for case in cases}, PUBLISHED_CASES
+        )
         for case in cases:
             with self.subTest(case=case["id"]):
                 directory = root / case["directory"]
