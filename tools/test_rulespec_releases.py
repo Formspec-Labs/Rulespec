@@ -4,7 +4,9 @@ from __future__ import annotations
 
 import copy
 import hashlib
+import inspect
 import io
+import re
 import tempfile
 import unittest
 from contextlib import redirect_stderr, redirect_stdout
@@ -12,7 +14,13 @@ from pathlib import Path
 
 import jsonschema
 
-from tools.build_rulespec_release_fixtures import build_all, open_vendored_atlas
+from tools.build_rulespec_release_fixtures import (
+    FIXTURE_ONLY_SEGMENTATION_POLICY,
+    FIXTURE_RELEASE_STATUS,
+    build_all,
+    fixture_only_prepared_segment,
+    open_vendored_atlas,
+)
 from tools.rulespec_release import (
     apply_negative_control,
     canonical_digest,
@@ -545,6 +553,106 @@ class ExtrapolationReleaseTests(unittest.TestCase):
             for issue in validate_extrapolation_release(empty, self.inputs, self.atlas)
         }
         self.assertIn("EXTRAPOLATION_RELEASE_EMPTY", codes)
+
+
+class FixtureOnlySegmentationTests(unittest.TestCase):
+    """Hold the 2026-08-02 execution boundary at the one place it could leak.
+
+    SpicyRegs owns model-input segmentation. This repository owns no segmenter
+    and must never grow one. The M2 fixture still needs a sealed segment to
+    validate against, so one hand-authored join lives in the fixture builder.
+    These tests assert that it stays exactly there and reaches nothing else.
+    """
+
+    SOURCE_ROOTS = ("tools", "crates")
+
+    def _repository_sources(self) -> list[Path]:
+        """Every Python and Rust source in the tree except this assertion file.
+
+        This module names the fixture-only strings in order to fence them; it is
+        the fence, not a code path that could reach the join.
+        """
+
+        this_file = Path(__file__).resolve()
+        paths: list[Path] = []
+        for name in self.SOURCE_ROOTS:
+            for path in sorted((ROOT / name).rglob("*")):
+                if path.suffix not in {".py", ".rs"} or not path.is_file():
+                    continue
+                if "target" in path.parts or "__pycache__" in path.parts:
+                    continue
+                if path.resolve() == this_file:
+                    continue
+                paths.append(path)
+        return paths
+
+    def test_prepared_segment_helper_refuses_a_non_fixture_release_status(self) -> None:
+        # The refusal precedes every input read, so the empty mappings below
+        # would raise KeyError if the guard ever moved after the join.
+        for status in ("candidate", "published", "", "Fixture"):
+            with self.subTest(release_status=status):
+                with self.assertRaisesRegex(ValueError, "fixture"):
+                    fixture_only_prepared_segment(
+                        release_status=status,
+                        document={},
+                        representation={},
+                        first_fragment={},
+                        second_fragment={},
+                    )
+
+    def test_only_the_fixture_builder_constructs_a_processing_segment(self) -> None:
+        construction = '"record_type": "ProcessingSegment"'
+        builders = [
+            path
+            for path in self._repository_sources()
+            if construction in path.read_text(encoding="utf-8")
+        ]
+        self.assertEqual(
+            [path.relative_to(ROOT).as_posix() for path in builders],
+            ["tools/build_rulespec_release_fixtures.py"],
+        )
+        helper_source = inspect.getsource(fixture_only_prepared_segment)
+        self.assertIn(construction, helper_source)
+        module_source = Path(
+            inspect.getsourcefile(fixture_only_prepared_segment) or ""
+        ).read_text(encoding="utf-8")
+        self.assertEqual(module_source.count(construction), 1)
+        self.assertIn("not a segmenter", fixture_only_prepared_segment.__doc__ or "")
+
+    def test_the_fixture_only_segmentation_policy_names_no_other_code_path(
+        self,
+    ) -> None:
+        self.assertEqual(
+            FIXTURE_ONLY_SEGMENTATION_POLICY, "join-structural-passages-v1"
+        )
+        naming = {
+            path.relative_to(ROOT).as_posix()
+            for path in self._repository_sources()
+            if FIXTURE_ONLY_SEGMENTATION_POLICY in path.read_text(encoding="utf-8")
+        }
+        self.assertEqual(naming, {"tools/build_rulespec_release_fixtures.py"})
+        helper_source = inspect.getsource(fixture_only_prepared_segment)
+        self.assertNotIn(FIXTURE_ONLY_SEGMENTATION_POLICY, helper_source)
+        self.assertIn("FIXTURE_ONLY_SEGMENTATION_POLICY", helper_source)
+
+    def test_the_portable_validator_verifies_derived_text_and_never_builds_it(
+        self,
+    ) -> None:
+        validator = (ROOT / "tools/rulespec_release.py").read_text(encoding="utf-8")
+        self.assertIn('derived_text = segment.get("derived_text")', validator)
+        self.assertEqual(len(re.findall(r"^\s*derived_text\s*=", validator, re.M)), 1)
+        self.assertNotIn(FIXTURE_ONLY_SEGMENTATION_POLICY, validator)
+
+    def test_every_release_the_builder_can_emit_is_fixture_status(self) -> None:
+        self.assertEqual(FIXTURE_RELEASE_STATUS, "fixture")
+        built = build_all()
+        self.assertEqual(
+            built["extrapolation"]["release_status"], FIXTURE_RELEASE_STATUS
+        )
+        for control in built["negative_controls"]["controls"]:
+            for operation in control["operations"]:
+                with self.subTest(control=control["name"], path=operation["path"]):
+                    self.assertNotEqual(operation["path"], "/release_status")
 
 
 if __name__ == "__main__":

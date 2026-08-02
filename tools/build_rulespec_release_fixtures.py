@@ -44,6 +44,11 @@ UPSTREAM_FIXTURES = ROOT / "release-records/fixtures/upstream"
 DOCUMENT_FIXTURE = UPSTREAM_FIXTURES / "spicyregs-document-release-v1.json"
 VOCABULARY_ATLAS_FIXTURE = UPSTREAM_FIXTURES / "refspec-vocabulary-atlas"
 STAMP = "2026-07-31T12:00:00Z"
+FIXTURE_RELEASE_STATUS = "fixture"
+# Names the hand-authored join below. The string is frozen: sibling products pin
+# urn:rulespec:extrapolation:8991fb91… by digest, so editing it rewrites their
+# sealed snapshots. It is a fixture label, not a Rulespec segmentation policy.
+FIXTURE_ONLY_SEGMENTATION_POLICY = "join-structural-passages-v1"
 PROFILE_ID = "urn:rulespec:profile:search-only-concept-extraction"
 CONCEPT_ID = "urn:ref:federal-register-thesaurus:2025-04-01:concept:0570"
 REFERENCE_RELEASE_ID = (
@@ -159,23 +164,44 @@ def _reference_resource(atlas: Any) -> dict[str, str]:
     }
 
 
-def build_extrapolation(
-    core: Mapping[str, Any], inputs: Mapping[str, Any], atlas: Any
-) -> dict[str, Any]:
-    (document,) = inputs["records"]
-    reference_resource = _reference_resource(atlas)
-    core_pin = atlas.rulespec_core_pin()
-    if {
-        "release_id": core_pin.release_id,
-        "release_digest": core_pin.release_digest,
-    } != {
-        "release_id": core["release_id"],
-        "release_digest": core["release_digest"],
-    }:
-        raise ValueError("vendored atlas pins another Rulespec Core release")
-    document_artifact, representation, first_fragment, second_fragment = (
-        _document_inputs(document)
-    )
+def fixture_only_prepared_segment(
+    *,
+    release_status: str,
+    document: Mapping[str, Any],
+    representation: Mapping[str, Any],
+    first_fragment: Mapping[str, Any],
+    second_fragment: Mapping[str, Any],
+) -> tuple[dict[str, Any], dict[str, Any]]:
+    """Hand-author the one sealed segment/projection pair the M2 fixture needs.
+
+    This is not a segmenter and must never become one. SpicyRegs owns source
+    parsing, structural passages, and model-input segmentation (platform
+    boundary correction, 2026-08-02); Rulespec Extrapolator consumes segments a
+    publisher prepared. Production Rulespec therefore has no segment producer,
+    and the portable validator in ``tools/rulespec_release.py`` only *verifies*
+    ``derived_text`` against exact source ranges — it never builds any.
+
+    What remains here is scaffolding: the M2 conformance fixture needs a
+    ``ProcessingSegment`` and its reversible ``DerivedTextProjection`` to
+    validate against, and no publisher-emitted segment file exists to vendor.
+    Two sealed passages are joined with one declared delimiter and a hand-written
+    slice map. There is no policy, no tokenizer, no window, and no size budget —
+    nothing to grow. If a real prepared segment ever arrives, vendor it under
+    ``release-records/fixtures/upstream/`` and delete this function.
+
+    The guard below is the boundary in executable form: this helper refuses to
+    contribute to anything but a ``fixture`` release, so no candidate or
+    published Rulespec artifact can carry text this repository derived.
+    ``tools/test_rulespec_releases.py::FixtureOnlySegmentationTests`` asserts
+    that this is the only construction site in the tree.
+    """
+
+    if release_status != FIXTURE_RELEASE_STATUS:
+        raise ValueError(
+            "the fixture-only join may build no release other than "
+            f"{FIXTURE_RELEASE_STATUS!r}; Rulespec does not segment documents "
+            f"(refused {release_status!r})"
+        )
 
     source_text = representation["unicode_text"]
     first_selector = first_fragment["selector"]
@@ -191,7 +217,7 @@ def build_extrapolation(
                 first_fragment["fragment_id"],
                 second_fragment["fragment_id"],
             ],
-            "segmentation_policy": "join-structural-passages-v1",
+            "segmentation_policy": FIXTURE_ONLY_SEGMENTATION_POLICY,
             "derived_text": derived_text,
             "derived_text_digest": text_digest(derived_text),
             "projection_ref": "urn:rulespec:pending-derived-text-projection",
@@ -255,10 +281,38 @@ def build_extrapolation(
             ],
             "join_delimiter": "\n",
             "normalization_policy": "none",
-            "construction_method": "join-structural-passages-v1",
+            "construction_method": FIXTURE_ONLY_SEGMENTATION_POLICY,
         }
     )
     segment["projection_ref"] = projection["record_id"]
+    return segment, projection
+
+
+def build_extrapolation(
+    core: Mapping[str, Any], inputs: Mapping[str, Any], atlas: Any
+) -> dict[str, Any]:
+    (document,) = inputs["records"]
+    reference_resource = _reference_resource(atlas)
+    core_pin = atlas.rulespec_core_pin()
+    if {
+        "release_id": core_pin.release_id,
+        "release_digest": core_pin.release_digest,
+    } != {
+        "release_id": core["release_id"],
+        "release_digest": core["release_digest"],
+    }:
+        raise ValueError("vendored atlas pins another Rulespec Core release")
+    document_artifact, representation, first_fragment, second_fragment = (
+        _document_inputs(document)
+    )
+
+    segment, projection = fixture_only_prepared_segment(
+        release_status=FIXTURE_RELEASE_STATUS,
+        document=document,
+        representation=representation,
+        first_fragment=first_fragment,
+        second_fragment=second_fragment,
+    )
 
     activity = stamp_record(
         {
@@ -555,7 +609,7 @@ def build_extrapolation(
     return stamp_release(
         {
             "record_type": "ExtrapolationRelease",
-            "release_status": "fixture",
+            "release_status": FIXTURE_RELEASE_STATUS,
             "version": "m2-fixture-1",
             "profile": profile,
             "input_releases": input_releases,
