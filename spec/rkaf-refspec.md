@@ -25,7 +25,15 @@ RefSpec owns:
 
 Rulespec Extrapolator owns evidence-bound derived assertions, deterministic
 candidate selection, and accepted-output decisions. SpicySearch owns query
-processing, indexes, and ranking. Exactly two supporting machine validations
+processing, indexes, and ranking.
+
+> **Scope note (2026-08-02, annotation in place — nothing above is rewritten):**
+> "owns" here names the *record and validation contract*, which is real. The
+> producing processes behind candidate selection and accepted-output decisions
+> have no owner today and are parked in
+> [`spec/rulespec-releases.md` §7](rulespec-releases.md#7-parked-duties-with-no-owner).
+> Read a selection or accepted-output sentence in this profile as a shape a
+> receipt must satisfy, never as a capability that runs. Exactly two supporting machine validations
 may qualify a mapping for `searchOnly` when their deterministic checks pass and
 they use distinct validator actors, independence groups, providers, provider
 model IDs, and response artifacts. Human feedback is optional later input and

@@ -34,6 +34,11 @@ artifacts, canonical JSON and stable identifiers, pinned upstream inputs,
 validation and selection receipts, reversible processing-segment projections,
 coverage, and the sealed M2 fail-closed controls.
 
+Read its execution-boundary correction banner (2026-08-02) first: the
+Extrapolator consumes prepared segments and verifies submitted baseline and
+selection receipts. It does not segment documents, execute baseline validation,
+or run a selection engine, and §7 lists the duties that have no owner.
+
 ### `rkaf-analysis.md`
 
 The document-analysis module — generic, jurisdiction-free contracts for comparing relations across document versions. Defines `RelationChangeEvent` (source-stated adoption, removal, suspension, replacement, with polarity structurally absent), `RelationComparisonContext` (the immutable frame and the five closed comparison outcomes), `ResolverProofRecord` / `ResolverProofIssuer` (content-bound gate decisions, `pass`/`fail`/`unknown` plus the six scope relations), the neutral `RelationFinding`, and the Experimental, **disabled** `ClosureClaim`. It sits between the kernel and the profiles: the kernel never depends on it, it may compose kernel shapes, and profiles may depend on it. Domain interpretation — legal effect, policy exclusion, rescission — belongs to profiles, never here.
