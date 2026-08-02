@@ -33,7 +33,9 @@ processing, indexes, and ranking.
 > have no owner today and are parked in
 > [`spec/rulespec-releases.md` §7](rulespec-releases.md#7-parked-duties-with-no-owner).
 > Read a selection or accepted-output sentence in this profile as a shape a
-> receipt must satisfy, never as a capability that runs. Exactly two supporting machine validations
+> receipt must satisfy, never as a capability that runs.
+
+Exactly two supporting machine validations
 may qualify a mapping for `searchOnly` when their deterministic checks pass and
 they use distinct validator actors, independence groups, providers, provider
 model IDs, and response artifacts. Human feedback is optional later input and

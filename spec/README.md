@@ -73,6 +73,15 @@ atlas publication. Rulespec Extrapolator owns derived selection and
 accepted-output decisions; SpicySearch owns query processing, indexes, and
 ranking. Rulespec Core neither depends on nor exports the profile.
 
+> **Scope note (2026-08-02, annotation in place — nothing above is rewritten):**
+> "owns derived selection and accepted-output decisions" names the *record and
+> validation contract*, which is real and enforced. The producing processes
+> behind selection and accepted-output have no owner today and are parked in
+> [`spec/rulespec-releases.md` §7](rulespec-releases.md#7-parked-duties-with-no-owner).
+> Read those sentences as shapes a receipt must satisfy, never as capabilities
+> that run. This is the twin of the note at
+> [`spec/rkaf-refspec.md`](rkaf-refspec.md).
+
 ### `rkaf-behavior.md`
 
 Layer 5 (runtime) behavioral semantics — the contracts that are *not* CUE-validatable shape: the `usageEligibility` reducer, the `CascadeClosureV1` cascade-closure algorithm, the 10 bridge contract rules, point-in-time-exception evaluation, and lifecycle packet ingest semantics. The full v0.1 normative prose is preserved at `archive/v0.1/spec/rkaf-core-v0.1.md`; this document is the active-tree summary plus codification roadmap.
