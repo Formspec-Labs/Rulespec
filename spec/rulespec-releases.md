@@ -158,6 +158,70 @@ atlas files through a product-local reader and does not import RefSpec source.
 Copying an artifact does not transfer authority or permit Rulespec to invent a
 substitute identifier.
 
+### 3A. `ExtrapolationRelease` version 2
+
+Version 2 preserves the version 1 assignment, evidence, lineage, validation,
+selection, input-pin, and `searchOnly` rules. It adds bounded packaging,
+complete disposition accounting, and diagnostic confidence. Version 1 remains
+available for existing single-JSON consumers.
+
+What goes in? The publisher supplies the exact four version 1 `input_releases`
+pins, prepared assignment records, their evidence graph, the active-document
+ledger from the pinned `DocumentRelease`, and a sealed assignment policy. What
+happens? The builder writes closed Apache Parquet tables into bounded
+partitions, hashes every member, reconciles every active document, and publishes
+the root last. What comes out? A complete `rulespec-extrapolation-release`
+version `2.0` distribution. How do we check it? The portable verifier recomputes
+the RFC 8785 identity, verifies complete membership and member bytes, validates
+the closed row schemas, resolves evidence and concept pins, and reproduces the
+four-way active-document partition.
+
+The root uses the common artifact shape: `format`, `formatVersion`, `releaseId`,
+`content`, and `annotations`. `content` contains exactly `schemaSet`, `profile`,
+`input_releases`, `assignmentPolicy`, `validation_sample_manifest`,
+`selection_context_digest`, `producer`, `globalManifest`,
+`partitionManifests`, and `counts`. The identity is:
+
+```text
+urn:rulespec:extrapolation:v2:
+  SHA-256(RFC8785({format, formatVersion, content}))
+```
+
+`assignmentPolicy` contains exactly `policyId`, `policySha256`,
+`emissionPolicyId`, `candidateMethodId`, and `qualificationProtocolId`.
+`confidence` appears only in an assignment row, accepts null or a finite numeric
+value, and remains diagnostic. The root policy has no confidence
+threshold field, so a consumer cannot treat confidence as an implicit serving
+gate.
+
+Version 2 registers these member roles and closed row schemas:
+
+| Role | Purpose |
+| --- | --- |
+| `schema` | Portable root and row definitions |
+| `assignments` | Document and concept identity, version 1 assignment fields, selection result, and optional confidence |
+| `assignment-evidence` | Canonical version 1 evidence, lineage, validation, and selection records |
+| `assignment-dispositions` | One `assigned`, `abstained`, `excluded`, or `failed` row for every active document |
+| `coverage` | Global or concept-ring disposition and candidate counts |
+| `build-receipt` | Producer, policy, input release, status, time, and record-count receipt |
+
+The `assignment-dispositions` table turns abstention into a recorded result.
+`assigned` resolves at least one selected assignment and its complete evidence
+chain. `abstained` and `excluded` carry zero assignments and distinct reason
+codes. `failed` carries zero assignments and a terminal failure identifier.
+Together, these rows form an exact partition of the pinned active-document set.
+
+The reference implementation lives in
+[`tools/extrapolation_release_v2.py`](../tools/extrapolation_release_v2.py).
+Its checked conformance corpus lives under
+[`release-records/fixtures/extrapolation-release-v2/`](../release-records/fixtures/extrapolation-release-v2/).
+The corpus copies the publisher-owned `DocumentRelease` v3 bytes and verifies
+them through a product-local file reader; it never imports SpicyRegs source.
+
+The scale fixture labels its emission-policy ID as unassigned and its release
+status as `fixture`. A platform ownership decision will supply the production
+emission policy before a publisher creates a candidate or published release.
+
 ## 4. Durable contained records
 
 Each durable record carries `record_type` and a stable `record_id`. The record
