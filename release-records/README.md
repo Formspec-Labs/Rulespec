@@ -19,6 +19,30 @@ deterministic generated fixtures. Rebuild them with:
 python3 tools/build_rulespec_release_fixtures.py all --write
 ```
 
+`extrapolation-release-v2/` contains the partitioned scale-format corpus. Its
+valid case carries all four active-document dispositions; each sealed invalid
+case names the first common verification code a producer and consumer must
+return. Rebuild it from a reviewed, publisher-owned `DocumentRelease` v3 copy:
+
+```sh
+python3 tools/build_extrapolation_release_v2_fixtures.py \
+  --document-release /path/to/document-release-v3 \
+  --write
+```
+
+Verify the copied bundle without a sibling source checkout:
+
+```sh
+python3 -m tools.extrapolation_release_v2 validate \
+  release-records/fixtures/extrapolation-release-v2/valid \
+  --document-release release-records/fixtures/upstream/spicyregs-document-release-v3 \
+  --vocabulary-atlas release-records/fixtures/upstream/refspec-vocabulary-atlas
+```
+
+The version 2 root and row schemas live under
+`release-records/schemas/extrapolation-release-v2*`. Version 1 keeps its current
+single-JSON schema, fixtures, and validator path.
+
 To refresh publisher artifacts, provide the reviewed document and atlas paths
 in the same operation:
 

@@ -1,0 +1,419 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://rulespec.org/schemas/releases/extrapolation-release-v2.schema.json",
+  "title": "ExtrapolationRelease v2 root manifest",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "format",
+    "formatVersion",
+    "releaseId",
+    "content",
+    "annotations"
+  ],
+  "properties": {
+    "format": {
+      "const": "rulespec-extrapolation-release"
+    },
+    "formatVersion": {
+      "const": "2.0"
+    },
+    "releaseId": {
+      "type": "string",
+      "pattern": "^urn:rulespec:extrapolation:v2:[0-9a-f]{64}$"
+    },
+    "content": {
+      "$ref": "#/$defs/content"
+    },
+    "annotations": {
+      "type": "object"
+    }
+  },
+  "$defs": {
+    "absoluteId": {
+      "type": "string",
+      "pattern": "^[A-Za-z][A-Za-z0-9+.-]*:[^\\s]+$"
+    },
+    "nonemptyString": {
+      "type": "string",
+      "minLength": 1
+    },
+    "hexDigest": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "shaDigest": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$"
+    },
+    "unsignedInteger": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 9007199254740991
+    },
+    "releasePin": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "release_id",
+        "release_digest"
+      ],
+      "properties": {
+        "release_id": {
+          "$ref": "#/$defs/absoluteId"
+        },
+        "release_digest": {
+          "$ref": "#/$defs/shaDigest"
+        }
+      }
+    },
+    "atlasPin": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "asset_id",
+        "manifest_digest",
+        "distribution_digest"
+      ],
+      "properties": {
+        "asset_id": {
+          "$ref": "#/$defs/absoluteId"
+        },
+        "manifest_digest": {
+          "$ref": "#/$defs/shaDigest"
+        },
+        "distribution_digest": {
+          "$ref": "#/$defs/shaDigest"
+        }
+      }
+    },
+    "manifestReference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "manifestId",
+        "scopeKind",
+        "scopeId",
+        "objectKey",
+        "byteSize",
+        "sha256"
+      ],
+      "properties": {
+        "manifestId": {
+          "$ref": "#/$defs/nonemptyString"
+        },
+        "scopeKind": {
+          "enum": [
+            "global",
+            "partition"
+          ]
+        },
+        "scopeId": {
+          "$ref": "#/$defs/nonemptyString"
+        },
+        "objectKey": {
+          "$ref": "#/$defs/nonemptyString"
+        },
+        "byteSize": {
+          "$ref": "#/$defs/unsignedInteger"
+        },
+        "sha256": {
+          "$ref": "#/$defs/hexDigest"
+        }
+      }
+    },
+    "schemaDescriptor": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schemaId",
+        "schemaVersion",
+        "schemaSha256",
+        "roles"
+      ],
+      "properties": {
+        "schemaId": {
+          "$ref": "#/$defs/nonemptyString"
+        },
+        "schemaVersion": {
+          "const": "1.0"
+        },
+        "schemaSha256": {
+          "$ref": "#/$defs/hexDigest"
+        },
+        "roles": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "enum": [
+              "schema",
+              "assignments",
+              "assignment-evidence",
+              "assignment-dispositions",
+              "coverage",
+              "build-receipt"
+            ]
+          }
+        }
+      }
+    },
+    "schemaSet": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schemaSetId",
+        "schemas"
+      ],
+      "properties": {
+        "schemaSetId": {
+          "type": "string",
+          "pattern": "^urn:spicy:schema-set:v1:[0-9a-f]{64}$"
+        },
+        "schemas": {
+          "type": "array",
+          "minItems": 6,
+          "maxItems": 6,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/schemaDescriptor"
+          }
+        }
+      }
+    },
+    "profile": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "profile_id",
+        "profile_version",
+        "usage_cap"
+      ],
+      "properties": {
+        "profile_id": {
+          "$ref": "#/$defs/absoluteId"
+        },
+        "profile_version": {
+          "$ref": "#/$defs/nonemptyString"
+        },
+        "usage_cap": {
+          "const": "searchOnly"
+        }
+      }
+    },
+    "inputReleases": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "rulespec_core_release",
+        "document_release",
+        "vocabulary_atlas_asset",
+        "reference_resource_release"
+      ],
+      "properties": {
+        "rulespec_core_release": {
+          "$ref": "#/$defs/releasePin"
+        },
+        "document_release": {
+          "$ref": "#/$defs/releasePin"
+        },
+        "vocabulary_atlas_asset": {
+          "$ref": "#/$defs/atlasPin"
+        },
+        "reference_resource_release": {
+          "$ref": "#/$defs/releasePin"
+        }
+      }
+    },
+    "assignmentPolicy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "policyId",
+        "policySha256",
+        "emissionPolicyId",
+        "candidateMethodId",
+        "qualificationProtocolId"
+      ],
+      "properties": {
+        "policyId": {
+          "$ref": "#/$defs/nonemptyString"
+        },
+        "policySha256": {
+          "$ref": "#/$defs/hexDigest"
+        },
+        "emissionPolicyId": {
+          "$ref": "#/$defs/nonemptyString"
+        },
+        "candidateMethodId": {
+          "$ref": "#/$defs/nonemptyString"
+        },
+        "qualificationProtocolId": {
+          "$ref": "#/$defs/nonemptyString"
+        }
+      }
+    },
+    "validationSampleManifest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "record_refs",
+        "manifest_digest"
+      ],
+      "properties": {
+        "record_refs": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/absoluteId"
+          }
+        },
+        "manifest_digest": {
+          "$ref": "#/$defs/shaDigest"
+        }
+      }
+    },
+    "producer": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "product",
+        "implementationId",
+        "implementationVersion",
+        "sourceRevision",
+        "runtimeProfileId"
+      ],
+      "properties": {
+        "product": {
+          "const": "rulespec-extrapolator"
+        },
+        "implementationId": {
+          "$ref": "#/$defs/nonemptyString"
+        },
+        "implementationVersion": {
+          "$ref": "#/$defs/nonemptyString"
+        },
+        "sourceRevision": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "minLength": 1
+        },
+        "runtimeProfileId": {
+          "$ref": "#/$defs/nonemptyString"
+        }
+      }
+    },
+    "counts": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "activeDocumentCount",
+        "assignedDocumentCount",
+        "abstainedDocumentCount",
+        "excludedDocumentCount",
+        "failedDocumentCount",
+        "assignmentCount",
+        "assignmentEvidenceCount",
+        "coverageRecordCount",
+        "buildReceiptCount",
+        "partitionManifestCount",
+        "memberCount",
+        "totalMemberByteSize"
+      ],
+      "properties": {
+        "activeDocumentCount": {
+          "$ref": "#/$defs/unsignedInteger"
+        },
+        "assignedDocumentCount": {
+          "$ref": "#/$defs/unsignedInteger"
+        },
+        "abstainedDocumentCount": {
+          "$ref": "#/$defs/unsignedInteger"
+        },
+        "excludedDocumentCount": {
+          "$ref": "#/$defs/unsignedInteger"
+        },
+        "failedDocumentCount": {
+          "$ref": "#/$defs/unsignedInteger"
+        },
+        "assignmentCount": {
+          "$ref": "#/$defs/unsignedInteger"
+        },
+        "assignmentEvidenceCount": {
+          "$ref": "#/$defs/unsignedInteger"
+        },
+        "coverageRecordCount": {
+          "$ref": "#/$defs/unsignedInteger"
+        },
+        "buildReceiptCount": {
+          "$ref": "#/$defs/unsignedInteger"
+        },
+        "partitionManifestCount": {
+          "$ref": "#/$defs/unsignedInteger"
+        },
+        "memberCount": {
+          "$ref": "#/$defs/unsignedInteger"
+        },
+        "totalMemberByteSize": {
+          "$ref": "#/$defs/unsignedInteger"
+        }
+      }
+    },
+    "content": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schemaSet",
+        "profile",
+        "input_releases",
+        "assignmentPolicy",
+        "validation_sample_manifest",
+        "selection_context_digest",
+        "producer",
+        "globalManifest",
+        "partitionManifests",
+        "counts"
+      ],
+      "properties": {
+        "schemaSet": {
+          "$ref": "#/$defs/schemaSet"
+        },
+        "profile": {
+          "$ref": "#/$defs/profile"
+        },
+        "input_releases": {
+          "$ref": "#/$defs/inputReleases"
+        },
+        "assignmentPolicy": {
+          "$ref": "#/$defs/assignmentPolicy"
+        },
+        "validation_sample_manifest": {
+          "$ref": "#/$defs/validationSampleManifest"
+        },
+        "selection_context_digest": {
+          "$ref": "#/$defs/shaDigest"
+        },
+        "producer": {
+          "$ref": "#/$defs/producer"
+        },
+        "globalManifest": {
+          "$ref": "#/$defs/manifestReference"
+        },
+        "partitionManifests": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/manifestReference"
+          }
+        },
+        "counts": {
+          "$ref": "#/$defs/counts"
+        }
+      }
+    }
+  }
+}

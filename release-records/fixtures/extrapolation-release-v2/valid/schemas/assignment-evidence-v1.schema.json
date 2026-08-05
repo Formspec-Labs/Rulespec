@@ -1,0 +1,43 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://rulespec.org/schemas/releases/extrapolation-release-v2/assignment-evidence-v1.schema.json",
+  "title": "ExtrapolationRelease v2 assignment evidence row",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "record_id",
+    "record_type",
+    "assignment_id",
+    "record_json"
+  ],
+  "properties": {
+    "record_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "record_type": {
+      "enum": [
+        "EvidenceBinding",
+        "ExtractionActivity",
+        "AILineage",
+        "ProcessingSegment",
+        "DerivedTextProjection",
+        "PortableArtifact",
+        "AgentValidationReceipt",
+        "BaselineValidationReceipt",
+        "ExtrapolationSelectionReceipt"
+      ]
+    },
+    "assignment_id": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "minLength": 1
+    },
+    "record_json": {
+      "type": "string",
+      "minLength": 2
+    }
+  }
+}

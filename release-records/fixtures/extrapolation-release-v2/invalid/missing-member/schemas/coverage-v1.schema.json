@@ -1,0 +1,68 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://rulespec.org/schemas/releases/extrapolation-release-v2/coverage-v1.schema.json",
+  "title": "ExtrapolationRelease v2 coverage row",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "scope_kind",
+    "scope_id",
+    "active_document_count",
+    "assigned_document_count",
+    "abstained_document_count",
+    "excluded_document_count",
+    "failed_document_count",
+    "candidate_assignment_count",
+    "selected_assignment_count",
+    "not_selected_assignment_count",
+    "deferred_assignment_count"
+  ],
+  "properties": {
+    "scope_kind": {
+      "enum": [
+        "global",
+        "concept-ring"
+      ]
+    },
+    "scope_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "active_document_count": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "assigned_document_count": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "abstained_document_count": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "excluded_document_count": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "failed_document_count": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "candidate_assignment_count": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "selected_assignment_count": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "not_selected_assignment_count": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "deferred_assignment_count": {
+      "type": "integer",
+      "minimum": 0
+    }
+  }
+}

@@ -600,7 +600,7 @@ class FixtureOnlySegmentationTests(unittest.TestCase):
                         second_fragment={},
                     )
 
-    def test_only_the_fixture_builder_constructs_a_processing_segment(self) -> None:
+    def test_only_fixture_builders_construct_processing_segments(self) -> None:
         construction = '"record_type": "ProcessingSegment"'
         builders = [
             path
@@ -609,7 +609,10 @@ class FixtureOnlySegmentationTests(unittest.TestCase):
         ]
         self.assertEqual(
             [path.relative_to(ROOT).as_posix() for path in builders],
-            ["tools/build_rulespec_release_fixtures.py"],
+            [
+                "tools/build_extrapolation_release_v2_fixtures.py",
+                "tools/build_rulespec_release_fixtures.py",
+            ],
         )
         helper_source = inspect.getsource(fixture_only_prepared_segment)
         self.assertIn(construction, helper_source)

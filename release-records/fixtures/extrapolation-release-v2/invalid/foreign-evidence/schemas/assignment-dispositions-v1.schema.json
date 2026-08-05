@@ -1,0 +1,58 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://rulespec.org/schemas/releases/extrapolation-release-v2/assignment-dispositions-v1.schema.json",
+  "title": "ExtrapolationRelease v2 assignment disposition row",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "document_id",
+    "document_version_id",
+    "disposition",
+    "reason_code",
+    "assignment_count",
+    "selected_assignment_count",
+    "evidence_record_count",
+    "failure_id"
+  ],
+  "properties": {
+    "document_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "document_version_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "disposition": {
+      "enum": [
+        "assigned",
+        "abstained",
+        "excluded",
+        "failed"
+      ]
+    },
+    "reason_code": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9]*(\\.[a-z][a-z0-9-]*){2,}$"
+    },
+    "assignment_count": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "selected_assignment_count": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "evidence_record_count": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "failure_id": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "minLength": 1
+    }
+  }
+}

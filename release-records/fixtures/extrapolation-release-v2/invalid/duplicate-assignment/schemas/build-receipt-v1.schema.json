@@ -1,0 +1,59 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://rulespec.org/schemas/releases/extrapolation-release-v2/build-receipt-v1.schema.json",
+  "title": "ExtrapolationRelease v2 build receipt row",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "receipt_id",
+    "producer_id",
+    "producer_version",
+    "started_at",
+    "completed_at",
+    "release_status",
+    "input_document_release_id",
+    "assignment_policy_id",
+    "record_count"
+  ],
+  "properties": {
+    "receipt_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "producer_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "producer_version": {
+      "type": "string",
+      "minLength": 1
+    },
+    "started_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "completed_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "release_status": {
+      "enum": [
+        "fixture",
+        "candidate",
+        "published"
+      ]
+    },
+    "input_document_release_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "assignment_policy_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "record_count": {
+      "type": "integer",
+      "minimum": 0
+    }
+  }
+}

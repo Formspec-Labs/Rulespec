@@ -8,6 +8,11 @@ pyshacl>=0.31.0
 rdflib>=7.0.0
 PyYAML>=6.0
 jsonschema>=4.23.0
+# ExtrapolationRelease v2 uses RFC 8785 root identities and partitioned
+# Apache Parquet members.  Pin both implementations so generated conformance
+# fixture bytes remain reproducible across local and CI runs.
+rfc8785==0.1.4
+pyarrow==21.0.0
 # W3C implementation-report entry: 86/86 RDFC-1.0 tests. Version 1.0.0
 # requires Python 3.12, matching the constraints-parity CI job.
 rdfcanon==1.0.0
