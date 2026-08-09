@@ -1,0 +1,76 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@graph": [
+    {
+      "@id": "urn:rkaf:fixture:mad:neg:card:artifact:baseline",
+      "@type": "rkaf:Artifact",
+      "rkaf:hasArtifactIdentifier": "urn:rkaf:fixture:mad:neg:card:artifact:baseline",
+      "rkaf:artifactIdentifierScheme": "rkaf:partner-defined"
+    },
+    {
+      "@id": "urn:rkaf:fixture:mad:neg:card:artifact:observed",
+      "@type": "rkaf:Artifact",
+      "rkaf:hasArtifactIdentifier": "urn:rkaf:fixture:mad:neg:card:artifact:observed",
+      "rkaf:artifactIdentifierScheme": "rkaf:partner-defined"
+    },
+    {
+      "@id": "urn:rkaf:fixture:mad:neg:card:issuer:alpha",
+      "@type": "rkaf:ResolverProofIssuer",
+      "rkaf:proofResolver": "urn:rkaf:fixture:mad:resolver:alpha-adjudicator",
+      "rkaf:proofResolverVersion": "1.0.0",
+      "rkaf:proofPolicy": "urn:rkaf:fixture:mad:policy:relation-adjudication",
+      "rkaf:proofPolicyVersion": "v1"
+    },
+    {
+      "@id": "urn:rkaf:fixture:mad:neg:card:lineage:alpha",
+      "@type": "rkaf:AILineage",
+      "rkaf:modelId": "alpha-judge-2026-01",
+      "rkaf:modelVersion": "2026.01.01",
+      "rkaf:promptTemplateRef": "urn:rkaf:fixture:mad:prompt-template:relation-adjudication/v1",
+      "rkaf:temperature": 0.0,
+      "rkaf:inputContextHash": "sha256:1111111111111111111111111111111111111111111111111111111111111111"
+    },
+    {
+      "@id": "urn:rkaf:fixture:mad:neg:card:proof:alpha",
+      "@type": "rkaf:ResolverProofRecord",
+      "rkaf:proofType": "rkaf:machineAdjudicationProof",
+      "rkaf:proofIssuer": "urn:rkaf:fixture:mad:neg:card:issuer:alpha",
+      "rkaf:proofComparisonContext": "urn:rkaf:fixture:mad:neg:card:comparison",
+      "rkaf:proofOutcome": "rkaf:gatePass",
+      "rkaf:proofRationale": "Single adjudication carrying two verdicts at once.",
+      "rkaf:proofInput": [
+        "urn:rkaf:fixture:mad:candidate:label-equivalence"
+      ],
+      "rkaf:proofEvaluatedAt": "2026-08-05T14:00:00Z",
+      "rkaf:proofSnapshot": "urn:rkaf:fixture:mad:snapshot:2026-08-05",
+      "rkaf:proofRecordDigest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "rkaf:hasAILineage": "urn:rkaf:fixture:mad:neg:card:lineage:alpha",
+      "rkaf:independenceGroup": "urn:rkaf:fixture:mad:independence-group:pool-1",
+      "rkaf:adjudicationVerdict": [
+        "rkaf:verdictSame",
+        "rkaf:verdictNearSame"
+      ],
+      "rkaf:sealedRequestDigest": "sha256:6666666666666666666666666666666666666666666666666666666666666666",
+      "rkaf:sealedResponseArtifact": "urn:rkaf:fixture:mad:response:alpha"
+    },
+    {
+      "@id": "urn:rkaf:fixture:mad:neg:card:comparison",
+      "@type": "rkaf:RelationComparisonContext",
+      "rkaf:comparisonBaselineArtifact": "urn:rkaf:fixture:mad:neg:card:artifact:baseline",
+      "rkaf:comparisonObservedArtifact": "urn:rkaf:fixture:mad:neg:card:artifact:observed",
+      "rkaf:comparisonExpectedAssertion": "urn:rkaf:fixture:mad:assertion:expected",
+      "rkaf:comparisonConsumer": "urn:rkaf:fixture:mad:consumer:permits-desk",
+      "rkaf:comparisonScope": "urn:rkaf:fixture:mad:scope:permits-class-b",
+      "rkaf:comparisonEvaluationTime": "2026-08-05T14:05:00Z",
+      "rkaf:comparisonPolicyVersion": "relation-comparison-v1",
+      "rkaf:comparisonDetector": "urn:rkaf:fixture:mad:detector:relation-comparator",
+      "rkaf:comparisonDetectorVersion": "1.4.0",
+      "rkaf:comparisonSnapshot": "urn:rkaf:fixture:mad:snapshot:2026-08-05",
+      "rkaf:comparisonOutcome": "rkaf:comparisonSatisfied",
+      "rkaf:comparisonProofRecord": [
+        "urn:rkaf:fixture:mad:neg:card:proof:alpha"
+      ]
+    }
+  ],
+  "_comment": "Negative. rkaf:adjudicationVerdict carries TWO values on one proof (rkaf:verdictSame and rkaf:verdictNearSame at once) where the CUE contract requires exactly one. Rejected by the compiled JSON Schema (maxCount 1 / not-a-list scalar) before RDF processing even runs, and by rkaf:MachineAdjudicationIndependentPairShape besides, since this leaves only one proof supporting the comparison. A single adjudication call answers with exactly one relation, never two at once."
+}

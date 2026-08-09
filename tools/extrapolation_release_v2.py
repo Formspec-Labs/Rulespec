@@ -2329,11 +2329,13 @@ def _validate_command(args: argparse.Namespace) -> int:
         if isinstance(atlas_pin, dict):
             try:
                 try:
-                    from refspec_atlas import RefSpecVocabularyAtlas
+                    from atlas_membership_stub import RulespecAtlasMembershipStub
                 except ModuleNotFoundError:
-                    from tools.refspec_atlas import RefSpecVocabularyAtlas
+                    from tools.atlas_membership_stub import (
+                        RulespecAtlasMembershipStub,
+                    )
 
-                atlas = RefSpecVocabularyAtlas.open(
+                atlas = RulespecAtlasMembershipStub.open(
                     Path(args.vocabulary_atlas),
                     expected_manifest_digest=atlas_pin.get("manifest_digest"),
                     expected_output_digest=atlas_pin.get("distribution_digest"),

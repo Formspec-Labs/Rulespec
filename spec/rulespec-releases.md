@@ -320,7 +320,7 @@ The checked-in conformance set is:
 
 - [`rulespec-core-release-m2.json`](../release-records/fixtures/rulespec-core-release-m2.json)
 - [`m2-input-releases.json`](../release-records/fixtures/m2-input-releases.json)
-- [`refspec-vocabulary-atlas/`](../release-records/fixtures/upstream/refspec-vocabulary-atlas/)
+- [`rulespec-atlas-membership-stub/`](../release-records/fixtures/rulespec-atlas-membership-stub/)
 - [`m2-extrapolation-release-positive.json`](../release-records/fixtures/m2-extrapolation-release-positive.json)
 - [`m2-negative-controls.json`](../release-records/fixtures/m2-negative-controls.json)
 

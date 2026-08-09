@@ -1,0 +1,111 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@graph": [
+    {
+      "@id": "urn:rkaf:fixture:mad:neg:smodel:artifact:baseline",
+      "@type": "rkaf:Artifact",
+      "rkaf:hasArtifactIdentifier": "urn:rkaf:fixture:mad:neg:smodel:artifact:baseline",
+      "rkaf:artifactIdentifierScheme": "rkaf:partner-defined"
+    },
+    {
+      "@id": "urn:rkaf:fixture:mad:neg:smodel:artifact:observed",
+      "@type": "rkaf:Artifact",
+      "rkaf:hasArtifactIdentifier": "urn:rkaf:fixture:mad:neg:smodel:artifact:observed",
+      "rkaf:artifactIdentifierScheme": "rkaf:partner-defined"
+    },
+    {
+      "@id": "urn:rkaf:fixture:mad:neg:smodel:issuer:alpha",
+      "@type": "rkaf:ResolverProofIssuer",
+      "rkaf:proofResolver": "urn:rkaf:fixture:mad:resolver:alpha-adjudicator",
+      "rkaf:proofResolverVersion": "1.0.0",
+      "rkaf:proofPolicy": "urn:rkaf:fixture:mad:policy:relation-adjudication",
+      "rkaf:proofPolicyVersion": "v1"
+    },
+    {
+      "@id": "urn:rkaf:fixture:mad:neg:smodel:issuer:beta",
+      "@type": "rkaf:ResolverProofIssuer",
+      "rkaf:proofResolver": "urn:rkaf:fixture:mad:resolver:beta-adjudicator",
+      "rkaf:proofResolverVersion": "1.0.0",
+      "rkaf:proofPolicy": "urn:rkaf:fixture:mad:policy:relation-adjudication",
+      "rkaf:proofPolicyVersion": "v1"
+    },
+    {
+      "@id": "urn:rkaf:fixture:mad:neg:smodel:lineage:alpha",
+      "@type": "rkaf:AILineage",
+      "rkaf:modelId": "shared-judge-2026-01",
+      "rkaf:modelVersion": "2026.01.01",
+      "rkaf:promptTemplateRef": "urn:rkaf:fixture:mad:prompt-template:relation-adjudication/v1",
+      "rkaf:temperature": 0.0,
+      "rkaf:inputContextHash": "sha256:1111111111111111111111111111111111111111111111111111111111111111"
+    },
+    {
+      "@id": "urn:rkaf:fixture:mad:neg:smodel:lineage:beta",
+      "@type": "rkaf:AILineage",
+      "rkaf:modelId": "shared-judge-2026-01",
+      "rkaf:modelVersion": "2026.01.01",
+      "rkaf:promptTemplateRef": "urn:rkaf:fixture:mad:prompt-template:relation-adjudication/v1",
+      "rkaf:temperature": 0.0,
+      "rkaf:inputContextHash": "sha256:2222222222222222222222222222222222222222222222222222222222222222"
+    },
+    {
+      "@id": "urn:rkaf:fixture:mad:neg:smodel:proof:alpha",
+      "@type": "rkaf:ResolverProofRecord",
+      "rkaf:proofType": "rkaf:machineAdjudicationProof",
+      "rkaf:proofIssuer": "urn:rkaf:fixture:mad:neg:smodel:issuer:alpha",
+      "rkaf:proofComparisonContext": "urn:rkaf:fixture:mad:neg:smodel:comparison",
+      "rkaf:proofOutcome": "rkaf:gatePass",
+      "rkaf:proofRationale": "First supporting adjudication.",
+      "rkaf:proofInput": [
+        "urn:rkaf:fixture:mad:candidate:label-equivalence"
+      ],
+      "rkaf:proofEvaluatedAt": "2026-08-05T14:00:00Z",
+      "rkaf:proofSnapshot": "urn:rkaf:fixture:mad:snapshot:2026-08-05",
+      "rkaf:proofRecordDigest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "rkaf:hasAILineage": "urn:rkaf:fixture:mad:neg:smodel:lineage:alpha",
+      "rkaf:independenceGroup": "urn:rkaf:fixture:mad:independence-group:pool-1",
+      "rkaf:adjudicationVerdict": "rkaf:verdictSame",
+      "rkaf:sealedRequestDigest": "sha256:6666666666666666666666666666666666666666666666666666666666666666",
+      "rkaf:sealedResponseArtifact": "urn:rkaf:fixture:mad:response:alpha"
+    },
+    {
+      "@id": "urn:rkaf:fixture:mad:neg:smodel:proof:beta",
+      "@type": "rkaf:ResolverProofRecord",
+      "rkaf:proofType": "rkaf:machineAdjudicationProof",
+      "rkaf:proofIssuer": "urn:rkaf:fixture:mad:neg:smodel:issuer:beta",
+      "rkaf:proofComparisonContext": "urn:rkaf:fixture:mad:neg:smodel:comparison",
+      "rkaf:proofOutcome": "rkaf:gatePass",
+      "rkaf:proofRationale": "Second supporting adjudication, same provider model ID as the first.",
+      "rkaf:proofInput": [
+        "urn:rkaf:fixture:mad:candidate:label-equivalence"
+      ],
+      "rkaf:proofEvaluatedAt": "2026-08-05T14:00:00Z",
+      "rkaf:proofSnapshot": "urn:rkaf:fixture:mad:snapshot:2026-08-05",
+      "rkaf:proofRecordDigest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "rkaf:hasAILineage": "urn:rkaf:fixture:mad:neg:smodel:lineage:beta",
+      "rkaf:independenceGroup": "urn:rkaf:fixture:mad:independence-group:pool-2",
+      "rkaf:adjudicationVerdict": "rkaf:verdictSame",
+      "rkaf:sealedRequestDigest": "sha256:6666666666666666666666666666666666666666666666666666666666666666",
+      "rkaf:sealedResponseArtifact": "urn:rkaf:fixture:mad:response:beta"
+    },
+    {
+      "@id": "urn:rkaf:fixture:mad:neg:smodel:comparison",
+      "@type": "rkaf:RelationComparisonContext",
+      "rkaf:comparisonBaselineArtifact": "urn:rkaf:fixture:mad:neg:smodel:artifact:baseline",
+      "rkaf:comparisonObservedArtifact": "urn:rkaf:fixture:mad:neg:smodel:artifact:observed",
+      "rkaf:comparisonExpectedAssertion": "urn:rkaf:fixture:mad:assertion:expected",
+      "rkaf:comparisonConsumer": "urn:rkaf:fixture:mad:consumer:permits-desk",
+      "rkaf:comparisonScope": "urn:rkaf:fixture:mad:scope:permits-class-b",
+      "rkaf:comparisonEvaluationTime": "2026-08-05T14:05:00Z",
+      "rkaf:comparisonPolicyVersion": "relation-comparison-v1",
+      "rkaf:comparisonDetector": "urn:rkaf:fixture:mad:detector:relation-comparator",
+      "rkaf:comparisonDetectorVersion": "1.4.0",
+      "rkaf:comparisonSnapshot": "urn:rkaf:fixture:mad:snapshot:2026-08-05",
+      "rkaf:comparisonOutcome": "rkaf:comparisonSatisfied",
+      "rkaf:comparisonProofRecord": [
+        "urn:rkaf:fixture:mad:neg:smodel:proof:alpha",
+        "urn:rkaf:fixture:mad:neg:smodel:proof:beta"
+      ]
+    }
+  ],
+  "_comment": "Negative. Two machine-adjudication proofs answer the identical sealed question, with distinct issuers, providers, and independence groups -- but both name the SAME rkaf:modelId (shared-judge-2026-01) through their respective rkaf:hasAILineage records. The provider-model-ID axis collapses, so no independent pair exists. Caught by rkaf:MachineAdjudicationIndependentPairShape."
+}

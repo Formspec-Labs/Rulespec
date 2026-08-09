@@ -37,6 +37,15 @@ import "list"
 //   rkaf:scopeComparisonProof   are the temporal, jurisdictional, conditional,
 //                               and applicability scopes comparable?
 //
+//   rkaf:machineAdjudicationProof does a machine-adjudicated verdict over a
+//                               sealed, independently-witnessed comparison
+//                               question hold for this relation? Composed by
+//                               `#MachineAdjudicationProof`
+//                               (machine-adjudication.cue); the independence
+//                               and complete-support rules the answer must
+//                               satisfy are cross-node and therefore live in
+//                               `shapes/rkaf-shapes-analysis.ttl`, not here.
+//
 // The three LONGITUDINAL protocols — version lineage, expected coverage, and
 // closure — are deliberately ABSENT. They exist only to support omission
 // findings, omission is disabled (see closure-claim.cue), and a contract that
@@ -46,7 +55,7 @@ import "list"
 #ResolverProofType: "rkaf:predicateCatalogProof" |
 	"rkaf:assertionStateProof" | "rkaf:evidenceBindingProof" |
 	"rkaf:baselineWarrantProof" | "rkaf:artifactPairingProof" |
-	"rkaf:scopeComparisonProof"
+	"rkaf:scopeComparisonProof" | "rkaf:machineAdjudicationProof"
 
 // The common decision envelope every gate resolver returns.
 #GateStatus: "rkaf:gatePass" | "rkaf:gateFail" | "rkaf:gateUnknown"
@@ -84,8 +93,38 @@ import "list"
 	"rkaf:proofPolicyVersion":   string
 }
 
-#ResolverProofRecord: {
-	"@type":           "rkaf:ResolverProofRecord"
+// #ResolverProofFields carries every property a resolver decision reports,
+// minus the JSON-LD `@type` discriminator — the same split `#AssertionEnvelope`
+// uses in assertion.cue, and for the same reason: it lets a narrower shape
+// compose these fields under a discriminator of its own without CUE trying to
+// unify two different `@type` literals.
+//
+// A MACHINE-ADJUDICATION PROOF (machine-adjudication.cue,
+// `#MachineAdjudicationProof`) is deliberately NOT a second `@type`. Two
+// mechanical reasons, not merely style:
+//
+//   1. `tools/conformance_lib.py::schema_bindings()` binds exactly one
+//      compiled schema per `@type` IRI. A second class declaring the same
+//      literal `rkaf:ResolverProofRecord` would either fail to compile or
+//      silently steal the dispatch from the base proof record for every OTHER
+//      proof kind, depending on file sort order.
+//   2. A distinct `@type` related by `rdfs:subClassOf` does not help: the
+//      SHACL suite's `sh:class` constraint component does not apply RDFS
+//      subclass entailment the way `sh:targetClass` does without an
+//      explicitly supplied `ont_graph`, and `tools/ci_validate.py` /
+//      `tools/validate_negatives.py` never supply one. A subclassed proof
+//      would silently fail every `sh:class rkaf:ResolverProofRecord` check on
+//      `rkaf:comparisonProofRecord` and `rkaf:findingProofRecord` — exactly
+//      the citation slots a machine-adjudication proof MUST be usable from.
+//
+// So a machine-adjudication proof IS an `rkaf:ResolverProofRecord`, plainly,
+// with `rkaf:proofType` narrowed to the literal `rkaf:machineAdjudicationProof`
+// and five additional properties the conditional below requires exactly when
+// that literal is present. `rkaf:MachineAdjudicationIndependentPairShape` and
+// `rkaf:MachineAdjudicationCompleteSupportShape`
+// (`shapes/rkaf-shapes-analysis.ttl`) find these proofs the same way: by
+// reading `rkaf:proofType`, never by a second `rdf:type`.
+#ResolverProofFields: fields={
 	"rkaf:proofType":  #ResolverProofType
 	// Class-ranged to `rkaf:ResolverProofIssuer`: "issued by version 3" has to
 	// resolve to a record, not to a version string a reader must trust.
@@ -137,4 +176,23 @@ import "list"
 	// recomputes this over the record and rejects it when the value differs,
 	// so a proof cannot be edited after the result that cites it was published.
 	"rkaf:proofRecordDigest": string & =~"^sha256:[0-9a-f]{64}$"
+
+	// A machine-adjudication proof (`rkaf:proofType == rkaf:machineAdjudicationProof`)
+	// REQUIRES five additional properties — see `#MachineAdjudicationProof` and
+	// `#MachineAdjudicationVerdict` in machine-adjudication.cue for what each
+	// one carries and why. Every OTHER proof type carries none of them: a
+	// predicate-catalog or scope-comparison proof has no model lineage, no
+	// independence pool, and no sealed model request to report.
+	if fields["rkaf:proofType"] == "rkaf:machineAdjudicationProof" {
+		"rkaf:hasAILineage":           string & =~"^[A-Za-z][A-Za-z0-9+.-]*:[^\\s]+$"
+		"rkaf:independenceGroup":      string & =~"^[A-Za-z][A-Za-z0-9+.-]*:[^\\s]+$"
+		"rkaf:adjudicationVerdict":    #MachineAdjudicationVerdict
+		"rkaf:sealedRequestDigest":    string & =~"^sha256:[0-9a-f]{64}$"
+		"rkaf:sealedResponseArtifact": string & =~"^[A-Za-z][A-Za-z0-9+.-]*:[^\\s]+$"
+	}
+}
+
+#ResolverProofRecord: {
+	#ResolverProofFields
+	"@type": "rkaf:ResolverProofRecord"
 }

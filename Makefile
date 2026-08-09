@@ -61,7 +61,7 @@ test-reference-corpora:
 test-audits:
 	$(CARGO) build $(CARGO_MANIFEST) -p projector-harness
 	$(PYTHON) tools/vocab_audit.py
-	$(PYTHON) -m unittest tools.test_constraints_compile tools.test_l0_mapping_audit tools.test_semantic_carriers tools.test_reference_release_digest tools.test_rulespec_releases tools.test_extrapolation_release_v2 tools.test_refspec_atlas tools.test_refspec_atlas_conformance tools.test_refspec_atlas_cross_repository -v
+	$(PYTHON) -m unittest tools.test_constraints_compile tools.test_l0_mapping_audit tools.test_semantic_carriers tools.test_reference_release_digest tools.test_rulespec_releases tools.test_extrapolation_release_v2 tools.test_atlas_membership_stub -v
 	$(PYTHON) tools/l0_mapping_audit.py
 	$(PYTHON) tools/l0_l3_coverage_audit.py
 	$(PYTHON) tools/rename_audit.py

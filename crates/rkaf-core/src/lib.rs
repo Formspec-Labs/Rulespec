@@ -165,6 +165,7 @@ pub mod generated {
     /// module above depends on it, and it depends on no profile.
     pub mod analysis {
         pub mod closure_claim               { include!("generated/analysis/closure_claim.rs"); }
+        pub mod machine_adjudication        { include!("generated/analysis/machine_adjudication.rs"); }
         pub mod relation_change_event       { include!("generated/analysis/relation_change_event.rs"); }
         pub mod relation_comparison_context { include!("generated/analysis/relation_comparison_context.rs"); }
         pub mod relation_finding            { include!("generated/analysis/relation_finding.rs"); }
@@ -252,6 +253,13 @@ pub use generated::analysis::relation_finding::{RelationFinding, RelationFinding
 pub use generated::analysis::resolver_proof_record::{
     GateStatus, ResolverProofIssuer, ResolverProofOutcome, ResolverProofRecord, ResolverProofType,
     ScopeRelation,
+};
+// Machine-adjudication proofs (spec/rkaf-analysis.md §4.5). One resolver
+// proof kind, not a parallel attestation, and not a second `@type`:
+// `MachineAdjudicationProof` is the fully-narrowed reference shape for a
+// `ResolverProofRecord` whose `proof_type` is `rkaf:machineAdjudicationProof`.
+pub use generated::analysis::machine_adjudication::{
+    MachineAdjudicationProof, MachineAdjudicationVerdict,
 };
 // US rulemaking profile. These types moved from the kernel into
 // `generated::profiles::us_rulemaking`; the crate-root re-exports are kept so

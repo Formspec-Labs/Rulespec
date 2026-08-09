@@ -1,0 +1,73 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@graph": [
+    {
+      "@id": "urn:rkaf:fixture:mad:neg:sp:artifact:baseline",
+      "@type": "rkaf:Artifact",
+      "rkaf:hasArtifactIdentifier": "urn:rkaf:fixture:mad:neg:sp:artifact:baseline",
+      "rkaf:artifactIdentifierScheme": "rkaf:partner-defined"
+    },
+    {
+      "@id": "urn:rkaf:fixture:mad:neg:sp:artifact:observed",
+      "@type": "rkaf:Artifact",
+      "rkaf:hasArtifactIdentifier": "urn:rkaf:fixture:mad:neg:sp:artifact:observed",
+      "rkaf:artifactIdentifierScheme": "rkaf:partner-defined"
+    },
+    {
+      "@id": "urn:rkaf:fixture:mad:neg:sp:issuer:alpha",
+      "@type": "rkaf:ResolverProofIssuer",
+      "rkaf:proofResolver": "urn:rkaf:fixture:mad:resolver:alpha-adjudicator",
+      "rkaf:proofResolverVersion": "1.0.0",
+      "rkaf:proofPolicy": "urn:rkaf:fixture:mad:policy:relation-adjudication",
+      "rkaf:proofPolicyVersion": "v1"
+    },
+    {
+      "@id": "urn:rkaf:fixture:mad:neg:sp:lineage:alpha",
+      "@type": "rkaf:AILineage",
+      "rkaf:modelId": "alpha-judge-2026-01",
+      "rkaf:modelVersion": "2026.01.01",
+      "rkaf:promptTemplateRef": "urn:rkaf:fixture:mad:prompt-template:relation-adjudication/v1",
+      "rkaf:temperature": 0.0,
+      "rkaf:inputContextHash": "sha256:1111111111111111111111111111111111111111111111111111111111111111"
+    },
+    {
+      "@id": "urn:rkaf:fixture:mad:neg:sp:proof:alpha",
+      "@type": "rkaf:ResolverProofRecord",
+      "rkaf:proofType": "rkaf:machineAdjudicationProof",
+      "rkaf:proofIssuer": "urn:rkaf:fixture:mad:neg:sp:issuer:alpha",
+      "rkaf:proofComparisonContext": "urn:rkaf:fixture:mad:neg:sp:comparison",
+      "rkaf:proofOutcome": "rkaf:gatePass",
+      "rkaf:proofRationale": "The sole supporting adjudication.",
+      "rkaf:proofInput": [
+        "urn:rkaf:fixture:mad:candidate:label-equivalence"
+      ],
+      "rkaf:proofEvaluatedAt": "2026-08-05T14:00:00Z",
+      "rkaf:proofSnapshot": "urn:rkaf:fixture:mad:snapshot:2026-08-05",
+      "rkaf:proofRecordDigest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "rkaf:hasAILineage": "urn:rkaf:fixture:mad:neg:sp:lineage:alpha",
+      "rkaf:independenceGroup": "urn:rkaf:fixture:mad:independence-group:pool-1",
+      "rkaf:adjudicationVerdict": "rkaf:verdictSame",
+      "rkaf:sealedRequestDigest": "sha256:6666666666666666666666666666666666666666666666666666666666666666",
+      "rkaf:sealedResponseArtifact": "urn:rkaf:fixture:mad:response:alpha"
+    },
+    {
+      "@id": "urn:rkaf:fixture:mad:neg:sp:comparison",
+      "@type": "rkaf:RelationComparisonContext",
+      "rkaf:comparisonBaselineArtifact": "urn:rkaf:fixture:mad:neg:sp:artifact:baseline",
+      "rkaf:comparisonObservedArtifact": "urn:rkaf:fixture:mad:neg:sp:artifact:observed",
+      "rkaf:comparisonExpectedAssertion": "urn:rkaf:fixture:mad:assertion:expected",
+      "rkaf:comparisonConsumer": "urn:rkaf:fixture:mad:consumer:permits-desk",
+      "rkaf:comparisonScope": "urn:rkaf:fixture:mad:scope:permits-class-b",
+      "rkaf:comparisonEvaluationTime": "2026-08-05T14:05:00Z",
+      "rkaf:comparisonPolicyVersion": "relation-comparison-v1",
+      "rkaf:comparisonDetector": "urn:rkaf:fixture:mad:detector:relation-comparator",
+      "rkaf:comparisonDetectorVersion": "1.4.0",
+      "rkaf:comparisonSnapshot": "urn:rkaf:fixture:mad:snapshot:2026-08-05",
+      "rkaf:comparisonOutcome": "rkaf:comparisonSatisfied",
+      "rkaf:comparisonProofRecord": [
+        "urn:rkaf:fixture:mad:neg:sp:proof:alpha"
+      ]
+    }
+  ],
+  "_comment": "Negative. Exactly one machine-adjudication proof supports the comparison -- no pair is even possible. Caught by rkaf:MachineAdjudicationIndependentPairShape: at least one independent PAIR is required (spec/rkaf-analysis.md 3.4, 4 extension). One model's proof, however well-formed, is one opinion; the deterministic outcome comes only from folding two or more independent proofs."
+}

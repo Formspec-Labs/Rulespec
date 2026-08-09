@@ -28,8 +28,12 @@ COMPILED_ANALYSIS_JSON_SCHEMA_DIR = ROOT / "compiled" / "json-schema" / "analysi
 COMPILED_PROFILE_JSON_SCHEMA_ROOT = ROOT / "compiled" / "json-schema" / "profiles"
 
 # Enum/property-only schemas do not emit concrete JSON-LD @type constants.
+# machine-adjudication.cue emits none either: `#MachineAdjudicationProof`
+# deliberately carries no `@type` of its own (see its file-level comment) so
+# it never collides with `rkaf:ResolverProofRecord`'s own schema binding.
 CUE_TERM_FALLBACKS: dict[str, set[str]] = {
     "trust-and-safety": {"hasTrustZone", "hasSafetyLabel"},
+    "machine-adjudication": {"MachineAdjudicationProof", "MachineAdjudicationVerdict"},
     "usage-eligibility": {"usageEligibility"},
 }
 

@@ -42,7 +42,11 @@ ROOT = Path(__file__).resolve().parents[1]
 CORE_FIXTURE = ROOT / "release-records/fixtures/rulespec-core-release-m2.json"
 UPSTREAM_FIXTURES = ROOT / "release-records/fixtures/upstream"
 DOCUMENT_FIXTURE = UPSTREAM_FIXTURES / "spicyregs-document-release-v1.json"
-VOCABULARY_ATLAS_FIXTURE = UPSTREAM_FIXTURES / "refspec-vocabulary-atlas"
+# Not "upstream": this atlas is authored by Rulespec's own tooling, not
+# vendored from a publisher. See tools/atlas_membership_stub.py.
+ATLAS_MEMBERSHIP_STUB_FIXTURE = (
+    ROOT / "release-records/fixtures/rulespec-atlas-membership-stub"
+)
 STAMP = "2026-07-31T12:00:00Z"
 FIXTURE_RELEASE_STATUS = "fixture"
 # Names the hand-authored join below. The string is frozen: sibling products pin
@@ -74,20 +78,51 @@ def build_inputs(core: Mapping[str, Any]) -> dict[str, Any]:
     return {"fixture_type": "PinnedReleaseBundle", "records": [document]}
 
 
-def open_vendored_atlas() -> Any:
-    """Open the checked RefSpec asset from its exact static bytes."""
+def write_fixture_atlas(core: Mapping[str, Any]) -> None:
+    """(Re)write the checked-in, rulespec-authored atlas-membership stub.
+
+    Deterministic from the sealed Core pin plus the fixed reference-resource
+    constants below -- there is nothing to vendor here, so ``--write``
+    regenerates it the same way it regenerates the other fixtures.
+    """
 
     try:
-        from refspec_atlas import RefSpecVocabularyAtlas
+        from atlas_membership_stub import write_stub_atlas
     except ModuleNotFoundError:  # imported as a tools package
-        from tools.refspec_atlas import RefSpecVocabularyAtlas
+        from tools.atlas_membership_stub import write_stub_atlas
 
-    manifest_path = VOCABULARY_ATLAS_FIXTURE / "atlas-manifest.json"
-    distribution_path = VOCABULARY_ATLAS_FIXTURE / "atlas.nq"
-    return RefSpecVocabularyAtlas.open(
-        VOCABULARY_ATLAS_FIXTURE,
+    write_stub_atlas(
+        ATLAS_MEMBERSHIP_STUB_FIXTURE,
+        rulespec_core_release={
+            "release_id": core["release_id"],
+            "release_digest": core["release_digest"],
+        },
+        releases=[
+            {
+                "release_id": REFERENCE_RELEASE_ID,
+                "release_digest": canonical_digest(
+                    {"release_id": REFERENCE_RELEASE_ID, "member": CONCEPT_ID}
+                ),
+                "members": [CONCEPT_ID],
+            }
+        ],
+    )
+
+
+def open_fixture_atlas() -> Any:
+    """Open the checked-in, rulespec-authored atlas-membership stub."""
+
+    try:
+        from atlas_membership_stub import RulespecAtlasMembershipStub
+    except ModuleNotFoundError:  # imported as a tools package
+        from tools.atlas_membership_stub import RulespecAtlasMembershipStub
+
+    manifest_path = ATLAS_MEMBERSHIP_STUB_FIXTURE / "manifest.json"
+    members_path = ATLAS_MEMBERSHIP_STUB_FIXTURE / "members.json"
+    return RulespecAtlasMembershipStub.open(
+        ATLAS_MEMBERSHIP_STUB_FIXTURE,
         expected_manifest_digest=content_digest(manifest_path.read_bytes()),
-        expected_output_digest=content_digest(distribution_path.read_bytes()),
+        expected_output_digest=content_digest(members_path.read_bytes()),
     )
 
 
@@ -765,7 +800,7 @@ def build_negative_controls(release: Mapping[str, Any]) -> dict[str, Any]:
 def build_all() -> dict[str, Any]:
     core = load_json(CORE_FIXTURE)
     inputs = build_inputs(core)
-    atlas = open_vendored_atlas()
+    atlas = open_fixture_atlas()
     extrapolation = build_extrapolation(core, inputs, atlas)
     return {
         "inputs": inputs,
@@ -791,27 +826,16 @@ def write_static_fixtures(fixtures: Mapping[str, Any]) -> None:
         )
 
 
-def vendor_upstream_fixtures(document_source: Path, atlas_source: Path) -> None:
-    """Copy publisher-owned release artifacts into the offline fixture set."""
+def vendor_document_release(document_source: Path) -> None:
+    """Copy the publisher-owned DocumentRelease into the offline fixture set.
+
+    The vocabulary atlas is no longer vendored from anywhere -- it is a
+    rulespec-authored stub. See ``write_fixture_atlas``.
+    """
 
     load_json(document_source)
-    manifest_source = atlas_source / "atlas-manifest.json"
-    distribution_source = atlas_source / "atlas.nq"
-    try:
-        from refspec_atlas import RefSpecVocabularyAtlas
-    except ModuleNotFoundError:  # imported as a tools package
-        from tools.refspec_atlas import RefSpecVocabularyAtlas
-
-    RefSpecVocabularyAtlas.open(
-        atlas_source,
-        expected_manifest_digest=content_digest(manifest_source.read_bytes()),
-        expected_output_digest=content_digest(distribution_source.read_bytes()),
-    )
     DOCUMENT_FIXTURE.parent.mkdir(parents=True, exist_ok=True)
     DOCUMENT_FIXTURE.write_bytes(document_source.read_bytes())
-    VOCABULARY_ATLAS_FIXTURE.mkdir(parents=True, exist_ok=True)
-    for source in (manifest_source, distribution_source):
-        (VOCABULARY_ATLAS_FIXTURE / source.name).write_bytes(source.read_bytes())
 
 
 def main() -> int:
@@ -825,16 +849,11 @@ def main() -> int:
         help="rewrite the checked-in static fixtures before printing",
     )
     parser.add_argument("--vendor-document-release", type=Path)
-    parser.add_argument("--vendor-vocabulary-atlas", type=Path)
     args = parser.parse_args()
-    vendor_sources = (
-        args.vendor_document_release,
-        args.vendor_vocabulary_atlas,
-    )
-    if any(vendor_sources) and not all(vendor_sources):
-        parser.error("both upstream release paths are required for vendoring")
-    if all(vendor_sources):
-        vendor_upstream_fixtures(*vendor_sources)
+    if args.vendor_document_release is not None:
+        vendor_document_release(args.vendor_document_release)
+    if args.write:
+        write_fixture_atlas(load_json(CORE_FIXTURE))
     fixtures = build_all()
     if args.write:
         write_static_fixtures(fixtures)

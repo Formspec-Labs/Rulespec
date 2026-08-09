@@ -19,7 +19,7 @@ from tools.build_extrapolation_release_v2_fixtures import (
     build_valid_bundle,
     fixture_only_carriage_records,
 )
-from tools.build_rulespec_release_fixtures import open_vendored_atlas
+from tools.build_rulespec_release_fixtures import open_fixture_atlas
 from tools.extrapolation_release_v2 import (
     ROLE_SCHEMA_FILES,
     ROOT_SCHEMA,
@@ -106,7 +106,7 @@ class ExtrapolationReleaseV2FixtureTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:
         cls.document_release = load_document_release_view(UPSTREAM_DOCUMENT_RELEASE)
-        cls.atlas = open_vendored_atlas()
+        cls.atlas = open_fixture_atlas()
 
     def test_valid_fixture_verifies_without_a_sibling_worktree(self) -> None:
         result = verify_extrapolation_release_v2(

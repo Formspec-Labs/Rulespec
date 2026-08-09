@@ -1,6 +1,6 @@
 {
   "fixture_type": "RulespecM2NegativeControlSet",
-  "base_release_id": "urn:rulespec:extrapolation:8991fb9140866dceea7b9539da2f5a4b9295e039dc6dd333a75c217de0c443d4",
+  "base_release_id": "urn:rulespec:extrapolation:d09fc80df4b85c414d7f0942d0e29772534f2ba046808571cf04021d0a9da4dd",
   "controls": [
     {
       "name": "wrong-vocabulary-atlas",

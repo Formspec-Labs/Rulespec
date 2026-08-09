@@ -1486,6 +1486,18 @@
     "rkaf:proofRecordDigest": {
       "@type": "xsd:string"
     },
+    "rkaf:independenceGroup": {
+      "@type": "@id"
+    },
+    "rkaf:adjudicationVerdict": {
+      "@type": "@vocab"
+    },
+    "rkaf:sealedRequestDigest": {
+      "@type": "xsd:string"
+    },
+    "rkaf:sealedResponseArtifact": {
+      "@type": "@id"
+    },
     "rkaf:RelationFinding": {
       "@type": "@id"
     },

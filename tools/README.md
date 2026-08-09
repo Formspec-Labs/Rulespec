@@ -10,55 +10,49 @@ text projections, and applies the baseline and deterministic-selection gates.
 
 [`build_rulespec_release_fixtures.py`](build_rulespec_release_fixtures.py)
 reproduces the sealed M2 positive release and negative controls from a
-publisher-owned SpicyRegs release and static RefSpec atlas. Refreshing those
-copies requires both explicit upstream paths; normal tests read only the
-checked files under `release-records/fixtures/`.
+publisher-owned SpicyRegs release and Rulespec's own atlas-membership stub
+(see below). Refreshing the vendored document copy requires an explicit
+upstream path; the stub atlas regenerates deterministically with `--write`.
+Normal tests read only the checked files under `release-records/fixtures/`.
 
 ```sh
 python3 tools/rulespec_release.py validate \
   release-records/fixtures/m2-extrapolation-release-positive.json \
   --input release-records/fixtures/rulespec-core-release-m2.json \
   --input release-records/fixtures/m2-input-releases.json \
-  --vocabulary-atlas release-records/fixtures/upstream/refspec-vocabulary-atlas
+  --vocabulary-atlas release-records/fixtures/rulespec-atlas-membership-stub
 python3 -m unittest tools.test_rulespec_releases -v
 ```
 
-## RefSpec vocabulary atlas reader
+## Atlas-membership reader seam
 
-[`refspec_atlas.py`](refspec_atlas.py) reads RefSpec's static
-`VocabularyAtlasAsset` without importing RefSpec source. The release selects it
-with only `asset_id`, `manifest_digest`, and `distribution_digest`. The reader
-opens the two files using the manifest and distribution digests; the release
-validator also compares the content-derived asset ID. It checks the Core release
-sealed into the manifest and validates exact reference-release membership for
-every Extrapolator assignment. `require_member(...)` validates a concept against
-one exact `ReferenceResourceRelease` digest. It does not traverse mappings.
+`rulespec_release.py` and `extrapolation_release_v2.py` each declare an
+`AtlasMembershipReader` Protocol (`pin()`, `rulespec_core_pin()`,
+`require_member(...)`): a release may pin an external, product-owned atlas
+asset that proves reference-resource membership, and the validators verify
+that pin against whatever reader a caller supplies. Neither module knows or
+cares whose atlas that is.
 
-SpicySearch owns search-mapping interpretation and expansion. `open()` still
-enforces the `twoIndependentMachinesSearchOnly` policy the manifest declares —
-one `searchOnly` eligibility per `rkaf:ConceptMapping`, exactly two typed
-machine validations, and validators that differ on actor, independence group,
-provider, and provider model. Reading a mapping is SpicySearch's job; handing
-back a distribution that contradicts its own declared policy is nobody's.
+[`atlas_membership_stub.py`](atlas_membership_stub.py) is a minimal,
+rulespec-native implementation of that Protocol for this repository's own
+tests and fixture builders: a tiny, tamper-evident `manifest.json` +
+`members.json` pair expressed in Rulespec's own canonical-JSON conventions,
+with no downstream namespace, wire format, or vocabulary baked in. It is not
+a vendored copy of any product's atlas format, and production code never
+constructs it directly — validators only ever receive an
+`AtlasMembershipReader` through dependency injection. A real deployment that
+needs to verify a release against an external, product-owned atlas supplies
+its own reader satisfying the same three-method Protocol.
 
 Run the local gate with:
 
 ```sh
-python3 -m unittest tools.test_refspec_atlas tools.test_refspec_atlas_conformance -v
+python3 -m unittest tools.test_atlas_membership_stub -v
 ```
 
-`test_refspec_atlas.py` builds synthetic distributions; `test_refspec_atlas_conformance.py`
-drives the reader over the vendored copy of RefSpec's published conformance
-corpus in `release-records/fixtures/upstream/refspec-atlas-conformance/` — every
-valid and invalid case, offline. Its `STRICTNESS_DELTAS` table is the only place
-this reader may accept a case RefSpec calls invalid, and it is empty today.
-Refresh the vendored copy with
-[`vendor_refspec_atlas_conformance.py`](vendor_refspec_atlas_conformance.py).
-
-Set `REFSPEC_CHECKOUT` to a mature RefSpec checkout to run the optional
-cross-repository producer-consumer proof in
-`tools.test_refspec_atlas_cross_repository`, which also proves the vendored
-corpus is still byte-identical to the published one.
+`test_atlas_membership_stub.py` builds synthetic stub atlases in a temp
+directory and asserts tampering with either file is caught before
+`require_member` can be reached; it depends on nothing outside this repo.
 
 ## Semantic carrier tests
 

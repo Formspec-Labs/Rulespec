@@ -24,7 +24,7 @@ try:
         _operational_artifact,
         _reference_resource,
         _urn,
-        open_vendored_atlas,
+        open_fixture_atlas,
     )
     from tools.extrapolation_release_v2 import (
         FORMAT,
@@ -50,7 +50,7 @@ except ModuleNotFoundError:  # executed as ``python tools/<script>.py``
         _operational_artifact,
         _reference_resource,
         _urn,
-        open_vendored_atlas,
+        open_fixture_atlas,
     )
     from extrapolation_release_v2 import (
         FORMAT,
@@ -492,7 +492,7 @@ def build_valid_bundle(bundle: Path, upstream_document_release: Path) -> dict[st
     bundle.mkdir(parents=True)
     document_release = load_document_release_view(upstream_document_release)
     core = json.loads(CORE_FIXTURE.read_text(encoding="utf-8"))
-    atlas = open_vendored_atlas()
+    atlas = open_fixture_atlas()
     reference_release = _reference_resource(atlas)
     core_pin = atlas.rulespec_core_pin()
     if (core_pin.release_id, core_pin.release_digest) != (
@@ -1141,8 +1141,7 @@ def write_corpus() -> dict[str, Any]:
             ROOT
             / "release-records"
             / "fixtures"
-            / "upstream"
-            / "refspec-vocabulary-atlas"
+            / "rulespec-atlas-membership-stub"
         )
         .relative_to(ROOT)
         .as_posix(),

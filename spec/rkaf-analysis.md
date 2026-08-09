@@ -252,7 +252,7 @@ the finding would make `satisfied`, `conflict`, `not_comparable`, and
 looked and found no discrepancy. That record is exactly what distinguishes
 **checked, nothing found** from **never checked**.
 
-### 3.4 No AI model participates in a comparison
+### 3.4 No AI model decides a comparison outcome alone
 
 A model may propose assertions and change events **upstream**, and that
 proposal is carried by `rkaf:assertionOrigin` and `rkaf:hasAILineage` on the
@@ -260,6 +260,30 @@ proposed record. A model **MUST NOT** produce a comparison outcome. The
 comparison kernel is deterministic and evidence-gated: given the same frame,
 the same accepted assertions, and the same resolver decisions, it returns the
 same outcome.
+
+**Amended 2026-08-09.** The paragraph above forbade a model from touching a
+comparison at all, which was too strong: it would forbid the machine-adjudication
+resolver protocol this contract now defines (§4 extension,
+`rkaf:MachineAdjudicationProof`) outright, even though that protocol never lets
+a model decide anything alone. The honest rule keeps the same spirit with the
+distinction that was missing:
+
+A model **MAY** produce a `rkaf:MachineAdjudicationProof` — a sealed,
+reviewable answer to one comparison QUESTION, carried exactly like any other
+resolver's proof (§4). A model **MUST NOT** produce a comparison OUTCOME. The
+outcome is produced only by the deterministic lattice folding **two or more
+independent** proofs — never by reading one model's proof as the answer. What
+"independent" means, and what a claim's cited proof set must retain, is a
+cross-node rule over multiple proof records and lives in
+`rkaf:MachineAdjudicationIndependentPairShape` and
+`rkaf:MachineAdjudicationCompleteSupportShape`
+(`shapes/rkaf-shapes-analysis.ttl`), not here — CUE constrains one struct, and
+this rule spans several.
+
+So: a model's proof is admissible evidence; a model's OPINION is never the
+outcome, and one proof — or a set of proofs that all trace back to one
+uncorroborated witness — is exactly the failure mode "no model decides a
+comparison outcome alone" still refuses.
 
 ### 3.5 Proof obligation
 
@@ -283,7 +307,7 @@ provider, or a legal profile works. Each of those implements a narrow
 
 ### 4.1 Proof types
 
-`rkaf:proofType` is REQUIRED and closed over six values, one per active
+`rkaf:proofType` is REQUIRED and closed over seven values, one per active
 resolver protocol.
 
 | Value | The question it answers |
@@ -294,6 +318,7 @@ resolver protocol.
 | `rkaf:baselineWarrantProof` | may this assertion serve as the expected baseline under an active warrant? |
 | `rkaf:artifactPairingProof` | may these artifact versions be compared for this purpose? |
 | `rkaf:scopeComparisonProof` | are the temporal, jurisdictional, conditional, and applicability scopes comparable? |
+| `rkaf:machineAdjudicationProof` | what relation does a machine adjudicator find between two things under comparison, over one sealed question? (§4.5) |
 
 The three **longitudinal** protocols — version lineage, expected coverage, and
 closure — are deliberately absent. They exist only to support omission
@@ -382,6 +407,58 @@ version that changes must change in one place, and two proofs claiming the
 same issuer must be comparable by IRI rather than by hoping four strings were
 copied identically. "Issued by version 3" has to resolve to a record, not to a
 version string a reader must trust.
+
+### 4.5 `rkaf:MachineAdjudicationProof` (added 2026-08-09)
+
+A machine adjudicator may answer a sealed comparison question — same,
+near-same, target broader, target narrower, or related — over two things under
+comparison. `rkaf:MachineAdjudicationProof`
+(`constraints/analysis/machine-adjudication.cue`) is how that answer becomes a
+resolver proof.
+
+It is **not a second RDF type**, and not a second parallel attestation record
+for the same fact — one proof record carries the adjudicated outcome, full
+stop. A machine-adjudication proof is a plain `rkaf:ResolverProofRecord` whose
+`rkaf:proofType` equals the literal `rkaf:machineAdjudicationProof`, which
+REQUIRES five additional properties exactly when that literal is present:
+
+| Property | Carries |
+|---|---|
+| `rkaf:proofType` | narrowed to the literal `rkaf:machineAdjudicationProof` |
+| `rkaf:hasAILineage` | the reviewed model-derivation record behind the call (Core §5.3) |
+| `rkaf:independenceGroup` | the sampling or deployment pool this validator run was drawn from |
+| `rkaf:adjudicationVerdict` | which relation this adjudication found — `rkaf:verdictSame`, `rkaf:verdictNearSame`, `rkaf:verdictTargetBroader`, `rkaf:verdictTargetNarrower`, `rkaf:verdictRelated` |
+| `rkaf:sealedRequestDigest` | `sha256:<64 hex>` over the exact sealed question this proof answered |
+| `rkaf:sealedResponseArtifact` | the sealed provider response this proof's verdict was read from |
+
+A distinct `@type` was considered and rejected: `tools/conformance_lib.py`
+binds exactly one compiled schema per `@type` IRI, so a second class declaring
+`rkaf:ResolverProofRecord` would collide with the base proof record's own
+binding, and an `rdfs:subClassOf`-related second `@type` does not help either
+— the SHACL suite's `sh:class` constraint component does not apply RDFS
+subclass entailment the way `sh:targetClass` does without an explicitly
+supplied `ont_graph`, which `tools/ci_validate.py` never supplies. So a
+machine-adjudication proof satisfies every cross-node rule written against
+`rkaf:ResolverProofRecord` — including `rkaf:ResolverProofComparisonBindingShape`
+above — for the plainest possible reason: it always was one. The two shapes
+below find it by reading `rkaf:proofType`, never by a second `rdf:type`.
+
+A single machine-adjudication proof, or a set of them that all reduce to one
+uncorroborated witness, is not enough to move a comparison outcome (§3.4).
+`rkaf:MachineAdjudicationIndependentPairShape` requires, among the
+machine-adjudication proofs a claim cites, at least one PAIR that answered the
+identical sealed question (`rkaf:sealedRequestDigest` equal) while being
+independent on all four axes — `rkaf:proofIssuer` (validator actor),
+`rkaf:independenceGroup`, `rkaf:proofIssuer -> rkaf:proofResolver` (provider),
+and `rkaf:hasAILineage -> rkaf:modelId` (provider model ID).
+`rkaf:MachineAdjudicationCompleteSupportShape` requires that once an
+independent pair qualifies, every OTHER machine-adjudication proof that
+self-declares support for the same claim and answered the same sealed question
+stays cited — discarding a corroborating machine loses evidence (see
+`spec/rkaf-refspec.md`, corrected 2026-08-09). Both rules are cross-node — they
+reason about the relationship between multiple proof records cited by one
+comparison or finding — so, per `shapes/README.md`, they live in
+`shapes/rkaf-shapes-analysis.ttl`, not in the CUE source above.
 
 ---
 

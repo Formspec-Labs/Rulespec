@@ -1,0 +1,111 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@graph": [
+    {
+      "@id": "urn:rkaf:fixture:mad:neg:mreq:artifact:baseline",
+      "@type": "rkaf:Artifact",
+      "rkaf:hasArtifactIdentifier": "urn:rkaf:fixture:mad:neg:mreq:artifact:baseline",
+      "rkaf:artifactIdentifierScheme": "rkaf:partner-defined"
+    },
+    {
+      "@id": "urn:rkaf:fixture:mad:neg:mreq:artifact:observed",
+      "@type": "rkaf:Artifact",
+      "rkaf:hasArtifactIdentifier": "urn:rkaf:fixture:mad:neg:mreq:artifact:observed",
+      "rkaf:artifactIdentifierScheme": "rkaf:partner-defined"
+    },
+    {
+      "@id": "urn:rkaf:fixture:mad:neg:mreq:issuer:alpha",
+      "@type": "rkaf:ResolverProofIssuer",
+      "rkaf:proofResolver": "urn:rkaf:fixture:mad:resolver:alpha-adjudicator",
+      "rkaf:proofResolverVersion": "1.0.0",
+      "rkaf:proofPolicy": "urn:rkaf:fixture:mad:policy:relation-adjudication",
+      "rkaf:proofPolicyVersion": "v1"
+    },
+    {
+      "@id": "urn:rkaf:fixture:mad:neg:mreq:issuer:beta",
+      "@type": "rkaf:ResolverProofIssuer",
+      "rkaf:proofResolver": "urn:rkaf:fixture:mad:resolver:beta-adjudicator",
+      "rkaf:proofResolverVersion": "1.0.0",
+      "rkaf:proofPolicy": "urn:rkaf:fixture:mad:policy:relation-adjudication",
+      "rkaf:proofPolicyVersion": "v1"
+    },
+    {
+      "@id": "urn:rkaf:fixture:mad:neg:mreq:lineage:alpha",
+      "@type": "rkaf:AILineage",
+      "rkaf:modelId": "alpha-judge-2026-01",
+      "rkaf:modelVersion": "2026.01.01",
+      "rkaf:promptTemplateRef": "urn:rkaf:fixture:mad:prompt-template:relation-adjudication/v1",
+      "rkaf:temperature": 0.0,
+      "rkaf:inputContextHash": "sha256:1111111111111111111111111111111111111111111111111111111111111111"
+    },
+    {
+      "@id": "urn:rkaf:fixture:mad:neg:mreq:lineage:beta",
+      "@type": "rkaf:AILineage",
+      "rkaf:modelId": "beta-judge-2025-11",
+      "rkaf:modelVersion": "2026.01.01",
+      "rkaf:promptTemplateRef": "urn:rkaf:fixture:mad:prompt-template:relation-adjudication/v1",
+      "rkaf:temperature": 0.0,
+      "rkaf:inputContextHash": "sha256:2222222222222222222222222222222222222222222222222222222222222222"
+    },
+    {
+      "@id": "urn:rkaf:fixture:mad:neg:mreq:proof:alpha",
+      "@type": "rkaf:ResolverProofRecord",
+      "rkaf:proofType": "rkaf:machineAdjudicationProof",
+      "rkaf:proofIssuer": "urn:rkaf:fixture:mad:neg:mreq:issuer:alpha",
+      "rkaf:proofComparisonContext": "urn:rkaf:fixture:mad:neg:mreq:comparison",
+      "rkaf:proofOutcome": "rkaf:gatePass",
+      "rkaf:proofRationale": "Answered sealed question A.",
+      "rkaf:proofInput": [
+        "urn:rkaf:fixture:mad:candidate:label-equivalence"
+      ],
+      "rkaf:proofEvaluatedAt": "2026-08-05T14:00:00Z",
+      "rkaf:proofSnapshot": "urn:rkaf:fixture:mad:snapshot:2026-08-05",
+      "rkaf:proofRecordDigest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "rkaf:hasAILineage": "urn:rkaf:fixture:mad:neg:mreq:lineage:alpha",
+      "rkaf:independenceGroup": "urn:rkaf:fixture:mad:independence-group:pool-1",
+      "rkaf:adjudicationVerdict": "rkaf:verdictSame",
+      "rkaf:sealedRequestDigest": "sha256:6666666666666666666666666666666666666666666666666666666666666666",
+      "rkaf:sealedResponseArtifact": "urn:rkaf:fixture:mad:response:alpha"
+    },
+    {
+      "@id": "urn:rkaf:fixture:mad:neg:mreq:proof:beta",
+      "@type": "rkaf:ResolverProofRecord",
+      "rkaf:proofType": "rkaf:machineAdjudicationProof",
+      "rkaf:proofIssuer": "urn:rkaf:fixture:mad:neg:mreq:issuer:beta",
+      "rkaf:proofComparisonContext": "urn:rkaf:fixture:mad:neg:mreq:comparison",
+      "rkaf:proofOutcome": "rkaf:gatePass",
+      "rkaf:proofRationale": "Answered a DIFFERENT sealed question B.",
+      "rkaf:proofInput": [
+        "urn:rkaf:fixture:mad:candidate:label-equivalence"
+      ],
+      "rkaf:proofEvaluatedAt": "2026-08-05T14:00:00Z",
+      "rkaf:proofSnapshot": "urn:rkaf:fixture:mad:snapshot:2026-08-05",
+      "rkaf:proofRecordDigest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "rkaf:hasAILineage": "urn:rkaf:fixture:mad:neg:mreq:lineage:beta",
+      "rkaf:independenceGroup": "urn:rkaf:fixture:mad:independence-group:pool-2",
+      "rkaf:adjudicationVerdict": "rkaf:verdictSame",
+      "rkaf:sealedRequestDigest": "sha256:7777777777777777777777777777777777777777777777777777777777777777",
+      "rkaf:sealedResponseArtifact": "urn:rkaf:fixture:mad:response:beta"
+    },
+    {
+      "@id": "urn:rkaf:fixture:mad:neg:mreq:comparison",
+      "@type": "rkaf:RelationComparisonContext",
+      "rkaf:comparisonBaselineArtifact": "urn:rkaf:fixture:mad:neg:mreq:artifact:baseline",
+      "rkaf:comparisonObservedArtifact": "urn:rkaf:fixture:mad:neg:mreq:artifact:observed",
+      "rkaf:comparisonExpectedAssertion": "urn:rkaf:fixture:mad:assertion:expected",
+      "rkaf:comparisonConsumer": "urn:rkaf:fixture:mad:consumer:permits-desk",
+      "rkaf:comparisonScope": "urn:rkaf:fixture:mad:scope:permits-class-b",
+      "rkaf:comparisonEvaluationTime": "2026-08-05T14:05:00Z",
+      "rkaf:comparisonPolicyVersion": "relation-comparison-v1",
+      "rkaf:comparisonDetector": "urn:rkaf:fixture:mad:detector:relation-comparator",
+      "rkaf:comparisonDetectorVersion": "1.4.0",
+      "rkaf:comparisonSnapshot": "urn:rkaf:fixture:mad:snapshot:2026-08-05",
+      "rkaf:comparisonOutcome": "rkaf:comparisonSatisfied",
+      "rkaf:comparisonProofRecord": [
+        "urn:rkaf:fixture:mad:neg:mreq:proof:alpha",
+        "urn:rkaf:fixture:mad:neg:mreq:proof:beta"
+      ]
+    }
+  ],
+  "_comment": "Negative. Two machine-adjudication proofs are independent on all four axes (distinct issuers, independence groups, providers, and model IDs) but carry DIFFERENT rkaf:sealedRequestDigest values -- they answered two different sealed questions, not the same one twice. Two machines answering two questions is not a corroboration of one; caught by rkaf:MachineAdjudicationIndependentPairShape. See the companion positive fixture for the case this complements: three machines answering the SAME sealed question is valid (spec/rkaf-analysis.md 3.4, 4 extension; spec/rkaf-refspec.md corrected 2026-08-09) -- independence and sameness of question are separate, both-required conditions, and this fixture isolates the second one failing."
+}

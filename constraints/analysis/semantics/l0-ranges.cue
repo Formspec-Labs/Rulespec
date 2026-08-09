@@ -21,6 +21,15 @@ package semantics
 // pinning a Rulespec class to it would reject every producer that composes a
 // public model or its own vocabulary instead.
 //
+// `rkaf:independenceGroup` and `rkaf:sealedResponseArtifact`
+// (machine-adjudication.cue) join that list for the same reason: an
+// independence pool tag and a sealed provider response are both
+// producer-scoped identifiers with no Rulespec class of their own.
+// `rkaf:hasAILineage` stays unranged here too, matching every other place it
+// appears (`constraints/core/assertion.cue` and siblings) — it is a kernel
+// property used across many envelope-composing forms, not one this module
+// owns, so this module does not narrow its range unilaterally.
+//
 // Absent for the OTHER reason — the range is real but not expressible as one
 // class — are `rkaf:proofInput`, `rkaf:proofSupportingRecord`, and
 // `rkaf:comparisonExpectedAssertion`, alongside `rkaf:findingComparedAssertion`

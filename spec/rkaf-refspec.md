@@ -35,10 +35,19 @@ processing, indexes, and ranking.
 > Read a selection or accepted-output sentence in this profile as a shape a
 > receipt must satisfy, never as a capability that runs.
 
-Exactly two supporting machine validations
+At least one independent pair of supporting machine validations
 may qualify a mapping for `searchOnly` when their deterministic checks pass and
 they use distinct validator actors, independence groups, providers, provider
-model IDs, and response artifacts. Human feedback is optional later input and
+model IDs, and response artifacts.
+Every supporting validation that answered the same sealed question MUST be
+retained once an independent pair qualifies the mapping — a mapping cites the
+complete set that supported it, not merely the first pair found.
+Discarding a corroborating machine because two others already qualify the
+mapping loses evidence that helped establish the relation
+(corrected 2026-08-09; the prior wording required *exactly* two supporting
+validations and rejected a valid three-or-more-machine corroboration, which
+this profile's own audit trail must not do).
+Human feedback is optional later input and
 does not rewrite a published atlas.
 
 An assertion that satisfies this Rulespec profile is portable and

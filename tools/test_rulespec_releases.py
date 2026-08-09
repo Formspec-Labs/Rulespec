@@ -19,7 +19,7 @@ from tools.build_rulespec_release_fixtures import (
     FIXTURE_RELEASE_STATUS,
     build_all,
     fixture_only_prepared_segment,
-    open_vendored_atlas,
+    open_fixture_atlas,
 )
 from tools.rulespec_release import (
     apply_negative_control,
@@ -148,7 +148,7 @@ class ExtrapolationReleaseTests(unittest.TestCase):
         self.core = load_json(CORE)
         self.input_bundle = load_json(INPUTS)
         self.release = load_json(EXTRAPOLATION)
-        self.atlas = open_vendored_atlas()
+        self.atlas = open_fixture_atlas()
         self.inputs, self.input_issues = index_input_releases(
             [self.core, self.input_bundle]
         )
@@ -197,7 +197,7 @@ class ExtrapolationReleaseTests(unittest.TestCase):
         )
         self.assertEqual(
             self.release["release_id"],
-            "urn:rulespec:extrapolation:8991fb9140866dceea7b9539da2f5a4b9295e039dc6dd333a75c217de0c443d4",
+            "urn:rulespec:extrapolation:d09fc80df4b85c414d7f0942d0e29772534f2ba046808571cf04021d0a9da4dd",
         )
         selected = set(self.release["selected_assignment_refs"])
         selected_kinds = {
@@ -224,7 +224,7 @@ class ExtrapolationReleaseTests(unittest.TestCase):
                     "--input",
                     str(INPUTS),
                     "--vocabulary-atlas",
-                    str(UPSTREAM / "refspec-vocabulary-atlas"),
+                    str(FIXTURES / "rulespec-atlas-membership-stub"),
                 ]
             )
         self.assertEqual(result, 0, stderr.getvalue())

@@ -2,8 +2,10 @@
 """Validate canonical Rulespec Core and Extrapolator release records.
 
 The JSON release logic uses only the Python standard library. Extrapolation
-validation receives a product-local reader for the pinned static vocabulary
-atlas. Consumers need no RefSpec or SpicyRegs checkout and no mutable database.
+validation receives a caller-supplied reader (``AtlasMembershipReader``) for
+the pinned static vocabulary atlas; this module knows only that Protocol, not
+whose atlas it is. Consumers need no sibling-product checkout and no mutable
+database.
 """
 
 from __future__ import annotations
@@ -2146,11 +2148,13 @@ def _validate_command(args: argparse.Namespace) -> int:
             else:
                 try:
                     try:
-                        from refspec_atlas import RefSpecVocabularyAtlas
+                        from atlas_membership_stub import RulespecAtlasMembershipStub
                     except ModuleNotFoundError:  # imported as a tools package
-                        from tools.refspec_atlas import RefSpecVocabularyAtlas
+                        from tools.atlas_membership_stub import (
+                            RulespecAtlasMembershipStub,
+                        )
 
-                    atlas = RefSpecVocabularyAtlas.open(
+                    atlas = RulespecAtlasMembershipStub.open(
                         Path(args.vocabulary_atlas),
                         expected_manifest_digest=atlas_pin.get("manifest_digest"),
                         expected_output_digest=atlas_pin.get("distribution_digest"),

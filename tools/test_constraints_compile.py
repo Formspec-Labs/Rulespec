@@ -5316,6 +5316,7 @@ class AnalysisModuleTests(unittest.TestCase):
                 "rkaf:assertionStateProof",
                 "rkaf:baselineWarrantProof",
                 "rkaf:evidenceBindingProof",
+                "rkaf:machineAdjudicationProof",
                 "rkaf:predicateCatalogProof",
                 "rkaf:scopeComparisonProof",
             ],
@@ -5323,7 +5324,10 @@ class AnalysisModuleTests(unittest.TestCase):
             "the resolver proof-type set changed. The three longitudinal "
             "protocols — version lineage, expected coverage, closure — enter "
             "this enum by the same deliberate contract change that enables "
-            "#ClosureClaim, not before (spec/rkaf-analysis.md §4.1).",
+            "#ClosureClaim, not before (spec/rkaf-analysis.md §4.1). "
+            "rkaf:machineAdjudicationProof entered 2026-08-09 via "
+            "machine-adjudication.cue, a reviewed contract change of the same "
+            "kind — not a closure/coverage/lineage protocol.",
         )
         for value in proof_types:
             self.assertNotIn("closure", value.lower())

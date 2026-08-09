@@ -25,6 +25,9 @@ pub enum ResolverProofType {
     /// Wire value `rkaf:scopeComparisonProof`.
     #[serde(rename = "rkaf:scopeComparisonProof")]
     ScopeComparisonProof,
+    /// Wire value `rkaf:machineAdjudicationProof`.
+    #[serde(rename = "rkaf:machineAdjudicationProof")]
+    MachineAdjudicationProof,
 }
 
 /// Closed Rulespec values for `GateStatus`.
@@ -96,6 +99,9 @@ pub enum ResolverProofOutcome {
     ScopeUnknown,
 }
 
+#[allow(dead_code)]
+type _StructuralDependencyMachineAdjudicationVerdict = crate::generated::analysis::machine_adjudication::MachineAdjudicationVerdict;
+
 use std::collections::BTreeMap;
 
 /// Generated JSON-LD carrier for `ResolverProofIssuer`.
@@ -126,6 +132,50 @@ pub struct ResolverProofIssuer {
 
 impl ResolverProofIssuer {
     fn default_type() -> String { "rkaf:ResolverProofIssuer".into() }
+}
+
+/// Generated JSON-LD carrier for `ResolverProofFields`.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct ResolverProofFields {
+    /// Optional JSON-LD resource identifier.
+    #[serde(rename = "@id", skip_serializing_if = "Option::is_none", default)]
+    pub id: Option<String>,
+    /// JSON-LD property `rkaf:proofType`.
+    #[serde(rename = "rkaf:proofType")]
+    pub proof_type: ResolverProofType,
+    /// JSON-LD property `rkaf:proofIssuer`.
+    #[serde(rename = "rkaf:proofIssuer")]
+    pub proof_issuer: String,
+    /// JSON-LD property `rkaf:proofComparisonContext`.
+    #[serde(rename = "rkaf:proofComparisonContext")]
+    pub proof_comparison_context: String,
+    /// JSON-LD property `rkaf:proofOutcome`.
+    #[serde(rename = "rkaf:proofOutcome")]
+    pub proof_outcome: ResolverProofOutcome,
+    /// JSON-LD property `rkaf:proofRationale`.
+    #[serde(rename = "rkaf:proofRationale")]
+    pub proof_rationale: String,
+    /// JSON-LD property `rkaf:proofInput`.
+    #[serde(rename = "rkaf:proofInput")]
+    pub proof_input: crate::OneOrMany<String>,
+    /// JSON-LD property `rkaf:proofInputDigest`.
+    #[serde(rename = "rkaf:proofInputDigest", skip_serializing_if = "Option::is_none", default)]
+    pub proof_input_digest: Option<crate::OneOrMany<String>>,
+    /// JSON-LD property `rkaf:proofSupportingRecord`.
+    #[serde(rename = "rkaf:proofSupportingRecord", skip_serializing_if = "Option::is_none", default)]
+    pub proof_supporting_record: Option<crate::OneOrMany<String>>,
+    /// JSON-LD property `rkaf:proofEvaluatedAt`.
+    #[serde(rename = "rkaf:proofEvaluatedAt")]
+    pub proof_evaluated_at: String,
+    /// JSON-LD property `rkaf:proofSnapshot`.
+    #[serde(rename = "rkaf:proofSnapshot")]
+    pub proof_snapshot: String,
+    /// JSON-LD property `rkaf:proofRecordDigest`.
+    #[serde(rename = "rkaf:proofRecordDigest")]
+    pub proof_record_digest: String,
+    /// Additional JSON-LD properties preserved during round trips.
+    #[serde(flatten)]
+    pub extra: BTreeMap<String, serde_json::Value>,
 }
 
 /// Generated JSON-LD carrier for `ResolverProofRecord`.

@@ -240,3 +240,144 @@ rkaf:ResolverProofComparisonBindingShape a sh:NodeShape ;
       }
     """ ;
   ] .
+
+# ── Analysis §4 extension — machine-adjudication proofs ARE resolver proofs ──
+#
+# A machine-adjudication proof (`constraints/analysis/machine-adjudication.cue`,
+# `#MachineAdjudicationProof`) is NOT a second `@type`. It is a plain
+# `rkaf:ResolverProofRecord` whose `rkaf:proofType` equals the literal
+# `rkaf:machineAdjudicationProof`: two structs declaring the same `@type`
+# literal would collide in `tools/conformance_lib.py::schema_bindings()`
+# (exactly one compiled schema may validate a given `@type`), and an
+# `rdfs:subClassOf`-related second `@type` does not help either — the SHACL
+# `sh:class` constraint component does not apply RDFS subclass entailment the
+# way `sh:targetClass` does without an explicitly supplied `ont_graph`, and
+# `tools/ci_validate.py` never supplies one. So the two shapes below find a
+# machine-adjudication proof by its `rkaf:proofType` value, never by `rdf:type`,
+# and every cross-node rule that already reasons over `rkaf:ResolverProofRecord`
+# — `sh:class` on `rkaf:comparisonProofRecord` / `rkaf:findingProofRecord`, and
+# `rkaf:ResolverProofComparisonBindingShape` above — applies to it for free,
+# because it always was one.
+
+# ── Machine adjudication — at least one independent pair ─────────────────────
+#
+# Analysis §4 extension (machine-adjudication.cue) says a model MAY produce a
+# machine-adjudication proof, but no model decides a comparison OUTCOME alone
+# (spec/rkaf-analysis.md §3.4). What makes that true in the graph, not only in
+# prose, is this rule: among the machine-adjudication proofs a claim cites — a
+# `rkaf:RelationComparisonContext` via `rkaf:comparisonProofRecord`, or a
+# `rkaf:RelationFinding` via `rkaf:findingProofRecord` — at least one PAIR must
+# answer the identical sealed question (`rkaf:sealedRequestDigest` equal) while
+# being genuinely independent witnesses of it: distinct on all four of
+# `rkaf:proofIssuer` (validator actor), `rkaf:independenceGroup`,
+# `rkaf:proofIssuer -> rkaf:proofResolver` (provider), and
+# `rkaf:hasAILineage -> rkaf:modelId` (provider model ID). A single
+# machine-adjudication proof, or a set that collapses onto one axis, is one
+# opinion wearing a proof record.
+#
+# This corrects rulespec's own prior wording (spec/rkaf-analysis.md §4
+# extension, corrected 2026-08-09): the requirement is AT LEAST ONE independent
+# pair, not EXACTLY
+# TWO proofs. The stricter "exactly two" rule was wrong on its own terms: it
+# would reject a valid three-machine corroboration, discarding a third witness
+# that helped establish the relation, which is the opposite of what an
+# independence requirement is for. The companion
+# `rkaf:MachineAdjudicationCompleteSupportShape` below is the other half of
+# that correction — this shape proves independence exists; that one proves
+# nothing corroborating was thrown away to manufacture it.
+#
+# Fires only when at least one cited proof's `rkaf:proofType` is
+# `rkaf:machineAdjudicationProof`, so a claim resting on other resolver
+# protocols entirely is untouched.
+rkaf:MachineAdjudicationIndependentPairShape a sh:NodeShape ;
+  sh:targetClass rkaf:RelationComparisonContext ;
+  sh:targetClass rkaf:RelationFinding ;
+  sh:sparql [
+    a sh:SPARQLConstraint ;
+    sh:message "A claim citing any rkaf:ResolverProofRecord whose rkaf:proofType is rkaf:machineAdjudicationProof MUST cite at least one PAIR of them that share rkaf:sealedRequestDigest and are distinct on all four independence axes: rkaf:proofIssuer (validator actor), rkaf:independenceGroup, rkaf:proofIssuer/rkaf:proofResolver (provider), and rkaf:hasAILineage/rkaf:modelId (provider model ID). A single machine adjudication, or a set that collapses onto one axis, is one opinion, not independent corroboration (spec/rkaf-analysis.md §3.4, §4 extension)." ;
+    sh:select """
+      PREFIX rkaf: <https://rulespec.org/ns/v1#>
+      SELECT DISTINCT $this
+      WHERE {
+        {
+          { $this rkaf:comparisonProofRecord ?proof }
+          UNION
+          { $this rkaf:findingProofRecord ?proof }
+        }
+        ?proof rkaf:proofType rkaf:machineAdjudicationProof .
+        FILTER NOT EXISTS {
+          {
+            { $this rkaf:comparisonProofRecord ?p1 }
+            UNION
+            { $this rkaf:findingProofRecord ?p1 }
+          }
+          {
+            { $this rkaf:comparisonProofRecord ?p2 }
+            UNION
+            { $this rkaf:findingProofRecord ?p2 }
+          }
+          ?p1 rkaf:proofType rkaf:machineAdjudicationProof .
+          ?p2 rkaf:proofType rkaf:machineAdjudicationProof .
+          FILTER (?p1 != ?p2)
+          ?p1 rkaf:sealedRequestDigest ?digest .
+          ?p2 rkaf:sealedRequestDigest ?digest .
+          ?p1 rkaf:proofIssuer ?actor1 .
+          ?p2 rkaf:proofIssuer ?actor2 .
+          FILTER (?actor1 != ?actor2)
+          ?p1 rkaf:independenceGroup ?group1 .
+          ?p2 rkaf:independenceGroup ?group2 .
+          FILTER (?group1 != ?group2)
+          ?actor1 rkaf:proofResolver ?provider1 .
+          ?actor2 rkaf:proofResolver ?provider2 .
+          FILTER (?provider1 != ?provider2)
+          ?p1 rkaf:hasAILineage ?lineage1 .
+          ?p2 rkaf:hasAILineage ?lineage2 .
+          ?lineage1 rkaf:modelId ?model1 .
+          ?lineage2 rkaf:modelId ?model2 .
+          FILTER (?model1 != ?model2)
+        }
+      }
+    """ ;
+  ] .
+
+# ── Machine adjudication — complete support retained ──────────────────────────
+#
+# The companion half of the independence rule above. A claim MUST cite the
+# complete set of machine-adjudication proofs that supported it, once
+# qualification runs: publishing only the first independent pair and quietly
+# dropping a third, fourth, or later machine that answered the SAME sealed
+# question discards evidence that helped determine the relation, even though
+# independence alone would already be satisfied by the pair kept
+# (spec/rkaf-analysis.md §4 extension, corrected 2026-08-09).
+#
+# Per-property SHACL cannot reach this: nothing about ONE cited proof record is
+# wrong, and the defect is a proof that self-declares support for this claim
+# (`rkaf:proofComparisonContext` naming `$this`, exactly the declared half of
+# `rkaf:ResolverProofComparisonBindingShape`) yet is absent from the citing
+# list. `rkaf:proofRecordDigest` cannot catch it either — the discarded proof
+# is untouched; it is the claim's citation list that is incomplete.
+#
+# Scoped to `rkaf:RelationComparisonContext` only: a machine-adjudication proof
+# declares the comparison it was issued for via `rkaf:proofComparisonContext`,
+# and no analogous self-declaring edge exists from a proof back to a
+# `rkaf:RelationFinding`, so there is nothing for this direction of the rule to
+# read on that class.
+rkaf:MachineAdjudicationCompleteSupportShape a sh:NodeShape ;
+  sh:targetClass rkaf:RelationComparisonContext ;
+  sh:sparql [
+    a sh:SPARQLConstraint ;
+    sh:message "A rkaf:ResolverProofRecord whose rkaf:proofType is rkaf:machineAdjudicationProof, that declares rkaf:proofComparisonContext naming this comparison and shares rkaf:sealedRequestDigest with a proof this comparison DOES cite, MUST also be cited by rkaf:comparisonProofRecord. Discarding a corroborating machine-adjudication proof loses evidence (spec/rkaf-analysis.md §4 extension)." ;
+    sh:select """
+      PREFIX rkaf: <https://rulespec.org/ns/v1#>
+      SELECT DISTINCT $this
+      WHERE {
+        $this rkaf:comparisonProofRecord ?cited .
+        ?cited rkaf:proofType rkaf:machineAdjudicationProof ;
+               rkaf:sealedRequestDigest ?digest .
+        ?discarded rkaf:proofType rkaf:machineAdjudicationProof ;
+                   rkaf:proofComparisonContext $this ;
+                   rkaf:sealedRequestDigest ?digest .
+        FILTER NOT EXISTS { $this rkaf:comparisonProofRecord ?discarded }
+      }
+    """ ;
+  ] .

@@ -6,9 +6,13 @@ import "list"
 // comparison: the frame it ran in and the outcome it reached.
 //
 // The comparison kernel is deterministic and evidence-gated. It reads accepted
-// assertions and returns one of five outcomes. No AI model participates: a
-// model may propose assertions and change events upstream, and it may never
-// create a comparison result.
+// assertions and returns one of five outcomes. No AI model decides that
+// outcome alone (Analysis §3.4, amended 2026-08-09): a model may propose
+// assertions and change events upstream, and — since machine-adjudication.cue
+// — a model may also produce a `#MachineAdjudicationProof` answering one
+// sealed comparison question. Either way it never creates a comparison result
+// by itself; the outcome comes only from folding two or more independent
+// proofs through the deterministic lattice.
 //
 // Everything that could change the answer is bound HERE, so a result is
 // reproducible and auditable without re-deriving it:
