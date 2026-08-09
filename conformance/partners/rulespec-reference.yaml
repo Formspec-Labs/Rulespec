@@ -14,18 +14,17 @@ declared_levels:
 
 adoption_depth: D3   # reference consumer; this repo IS the reference implementation
 
-test_corpus_run_at: "2026-07-29T15:18:43+00:00"
-# Exact source commit whose tree passed the recorded gate. The follow-up
-# certification commit changes evidence metadata only.
-source_revision: "0eb94257b70783688b55220e7a84dcc61bbd7507"
-test_corpus_version: "sha256:a16ddbf58996dc1e136a99ebf37abbeed0a3adfef724b203347c301cdd5972b2"
-constraint_contract_digest: "sha256:8feadf8f4037a60a18667c6f7ee920ff1285ccb05a72fe5352b6cd82b38a252c"
+test_corpus_run_at: "2026-08-09T23:27:29+00:00"
+# Exact source revision tested by this run.
+source_revision: "791670e7c5ec4cbcd36cd9cd7efd4ce0143bc094"
+test_corpus_version: "sha256:0db567063ae672fe4d4d232585a366da75ed9b7058dddd653134ee13104fdb0b"
+constraint_contract_digest: "sha256:eb518c6b20593a1092cde88f0cbb0d4e2b62852ec7d3ebc783970be85e81fd6b"
 
 results:
   L0: not-claimed
   L1: pass
   L2: pass     # rkaf-validate: discovered positive fixtures validate and cover every embedded schema type.
-  L3: pass     # tools/ci_validate.py: 110 positive fixtures across 57 SHACL shape files, 0 violations; 275 negatives FAIL-AS-EXPECTED.
+  L3: pass     # tools/ci_validate.py: 111 positive fixtures across 58 SHACL shape files, 0 violations; 283 negatives FAIL-AS-EXPECTED.
   L4: pass     # rkaf-behavior-validate: 56 behavior fixtures cover reducer, cascade, PIT, concept resolution, and all 10 bridge rules.
 
 notes: |
@@ -33,7 +32,7 @@ notes: |
   CUE source-of-truth compiles to JSON Schema + SHACL + Rust; rkaf-validate
   discovers and embeds every compiled class schema; tools/ci_validate.py and
   tools/validate_negatives.py discover the current fixture and shape corpora.
-  tools/conformance_report.py evaluated 497 fixtures with 0 divergences.
+  tools/conformance_report.py evaluated 506 fixtures with 0 divergences.
   tools/l0_l3_coverage_audit.py verifies L0 vocabulary/source coverage,
   L1 JSON-LD parse coverage, L2 positive/negative type coverage, all
   209 required-field negative slots, and L3 edge coverage across
