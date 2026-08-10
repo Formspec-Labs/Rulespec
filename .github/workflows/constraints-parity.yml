@@ -40,15 +40,11 @@ jobs:
       # back as a plain string passes `ci_validate` with zero violations.
       - name: Contract unit suites (compile parity, semantics, and release records)
         run: |
-          python3 -m unittest \
-            tools.test_constraints_compile \
-            tools.test_l0_mapping_audit \
-            tools.test_semantic_carriers \
-            tools.test_reference_release_digest \
-            tools.test_rulespec_releases \
-            tools.test_refspec_atlas \
-            tools.test_refspec_atlas_conformance \
-            tools.test_refspec_atlas_cross_repository
+          # Delegated to the Makefile on purpose. This list used to be
+          # duplicated here, and the copies drifted: CI kept invoking three
+          # modules that had been deleted, and never gained the two that
+          # replaced them, so CI and `make` were running different suites.
+          make test-audits PYTHON=python3
 
       - name: SHACL Pattern-C lint (no sh:if/sh:then in compiled output)
         run: |
