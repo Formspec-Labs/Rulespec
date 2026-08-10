@@ -28,6 +28,16 @@ corpus README's `## Sources`), and its manifest pins the exact content-addressed
 contract digest the validation run used. That is the whole point: a new partner
 builds against data that actually exists.
 
+That pin is dated evidence, not a label that floats free of when it was
+true: the manifest's `prov:Activity` records the `dcterms:date` a validation
+run actually used that digest, plus date-suffixed `@id`s naming the same
+run. `tools/repin_contract_digest.py` (run by `make compile`) moves the
+digest whenever the contract changes, and moves those date markers to the
+day of that run in the same edit — a re-validation record must never claim
+it ran against a contract that did not exist yet on the date it names. A
+repin that finds the digest already current changes nothing, dates
+included: the record only moves forward on an actual re-validation.
+
 It follows that **a corpus does NOT gain a row when a contract is added or
 reshaped**. The v0.2 contract reshape added `rkaf:ValueAssertion`,
 `rkaf:SourceClaimant`, `rkaf:ExtractionActivity`, `rkaf:ConceptScheme`,
