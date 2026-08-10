@@ -448,9 +448,13 @@ uncorroborated witness, is not enough to move a comparison outcome (§3.4).
 `rkaf:MachineAdjudicationIndependentPairShape` requires, among the
 machine-adjudication proofs a claim cites, at least one PAIR that answered the
 identical sealed question (`rkaf:sealedRequestDigest` equal) while being
-independent on all four axes — `rkaf:proofIssuer` (validator actor),
+independent on all five axes — `rkaf:proofIssuer` (validator actor),
 `rkaf:independenceGroup`, `rkaf:proofIssuer -> rkaf:proofResolver` (provider),
-and `rkaf:hasAILineage -> rkaf:modelId` (provider model ID).
+`rkaf:hasAILineage -> rkaf:modelId` (provider model ID), and
+`rkaf:sealedResponseArtifact` (response artifact). The fifth axis
+(spec/rkaf-refspec.md, corrected 2026-08-09) keeps two proofs that otherwise
+differ on the first four from qualifying as independent if they read their
+verdicts from one shared sealed response.
 `rkaf:MachineAdjudicationCompleteSupportShape` requires that once an
 independent pair qualifies, every OTHER machine-adjudication proof that
 self-declares support for the same claim and answered the same sealed question

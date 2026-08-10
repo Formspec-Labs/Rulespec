@@ -268,12 +268,17 @@ rkaf:ResolverProofComparisonBindingShape a sh:NodeShape ;
 # `rkaf:RelationComparisonContext` via `rkaf:comparisonProofRecord`, or a
 # `rkaf:RelationFinding` via `rkaf:findingProofRecord` — at least one PAIR must
 # answer the identical sealed question (`rkaf:sealedRequestDigest` equal) while
-# being genuinely independent witnesses of it: distinct on all four of
+# being genuinely independent witnesses of it: distinct on all five of
 # `rkaf:proofIssuer` (validator actor), `rkaf:independenceGroup`,
-# `rkaf:proofIssuer -> rkaf:proofResolver` (provider), and
-# `rkaf:hasAILineage -> rkaf:modelId` (provider model ID). A single
+# `rkaf:proofIssuer -> rkaf:proofResolver` (provider),
+# `rkaf:hasAILineage -> rkaf:modelId` (provider model ID), and
+# `rkaf:sealedResponseArtifact` (response artifact). A single
 # machine-adjudication proof, or a set that collapses onto one axis, is one
-# opinion wearing a proof record.
+# opinion wearing a proof record. The fifth axis (spec/rkaf-refspec.md,
+# corrected 2026-08-09) keeps two "independent" machines from qualifying a
+# pair by each sealing the same shared response: distinct issuers, groups,
+# providers, and model IDs still describe one witnessed answer if that answer
+# is the identical sealed artifact.
 #
 # This corrects rulespec's own prior wording (spec/rkaf-analysis.md §4
 # extension, corrected 2026-08-09): the requirement is AT LEAST ONE independent
@@ -294,7 +299,7 @@ rkaf:MachineAdjudicationIndependentPairShape a sh:NodeShape ;
   sh:targetClass rkaf:RelationFinding ;
   sh:sparql [
     a sh:SPARQLConstraint ;
-    sh:message "A claim citing any rkaf:ResolverProofRecord whose rkaf:proofType is rkaf:machineAdjudicationProof MUST cite at least one PAIR of them that share rkaf:sealedRequestDigest and are distinct on all four independence axes: rkaf:proofIssuer (validator actor), rkaf:independenceGroup, rkaf:proofIssuer/rkaf:proofResolver (provider), and rkaf:hasAILineage/rkaf:modelId (provider model ID). A single machine adjudication, or a set that collapses onto one axis, is one opinion, not independent corroboration (spec/rkaf-analysis.md §3.4, §4 extension)." ;
+    sh:message "A claim citing any rkaf:ResolverProofRecord whose rkaf:proofType is rkaf:machineAdjudicationProof MUST cite at least one PAIR of them that share rkaf:sealedRequestDigest and are distinct on all five independence axes: rkaf:proofIssuer (validator actor), rkaf:independenceGroup, rkaf:proofIssuer/rkaf:proofResolver (provider), rkaf:hasAILineage/rkaf:modelId (provider model ID), and rkaf:sealedResponseArtifact (response artifact). A single machine adjudication, or a set that collapses onto one axis, is one opinion, not independent corroboration (spec/rkaf-analysis.md §3.4, §4 extension; spec/rkaf-refspec.md, corrected 2026-08-09)." ;
     sh:select """
       PREFIX rkaf: <https://rulespec.org/ns/v1#>
       SELECT DISTINCT $this
@@ -335,6 +340,9 @@ rkaf:MachineAdjudicationIndependentPairShape a sh:NodeShape ;
           ?lineage1 rkaf:modelId ?model1 .
           ?lineage2 rkaf:modelId ?model2 .
           FILTER (?model1 != ?model2)
+          ?p1 rkaf:sealedResponseArtifact ?artifact1 .
+          ?p2 rkaf:sealedResponseArtifact ?artifact2 .
+          FILTER (?artifact1 != ?artifact2)
         }
       }
     """ ;

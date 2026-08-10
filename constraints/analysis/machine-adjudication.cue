@@ -23,7 +23,7 @@ package rkaf
 // `rkaf:ResolverProofRecord` whose `rkaf:proofType` is
 // `rkaf:machineAdjudicationProof` already satisfies it by construction.
 //
-// THE INDEPENDENCE RULE IS NOT HERE. "At least one pair distinct on all four
+// THE INDEPENDENCE RULE IS NOT HERE. "At least one pair distinct on all five
 // axes, equal sealed request digest across the pair, complete support
 // retained" spans MULTIPLE proof records cited by one comparison or finding —
 // exactly the cross-node shape `shapes/README.md` reserves for hand-authored
@@ -33,7 +33,7 @@ package rkaf
 // `rkaf:proofType` rather than by a second `rdf:type`. This file only shapes
 // ONE proof record; CUE constrains one struct.
 //
-// THE FOUR INDEPENDENCE AXES, and where each one lives:
+// THE FIVE INDEPENDENCE AXES, and where each one lives:
 //
 //   validator actor   `rkaf:proofIssuer` — the exact versioned resolver AND
 //                      policy this proof was issued under (already required
@@ -57,12 +57,22 @@ package rkaf
 //                      same resolver can still land in different
 //                      independence pools, and two different providers can
 //                      still share one if a producer's pooling was sloppy.
+//   response artifact `rkaf:sealedResponseArtifact`, declared below — the
+//                      sealed provider response each proof's verdict was
+//                      read from. Distinct actors, groups, providers, and
+//                      model IDs still describe ONE witnessed answer if that
+//                      answer is the identical sealed artifact; this axis is
+//                      what makes the other four about independent RUNS
+//                      rather than independent-looking labels on one shared
+//                      output (spec/rkaf-refspec.md, corrected 2026-08-09).
 //
-// This mapping is a rulespec-native rendering of four independence checks,
+// This mapping is a rulespec-native rendering of five independence checks,
 // reached through the two reference fields every proof already carries
 // (`proofIssuer`, `hasAILineage`) rather than restated as bare literals on
 // this struct, so a resolver upgrade or a model swap changes one referenced
-// record instead of every proof that cites it.
+// record instead of every proof that cites it. `rkaf:sealedResponseArtifact`
+// is a plain field on this struct rather than reached through a reference,
+// like `rkaf:sealedRequestDigest` beside it.
 
 // The five verdicts a machine adjudicator may return over one sealed
 // question (rkaf: prefixed, closed). These name a RELATION between two
@@ -102,7 +112,7 @@ package rkaf
 	"rkaf:hasAILineage": string & =~"^[A-Za-z][A-Za-z0-9+.-]*:[^\\s]+$"
 
 	// Producer-scoped identity of the independence pool this validator run
-	// was drawn from. One of the four axes `rkaf:MachineAdjudicationIndependentPairShape`
+	// was drawn from. One of the five axes `rkaf:MachineAdjudicationIndependentPairShape`
 	// (shapes/rkaf-shapes-analysis.ttl) reads to find an independent pair.
 	"rkaf:independenceGroup": string & =~"^[A-Za-z][A-Za-z0-9+.-]*:[^\\s]+$"
 
@@ -121,6 +131,10 @@ package rkaf
 	// separate from `rkaf:proofRecordDigest` (which covers this record's OWN
 	// bytes): the response artifact is the raw provider output the record
 	// summarizes, resolvable independently so a reviewer can re-read exactly
-	// what the model returned.
+	// what the model returned. The fifth axis
+	// `rkaf:MachineAdjudicationIndependentPairShape` (shapes/rkaf-shapes-analysis.ttl)
+	// reads to find an independent pair: two proofs that share one sealed
+	// response are not independent witnesses of it, whatever else differs
+	// between them.
 	"rkaf:sealedResponseArtifact": string & =~"^[A-Za-z][A-Za-z0-9+.-]*:[^\\s]+$"
 }
