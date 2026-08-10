@@ -9,8 +9,11 @@ CARGO         = cargo
 # PYTHON on the make command line.
 PYTHON        = uv run --python 3.12 --with-requirements requirements.txt python
 CARGO_MANIFEST = --manifest-path crates/Cargo.toml
+# Pinned by tools/install-cue.sh into .tools/cue (gitignored; not required for
+# targets other than cue-vet). Run tools/install-cue.sh once to populate it.
+CUE           = .tools/cue
 
-.PHONY: all help build build-runtime-cli test test-rust test-shapes test-reference-corpora test-audits test-conformance clean compile
+.PHONY: all help build build-runtime-cli test test-rust test-shapes test-reference-corpora test-audits test-conformance clean compile cue-vet
 
 all: build
 
@@ -24,6 +27,7 @@ help:
 	@echo "  make test-reference-corpora — validate shipped reference-corpus JSON-LD"
 	@echo "  make test-audits        — vocab, coverage, rename, constraints-parity, projector-parity, version-sync, semantic carriers"
 	@echo "  make test-conformance   — L1-L4 report plus L0 carrier-mapping audit"
+	@echo "  make cue-vet            — validate CUE source syntax (requires tools/install-cue.sh)"
 	@echo "  make compile            — regenerate JSON Schema + Rust + SHACL + TS from CUE"
 	@echo "  make clean              — cargo clean"
 	@echo ""
@@ -76,6 +80,17 @@ test-conformance: build-runtime-cli
 
 # ─── Codegen ───────────────────────────────────────────────────────────
 #
+# `cue-vet` validates CUE source syntax with the CUE compiler proper before
+# tools/constraints_compile.py (a bespoke, non-CUE-aware parser) projects it
+# to other targets. Split into two invocations because `cue vet` unifies every
+# file passed together into one instance: the `rkaf` package (core, analysis,
+# adversarial, ai-extraction, profiles/<profile>/*.cue) and the standalone
+# `semantics` package (the L0 range registries, one per kernel/analysis/
+# profile directory) are separate packages and cannot be vetted in one call.
+cue-vet:
+	$(CUE) vet constraints/core/*.cue constraints/analysis/*.cue constraints/adversarial/*.cue constraints/ai-extraction/*.cue constraints/profiles/*/*.cue
+	$(CUE) vet constraints/semantics/*.cue constraints/analysis/*/*.cue constraints/profiles/*/*/*.cue
+
 # `compile` drives every primitive through every target via the single
 # canonical wrapper. Writes Rust to crates/rkaf-core/src/generated/ (tracked);
 # other targets to compiled/<target>/<sub>/ (gitignored).

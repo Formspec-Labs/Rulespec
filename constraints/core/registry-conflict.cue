@@ -12,7 +12,7 @@ import "list"
 
 #RegistryConflict: {
 	"@type":                    "rkaf:RegistryConflict"
-	"rkaf:conflictingEntries":  list.MinItems(2) // IRIs of registry entries that disagree (≥2)
+	"rkaf:conflictingEntries":  [...(string & =~"^[A-Za-z][A-Za-z0-9+.-]*:[^\\s]+$")] & list.MinItems(2) // IRIs of registry entries that disagree (≥2)
 	"rkaf:severity":            #ConflictSeverity
 	"rkaf:conflictingScope"?:   string // optional IRI of the ApplicabilityScope where the conflict surfaces
 	"rkaf:detectedAt":          string // xsd:dateTime

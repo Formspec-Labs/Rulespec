@@ -1,7 +1,7 @@
 # Rulespec Layer 2 — Constraints (CUE source-of-truth)
 
 This directory holds the CUE constraint source for Rulespec Vocabulary v0.2.
-CUE is the **source of truth**. JSON Schema, Rust, TypeScript, SHACL, CUE-passthrough, and Rego are **compilation targets** produced by `tools/constraints_compile.py` into `compiled/`.
+CUE is the **source of truth**. JSON Schema, Rust, TypeScript, SHACL, and Rego are **compilation targets** produced by `tools/constraints_compile.py` into `compiled/`.
 
 Selection rationale: see `docs/adr/2026-05-12-rkaf-constraint-source-cue.md`.
 
@@ -75,7 +75,6 @@ the shape that sink can express:
 | `compiled/typescript/` | property typed by a literal-union alias, not `string` | `_compiled_typescript_closures` |
 | `crates/rkaf-core/src/generated/` | field typed by a generated enum, not `String` | `_generated_rust_closures` |
 | `compiled/rego/` | a `<definition>_values` list — Rego has NO property types | `_compiled_rego_closures` |
-| `compiled/cue/` | not scanned: verbatim passthrough of the source the audit already reads | — |
 
 Rego is the reason this table exists rather than a sentence. It is the one
 target that cannot express "this property is closed over that set" at all — it
@@ -107,7 +106,6 @@ worth stating outright:
 | Rust          | MUST for Core and Rust-carried profiles | `crates/rkaf-core/src/generated/<snake>.rs` for `core/` and selected profiles. `profiles/refspec/` belongs to Rulespec Extrapolator and is deliberately excluded from `rkaf-core`. The canonical Rust sink is tracked in git; no parallel `compiled/rust/` copy is produced. |
 | TypeScript    | MUST   | `compiled/typescript/<sub>/<name>.ts`   |
 | SHACL         | MAY    | `compiled/shacl/<sub>/<name>.ttl` (Pattern C only — no `sh:if`/`sh:then`) |
-| CUE           | MAY    | `compiled/cue/<sub>/<name>.cue` (passthrough) |
 | Rego          | MAY    | `compiled/rego/<sub>/<name>.rego`       |
 
 ## Build
@@ -115,6 +113,10 @@ worth stating outright:
 ```bash
 # Pin CUE 0.10.0
 ./tools/install-cue.sh
+
+# Validate CUE source syntax before compiling (make cue-vet also works)
+.tools/cue vet constraints/core/*.cue constraints/analysis/*.cue constraints/adversarial/*.cue constraints/ai-extraction/*.cue constraints/profiles/*/*.cue
+.tools/cue vet constraints/semantics/*.cue constraints/analysis/*/*.cue constraints/profiles/*/*/*.cue
 
 # Compile every constraint to every target
 tools/compile_all.sh
@@ -124,7 +126,7 @@ tools/compile_all.sh
 to its compiled sub-path (`core`, `analysis`, `adversarial`, `ai-extraction`,
 `profiles/<profile>`), writes Rust for Core, analysis, and Rust-carried
 profiles, and re-pins the embedded L0 contract digests. The RefSpec profile
-still produces portable JSON Schema, TypeScript, SHACL, CUE, and Rego outputs,
+still produces portable JSON Schema, TypeScript, SHACL, and Rego outputs,
 but never a generated `rkaf-core` module.
 
 CUE packages are directory-scoped, so a profile that composes a kernel shape is

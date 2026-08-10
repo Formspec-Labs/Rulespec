@@ -1,5 +1,7 @@
 package rkaf
 
+import "list"
+
 // Attestation (§3.1): a scoped, multi-target attestation by a named attestor
 // over a Rulespec target (Assertion, work product, packet, concept, mapping,
 // registry, bridge validation result, etc.). Decisions and scopes accept the
@@ -16,7 +18,7 @@ package rkaf
 	"@type":                "rkaf:Attestation"
 	"rkaf:attestor":        string // IRI of the attestor
 	"rkaf:attestorKind":    #AttestorKind
-	"rkaf:targets":         [...string] // ≥1 IRI of target object(s)
+	"rkaf:targets":         [...string] & list.MinItems(1) // ≥1 IRI of target object(s)
 	"rkaf:decision":        #AttestationDecision
 	"rkaf:attestationScope": string // free-form scope IRI or label
 	"rkaf:attestedAt":      string // xsd:dateTime

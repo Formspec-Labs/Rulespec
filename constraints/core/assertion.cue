@@ -147,5 +147,6 @@ package rkaf
 
 #Assertion: {
 	#DurableAssertionEnvelope
+	#SafetyLabelCarrier
 	"@type": "rkaf:Assertion"
 }

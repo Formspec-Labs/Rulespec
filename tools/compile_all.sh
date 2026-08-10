@@ -5,7 +5,6 @@
 #   json-schema   → compiled/json-schema/<sub>/<name>.schema.json
 #   typescript    → compiled/typescript/<sub>/<name>.ts
 #   shacl         → compiled/shacl/<sub>/<name>.ttl
-#   cue           → compiled/cue/<sub>/<name>.cue       (passthrough)
 #   rego          → compiled/rego/<sub>/<name>.rego
 #   rust          → crates/rkaf-core/src/generated/<snake>.rs   (canonical;
 #                   the Rust workspace re-exports from this path. No kebab
@@ -74,10 +73,6 @@ compile_one() {
             outdir="compiled/shacl/$sub"
             outpath="$outdir/$base.ttl"
             ;;
-        cue)
-            outdir="compiled/cue/$sub"
-            outpath="$outdir/$base.cue"
-            ;;
         rego)
             outdir="compiled/rego/$sub"
             outpath="$outdir/$base.rego"
@@ -113,7 +108,7 @@ main() {
         constraints/ai-extraction/*.cue
         constraints/profiles/*/*.cue
     )
-    local targets=(json-schema typescript shacl cue rego rust)
+    local targets=(json-schema typescript shacl rego rust)
 
     # Remove output from compilers that predate the Core/Extrapolator split.
     # `profiles/refspec` no longer has a valid Rust sink in `rkaf-core`.

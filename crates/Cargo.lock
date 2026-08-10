@@ -1057,6 +1057,7 @@ name = "rkaf-projector-json-ld"
 version = "0.2.0-pre.9"
 dependencies = [
  "async-trait",
+ "rkaf-core",
  "rkaf-projector-core",
  "serde",
  "serde_json",
@@ -1095,7 +1096,6 @@ version = "0.2.0-pre.9"
 dependencies = [
  "anyhow",
  "chrono",
- "rkaf-core",
  "semver",
  "serde",
  "serde_json",
@@ -1117,7 +1117,6 @@ name = "rkaf-validate"
 version = "0.2.0-pre.9"
 dependencies = [
  "jsonschema",
- "rkaf-core",
  "serde",
  "serde_json",
  "thiserror 1.0.69",

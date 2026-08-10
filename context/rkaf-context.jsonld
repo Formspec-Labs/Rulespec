@@ -685,9 +685,6 @@
     "prov:endedAtTime": {
       "@type": "xsd:dateTime"
     },
-    "rkaf:hasTrustZone": {
-      "@type": "@id"
-    },
     "rkaf:hasSafetyLabel": {
       "@type": "@id"
     },

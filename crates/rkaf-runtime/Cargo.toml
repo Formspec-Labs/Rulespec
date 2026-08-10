@@ -8,7 +8,6 @@ rust-version.workspace = true
 description = "Rulespec Layer 5 — behavioral contract runtime. Validates BehaviorTestCase inputs against the 5 algorithmic contracts in spec/rkaf-behavior.md."
 
 [dependencies]
-rkaf-core   = { path = "../rkaf-core" }
 serde       = { workspace = true, features = ["derive"] }
 serde_json  = { workspace = true }
 thiserror   = { workspace = true }

@@ -4,38 +4,6 @@
 
 use serde::{Deserialize, Serialize};
 
-/// Closed Rulespec values for `TrustZone`.
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-pub enum TrustZone {
-    /// Wire value `rkaf:Z0`.
-    #[serde(rename = "rkaf:Z0")]
-    Z0,
-    /// Wire value `rkaf:Z1`.
-    #[serde(rename = "rkaf:Z1")]
-    Z1,
-    /// Wire value `rkaf:Z2`.
-    #[serde(rename = "rkaf:Z2")]
-    Z2,
-    /// Wire value `rkaf:Z3`.
-    #[serde(rename = "rkaf:Z3")]
-    Z3,
-    /// Wire value `rkaf:Z4`.
-    #[serde(rename = "rkaf:Z4")]
-    Z4,
-    /// Wire value `rkaf:Z5`.
-    #[serde(rename = "rkaf:Z5")]
-    Z5,
-    /// Wire value `rkaf:Z6`.
-    #[serde(rename = "rkaf:Z6")]
-    Z6,
-    /// Wire value `rkaf:Z7`.
-    #[serde(rename = "rkaf:Z7")]
-    Z7,
-    /// Wire value `rkaf:Z8`.
-    #[serde(rename = "rkaf:Z8")]
-    Z8,
-}
-
 /// Closed Rulespec values for `SafetyLabel`.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum SafetyLabel {
@@ -63,4 +31,26 @@ pub enum SafetyLabel {
     /// Wire value `rkaf:permits-axiomatic`.
     #[serde(rename = "rkaf:permits-axiomatic")]
     PermitsAxiomatic,
+    /// Wire value `rkaf:permits-consensus-without-citation`.
+    #[serde(rename = "rkaf:permits-consensus-without-citation")]
+    PermitsConsensusWithoutCitation,
+    /// Wire value `rkaf:permits-all`.
+    #[serde(rename = "rkaf:permits-all")]
+    PermitsAll,
+}
+
+use std::collections::BTreeMap;
+
+/// Generated JSON-LD carrier for `SafetyLabelCarrier`.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct SafetyLabelCarrier {
+    /// Optional JSON-LD resource identifier.
+    #[serde(rename = "@id", skip_serializing_if = "Option::is_none", default)]
+    pub id: Option<String>,
+    /// JSON-LD property `rkaf:hasSafetyLabel`.
+    #[serde(rename = "rkaf:hasSafetyLabel", skip_serializing_if = "Option::is_none", default)]
+    pub has_safety_label: Option<SafetyLabel>,
+    /// Additional JSON-LD properties preserved during round trips.
+    #[serde(flatten)]
+    pub extra: BTreeMap<String, serde_json::Value>,
 }

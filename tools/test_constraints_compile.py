@@ -19,7 +19,6 @@ from tools.constraints_compile import (
     _scan_reference_class_registry,
     parse_cue_file,
     target_json_schema,
-    target_cue,
     target_rego,
     target_rust,
     target_shacl,
@@ -993,13 +992,25 @@ class GeneratedShapeIdentityTests(unittest.TestCase):
 
     @staticmethod
     def _generated_shacl() -> dict[str, str]:
-        """`{cue file: compiled SHACL}` for every shipped constraint."""
+        """`{cue file: compiled SHACL}` for every shipped constraint.
+
+        Passes the same cross-file enum registry the real compiler pipeline
+        builds (`_scan_global_enum_registry`), so a file whose enum is a
+        reference to a sibling file's definition — e.g. `#WarrantKindV02` in
+        constraints/adversarial/enum-drift.cue referencing
+        constraints/core/warrant.cue's `#WarrantKind` — resolves here exactly
+        as it does under `tools/compile_all.sh`, rather than raising because
+        this helper compiled the file in artificial isolation.
+        """
+        paths = sorted(REPO_ROOT.glob("constraints/*/*.cue"))
+        registry = _scan_global_enum_registry(paths[0]) if paths else {}
         return {
             str(path.relative_to(REPO_ROOT)): target_shacl(
                 parse_cue_file(path),
                 reference_classes=_scan_reference_class_registry(path),
+                registry=registry,
             )
-            for path in sorted(REPO_ROOT.glob("constraints/*/*.cue"))
+            for path in paths
         }
 
     @staticmethod
@@ -2065,11 +2076,10 @@ class LifecycleKindOwnershipTests(unittest.TestCase):
     ) -> dict[str, tuple[str, ...] | None]:
         """Every compiled target's view of the kind closure, one flat map.
 
-        Keyed by the sink each artifact actually lives in, so a failure names
-        the file on disk. `compiled/cue/` is deliberately absent: it is a
-        verbatim passthrough of the CUE source, so scanning it would re-ask the
-        declaration-side questions `_parts()` already answers rather than
-        checking a projection.
+        Keyed by the sink each artifact actually lives in. There is no CUE
+        passthrough target to exclude here: `compiled/cue/` was a
+        byte-identical copy of `constraints/` with no consumer and was
+        removed.
         """
         return {
             **{
@@ -3119,11 +3129,10 @@ import (
             "sh:not [ sh:datatype rdf:langString", notation_line
         )
 
-    def test_cue_passthrough_and_rego_metadata_keep_source_meaning(self) -> None:
+    def test_rego_metadata_keeps_source_meaning(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             source = self._source(temporary)
             document = parse_cue_file(source)
-            self.assertEqual(target_cue(document, source), self.SOURCE)
             rego = target_rego(document, source_file=source)
         self.assertIn('"kind": "pattern_map"', rego)
         self.assertIn('"value_cardinality": "oneOrMany"', rego)

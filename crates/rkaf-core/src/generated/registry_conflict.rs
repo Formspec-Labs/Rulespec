@@ -34,7 +34,7 @@ pub struct RegistryConflict {
     pub id: Option<String>,
     /// JSON-LD property `rkaf:conflictingEntries`.
     #[serde(rename = "rkaf:conflictingEntries")]
-    pub conflicting_entries: crate::OneOrMany<serde_json::Value>,
+    pub conflicting_entries: crate::OneOrMany<String>,
     /// JSON-LD property `rkaf:severity`.
     #[serde(rename = "rkaf:severity")]
     pub severity: ConflictSeverity,

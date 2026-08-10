@@ -8,6 +8,7 @@ rust-version.workspace = true
 description = "Rulespec Layer 4 — JSON-LD 1.1 projector."
 
 [dependencies]
+rkaf-core   = { path = "../rkaf-core" }
 rkaf-projector-core = { path = "../rkaf-projector-core" }
 serde       = { workspace = true }
 serde_json  = { workspace = true }

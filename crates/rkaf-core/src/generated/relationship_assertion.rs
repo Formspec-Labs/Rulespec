@@ -75,6 +75,9 @@ pub struct RelationshipAssertion {
     /// JSON-LD property `rkaf:assertionPolarity`.
     #[serde(rename = "rkaf:assertionPolarity")]
     pub assertion_polarity: crate::generated::assertion::AssertionPolarity,
+    /// JSON-LD property `rkaf:hasSafetyLabel`.
+    #[serde(rename = "rkaf:hasSafetyLabel", skip_serializing_if = "Option::is_none", default)]
+    pub has_safety_label: Option<crate::generated::trust_and_safety::SafetyLabel>,
     /// JSON-LD property `rkaf:assertsObject`.
     #[serde(rename = "rkaf:assertsObject")]
     pub asserts_object: String,

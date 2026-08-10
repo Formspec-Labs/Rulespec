@@ -8,7 +8,9 @@ use serde_json::{json, Map, Value};
 use std::path::{Path, PathBuf};
 
 /// The canonical Rulespec v0.2 JSON-LD context URL appended on Attach.
-pub const RKAF_CONTEXT: &str = "https://rulespec.org/context/rkaf-context.jsonld";
+/// Re-exported from `rkaf-core`, the single source of this constant, rather
+/// than redeclared here.
+pub use rkaf_core::RKAF_CONTEXT;
 
 pub struct JsonLdProjector {
     pub version: String,

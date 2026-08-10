@@ -989,11 +989,11 @@ class CompositionCarrierTests(unittest.TestCase):
         )
 
     def test_every_envelope_field_reaches_every_composer_in_every_target(self) -> None:
-        """`compiled/rego/` and `compiled/cue/` are excluded, for the reasons
-        `constraints/README.md` already records: Rego has no property types at
-        all (it emits value sets and leaves `deny` rules to the policy author),
-        and the CUE target is a verbatim passthrough of the source the
-        composition is still unresolved in."""
+        """`compiled/rego/` is excluded, for the reason `constraints/README.md`
+        already records: Rego has no property types at all (it emits value
+        sets and leaves `deny` rules to the policy author). There is no CUE
+        passthrough target to exclude: `compiled/cue/` was a byte-identical
+        copy of `constraints/` with no consumer and was removed."""
         fields = self._envelope_fields()
         missing: list[str] = []
         for path, shape_name, _ in self._composers():

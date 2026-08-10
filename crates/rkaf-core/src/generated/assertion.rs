@@ -283,6 +283,9 @@ pub struct Assertion {
     /// JSON-LD property `rkaf:assertedAt`.
     #[serde(rename = "rkaf:assertedAt", skip_serializing_if = "Option::is_none", default)]
     pub asserted_at: Option<String>,
+    /// JSON-LD property `rkaf:hasSafetyLabel`.
+    #[serde(rename = "rkaf:hasSafetyLabel", skip_serializing_if = "Option::is_none", default)]
+    pub has_safety_label: Option<crate::generated::trust_and_safety::SafetyLabel>,
     /// Additional JSON-LD properties preserved during round trips.
     #[serde(flatten)]
     pub extra: BTreeMap<String, serde_json::Value>,

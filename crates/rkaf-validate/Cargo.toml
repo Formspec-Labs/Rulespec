@@ -8,7 +8,6 @@ rust-version.workspace = true
 description = "Rulespec Layer 2 — JSON Schema validator with embedded compiled v0.2 schemas. Validates Assertion / Warrant / EvidenceBinding / ConfidenceRecord / AccessScope / AILineage / Artifact / SourceFragment."
 
 [dependencies]
-rkaf-core   = { path = "../rkaf-core" }
 serde       = { workspace = true }
 serde_json  = { workspace = true }
 thiserror   = { workspace = true }

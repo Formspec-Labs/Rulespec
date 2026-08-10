@@ -13,7 +13,7 @@ import "list"
 
 // ConfidenceRecord rejects "score theater" by requiring confidenceMethod,
 // confidenceBasis, calibrationStatus, generatedBy on every record.
-#ConfidenceRecord: {
+#ConfidenceRecord: record={
 	"@type":                  "rkaf:ConfidenceRecord"
 	"rkaf:confidenceMethod":  #ConfidenceMethod
 	"rkaf:calibrationStatus": #CalibrationStatus
@@ -22,7 +22,7 @@ import "list"
 	// Score: numeric in [0,1] OR categorical (disjunction).
 	{"rkaf:score": >=0.0 & <=1.0} | {"rkaf:scoreCategorical": #ScoreCategorical}
 	// If calibrationStatus = calibratedAgainst, evaluatedAgainst MUST be present.
-	if "rkaf:calibrationStatus" == "rkaf:calibratedAgainst" {
+	if record["rkaf:calibrationStatus"] == "rkaf:calibratedAgainst" {
 		"rkaf:evaluatedAgainst": string
 	}
 }

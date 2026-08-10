@@ -22,6 +22,9 @@ jobs:
       - name: Install pinned CUE
         run: ./tools/install-cue.sh
 
+      - name: Validate CUE source syntax (cue vet)
+        run: make cue-vet
+
       - name: Install Python deps
         run: |
           python3 -m pip install --upgrade pip

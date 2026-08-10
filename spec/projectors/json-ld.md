@@ -31,7 +31,13 @@ The native artifact's `@context` is preserved; the v0.2 Rulespec context is appe
   Schema 2020-12 definition targeting that `@type`; it uses the same
   executable validator path as the JSON Schema and OpenAPI projectors.
 - **Round-trip:** `Attach(native, overlay) → Extract` MUST equal `(native, overlay)` after canonical normalization (the Rust reference implementation also preserves byte-equality on the common shape — single-element `@context` is unwrapped back to a string on Extract).
-- **Derive:** invokes `tools/constraints_compile.py --in <profile.cue> --target cue`. Emits a JSON-LD context fragment plus a companion SHACL pointer keyed at the canonical rkaf context URL.
+- **Derive:** not implemented for this carrier. The compiler's `cue` target
+  was a byte-identical passthrough of the source file, not a JSON-LD context
+  fragment derivation, and had no consumer; it was removed. A real Derive for
+  this carrier — emitting a JSON-LD context fragment plus a companion SHACL
+  pointer keyed at the canonical rkaf context URL — remains future work. See
+  the JSON Schema and OpenAPI carriers' Derive operations for the pattern a
+  real implementation would follow.
 
 ## 3. Canonicalization
 

@@ -6,7 +6,6 @@ CUE source-of-truth → multiple compilation targets:
   - Rust validator code  (MUST)
   - TypeScript validator code (MUST)
   - SHACL Turtle Pattern C only (MUST for CUE-expressible constraints)
-  - CUE passthrough (identity)
   - Rego (closed-enum + cardinality only)
 
 The compiler reads CUE files as text and extracts the regular structure that
@@ -53,7 +52,7 @@ this tool projects validated source to other carriers.
 Usage:
   python3 tools/constraints_compile.py --in <file.cue> --target <name> --out <path>
 
-Targets: json-schema | rust | typescript | shacl | cue | rego
+Targets: json-schema | rust | typescript | shacl | rego
 
 Exit codes:
   0  success
@@ -219,8 +218,11 @@ ENUM_LINE_RE = re.compile(
     r'^#(\w+):\s*("[^"]+"(?:\s*\|\s*"[^"]+")*)\s*$'
 )
 ENUM_MULTI_RE = re.compile(r'"([^"]+)"')
-# Closed-enum-of-refs: `#Name: #A | #B | #C`
-ENUM_UNION_RE = re.compile(r'^#(\w+):\s*((?:#\w+\s*\|\s*)+#\w+)\s*$')
+# Closed-enum-of-refs: `#Name: #A | #B | #C`, or a bare single-reference alias
+# `#Name: #A` (the degenerate one-part case — a reference to another enum's
+# value set, never a copy of it; see #WarrantKindV02 in
+# constraints/adversarial/enum-drift.cue).
+ENUM_UNION_RE = re.compile(r'^#(\w+):\s*((?:#\w+\s*\|\s*)*#\w+)\s*$')
 ENUM_UNION_REFS_RE = re.compile(r'#(\w+)')
 SCALAR_TYPE_RE = re.compile(
     r'^#(\w+):\s*(string(?:\s*&\s*=~"[^"]+")?'
@@ -3573,12 +3575,6 @@ def target_shacl(
     return "\n".join(out)
 
 
-# ---- CUE passthrough -----------------------------------------------------
-
-def target_cue(doc: ConstraintDoc, source_path: Path) -> str:
-    return source_path.read_text()
-
-
 # ---- Rego target ---------------------------------------------------------
 
 def _rego_symbol(name: str) -> str:
@@ -3719,7 +3715,6 @@ TARGETS = {
     "typescript":  target_typescript,
     "shacl":       target_shacl,
     "rego":        target_rego,
-    # cue handled specially (needs source path)
 }
 
 
@@ -3727,7 +3722,7 @@ def main() -> int:
     ap = argparse.ArgumentParser(description="Rulespec Layer 2 constraint compiler")
     ap.add_argument("--in", dest="input", type=Path, required=True)
     ap.add_argument("--target", required=True,
-                    choices=sorted(["json-schema", "rust", "typescript", "shacl", "rego", "cue"]))
+                    choices=sorted(["json-schema", "rust", "typescript", "shacl", "rego"]))
     ap.add_argument("--out", type=Path)
     args = ap.parse_args()
 
@@ -3752,9 +3747,7 @@ def main() -> int:
         _validate_document_value_objects(doc, allow_unresolved=False)
         reference_classes = _scan_reference_class_registry(args.input)
 
-        if args.target == "cue":
-            out = target_cue(doc, args.input)
-        elif args.target == "json-schema":
+        if args.target == "json-schema":
             out = target_json_schema(doc, registry=enum_registry)
         elif args.target == "rust":
             out = target_rust(

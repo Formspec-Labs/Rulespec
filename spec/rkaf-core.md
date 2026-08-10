@@ -35,7 +35,7 @@ Every Rulespec assertion is positioned on three orthogonal axes:
 
 - **Truth axis** — what the world is. Carried by `rkaf:assertsSubject`, `rkaf:assertsPredicate`, `rkaf:assertsObject`, `rkaf:hasWarrant`, `rkaf:hasConfidence`, `rkaf:EvidenceBinding`.
 - **Social axis** — who endorses, attests, disputes, supersedes. Carried by `rkaf:Attestation`, `rkaf:LocalAdoption`, `rkaf:supersedesAssertion`, `rkaf:LifecycleEvent`.
-- **Consumer axis** — who may see, who may act, under what scope. Carried by `rkaf:hasAccessScope`, `rkaf:usageEligibility`, `rkaf:hasSafetyLabel`, `rkaf:hasTrustZone`, `rkaf:hasApplicability`.
+- **Consumer axis** — who may see, who may act, under what scope. Carried by `rkaf:hasAccessScope`, `rkaf:usageEligibility`, `rkaf:hasSafetyLabel`, `rkaf:hasApplicability`.
 
 Implementations MUST preserve all three axes through retrieval, projection, summarization, federation, and AI-assisted consumption.
 
@@ -430,7 +430,7 @@ retired draft values `rkaf:aiPromoted`, `rkaf:humanQualified`, and
 with later review state.
 
 The retained closed enums include `rkaf:hasSafetyLabel`,
-`rkaf:hasTrustZone`, `rkaf:usageEligibility`, `rkaf:authorityKind`,
+`rkaf:usageEligibility`, `rkaf:authorityKind`,
 `rkaf:adoptionAuthorityKind`, `rkaf:adoptionStatus`, `rkaf:result`,
 `rkaf:resolutionStatus`, `rkaf:resolutionMethod`, `rkaf:cacheStatus`,
 `rkaf:cascadeAlgorithm`, `rkaf:evidenceRole`, `rkaf:severity`,
@@ -1046,7 +1046,7 @@ Inherited name-for-name from `archive/v0.1/spec/rkaf-core-v0.1.md`:
   material-revision packets, concept lifecycle operations
   (`spec/rkaf-concept-registry.md` §6), `rkaf:RevalidationEvent`, and
   `rkaf:PointInTimeException`.
-- **Usage / trust / safety:** `rkaf:usageEligibility` lattice, `rkaf:hasTrustZone` (Z0–Z8), `rkaf:hasSafetyLabel` (D0/S1/R2/A3/P4).
+- **Usage / trust / safety:** `rkaf:usageEligibility` lattice, `rkaf:hasSafetyLabel` (D0/S1/R2/A3/P4 plus the `permits-*` evidence-gap family).
 - **Concepts:** `rkaf:Concept`, `rkaf:RegisteredConcept`,
   `rkaf:LocalConcept`, `rkaf:ConceptMapping`, and
   `rkaf:ConceptResolutionResult`. v0.2 adds `rkaf:ConceptScheme` and

@@ -30,6 +30,7 @@ package rkaf
 #RelationshipAssertion: assertion={
 	#DurableAssertionEnvelope
 	#AssertionProposition
+	#SafetyLabelCarrier
 	"@type": "rkaf:RelationshipAssertion"
 
 	// Derived-shape narrowings of the shared proposition core, plus the

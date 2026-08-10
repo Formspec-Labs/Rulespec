@@ -5,14 +5,11 @@ package rkaf
 // label outside the taxonomy). A lax JSON Schema generator that defaults to
 // open-additionalProperties would silently accept; closed-enum discipline rejects.
 
-#WarrantKindV02: "rkaf:legal" | "rkaf:statutory" | "rkaf:regulatory" |
-	"rkaf:delegated" | "rkaf:organizational" | "rkaf:contractual" |
-	"rkaf:localOperational" | "rkaf:publication" |
-	"rkaf:methodological" | "rkaf:empirical" | "rkaf:replication" | "rkaf:peerReview" |
-	"rkaf:editorial" | "rkaf:factCheck" | "rkaf:correction" |
-	"rkaf:cryptographic" | "rkaf:commitment" |
-	"rkaf:consensus" | "rkaf:expertOpinion" | "rkaf:communityEndorsement" |
-	"rkaf:sourceReliability" | "rkaf:provenanceClass"
+// A reference, not a copy: constraints/core/warrant.cue:22 (`#WarrantKind`) is
+// the single source of the 22-member taxonomy. An enum-drift detector that
+// hardcoded its own copy of the taxonomy it polices would silently stop
+// covering a new #WarrantKind member the day one is added.
+#WarrantKindV02: #WarrantKind
 
 #EnumDriftWarrant: {
 	"@type":            "rkaf:Warrant"

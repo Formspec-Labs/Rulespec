@@ -25,11 +25,4 @@ impl Verdict {
             rationale: None,
         }
     }
-
-    pub fn with_rationale(output: Value, rationale: impl Into<String>) -> Self {
-        Self {
-            output,
-            rationale: Some(rationale.into()),
-        }
-    }
 }
