@@ -136,5 +136,12 @@ package rkaf
 	// reads to find an independent pair: two proofs that share one sealed
 	// response are not independent witnesses of it, whatever else differs
 	// between them.
+	//
+	// RUN identity, not content identity: this names the sealed record of
+	// THAT proof's own execution, never the response bytes. An implementation
+	// MUST mint a distinct artifact per run even when two genuinely
+	// independent runs return byte-identical output — collapsing them onto
+	// one shared artifact because the content matched is indistinguishable,
+	// to every downstream reader, from one run's output cited twice.
 	"rkaf:sealedResponseArtifact": string & =~"^[A-Za-z][A-Za-z0-9+.-]*:[^\\s]+$"
 }

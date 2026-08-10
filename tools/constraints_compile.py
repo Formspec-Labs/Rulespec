@@ -3501,6 +3501,24 @@ def target_shacl(
                         f"sh:property [ sh:path {requirement.name} ; "
                         f"sh:minCount {min_count} ;"
                     )
+                    # Mirror the unconditional property loop above: a scalar
+                    # CUE field is at-most-one whether it is unconditionally
+                    # required or required only inside a conditional branch.
+                    # Omitting this here (as the compiler did until this fix)
+                    # left every conditionally-required scalar field capped
+                    # only at the JSON Schema layer — a pure-RDF graph could
+                    # carry two values and still satisfy sh:minCount 1, which
+                    # is exactly the machine-adjudication independence-pair
+                    # bypass a reviewer caught for rkaf:sealedResponseArtifact
+                    # (two values, one shared and one unique, satisfy both
+                    # "has a value" and "the pair is distinct on SOME value").
+                    named_map = _pattern_map_definition(
+                        doc,
+                        requirement.named_ref or requirement.list_inner_named,
+                        registry,
+                    )
+                    if requirement.type_ref != "list" and named_map is None:
+                        part += " sh:maxCount 1 ;"
                     if requirement.list_max_items is not None:
                         part += f" sh:maxCount {requirement.list_max_items} ;"
                     if requirement.fixed_value is not None:

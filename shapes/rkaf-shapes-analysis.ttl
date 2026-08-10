@@ -280,6 +280,26 @@ rkaf:ResolverProofComparisonBindingShape a sh:NodeShape ;
 # providers, and model IDs still describe one witnessed answer if that answer
 # is the identical sealed artifact.
 #
+# `rkaf:sealedResponseArtifact` names the sealed RECORD of that proof's own
+# run, not the response bytes it contains: artifact-IRI inequality is a
+# producer promise, not a content check. A producer MUST mint a distinct
+# per-run artifact for every adjudication call even when two genuinely
+# independent runs return byte-identical output (run identity, not content
+# identity) — the same way `rkaf:Artifact` may itself be content-addressed
+# (`rkaf:cid`, `rkaf:hash-sha256`; spec/rkaf-core.md §4.1) without that making
+# two separately-fetched copies of one document into two documents. Two
+# proofs naming the SAME `rkaf:sealedResponseArtifact` are read as one
+# response copied onto a second proof record, never as two independent
+# witnesses that happened to agree byte-for-byte.
+#
+# This SPARQL enforces artifact-IRI distinctness, which is necessary but not
+# sufficient on its own: `rkaf:sealedResponseArtifact` carries at most one
+# value per proof (`compiled/shacl/analysis/resolver-proof-record.ttl`,
+# generated from the `rkaf:machineAdjudicationProof` conditional in
+# `constraints/analysis/resolver-proof-record.cue`) precisely so a proof
+# cannot carry both a shared artifact and a distinct decoy one and pass this
+# rule on the decoy.
+#
 # This corrects rulespec's own prior wording (spec/rkaf-analysis.md §4
 # extension, corrected 2026-08-09): the requirement is AT LEAST ONE independent
 # pair, not EXACTLY

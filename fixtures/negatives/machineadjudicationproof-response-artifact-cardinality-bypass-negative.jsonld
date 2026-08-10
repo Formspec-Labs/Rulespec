@@ -1,0 +1,151 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@graph": [
+    {
+      "@id": "urn:rkaf:fixture:mad:neg:mresp:artifact:baseline",
+      "@type": "rkaf:Artifact",
+      "rkaf:hasArtifactIdentifier": "urn:rkaf:fixture:mad:neg:mresp:artifact:baseline",
+      "rkaf:artifactIdentifierScheme": "rkaf:partner-defined"
+    },
+    {
+      "@id": "urn:rkaf:fixture:mad:neg:mresp:artifact:observed",
+      "@type": "rkaf:Artifact",
+      "rkaf:hasArtifactIdentifier": "urn:rkaf:fixture:mad:neg:mresp:artifact:observed",
+      "rkaf:artifactIdentifierScheme": "rkaf:partner-defined"
+    },
+    {
+      "@id": "urn:rkaf:fixture:mad:neg:mresp:issuer:alpha",
+      "@type": "rkaf:ResolverProofIssuer",
+      "rkaf:proofResolver": "urn:rkaf:fixture:mad:resolver:alpha-adjudicator",
+      "rkaf:proofResolverVersion": "1.0.0",
+      "rkaf:proofPolicy": "urn:rkaf:fixture:mad:policy:relation-adjudication",
+      "rkaf:proofPolicyVersion": "v1"
+    },
+    {
+      "@id": "urn:rkaf:fixture:mad:neg:mresp:issuer:beta",
+      "@type": "rkaf:ResolverProofIssuer",
+      "rkaf:proofResolver": "urn:rkaf:fixture:mad:resolver:beta-adjudicator",
+      "rkaf:proofResolverVersion": "2.0.0",
+      "rkaf:proofPolicy": "urn:rkaf:fixture:mad:policy:relation-adjudication",
+      "rkaf:proofPolicyVersion": "v1"
+    },
+    {
+      "@id": "urn:rkaf:fixture:mad:neg:mresp:lineage:alpha",
+      "@type": "rkaf:AILineage",
+      "rkaf:modelId": "alpha-judge-2026-01",
+      "rkaf:modelVersion": "2026.01.01",
+      "rkaf:promptTemplateRef": "urn:rkaf:fixture:mad:prompt-template:relation-adjudication/v1",
+      "rkaf:temperature": 0.0,
+      "rkaf:inputContextHash": "sha256:1111111111111111111111111111111111111111111111111111111111111111"
+    },
+    {
+      "@id": "urn:rkaf:fixture:mad:neg:mresp:lineage:beta",
+      "@type": "rkaf:AILineage",
+      "rkaf:modelId": "beta-judge-2025-11",
+      "rkaf:modelVersion": "2025.11.03",
+      "rkaf:promptTemplateRef": "urn:rkaf:fixture:mad:prompt-template:relation-adjudication/v1",
+      "rkaf:temperature": 0.0,
+      "rkaf:inputContextHash": "sha256:2222222222222222222222222222222222222222222222222222222222222222"
+    },
+    {
+      "@id": "urn:rkaf:fixture:mad:neg:mresp:proof:alpha",
+      "@type": "rkaf:ResolverProofRecord",
+      "rkaf:proofType": "rkaf:machineAdjudicationProof",
+      "rkaf:proofIssuer": "urn:rkaf:fixture:mad:neg:mresp:issuer:alpha",
+      "rkaf:proofComparisonContext": "urn:rkaf:fixture:mad:neg:mresp:comparison",
+      "rkaf:proofOutcome": "rkaf:gatePass",
+      "rkaf:proofRationale": "First supporting adjudication, declared twice under the same @id -- once naming the artifact shared with the second proof, once naming a decoy unique artifact.",
+      "rkaf:proofInput": [
+        "urn:rkaf:fixture:mad:candidate:label-equivalence"
+      ],
+      "rkaf:proofEvaluatedAt": "2026-08-05T14:00:00Z",
+      "rkaf:proofSnapshot": "urn:rkaf:fixture:mad:snapshot:2026-08-05",
+      "rkaf:proofRecordDigest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "rkaf:hasAILineage": "urn:rkaf:fixture:mad:neg:mresp:lineage:alpha",
+      "rkaf:independenceGroup": "urn:rkaf:fixture:mad:independence-group:pool-1",
+      "rkaf:adjudicationVerdict": "rkaf:verdictSame",
+      "rkaf:sealedRequestDigest": "sha256:6666666666666666666666666666666666666666666666666666666666666666",
+      "rkaf:sealedResponseArtifact": "urn:rkaf:fixture:mad:response:shared-bypass"
+    },
+    {
+      "@id": "urn:rkaf:fixture:mad:neg:mresp:proof:alpha",
+      "@type": "rkaf:ResolverProofRecord",
+      "rkaf:proofType": "rkaf:machineAdjudicationProof",
+      "rkaf:proofIssuer": "urn:rkaf:fixture:mad:neg:mresp:issuer:alpha",
+      "rkaf:proofComparisonContext": "urn:rkaf:fixture:mad:neg:mresp:comparison",
+      "rkaf:proofOutcome": "rkaf:gatePass",
+      "rkaf:proofRationale": "First supporting adjudication, declared twice under the same @id -- once naming the artifact shared with the second proof, once naming a decoy unique artifact.",
+      "rkaf:proofInput": [
+        "urn:rkaf:fixture:mad:candidate:label-equivalence"
+      ],
+      "rkaf:proofEvaluatedAt": "2026-08-05T14:00:00Z",
+      "rkaf:proofSnapshot": "urn:rkaf:fixture:mad:snapshot:2026-08-05",
+      "rkaf:proofRecordDigest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "rkaf:hasAILineage": "urn:rkaf:fixture:mad:neg:mresp:lineage:alpha",
+      "rkaf:independenceGroup": "urn:rkaf:fixture:mad:independence-group:pool-1",
+      "rkaf:adjudicationVerdict": "rkaf:verdictSame",
+      "rkaf:sealedRequestDigest": "sha256:6666666666666666666666666666666666666666666666666666666666666666",
+      "rkaf:sealedResponseArtifact": "urn:rkaf:fixture:mad:response:alpha-unique"
+    },
+    {
+      "@id": "urn:rkaf:fixture:mad:neg:mresp:proof:beta",
+      "@type": "rkaf:ResolverProofRecord",
+      "rkaf:proofType": "rkaf:machineAdjudicationProof",
+      "rkaf:proofIssuer": "urn:rkaf:fixture:mad:neg:mresp:issuer:beta",
+      "rkaf:proofComparisonContext": "urn:rkaf:fixture:mad:neg:mresp:comparison",
+      "rkaf:proofOutcome": "rkaf:gatePass",
+      "rkaf:proofRationale": "Second supporting adjudication, declared twice under the same @id -- once naming the artifact shared with the first proof, once naming a decoy unique artifact.",
+      "rkaf:proofInput": [
+        "urn:rkaf:fixture:mad:candidate:label-equivalence"
+      ],
+      "rkaf:proofEvaluatedAt": "2026-08-05T14:00:00Z",
+      "rkaf:proofSnapshot": "urn:rkaf:fixture:mad:snapshot:2026-08-05",
+      "rkaf:proofRecordDigest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "rkaf:hasAILineage": "urn:rkaf:fixture:mad:neg:mresp:lineage:beta",
+      "rkaf:independenceGroup": "urn:rkaf:fixture:mad:independence-group:pool-2",
+      "rkaf:adjudicationVerdict": "rkaf:verdictSame",
+      "rkaf:sealedRequestDigest": "sha256:6666666666666666666666666666666666666666666666666666666666666666",
+      "rkaf:sealedResponseArtifact": "urn:rkaf:fixture:mad:response:shared-bypass"
+    },
+    {
+      "@id": "urn:rkaf:fixture:mad:neg:mresp:proof:beta",
+      "@type": "rkaf:ResolverProofRecord",
+      "rkaf:proofType": "rkaf:machineAdjudicationProof",
+      "rkaf:proofIssuer": "urn:rkaf:fixture:mad:neg:mresp:issuer:beta",
+      "rkaf:proofComparisonContext": "urn:rkaf:fixture:mad:neg:mresp:comparison",
+      "rkaf:proofOutcome": "rkaf:gatePass",
+      "rkaf:proofRationale": "Second supporting adjudication, declared twice under the same @id -- once naming the artifact shared with the first proof, once naming a decoy unique artifact.",
+      "rkaf:proofInput": [
+        "urn:rkaf:fixture:mad:candidate:label-equivalence"
+      ],
+      "rkaf:proofEvaluatedAt": "2026-08-05T14:00:00Z",
+      "rkaf:proofSnapshot": "urn:rkaf:fixture:mad:snapshot:2026-08-05",
+      "rkaf:proofRecordDigest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "rkaf:hasAILineage": "urn:rkaf:fixture:mad:neg:mresp:lineage:beta",
+      "rkaf:independenceGroup": "urn:rkaf:fixture:mad:independence-group:pool-2",
+      "rkaf:adjudicationVerdict": "rkaf:verdictSame",
+      "rkaf:sealedRequestDigest": "sha256:6666666666666666666666666666666666666666666666666666666666666666",
+      "rkaf:sealedResponseArtifact": "urn:rkaf:fixture:mad:response:beta-unique"
+    },
+    {
+      "@id": "urn:rkaf:fixture:mad:neg:mresp:comparison",
+      "@type": "rkaf:RelationComparisonContext",
+      "rkaf:comparisonBaselineArtifact": "urn:rkaf:fixture:mad:neg:mresp:artifact:baseline",
+      "rkaf:comparisonObservedArtifact": "urn:rkaf:fixture:mad:neg:mresp:artifact:observed",
+      "rkaf:comparisonExpectedAssertion": "urn:rkaf:fixture:mad:assertion:expected",
+      "rkaf:comparisonConsumer": "urn:rkaf:fixture:mad:consumer:permits-desk",
+      "rkaf:comparisonScope": "urn:rkaf:fixture:mad:scope:permits-class-b",
+      "rkaf:comparisonEvaluationTime": "2026-08-05T14:05:00Z",
+      "rkaf:comparisonPolicyVersion": "relation-comparison-v1",
+      "rkaf:comparisonDetector": "urn:rkaf:fixture:mad:detector:relation-comparator",
+      "rkaf:comparisonDetectorVersion": "1.4.0",
+      "rkaf:comparisonSnapshot": "urn:rkaf:fixture:mad:snapshot:2026-08-05",
+      "rkaf:comparisonOutcome": "rkaf:comparisonSatisfied",
+      "rkaf:comparisonProofRecord": [
+        "urn:rkaf:fixture:mad:neg:mresp:proof:alpha",
+        "urn:rkaf:fixture:mad:neg:mresp:proof:beta"
+      ]
+    }
+  ],
+  "_comment": "Negative. Reproduces the SPARQL-distinctness bypass a reviewer found in the fifth-axis fix: proof:alpha and proof:beta are each declared TWICE under the SAME @id -- every individual declaration is on its own a fully valid ResolverProofRecord (source=PASS per node), but JSON-LD node-merging unifies each pair onto one subject carrying TWO rkaf:sealedResponseArtifact values: one (urn:...:response:shared-bypass) shared between alpha and beta, plus one unique to each (alpha-unique / beta-unique). Before the fix, rkaf:MachineAdjudicationIndependentPairShape's SPARQL bound the unequal unique values, concluded the pair was distinct on the fifth axis, and passed -- even though both proofs also shared one sealed response. The two proofs ARE distinct on the four original axes (issuers, providers, independence groups, model IDs); only the response-artifact cardinality is being abused. Caught now by the sh:maxCount 1 constraint on rkaf:sealedResponseArtifact within the rkaf:machineAdjudicationProof conditional (compiled/shacl/analysis/resolver-proof-record.ttl, generated from constraints/analysis/resolver-proof-record.cue) -- a proof carrying two response artifacts is rejected at the graph layer before the independent-pair SPARQL ever runs, independent of which two values the SPARQL would have bound."
+}

@@ -769,7 +769,7 @@ package rkaf
             document = parse_cue_file(source)
             shacl = target_shacl(document)
             self.assertIn(
-                "sh:path rkaf:usageCeiling ; sh:minCount 1 ; "
+                "sh:path rkaf:usageCeiling ; sh:minCount 1 ; sh:maxCount 1 ; "
                 "sh:in ( rkaf:notEligible rkaf:searchOnly ) ;",
                 shacl,
             )
@@ -1277,7 +1277,7 @@ class ConstraintCompilerTests(unittest.TestCase):
         self.assertEqual(
             shacl.count(
                 f"sh:path {RELATIONSHIP_ASSERTION_NARROWED_CONDITIONAL} ; "
-                f"sh:minCount 1 ; sh:pattern {json.dumps(IRI_PATTERN)}"
+                f"sh:minCount 1 ; sh:maxCount 1 ; sh:pattern {json.dumps(IRI_PATTERN)}"
             ),
             len(AI_TOUCHED_ORIGINS),
             "AI-lineage narrowing did not reach SHACL",

@@ -454,7 +454,11 @@ independent on all five axes — `rkaf:proofIssuer` (validator actor),
 `rkaf:sealedResponseArtifact` (response artifact). The fifth axis
 (spec/rkaf-refspec.md, corrected 2026-08-09) keeps two proofs that otherwise
 differ on the first four from qualifying as independent if they read their
-verdicts from one shared sealed response.
+verdicts from one shared sealed response. `rkaf:sealedResponseArtifact` names
+that RUN's sealed record, not its bytes: an implementation MUST mint a
+distinct per-run artifact even when two genuinely independent runs return
+byte-identical output, so artifact-IRI equality is read as a copied response,
+never as two answers that happened to agree.
 `rkaf:MachineAdjudicationCompleteSupportShape` requires that once an
 independent pair qualifies, every OTHER machine-adjudication proof that
 self-declares support for the same claim and answered the same sealed question
