@@ -524,37 +524,119 @@ authored here first and packaged second. The wheel today carries 40 compiled
 rkaf kernel schemas under `_data/compiled/json-schema/core/`, force-included by
 `pyproject.toml:40-48`.
 
-- [ ] **Author the `SourceCatalogRelease` schema set.** No root exists to
-  package.
-  **Done when:** the root and its members are declared in `constraints/`,
-  compile to every target the kernel schemas compile to, and land under
-  `_data/compiled/` in the built wheel.
+- [x] **Author the `SourceCatalogRelease` schema set.**
+  Done 2026-08-11 as an immutable candidate at bundle digest
+  `urn:rulespec:core:d1a7dd831e2ab598c43c67331ed79820acba69f1f8b7e5da25716b70128d7fc6`.
+  `spec/rulespec-source-catalog-release.md` is the normative statement.
+  Three closed Draft 2020-12 schemas: `source-catalog-release-v1.schema.json`
+  (release root — selection policy, `requestedUniverseSetDigest`,
+  `selectedSourceSetDigest`, counts, coverage, global manifest reference,
+  self-describing schema set), `source-catalog-release-v1/member-manifest-v1.schema.json`
+  (the one member manifest and its member descriptors), and
+  `source-catalog-release-v1/source-items-v1.schema.json` (source item,
+  selection disposition, candidate rendition, normalized MVP metadata,
+  source-observed topic, source observation).
+  `format` is `spicyregs-source-catalog-release` `1.0` and identity is
+  `urn:spicyregs:source-catalog-release:v1:<sha256 over canonical {format,
+  formatVersion, content}>`, matching the existing `urn:spicyregs:document-release:v3:`
+  convention — Rulespec Core owns the schemas, SpicyRegs owns the records
+  (REF-024).
+
+  **PIPELINE DEVIATION, stated because this item's original "Done when" named
+  a different one.** The text above said "declared in `constraints/`, compile
+  to every target the kernel schemas compile to, and land under
+  `_data/compiled/`". That is the rkaf VOCABULARY pipeline: CUE node shapes
+  with `@type` and `rkaf:`-prefixed predicates, compiled by
+  `tools/constraints_compile.py` to JSON Schema, TypeScript, SHACL, Rego, and
+  Rust, with SHACL violations as its diagnostics. A `SourceCatalogRelease` is
+  not an RDF node — it is a file bundle with member manifests, object keys,
+  byte digests, named diagnostic codes, and a first-failure order, and none of
+  those five has a carrier in that pipeline. The repository already has a
+  second, equally house pipeline for exactly this shape:
+  `spec/rulespec-releases.md` prose + closed JSON Schema under
+  `release-records/schemas/` + a portable Python verifier with a code
+  precedence list + sealed valid/invalid fixtures with a `corpus.json`, which
+  is how `ExtrapolationRelease` v2 is built (`tools/extrapolation_release_v2.py`,
+  `release-records/fixtures/extrapolation-release-v2/`). This candidate follows
+  that one. No new pipeline was created and `tools/constraints_compile.py` was
+  not touched.
 
 - [ ] **Author the `DocumentRelease` schema set.** The name is currently a
   reader-side string; this makes it a Rulespec-owned root.
-  **Done when:** the same three conditions above hold for `DocumentRelease`.
+  NOT IN SCOPE for the 2026-08-11 `SourceCatalogRelease` candidate and not
+  begun. `grep -rn DocumentRelease` still returns prose in
+  `spec/rulespec-releases.md`, readers in the unpackaged
+  `tools/extrapolation_release_v2.py` and `tools/rulespec_release.py`, two
+  fixture builders, and a vendored publisher schema under `release-records/`.
+  **Done when:** a `DocumentRelease` root and its members are declared under
+  `release-records/schemas/` alongside `SourceCatalogRelease` (the pipeline
+  deviation above applies equally), carry a verifier, diagnostics, and sealed
+  valid and invalid fixtures, and ride in the wheel under their own bundle
+  digest.
 
-- [ ] **Ship generated types, stable identity and digest helpers, validators,
-  diagnostics, and conformance fixtures for both roots.** Valid and invalid
-  fixtures both.
-  **Done when:** each of the six is present in the wheel for both roots and
-  reachable from an installed environment with no checkout on the path.
+- [x] **Ship generated types, stable identity and digest helpers, validators,
+  diagnostics, and conformance fixtures** — for `SourceCatalogRelease` only.
+  Done 2026-08-11. In the wheel and reachable with no checkout on the path:
+  the three schema files; `rulespec_conformance.source_catalog_release` with
+  `expected_release_id`, `stamp_root`, `source_set_digest`, `canonical_sha256`,
+  `tree_digest`, `derive_counts`, `derive_coverage`, `file_sha256`,
+  `verify_source_catalog_release`, `verify_corpus`, `candidate_bundle_errors`,
+  `bundle_release_id`; the 15 diagnostic codes in `DIAGNOSTIC_CODES` with their
+  total order in `CODE_PRECEDENCE`; and 17 sealed fixture bundles.
+  `VerificationResult.first` returns the single issue that decides the verdict,
+  so both the reported code and the reported path are functions of the bundle
+  bytes.
+  Fixtures: one valid bundle carrying all five dispositions over a
+  six-item universe with two selected, and 16 invalid bundles — each the valid
+  bundle copied and mutated in exactly one way with every downstream digest,
+  count, and identity restamped. Every diagnostic code has one:
+  `noncanonical-root`, `unknown-version`, `wrong-identity`, `unsafe-path`,
+  `missing-member`, `extra-member`, `member-digest`, `missing-disposition`,
+  `unknown-disposition`, `missing-reason`, `duplicate-source-item`,
+  `set-digest-mismatch`, `selected-without-rendition`, `refspec-concept-topic`,
+  `counts-mismatch`, `coverage-mismatch`. `corpus.json` seals each by tree
+  digest and pins the expected code AND path;
+  `test_every_declared_diagnostic_code_has_a_sealed_fixture` fails when a code
+  has no fixture.
+  NOT SHIPPED: generated types. The rkaf pipeline's TypeScript and Rust
+  emitters read CUE, and these schemas are not CUE, so a consumer gets the
+  schema bytes and the Python verifier, not a generated struct. Adding a
+  JSON-Schema-to-TypeScript/Rust emitter is a separate change and is not
+  started.
 
-- [ ] **Deliver the schemas as one digest-addressed bundle inside the wheel.**
-  One bundle, one digest, no second schema-publication pipeline alongside the
-  wheel.
-  **Done when:** the bundle digest is computed at build and verifiable from the
-  installed package.
+- [x] **Deliver the schemas as one digest-addressed bundle inside the wheel.**
+  Done 2026-08-11. `release-records/source-catalog-release-v1-candidate.json`
+  is a `RulespecCoreRelease` (`spec/rulespec-releases.md` §2) pinning the three
+  schema files, both validator modules, and all 17 sealed fixture bundles by
+  digest; a fixture bundle is pinned by its tree digest under
+  `application/vnd.spicy.bundle-tree+json`. Reusing that record type means the
+  bundle digest is minted and checked by machinery this repository already has,
+  and `tools/rulespec_release.py validate` accepts the manifest unchanged.
+  There is no second schema-publication pipeline beside the wheel.
+  `candidate_bundle_errors()` re-derives every pinned digest and the manifest's
+  own `release_digest`/`release_id` from the installed package.
 
-- [ ] **Exercise the installed wheel outside the source checkout.** A missing
-  required export fails the suite. Converting that failure to
-  `pytest.skip(allow_module_level=True)` or to a caught `ImportError` restores
-  the defect this gate exists to catch — spicy-regs `ac9a25d` made exactly that
-  conversion after an exact version pin (`spicy-regs/pyproject.toml:12`,
-  `refspec==0.1.0.dev0`) failed to catch symbol removal.
-  **Done when:** the new exports are asserted from
-  `$TMPDIR/rulespec-package-check`, and deleting any one of them turns the run
-  red rather than green-with-skips.
+- [x] **Exercise the installed wheel outside the source checkout.**
+  Done 2026-08-11. `rulespec-source-catalog-validate` is a second console
+  script; `make test-package` runs it after `rulespec-ci-validate` from
+  `$TMPDIR/rulespec-package-check`. It asserts 26 required exports by name,
+  five required data files, the bundle digest, and all 17 sealed verdicts.
+  `REQUIRED_EXPORTS` is a literal list, not `__all__`, so deleting a symbol and
+  its `__all__` entry together still fails.
+  Falsified three ways against the built wheel: renaming `verify_corpus` in the
+  installed module exits 2 naming the symbol; deleting
+  `_data/release-records/schemas/source-catalog-release-v1/source-items-v1.schema.json`
+  exits 1; deleting one sealed fixture bundle exits 1 with both the bundle-digest
+  failure and the case failure. None becomes a skip.
+  It is a separate console script rather than a step inside `ci_validate.py`
+  because the sealed M2 `RulespecCoreRelease` pins that file's exact bytes in
+  `validator_artifacts`, and its content-derived `release_id`
+  (`urn:rulespec:core:777d05c3…`) is pinned in turn by the vendored document
+  release, the atlas-membership stub, `m2-input-releases.json`,
+  `m2-extrapolation-release-positive.json`, and every
+  `extrapolation-release-v2` bundle. Adding a step there moved that digest and
+  failed `test_core_manifest_digests_match_repository_artifacts`; the M2 seal is
+  unchanged by this work instead.
 
 **Preserve:** `make test-package` (`Makefile:64-70`); the CI step that calls it
 (`.github/workflows/constraints-parity.yml:87`); the version-synchronization
@@ -567,3 +649,25 @@ implementation module.
 Done 2026-08-11: `_resources.py` deleted, `data_root()` inlined into
 `src/rulespec_conformance/conformance_lib.py` as `ROOT`. Its one caller was in
 the same directory, so the `parents[2]` depth is unchanged.
+
+All four preserved items are intact after the `SourceCatalogRelease` candidate:
+`make test-package` still exists and now runs both console scripts, the CI step
+still calls that target rather than restating it, `tools/version_sync.py
+--check` reports all call sites in sync at `0.2.0-pre.9`, and
+`tools/conformance_lib.py`'s shim docstring is unedited — the two new `tools/`
+shims copy its `sys.modules` rebinding and cite it rather than restating why.
+
+### What the candidate does not settle
+
+- Generated TypeScript and Rust types for these roots. See the note above.
+- Partitioned members. v1 has one global member manifest and one data member;
+  sharding a large `U` across partitions is not modeled. `ExtrapolationRelease`
+  v2's partition/serving-shard descriptors were deliberately not copied.
+- Parquet members. Members are canonical JSON, which keeps `pyarrow` and
+  `rfc8785` out of the distribution's dependencies. The member protocol
+  (`objectKey`, `role`, `mediaType`, `byteSize`, `sha256`, `recordCount`,
+  `schemaId`) is unchanged from v2, so a later Parquet role is additive.
+- Cross-product verdict agreement. SpicyRegs, DocSpec, and SpicySearch have not
+  run this corpus; that closes at the receiving plan's step 7, not here.
+- The candidate is not a release. `release_status` is `candidate`, and cutting
+  a release means reusing these exact bytes or minting a new digest.

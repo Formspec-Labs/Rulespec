@@ -5,6 +5,43 @@ All notable changes to Rulespec are documented in this file.
 The format is loosely based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 adapted for a specification + shape + fixture project.
 
+## Unreleased
+
+### Added
+
+- `SourceCatalogRelease` v1, as an immutable digest-named candidate.
+  `spec/rulespec-source-catalog-release.md` is normative; three closed Draft
+  2020-12 schemas under `release-records/schemas/` carry the release root, the
+  member manifest, and the source item with its selection disposition,
+  candidate renditions, source-observed topics, and normalized MVP fields.
+  `rulespec_conformance.source_catalog_release` is the portable verifier: 15
+  diagnostic codes under a declared total order, with a deterministic first
+  failure. Rulespec Core owns the schemas; SpicyRegs owns the records they
+  carry (REF-024).
+- A sealed conformance corpus of 17 bundles — one valid, and one per diagnostic
+  code, each a single-rule mutation of the valid one. `corpus.json` seals every
+  bundle by tree digest and records the code and path the verifier must report
+  first. A code with no fixture fails the suite.
+- `release-records/source-catalog-release-v1-candidate.json`, a
+  `RulespecCoreRelease` pinning the schemas, both validator modules, and every
+  sealed bundle. Its `release_id`,
+  `urn:rulespec:core:d1a7dd831e2ab598c43c67331ed79820acba69f1f8b7e5da25716b70128d7fc6`,
+  is the candidate bundle digest. Editing any pinned byte changes that name.
+- `rulespec-source-catalog-validate`, a second console script that re-derives
+  the bundle digest and replays the corpus from packaged data. `make
+  test-package` runs it alongside `rulespec-ci-validate`, so a missing export
+  or a data directory left out of `force-include` turns the run red. It is a
+  separate entry point because the sealed M2 `RulespecCoreRelease` pins
+  `ci_validate.py`'s bytes, and coupling the two would move the M2 identity
+  whenever source-catalog work lands.
+- `jsonschema>=4.23.0` joins the distribution's dependencies; it was already a
+  tooling requirement. No canonicalization dependency joins it — the release
+  records use the stdlib canonical JSON of `spec/rulespec-releases.md` §1,
+  which the suite asserts equals RFC 8785 on the safe value domain.
+
+`DocumentRelease` remains a reader-side string in this repository. It is not
+part of this candidate.
+
 ## 0.2.0-pre.9 — Vocabulary carriage and lifecycle closure
 
 ### Packaging
