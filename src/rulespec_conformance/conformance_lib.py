@@ -7,11 +7,12 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Iterable
 
-from rulespec_conformance._resources import data_root
-
-# The data root, not the repository root: identical in a checkout, and the
-# packaged `_data/` directory in a built wheel. See `_resources`.
-ROOT = data_root()
+# The data root, not the repository root: `_data/` exists only in a built wheel,
+# where the build backend force-includes the data; in a source tree it is absent
+# and the repository root is used instead.
+# this file -> src/rulespec_conformance -> src -> repo
+_PACKAGED_DATA = Path(__file__).resolve().parent / "_data"
+ROOT = _PACKAGED_DATA if _PACKAGED_DATA.is_dir() else Path(__file__).resolve().parents[2]
 FIXTURES_DIR = ROOT / "fixtures"
 COMPILED_JSON_SCHEMA_DIR = ROOT / "compiled" / "json-schema" / "core"
 COMPILED_SHACL_DIR = ROOT / "compiled" / "shacl" / "core"
