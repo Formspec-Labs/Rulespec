@@ -10,7 +10,11 @@ version = "0.2.0-pre.9"
 description = "Rulespec conformance validator: SHACL suite, compiled schemas, and the CI gate that applies them."
 readme = "README.md"
 requires-python = ">=3.12"
-license = { text = "Apache-2.0" }
+# Dual, and not yet settled. The wheel carries code (LICENSE-CODE) alongside
+# shapes, context and fixtures (LICENSE-SPEC); declaring one SPDX identifier
+# would misstate the terms of the data it ships. Both files are placeholders —
+# fix this before publishing anywhere.
+license = { text = "See LICENSE, LICENSE-CODE, and LICENSE-SPEC (dual, placeholders)" }
 
 dependencies = [
     "pyshacl>=0.31.0",
@@ -26,21 +30,23 @@ rulespec-ci-validate = "rulespec_conformance.ci_validate:main"
 packages = ["src/rulespec_conformance"]
 
 # The validator's data enters the wheel here rather than being copied into the
-# source tree. The layout under `_data/` mirrors the repository's because 518
-# fixtures carry `"@context": "../context/rkaf-context.jsonld"`.
+# source tree. The layout under `_data/` mirrors the repository's because 517
+# fixtures resolve the context by relative path — 114 at `../`, 403 at `../../`
+# — so both depths have to land where they already point.
+#
+# `compiled/` is generated and gitignored, so this table is also the gate that
+# a wheel is only buildable from a compiled tree: hatchling fails the build
+# outright when a force-include source is missing. Do not soften that.
 [tool.hatch.build.targets.wheel.force-include]
 "compiled" = "rulespec_conformance/_data/compiled"
 "shapes" = "rulespec_conformance/_data/shapes"
 "fixtures" = "rulespec_conformance/_data/fixtures"
 "context/rkaf-context.jsonld" = "rulespec_conformance/_data/context/rkaf-context.jsonld"
+# The terms travel with the data they govern.
+"LICENSE" = "rulespec_conformance/_data/LICENSE"
+"LICENSE-CODE" = "rulespec_conformance/_data/LICENSE-CODE"
+"LICENSE-SPEC" = "rulespec_conformance/_data/LICENSE-SPEC"
 
-[tool.hatch.build.targets.sdist]
-include = [
-    "src/rulespec_conformance",
-    "compiled",
-    "shapes",
-    "fixtures",
-    "context/rkaf-context.jsonld",
-    "VERSION",
-    "README.md",
-]
+# No sdist target: an sdist cannot carry `compiled/` (gitignored, and a source
+# distribution that ships generated output is not a source distribution), so
+# building from one would fail at the force-include above. Wheel only.

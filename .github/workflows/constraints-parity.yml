@@ -80,17 +80,11 @@ jobs:
       - name: v0.2 SHACL positive-fixture suite
         run: python3 tools/ci_validate.py
 
-      # The distribution's claim is that a consumer needs no checkout. Building
-      # the wheel and running it from an empty environment outside the
-      # repository is the only thing that can falsify it: a data directory left
-      # out of `force-include` fails here and nowhere else.
+      # Delegated to the Makefile for the reason recorded above: a copy here
+      # would drift from the local gate, and this check has to be runnable
+      # locally or it cannot catch what it exists to catch.
       - name: Packaged validator runs without a checkout
-        run: |
-          python3 -m pip install --upgrade build
-          python3 -m build --wheel
-          python3 -m venv /tmp/wheelcheck
-          /tmp/wheelcheck/bin/pip install dist/*.whl
-          cd /tmp && /tmp/wheelcheck/bin/rulespec-ci-validate
+        run: make test-package
 
       - name: Build all crates (Layer 4 projectors + Layer 5 rkaf-runtime-cli)
         run: cargo build --manifest-path crates/Cargo.toml --workspace

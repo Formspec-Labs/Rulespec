@@ -83,17 +83,20 @@ The report cross-references every fixture against every layer. Behavior
 fixtures are produced by a small but exact Rust runtime that implements the
 five contracts described in `spec/rkaf-behavior.md`.
 
-To validate your own graphs without cloning this repository, install the
-validator — the SHACL suite, compiled schemas and fixture corpus ship with it:
+The validator is packaged as `rulespec-conformance`, so a consumer can run it
+without this repository: the SHACL suite, compiled schemas, JSON-LD context and
+fixture corpus ship inside the wheel. It is not published to an index yet —
+build it from a compiled checkout:
 
 ```bash
-pip install rulespec-conformance
+make compile && uv build --wheel
+pip install dist/rulespec_conformance-*.whl
 rulespec-ci-validate --json your-graph.jsonld
 ```
 
+`make test-package` does exactly this and runs the result outside the checkout.
 `tools/ci_validate.py` remains as a shim so in-checkout invocations keep
-working. L4 behavior validation is the Rust runtime and is not part of this
-distribution.
+working. L4 behavior validation is the Rust runtime and is not in the wheel.
 
 ## Who this is for
 

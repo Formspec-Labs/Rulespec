@@ -7,13 +7,21 @@ CARGO         = cargo
 # rdfcanon 1.0.0 requires Python 3.12. uv resolves that interpreter and the
 # pinned requirements for the default local gate; callers may still override
 # PYTHON on the make command line.
-PYTHON        = uv run --python 3.12 --with-requirements requirements.txt python
+# `--no-project` is load-bearing: without it `uv run` builds the
+# rulespec-conformance wheel before every command, and that build force-includes
+# the generated `compiled/` tree — so on a fresh clone `make compile` would
+# depend on its own output. Tooling reads src/ through the tools/ shims instead.
+PYTHON        = uv run --no-project --python 3.12 --with-requirements requirements.txt python
 CARGO_MANIFEST = --manifest-path crates/Cargo.toml
 # Pinned by tools/install-cue.sh into .tools/cue (gitignored; not required for
 # targets other than cue-vet). Run tools/install-cue.sh once to populate it.
 CUE           = .tools/cue
 
-.PHONY: all help build build-runtime-cli test test-rust test-shapes test-reference-corpora test-audits test-conformance clean compile cue-vet
+.PHONY: all help build build-runtime-cli test test-rust test-shapes test-reference-corpora test-audits test-conformance test-package clean compile cue-vet
+
+# Scratch venv for test-package. Outside the tree so the packaged validator is
+# exercised with no checkout in reach.
+PACKAGE_CHECK_DIR = $(shell printf '%s' "$${TMPDIR:-/tmp}")rulespec-package-check
 
 all: build
 
@@ -27,6 +35,7 @@ help:
 	@echo "  make test-reference-corpora — validate shipped reference-corpus JSON-LD"
 	@echo "  make test-audits        — vocab, coverage, rename, constraints-parity, projector-parity, version-sync, semantic carriers"
 	@echo "  make test-conformance   — L1-L4 report plus L0 carrier-mapping audit"
+	@echo "  make test-package       — build the wheel and run it outside the checkout"
 	@echo "  make cue-vet            — validate CUE source syntax (requires tools/install-cue.sh)"
 	@echo "  make compile            — regenerate JSON Schema + Rust + SHACL + TS from CUE"
 	@echo "  make clean              — cargo clean"
@@ -46,7 +55,19 @@ build-runtime-cli:
 # faster local loops. Conformance depends on the release CLI being built
 # (the reporter shells out to it for L4 behavior verdicts).
 
-test: test-rust test-shapes test-audits test-conformance
+test: test-rust test-shapes test-audits test-conformance test-package
+
+# The distribution's claim is that a consumer needs no checkout. Only building
+# the wheel and running it from an empty environment outside the repository can
+# falsify it: a data directory left out of `force-include`, or a `compiled/`
+# tree that was never generated, fails here and in no other target.
+test-package:
+	rm -rf dist "$(PACKAGE_CHECK_DIR)"
+	uv build --wheel
+	uv venv --python 3.12 "$(PACKAGE_CHECK_DIR)"
+	VIRTUAL_ENV="$(PACKAGE_CHECK_DIR)" uv pip install --quiet dist/*.whl
+	cd "$(PACKAGE_CHECK_DIR)" && ./bin/rulespec-ci-validate
+	rm -rf "$(PACKAGE_CHECK_DIR)"
 
 test-rust:
 	$(CARGO) test $(CARGO_MANIFEST) --workspace

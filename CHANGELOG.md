@@ -9,16 +9,18 @@ adapted for a specification + shape + fixture project.
 
 ### Packaging
 
-- Published the conformance validator as `rulespec-conformance`, a
+- Packaged the conformance validator as `rulespec-conformance`, a
   console-script distribution (`rulespec-ci-validate`). The SHACL suite,
   compiled schemas, JSON-LD context and fixture corpus ship as package data, so
   a consumer validates graphs without a Rulespec checkout. `conformance_lib`,
   `reference_release_digest` and `ci_validate` moved to
-  `src/rulespec_conformance/`; the `tools/` names remain as shims.
+  `src/rulespec_conformance/`; the `tools/` names remain as shims. Not
+  published to an index; build it with `make compile && uv build --wheel`.
+- Added `make test-package`, which builds the wheel and runs it from an empty
+  environment outside the checkout. It is part of `make test` because no other
+  gate can catch a data directory missing from the distribution.
 - `tools/version_sync.py` now propagates `VERSION` into `pyproject.toml`. PEP
   440 normalises `0.2.0-pre.9` to `0.2.0rc9`, so the string carries unchanged.
-- `requirements.txt` installs the project rather than restating the validator's
-  three dependencies, which are declared once in `pyproject.toml`.
 - Re-keyed the M2 core release: `validator_artifacts` pins the validator's new
   path, which re-derived the core release digest and every fixture pinning it.
 

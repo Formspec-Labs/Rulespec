@@ -43,12 +43,12 @@ WORKSPACE_VERSION_RE = re.compile(
     re.DOTALL,
 )
 
-# Same shape, anchored on the [project] table so a `version` under any other
-# table (build backend config, tool sections) is never rewritten.
-PROJECT_VERSION_RE = re.compile(
-    r"(\[project\][^\[]*?\nversion\s*=\s*)\"([^\"]*)\"",
-    re.DOTALL,
-)
+# The [project] table's span, then its `version` line within that span. Table
+# headers are matched at line start rather than on any `[`, because a value in
+# the table may itself be an array (`classifiers = [...]`) — a `[^\[]*?` guard
+# stops at the first one and silently misses the version line beyond it.
+PROJECT_TABLE_RE = re.compile(r"^\[project\][^\n]*\n(.*?)(?=^\[|\Z)", re.M | re.S)
+PROJECT_VERSION_LINE_RE = re.compile(r"^(version\s*=\s*)\"([^\"]*)\"", re.M)
 
 
 def read_truth() -> str:
@@ -115,17 +115,32 @@ def sync_pyproject(truth: str, write: bool) -> bool:
     if not path.is_file():
         return True
     src = path.read_text(encoding="utf-8")
-    m = PROJECT_VERSION_RE.search(src)
-    if not m:
-        print(f"  [SKIP] {path.relative_to(ROOT)} — no [project] version line", file=sys.stderr)
-        return True
-    current = m.group(2)
+    # tomllib decides what the version IS; the regex only performs the rewrite.
+    # Reading it with the regex alone meant any array before `version` inside
+    # [project] produced a no-match, and a no-match that returns True is a gate
+    # that reports "in sync" while the file drifts.
+    current = tomllib.loads(src).get("project", {}).get("version")
+    if not isinstance(current, str):
+        print(f"  [FAIL] {path.relative_to(ROOT)} — no [project] version", file=sys.stderr)
+        return False
     if current == truth:
         return True
+    table = PROJECT_TABLE_RE.search(src)
+    line = PROJECT_VERSION_LINE_RE.search(table.group(1)) if table else None
+    if line is None or line.group(2) != current:
+        print(
+            f"  [FAIL] {path.relative_to(ROOT)} — cannot locate the version line to rewrite",
+            file=sys.stderr,
+        )
+        return False
     if not write:
         print(f"  [DRIFT] {path.relative_to(ROOT)}: {current!r} != {truth!r}")
         return False
-    path.write_text(PROJECT_VERSION_RE.sub(rf'\1"{truth}"', src, count=1), encoding="utf-8")
+    start = table.start(1)
+    updated = src[:start] + PROJECT_VERSION_LINE_RE.sub(
+        rf'\1"{truth}"', src[start:table.end(1)], count=1
+    ) + src[table.end(1):]
+    path.write_text(updated, encoding="utf-8")
     print(f"  [WROTE] {path.relative_to(ROOT)}: {current!r} → {truth!r}")
     return True
 

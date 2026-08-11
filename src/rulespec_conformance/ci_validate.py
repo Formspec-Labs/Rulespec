@@ -112,7 +112,6 @@ def validate_one(fixture_path, shapes_paths):
 
 def main():
     parser = argparse.ArgumentParser(description="Rulespec CI validation gate")
-    parser.add_argument("--repo-root", default=".", help="deprecated; discovery is relative to this script")
     parser.add_argument("--json", action="store_true")
     parser.add_argument(
         "fixtures",
@@ -122,8 +121,6 @@ def main():
     )
     args = parser.parse_args()
 
-    _ = args.repo_root
-    repo_root = ROOT
     shapes_paths = shacl_shape_paths()
     fixture_paths = [Path(p).resolve() for p in args.fixtures] if args.fixtures else positive_fixture_paths()
 
@@ -135,7 +132,7 @@ def main():
     for sp in shapes_paths:
         if not sp.exists():
             die(f"Shapes file missing: {sp}")
-        print(f"  shapes:  {sp.relative_to(repo_root)}")
+        print(f"  shapes:  {sp.relative_to(ROOT)}")
     if not fixture_paths:
         die("No positive fixtures discovered")
 

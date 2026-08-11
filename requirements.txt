@@ -3,12 +3,19 @@
 # Installed directly by the `Install Python deps` step of
 # .github/workflows/constraints-parity.yml so local and PR gates share this
 # single dependency list.
+#
+# This deliberately does NOT install the project, and the Makefile passes
+# `uv run --no-project` for the same reason: building the rulespec-conformance
+# wheel force-includes the generated `compiled/` tree, which is gitignored, so
+# any path that builds it before `make compile` deadlocks on a fresh clone. The
+# shims under tools/ put `src/` on sys.path instead. pyproject.toml declares
+# what the distribution needs; the first three below are that set.
 
-# The validator's own dependencies are declared in pyproject.toml and come in
-# with the project; a second copy here would be free to drift.
--e .
+pyshacl>=0.31.0
+rdflib>=7.0.0
+# 86/86 RDFC-1.0; 1.0.0 requires Python 3.12, matching the constraints-parity job.
+rdfcanon==1.0.0
 
-# Tooling-only: the compilers, audits and fixture builders under tools/.
 PyYAML>=6.0
 jsonschema>=4.23.0
 # ExtrapolationRelease v2 uses RFC 8785 root identities and partitioned

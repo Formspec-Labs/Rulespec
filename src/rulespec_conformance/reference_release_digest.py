@@ -222,9 +222,18 @@ def main() -> int:
     return 1 if failed else 0
 
 
-if __name__ == "__main__":
+def cli() -> int:
+    """`main()` with the setup-error contract: 2 for a malformed document.
+
+    Every entry point goes through this — the shim at `tools/`, `-m`, and the
+    block below — so exit 1 keeps meaning "digest mismatch" in all of them.
+    """
     try:
-        raise SystemExit(main())
+        return main()
     except ReleaseDigestError as error:
         print(f"ERROR: {error}", file=sys.stderr)
-        raise SystemExit(2) from error
+        return 2
+
+
+if __name__ == "__main__":
+    raise SystemExit(cli())

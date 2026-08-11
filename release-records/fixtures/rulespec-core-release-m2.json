@@ -42,8 +42,8 @@
     }
   ],
   "record_type": "RulespecCoreRelease",
-  "release_digest": "sha256:6c68e2b82d670045654fe08c890af2f12bca96c96cc1e9c9a02a1008f1817d62",
-  "release_id": "urn:rulespec:core:6c68e2b82d670045654fe08c890af2f12bca96c96cc1e9c9a02a1008f1817d62",
+  "release_digest": "sha256:777d05c3ab8749271b432c0a8c69d60a8e4afe23b4a89f2f7c68c3d27c1491eb",
+  "release_id": "urn:rulespec:core:777d05c3ab8749271b432c0a8c69d60a8e4afe23b4a89f2f7c68c3d27c1491eb",
   "release_status": "fixture",
   "schema_artifacts": [
     {
@@ -84,7 +84,7 @@
   ],
   "validator_artifacts": [
     {
-      "artifact_digest": "sha256:aac6eaacee0ef37689f7e2e47219118e6ed6c1b4c040fcae68731a008d99e79c",
+      "artifact_digest": "sha256:e6024e54799e9dd93b6f4ffc8f2b5aa9cd1f18fa89b8fdd4505f85bef30c6ead",
       "media_type": "text/x-python",
       "name": "src/rulespec_conformance/ci_validate.py"
     }
