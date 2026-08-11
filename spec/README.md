@@ -39,6 +39,20 @@ Extrapolator consumes prepared segments and verifies submitted baseline and
 selection receipts. It does not segment documents, execute baseline validation,
 or run a selection engine, and §7 lists the duties that have no owner.
 
+### `rulespec-source-catalog-release.md`
+
+Defines the `SourceCatalogRelease` v1 candidate: the bundle shape and its one
+member manifest, content-derived release identity, the two canonical set
+digests over `U` and `S`, the source item with its exact source-native
+metadata and normalized MVP fields, source-observed topics held apart from
+RefSpec concepts, candidate renditions, the five selection dispositions, the
+diagnostic codes and their first-failure order, the sealed valid and invalid
+fixture corpus, and the candidate bundle digest.
+
+Rulespec Core owns these schemas; SpicyRegs owns the records they carry
+(REF-024). `DocumentRelease` is a separate root with a separate owner and is
+not defined there.
+
 ### `rkaf-analysis.md`
 
 The document-analysis module — generic, jurisdiction-free contracts for comparing relations across document versions. Defines `RelationChangeEvent` (source-stated adoption, removal, suspension, replacement, with polarity structurally absent), `RelationComparisonContext` (the immutable frame and the five closed comparison outcomes), `ResolverProofRecord` / `ResolverProofIssuer` (content-bound gate decisions, `pass`/`fail`/`unknown` plus the six scope relations), the neutral `RelationFinding`, and the Experimental, **disabled** `ClosureClaim`. It sits between the kernel and the profiles: the kernel never depends on it, it may compose kernel shapes, and profiles may depend on it. Domain interpretation — legal effect, policy exclusion, rescission — belongs to profiles, never here.
