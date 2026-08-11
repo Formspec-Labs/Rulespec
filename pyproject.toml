@@ -36,6 +36,9 @@ rulespec-ci-validate = "rulespec_conformance.ci_validate:main"
 # the sealed M2 RulespecCoreRelease pins `ci_validate.py`'s bytes, so folding
 # this gate in there would couple two independently digested release surfaces.
 rulespec-source-catalog-validate = "rulespec_conformance.source_catalog_validate:main"
+# Third script, same reason: each release surface carries its own digest, so a
+# gate folded into another surface's validator would move that surface's identity.
+rulespec-document-validate = "rulespec_conformance.document_validate:main"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/rulespec_conformance"]
@@ -64,6 +67,11 @@ packages = ["src/rulespec_conformance"]
 "release-records/schemas/rulespec-core-release.schema.json" = "rulespec_conformance/_data/release-records/schemas/rulespec-core-release.schema.json"
 "release-records/fixtures/source-catalog-release-v1" = "rulespec_conformance/_data/release-records/fixtures/source-catalog-release-v1"
 "release-records/source-catalog-release-v1-candidate.json" = "rulespec_conformance/_data/release-records/source-catalog-release-v1-candidate.json"
+# The DocumentRelease v2 candidate, the same way.
+"release-records/schemas/document-release-v2.schema.json" = "rulespec_conformance/_data/release-records/schemas/document-release-v2.schema.json"
+"release-records/schemas/document-release-v2" = "rulespec_conformance/_data/release-records/schemas/document-release-v2"
+"release-records/fixtures/document-release-v2" = "rulespec_conformance/_data/release-records/fixtures/document-release-v2"
+"release-records/document-release-v2-candidate.json" = "rulespec_conformance/_data/release-records/document-release-v2-candidate.json"
 # The terms travel with the data they govern.
 "LICENSE" = "rulespec_conformance/_data/LICENSE"
 "LICENSE-CODE" = "rulespec_conformance/_data/LICENSE-CODE"

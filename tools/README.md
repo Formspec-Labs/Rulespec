@@ -49,6 +49,27 @@ python3 -m unittest tools.test_source_catalog_release -v
 Editing any pinned byte changes the bundle digest, which is the point: a
 candidate is immutable, and an edit starts a new one.
 
+## DocumentRelease v2 candidate
+
+[`document_release.py`](document_release.py) verifies a materialized
+`DocumentRelease` v2 bundle: root identity, member manifest and digests, the
+disposition projection over `U`, capture and representation records, structural
+node containment and ordinals, search-segment ranges, heading paths and
+reversible evidence, visible-text coverage, the sealed one-to-one join, the four
+canonical digests, and counts. Nineteen diagnostic codes under a declared total
+order. `spec/rulespec-document-release.md` is the normative statement and
+carries the deviation table against DocSpec's live 1.1 format.
+
+It imports canonical bytes, digests, and the path-safety check from
+`source_catalog_release` rather than restating them, so the traversal check has
+one implementation across both release roots.
+
+```sh
+python3 tools/build_document_release_fixtures.py --check   # drift gate
+python3 tools/document_validate.py                          # candidate gate
+python3 -m unittest tools.test_document_release -v
+```
+
 ## Atlas-membership reader seam
 
 `rulespec_release.py` and `extrapolation_release_v2.py` each declare an
