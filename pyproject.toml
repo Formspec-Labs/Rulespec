@@ -21,10 +21,21 @@ dependencies = [
     "rdflib>=7.0.0",
     # 86/86 RDFC-1.0; 1.0.0 requires Python 3.12, matching the CI job.
     "rdfcanon==1.0.0",
+    # The SourceCatalogRelease verifier applies Draft 2020-12 schemas. It was
+    # already a tooling requirement; shipping the verifier makes it a
+    # distribution requirement too. No canonicalization dependency joins it:
+    # the release records use the stdlib canonical JSON of
+    # `spec/rulespec-releases.md` §1, which equals RFC 8785 on the safe value
+    # domain those records are restricted to.
+    "jsonschema>=4.23.0",
 ]
 
 [project.scripts]
 rulespec-ci-validate = "rulespec_conformance.ci_validate:main"
+# Separate from `rulespec-ci-validate` on purpose — see the module docstring:
+# the sealed M2 RulespecCoreRelease pins `ci_validate.py`'s bytes, so folding
+# this gate in there would couple two independently digested release surfaces.
+rulespec-source-catalog-validate = "rulespec_conformance.source_catalog_validate:main"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/rulespec_conformance"]
@@ -42,6 +53,17 @@ packages = ["src/rulespec_conformance"]
 "shapes" = "rulespec_conformance/_data/shapes"
 "fixtures" = "rulespec_conformance/_data/fixtures"
 "context/rkaf-context.jsonld" = "rulespec_conformance/_data/context/rkaf-context.jsonld"
+# The SourceCatalogRelease v1 candidate: schema bytes, sealed valid and invalid
+# fixture bundles, and the RulespecCoreRelease manifest whose `release_id` is
+# the bundle digest. Named file by file rather than shipping all of
+# `release-records/`, so the wheel carries what the packaged verifier reads and
+# nothing else. `rulespec-core-release.schema.json` rides along because it is
+# the closed shape gate for that manifest.
+"release-records/schemas/source-catalog-release-v1.schema.json" = "rulespec_conformance/_data/release-records/schemas/source-catalog-release-v1.schema.json"
+"release-records/schemas/source-catalog-release-v1" = "rulespec_conformance/_data/release-records/schemas/source-catalog-release-v1"
+"release-records/schemas/rulespec-core-release.schema.json" = "rulespec_conformance/_data/release-records/schemas/rulespec-core-release.schema.json"
+"release-records/fixtures/source-catalog-release-v1" = "rulespec_conformance/_data/release-records/fixtures/source-catalog-release-v1"
+"release-records/source-catalog-release-v1-candidate.json" = "rulespec_conformance/_data/release-records/source-catalog-release-v1-candidate.json"
 # The terms travel with the data they govern.
 "LICENSE" = "rulespec_conformance/_data/LICENSE"
 "LICENSE-CODE" = "rulespec_conformance/_data/LICENSE-CODE"

@@ -61,12 +61,18 @@ test: test-rust test-shapes test-audits test-conformance test-package
 # the wheel and running it from an empty environment outside the repository can
 # falsify it: a data directory left out of `force-include`, or a `compiled/`
 # tree that was never generated, fails here and in no other target.
+#
+# Both console scripts run. The second one proves the SourceCatalogRelease v1
+# candidate from the installed package — required exports, bundle digest, and
+# every sealed fixture verdict. Deleting an export or a packaged data file must
+# turn this red; it must never be softened into a skip.
 test-package:
 	rm -rf dist "$(PACKAGE_CHECK_DIR)"
 	uv build --wheel
 	uv venv --python 3.12 "$(PACKAGE_CHECK_DIR)"
 	VIRTUAL_ENV="$(PACKAGE_CHECK_DIR)" uv pip install --quiet dist/*.whl
 	cd "$(PACKAGE_CHECK_DIR)" && ./bin/rulespec-ci-validate
+	cd "$(PACKAGE_CHECK_DIR)" && ./bin/rulespec-source-catalog-validate
 	rm -rf "$(PACKAGE_CHECK_DIR)"
 
 test-rust:
@@ -86,7 +92,8 @@ test-reference-corpora:
 test-audits:
 	$(CARGO) build $(CARGO_MANIFEST) -p projector-harness
 	$(PYTHON) tools/vocab_audit.py
-	$(PYTHON) -m unittest tools.test_constraints_compile tools.test_l0_mapping_audit tools.test_semantic_carriers tools.test_reference_release_digest tools.test_rulespec_releases tools.test_extrapolation_release_v2 tools.test_atlas_membership_stub -v
+	$(PYTHON) -m unittest tools.test_constraints_compile tools.test_l0_mapping_audit tools.test_semantic_carriers tools.test_reference_release_digest tools.test_rulespec_releases tools.test_extrapolation_release_v2 tools.test_atlas_membership_stub tools.test_source_catalog_release -v
+	$(PYTHON) tools/build_source_catalog_release_fixtures.py --check
 	$(PYTHON) tools/l0_mapping_audit.py
 	$(PYTHON) tools/l0_l3_coverage_audit.py
 	$(PYTHON) tools/rename_audit.py

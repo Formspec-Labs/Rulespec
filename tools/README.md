@@ -24,6 +24,31 @@ python3 tools/rulespec_release.py validate \
 python3 -m unittest tools.test_rulespec_releases -v
 ```
 
+## SourceCatalogRelease v1 candidate
+
+[`source_catalog_release.py`](source_catalog_release.py) (a shim; the
+implementation is `rulespec_conformance.source_catalog_release`) verifies a
+materialized `SourceCatalogRelease` v1 bundle: root identity, member manifest,
+member digests, the two canonical set digests over `U` and `S`, the source-item
+schema, the five selection dispositions, and the counts and coverage accounting.
+It reports one diagnostic per defect and a first failure under a declared total
+order. `spec/rulespec-source-catalog-release.md` is the normative statement.
+
+[`build_source_catalog_release_fixtures.py`](build_source_catalog_release_fixtures.py)
+rebuilds the sealed corpus — one valid bundle and one invalid bundle per
+diagnostic code, each a single-rule mutation of the valid one — plus
+`release-records/source-catalog-release-v1-candidate.json`, a
+`RulespecCoreRelease` whose `release_id` is the candidate bundle digest.
+
+```sh
+python3 tools/build_source_catalog_release_fixtures.py --check   # drift gate
+python3 tools/source_catalog_validate.py                          # candidate gate
+python3 -m unittest tools.test_source_catalog_release -v
+```
+
+Editing any pinned byte changes the bundle digest, which is the point: a
+candidate is immutable, and an edit starts a new one.
+
 ## Atlas-membership reader seam
 
 `rulespec_release.py` and `extrapolation_release_v2.py` each declare an
