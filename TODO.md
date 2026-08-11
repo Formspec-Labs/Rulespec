@@ -577,21 +577,64 @@ rkaf kernel schemas under `_data/compiled/json-schema/core/`, force-included by
   that one. No new pipeline was created and `tools/constraints_compile.py` was
   not touched.
 
-- [ ] **Author the `DocumentRelease` schema set.** The name is currently a
-  reader-side string; this makes it a Rulespec-owned root.
-  NOT IN SCOPE for the 2026-08-11 `SourceCatalogRelease` candidate and not
-  begun. `grep -rn DocumentRelease` still returns prose in
-  `spec/rulespec-releases.md`, readers in the unpackaged
-  `tools/extrapolation_release_v2.py` and `tools/rulespec_release.py`, two
-  fixture builders, and a vendored publisher schema under `release-records/`.
-  **Done when:** a `DocumentRelease` root and its members are declared under
-  `release-records/schemas/` alongside `SourceCatalogRelease` (the pipeline
-  deviation above applies equally), carry a verifier, diagnostics, and sealed
-  valid and invalid fixtures, and ride in the wheel under their own bundle
-  digest.
+- [x] **Author the `DocumentRelease` schema set.**
+  Done 2026-08-11 as a second immutable candidate at bundle digest
+  `urn:rulespec:core:ff444f8483a2bc7dfdee4169ef2014a9b5ac056fd08ba0dded0c1b9e60d6fe83`.
+  `spec/rulespec-document-release.md` is the normative statement. The same
+  release-record pipeline deviation recorded above applies; nothing was added
+  to `constraints/`.
+  Six closed Draft 2020-12 schemas under
+  `release-records/schemas/document-release-v2{,.schema.json}`: release root,
+  member manifest, source dispositions, documents (capture, representation,
+  excluded ranges), structural nodes, and search segments.
+  **Version 2.0, not 1.0.** DocSpec's live root already writes
+  `format: "docspec-document-release"` at `formatVersion: "1.1"`
+  (`DocSpec/src/docspec/domain/release.py:188,215`) over a different, internal
+  pointer-record shape, and its `stable_urn` already mints
+  `urn:docspec:document-release:v1:` over a different identity preimage.
+  Publishing the portable contract as 1.0 would put it BELOW the internal shape
+  on one version line and let two artifacts claim one name. Identity is
+  `urn:docspec:document-release:v2:<sha256 over canonical {format,
+  formatVersion, content}>` — DocSpec's namespace, because DocSpec owns the
+  records (REF-024), and DocSpec's own `urn:docspec:<kind>:v<n>:<digest>`
+  convention. `publishedAt` sits in the identity-excluded `annotations`
+  envelope, and no capture record carries a wall clock at all.
+  Delivered in full: the disposition projection over `U`; the structural
+  bijection (a `selected` row MUST carry a `documentVersionId` and any other
+  disposition MUST carry `null`, so a processing failure cannot become a silent
+  downstream exclusion); capture records naming the exact catalog release,
+  `sourceItemId`, `documentId`, `sourceIssuedVersion`, and
+  `candidateRenditionId`, with the catalog's expected digest enforced against
+  the captured bytes; exact captured rendition bytes and one UTF-8 visible-text
+  representation as digest-pinned members; source-derived structural nodes with
+  parent containment, depth, and dense sibling ordinals; bounded search segments
+  carrying `structuralParentId`, dense ordinals, derived `headingPath`,
+  representation range, and reversible byte evidence into the rendition named by
+  digest; the excluded-range ledger with machine-legible reasons; complete
+  coverage tiling; the four canonical digests
+  (`selectedSourceSetDigest`, `documentVersionSetDigest`, `segmentSetDigest`,
+  and the list-valued `sourceDocumentMappingDigest`); and the sealed one-to-one
+  join receipt.
+  The valid fixture is built FROM the sealed `SourceCatalogRelease` v1 fixture
+  and pins it by identity and digest, so the two candidates are joined rather
+  than merely adjacent.
+
+- [ ] **DocSpec migration against the portable contract.** Not Rulespec work,
+  recorded because Rulespec authored the delta.
+  `spec/rulespec-document-release.md` §6 carries thirteen rows. Nine are
+  breaking for a 1.1 producer: the root becomes a self-contained bundle rather
+  than a store pointer-record; identity binds `format`/`formatVersion`; member
+  bytes carry no trailing newline (`identity.py:98` appends one); a disposition
+  projection over `U` becomes required; structural-node records appear;
+  `Representation.warnings` becomes an explicit excluded-range ledger; four set
+  digests and a join receipt appear; `CapturedFile.acquired_at` leaves the wire;
+  and every locator becomes a checked relative `objectKey`. Four are
+  tightenings a 1.1 producer can satisfy without reshaping its records.
+  **Done when:** DocSpec publishes against `docspec-document-release` 2.0 and
+  its own gate validates a published release with this candidate's schemas.
 
 - [x] **Ship generated types, stable identity and digest helpers, validators,
-  diagnostics, and conformance fixtures** — for `SourceCatalogRelease` only.
+  diagnostics, and conformance fixtures** — for both roots.
   Done 2026-08-11. In the wheel and reachable with no checkout on the path:
   the three schema files; `rulespec_conformance.source_catalog_release` with
   `expected_release_id`, `stamp_root`, `source_set_digest`, `canonical_sha256`,
@@ -614,14 +657,30 @@ rkaf kernel schemas under `_data/compiled/json-schema/core/`, force-included by
   digest and pins the expected code AND path;
   `test_every_declared_diagnostic_code_has_a_sealed_fixture` fails when a code
   has no fixture.
-  NOT SHIPPED: generated types. The rkaf pipeline's TypeScript and Rust
-  emitters read CUE, and these schemas are not CUE, so a consumer gets the
-  schema bytes and the Python verifier, not a generated struct. Adding a
+  `DocumentRelease` v2 adds the same six for its own root, done 2026-08-11:
+  `rulespec_conformance.document_release` with `expected_release_id`,
+  `stamp_root`, `mapping_digest`, `derive_counts`, `derive_coverage`,
+  `verify_document_release`, `verify_corpus`, `candidate_bundle_errors`, and
+  `bundle_release_id`; 19 diagnostic codes with their total order; and 20 sealed
+  fixture bundles, one valid and one per code.
+  It imports canonical bytes, digests, and the path-safety check from
+  `source_catalog_release` rather than restating them, so the containment and
+  traversal check has ONE implementation across both roots;
+  `test_both_validators_share_one_path_safety_implementation` asserts they are
+  the same function object. Importing changed no byte of that module, so the
+  SourceCatalogRelease candidate digest is unmoved — asserted by
+  `test_the_source_catalog_candidate_is_undisturbed`.
+  NOT SHIPPED for either root: generated types. The rkaf pipeline's TypeScript
+  and Rust emitters read CUE, and these schemas are not CUE, so a consumer gets
+  the schema bytes and the Python verifier, not a generated struct. Adding a
   JSON-Schema-to-TypeScript/Rust emitter is a separate change and is not
   started.
 
-- [x] **Deliver the schemas as one digest-addressed bundle inside the wheel.**
-  Done 2026-08-11. `release-records/source-catalog-release-v1-candidate.json`
+- [x] **Deliver the schemas as digest-addressed bundles inside the wheel.**
+  Done 2026-08-11. TWO bundles, one per release root, each with its own digest
+  and its own candidate manifest. One bundle spanning both roots would make
+  either root's edit re-mint the other, which is the coupling the candidate
+  design exists to avoid. `release-records/source-catalog-release-v1-candidate.json`
   is a `RulespecCoreRelease` (`spec/rulespec-releases.md` §2) pinning the three
   schema files, both validator modules, and all 17 sealed fixture bundles by
   digest; a fixture bundle is pinned by its tree digest under
@@ -631,6 +690,10 @@ rkaf kernel schemas under `_data/compiled/json-schema/core/`, force-included by
   There is no second schema-publication pipeline beside the wheel.
   `candidate_bundle_errors()` re-derives every pinned digest and the manifest's
   own `release_digest`/`release_id` from the installed package.
+  `release-records/document-release-v2-candidate.json` is the same record type
+  for the second root, pinning six schemas, two validator modules, and 20 sealed
+  bundles at
+  `urn:rulespec:core:ff444f8483a2bc7dfdee4169ef2014a9b5ac056fd08ba0dded0c1b9e60d6fe83`.
 
 - [x] **Exercise the installed wheel outside the source checkout.**
   Done 2026-08-11. `rulespec-source-catalog-validate` is a second console
@@ -644,6 +707,13 @@ rkaf kernel schemas under `_data/compiled/json-schema/core/`, force-included by
   `_data/release-records/schemas/source-catalog-release-v1/source-items-v1.schema.json`
   exits 1; deleting one sealed fixture bundle exits 1 with both the bundle-digest
   failure and the case failure. None becomes a skip.
+  `rulespec-document-validate` is the third console script, added 2026-08-11 on
+  the same reasoning: 28 required exports, eight required data files, the second
+  bundle digest, and all 20 sealed verdicts, also from
+  `$TMPDIR/rulespec-package-check`. Falsified the same three ways.
+  Each release surface gets its own gate because each carries its own digest;
+  folding one into another would move that surface's identity whenever this one
+  changed.
   It is a separate console script rather than a step inside `ci_validate.py`
   because the sealed M2 `RulespecCoreRelease` pins that file's exact bytes in
   `validator_artifacts`, and its content-derived `release_id`
@@ -673,12 +743,21 @@ still calls that target rather than restating it, `tools/version_sync.py
 `tools/conformance_lib.py`'s shim docstring is unedited — the two new `tools/`
 shims copy its `sys.modules` rebinding and cite it rather than restating why.
 
-### What the candidate does not settle
+### What the candidates do not settle
 
 - Generated TypeScript and Rust types for these roots. See the note above.
-- Partitioned members. v1 has one global member manifest and one data member;
-  sharding a large `U` across partitions is not modeled. `ExtrapolationRelease`
-  v2's partition/serving-shard descriptors were deliberately not copied.
+- Partitioned members. Neither root partitions: one global member manifest
+  each. Sharding a large `U` or a large corpus across partitions is not
+  modeled, and `ExtrapolationRelease` v2's partition/serving-shard descriptors
+  were deliberately not copied.
+- Oversized-structure splitting, in the DocumentRelease sense. The contract
+  carries `processingPolicy.maxSegmentBytes` and requires segments to be
+  bounded and deterministic, but the validator does not enforce the bound
+  against that declared value, and no fixture exercises a structure that had to
+  be split. The splitting policy is DocSpec's; the check is a Rulespec gap.
+- Multi-rendition capture. One selected rendition and one representation per
+  document. A document captured in several renditions is representable only by
+  choosing one.
 - Parquet members. Members are canonical JSON, which keeps `pyarrow` and
   `rfc8785` out of the distribution's dependencies. The member protocol
   (`objectKey`, `role`, `mediaType`, `byteSize`, `sha256`, `recordCount`,

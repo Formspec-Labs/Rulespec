@@ -45,8 +45,41 @@ adapted for a specification + shape + fixture project.
   records use the stdlib canonical JSON of `spec/rulespec-releases.md` §1,
   which the suite asserts equals RFC 8785 on the safe value domain.
 
-`DocumentRelease` remains a reader-side string in this repository. It is not
-part of this candidate.
+- `DocumentRelease` v2, as a second immutable digest-named candidate.
+  `spec/rulespec-document-release.md` is normative; six closed Draft 2020-12
+  schemas carry the release root, member manifest, disposition projection,
+  documents (capture, representation, excluded ranges), structural nodes, and
+  search segments. `rulespec_conformance.document_release` is the portable
+  verifier: 19 diagnostic codes ordered bundle-integrity first, then domain
+  concerns in dependency order — a segment cannot be judged against a
+  structural parent whose range is already known wrong.
+  Version **2.0**, not 1.0: DocSpec's live root writes the same
+  `docspec-document-release` token at `formatVersion: "1.1"` over a different,
+  internal pointer-record shape, and its `stable_urn` already mints
+  `urn:docspec:document-release:v1:` over a different identity preimage.
+  Identity is `urn:docspec:document-release:v2:<digest>` — DocSpec's namespace,
+  because DocSpec owns the records (REF-024).
+  The bijection is structural: a `selected` disposition row MUST carry a
+  `documentVersionId` and any other MUST carry `null`, so a processing failure
+  cannot become a silent downstream exclusion. No capture record carries a wall
+  clock; publication time lives once, in the identity-excluded annotations.
+- A second sealed corpus of 20 bundles — one valid and one per diagnostic code.
+  Every byte offset in it is derived from the fixture's own bytes. The valid
+  bundle is built from the sealed `SourceCatalogRelease` v1 fixture and pins it
+  by identity and digest, so the two candidates are joined rather than adjacent.
+- `release-records/document-release-v2-candidate.json` at
+  `urn:rulespec:core:ff444f8483a2bc7dfdee4169ef2014a9b5ac056fd08ba0dded0c1b9e60d6fe83`,
+  and `rulespec-document-validate`, the third console script. Two bundles, two
+  digests: one bundle spanning both roots would make either root's edit re-mint
+  the other.
+- `spec/rulespec-document-release.md` §6 records thirteen deviations from
+  DocSpec's live 1.1 format, nine of them breaking for a 1.1 producer. That
+  delta is DocSpec's migration work.
+
+`document_release` imports canonical bytes, digests, and the path-safety check
+from `source_catalog_release` rather than restating them, so the containment and
+traversal check has one implementation across both roots. Importing changed no
+byte of that module, so the SourceCatalogRelease candidate digest is unmoved.
 
 ## 0.2.0-pre.9 — Vocabulary carriage and lifecycle closure
 
