@@ -503,3 +503,67 @@ enum value, and landing the companion first would document a promotion path
 with a known hole in it. RS-P3 is independent of both. All three are enum or
 companion additions, so they belong in whatever release the open
 "decide the release shape" item above settles on, not in tags of their own.
+
+## Rulespec Core wheel — source and document release schemas
+
+Filed 2026-08-11 from §4 of
+`spicysearch/docs/history/2026-08-11-cross-product-reconciliation-recommendations.md`;
+the boundary authority is REF-024 and the search-view format authority is
+REF-025, both in the RefSpec decisions ledger.
+The extrapolator plan at `spicy-regs/docs/rulespec-testbed-path-forward.md` is a
+different scope; this work does not merge into it.
+
+Measured 2026-08-11 at `b64ca675e9f0`: `grep -rl SourceCatalogRelease` returns
+nothing. `DocumentRelease` occurs as a consumed publisher-owned artifact
+name — prose in `spec/rulespec-releases.md:110,170,218`, readers in the
+unpackaged `tools/extrapolation_release_v2.py` and `tools/rulespec_release.py`,
+two fixture builders, and a vendored publisher schema under `release-records/`
+— with no schema, shape, or CUE
+constraint under `constraints/`, `compiled/`, or `shapes/`. So both roots are
+authored here first and packaged second. The wheel today carries 40 compiled
+rkaf kernel schemas under `_data/compiled/json-schema/core/`, force-included by
+`pyproject.toml:40-48`.
+
+- [ ] **Author the `SourceCatalogRelease` schema set.** No root exists to
+  package.
+  **Done when:** the root and its members are declared in `constraints/`,
+  compile to every target the kernel schemas compile to, and land under
+  `_data/compiled/` in the built wheel.
+
+- [ ] **Author the `DocumentRelease` schema set.** The name is currently a
+  reader-side string; this makes it a Rulespec-owned root.
+  **Done when:** the same three conditions above hold for `DocumentRelease`.
+
+- [ ] **Ship generated types, stable identity and digest helpers, validators,
+  diagnostics, and conformance fixtures for both roots.** Valid and invalid
+  fixtures both.
+  **Done when:** each of the six is present in the wheel for both roots and
+  reachable from an installed environment with no checkout on the path.
+
+- [ ] **Deliver the schemas as one digest-addressed bundle inside the wheel.**
+  One bundle, one digest, no second schema-publication pipeline alongside the
+  wheel.
+  **Done when:** the bundle digest is computed at build and verifiable from the
+  installed package.
+
+- [ ] **Exercise the installed wheel outside the source checkout.** A missing
+  required export fails the suite. Converting that failure to
+  `pytest.skip(allow_module_level=True)` or to a caught `ImportError` restores
+  the defect this gate exists to catch — spicy-regs `ac9a25d` made exactly that
+  conversion after an exact version pin (`spicy-regs/pyproject.toml:12`,
+  `refspec==0.1.0.dev0`) failed to catch symbol removal.
+  **Done when:** the new exports are asserted from
+  `$TMPDIR/rulespec-package-check`, and deleting any one of them turns the run
+  red rather than green-with-skips.
+
+**Preserve:** `make test-package` (`Makefile:64-70`); the CI step that calls it
+(`.github/workflows/constraints-parity.yml:87`); the version-synchronization
+gate (`tools/version_sync.py --check`, `Makefile:96` and the workflow step); and
+the compatibility-shim docstring at `tools/conformance_lib.py:1-11` explaining
+why the shim rebinds `sys.modules` instead of re-exporting names — a
+`from X import *` copy would leave a monkeypatched name unpatched in the
+implementation module.
+
+Done 2026-08-11: `_resources.py` deleted, `data_root()` inlined into
+`src/rulespec_conformance/conformance_lib.py` as `ROOT`. Its one caller was in
+the same directory, so the `parents[2]` depth is unchanged.
