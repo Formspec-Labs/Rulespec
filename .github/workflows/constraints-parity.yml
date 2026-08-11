@@ -74,11 +74,23 @@ jobs:
       - name: L4 behavior coverage audit
         run: python3 tools/l4_coverage_audit.py
 
-      - name: Version sync check (VERSION ↔ Cargo.toml ↔ jsonld context)
+      - name: Version sync check (VERSION ↔ Cargo.toml ↔ jsonld context ↔ pyproject)
         run: python3 tools/version_sync.py --check
 
       - name: v0.2 SHACL positive-fixture suite
         run: python3 tools/ci_validate.py
+
+      # The distribution's claim is that a consumer needs no checkout. Building
+      # the wheel and running it from an empty environment outside the
+      # repository is the only thing that can falsify it: a data directory left
+      # out of `force-include` fails here and nowhere else.
+      - name: Packaged validator runs without a checkout
+        run: |
+          python3 -m pip install --upgrade build
+          python3 -m build --wheel
+          python3 -m venv /tmp/wheelcheck
+          /tmp/wheelcheck/bin/pip install dist/*.whl
+          cd /tmp && /tmp/wheelcheck/bin/rulespec-ci-validate
 
       - name: Build all crates (Layer 4 projectors + Layer 5 rkaf-runtime-cli)
         run: cargo build --manifest-path crates/Cargo.toml --workspace

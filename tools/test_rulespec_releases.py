@@ -92,7 +92,7 @@ class CoreReleaseTests(unittest.TestCase):
         self.assertEqual(validate_rulespec_core_release(release), [])
         self.assertEqual(
             release["release_id"],
-            "urn:rulespec:core:5ac6ba59929eca874ec603cab0e90f7b15ab1a008b394cec5aefebdafe22564b",
+            "urn:rulespec:core:6c68e2b82d670045654fe08c890af2f12bca96c96cc1e9c9a02a1008f1817d62",
         )
         names = {artifact["name"] for artifact in release["schema_artifacts"]}
         self.assertEqual(
@@ -197,7 +197,7 @@ class ExtrapolationReleaseTests(unittest.TestCase):
         )
         self.assertEqual(
             self.release["release_id"],
-            "urn:rulespec:extrapolation:d09fc80df4b85c414d7f0942d0e29772534f2ba046808571cf04021d0a9da4dd",
+            "urn:rulespec:extrapolation:b14bd4973442e6afd2063668cd79ab9e70ecef8fcc1a10c3e262e353304f462b",
         )
         selected = set(self.release["selected_assignment_refs"])
         selected_kinds = {
@@ -242,7 +242,7 @@ class ExtrapolationReleaseTests(unittest.TestCase):
         )
         self.assertEqual(
             document["release_id"],
-            "urn:spicyregs:document-release:d0a148e2791a0c537d49a9d6cab87869e21c4dbfb9966da63d59a0c5165f71e4",
+            "urn:spicyregs:document-release:be0e4cc078b211e22c1c635c2b936faf6bf25ec4d35ca0db8c3cacbdcc163008",
         )
         reference_pin = self.atlas.require_member(
             member_id=self.release["concept_assignments"][0]["asserts_object_ref"],

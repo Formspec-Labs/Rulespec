@@ -64,9 +64,9 @@ Rulespec has two conformance paths. L0 lets tabular, SQL, parquet, and CSV produ
 | Layer | What it checks | How |
 |---|---|---|
 | **L0 — Vocabulary** | Non-JSON-LD fields map to registered terms, identifiers, and enums | `tools/l0_mapping_audit.py` |
-| **L1 — Parse** | Valid JSON-LD, contexts resolve, IRIs well-formed | `tools/ci_validate.py` parse pass |
+| **L1 — Parse** | Valid JSON-LD, contexts resolve, IRIs well-formed | `rulespec-ci-validate` parse pass |
 | **L2 — Shape** | JSON Schema conformance per primitive type | Generated schemas under `compiled/json-schema/core/` |
-| **L3 — Constraint** | Cross-property invariants and release-manifest integrity | `tools/ci_validate.py` (SHACL plus RDFC-1.0 digest checks) |
+| **L3 — Constraint** | Cross-property invariants and release-manifest integrity | `rulespec-ci-validate` (SHACL plus RDFC-1.0 digest checks) |
 | **L4 — Behavior** | Five algorithmic contracts — usage-eligibility reducer, cascade closure, ten bridge-contract rules, point-in-time exceptions, concept-resolution conflict | `rkaf-behavior-validate` (Rust runtime) |
 
 Repository audits such as `tools/vocab_audit.py` keep the specification, CUE source, generated schemas, and fixtures aligned. They are release gates, not a fifth consumer conformance level.
@@ -82,6 +82,18 @@ dependencies in `requirements.txt`; `rdfcanon==1.0.0` requires Python 3.12.
 The report cross-references every fixture against every layer. Behavior
 fixtures are produced by a small but exact Rust runtime that implements the
 five contracts described in `spec/rkaf-behavior.md`.
+
+To validate your own graphs without cloning this repository, install the
+validator — the SHACL suite, compiled schemas and fixture corpus ship with it:
+
+```bash
+pip install rulespec-conformance
+rulespec-ci-validate --json your-graph.jsonld
+```
+
+`tools/ci_validate.py` remains as a shim so in-checkout invocations keep
+working. L4 behavior validation is the Rust runtime and is not part of this
+distribution.
 
 ## Who this is for
 

@@ -327,12 +327,12 @@
         "passage_generation": "spicyregs-structural-passages/v1"
       },
       "record_type": "DocumentRelease",
-      "release_digest": "sha256:d0a148e2791a0c537d49a9d6cab87869e21c4dbfb9966da63d59a0c5165f71e4",
-      "release_id": "urn:spicyregs:document-release:d0a148e2791a0c537d49a9d6cab87869e21c4dbfb9966da63d59a0c5165f71e4",
+      "release_digest": "sha256:be0e4cc078b211e22c1c635c2b936faf6bf25ec4d35ca0db8c3cacbdcc163008",
+      "release_id": "urn:spicyregs:document-release:be0e4cc078b211e22c1c635c2b936faf6bf25ec4d35ca0db8c3cacbdcc163008",
       "released_at": "2026-07-31T12:10:00Z",
       "rulespec_core_release": {
-        "release_digest": "sha256:5ac6ba59929eca874ec603cab0e90f7b15ab1a008b394cec5aefebdafe22564b",
-        "release_id": "urn:rulespec:core:5ac6ba59929eca874ec603cab0e90f7b15ab1a008b394cec5aefebdafe22564b"
+        "release_digest": "sha256:6c68e2b82d670045654fe08c890af2f12bca96c96cc1e9c9a02a1008f1817d62",
+        "release_id": "urn:rulespec:core:6c68e2b82d670045654fe08c890af2f12bca96c96cc1e9c9a02a1008f1817d62"
       },
       "source_fixture": {
         "fixture_digest": "sha256:cdf76ffacd5552245d5fa191fd7d4b64e14dab6e249e89d47503d8171138b699",

@@ -4,8 +4,11 @@
 # .github/workflows/constraints-parity.yml so local and PR gates share this
 # single dependency list.
 
-pyshacl>=0.31.0
-rdflib>=7.0.0
+# The validator's own dependencies are declared in pyproject.toml and come in
+# with the project; a second copy here would be free to drift.
+-e .
+
+# Tooling-only: the compilers, audits and fixture builders under tools/.
 PyYAML>=6.0
 jsonschema>=4.23.0
 # ExtrapolationRelease v2 uses RFC 8785 root identities and partitioned
@@ -13,6 +16,3 @@ jsonschema>=4.23.0
 # fixture bytes remain reproducible across local and CI runs.
 rfc8785==0.1.4
 pyarrow==21.0.0
-# W3C implementation-report entry: 86/86 RDFC-1.0 tests. Version 1.0.0
-# requires Python 3.12, matching the constraints-parity CI job.
-rdfcanon==1.0.0

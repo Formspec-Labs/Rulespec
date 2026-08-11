@@ -1,0 +1,46 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "rulespec-conformance"
+# Propagated from VERSION by tools/version_sync.py. PEP 440 normalises
+# `0.2.0-pre.9` to `0.2.0rc9`, so no translation is needed.
+version = "0.2.0-pre.9"
+description = "Rulespec conformance validator: SHACL suite, compiled schemas, and the CI gate that applies them."
+readme = "README.md"
+requires-python = ">=3.12"
+license = { text = "Apache-2.0" }
+
+dependencies = [
+    "pyshacl>=0.31.0",
+    "rdflib>=7.0.0",
+    # 86/86 RDFC-1.0; 1.0.0 requires Python 3.12, matching the CI job.
+    "rdfcanon==1.0.0",
+]
+
+[project.scripts]
+rulespec-ci-validate = "rulespec_conformance.ci_validate:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/rulespec_conformance"]
+
+# The validator's data enters the wheel here rather than being copied into the
+# source tree. The layout under `_data/` mirrors the repository's because 518
+# fixtures carry `"@context": "../context/rkaf-context.jsonld"`.
+[tool.hatch.build.targets.wheel.force-include]
+"compiled" = "rulespec_conformance/_data/compiled"
+"shapes" = "rulespec_conformance/_data/shapes"
+"fixtures" = "rulespec_conformance/_data/fixtures"
+"context/rkaf-context.jsonld" = "rulespec_conformance/_data/context/rkaf-context.jsonld"
+
+[tool.hatch.build.targets.sdist]
+include = [
+    "src/rulespec_conformance",
+    "compiled",
+    "shapes",
+    "fixtures",
+    "context/rkaf-context.jsonld",
+    "VERSION",
+    "README.md",
+]

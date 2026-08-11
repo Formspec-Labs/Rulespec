@@ -9,16 +9,16 @@
   },
   "input_releases": {
     "rulespec_core_release": {
-      "release_id": "urn:rulespec:core:5ac6ba59929eca874ec603cab0e90f7b15ab1a008b394cec5aefebdafe22564b",
-      "release_digest": "sha256:5ac6ba59929eca874ec603cab0e90f7b15ab1a008b394cec5aefebdafe22564b"
+      "release_id": "urn:rulespec:core:6c68e2b82d670045654fe08c890af2f12bca96c96cc1e9c9a02a1008f1817d62",
+      "release_digest": "sha256:6c68e2b82d670045654fe08c890af2f12bca96c96cc1e9c9a02a1008f1817d62"
     },
     "document_release": {
-      "release_id": "urn:spicyregs:document-release:d0a148e2791a0c537d49a9d6cab87869e21c4dbfb9966da63d59a0c5165f71e4",
-      "release_digest": "sha256:d0a148e2791a0c537d49a9d6cab87869e21c4dbfb9966da63d59a0c5165f71e4"
+      "release_id": "urn:spicyregs:document-release:be0e4cc078b211e22c1c635c2b936faf6bf25ec4d35ca0db8c3cacbdcc163008",
+      "release_digest": "sha256:be0e4cc078b211e22c1c635c2b936faf6bf25ec4d35ca0db8c3cacbdcc163008"
     },
     "vocabulary_atlas_asset": {
-      "asset_id": "urn:rulespec:atlas-membership-stub:7202e4508cbcb22ec5cbffacbc0a9f802dcb39734db9876b2c052e722c0a54d0",
-      "manifest_digest": "sha256:69edcba6ebc622808d125fedf551e5b4bae8fe8c0742a822152b922fbdd11d11",
+      "asset_id": "urn:rulespec:atlas-membership-stub:01944aecdd3fe9ce7ab3b7215f982f9fb4e077e70c99634b6bd795e92dbd5651",
+      "manifest_digest": "sha256:986fe117c5423fdb58771cea4b95dad883bf09f892d24bee6c81f8fc57496bc6",
       "distribution_digest": "sha256:65eabfbb5b07f8a1d8f1ec3701f4a36b7dfd7acd66a120a544ab81849517e955"
     },
     "reference_resource_release": {
@@ -147,12 +147,12 @@
       "extractor_version": "m2-fixture-1",
       "request_contract_digest": "sha256:bb024add02827c8687983c764ed1cfd257f999d1cd2f84d9ef0d3642f43c7770",
       "input_release_refs": [
-        "urn:rulespec:core:5ac6ba59929eca874ec603cab0e90f7b15ab1a008b394cec5aefebdafe22564b",
-        "urn:spicyregs:document-release:d0a148e2791a0c537d49a9d6cab87869e21c4dbfb9966da63d59a0c5165f71e4",
-        "urn:rulespec:atlas-membership-stub:7202e4508cbcb22ec5cbffacbc0a9f802dcb39734db9876b2c052e722c0a54d0",
+        "urn:rulespec:core:6c68e2b82d670045654fe08c890af2f12bca96c96cc1e9c9a02a1008f1817d62",
+        "urn:spicyregs:document-release:be0e4cc078b211e22c1c635c2b936faf6bf25ec4d35ca0db8c3cacbdcc163008",
+        "urn:rulespec:atlas-membership-stub:01944aecdd3fe9ce7ab3b7215f982f9fb4e077e70c99634b6bd795e92dbd5651",
         "urn:ref:federal-register-thesaurus:2025-04-01:reference-resource-release:v1"
       ],
-      "processing_segment_ref": "urn:rulespec:processing-segment:a30954ac7c44b7d306db2616a5d29117adb5c619b9fbb265d6ce78e029764325",
+      "processing_segment_ref": "urn:rulespec:processing-segment:b2254c6ae1c0030e729ee3967197a64a810dbf311b5c151108ff0c71ccff1e77",
       "record_id": "urn:rulespec:extraction-activity:4c1593e23b7209bffae2dc83e2b5d495fcde63a382c7794ef6861e5f6b6f480a"
     }
   ],
@@ -171,7 +171,7 @@
   "processing_segments": [
     {
       "record_type": "ProcessingSegment",
-      "document_release_ref": "urn:spicyregs:document-release:d0a148e2791a0c537d49a9d6cab87869e21c4dbfb9966da63d59a0c5165f71e4",
+      "document_release_ref": "urn:spicyregs:document-release:be0e4cc078b211e22c1c635c2b936faf6bf25ec4d35ca0db8c3cacbdcc163008",
       "input_fragment_refs": [
         "urn:spicyregs:source-fragment:8b1ec44153407557c9b58422b100613b60e75896d55b229f95c6efbc393fb07e",
         "urn:spicyregs:source-fragment:caae8e6231e12ccdc153a7891dac479fa8a1ff380c658acf846a604541af34b3"
@@ -179,14 +179,14 @@
       "segmentation_policy": "join-structural-passages-v1",
       "derived_text": "Worker safety attestations document hazards.\nWorkers receive protections.",
       "derived_text_digest": "sha256:fa411be2b61c64dd6642cbde9c8793862b976a779451cfcaab76bba7c492a4d8",
-      "projection_ref": "urn:rulespec:derived-text-projection:3eb930531cc61a5f46e2733c2a399be568ab32260cebf3cf38ca8e44007793d4",
-      "record_id": "urn:rulespec:processing-segment:a30954ac7c44b7d306db2616a5d29117adb5c619b9fbb265d6ce78e029764325"
+      "projection_ref": "urn:rulespec:derived-text-projection:5ec402c3b3c004e10d4833d80fd380f48db760b263c184842f1af5513887febb",
+      "record_id": "urn:rulespec:processing-segment:b2254c6ae1c0030e729ee3967197a64a810dbf311b5c151108ff0c71ccff1e77"
     }
   ],
   "derived_text_projections": [
     {
       "record_type": "DerivedTextProjection",
-      "derived_unit_ref": "urn:rulespec:processing-segment:a30954ac7c44b7d306db2616a5d29117adb5c619b9fbb265d6ce78e029764325",
+      "derived_unit_ref": "urn:rulespec:processing-segment:b2254c6ae1c0030e729ee3967197a64a810dbf311b5c151108ff0c71ccff1e77",
       "derived_text_digest": "sha256:fa411be2b61c64dd6642cbde9c8793862b976a779451cfcaab76bba7c492a4d8",
       "derived_coordinate_system": "unicode-code-points",
       "input_fragment_refs": [
@@ -243,7 +243,7 @@
       "join_delimiter": "\n",
       "normalization_policy": "none",
       "construction_method": "join-structural-passages-v1",
-      "record_id": "urn:rulespec:derived-text-projection:3eb930531cc61a5f46e2733c2a399be568ab32260cebf3cf38ca8e44007793d4"
+      "record_id": "urn:rulespec:derived-text-projection:5ec402c3b3c004e10d4833d80fd380f48db760b263c184842f1af5513887febb"
     }
   ],
   "agent_validation_receipts": [
@@ -361,13 +361,13 @@
       "record_id": "urn:rulespec:baseline-validation-receipt:c6474d658b768e279ca8aaed292d94d5757343b6797d2d7cd6eebb398ec6fd52"
     }
   ],
-  "selection_context_digest": "sha256:d017ec1cb55baccaabeea6e8f04a8d470b7e08074a2506126265c7aaef6a5732",
+  "selection_context_digest": "sha256:874bd39de258a9a50125caf1dd7b2c4c63eecc1add5f6b1b3e9d1845f5fb9b32",
   "selection_receipts": [
     {
       "record_type": "ExtrapolationSelectionReceipt",
       "assignment_ref": "urn:rulespec:concept-assignment:5940321df95574c9c73acaede9d8a99941791df8bb0fe79d311088d0b43943c8",
       "selection_policy": "m2-search-only-selection-v1",
-      "selection_context_digest": "sha256:d017ec1cb55baccaabeea6e8f04a8d470b7e08074a2506126265c7aaef6a5732",
+      "selection_context_digest": "sha256:874bd39de258a9a50125caf1dd7b2c4c63eecc1add5f6b1b3e9d1845f5fb9b32",
       "input_record_refs": [
         "urn:rulespec:concept-assignment:5940321df95574c9c73acaede9d8a99941791df8bb0fe79d311088d0b43943c8",
         "urn:rulespec:evidence-binding:66dd0a74517808208a73db52b2f7a21018dda028597505a0b3e63211e165ffbf",
@@ -392,13 +392,13 @@
       "evaluator_version": "m2-search-only-selection-v1",
       "evaluated_at": "2026-07-31T12:00:00Z",
       "effective_as_of": "2026-07-31T12:00:00Z",
-      "record_id": "urn:rulespec:extrapolation-selection-receipt:223fdf727080b1dd7cc1c1fdb2a816984a462cc4481d27164d9401b8736ab58f"
+      "record_id": "urn:rulespec:extrapolation-selection-receipt:564b3374f599f2747571c61e3ab91f6367cc338ff9e921f26568b2898f3b6972"
     },
     {
       "record_type": "ExtrapolationSelectionReceipt",
       "assignment_ref": "urn:rulespec:concept-assignment:3c4ea8a22ecabbe1a858f6aba5b16df75d8bc240523f24034b6e583b4a62d4f5",
       "selection_policy": "m2-search-only-selection-v1",
-      "selection_context_digest": "sha256:d017ec1cb55baccaabeea6e8f04a8d470b7e08074a2506126265c7aaef6a5732",
+      "selection_context_digest": "sha256:874bd39de258a9a50125caf1dd7b2c4c63eecc1add5f6b1b3e9d1845f5fb9b32",
       "input_record_refs": [
         "urn:rulespec:concept-assignment:3c4ea8a22ecabbe1a858f6aba5b16df75d8bc240523f24034b6e583b4a62d4f5",
         "urn:rulespec:evidence-binding:2fac5e8b1418cb9f336d485a7afa9a98a32b7e53977848a90c06814da88a98c8",
@@ -423,13 +423,13 @@
       "evaluator_version": "m2-search-only-selection-v1",
       "evaluated_at": "2026-07-31T12:00:00Z",
       "effective_as_of": "2026-07-31T12:00:00Z",
-      "record_id": "urn:rulespec:extrapolation-selection-receipt:a17981ed8a3f4f511bfd3a580b14d37ecd549c2072d3241db2e2f901ebdc70b6"
+      "record_id": "urn:rulespec:extrapolation-selection-receipt:aceadc28aded2d7e0a03a4a42443193e91697ad362212fd8f64fbd1786559abc"
     },
     {
       "record_type": "ExtrapolationSelectionReceipt",
       "assignment_ref": "urn:rulespec:concept-assignment:539aa58ca6b56a48b6e72ea8ed48674de3e42f3ac823acf1bca510ad96f12b93",
       "selection_policy": "m2-search-only-selection-v1",
-      "selection_context_digest": "sha256:d017ec1cb55baccaabeea6e8f04a8d470b7e08074a2506126265c7aaef6a5732",
+      "selection_context_digest": "sha256:874bd39de258a9a50125caf1dd7b2c4c63eecc1add5f6b1b3e9d1845f5fb9b32",
       "input_record_refs": [
         "urn:rulespec:concept-assignment:539aa58ca6b56a48b6e72ea8ed48674de3e42f3ac823acf1bca510ad96f12b93",
         "urn:rulespec:evidence-binding:ef8e9a57789484859d932fa8adc6e24a725b2609e863eb8004f7eb575dcbcb42",
@@ -454,7 +454,7 @@
       "evaluator_version": "m2-search-only-selection-v1",
       "evaluated_at": "2026-07-31T12:00:00Z",
       "effective_as_of": "2026-07-31T12:00:00Z",
-      "record_id": "urn:rulespec:extrapolation-selection-receipt:a02cf7f1448c0930aae4a3064e4d659aed56c33b3d8ebcfb70692259ffb92c5a"
+      "record_id": "urn:rulespec:extrapolation-selection-receipt:10b44026c541661a7a72f2ae046bc7f467bfdb4ac010debd9a119ebe0f6acbf1"
     }
   ],
   "validation_artifacts": [
@@ -497,6 +497,6 @@
     "coverage_digest": "sha256:5274a5dd8ee1c32d791db89ec327b68eab4e48c61ffbbda31cc2fb22e552d92e",
     "coverage_id": "urn:rulespec:extrapolation-coverage:5274a5dd8ee1c32d791db89ec327b68eab4e48c61ffbbda31cc2fb22e552d92e"
   },
-  "release_digest": "sha256:d09fc80df4b85c414d7f0942d0e29772534f2ba046808571cf04021d0a9da4dd",
-  "release_id": "urn:rulespec:extrapolation:d09fc80df4b85c414d7f0942d0e29772534f2ba046808571cf04021d0a9da4dd"
+  "release_digest": "sha256:b14bd4973442e6afd2063668cd79ab9e70ecef8fcc1a10c3e262e353304f462b",
+  "release_id": "urn:rulespec:extrapolation:b14bd4973442e6afd2063668cd79ab9e70ecef8fcc1a10c3e262e353304f462b"
 }

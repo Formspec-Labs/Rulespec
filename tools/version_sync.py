@@ -8,6 +8,7 @@ Call sites kept in lock-step:
   - crates/Cargo.toml         (workspace.package.version)
   - crates/Cargo.lock         (every workspace member package)
   - context/rkaf-context.jsonld  (top-level "version" field)
+  - pyproject.toml            (project.version, the rulespec-conformance wheel)
 
 Rust source files and tests read `env!("CARGO_PKG_VERSION")` so they auto-track
 the workspace version; they are not touched here.
@@ -39,6 +40,13 @@ VERSION_FILE = ROOT / "VERSION"
 # `version = ...` lines elsewhere in the workspace TOML.
 WORKSPACE_VERSION_RE = re.compile(
     r"(\[workspace\.package\][^\[]*?\nversion\s*=\s*)\"[^\"]*\"",
+    re.DOTALL,
+)
+
+# Same shape, anchored on the [project] table so a `version` under any other
+# table (build backend config, tool sections) is never rewritten.
+PROJECT_VERSION_RE = re.compile(
+    r"(\[project\][^\[]*?\nversion\s*=\s*)\"([^\"]*)\"",
     re.DOTALL,
 )
 
@@ -96,6 +104,32 @@ def sync_jsonld_context(truth: str, write: bool) -> bool:
     return True
 
 
+def sync_pyproject(truth: str, write: bool) -> bool:
+    """Keep the `rulespec-conformance` distribution on VERSION.
+
+    The raw string propagates unchanged: PEP 440 normalises `0.2.0-pre.9` to
+    `0.2.0rc9`, so no translation is needed here.
+    """
+
+    path = ROOT / "pyproject.toml"
+    if not path.is_file():
+        return True
+    src = path.read_text(encoding="utf-8")
+    m = PROJECT_VERSION_RE.search(src)
+    if not m:
+        print(f"  [SKIP] {path.relative_to(ROOT)} — no [project] version line", file=sys.stderr)
+        return True
+    current = m.group(2)
+    if current == truth:
+        return True
+    if not write:
+        print(f"  [DRIFT] {path.relative_to(ROOT)}: {current!r} != {truth!r}")
+        return False
+    path.write_text(PROJECT_VERSION_RE.sub(rf'\1"{truth}"', src, count=1), encoding="utf-8")
+    print(f"  [WROTE] {path.relative_to(ROOT)}: {current!r} → {truth!r}")
+    return True
+
+
 def sync_cargo_lock(truth: str, write: bool) -> bool:
     """Keep every workspace member package in Cargo.lock on VERSION.
 
@@ -150,7 +184,7 @@ def main() -> int:
     truth = read_truth()
     print(f"truth: VERSION = {truth!r}")
 
-    syncs = [sync_cargo_toml, sync_cargo_lock, sync_jsonld_context]
+    syncs = [sync_cargo_toml, sync_cargo_lock, sync_jsonld_context, sync_pyproject]
     ok = True
     for fn in syncs:
         if not fn(truth, write=args.write):
