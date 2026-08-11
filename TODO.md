@@ -526,7 +526,7 @@ rkaf kernel schemas under `_data/compiled/json-schema/core/`, force-included by
 
 - [x] **Author the `SourceCatalogRelease` schema set.**
   Done 2026-08-11 as an immutable candidate at bundle digest
-  `urn:rulespec:core:d1a7dd831e2ab598c43c67331ed79820acba69f1f8b7e5da25716b70128d7fc6`.
+  `urn:rulespec:core:2de89ad867a3794cc1006ef4cd0301248d48a719b5cbab1946f62c2c30ac0ec5`.
   `spec/rulespec-source-catalog-release.md` is the normative statement.
   Three closed Draft 2020-12 schemas: `source-catalog-release-v1.schema.json`
   (release root — selection policy, `requestedUniverseSetDigest`,
@@ -536,11 +536,27 @@ rkaf kernel schemas under `_data/compiled/json-schema/core/`, force-included by
   `source-catalog-release-v1/source-items-v1.schema.json` (source item,
   selection disposition, candidate rendition, normalized MVP metadata,
   source-observed topic, source observation).
-  `format` is `spicyregs-source-catalog-release` `1.0` and identity is
-  `urn:spicyregs:source-catalog-release:v1:<sha256 over canonical {format,
-  formatVersion, content}>`, matching the existing `urn:spicyregs:document-release:v3:`
-  convention — Rulespec Core owns the schemas, SpicyRegs owns the records
-  (REF-024).
+  `format` is `spicy-regs-source-catalog-release` `1.0` and identity is
+  `urn:spicy-regs:source-catalog-release:v1:<sha256 over canonical {format,
+  formatVersion, content}>` — Rulespec Core owns the schemas, SpicyRegs owns
+  the records (REF-024).
+  The spelling is `spicy-regs`, with the hyphen, per the containment decision
+  in `../spicy-regs/PLAN.md` §1a: ~7,270 sites against 209, decided by count,
+  and the minority spelling is the newer DocumentRelease v3 writer, which is
+  being respelled rather than followed. The first cut of this candidate copied
+  that v3 writer and was wrong; a new cross-product surface does not propagate
+  the losing spelling. §1a counts URNs, so applying it to the `format` token
+  as well is an inference from the same evidence: in `spicy-regs/src` seven of
+  the eight distinct `spicy-regs-*` identifier tokens are hyphenated and the
+  lone compact one is `spicyregs-document-release` — the same v3 writer.
+  `publishedAt` is REQUIRED and lives in the identity-EXCLUDED `annotations`
+  envelope, beside `releaseStatus` and `buildRunId`, so two publishes of
+  identical selection content share one identity. It is a publication
+  timestamp, not a source-issued fact — source-issued dates
+  (`publicationDate`, `lastUpdatedDate`, `sourceIssuedVersion`) sit on the item
+  they describe, where they are content and do bear on identity. Same rule as
+  DocumentRelease v3's exclusion of `createdAt`. The first cut had it inside
+  `content`, which put a wall clock inside identity.
 
   **PIPELINE DEVIATION, stated because this item's original "Done when" named
   a different one.** The text above said "declared in `constraints/`, compile

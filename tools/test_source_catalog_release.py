@@ -181,6 +181,42 @@ class SealedCorpusTests(unittest.TestCase):
         root["annotations"]["operatorNote"] = "identity-neutral"
         self.assertEqual(expected_release_id(root), original)
 
+    def test_publishing_the_same_content_later_does_not_change_identity(self) -> None:
+        """A wall-clock stamp inside identity makes a reproducible build unreproducible.
+
+        Same rule as DocumentRelease v3's exclusion of `createdAt`.
+        """
+
+        root = json.loads((VALID_BUNDLE / "release.json").read_text(encoding="utf-8"))
+        self.assertNotIn("publishedAt", root["content"])
+        self.assertIn("publishedAt", root["annotations"])
+        republished = json.loads(json.dumps(root))
+        republished["annotations"]["publishedAt"] = "2027-01-01T00:00:00Z"
+        self.assertEqual(expected_release_id(republished), root["releaseId"])
+        # Excluded from identity is not the same as optional.
+        schema = json.loads(SCHEMA_FILES["release-root"].read_text(encoding="utf-8"))
+        validator = jsonschema.Draft202012Validator(schema)
+        self.assertEqual(list(validator.iter_errors(root)), [])
+        without = json.loads(json.dumps(root))
+        del without["annotations"]["publishedAt"]
+        self.assertTrue(list(validator.iter_errors(without)))
+
+    def test_the_release_carries_the_decided_urn_spelling(self) -> None:
+        """`spicy-regs/PLAN.md` section 1a decides for the hyphen, by count."""
+
+        root = json.loads((VALID_BUNDLE / "release.json").read_text(encoding="utf-8"))
+        self.assertTrue(root["releaseId"].startswith("urn:spicy-regs:"))
+        self.assertEqual(root["format"], "spicy-regs-source-catalog-release")
+        for path in (
+            *SCHEMA_FILES.values(),
+            CORPUS_FILE,
+            CANDIDATE_MANIFEST,
+            VALID_BUNDLE / "release.json",
+            VALID_BUNDLE / "data" / "source-items.json",
+        ):
+            with self.subTest(document=path.name):
+                self.assertNotIn("spicyregs", path.read_text(encoding="utf-8"))
+
     def test_the_valid_fixture_exercises_all_five_dispositions(self) -> None:
         items = json.loads(
             (VALID_BUNDLE / "data" / "source-items.json").read_text(encoding="utf-8")

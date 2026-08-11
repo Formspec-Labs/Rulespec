@@ -14,18 +14,17 @@
   ],
   "properties": {
     "format": {
-      "const": "spicyregs-source-catalog-release"
+      "const": "spicy-regs-source-catalog-release"
     },
     "formatVersion": {
       "const": "1.0"
     },
     "releaseId": {
       "type": "string",
-      "pattern": "^urn:spicyregs:source-catalog-release:v1:[0-9a-f]{64}$"
+      "pattern": "^urn:spicy-regs:source-catalog-release:v1:[0-9a-f]{64}$"
     },
     "annotations": {
-      "description": "Identity-neutral operator notes. Excluded from the release identity preimage, so an annotation never renames a release.",
-      "type": "object"
+      "$ref": "#/$defs/annotations"
     },
     "content": {
       "$ref": "#/$defs/content"
@@ -53,12 +52,35 @@
       "minimum": 0,
       "maximum": 9007199254740991
     },
+    "annotations": {
+      "description": "The identity-excluded envelope. Everything here is a fact ABOUT the act of publishing rather than about the selection content, so two publishes of identical content share one identity. `publishedAt` lives here for the same reason DocumentRelease v3 keeps `createdAt` out of its identity preimage: a wall-clock stamp inside identity makes a reproducible build unreproducible. Open to further operator notes.",
+      "type": "object",
+      "required": [
+        "publishedAt"
+      ],
+      "properties": {
+        "publishedAt": {
+          "description": "When this release was published. A publication timestamp, not a source-issued fact — a source-issued date belongs on the item it describes.",
+          "$ref": "#/$defs/instant"
+        },
+        "releaseStatus": {
+          "enum": [
+            "fixture",
+            "candidate",
+            "published"
+          ]
+        },
+        "buildRunId": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
     "content": {
       "type": "object",
       "additionalProperties": false,
       "required": [
         "catalogId",
-        "publishedAt",
         "sourceSystem",
         "selectionPolicy",
         "requestedUniverseSetDigest",
@@ -72,9 +94,6 @@
         "catalogId": {
           "description": "Stable identity of the catalog this release is one version of.",
           "$ref": "#/$defs/absoluteId"
-        },
-        "publishedAt": {
-          "$ref": "#/$defs/instant"
         },
         "sourceSystem": {
           "$ref": "#/$defs/sourceSystem"

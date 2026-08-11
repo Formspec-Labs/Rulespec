@@ -49,7 +49,7 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 VALID_BUNDLE = FIXTURE_ROOT / "valid"
 INVALID_ROOT = FIXTURE_ROOT / "invalid"
 
-CATALOG_ID = "urn:spicyregs:source-catalog:us-federal-register"
+CATALOG_ID = "urn:spicy-regs:source-catalog:us-federal-register"
 PUBLISHED_AT = "2026-08-11T00:00:00Z"
 CANDIDATE_VERSION = "1.0.0-candidate.1"
 
@@ -307,7 +307,7 @@ SOURCE_ITEMS: list[dict[str, Any]] = [
 ]
 
 SELECTION_POLICY = {
-    "policyId": "urn:spicyregs:selection-policy:federal-register-rules-and-proposed-rules",
+    "policyId": "urn:spicy-regs:selection-policy:federal-register-rules-and-proposed-rules",
     "policySha256": canonical_sha256(
         {
             "documentTypes": ["Proposed Rule", "Rule"],
@@ -408,6 +408,8 @@ def _restamp(bundle: Path, items: list[dict[str, Any]]) -> None:
     ]
     content = {
         "catalogId": CATALOG_ID,
+        # No `publishedAt` here. It is a fact about the act of publishing, so
+        # it rides in the identity-excluded annotations envelope below.
         "counts": derive_counts(
             items,
             member_count=len(members),
@@ -422,7 +424,6 @@ def _restamp(bundle: Path, items: list[dict[str, Any]]) -> None:
             "scopeKind": "global",
             "sha256": file_sha256(bundle / manifest_key),
         },
-        "publishedAt": PUBLISHED_AT,
         "requestedUniverseSetDigest": source_set_digest(universe_ids),
         "schemaSet": {
             "schemaSetId": f"urn:spicy:schema-set:v1:{canonical_sha256(schemas)}",
@@ -435,6 +436,7 @@ def _restamp(bundle: Path, items: list[dict[str, Any]]) -> None:
     root = {
         "annotations": {
             "buildRunId": "source-catalog-release-v1-conformance-fixture",
+            "publishedAt": PUBLISHED_AT,
             "releaseStatus": "fixture",
         },
         "content": content,
@@ -526,7 +528,7 @@ def build_corpus(fixture_root: Path = FIXTURE_ROOT) -> list[dict[str, Any]]:
 
     bundle = copy_case("wrong-identity")
     root = _load(bundle / "release.json")
-    root["releaseId"] = "urn:spicyregs:source-catalog-release:v1:" + "0" * 64
+    root["releaseId"] = "urn:spicy-regs:source-catalog-release:v1:" + "0" * 64
     write_canonical_json(bundle / "release.json", root)
     record("wrong-identity", "invalid.identity", "release.json/releaseId", bundle)
 

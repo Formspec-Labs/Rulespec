@@ -55,9 +55,15 @@ FIXTURE_ROOT = RELEASE_RECORDS_ROOT / "fixtures" / "source-catalog-release-v1"
 CORPUS_FILE = FIXTURE_ROOT / "corpus.json"
 CANDIDATE_MANIFEST = RELEASE_RECORDS_ROOT / "source-catalog-release-v1-candidate.json"
 
-FORMAT = "spicyregs-source-catalog-release"
+# `urn:spicy-regs:`, not `urn:spicyregs:`. The containment decision is
+# `spicy-regs/PLAN.md` §1a: ~7,270 sites to 209, and the minority spelling is
+# the newer DocumentRelease v3 writer, which is being respelled rather than
+# followed. The `format` token takes the same spelling — in `spicy-regs/src`
+# seven of the eight distinct `spicy-regs-*` identifier tokens are hyphenated,
+# and the lone compact one is that same v3 writer.
+FORMAT = "spicy-regs-source-catalog-release"
 FORMAT_VERSION = "1.0"
-RELEASE_ID_PREFIX = "urn:spicyregs:source-catalog-release:v1:"
+RELEASE_ID_PREFIX = "urn:spicy-regs:source-catalog-release:v1:"
 MEMBER_MANIFEST_FORMAT = "spicy-artifact-member-manifest"
 MEMBER_MANIFEST_VERSION = "1.0"
 MAX_SAFE_INTEGER = (1 << 53) - 1
@@ -315,7 +321,11 @@ def tree_digest(bundle: Path) -> str:
 def expected_release_id(root: Mapping[str, Any]) -> str:
     """Derive the release identity from the exact identity-bearing payload.
 
-    ``annotations`` is excluded, so an operator note never renames a release.
+    ``annotations`` is excluded, and that is where every fact about the ACT of
+    publishing lives — `publishedAt`, `releaseStatus`, `buildRunId`. So two
+    publishes of identical selection content share one identity, and no
+    wall-clock stamp can make a reproducible build unreproducible. Same rule as
+    DocumentRelease v3's exclusion of `createdAt`.
     """
 
     payload = {

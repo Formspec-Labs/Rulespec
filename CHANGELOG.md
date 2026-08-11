@@ -25,8 +25,14 @@ adapted for a specification + shape + fixture project.
 - `release-records/source-catalog-release-v1-candidate.json`, a
   `RulespecCoreRelease` pinning the schemas, both validator modules, and every
   sealed bundle. Its `release_id`,
-  `urn:rulespec:core:d1a7dd831e2ab598c43c67331ed79820acba69f1f8b7e5da25716b70128d7fc6`,
+  `urn:rulespec:core:2de89ad867a3794cc1006ef4cd0301248d48a719b5cbab1946f62c2c30ac0ec5`,
   is the candidate bundle digest. Editing any pinned byte changes that name.
+- Release identity is `urn:spicy-regs:source-catalog-release:v1:<digest>` and
+  the format token is `spicy-regs-source-catalog-release`, both with the hyphen
+  per the containment decision in `spicy-regs/PLAN.md` §1a. `publishedAt` is
+  required and sits in the identity-excluded `annotations` envelope, so two
+  publishes of identical selection content share one identity — the same rule
+  DocumentRelease v3 applies to `createdAt`.
 - `rulespec-source-catalog-validate`, a second console script that re-derives
   the bundle digest and replays the corpus from packaged data. `make
   test-package` runs it alongside `rulespec-ci-validate`, so a missing export

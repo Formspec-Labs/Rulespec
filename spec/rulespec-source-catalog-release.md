@@ -33,22 +33,51 @@ sorted by `objectKey`, each with its exact `byteSize`, `sha256`, `recordCount`,
 and `schemaId`. The schemas travel inside the release so a consumer verifies it
 with no Rulespec checkout.
 
-`format` is `spicyregs-source-catalog-release`, `formatVersion` is `1.0`.
+`format` is `spicy-regs-source-catalog-release`, `formatVersion` is `1.0`.
 
 ## 2. Identity
 
 The release identity is derived from the exact identity-bearing payload:
 
 ```text
-urn:spicyregs:source-catalog-release:v1:<sha256 over canonical {format, formatVersion, content}>
+urn:spicy-regs:source-catalog-release:v1:<sha256 over canonical {format, formatVersion, content}>
 ```
 
-`annotations` is excluded from that preimage, so an operator note never renames
-a release. Canonical JSON is `rulespec-releases.md` §1 — sorted keys, `,`/`:`
-separators, UTF-8, no non-finite numbers — over a value domain with no floating
-point and no integer outside the JSON safe range. On that domain the encoding
-equals RFC 8785 byte for byte, which the conformance suite asserts against an
-independent RFC 8785 implementation.
+Canonical JSON is `rulespec-releases.md` §1 — sorted keys, `,`/`:` separators,
+UTF-8, no non-finite numbers — over a value domain with no floating point and no
+integer outside the JSON safe range. On that domain the encoding equals RFC 8785
+byte for byte, which the conformance suite asserts against an independent RFC
+8785 implementation.
+
+### 2.1 Spelling
+
+`urn:spicy-regs:`, with the hyphen. The containment decision is
+`spicy-regs/PLAN.md` §1a: ~7,270 sites against 209, decided by count, and the
+minority spelling is the newer DocumentRelease v3 writer, which is being
+respelled rather than followed. A new cross-product surface does not propagate
+the losing spelling.
+
+The `format` token takes the same spelling. §1a's count is over URNs, so
+extending it to the format token is an inference from the same evidence rather
+than a second ruling: in `spicy-regs/src`, seven of the eight distinct
+`spicy-regs-*` identifier tokens are hyphenated and the lone compact one is
+`spicyregs-document-release` — again the v3 writer. Carrying two spellings of
+one product name in adjacent fields of one record would be a defect on its own.
+
+### 2.2 What identity excludes
+
+`annotations` is excluded from the preimage, and it is where every fact about
+the ACT of publishing lives: `publishedAt`, `releaseStatus`, `buildRunId`. Two
+publishes of identical selection content therefore share one identity, and no
+wall-clock stamp can make a reproducible build unreproducible.
+
+`publishedAt` is a publication timestamp, not a source-issued fact — a
+source-issued date belongs on the item it describes (`publicationDate`,
+`lastUpdatedDate`, `sourceIssuedVersion`), where it is content and does bear on
+identity. This is the same rule DocumentRelease v3 applies by keeping
+`createdAt` out of its identity preimage, and the same rule RefSpec states for
+content-derived distribution identity. Excluded does not mean optional:
+`publishedAt` is REQUIRED, and the schema types it.
 
 Both set digests are SHA-256 over the canonical JSON of the **deduplicated,
 sorted** `sourceItemId` list:
