@@ -98,6 +98,28 @@ rulespec-ci-validate --json your-graph.jsonld
 `tools/ci_validate.py` remains as a shim so in-checkout invocations keep
 working. L4 behavior validation is the Rust runtime and is not in the wheel.
 
+The same wheel carries the contract itself, for consumers that build Rulespec
+data rather than validate someone else's:
+
+```python
+from rulespec_conformance.contract import USAGE_ELIGIBILITY, resources, terms
+
+USAGE_ELIGIBILITY.index(level)         # rank in the normative closed lattice
+resources.json_schema("artifact")      # compiled Draft 2020-12 schema
+resources.shacl("warrant")             # compiled Turtle
+resources.shapes("rkaf-shapes-core")   # hand-authored Turtle
+resources.context()                    # the JSON-LD context document
+terms.hasContentDigest                 # "rkaf:hasContentDigest"
+```
+
+Data is reached through `importlib.resources`, never a path built from
+`__file__`. `contract.enums` and `contract.terms` are generated from the CUE
+and the normative specs by `tools/build_contract_exports.py`, so a term
+Rulespec renamed or retired is an `ImportError` in the consumer's build rather
+than a string that validates as a string. `python -m
+rulespec_conformance.contract` prints what the installed contract carries and
+fails if any of it is missing.
+
 ## Who this is for
 
 People building software that makes consequential decisions on the public's behalf.

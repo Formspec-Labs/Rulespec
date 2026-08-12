@@ -1,5 +1,44 @@
 # Product and release decisions
 
+## 2026-08-11: The contract ships as an import, not a checkout
+
+**Status:** Accepted
+
+### Decision
+
+Everything a consumer needs to author Rulespec data — the compiled JSON
+Schemas, the compiled SHACL, the hand-authored shape suite, the JSON-LD
+context, the closed enums and lattices, and the term names themselves — ships
+inside the `rulespec-conformance` wheel as importable data and constants
+(`rulespec_conformance.contract`). A consumer clones this repository to
+contribute to it, never to depend on it.
+
+It is the existing distribution rather than a new one because it is the same
+bytes: the wheel already carries `compiled/`, `shapes/` and the context for the
+validator's own use, and a second distribution would either duplicate them or
+depend on this one to find them. The name says conformance; the contents are
+what conforming requires.
+
+### Practical consequences
+
+- The vocabulary is generated, never hand-maintained:
+  `tools/build_contract_exports.py` writes `contract/enums.py` and
+  `contract/terms.py` from the CUE and the normative specs, and `--check` fails
+  `make test-audits` on drift. A term retired upstream stops resolving
+  downstream at import, which is the only enforcement that survives a consumer
+  who does not run our gates.
+- The exports stay generic. A term, enum, or lattice enters them because
+  Rulespec declares it — not because a consumer wants somewhere to put one. A
+  consumer-specific constant in `contract/` is a boundary violation of the same
+  kind as a Rulespec-authored `segmentation_policy`, and the ownership table
+  above decides it the same way.
+- Consumers must not keep a local copy of anything the package exports. A
+  mirrored lattice cannot be kept in order by any check either side owns; that
+  is the defect class this export exists to end.
+- Packaged data is reached through `importlib.resources`. Paths built from
+  `__file__` guess at a layout the build backend owns, and the guess was wrong
+  the moment the data moved into `_data/`.
+
 ## 2026-07-31: Separate source, vocabulary, extrapolation, and search ownership
 
 **Status:** Accepted

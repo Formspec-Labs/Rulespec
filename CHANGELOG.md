@@ -81,6 +81,35 @@ from `source_catalog_release` rather than restating them, so the containment and
 traversal check has one implementation across both roots. Importing changed no
 byte of that module, so the SourceCatalogRelease candidate digest is unmoved.
 
+- `rulespec_conformance.contract`, the contract as an import rather than a
+  checkout. `contract.resources` reaches the compiled JSON Schemas, the
+  compiled SHACL, the hand-authored shape suite, the JSON-LD context and
+  `VERSION` through `importlib.resources`, so a consumer never builds a path
+  from `__file__` and never guesses at a layout the build backend owns.
+  `VERSION` joins the force-include table for the same reason: one version
+  string, the repository's own.
+- `contract.enums`, every closed enum and lattice the CUE declares — 78 of
+  them, including the four unions flattened to their members — as tuples in
+  declaration order. `USAGE_ELIGIBILITY` is the one whose ORDER
+  `usage-eligibility.cue` calls normative, and consumers that were keeping
+  their own copy of it now import it. Enums are read through
+  `tools/constraints_compile.py`'s own parser, so nothing reads the CUE twice.
+- `contract.terms`, every rkaf term Rulespec declares — 859 — as module
+  attributes carrying their compact IRI, with `.iri` for the expanded form.
+  An unknown name is an `ImportError` at the consumer's first import instead
+  of a string that validates as a string: `rkaf:assignedConcept`, retired and
+  held at `sh:maxCount 0` in `shapes/rkaf-shapes-core.ttl`, is refused by name.
+  Terms come from the CUE (comments stripped), the JSON-LD context,
+  `spec/rkaf-vocabulary.md`, `spec/rkaf-behavior.md`, and the L4 runtime crate
+  up to its first `#[cfg(test)]`; `shapes/`, `fixtures/` and the narrative
+  specs are deliberately not sources, because each carries names minted to be
+  wrong.
+- `tools/build_contract_exports.py` generates both modules and `--check` gates
+  them in `make test-audits`, alongside `tools/test_contract_exports.py`.
+  `make test-package` runs `python -m rulespec_conformance.contract` from the
+  scratch venv: it re-checks every enum constant against the schema packaged
+  beside it, so the two projections of one CUE tree cannot ship disagreeing.
+
 ## 0.2.0-pre.9 — Vocabulary carriage and lifecycle closure
 
 ### Packaging
