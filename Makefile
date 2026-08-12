@@ -66,6 +66,13 @@ test: test-rust test-shapes test-audits test-conformance test-package
 # candidate from the installed package — required exports, bundle digest, and
 # every sealed fixture verdict. Deleting an export or a packaged data file must
 # turn this red; it must never be softened into a skip.
+#
+# The last line is the contract surface a consumer imports rather than runs:
+# schemas, SHACL and context resolved through `importlib.resources`, every enum
+# constant re-checked against the schema packaged beside it, and the term
+# registry answering for a term it declares and refusing one it retired. No
+# console script, because the contract is not a release surface with a digest
+# of its own — it is the data the other three already ship.
 test-package:
 	rm -rf dist "$(PACKAGE_CHECK_DIR)"
 	uv build --wheel
@@ -74,6 +81,7 @@ test-package:
 	cd "$(PACKAGE_CHECK_DIR)" && ./bin/rulespec-ci-validate
 	cd "$(PACKAGE_CHECK_DIR)" && ./bin/rulespec-source-catalog-validate
 	cd "$(PACKAGE_CHECK_DIR)" && ./bin/rulespec-document-validate
+	cd "$(PACKAGE_CHECK_DIR)" && ./bin/python -m rulespec_conformance.contract
 	rm -rf "$(PACKAGE_CHECK_DIR)"
 
 test-rust:
@@ -93,9 +101,10 @@ test-reference-corpora:
 test-audits:
 	$(CARGO) build $(CARGO_MANIFEST) -p projector-harness
 	$(PYTHON) tools/vocab_audit.py
-	$(PYTHON) -m unittest tools.test_constraints_compile tools.test_l0_mapping_audit tools.test_semantic_carriers tools.test_reference_release_digest tools.test_rulespec_releases tools.test_extrapolation_release_v2 tools.test_atlas_membership_stub tools.test_source_catalog_release tools.test_document_release -v
+	$(PYTHON) -m unittest tools.test_constraints_compile tools.test_l0_mapping_audit tools.test_semantic_carriers tools.test_reference_release_digest tools.test_rulespec_releases tools.test_extrapolation_release_v2 tools.test_atlas_membership_stub tools.test_source_catalog_release tools.test_document_release tools.test_contract_exports -v
 	$(PYTHON) tools/build_source_catalog_release_fixtures.py --check
 	$(PYTHON) tools/build_document_release_fixtures.py --check
+	$(PYTHON) tools/build_contract_exports.py --check
 	$(PYTHON) tools/l0_mapping_audit.py
 	$(PYTHON) tools/l0_l3_coverage_audit.py
 	$(PYTHON) tools/rename_audit.py
