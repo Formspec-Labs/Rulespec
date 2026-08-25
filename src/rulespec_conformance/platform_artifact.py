@@ -25,6 +25,8 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, BinaryIO, ClassVar, Protocol, Self, runtime_checkable
 
+from rulespec_conformance.conformance_lib import ROOT
+
 FORMAT = "spicy-artifact"
 FORMAT_VERSION = "1.0"
 ROOT_OBJECT_KEY = "artifact.json"
@@ -36,6 +38,17 @@ DEFAULT_ROOT_BYTE_LIMIT = 1024 * 1024
 DEFAULT_MANIFEST_BYTE_LIMIT = 64 * 1024 * 1024
 DEFAULT_READ_CHUNK_BYTES = 1024 * 1024
 DEFAULT_MANIFEST_SPOOL_BYTES = 1024 * 1024
+SOURCE_CATALOG_ITEM_SCHEMA_ID = (
+    "https://rulespec.org/schemas/releases/source-catalog-release-v1/"
+    "source-items-v1.schema.json"
+)
+_SOURCE_CATALOG_ITEM_SCHEMA = (
+    ROOT
+    / "release-records"
+    / "schemas"
+    / "source-catalog-release-v1"
+    / "source-items-v1.schema.json"
+)
 
 ARTIFACT_KINDS = ("source-catalog", "derivation", "composition")
 DIAGNOSTIC_CODES = (
@@ -225,6 +238,16 @@ def sha256_digest(value: bytes | Any) -> str:
 
     payload = value if isinstance(value, bytes) else canonical_json_bytes(value)
     return "sha256:" + hashlib.sha256(payload).hexdigest()
+
+
+def source_catalog_item_schema_bytes() -> bytes:
+    """Return the one packaged source-item schema used by artifact producers."""
+
+    payload = _SOURCE_CATALOG_ITEM_SCHEMA.read_bytes()
+    schema = json.loads(payload)
+    if schema.get("$id") != SOURCE_CATALOG_ITEM_SCHEMA_ID:
+        raise RuntimeError("packaged source-catalog item schema has the wrong identity")
+    return payload
 
 
 def _reject_float(value: str) -> None:
@@ -1687,6 +1710,7 @@ __all__ = [
     "MemberSource",
     "MemberSourceError",
     "SemanticVerifier",
+    "SOURCE_CATALOG_ITEM_SCHEMA_ID",
     "SourceCatalogSpec",
     "VerificationIssue",
     "VerificationResult",
@@ -1701,6 +1725,7 @@ __all__ = [
     "iter_member_descriptors",
     "parse_canonical_json",
     "sha256_digest",
+    "source_catalog_item_schema_bytes",
     "stamp_root",
     "validate_object_key",
     "verify_artifact",

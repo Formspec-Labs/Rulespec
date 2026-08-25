@@ -27,6 +27,7 @@ from tools.platform_artifact import (
     FORMAT,
     FORMAT_VERSION,
     ROOT_OBJECT_KEY,
+    SOURCE_CATALOG_ITEM_SCHEMA_ID,
     ArtifactInput,
     ArtifactPin,
     ArtifactVerificationError,
@@ -48,6 +49,7 @@ from tools.platform_artifact import (
     iter_member_descriptors,
     parse_canonical_json,
     sha256_digest,
+    source_catalog_item_schema_bytes,
     stamp_root,
     verify_artifact,
     write_member_manifest,
@@ -77,6 +79,14 @@ class MemoryMemberSource:
             yield stream
         finally:
             stream.close()
+
+
+class PackagedSchemaTests(unittest.TestCase):
+    def test_source_catalog_item_schema_has_one_public_identity(self) -> None:
+        schema = json.loads(source_catalog_item_schema_bytes())
+
+        self.assertEqual(schema["$id"], SOURCE_CATALOG_ITEM_SCHEMA_ID)
+        self.assertIn("sourceItemId", schema["required"])
 
 
 class ChunkedBytesIO(io.BytesIO):

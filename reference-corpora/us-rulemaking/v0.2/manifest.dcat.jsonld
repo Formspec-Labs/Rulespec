@@ -78,7 +78,7 @@
       "@type": "prov:Activity",
       "prov:used": [
         {
-          "@id": "urn:rulespec:contract:sha256:923b9ad595e10afe1244872506cc48e962bde6c0b5dd1c121f3857130878cd12"
+          "@id": "urn:rulespec:contract:sha256:8d70c7ce15bb75b22112fd24b581babfe89a899ebc73a4af4a4188b9b89951bd"
         },
         {
           "@id": "data/epa-oil-and-gas-climate-review.jsonld"

@@ -2,7 +2,7 @@
 
 *Making rules legible to software.*
 
-**Version** `0.2.0-pre.10` · **Working tree** Shared platform artifact protocol
+**Version** `0.2.0-pre.11` · **Working tree** Shared platform artifact protocol
 candidate · **Bridge contract** `rkaf-bridge/1.0` · **Conformance
 corpus** L1-L4 fixtures plus L0 carrier-mapping and vocabulary audits
 
