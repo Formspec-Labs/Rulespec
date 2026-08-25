@@ -54,6 +54,11 @@ adapted for a specification + shape + fixture project.
   structural corpus, including a large multipart recipe exercised through
   local files and a streaming blob store.
 
+### Fixed
+
+- Local file-state receipts can be read and closed after admission moves
+  between worker threads without leaking a SQLite finalizer error.
+
 ## 0.2.0-pre.9 — Vocabulary carriage and lifecycle closure
 
 ### Packaging

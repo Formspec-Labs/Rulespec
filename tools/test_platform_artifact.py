@@ -13,6 +13,7 @@ import tempfile
 import tracemalloc
 import unittest
 from collections.abc import Callable, Iterator, Mapping, Sequence
+from concurrent.futures import ThreadPoolExecutor
 from contextlib import contextmanager
 from pathlib import Path
 from unittest import mock
@@ -621,6 +622,26 @@ class StructuralVerificationTests(unittest.TestCase):
         memory = admit_artifact(MemoryMemberSource(files))
         self.assertIsNone(memory.local_member_states)
 
+    def test_local_file_states_can_outlive_the_admission_thread(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            for key, raw in artifact_files().items():
+                path = root / key
+                path.parent.mkdir(parents=True, exist_ok=True)
+                path.write_bytes(raw)
+
+            with ThreadPoolExecutor(max_workers=1) as executor:
+                artifact = executor.submit(
+                    lambda: admit_artifact(LocalMemberSource(root))
+                ).result()
+
+            states = artifact.local_member_states
+            self.assertIsInstance(states, LocalFileStateIndex)
+            assert isinstance(states, LocalFileStateIndex)
+            self.assertEqual(len(states), 2)
+            self.assertEqual(states["payload/a.json"].size, 10)
+            states.close()
+
     def test_local_digest_refuses_path_component_replacement_during_read(self) -> None:
         class ReplaceAtEof:
             def __init__(self, stream: object, replace_path: Callable[[], None]) -> None:
@@ -1017,7 +1038,7 @@ class StructuralVerificationTests(unittest.TestCase):
             scratch = Path(directory)
             with mock.patch(
                 "rulespec_conformance.platform_artifact.sqlite3.connect",
-                side_effect=lambda path: CloseFailure(real_connect(path)),
+                side_effect=lambda path, **options: CloseFailure(real_connect(path, **options)),
             ):
                 with self.assertRaises(OSError, msg="close failed"):
                     verify_artifact(

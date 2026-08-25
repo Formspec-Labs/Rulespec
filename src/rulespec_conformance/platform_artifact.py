@@ -1618,7 +1618,7 @@ def _admit(
     index: sqlite3.Connection | None = None
     try:
         if scratch_directory is None:
-            index = sqlite3.connect("")
+            index = sqlite3.connect("", check_same_thread=False)
         else:
             selected_scratch = Path(scratch_directory)
             selected_scratch.mkdir(parents=True, exist_ok=True)
@@ -1629,7 +1629,7 @@ def _admit(
             )
             os.close(descriptor)
             index_path = Path(name)
-            index = sqlite3.connect(index_path)
+            index = sqlite3.connect(index_path, check_same_thread=False)
         index.execute(
             "CREATE TABLE expected ("
             "object_key TEXT PRIMARY KEY, kind TEXT NOT NULL, observed INTEGER NOT NULL DEFAULT 0, "
