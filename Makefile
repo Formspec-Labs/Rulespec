@@ -62,27 +62,20 @@ test: test-rust test-shapes test-audits test-conformance test-package
 # falsify it: a data directory left out of `force-include`, or a `compiled/`
 # tree that was never generated, fails here and in no other target.
 #
-# Both console scripts run. The second one proves the SourceCatalogRelease v1
-# candidate from the installed package — required exports, bundle digest, and
-# every sealed fixture verdict. Deleting an export or a packaged data file must
-# turn this red; it must never be softened into a skip.
-#
-# The last line is the contract surface a consumer imports rather than runs:
+# The last lines exercise the contract surface a consumer imports rather than runs:
 # schemas, SHACL and context resolved through `importlib.resources`, every enum
 # constant re-checked against the schema packaged beside it, and the term
-# registry answering for a term it declares and refusing one it retired. No
-# console script, because the contract is not a release surface with a digest
-# of its own — it is the data the other three already ship.
+# registry answering for a term it declares and refusing one it retired, plus
+# the one platform artifact implementation and its common structural fixtures.
 test-package:
 	rm -rf dist "$(PACKAGE_CHECK_DIR)"
 	uv build --wheel
 	uv venv --python 3.12 "$(PACKAGE_CHECK_DIR)"
 	VIRTUAL_ENV="$(PACKAGE_CHECK_DIR)" uv pip install --quiet dist/*.whl
 	cd "$(PACKAGE_CHECK_DIR)" && ./bin/rulespec-ci-validate
-	cd "$(PACKAGE_CHECK_DIR)" && ./bin/rulespec-source-catalog-validate
-	cd "$(PACKAGE_CHECK_DIR)" && ./bin/rulespec-document-validate
 	cd "$(PACKAGE_CHECK_DIR)" && ./bin/python -m rulespec_conformance.contract
-	cd "$(PACKAGE_CHECK_DIR)" && ./bin/python -c 'from rulespec_conformance import platform_artifact as p; from rulespec_conformance.contract import resources; assert p.FORMAT == "spicy-artifact"; assert resources.platform_artifact_spec(); assert resources.json_schema("platform-artifact", family="platform")["$$defs"]'
+	cd "$(PACKAGE_CHECK_DIR)" && ./bin/python -c 'from rulespec_conformance import platform_artifact as p; from rulespec_conformance.contract import resources; assert p.FORMAT == "spicy-artifact"; assert resources.platform_artifact_spec(); assert resources.json_schema("platform-artifact", family="platform")["$$defs"]; assert resources.platform_artifact_fixture_corpus()["cases"]; assert resources.platform_artifact_fixture("valid").is_dir()'
+	cd "$(PACKAGE_CHECK_DIR)" && ./bin/python -c 'import importlib.util; from importlib.metadata import entry_points; assert importlib.util.find_spec("rulespec_conformance.source_catalog_release") is None; assert importlib.util.find_spec("rulespec_conformance.document_release") is None; names = {item.name for item in entry_points(group="console_scripts")}; assert "rulespec-source-catalog-validate" not in names; assert "rulespec-document-validate" not in names'
 	cd "$(PACKAGE_CHECK_DIR)" && ./bin/python -c 'import tempfile; from pathlib import Path; from rulespec_conformance.platform_artifact import ArtifactInput, CompositionSpec, LocalMemberSource, ROOT_OBJECT_KEY, admit_artifact, build_artifact_root, canonical_json_bytes; temporary=tempfile.TemporaryDirectory(); root=Path(temporary.name); digest="sha256:" + "1" * 64; artifact=build_artifact_root(spec=CompositionSpec("urn:example:merge", "1", digest, ("score", "logical-id")), inputs=(ArtifactInput("member", "urn:example:source", digest),), manifests=(), accounted_input_count=1); (root / ROOT_OBJECT_KEY).write_bytes(canonical_json_bytes(artifact)); admitted=admit_artifact(LocalMemberSource(root)); assert admitted.root == artifact; temporary.cleanup()'
 	rm -rf "$(PACKAGE_CHECK_DIR)"
 
@@ -103,9 +96,8 @@ test-reference-corpora:
 test-audits:
 	$(CARGO) build $(CARGO_MANIFEST) -p projector-harness
 	$(PYTHON) tools/vocab_audit.py
-	$(PYTHON) -m unittest tools.test_constraints_compile tools.test_l0_mapping_audit tools.test_semantic_carriers tools.test_reference_release_digest tools.test_rulespec_releases tools.test_extrapolation_release_v2 tools.test_atlas_membership_stub tools.test_source_catalog_release tools.test_document_release tools.test_platform_artifact tools.test_contract_exports -v
-	$(PYTHON) tools/build_source_catalog_release_fixtures.py --check
-	$(PYTHON) tools/build_document_release_fixtures.py --check
+	$(PYTHON) -m unittest tools.test_constraints_compile tools.test_l0_mapping_audit tools.test_semantic_carriers tools.test_reference_release_digest tools.test_rulespec_releases tools.test_extrapolation_release_v2 tools.test_atlas_membership_stub tools.test_platform_artifact tools.test_contract_exports -v
+	$(PYTHON) tools/build_platform_artifact_fixtures.py --check
 	$(PYTHON) tools/build_contract_exports.py --check
 	$(PYTHON) tools/l0_mapping_audit.py
 	$(PYTHON) tools/l0_l3_coverage_audit.py

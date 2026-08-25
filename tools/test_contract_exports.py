@@ -207,6 +207,9 @@ class ResourceTests(unittest.TestCase):
         definition = schema["$defs"]["PlatformSourceCatalogArtifact"]
         self.assertIs(definition["additionalProperties"], False)
         self.assertEqual(definition["properties"]["inputs"]["type"], "array")
+        corpus = resources.platform_artifact_fixture_corpus()
+        self.assertEqual(corpus["format"], "rulespec-platform-artifact-fixtures")
+        self.assertTrue(resources.platform_artifact_fixture("valid").is_dir())
 
     def test_the_hand_authored_shape_suite_resolves(self) -> None:
         self.assertIn("rkaf-shapes-core", resources.shape_names())

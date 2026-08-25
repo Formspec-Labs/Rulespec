@@ -47,36 +47,6 @@ Extrapolator consumes prepared segments and verifies submitted baseline and
 selection receipts. It does not segment documents, execute baseline validation,
 or run a selection engine, and §7 lists the duties that have no owner.
 
-### `rulespec-source-catalog-release.md`
-
-Defines the `SourceCatalogRelease` v1 candidate: the bundle shape and its one
-member manifest, content-derived release identity, the two canonical set
-digests over `U` and `S`, the source item with its exact source-native
-metadata and normalized MVP fields, source-observed topics held apart from
-RefSpec concepts, candidate renditions, the five selection dispositions, the
-diagnostic codes and their first-failure order, the sealed valid and invalid
-fixture corpus, and the candidate bundle digest.
-
-Rulespec Core owns these schemas; SpicyRegs owns the records they carry
-(REF-024). `DocumentRelease` is a separate root with a separate owner and is
-not defined there.
-
-### `rulespec-document-release.md`
-
-Defines the `DocumentRelease` v2 candidate: why the portable wire contract is
-2.0 rather than 1.0 under DocSpec's live `docspec-document-release` token, the
-bundle shape and its one member manifest, content-derived identity with the
-format token bound in, the disposition projection over `U`, the structural
-bijection that forbids a processing failure becoming a silent exclusion,
-capture and representation records, source-derived structural nodes, bounded
-search segments with heading paths and reversible byte evidence, the coverage
-tiling rule, the four canonical digests and the sealed join receipt, the 19
-diagnostic codes and their first-failure order, and a thirteen-row table of the
-deviations from DocSpec's live 1.1 format.
-
-Rulespec Core owns these schemas; DocSpec owns the records they carry
-(REF-024).
-
 ### `rkaf-analysis.md`
 
 The document-analysis module — generic, jurisdiction-free contracts for comparing relations across document versions. Defines `RelationChangeEvent` (source-stated adoption, removal, suspension, replacement, with polarity structurally absent), `RelationComparisonContext` (the immutable frame and the five closed comparison outcomes), `ResolverProofRecord` / `ResolverProofIssuer` (content-bound gate decisions, `pass`/`fail`/`unknown` plus the six scope relations), the neutral `RelationFinding`, and the Experimental, **disabled** `ClosureClaim`. It sits between the kernel and the profiles: the kernel never depends on it, it may compose kernel shapes, and profiles may depend on it. Domain interpretation — legal effect, policy exclusion, rescission — belongs to profiles, never here.

@@ -704,6 +704,63 @@ class LocalFileState:
         }
 
 
+class LocalFileStateIndex(Mapping[str, LocalFileState]):
+    """Disk-backed local file receipts captured by the digest pass.
+
+    The verifier may admit millions of payload members. Keeping one Python
+    object per member would make its memory grow with corpus size, so local
+    receipts remain in the same temporary SQLite index used for exact
+    membership. The connection owns its anonymous temporary database until the
+    index is closed or collected.
+    """
+
+    __slots__ = ("_connection",)
+
+    def __init__(self, connection: sqlite3.Connection) -> None:
+        self._connection: sqlite3.Connection | None = connection
+
+    def _open_connection(self) -> sqlite3.Connection:
+        if self._connection is None:
+            raise RuntimeError("local file-state index is closed")
+        return self._connection
+
+    @staticmethod
+    def _state(row: Sequence[int]) -> LocalFileState:
+        return LocalFileState(*row)
+
+    def __getitem__(self, object_key: str) -> LocalFileState:
+        row = self._open_connection().execute(
+            "SELECT device, inode, state_size, modified_nanoseconds, "
+            "changed_nanoseconds, mode FROM expected "
+            "WHERE kind = 'payload' AND object_key = ?",
+            (object_key,),
+        ).fetchone()
+        if row is None or any(value is None for value in row):
+            raise KeyError(object_key)
+        return self._state(row)
+
+    def __iter__(self) -> Iterator[str]:
+        rows = self._open_connection().execute(
+            "SELECT object_key FROM expected WHERE kind = 'payload' ORDER BY object_key"
+        )
+        for row in rows:
+            yield str(row[0])
+
+    def __len__(self) -> int:
+        row = self._open_connection().execute(
+            "SELECT COUNT(*) FROM expected WHERE kind = 'payload'"
+        ).fetchone()
+        return int(row[0]) if row is not None else 0
+
+    def close(self) -> None:
+        connection, self._connection = self._connection, None
+        if connection is not None:
+            connection.close()
+
+    def __del__(self) -> None:
+        self.close()
+
+
 class LocalMemberSource:
     """Read one materialized artifact directory without following links."""
 
@@ -1577,8 +1634,11 @@ def _admit(
             "CREATE TABLE expected ("
             "object_key TEXT PRIMARY KEY, kind TEXT NOT NULL, observed INTEGER NOT NULL DEFAULT 0, "
             "role TEXT, media_type TEXT, byte_size INTEGER, sha256 TEXT, "
-            "record_count INTEGER, schema_id TEXT)"
+            "record_count INTEGER, schema_id TEXT, device INTEGER, inode INTEGER, "
+            "state_size INTEGER, modified_nanoseconds INTEGER, changed_nanoseconds INTEGER, "
+            "mode INTEGER)"
         )
+        index.execute("CREATE TABLE derivation_roles (role TEXT PRIMARY KEY)")
         index.execute(
             "INSERT INTO expected (object_key, kind) VALUES (?, 'protocol')",
             (ROOT_OBJECT_KEY,),
@@ -1603,7 +1663,9 @@ def _admit(
             ):
                 try:
                     index.execute(
-                        "INSERT INTO expected VALUES (?, 'payload', 0, ?, ?, ?, ?, ?, ?)",
+                        "INSERT INTO expected "
+                        "(object_key, kind, observed, role, media_type, byte_size, sha256, "
+                        "record_count, schema_id) VALUES (?, 'payload', 0, ?, ?, ?, ?, ?, ?)",
                         (
                             member.object_key,
                             member.role,
@@ -1625,19 +1687,34 @@ def _admit(
                 total_record_count += member.record_count or 0
 
         if root["kind"] == "derivation":
-            expected_roles = set(_mapping(root["spec"], path="$/spec")["expectedOutputRoles"])
-            observed_roles = {
-                row[0]
-                for row in index.execute(
-                    "SELECT DISTINCT role FROM expected WHERE kind = 'payload'"
-                )
-            }
-            missing_roles = expected_roles - observed_roles
-            if missing_roles:
+            expected_roles = _mapping(root["spec"], path="$/spec")["expectedOutputRoles"]
+            index.executemany(
+                "INSERT INTO derivation_roles (role) VALUES (?)",
+                ((role,) for role in expected_roles),
+            )
+            missing_role = index.execute(
+                "SELECT derivation_roles.role FROM derivation_roles "
+                "LEFT JOIN expected ON expected.kind = 'payload' "
+                "AND expected.role = derivation_roles.role "
+                "WHERE expected.object_key IS NULL ORDER BY derivation_roles.role LIMIT 1"
+            ).fetchone()
+            if missing_role is not None:
                 _fail(
                     "invalid.schema",
                     "$/spec/expectedOutputRoles",
-                    f"declared output roles are absent: {sorted(missing_roles)}",
+                    f"declared output role is absent: {missing_role[0]}",
+                )
+            unexpected_role = index.execute(
+                "SELECT expected.role FROM expected "
+                "LEFT JOIN derivation_roles ON derivation_roles.role = expected.role "
+                "WHERE expected.kind = 'payload' AND derivation_roles.role IS NULL "
+                "ORDER BY expected.role LIMIT 1"
+            ).fetchone()
+            if unexpected_role is not None:
+                _fail(
+                    "invalid.schema",
+                    "$/spec/expectedOutputRoles",
+                    f"payload role is undeclared: {unexpected_role[0]}",
                 )
 
         first_extra: str | None = None
@@ -1662,9 +1739,7 @@ def _admit(
         if first_extra is not None:
             _fail("invalid.membership-extra", first_extra, "artifact contains an undeclared file")
 
-        local_member_states: dict[str, LocalFileState] | None = (
-            {} if isinstance(source, LocalMemberSource) else None
-        )
+        capture_local_states = isinstance(source, LocalMemberSource)
         rows = index.execute(
             "SELECT object_key, role, media_type, byte_size, sha256, record_count, schema_id "
             "FROM expected WHERE kind = 'payload' ORDER BY object_key"
@@ -1672,10 +1747,49 @@ def _admit(
         for row in rows:
             member = MemberDescriptor(*row)
             state = _hash_member(source, member)
-            if local_member_states is not None:
+            if capture_local_states:
                 if state is None:
                     raise RuntimeError("local member admission did not capture a file state")
-                local_member_states[member.object_key] = state
+                index.execute(
+                    "UPDATE expected SET device = ?, inode = ?, state_size = ?, "
+                    "modified_nanoseconds = ?, changed_nanoseconds = ?, mode = ? "
+                    "WHERE object_key = ?",
+                    (
+                        state.device,
+                        state.inode,
+                        state.size,
+                        state.modified_nanoseconds,
+                        state.changed_nanoseconds,
+                        state.mode,
+                        member.object_key,
+                    ),
+                )
+
+        expected_counts = {
+            "manifestCount": len(manifest_references),
+            "memberCount": member_count,
+            "totalMemberByteSize": total_member_byte_size,
+            "totalRecordCount": total_record_count,
+        }
+        counts = _mapping(root["counts"], path="$/counts")
+        for name, expected in expected_counts.items():
+            if _uint(counts[name], path=f"$/counts/{name}") != expected:
+                _fail("invalid.statistics", f"$/counts/{name}", f"expected {expected}")
+
+        local_member_states: Mapping[str, LocalFileState] | None = None
+        if capture_local_states:
+            local_member_states = LocalFileStateIndex(index)
+            index = None
+        return VerifiedArtifact(
+            root=root,
+            pin=pin,
+            inputs=inputs,
+            manifests=manifest_references,
+            member_count=member_count,
+            total_member_byte_size=total_member_byte_size,
+            total_record_count=total_record_count,
+            local_member_states=local_member_states,
+        )
     finally:
         try:
             if index is not None:
@@ -1683,28 +1797,6 @@ def _admit(
         finally:
             if index_path is not None:
                 index_path.unlink(missing_ok=True)
-
-    expected_counts = {
-        "manifestCount": len(manifest_references),
-        "memberCount": member_count,
-        "totalMemberByteSize": total_member_byte_size,
-        "totalRecordCount": total_record_count,
-    }
-    counts = _mapping(root["counts"], path="$/counts")
-    for name, expected in expected_counts.items():
-        if _uint(counts[name], path=f"$/counts/{name}") != expected:
-            _fail("invalid.statistics", f"$/counts/{name}", f"expected {expected}")
-
-    return VerifiedArtifact(
-        root=root,
-        pin=pin,
-        inputs=inputs,
-        manifests=manifest_references,
-        member_count=member_count,
-        total_member_byte_size=total_member_byte_size,
-        total_record_count=total_record_count,
-        local_member_states=local_member_states,
-    )
 
 
 def verify_artifact(
@@ -1779,6 +1871,7 @@ __all__ = [
     "DerivationSpec",
     "LocalMemberSource",
     "LocalFileState",
+    "LocalFileStateIndex",
     "MemberDescriptor",
     "MemberManifestReference",
     "MemberNotFoundError",

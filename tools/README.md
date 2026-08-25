@@ -24,50 +24,16 @@ python3 tools/rulespec_release.py validate \
 python3 -m unittest tools.test_rulespec_releases -v
 ```
 
-## SourceCatalogRelease v1 candidate
+## Platform artifacts
 
-[`source_catalog_release.py`](source_catalog_release.py) (a shim; the
-implementation is `rulespec_conformance.source_catalog_release`) verifies a
-materialized `SourceCatalogRelease` v1 bundle: root identity, member manifest,
-member digests, the two canonical set digests over `U` and `S`, the source-item
-schema, the five selection dispositions, and the counts and coverage accounting.
-It reports one diagnostic per defect and a first failure under a declared total
-order. `spec/rulespec-source-catalog-release.md` is the normative statement.
-
-[`build_source_catalog_release_fixtures.py`](build_source_catalog_release_fixtures.py)
-rebuilds the sealed corpus — one valid bundle and one invalid bundle per
-diagnostic code, each a single-rule mutation of the valid one — plus
-`release-records/source-catalog-release-v1-candidate.json`, a
-`RulespecCoreRelease` whose `release_id` is the candidate bundle digest.
+[`build_platform_artifact_fixtures.py`](build_platform_artifact_fixtures.py)
+rebuilds the common structural corpus shipped in the wheel. The cases exercise
+the one `rulespec_conformance.platform_artifact` root, canonical bytes,
+identity, manifest, membership, path, digest, count, and coverage checks.
 
 ```sh
-python3 tools/build_source_catalog_release_fixtures.py --check   # drift gate
-python3 tools/source_catalog_validate.py                          # candidate gate
-python3 -m unittest tools.test_source_catalog_release -v
-```
-
-Editing any pinned byte changes the bundle digest, which is the point: a
-candidate is immutable, and an edit starts a new one.
-
-## DocumentRelease v2 candidate
-
-[`document_release.py`](document_release.py) verifies a materialized
-`DocumentRelease` v2 bundle: root identity, member manifest and digests, the
-disposition projection over `U`, capture and representation records, structural
-node containment and ordinals, search-segment ranges, heading paths and
-reversible evidence, visible-text coverage, the sealed one-to-one join, the four
-canonical digests, and counts. Nineteen diagnostic codes under a declared total
-order. `spec/rulespec-document-release.md` is the normative statement and
-carries the deviation table against DocSpec's live 1.1 format.
-
-It imports canonical bytes, digests, and the path-safety check from
-`source_catalog_release` rather than restating them, so the traversal check has
-one implementation across both release roots.
-
-```sh
-python3 tools/build_document_release_fixtures.py --check   # drift gate
-python3 tools/document_validate.py                          # candidate gate
-python3 -m unittest tools.test_document_release -v
+python3 tools/build_platform_artifact_fixtures.py --check
+python3 -m unittest tools.test_platform_artifact -v
 ```
 
 ## Atlas-membership reader seam

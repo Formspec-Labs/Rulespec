@@ -14,78 +14,6 @@ adapted for a specification + shape + fixture project.
   Schema, TypeScript validators, and Rust carriers; the installed Python
   package supplies canonical bytes, identities, streaming manifests, storage
   injection, and structural admission.
-- `SourceCatalogRelease` v1, as an immutable digest-named candidate.
-  `spec/rulespec-source-catalog-release.md` is normative; three closed Draft
-  2020-12 schemas under `release-records/schemas/` carry the release root, the
-  member manifest, and the source item with its selection disposition,
-  candidate renditions, source-observed topics, and normalized MVP fields.
-  `rulespec_conformance.source_catalog_release` is the portable verifier: 15
-  diagnostic codes under a declared total order, with a deterministic first
-  failure. Rulespec Core owns the schemas; SpicyRegs owns the records they
-  carry (REF-024).
-- A sealed conformance corpus of 17 bundles — one valid, and one per diagnostic
-  code, each a single-rule mutation of the valid one. `corpus.json` seals every
-  bundle by tree digest and records the code and path the verifier must report
-  first. A code with no fixture fails the suite.
-- `release-records/source-catalog-release-v1-candidate.json`, a
-  `RulespecCoreRelease` pinning the schemas, both validator modules, and every
-  sealed bundle. Its `release_id`,
-  `urn:rulespec:core:2de89ad867a3794cc1006ef4cd0301248d48a719b5cbab1946f62c2c30ac0ec5`,
-  is the candidate bundle digest. Editing any pinned byte changes that name.
-- Release identity is `urn:spicy-regs:source-catalog-release:v1:<digest>` and
-  the format token is `spicy-regs-source-catalog-release`, both with the hyphen
-  per the containment decision in `spicy-regs/PLAN.md` §1a. `publishedAt` is
-  required and sits in the identity-excluded `annotations` envelope, so two
-  publishes of identical selection content share one identity — the same rule
-  DocumentRelease v3 applies to `createdAt`.
-- `rulespec-source-catalog-validate`, a second console script that re-derives
-  the bundle digest and replays the corpus from packaged data. `make
-  test-package` runs it alongside `rulespec-ci-validate`, so a missing export
-  or a data directory left out of `force-include` turns the run red. It is a
-  separate entry point because the sealed M2 `RulespecCoreRelease` pins
-  `ci_validate.py`'s bytes, and coupling the two would move the M2 identity
-  whenever source-catalog work lands.
-- `jsonschema>=4.23.0` joins the distribution's dependencies; it was already a
-  tooling requirement. No canonicalization dependency joins it — the release
-  records use the stdlib canonical JSON of `spec/rulespec-releases.md` §1,
-  which the suite asserts equals RFC 8785 on the safe value domain.
-
-- `DocumentRelease` v2, as a second immutable digest-named candidate.
-  `spec/rulespec-document-release.md` is normative; six closed Draft 2020-12
-  schemas carry the release root, member manifest, disposition projection,
-  documents (capture, representation, excluded ranges), structural nodes, and
-  search segments. `rulespec_conformance.document_release` is the portable
-  verifier: 19 diagnostic codes ordered bundle-integrity first, then domain
-  concerns in dependency order — a segment cannot be judged against a
-  structural parent whose range is already known wrong.
-  Version **2.0**, not 1.0: DocSpec's live root writes the same
-  `docspec-document-release` token at `formatVersion: "1.1"` over a different,
-  internal pointer-record shape, and its `stable_urn` already mints
-  `urn:docspec:document-release:v1:` over a different identity preimage.
-  Identity is `urn:docspec:document-release:v2:<digest>` — DocSpec's namespace,
-  because DocSpec owns the records (REF-024).
-  The bijection is structural: a `selected` disposition row MUST carry a
-  `documentVersionId` and any other MUST carry `null`, so a processing failure
-  cannot become a silent downstream exclusion. No capture record carries a wall
-  clock; publication time lives once, in the identity-excluded annotations.
-- A second sealed corpus of 20 bundles — one valid and one per diagnostic code.
-  Every byte offset in it is derived from the fixture's own bytes. The valid
-  bundle is built from the sealed `SourceCatalogRelease` v1 fixture and pins it
-  by identity and digest, so the two candidates are joined rather than adjacent.
-- `release-records/document-release-v2-candidate.json` at
-  `urn:rulespec:core:ff444f8483a2bc7dfdee4169ef2014a9b5ac056fd08ba0dded0c1b9e60d6fe83`,
-  and `rulespec-document-validate`, the third console script. Two bundles, two
-  digests: one bundle spanning both roots would make either root's edit re-mint
-  the other.
-- `spec/rulespec-document-release.md` §6 records thirteen deviations from
-  DocSpec's live 1.1 format, nine of them breaking for a 1.1 producer. That
-  delta is DocSpec's migration work.
-
-`document_release` imports canonical bytes, digests, and the path-safety check
-from `source_catalog_release` rather than restating them, so the containment and
-traversal check has one implementation across both roots. Importing changed no
-byte of that module, so the SourceCatalogRelease candidate digest is unmoved.
-
 - `rulespec_conformance.contract`, the contract as an import rather than a
   checkout. `contract.resources` reaches the compiled JSON Schemas, the
   compiled SHACL, the hand-authored shape suite, the JSON-LD context and
@@ -93,7 +21,7 @@ byte of that module, so the SourceCatalogRelease candidate digest is unmoved.
   from `__file__` and never guesses at a layout the build backend owns.
   `VERSION` joins the force-include table for the same reason: one version
   string, the repository's own.
-- `contract.enums`, every closed enum and lattice the CUE declares — 78 of
+- `contract.enums`, every closed enum and lattice the CUE declares — 80 of
   them, including the four unions flattened to their members — as tuples in
   declaration order. `USAGE_ELIGIBILITY` is the one whose ORDER
   `usage-eligibility.cue` calls normative, and consumers that were keeping
@@ -114,6 +42,17 @@ byte of that module, so the SourceCatalogRelease candidate digest is unmoved.
   `make test-package` runs `python -m rulespec_conformance.contract` from the
   scratch venv: it re-checks every enum constant against the schema packaged
   beside it, so the two projections of one CUE tree cannot ship disagreeing.
+
+### Removed
+
+- Retired the superseded `SourceCatalogRelease` v1 and `DocumentRelease` v2
+  roots, structural validators, console scripts, schemas, prose, and sealed
+  candidate corpora. Their product records now travel only as members of
+  `spicy-artifact/1.0`; the source-item semantic schema remains packaged under
+  its existing public `$id`.
+- Replaced the candidate-specific fixtures with one packaged platform
+  structural corpus, including a large multipart recipe exercised through
+  local files and a streaming blob store.
 
 ## 0.2.0-pre.9 — Vocabulary carriage and lifecycle closure
 

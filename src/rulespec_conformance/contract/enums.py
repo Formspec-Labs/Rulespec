@@ -426,6 +426,19 @@ NO_EVIDENCE_REASON: tuple[str, ...] = (
     "rkaf:declared-hypothesis",
 )
 
+#: `#PlatformArtifactKind` — constraints/platform/platform-artifact.cue
+PLATFORM_ARTIFACT_KIND: tuple[str, ...] = (
+    "source-catalog",
+    "derivation",
+    "composition",
+)
+
+#: `#PlatformManifestScopeKind` — constraints/platform/platform-artifact.cue
+PLATFORM_MANIFEST_SCOPE_KIND: tuple[str, ...] = (
+    "global",
+    "partition",
+)
+
 #: `#ProceedingIdentifierScheme` — constraints/profiles/us-rulemaking/rulemaking.cue
 PROCEEDING_IDENTIFIER_SCHEME: tuple[str, ...] = (
     "rkaf:official-registry",
@@ -831,6 +844,8 @@ ENUMS: dict[str, tuple[str, ...]] = {
     "MachineAdjudicationVerdict": MACHINE_ADJUDICATION_VERDICT,
     "MappingState": MAPPING_STATE,
     "NoEvidenceReason": NO_EVIDENCE_REASON,
+    "PlatformArtifactKind": PLATFORM_ARTIFACT_KIND,
+    "PlatformManifestScopeKind": PLATFORM_MANIFEST_SCOPE_KIND,
     "ProceedingIdentifierScheme": PROCEEDING_IDENTIFIER_SCHEME,
     "ProceedingStage": PROCEEDING_STAGE,
     "ProceedingTerminationCause": PROCEEDING_TERMINATION_CAUSE,
@@ -913,6 +928,8 @@ ENUM_SOURCES: dict[str, str] = {
     "MachineAdjudicationVerdict": "constraints/analysis/machine-adjudication.cue",
     "MappingState": "constraints/core/mapping-state.cue",
     "NoEvidenceReason": "constraints/core/evidence-binding.cue",
+    "PlatformArtifactKind": "constraints/platform/platform-artifact.cue",
+    "PlatformManifestScopeKind": "constraints/platform/platform-artifact.cue",
     "ProceedingIdentifierScheme": "constraints/profiles/us-rulemaking/rulemaking.cue",
     "ProceedingStage": "constraints/profiles/us-rulemaking/rulemaking.cue",
     "ProceedingTerminationCause": "constraints/profiles/us-rulemaking/rulemaking.cue",
@@ -996,6 +1013,8 @@ __all__ = [
     "MACHINE_ADJUDICATION_VERDICT",
     "MAPPING_STATE",
     "NO_EVIDENCE_REASON",
+    "PLATFORM_ARTIFACT_KIND",
+    "PLATFORM_MANIFEST_SCOPE_KIND",
     "PROCEEDING_IDENTIFIER_SCHEME",
     "PROCEEDING_STAGE",
     "PROCEEDING_TERMINATION_CAUSE",

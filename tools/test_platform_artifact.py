@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import gc
 import io
 import json
 import os
@@ -9,13 +10,15 @@ import shutil
 import sqlite3
 import subprocess
 import tempfile
+import tracemalloc
 import unittest
-from collections.abc import Callable, Iterator, Sequence
+from collections.abc import Callable, Iterator, Mapping, Sequence
 from contextlib import contextmanager
 from pathlib import Path
 from unittest import mock
 
 import jsonschema
+from rulespec_conformance.contract import resources
 
 from tools.constraints_compile import (
     parse_cue_file,
@@ -34,6 +37,7 @@ from tools.platform_artifact import (
     CanonicalSetDigester,
     CompositionSpec,
     DerivationSpec,
+    LocalFileStateIndex,
     LocalMemberSource,
     MemberDescriptor,
     MemberManifestReference,
@@ -83,12 +87,78 @@ class MemoryMemberSource:
             stream.close()
 
 
+class SqliteBlobMemberSource:
+    """Streaming object-store fixture backed by SQLite BLOB handles."""
+
+    def __init__(self, path: Path) -> None:
+        self.connection = sqlite3.connect(path)
+        self.connection.execute(
+            "CREATE TABLE objects (id INTEGER PRIMARY KEY, object_key TEXT UNIQUE, payload BLOB)"
+        )
+
+    def put(self, object_key: str, payload: bytes) -> None:
+        self.connection.execute(
+            "INSERT INTO objects (object_key, payload) VALUES (?, ?)",
+            (object_key, payload),
+        )
+
+    def keys(self) -> Iterator[str]:
+        for row in self.connection.execute("SELECT object_key FROM objects ORDER BY object_key"):
+            yield str(row[0])
+
+    @contextmanager
+    def open(self, object_key: str) -> Iterator[object]:
+        row = self.connection.execute(
+            "SELECT id FROM objects WHERE object_key = ?",
+            (object_key,),
+        ).fetchone()
+        if row is None:
+            raise MemberNotFoundError(object_key)
+        blob = self.connection.blobopen("objects", "payload", int(row[0]), readonly=True)
+        try:
+            yield blob
+        finally:
+            blob.close()
+
+    def close(self) -> None:
+        self.connection.close()
+
+
 class PackagedSchemaTests(unittest.TestCase):
     def test_source_catalog_item_schema_has_one_public_identity(self) -> None:
         schema = json.loads(source_catalog_item_schema_bytes())
 
         self.assertEqual(schema["$id"], SOURCE_CATALOG_ITEM_SCHEMA_ID)
         self.assertIn("sourceItemId", schema["required"])
+
+
+class PackagedFixtureCorpusTests(unittest.TestCase):
+    def test_common_structural_corpus_returns_every_declared_code(self) -> None:
+        corpus = resources.platform_artifact_fixture_corpus()
+        observed: dict[str, str] = {}
+        for case in corpus["cases"]:
+            name = case["name"]
+            fixture = Path(str(resources.platform_artifact_fixture(name)))
+            observed[name] = verify_artifact(LocalMemberSource(fixture)).code
+
+        self.assertEqual(
+            observed,
+            {case["name"]: case["expectedCode"] for case in corpus["cases"]},
+        )
+        self.assertTrue(
+            {
+                "invalid.root-syntax",
+                "invalid.identity",
+                "invalid.path",
+                "invalid.manifest",
+                "invalid.membership-missing",
+                "invalid.membership-extra",
+                "invalid.member-digest",
+                "invalid.schema",
+                "invalid.statistics",
+            }
+            <= set(observed.values())
+        )
 
 
 class CanonicalSetDigesterTests(unittest.TestCase):
@@ -126,10 +196,16 @@ class ChunkedBytesIO(io.BytesIO):
         return super().read(selected)
 
 
-def descriptor(object_key: str, payload: bytes, *, records: int = 1) -> MemberDescriptor:
+def descriptor(
+    object_key: str,
+    payload: bytes,
+    *,
+    records: int = 1,
+    role: str = "records",
+) -> MemberDescriptor:
     return MemberDescriptor(
         object_key=object_key,
-        role="records",
+        role=role,
         media_type="application/json",
         byte_size=len(payload),
         sha256=sha256_digest(payload),
@@ -143,6 +219,7 @@ def artifact_files(
     payloads: dict[str, bytes] | None = None,
     partitions: tuple[tuple[str, tuple[str, ...]], ...] | None = None,
     inputs: tuple[ArtifactInput, ...] = (),
+    roles: Mapping[str, str] | None = None,
 ) -> dict[str, bytes]:
     selected_payloads = payloads or {
         "payload/a.json": b'{"id":"a"}',
@@ -155,7 +232,7 @@ def artifact_files(
     references: list[MemberManifestReference] = []
     files = dict(selected_payloads)
     members_by_key = {
-        key: descriptor(key, payload)
+        key: descriptor(key, payload, role=(roles or {}).get(key, "records"))
         for key, payload in selected_payloads.items()
     }
     for scope_id, keys in selected_partitions:
@@ -808,6 +885,95 @@ class StructuralVerificationTests(unittest.TestCase):
         self.assertEqual(reference.member_count, 1_000)
         self.assertEqual(reference.byte_size, len(output.getvalue()))
 
+    def test_large_multipart_fixture_is_bounded_through_local_and_blob_sources(self) -> None:
+        recipe = resources.platform_artifact_fixture_corpus()["largeMultipart"]
+        partition_count = recipe["partitionCount"]
+        members_per_partition = recipe["membersPerPartition"]
+        payload_bytes = recipe["payloadBytes"]
+        total_members = partition_count * members_per_partition
+
+        with tempfile.TemporaryDirectory() as directory:
+            base = Path(directory)
+            local_root = base / "local"
+            local_root.mkdir()
+            blob_source = SqliteBlobMemberSource(base / "objects.sqlite3")
+            references: list[MemberManifestReference] = []
+
+            def put(object_key: str, payload: bytes) -> None:
+                path = local_root / object_key
+                path.parent.mkdir(parents=True, exist_ok=True)
+                path.write_bytes(payload)
+                blob_source.put(object_key, payload)
+
+            for partition in range(partition_count):
+                members: list[MemberDescriptor] = []
+                for ordinal in range(members_per_partition):
+                    object_key = f"payload/{partition:04d}/{ordinal:04d}.bin"
+                    prefix = f"{partition:04d}/{ordinal:04d}|".encode()
+                    payload = (prefix + b"x" * payload_bytes)[:payload_bytes]
+                    put(object_key, payload)
+                    members.append(
+                        describe_member_from_receipt(
+                            object_key=object_key,
+                            role="records",
+                            media_type="application/octet-stream",
+                            byte_size=len(payload),
+                            sha256=sha256_digest(payload),
+                            record_count=1,
+                        )
+                    )
+                manifest_bytes = io.BytesIO()
+                reference = write_member_manifest(
+                    manifest_bytes,
+                    scope_kind="partition",
+                    scope_id=f"{partition:04d}",
+                    object_key=f"manifests/{partition:04d}.json",
+                    members=members,
+                    spool_bytes=128,
+                )
+                references.append(reference)
+                put(reference.object_key, manifest_bytes.getvalue())
+
+            root = build_artifact_root(
+                spec=SourceCatalogSpec(
+                    catalog_id="urn:example:large-catalog",
+                    requested_universe_set_digest="sha256:" + "1" * 64,
+                    selected_source_set_digest="sha256:" + "2" * 64,
+                    selection_policy_digest="sha256:" + "3" * 64,
+                    selection_policy_id="urn:example:selection-policy",
+                    selection_policy_version="1",
+                    source_system_id="urn:example:source-system",
+                    source_system_version="1",
+                ),
+                inputs=(),
+                manifests=references,
+                accounted_input_count=total_members,
+            )
+            root_bytes = canonical_json_bytes(root)
+            self.assertLessEqual(len(root_bytes), 1024 * 1024)
+            put(ROOT_OBJECT_KEY, root_bytes)
+            blob_source.connection.commit()
+
+            peaks: list[int] = []
+            pins: list[ArtifactPin] = []
+            for source in (LocalMemberSource(local_root), blob_source):
+                gc.collect()
+                tracemalloc.start()
+                artifact = admit_artifact(source, scratch_directory=base / "scratch")
+                _, peak = tracemalloc.get_traced_memory()
+                tracemalloc.stop()
+                peaks.append(peak)
+                pins.append(artifact.pin)
+                self.assertEqual(artifact.member_count, total_members)
+                if isinstance(artifact.local_member_states, LocalFileStateIndex):
+                    self.assertEqual(len(artifact.local_member_states), total_members)
+                    artifact.local_member_states.close()
+
+            blob_source.close()
+            self.assertEqual(pins[0], pins[1])
+            self.assertLess(max(peaks), 8 * 1024 * 1024)
+            self.assertEqual(tuple((base / "scratch").iterdir()), ())
+
     def test_explicit_scratch_index_is_removed(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             scratch = Path(directory)
@@ -923,6 +1089,18 @@ class KindTests(unittest.TestCase):
         changed_root.pop("artifactDigest")
         changed[ROOT_OBJECT_KEY] = canonical_json_bytes(stamp_root(changed_root))
         self.assertEqual(verify_artifact(MemoryMemberSource(changed)).code, "invalid.schema")
+
+        unexpected = artifact_files(
+            inputs=(ArtifactInput("source", "urn:example:source", "sha256:" + "1" * 64),),
+            roles={"payload/b.json": "undeclared"},
+        )
+        unexpected_root = parse_canonical_json(unexpected[ROOT_OBJECT_KEY])
+        unexpected_root["kind"] = "derivation"
+        unexpected_root["spec"] = root["spec"]
+        unexpected_root.pop("logicalId")
+        unexpected_root.pop("artifactDigest")
+        unexpected[ROOT_OBJECT_KEY] = canonical_json_bytes(stamp_root(unexpected_root))
+        self.assertEqual(verify_artifact(MemoryMemberSource(unexpected)).code, "invalid.schema")
 
     def test_reference_only_composition_needs_no_dummy_manifest(self) -> None:
         root = build_artifact_root(

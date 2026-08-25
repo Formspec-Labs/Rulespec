@@ -231,5 +231,7 @@ structural diagnostic type.
 `constraints/platform/platform-artifact.cue` is the shape source. The existing
 Rulespec compiler emits closed plain-JSON Schema, TypeScript, and Rust carriers.
 The wheel includes the generated JSON Schema, this document, and
-`rulespec_conformance.platform_artifact`. Consumer repositories install a built
-wheel; they do not import a Rulespec checkout or keep copies of this protocol.
+`rulespec_conformance.platform_artifact`. It also includes one common structural
+fixture corpus, available through `rulespec_conformance.contract.resources`.
+Consumer repositories install a built wheel; they do not import a Rulespec
+checkout or keep copies of this protocol.

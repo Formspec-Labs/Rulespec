@@ -1,0 +1,192 @@
+#!/usr/bin/env python3
+"""Build the packaged structural fixture corpus for platform artifacts."""
+
+from __future__ import annotations
+
+import argparse
+import shutil
+import tempfile
+from pathlib import Path
+
+from platform_artifact import (
+    ROOT_OBJECT_KEY,
+    MemberManifestReference,
+    SourceCatalogSpec,
+    build_artifact_root,
+    canonical_json_bytes,
+    describe_member_from_receipt,
+    expected_artifact_digest,
+    parse_canonical_json,
+    sha256_digest,
+    stamp_root,
+)
+
+ROOT = Path(__file__).resolve().parents[1]
+FIXTURE_ROOT = ROOT / "platform-fixtures"
+
+
+def _valid_files() -> dict[str, bytes]:
+    payload_key = "payload/records.json"
+    payload = b'[{"id":"one"}]'
+    member = describe_member_from_receipt(
+        object_key=payload_key,
+        role="records",
+        media_type="application/json",
+        byte_size=len(payload),
+        sha256=sha256_digest(payload),
+        record_count=1,
+        schema_id="https://example.test/schemas/records-v1",
+    )
+    manifest, manifest_bytes = MemberManifestReference.for_members(
+        scope_kind="global",
+        scope_id="all",
+        object_key="manifests/all.json",
+        members=(member,),
+    )
+    root = build_artifact_root(
+        spec=SourceCatalogSpec(
+            catalog_id="urn:example:fixture-catalog",
+            source_system_id="urn:example:fixture-source",
+            source_system_version="1",
+            selection_policy_id="urn:example:fixture-selection",
+            selection_policy_version="1",
+            selection_policy_digest="sha256:" + "1" * 64,
+            requested_universe_set_digest="sha256:" + "2" * 64,
+            selected_source_set_digest="sha256:" + "3" * 64,
+        ),
+        inputs=(),
+        manifests=(manifest,),
+        accounted_input_count=1,
+    )
+    return {
+        ROOT_OBJECT_KEY: canonical_json_bytes(root),
+        manifest.object_key: manifest_bytes,
+        payload_key: payload,
+    }
+
+
+def _root(files: dict[str, bytes]) -> dict[str, object]:
+    root = parse_canonical_json(files[ROOT_OBJECT_KEY])
+    assert isinstance(root, dict)
+    return root
+
+
+def _with_root(files: dict[str, bytes], root: dict[str, object]) -> dict[str, bytes]:
+    result = dict(files)
+    result[ROOT_OBJECT_KEY] = canonical_json_bytes(root)
+    return result
+
+
+def _cases() -> dict[str, tuple[str, dict[str, bytes]]]:
+    valid = _valid_files()
+    cases: dict[str, tuple[str, dict[str, bytes]]] = {"valid": ("valid", valid)}
+
+    noncanonical = dict(valid)
+    noncanonical[ROOT_OBJECT_KEY] += b"\n"
+    cases["noncanonical-root"] = ("invalid.root-syntax", noncanonical)
+
+    unknown = _root(valid)
+    unknown["unexpected"] = True
+    cases["unknown-root-field"] = ("invalid.schema", _with_root(valid, unknown))
+
+    wrong_identity = _root(valid)
+    wrong_identity["logicalId"] = "urn:spicy:artifact:source-catalog:" + "0" * 64
+    cases["wrong-identity"] = ("invalid.identity", _with_root(valid, wrong_identity))
+
+    unsafe = _root(valid)
+    unsafe["memberManifests"][0]["objectKey"] = "../escape.json"  # type: ignore[index]
+    cases["unsafe-path"] = ("invalid.path", _with_root(valid, unsafe))
+
+    invalid_manifest = dict(valid)
+    invalid_manifest["manifests/all.json"] += b"\n"
+    cases["invalid-manifest"] = ("invalid.manifest", invalid_manifest)
+
+    missing = dict(valid)
+    del missing["payload/records.json"]
+    cases["missing-member"] = ("invalid.membership-missing", missing)
+
+    extra = dict(valid)
+    extra["payload/extra.json"] = b"{}"
+    cases["extra-member"] = ("invalid.membership-extra", extra)
+
+    corrupt = dict(valid)
+    corrupt["payload/records.json"] = b"corrupt"
+    cases["member-digest"] = ("invalid.member-digest", corrupt)
+
+    counts = _root(valid)
+    counts.pop("logicalId")
+    counts.pop("artifactDigest")
+    counts["counts"]["memberCount"] = 2  # type: ignore[index]
+    cases["counts"] = ("invalid.statistics", _with_root(valid, stamp_root(counts)))
+
+    incomplete = _root(valid)
+    incomplete["coverage"] = {
+        "accountedInputCount": 0,
+        "complete": False,
+        "unaccountedInputCount": 1,
+    }
+    incomplete["artifactDigest"] = expected_artifact_digest(incomplete)
+    cases["incomplete-coverage"] = (
+        "invalid.statistics",
+        _with_root(valid, incomplete),
+    )
+    return cases
+
+
+def _write_tree(destination: Path) -> None:
+    cases = _cases()
+    corpus = {
+        "cases": [
+            {"expectedCode": expected, "name": name, "path": f"cases/{name}"}
+            for name, (expected, _) in sorted(cases.items())
+        ],
+        "format": "rulespec-platform-artifact-fixtures",
+        "formatVersion": "1.0",
+        "largeMultipart": {
+            "membersPerPartition": 64,
+            "partitionCount": 64,
+            "payloadBytes": 256,
+        },
+    }
+    destination.mkdir(parents=True, exist_ok=True)
+    (destination / "corpus.json").write_bytes(canonical_json_bytes(corpus))
+    for name, (_, files) in cases.items():
+        case_root = destination / "cases" / name
+        for object_key, payload in files.items():
+            path = case_root / object_key
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_bytes(payload)
+
+
+def _snapshot(root: Path) -> dict[str, bytes]:
+    if not root.is_dir():
+        return {}
+    return {
+        path.relative_to(root).as_posix(): path.read_bytes()
+        for path in sorted(root.rglob("*"))
+        if path.is_file()
+    }
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--check", action="store_true")
+    args = parser.parse_args()
+    with tempfile.TemporaryDirectory() as directory:
+        generated = Path(directory) / "platform-fixtures"
+        _write_tree(generated)
+        if args.check:
+            if _snapshot(generated) != _snapshot(FIXTURE_ROOT):
+                print("platform fixture corpus is stale")
+                return 1
+            print("platform fixture corpus is current")
+            return 0
+        if FIXTURE_ROOT.exists():
+            shutil.rmtree(FIXTURE_ROOT)
+        shutil.copytree(generated, FIXTURE_ROOT)
+    print(f"wrote {FIXTURE_ROOT}")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

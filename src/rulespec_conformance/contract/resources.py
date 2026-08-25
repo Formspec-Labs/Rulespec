@@ -118,6 +118,27 @@ def platform_artifact_spec() -> str:
     return read_text("spec/platform-artifacts.md")
 
 
+def platform_artifact_fixture_corpus() -> dict[str, Any]:
+    """The packaged common structural fixture-corpus index."""
+
+    value = read_json("platform-fixtures/corpus.json")
+    if not isinstance(value, dict):
+        raise ValueError("platform fixture corpus must be a JSON object")
+    return value
+
+
+def platform_artifact_fixture(name: str) -> Traversable:
+    """One packaged fixture artifact directory named by the corpus index."""
+
+    selected = _segments(name)
+    if len(selected) != 1:
+        raise ValueError("platform fixture name must be one path segment")
+    target = resource("platform-fixtures/cases", selected[0])
+    if not target.is_dir():
+        raise FileNotFoundError(f"unknown platform artifact fixture: {name}")
+    return target
+
+
 def json_schema(name: str, *, family: str = "core") -> dict[str, Any]:
     """A compiled Draft 2020-12 schema, e.g. `json_schema("artifact")`."""
     return read_json("compiled/json-schema", family, f"{name}.schema.json")
