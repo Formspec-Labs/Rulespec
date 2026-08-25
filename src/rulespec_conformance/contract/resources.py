@@ -112,6 +112,12 @@ def context() -> dict[str, Any]:
     return read_json(CONTEXT_FILE)
 
 
+def platform_artifact_spec() -> str:
+    """The normative platform artifact 1.0 specification."""
+
+    return read_text("spec/platform-artifacts.md")
+
+
 def json_schema(name: str, *, family: str = "core") -> dict[str, Any]:
     """A compiled Draft 2020-12 schema, e.g. `json_schema("artifact")`."""
     return read_json("compiled/json-schema", family, f"{name}.schema.json")

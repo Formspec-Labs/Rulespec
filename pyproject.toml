@@ -5,8 +5,8 @@ build-backend = "hatchling.build"
 [project]
 name = "rulespec-conformance"
 # Propagated from VERSION by tools/version_sync.py. PEP 440 normalises
-# `0.2.0-pre.9` to `0.2.0rc9`, so no translation is needed.
-version = "0.2.0-pre.9"
+# `0.2.0-pre.N` to `0.2.0rcN`, so no translation is needed.
+version = "0.2.0-pre.10"
 description = "Rulespec conformance validator and contract: SHACL suite, compiled schemas, JSON-LD context, the rkaf vocabulary as importable constants, and the CI gate that applies them."
 readme = "README.md"
 requires-python = ">=3.12"
@@ -53,6 +53,7 @@ packages = ["src/rulespec_conformance"]
 # outright when a force-include source is missing. Do not soften that.
 [tool.hatch.build.targets.wheel.force-include]
 "compiled" = "rulespec_conformance/_data/compiled"
+"spec/platform-artifacts.md" = "rulespec_conformance/_data/spec/platform-artifacts.md"
 "shapes" = "rulespec_conformance/_data/shapes"
 "fixtures" = "rulespec_conformance/_data/fixtures"
 "context/rkaf-context.jsonld" = "rulespec_conformance/_data/context/rkaf-context.jsonld"

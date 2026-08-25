@@ -201,6 +201,13 @@ class ResourceTests(unittest.TestCase):
         self.assertIn("sh:NodeShape", resources.shacl("artifact"))
         self.assertIn("artifact", resources.shacl_names())
 
+    def test_platform_artifact_spec_and_closed_schema_resolve(self) -> None:
+        self.assertIn("# Rulespec platform artifacts 1.0", resources.platform_artifact_spec())
+        schema = resources.json_schema("platform-artifact", family="platform")
+        definition = schema["$defs"]["PlatformSourceCatalogArtifact"]
+        self.assertIs(definition["additionalProperties"], False)
+        self.assertEqual(definition["properties"]["inputs"]["type"], "array")
+
     def test_the_hand_authored_shape_suite_resolves(self) -> None:
         self.assertIn("rkaf-shapes-core", resources.shape_names())
         self.assertIn("sh:NodeShape", resources.shapes("rkaf-shapes-core"))

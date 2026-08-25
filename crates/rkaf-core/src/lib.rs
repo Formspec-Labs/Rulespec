@@ -1,7 +1,8 @@
 //! Rulespec Layer 1 — typed Vocabulary primitives.
 //!
 //! **All types in this crate are code-generated from the CUE source-of-truth
-//! under `constraints/core/` (the universal kernel) and
+//! under `constraints/core/` (the universal kernel),
+//! `constraints/platform/` (byte-level artifact carriers), and
 //! `constraints/profiles/` (domain profiles).** The generator is
 //! `tools/constraints_compile.py --target rust`. Each CUE source file produces
 //! one Rust module under `src/generated/`. The same compiler emits JSON
@@ -170,6 +171,13 @@ pub mod generated {
         pub mod relation_comparison_context { include!("generated/analysis/relation_comparison_context.rs"); }
         pub mod relation_finding            { include!("generated/analysis/relation_finding.rs"); }
         pub mod resolver_proof_record       { include!("generated/analysis/resolver_proof_record.rs"); }
+    }
+
+    /// Byte-level artifact carriers generated from `constraints/platform/`.
+    /// Structural and identity validation lives in the installed Python
+    /// conformance package; these types preserve the same closed shapes.
+    pub mod platform {
+        pub mod platform_artifact { include!("generated/platform/platform_artifact.rs"); }
     }
 
     /// Domain profiles. Each submodule is generated from

@@ -107,8 +107,8 @@ def sync_jsonld_context(truth: str, write: bool) -> bool:
 def sync_pyproject(truth: str, write: bool) -> bool:
     """Keep the `rulespec-conformance` distribution on VERSION.
 
-    The raw string propagates unchanged: PEP 440 normalises `0.2.0-pre.9` to
-    `0.2.0rc9`, so no translation is needed here.
+    The raw string propagates unchanged: PEP 440 normalises `0.2.0-pre.N` to
+    `0.2.0rcN`, so no translation is needed here.
     """
 
     path = ROOT / "pyproject.toml"

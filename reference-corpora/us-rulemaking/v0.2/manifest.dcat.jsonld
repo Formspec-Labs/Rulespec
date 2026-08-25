@@ -68,23 +68,23 @@
     }
   ],
   "dcterms:relation": {
-    "@id": "urn:rkaf:corpus:us-rulemaking:validation:2026-08-10",
+    "@id": "urn:rkaf:corpus:us-rulemaking:validation:2026-08-24",
     "@type": "prov:Entity",
     "dcterms:title": "US rulemaking reference-corpus validation result",
     "dcterms:description": "Passed the reference JSON Schema and SHACL fixture gates; this is validation evidence, not a consumer conformance declaration.",
     "prov:value": "pass",
     "prov:wasGeneratedBy": {
-      "@id": "urn:rkaf:corpus:us-rulemaking:validation-activity:2026-08-10",
+      "@id": "urn:rkaf:corpus:us-rulemaking:validation-activity:2026-08-24",
       "@type": "prov:Activity",
       "prov:used": [
         {
-          "@id": "urn:rulespec:contract:sha256:c38bae49910d4cd083d2f97841e752d519cf2700bf1233ecac75493fd9988a5e"
+          "@id": "urn:rulespec:contract:sha256:923b9ad595e10afe1244872506cc48e962bde6c0b5dd1c121f3857130878cd12"
         },
         {
           "@id": "data/epa-oil-and-gas-climate-review.jsonld"
         }
       ],
-      "dcterms:date": "2026-08-10"
+      "dcterms:date": "2026-08-24"
     }
   }
 }

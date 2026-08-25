@@ -4,6 +4,14 @@ This directory holds the active normative specifications. The CUE source under `
 
 ## Documents
 
+### `platform-artifacts.md`
+
+The one cross-product byte format for source catalogs, derivations, and
+compositions. It defines the closed root, partition manifests, two identities,
+bounded structural verifier, diagnostics, and injected `MemberSource`. The
+installed conformance package owns the implementation; product repositories
+retain only their semantic checks and storage adapters.
+
 ### `rkaf-core.md`
 
 Normative architecture and conformance — the load-bearing surface above the vocabulary. Defines the framework's layered model (vocabulary, constraints, registries, projectors, SDKs, conformance, corpora), the overlay pattern, anchoring contract, adoption-depth gradient, and conformance levels.

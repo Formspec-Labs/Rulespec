@@ -110,7 +110,7 @@ class PropDef:
     list_allow_scalar: bool = True
     list_of_string: bool = False
     optional: bool = False
-    fixed_value: Optional[str] = None
+    fixed_value: object | None = None
     pattern: Optional[str] = None
     forbidden_pattern: Optional[str] = None
     string_format: Optional[str] = None
@@ -212,6 +212,13 @@ class ConstraintDoc:
     shapes: list[ShapeDef] = field(default_factory=list)
 
 
+_PLAIN_JSON_PACKAGES = frozenset({"platform-artifact"})
+
+
+def _is_plain_json(doc: ConstraintDoc) -> bool:
+    return doc.package in _PLAIN_JSON_PACKAGES
+
+
 # ---- Parser --------------------------------------------------------------
 
 ENUM_LINE_RE = re.compile(
@@ -232,7 +239,9 @@ SCALAR_TYPE_RE = re.compile(
 
 # Shape composition spellings. `#Name: {` + an embedded `#Base` line is handled
 # by `parse_shape_body`; these two cover the expression forms.
-SHAPE_CONJUNCTION_RE = re.compile(r"^#(\w+):\s*#(\w+)\s*&\s*(?:\w+=)?\{$")
+SHAPE_CONJUNCTION_RE = re.compile(
+    r"^#(\w+):\s*(?:\w+=)?#(\w+)\s*&\s*(?:\w+=)?\{$"
+)
 COMPOSED_DISJUNCTION_OPEN_RE = re.compile(
     r"^#(\w+):\s*\(\s*#(\w+)\s*&\s*(?:\w+=)?\{$"
 )
@@ -451,6 +460,10 @@ def parse_cue_file(path: Path, *, resolve_composition: bool = True) -> Constrain
     _validate_document_value_objects(doc, allow_unresolved=True)
     if resolve_composition:
         _resolve_shape_compositions(doc, path)
+        # Composition copies base properties after the first classification
+        # pass. Classify those copied references too so every generated target
+        # validates nested carriers instead of treating them as enum strings.
+        _classify_local_named_references(doc)
     return doc
 
 
@@ -926,7 +939,7 @@ def parse_shape_body(lines: list[tuple[int, str]], start: int) -> tuple[ShapeDef
         # Property line
         p = parse_property_line(line)
         if p:
-            if p.name == "@type" and p.fixed_value:
+            if p.name == "@type" and isinstance(p.fixed_value, str):
                 shape.type_iri = p.fixed_value
             else:
                 shape.properties.append(p)
@@ -989,6 +1002,14 @@ def parse_property_line(line: str) -> Optional[PropDef]:
     if lit:
         p.type_ref = "string"
         p.fixed_value = lit.group(1)
+        return p
+    if rhs in {"true", "false"}:
+        p.type_ref = "bool"
+        p.fixed_value = rhs == "true"
+        return p
+    if re.fullmatch(r"-?\d+", rhs):
+        p.type_ref = "int"
+        p.fixed_value = int(rhs)
         return p
     # Enum reference: `#EnumName`
     em = re.match(r"^#(\w+)$", rhs)
@@ -1053,6 +1074,16 @@ def parse_property_line(line: str) -> Optional[PropDef]:
                 else:
                     p.list_max_items = int(value)
             return p
+    # `int & >=N & <=N`
+    bounded_int = re.match(
+        r"^int\s*&\s*>=\s*(-?\d+)\s*&\s*<=\s*(-?\d+)$",
+        rhs,
+    )
+    if bounded_int:
+        p.type_ref = "int"
+        p.min_inclusive = float(bounded_int.group(1))
+        p.max_inclusive = float(bounded_int.group(2))
+        return p
     # `>=N.M & <=N.M`
     nm = re.match(r"^>=\s*(-?[\d.]+)\s*&\s*<=\s*(-?[\d.]+)$", rhs)
     if nm:
@@ -1158,6 +1189,7 @@ def _classify_local_named_references(doc: ConstraintDoc) -> None:
             *doc.scalar_types,
             *doc.pattern_maps,
             *doc.object_types,
+            *(doc.shapes if _is_plain_json(doc) else []),
         ]
     }
     scalars = {definition.name: definition for definition in doc.scalar_types}
@@ -1895,6 +1927,7 @@ def _scan_reference_class_registry(source_file: Path) -> dict[str, str]:
 
 def target_json_schema(doc: ConstraintDoc, registry: Optional[dict] = None) -> str:
     _prepare_named_references(doc, registry)
+    plain_json = _is_plain_json(doc)
     schemas: dict = {}
     for e in doc.enums:
         schemas[e.name] = {"type": "string", "enum": e.values}
@@ -2010,6 +2043,8 @@ def target_json_schema(doc: ConstraintDoc, registry: Optional[dict] = None) -> s
                         if bp.type_ref == "enum" and bp.enum_ref:
                             _inline_cross_file(bp.enum_ref)
     for s in doc.shapes:
+        if plain_json and s.name == "PlatformArtifactFields":
+            continue
         props: dict = {}
         required: list[str] = []
         # Collect property names that appear in any disjunction branch — these
@@ -2082,6 +2117,8 @@ def target_json_schema(doc: ConstraintDoc, registry: Optional[dict] = None) -> s
                 alts.append({"properties": br_props, "required": br_req})
             any_of_groups.append({"anyOf": alts})
         schema: dict = {"type": "object", "properties": props}
+        if plain_json:
+            schema["additionalProperties"] = False
         if required:
             schema["required"] = required
         if all_of:
@@ -2112,6 +2149,15 @@ def target_json_schema(doc: ConstraintDoc, registry: Optional[dict] = None) -> s
         "title": doc.package,
         "$defs": schemas,
     }
+    if _is_plain_json(doc):
+        envelope["oneOf"] = [
+            {"$ref": f"#/$defs/{name}"}
+            for name in (
+                "PlatformSourceCatalogArtifact",
+                "PlatformDerivationArtifact",
+                "PlatformCompositionArtifact",
+            )
+        ]
     return json.dumps(envelope, indent=2)
 
 
@@ -2186,7 +2232,8 @@ def property_to_jsonschema(
         # Strict authored arrays, lists requiring two or more members, and
         # impossible one-member maxima must stay arrays at the source layer.
         scalar_allowed = (
-            p.list_allow_scalar
+            not _is_plain_json(doc)
+            and p.list_allow_scalar
             and p.list_min_items <= 1
             and (p.list_max_items is None or p.list_max_items >= 1)
         )
@@ -2195,6 +2242,8 @@ def property_to_jsonschema(
         out = {"type": "integer"}
         if p.min_inclusive is not None:
             out["minimum"] = int(p.min_inclusive)
+        if p.max_inclusive is not None:
+            out["maximum"] = int(p.max_inclusive)
         return out
     if p.type_ref == "float":
         out = {"type": "number"}
@@ -2234,14 +2283,21 @@ def target_rust(
     source_file: Optional[Path] = None,
 ) -> str:
     _prepare_named_references(doc, registry, source_file)
+    plain_json = _is_plain_json(doc)
+    if plain_json:
+        for prop in _all_document_properties(doc):
+            if prop.type_ref == "list":
+                prop.list_allow_scalar = False
     out: list[str] = [
         "// AUTO-GENERATED by tools/constraints_compile.py",
         f"// Source: {_source_header(doc, source_file)}",
         "// DO NOT EDIT.",
-        "",
-        "use serde::{Deserialize, Serialize};",
-        "",
     ]
+    if plain_json:
+        out.append(
+            "// Plain data carriers only; admit bytes with rulespec_conformance.platform_artifact."
+        )
+    out.extend(["", "use serde::{Deserialize, Serialize};", ""])
     for e in doc.enums:
         out.append(f"/// Closed Rulespec values for `{e.name}`.")
         out.append("#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]")
@@ -2276,6 +2332,9 @@ def target_rust(
         | {definition.name for definition in doc.pattern_maps}
         | {definition.name for definition in doc.object_types}
     )
+
+    def rust_property_type(prop: PropDef) -> str:
+        return _rust_type(prop, local_enums=local_enums, registry=registry)
 
     # Some composed conditionals narrow a broadly typed carrier field to a
     # cross-file enum without changing the struct field's broad Rust type.
@@ -2334,7 +2393,7 @@ def target_rust(
     if external_enum_paths:
         out.append("")
 
-    if doc.shapes or doc.pattern_maps:
+    if doc.pattern_maps or (doc.shapes and not plain_json):
         out.append("use std::collections::BTreeMap;")
         out.append("")
 
@@ -2347,11 +2406,7 @@ def target_rust(
         out.append("")
 
     for map_def in doc.pattern_maps:
-        value_type = _rust_type(
-            map_def.value,
-            local_enums=local_enums,
-            registry=registry,
-        )
+        value_type = rust_property_type(map_def.value)
         out.append(
             f"/// Pattern-keyed map carrier for `{map_def.name}`; generated "
             "validators enforce its key and cardinality rules."
@@ -2373,11 +2428,7 @@ def target_rust(
         used_field_names: set[str] = set()
         for prop in object_type.properties:
             field_name = _rust_unique_field_name(prop.name, used_field_names)
-            rust_type = _rust_type(
-                prop,
-                local_enums=local_enums,
-                registry=registry,
-            )
+            rust_type = rust_property_type(prop)
             out.append(f"    /// JSON-LD member `{prop.name}`.")
             if prop.optional:
                 out.append(
@@ -2392,15 +2443,25 @@ def target_rust(
         out.append("")
 
     for s in doc.shapes:
+        if plain_json and s.name == "PlatformArtifactFields":
+            continue
         # The parser diverts `@type` from properties into shape.type_iri, so
         # consult that directly instead of re-scanning properties.
         type_value: Optional[str] = s.type_iri
-        used_field_names = {"id", "extra"}
+        used_field_names = set() if plain_json else {"id", "extra"}
         if type_value is not None:
             used_field_names.add("type_")
 
-        out.append(f"/// Generated JSON-LD carrier for `{s.name}`.")
-        out.append("#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]")
+        carrier_kind = "plain JSON" if plain_json else "JSON-LD"
+        out.append(f"/// Generated {carrier_kind} carrier for `{s.name}`.")
+        derives = (
+            "Debug, Clone, PartialEq, Eq, Serialize, Deserialize"
+            if plain_json
+            else "Debug, Clone, PartialEq, Serialize, Deserialize"
+        )
+        out.append(f"#[derive({derives})]")
+        if plain_json:
+            out.append("#[serde(deny_unknown_fields)]")
         out.append(f"pub struct {s.name} {{")
 
         # @type field — emit specially with default constructor reference
@@ -2409,31 +2470,47 @@ def target_rust(
             out.append(f'    #[serde(rename = "@type", default = "{s.name}::default_type")]')
             out.append("    pub type_: String,")
 
-        # @id field — always optional, always emitted (JSON-LD reserved key)
-        out.append("    /// Optional JSON-LD resource identifier.")
-        out.append('    #[serde(rename = "@id", skip_serializing_if = "Option::is_none", default)]')
-        out.append("    pub id: Option<String>,")
+        # Plain platform JSON has no implicit JSON-LD identity slot.
+        if not plain_json:
+            out.append("    /// Optional JSON-LD resource identifier.")
+            out.append('    #[serde(rename = "@id", skip_serializing_if = "Option::is_none", default)]')
+            out.append("    pub id: Option<String>,")
 
         # Other properties
         for p in s.properties:
             if p.name in ("@type", "@id"):
                 continue
-            ty = _rust_type(p, local_enums=local_enums, registry=registry)
+            ty = rust_property_type(p)
             field_name = _rust_unique_field_name(p.name, used_field_names)
-            out.append(f"    /// JSON-LD property `{p.name}`.")
+            member_kind = "JSON member" if plain_json else "JSON-LD property"
+            out.append(f"    /// {member_kind} `{p.name}`.")
             if p.optional:
-                out.append(
-                    f'    #[serde(rename = "{p.name}", skip_serializing_if = "Option::is_none", default)]'
+                optional_attr = (
+                    f'    #[serde(rename = "{p.name}", '
+                    'skip_serializing_if = "Option::is_none", default)]'
                 )
+                if plain_json and len(optional_attr) > 85:
+                    out.extend(
+                        [
+                            "    #[serde(",
+                            f'        rename = "{p.name}",',
+                            '        skip_serializing_if = "Option::is_none",',
+                            "        default",
+                            "    )]",
+                        ]
+                    )
+                else:
+                    out.append(optional_attr)
                 out.append(f"    pub {field_name}: Option<{ty}>,")
             else:
                 out.append(f'    #[serde(rename = "{p.name}")]')
                 out.append(f"    pub {field_name}: {ty},")
 
-        # Catch-all for unknown properties (preserves round-trip).
-        out.append("    /// Additional JSON-LD properties preserved during round trips.")
-        out.append("    #[serde(flatten)]")
-        out.append("    pub extra: BTreeMap<String, serde_json::Value>,")
+        # JSON-LD carriers preserve extension terms. Plain artifacts are closed.
+        if not plain_json:
+            out.append("    /// Additional JSON-LD properties preserved during round trips.")
+            out.append("    #[serde(flatten)]")
+            out.append("    pub extra: BTreeMap<String, serde_json::Value>,")
         out.append("}")
         out.append("")
 
@@ -2565,6 +2642,10 @@ _REGISTRY_RELPATHS: dict[str, str] = {}
 def _rust_type(p: PropDef, local_enums: Optional[set] = None,
                registry: Optional[dict] = None) -> str:
     if p.fixed_value is not None:
+        if isinstance(p.fixed_value, bool):
+            return "bool"
+        if isinstance(p.fixed_value, int):
+            return "i64"
         return "String"
     if p.type_ref == "value_object":
         # `crate::RdfLiteral<T>` preserves the mutually exclusive typed and
@@ -2668,12 +2749,32 @@ def target_typescript(
     source_file: Optional[Path] = None,
 ) -> str:
     _prepare_named_references(doc, registry, source_file)
+    plain_json = _is_plain_json(doc)
+    if plain_json:
+        for prop in _all_document_properties(doc):
+            if prop.type_ref == "list":
+                prop.list_allow_scalar = False
     out: list[str] = [
         "// AUTO-GENERATED by tools/constraints_compile.py",
         f"// Source: {_source_header(doc, source_file)}",
         "// DO NOT EDIT.",
         "",
     ]
+    if plain_json:
+        out.extend(
+            [
+                "function canonicalJsonKey(value: unknown): string {",
+                '  if (Array.isArray(value)) return `[${value.map(canonicalJsonKey).join(",")}]`;',
+                '  if (typeof value === "object" && value !== null) {',
+                "    const record = value as Record<string, unknown>;",
+                '    return `{${Object.keys(record).sort().map((key) => `${JSON.stringify(key)}:${canonicalJsonKey(record[key])}`).join(",")}}`;',
+                "  }",
+                "  const encoded = JSON.stringify(value);",
+                '  return encoded === undefined ? `unsupported:${typeof value}` : encoded;',
+                "}",
+                "",
+            ]
+        )
 
     def _conditional_scalar_values(prop: PropDef) -> list[str]:
         if prop.inline_enum_values:
@@ -2929,6 +3030,8 @@ def target_typescript(
             ]
         )
     for s in doc.shapes:
+        if plain_json and s.name == "PlatformArtifactFields":
+            continue
         out.append(f"export interface {s.name} {{")
         for p in s.properties:
             ts = _ts_type(p)
@@ -2938,11 +3041,87 @@ def target_typescript(
         out.append("")
         out.append(f"export function validate{s.name}(v: {s.name}): string[] {{")
         out.append("  const errs: string[] = [];")
-        if s.conditionals:
+        if plain_json:
+            out.append(
+                f'  if (typeof v !== "object" || v === null || Array.isArray(v)) '
+                f'return ["{s.name}: must be an object"];'
+            )
+        if s.conditionals or plain_json:
             out.append(
                 "  const record = v as unknown as Record<string, unknown>;"
             )
+        if plain_json:
+            allowed = json.dumps([prop.name for prop in s.properties])
+            out.append(
+                f"  if (Object.keys(record).some((key) => !{allowed}.includes(key))) "
+                f'errs.push("{s.name}: member outside the closed object");'
+            )
         for p in s.properties:
+            if plain_json and not p.optional:
+                out.append(
+                    f'  if (record["{p.name}"] === undefined) '
+                    f'errs.push("{p.name}: required");'
+                )
+            if plain_json and p.fixed_value is not None:
+                fixed = json.dumps(p.fixed_value)
+                out.append(
+                    f'  if (record["{p.name}"] !== undefined && '
+                    f'record["{p.name}"] !== {fixed}) '
+                    f'errs.push("{p.name}: must equal {p.fixed_value}");'
+                )
+            if plain_json and p.type_ref == "string" and p.fixed_value is None:
+                out.append(
+                    f'  if (record["{p.name}"] !== undefined && '
+                    f'typeof record["{p.name}"] !== "string") '
+                    f'errs.push("{p.name}: must be a string");'
+                )
+            if plain_json and p.type_ref == "bool" and p.fixed_value is None:
+                out.append(
+                    f'  if (record["{p.name}"] !== undefined && '
+                    f'typeof record["{p.name}"] !== "boolean") '
+                    f'errs.push("{p.name}: must be a boolean");'
+                )
+            if plain_json and p.type_ref == "int" and p.fixed_value is None:
+                out.append(
+                    f'  if (record["{p.name}"] !== undefined && '
+                    f'!Number.isSafeInteger(record["{p.name}"])) '
+                    f'errs.push("{p.name}: must be a safe integer");'
+                )
+                if p.min_inclusive is not None:
+                    out.append(
+                        f'  if (typeof record["{p.name}"] === "number" && '
+                        f'record["{p.name}"] < {int(p.min_inclusive)}) '
+                        f'errs.push("{p.name}: below minimum");'
+                    )
+                if p.max_inclusive is not None:
+                    out.append(
+                        f'  if (typeof record["{p.name}"] === "number" && '
+                        f'record["{p.name}"] > {int(p.max_inclusive)}) '
+                        f'errs.push("{p.name}: above maximum");'
+                    )
+            if plain_json and p.type_ref == "enum" and p.enum_ref:
+                allowed = json.dumps(_resolve_enum_values(p.enum_ref, doc, registry))
+                out.append(
+                    f'  if (record["{p.name}"] !== undefined && '
+                    f'!{allowed}.includes(record["{p.name}"] as string)) '
+                    f'errs.push("{p.name}: outside closed set");'
+                )
+            if plain_json and p.type_ref == "list":
+                if p.list_of_string:
+                    out.append(
+                        f'  if (Array.isArray(record["{p.name}"]) && '
+                        f'!record["{p.name}"].every((item) => typeof item === "string")) '
+                        f'errs.push("{p.name}: items must be strings");'
+                    )
+                if p.list_inner_enum:
+                    allowed = json.dumps(
+                        _resolve_enum_values(p.list_inner_enum, doc, registry)
+                    )
+                    out.append(
+                        f'  if (Array.isArray(record["{p.name}"]) && '
+                        f'!record["{p.name}"].every((item) => {allowed}.includes(item as string))) '
+                        f'errs.push("{p.name}: item outside closed set");'
+                    )
             if p.type_ref == "named" and p.named_ref:
                 out.append(
                     f'  if (v["{p.name}"] !== undefined) '
@@ -2955,11 +3134,12 @@ def target_typescript(
                         f'!Array.isArray(v["{p.name}"])) '
                         f'errs.push("{p.name}: must be an array");'
                     )
-                out.append(
-                    f'  if (Array.isArray(v["{p.name}"]) && '
-                    f'v["{p.name}"].length < {p.list_min_items}) '
-                    f'errs.push("{p.name}: < {p.list_min_items} items");'
-                )
+                if p.list_min_items > 0:
+                    out.append(
+                        f'  if (Array.isArray(v["{p.name}"]) && '
+                        f'v["{p.name}"].length < {p.list_min_items}) '
+                        f'errs.push("{p.name}: < {p.list_min_items} items");'
+                    )
                 out.append(
                     f'  if (v["{p.name}"] !== undefined) '
                     f'errs.push(...([] as unknown[]).concat(v["{p.name}"] as '
@@ -2976,7 +3156,7 @@ def target_typescript(
                 out.append(
                     f'  if (Array.isArray(v["{p.name}"]) && '
                     f'new Set(v["{p.name}"].map((item) => '
-                    f'JSON.stringify(item))).size !== v["{p.name}"].length) '
+                    f'canonicalJsonKey(item))).size !== v["{p.name}"].length) '
                     f'errs.push("{p.name}: duplicate items");'
                 )
             if (
@@ -3237,7 +3417,7 @@ def target_typescript(
 
 def _ts_type(p: PropDef) -> str:
     if p.fixed_value is not None:
-        return f'"{p.fixed_value}"'
+        return json.dumps(p.fixed_value)
     if p.type_ref == "value_object":
         alternatives: list[str] = []
         for branch in _value_object_branches(p):

@@ -2,8 +2,8 @@
 
 *Making rules legible to software.*
 
-**Version** `0.2.0-pre.9` · **Working tree** Vocabulary carriage and lifecycle
-closure candidate · **Bridge contract** `rkaf-bridge/1.0` · **Conformance
+**Version** `0.2.0-pre.10` · **Working tree** Shared platform artifact protocol
+candidate · **Bridge contract** `rkaf-bridge/1.0` · **Conformance
 corpus** L1-L4 fixtures plus L0 carrier-mapping and vocabulary audits
 
 ---

@@ -9,6 +9,11 @@ adapted for a specification + shape + fixture project.
 
 ### Added
 
+- The `spicy-artifact/1.0` byte protocol for source catalogs, derivations, and
+  reference-only compositions. One CUE source generates the closed JSON
+  Schema, TypeScript validators, and Rust carriers; the installed Python
+  package supplies canonical bytes, identities, streaming manifests, storage
+  injection, and structural admission.
 - `SourceCatalogRelease` v1, as an immutable digest-named candidate.
   `spec/rulespec-source-catalog-release.md` is normative; three closed Draft
   2020-12 schemas under `release-records/schemas/` carry the release root, the

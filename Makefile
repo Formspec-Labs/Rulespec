@@ -82,6 +82,8 @@ test-package:
 	cd "$(PACKAGE_CHECK_DIR)" && ./bin/rulespec-source-catalog-validate
 	cd "$(PACKAGE_CHECK_DIR)" && ./bin/rulespec-document-validate
 	cd "$(PACKAGE_CHECK_DIR)" && ./bin/python -m rulespec_conformance.contract
+	cd "$(PACKAGE_CHECK_DIR)" && ./bin/python -c 'from rulespec_conformance import platform_artifact as p; from rulespec_conformance.contract import resources; assert p.FORMAT == "spicy-artifact"; assert resources.platform_artifact_spec(); assert resources.json_schema("platform-artifact", family="platform")["$$defs"]'
+	cd "$(PACKAGE_CHECK_DIR)" && ./bin/python -c 'import tempfile; from pathlib import Path; from rulespec_conformance.platform_artifact import ArtifactInput, CompositionSpec, LocalMemberSource, ROOT_OBJECT_KEY, admit_artifact, build_artifact_root, canonical_json_bytes; temporary=tempfile.TemporaryDirectory(); root=Path(temporary.name); digest="sha256:" + "1" * 64; artifact=build_artifact_root(spec=CompositionSpec("urn:example:merge", "1", digest, ("score", "logical-id")), inputs=(ArtifactInput("member", "urn:example:source", digest),), manifests=(), accounted_input_count=1); (root / ROOT_OBJECT_KEY).write_bytes(canonical_json_bytes(artifact)); admitted=admit_artifact(LocalMemberSource(root)); assert admitted.root == artifact; temporary.cleanup()'
 	rm -rf "$(PACKAGE_CHECK_DIR)"
 
 test-rust:
@@ -101,7 +103,7 @@ test-reference-corpora:
 test-audits:
 	$(CARGO) build $(CARGO_MANIFEST) -p projector-harness
 	$(PYTHON) tools/vocab_audit.py
-	$(PYTHON) -m unittest tools.test_constraints_compile tools.test_l0_mapping_audit tools.test_semantic_carriers tools.test_reference_release_digest tools.test_rulespec_releases tools.test_extrapolation_release_v2 tools.test_atlas_membership_stub tools.test_source_catalog_release tools.test_document_release tools.test_contract_exports -v
+	$(PYTHON) -m unittest tools.test_constraints_compile tools.test_l0_mapping_audit tools.test_semantic_carriers tools.test_reference_release_digest tools.test_rulespec_releases tools.test_extrapolation_release_v2 tools.test_atlas_membership_stub tools.test_source_catalog_release tools.test_document_release tools.test_platform_artifact tools.test_contract_exports -v
 	$(PYTHON) tools/build_source_catalog_release_fixtures.py --check
 	$(PYTHON) tools/build_document_release_fixtures.py --check
 	$(PYTHON) tools/build_contract_exports.py --check
@@ -129,6 +131,7 @@ test-conformance: build-runtime-cli
 cue-vet:
 	$(CUE) vet constraints/core/*.cue constraints/analysis/*.cue constraints/adversarial/*.cue constraints/ai-extraction/*.cue constraints/profiles/*/*.cue
 	$(CUE) vet constraints/semantics/*.cue constraints/analysis/*/*.cue constraints/profiles/*/*/*.cue
+	$(CUE) vet constraints/platform/*.cue
 
 # `compile` drives every primitive through every target via the single
 # canonical wrapper. Writes Rust to crates/rkaf-core/src/generated/ (tracked);

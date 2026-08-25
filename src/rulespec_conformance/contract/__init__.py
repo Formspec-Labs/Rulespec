@@ -36,7 +36,7 @@ from ._term import RKAF_NAMESPACE as RKAF_NAMESPACE
 from ._term import Term as Term
 from .enums import *  # noqa: F403  (generated module; `enums.__all__` is closed)
 
-#: The Rulespec version this contract was cut from, e.g. `0.2.0-pre.9`.
+#: The Rulespec version this contract was cut from, e.g. `0.2.0-pre.10`.
 VERSION: str = resources.version()
 
 __all__ = [

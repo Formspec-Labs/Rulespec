@@ -10,6 +10,7 @@ Selection rationale: see `docs/adr/2026-05-12-rkaf-constraint-source-cue.md`.
 ```
 constraints/
 ├── core/              CUE source for every v0.2 UNIVERSAL vocabulary primitive (§§4-5 of spec).
+├── platform/          Closed plain-JSON platform artifact carriers.
 ├── analysis/          Generic document-analysis contracts above the kernel.
 ├── semantics/         Kernel L0 range registry (class-valued predicate ranges).
 ├── profiles/          Domain profiles. Jurisdiction- or family-specific terms.
@@ -108,6 +109,10 @@ worth stating outright:
 | SHACL         | MAY    | `compiled/shacl/<sub>/<name>.ttl` (Pattern C only — no `sh:if`/`sh:then`) |
 | Rego          | MAY    | `compiled/rego/<sub>/<name>.rego`       |
 
+`constraints/platform/` is the deliberate exception to the JSON-LD carrier
+defaults. It emits closed, array-strict plain JSON to JSON Schema, TypeScript,
+and Rust. It has no RDF meaning, so the driver emits no SHACL or Rego for it.
+
 ## Build
 
 ```bash
@@ -117,14 +122,16 @@ worth stating outright:
 # Validate CUE source syntax before compiling (make cue-vet also works)
 .tools/cue vet constraints/core/*.cue constraints/analysis/*.cue constraints/adversarial/*.cue constraints/ai-extraction/*.cue constraints/profiles/*/*.cue
 .tools/cue vet constraints/semantics/*.cue constraints/analysis/*/*.cue constraints/profiles/*/*/*.cue
+.tools/cue vet constraints/platform/*.cue
 
 # Compile every constraint to every target
 tools/compile_all.sh
 ```
 
 `compile_all.sh` is the single canonical driver: it maps each source directory
-to its compiled sub-path (`core`, `analysis`, `adversarial`, `ai-extraction`,
-`profiles/<profile>`), writes Rust for Core, analysis, and Rust-carried
+to its compiled sub-path (`core`, `platform`, `analysis`, `adversarial`,
+`ai-extraction`, `profiles/<profile>`), writes Rust for Core, platform,
+analysis, and Rust-carried
 profiles, and re-pins the embedded L0 contract digests. The RefSpec profile
 still produces portable JSON Schema, TypeScript, SHACL, and Rego outputs,
 but never a generated `rkaf-core` module.

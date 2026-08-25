@@ -29,6 +29,10 @@
 # profile may depend on. The dependency direction is kernel <- analysis <-
 # profiles; the kernel never depends on either.
 #
+# Byte-level platform artifact carriers under constraints/platform/ compile to
+# JSON Schema, TypeScript, and Rust. They are not RDF shapes, so SHACL and Rego
+# deliberately skip them.
+#
 # Idempotent. Run from Rulespec repo root.
 #
 # Used by:
@@ -50,6 +54,7 @@ compile_one() {
     base=$(basename "$src" .cue)
 
     if [[ "$src" == constraints/core/* ]]; then sub="core"
+    elif [[ "$src" == constraints/platform/* ]]; then sub="platform"
     elif [[ "$src" == constraints/analysis/* ]]; then sub="analysis"
     elif [[ "$src" == constraints/adversarial/* ]]; then sub="adversarial"
     elif [[ "$src" == constraints/ai-extraction/* ]]; then sub="ai-extraction"
@@ -70,10 +75,12 @@ compile_one() {
             outpath="$outdir/$base.ts"
             ;;
         shacl)
+            [[ "$sub" == "platform" ]] && return 0
             outdir="compiled/shacl/$sub"
             outpath="$outdir/$base.ttl"
             ;;
         rego)
+            [[ "$sub" == "platform" ]] && return 0
             outdir="compiled/rego/$sub"
             outpath="$outdir/$base.rego"
             ;;
@@ -83,6 +90,7 @@ compile_one() {
             # CUE-only.
             case "$sub" in
                 core)        outdir="crates/rkaf-core/src/generated" ;;
+                platform)    outdir="crates/rkaf-core/src/generated/platform" ;;
                 analysis)    outdir="crates/rkaf-core/src/generated/analysis" ;;
                 profiles/refspec) return 0 ;;
                 profiles/*)  outdir="crates/rkaf-core/src/generated/profiles/$(snake_case "${sub#profiles/}")" ;;
@@ -103,6 +111,7 @@ compile_one() {
 main() {
     local sources=(
         constraints/core/*.cue
+        constraints/platform/*.cue
         constraints/analysis/*.cue
         constraints/adversarial/*.cue
         constraints/ai-extraction/*.cue
