@@ -31,6 +31,7 @@ from tools.platform_artifact import (
     ArtifactInput,
     ArtifactPin,
     ArtifactVerificationError,
+    CanonicalSetDigester,
     CompositionSpec,
     DerivationSpec,
     LocalMemberSource,
@@ -87,6 +88,31 @@ class PackagedSchemaTests(unittest.TestCase):
 
         self.assertEqual(schema["$id"], SOURCE_CATALOG_ITEM_SCHEMA_ID)
         self.assertIn("sourceItemId", schema["required"])
+
+
+class CanonicalSetDigesterTests(unittest.TestCase):
+    def test_stream_matches_canonical_sorted_set_bytes(self) -> None:
+        digester = CanonicalSetDigester()
+        for value in ("alpha", "bravo", "charlie"):
+            digester.add(value)
+
+        self.assertEqual(digester.finish(), sha256_digest(["alpha", "bravo", "charlie"]))
+        self.assertEqual(digester.finish(), sha256_digest(["alpha", "bravo", "charlie"]))
+
+    def test_refuses_unsorted_or_repeated_values(self) -> None:
+        for values in (("bravo", "alpha"), ("alpha", "alpha")):
+            digester = CanonicalSetDigester()
+            digester.add(values[0])
+            with self.subTest(values=values), self.assertRaisesRegex(ValueError, "sorted and distinct"):
+                digester.add(values[1])
+
+    def test_invalid_value_does_not_mutate_the_digest(self) -> None:
+        digester = CanonicalSetDigester()
+        with self.assertRaises(ArtifactVerificationError):
+            digester.add("\ud800")
+        digester.add("alpha")
+
+        self.assertEqual(digester.finish(), sha256_digest(["alpha"]))
 
 
 class ChunkedBytesIO(io.BytesIO):

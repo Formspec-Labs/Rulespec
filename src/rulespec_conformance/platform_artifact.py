@@ -233,6 +233,32 @@ def canonical_json_bytes(value: Any) -> bytes:
     return _canonical_json_parts(value, path="$")
 
 
+class CanonicalSetDigester:
+    """Digest a sorted, duplicate-free text stream as one canonical JSON set."""
+
+    def __init__(self) -> None:
+        self._digest = hashlib.sha256(b"[")
+        self._first = True
+        self._previous: str | None = None
+
+    def add(self, value: str) -> None:
+        if not isinstance(value, str):
+            raise TypeError("set digest values must be text")
+        if self._previous is not None and value <= self._previous:
+            raise ValueError("set digest values must be sorted and distinct")
+        payload = canonical_json_bytes(value)
+        if not self._first:
+            self._digest.update(b",")
+        self._digest.update(payload)
+        self._first = False
+        self._previous = value
+
+    def finish(self) -> str:
+        digest = self._digest.copy()
+        digest.update(b"]")
+        return "sha256:" + digest.hexdigest()
+
+
 def sha256_digest(value: bytes | Any) -> str:
     """Return a qualified SHA-256 digest for bytes or canonical JSON."""
 
@@ -1697,10 +1723,12 @@ __all__ = [
     "MEMBER_MANIFEST_MEDIA_TYPE",
     "MEMBER_MANIFEST_VERSION",
     "ROOT_OBJECT_KEY",
+    "SOURCE_CATALOG_ITEM_SCHEMA_ID",
     "ArtifactInput",
     "ArtifactPin",
     "ArtifactSpec",
     "ArtifactVerificationError",
+    "CanonicalSetDigester",
     "CompositionSpec",
     "DerivationSpec",
     "LocalMemberSource",
@@ -1710,7 +1738,6 @@ __all__ = [
     "MemberSource",
     "MemberSourceError",
     "SemanticVerifier",
-    "SOURCE_CATALOG_ITEM_SCHEMA_ID",
     "SourceCatalogSpec",
     "VerificationIssue",
     "VerificationResult",
