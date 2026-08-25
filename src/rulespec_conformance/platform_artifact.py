@@ -671,6 +671,39 @@ class MemberSource(Protocol):
     def open(self, object_key: str) -> AbstractContextManager[BinaryIO]: ...
 
 
+@dataclass(frozen=True, slots=True)
+class LocalFileState:
+    """Identity of one local file during its shared digest verification."""
+
+    device: int
+    inode: int
+    size: int
+    modified_nanoseconds: int
+    changed_nanoseconds: int
+    mode: int
+
+    @classmethod
+    def from_stat(cls, value: os.stat_result) -> Self:
+        return cls(
+            device=value.st_dev,
+            inode=value.st_ino,
+            size=value.st_size,
+            modified_nanoseconds=value.st_mtime_ns,
+            changed_nanoseconds=value.st_ctime_ns,
+            mode=value.st_mode,
+        )
+
+    def as_dict(self) -> dict[str, int]:
+        return {
+            "changedNanoseconds": self.changed_nanoseconds,
+            "device": self.device,
+            "inode": self.inode,
+            "mode": self.mode,
+            "modifiedNanoseconds": self.modified_nanoseconds,
+            "size": self.size,
+        }
+
+
 class LocalMemberSource:
     """Read one materialized artifact directory without following links."""
 
@@ -791,6 +824,35 @@ class LocalMemberSource:
     @contextmanager
     def open(self, object_key: str) -> Iterator[BinaryIO]:
         selected = validate_object_key(object_key, path=object_key)
+
+        member_fd = self._open_member(selected)
+        try:
+            stream = os.fdopen(member_fd, "rb", closefd=True)
+        except BaseException:
+            os.close(member_fd)
+            raise
+        try:
+            before = os.fstat(stream.fileno())
+            if not stat.S_ISREG(before.st_mode):
+                _fail("invalid.path", selected, "member is not a regular file")
+            yield stream
+            after = os.fstat(stream.fileno())
+            reopened_fd = self._open_member(selected)
+            try:
+                current = os.fstat(reopened_fd)
+            finally:
+                os.close(reopened_fd)
+            before_state = LocalFileState.from_stat(before)
+            after_state = LocalFileState.from_stat(after)
+            current_state = LocalFileState.from_stat(current)
+            if before_state != after_state or after_state != current_state:
+                _fail("invalid.member-digest", selected, "member changed while it was read")
+        finally:
+            stream.close()
+
+    def _open_member(self, selected: str) -> int:
+        """Open one normalized object key from the pinned root descriptor."""
+
         parts = selected.split("/")
         directory_fd = self._open_root()
         try:
@@ -811,37 +873,7 @@ class LocalMemberSource:
             )
         finally:
             os.close(directory_fd)
-        try:
-            stream = os.fdopen(member_fd, "rb", closefd=True)
-        except BaseException:
-            os.close(member_fd)
-            raise
-        try:
-            before = os.fstat(stream.fileno())
-            if not stat.S_ISREG(before.st_mode):
-                _fail("invalid.path", selected, "member is not a regular file")
-            yield stream
-            after = os.fstat(stream.fileno())
-            before_state = (
-                before.st_dev,
-                before.st_ino,
-                before.st_size,
-                before.st_mtime_ns,
-                before.st_ctime_ns,
-                before.st_mode,
-            )
-            after_state = (
-                after.st_dev,
-                after.st_ino,
-                after.st_size,
-                after.st_mtime_ns,
-                after.st_ctime_ns,
-                after.st_mode,
-            )
-            if before_state != after_state:
-                _fail("invalid.member-digest", selected, "member changed while it was read")
-        finally:
-            stream.close()
+        return member_fd
 
 
 class _CanonicalArrayStream:
@@ -978,6 +1010,7 @@ class VerifiedArtifact:
     member_count: int
     total_member_byte_size: int
     total_record_count: int
+    local_member_states: Mapping[str, LocalFileState] | None = None
 
 
 @runtime_checkable
@@ -1282,9 +1315,10 @@ def _read_bounded(source: MemberSource, object_key: str, *, byte_limit: int, cod
         _fail(code, object_key, "file could not be read within its declared bound")
 
 
-def _hash_member(source: MemberSource, member: MemberDescriptor) -> None:
+def _hash_member(source: MemberSource, member: MemberDescriptor) -> LocalFileState | None:
     digest = hashlib.sha256()
     byte_size = 0
+    local_state: LocalFileState | None = None
     try:
         with source.open(member.object_key) as stream:
             while block := stream.read(DEFAULT_READ_CHUNK_BYTES):
@@ -1292,11 +1326,14 @@ def _hash_member(source: MemberSource, member: MemberDescriptor) -> None:
                 if byte_size > member.byte_size:
                     _fail("invalid.member-digest", member.object_key, "member exceeds its declared size")
                 digest.update(block)
+            if isinstance(source, LocalMemberSource):
+                local_state = LocalFileState.from_stat(os.fstat(stream.fileno()))
     except MemberNotFoundError:
         _fail("invalid.membership-missing", member.object_key, "declared payload is absent")
     actual_digest = "sha256:" + digest.hexdigest()
     if byte_size != member.byte_size or actual_digest != member.sha256:
         _fail("invalid.member-digest", member.object_key, "member size or digest differs")
+    return local_state
 
 
 @contextmanager
@@ -1625,12 +1662,20 @@ def _admit(
         if first_extra is not None:
             _fail("invalid.membership-extra", first_extra, "artifact contains an undeclared file")
 
+        local_member_states: dict[str, LocalFileState] | None = (
+            {} if isinstance(source, LocalMemberSource) else None
+        )
         rows = index.execute(
             "SELECT object_key, role, media_type, byte_size, sha256, record_count, schema_id "
             "FROM expected WHERE kind = 'payload' ORDER BY object_key"
         )
         for row in rows:
-            _hash_member(source, MemberDescriptor(*row))
+            member = MemberDescriptor(*row)
+            state = _hash_member(source, member)
+            if local_member_states is not None:
+                if state is None:
+                    raise RuntimeError("local member admission did not capture a file state")
+                local_member_states[member.object_key] = state
     finally:
         try:
             if index is not None:
@@ -1658,6 +1703,7 @@ def _admit(
         member_count=member_count,
         total_member_byte_size=total_member_byte_size,
         total_record_count=total_record_count,
+        local_member_states=local_member_states,
     )
 
 
@@ -1732,6 +1778,7 @@ __all__ = [
     "CompositionSpec",
     "DerivationSpec",
     "LocalMemberSource",
+    "LocalFileState",
     "MemberDescriptor",
     "MemberManifestReference",
     "MemberNotFoundError",

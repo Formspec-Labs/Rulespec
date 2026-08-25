@@ -10,7 +10,7 @@ import sqlite3
 import subprocess
 import tempfile
 import unittest
-from collections.abc import Iterator, Sequence
+from collections.abc import Callable, Iterator, Sequence
 from contextlib import contextmanager
 from pathlib import Path
 from unittest import mock
@@ -41,6 +41,7 @@ from tools.platform_artifact import (
     MemberSource,
     MemberSourceError,
     SourceCatalogSpec,
+    admit_artifact,
     build_artifact_root,
     canonical_json_bytes,
     describe_member,
@@ -516,6 +517,88 @@ class StructuralVerificationTests(unittest.TestCase):
                 path.parent.mkdir(parents=True, exist_ok=True)
                 path.write_bytes(raw)
             self.assertEqual(verify_artifact(LocalMemberSource(root)).code, "valid")
+
+    def test_local_admission_returns_payload_states_from_the_digest_pass(self) -> None:
+        files = artifact_files()
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            for key, raw in files.items():
+                path = root / key
+                path.parent.mkdir(parents=True, exist_ok=True)
+                path.write_bytes(raw)
+
+            artifact = admit_artifact(LocalMemberSource(root))
+
+            self.assertEqual(
+                set(artifact.local_member_states or ()),
+                {"payload/a.json", "payload/b.json"},
+            )
+            state = (artifact.local_member_states or {})["payload/a.json"]
+            self.assertEqual(state.size, len(files["payload/a.json"]))
+            self.assertEqual(state.inode, (root / "payload/a.json").stat().st_ino)
+            payload = root / "payload/a.json"
+            payload.rename(root / "payload/a.original")
+            payload.write_bytes(b"replacement")
+            self.assertNotEqual(state.inode, payload.stat().st_ino)
+
+        memory = admit_artifact(MemoryMemberSource(files))
+        self.assertIsNone(memory.local_member_states)
+
+    def test_local_digest_refuses_path_component_replacement_during_read(self) -> None:
+        class ReplaceAtEof:
+            def __init__(self, stream: object, replace_path: Callable[[], None]) -> None:
+                self.stream = stream
+                self.replace_path = replace_path
+                self.replaced = False
+
+            def read(self, size: int = -1) -> bytes:
+                value = self.stream.read(size)  # type: ignore[attr-defined]
+                if not value and not self.replaced:
+                    self.replace_path()
+                    self.replaced = True
+                return value
+
+            def fileno(self) -> int:
+                return self.stream.fileno()  # type: ignore[attr-defined,no-any-return]
+
+        class ReplacingSource(LocalMemberSource):
+            def __init__(self, root: Path, replace_path: Callable[[], None]) -> None:
+                super().__init__(root)
+                self.replace_path = replace_path
+
+            @contextmanager
+            def open(self, object_key: str) -> Iterator[object]:
+                with super().open(object_key) as stream:
+                    if object_key == "payload/a.json":
+                        yield ReplaceAtEof(stream, self.replace_path)
+                    else:
+                        yield stream
+
+        files = artifact_files()
+        for case in ("leaf", "directory"):
+            with self.subTest(case=case), tempfile.TemporaryDirectory() as directory:
+                root = Path(directory)
+                for key, raw in files.items():
+                    path = root / key
+                    path.parent.mkdir(parents=True, exist_ok=True)
+                    path.write_bytes(raw)
+
+                def replace_leaf() -> None:
+                    path = root / "payload/a.json"
+                    path.rename(root / "payload/a.original")
+                    path.write_bytes(b"corrupt replacement")
+
+                def replace_directory() -> None:
+                    payload = root / "payload"
+                    payload.rename(root / "payload.original")
+                    payload.mkdir()
+                    (payload / "a.json").write_bytes(b"corrupt replacement")
+                    (payload / "b.json").write_bytes(files["payload/b.json"])
+
+                replacement = replace_leaf if case == "leaf" else replace_directory
+                with self.assertRaises(ArtifactVerificationError) as raised:
+                    admit_artifact(ReplacingSource(root, replacement))
+                self.assertEqual(raised.exception.issue.code, "invalid.member-digest")
 
     def test_local_source_streams_a_wide_directory_and_rejects_undeclared_files(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
