@@ -9,11 +9,29 @@ adapted for a specification + shape + fixture project.
 
 ### Added
 
-- The `spicy-artifact/1.0` byte protocol for source catalogs, derivations, and
-  reference-only compositions. One CUE source generates the closed JSON
-  Schema, TypeScript validators, and Rust carriers; the installed Python
-  package supplies canonical bytes, identities, streaming manifests, storage
-  injection, and structural admission.
+- The normative `spicy-artifact/1.0` target for arbitrary product-owned
+  artifacts, with optional derivation and reference-only composition relation
+  helpers and one required product-neutral producer record whose module and
+  verifier identities use immutable package, image, or Git identifiers without
+  changing logical identity. Completeness and coverage moved out of the generic
+  root and into each owning product. One
+  CUE source generates the closed JSON Schema, TypeScript validators, and Rust
+  carriers, while the installed Python package supplies canonical bytes,
+  identities, streaming manifests, storage injection, and structural
+  admission.
+- The target also preserves offline artifact-specific `knownLimits`, treats the
+  artifact-declared logical-ID and schema namespaces as evidence rather than
+  mutable verifier constants, and carries generic `supersedes` evidence for a
+  verified product-pointer transition without making publication history part
+  of logical identity. Cross-product discovery remains an offline consumer task;
+  Rulespec does not own a global publication registry or block product pointers.
+- Versioned object-store adapters may supply an exact provider SHA-256, byte
+  size, and immutable version receipt through the same `MemberSource` used for
+  reads. Admission then avoids downloading large payloads solely to hash them;
+  local and unversioned sources retain the full-byte verification path.
+- Moved the source-item semantic schema to DocSpec with the rest of
+  `SourceCatalog` meaning. Rulespec retains only the generic artifact shape and
+  structural implementation.
 - `rulespec_conformance.contract`, the contract as an import rather than a
   checkout. `contract.resources` reaches the compiled JSON Schemas, the
   compiled SHACL, the hand-authored shape suite, the JSON-LD context and
@@ -48,8 +66,8 @@ adapted for a specification + shape + fixture project.
 - Retired the superseded `SourceCatalogRelease` v1 and `DocumentRelease` v2
   roots, structural validators, console scripts, schemas, prose, and sealed
   candidate corpora. Their product records now travel only as members of
-  `spicy-artifact/1.0`; the source-item semantic schema remains packaged under
-  its existing public `$id`.
+  `spicy-artifact/1.0`. The source-item schema now lives with DocSpec's
+  normative catalog model.
 - Replaced the candidate-specific fixtures with one packaged platform
   structural corpus, including a large multipart recipe exercised through
   local files and a streaming blob store.

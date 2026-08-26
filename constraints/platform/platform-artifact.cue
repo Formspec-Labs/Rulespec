@@ -2,23 +2,13 @@ package platform
 
 import "list"
 
-// Generated carriers for the byte-level platform artifact protocol. The
-// normative rules and identity preimages live in spec/platform-artifacts.md;
-// rulespec_conformance.platform_artifact applies ordering, canonical-byte,
-// digest, and cross-file invariants that a shape cannot express by itself.
-
-#PlatformArtifactKind: "source-catalog" | "derivation" | "composition"
-#PlatformManifestScopeKind: "global" | "partition"
+// Closed plain-data carriers for the product-neutral platform container.
+// rulespec_artifacts applies canonical-byte, ordering, identity, membership,
+// digest, and exactly-one-location invariants that shapes cannot express.
 
 #PlatformArtifactInput: {
 	"role":           string & =~"^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$"
-	"logicalId":      string & =~"^[A-Za-z][A-Za-z0-9+.-]*:[^\\s]+$"
-	"artifactDigest": string & =~"^sha256:[0-9a-f]{64}$"
-}
-
-#PlatformCompositionInput: {
-	"role":           "member"
-	"logicalId":      string & =~"^[A-Za-z][A-Za-z0-9+.-]*:[^\\s]+$"
+	"logicalId":      string & =~"^[A-Za-z][A-Za-z0-9+.-]*:[^\\s]*[0-9a-f]{64}$"
 	"artifactDigest": string & =~"^sha256:[0-9a-f]{64}$"
 }
 
@@ -29,25 +19,42 @@ import "list"
 	"totalRecordCount":    int & >=0 & <=9007199254740991
 }
 
-#PlatformArtifactCoverage: {
-	"complete":              true
-	"accountedInputCount":   int & >=0 & <=9007199254740991
-	"unaccountedInputCount": 0
+#PlatformProducer: {
+	"product":                  string & =~"^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$"
+	"implementationId":         string & =~"^[A-Za-z][A-Za-z0-9+.-]*:[^\\s]+$"
+	"verifierId":               string & =~"^[A-Za-z][A-Za-z0-9+.-]*:[^\\s]+$"
+	"verifierVersion":          string
+	"verifierImplementationId": string & =~"^[A-Za-z][A-Za-z0-9+.-]*:[^\\s]+$"
+}
+
+#PlatformKnownLimit: knownLimit={
+	"code":            string & =~"^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$"
+	"scope":           string & =~"^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$"
+	"statement":       string
+	"evidenceDigests": [...(string & =~"^sha256:[0-9a-f]{64}$")] & list.MinItems(1)
+	if !list.UniqueItems(knownLimit["evidenceDigests"]) { _|_ }
+}
+
+#PlatformSupersedes: {
+	"logicalId":     string & =~"^[A-Za-z][A-Za-z0-9+.-]*:[^\\s]*[0-9a-f]{64}$"
+	"artifactDigest": string & =~"^sha256:[0-9a-f]{64}$"
+	"reason":          string
 }
 
 #PlatformMemberDescriptor: {
-	"objectKey":    string
+	"objectKey"?:   string
+	"sha256"?:      string & =~"^sha256:[0-9a-f]{64}$"
+	"blobRef"?:     string & =~"^sha256:[0-9a-f]{64}$"
 	"role":         string & =~"^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$"
 	"mediaType":    string
 	"byteSize":     int & >=0 & <=9007199254740991
-	"sha256":       string & =~"^sha256:[0-9a-f]{64}$"
 	"recordCount"?: int & >=0 & <=9007199254740991
 	"schemaId"?:    string & =~"^[A-Za-z][A-Za-z0-9+.-]*:[^\\s]+$"
 }
 
 #PlatformMemberManifestReference: {
 	"manifestId":          string
-	"scopeKind":           #PlatformManifestScopeKind
+	"scopeKind":           "global" | "partition"
 	"scopeId":             string
 	"objectKey":           string
 	"byteSize":            int & >=0 & <=9007199254740991
@@ -64,7 +71,7 @@ import "list"
 }
 
 #PlatformManifestScope: {
-	"kind": #PlatformManifestScopeKind
+	"kind": "global" | "partition"
 	"id":   string
 }
 
@@ -77,18 +84,8 @@ import "list"
 	"counts":        #PlatformManifestCounts
 }
 
-#PlatformSourceCatalogSpec: {
-	"catalogId":                  string & =~"^[A-Za-z][A-Za-z0-9+.-]*:[^\\s]+$"
-	"sourceSystemId":             string & =~"^[A-Za-z][A-Za-z0-9+.-]*:[^\\s]+$"
-	"sourceSystemVersion":        string
-	"selectionPolicyId":          string & =~"^[A-Za-z][A-Za-z0-9+.-]*:[^\\s]+$"
-	"selectionPolicyVersion":     string
-	"selectionPolicyDigest":      string & =~"^sha256:[0-9a-f]{64}$"
-	"requestedUniverseSetDigest": string & =~"^sha256:[0-9a-f]{64}$"
-	"selectedSourceSetDigest":    string & =~"^sha256:[0-9a-f]{64}$"
-}
-
-#PlatformDerivationSpec: derivationSpec={
+#PlatformDerivationRelation: relation={
+	"relationKind":        "derivation"
 	"processorId":         string & =~"^[A-Za-z][A-Za-z0-9+.-]*:[^\\s]+$"
 	"processorVersion":    string
 	"processorDigest":     string & =~"^sha256:[0-9a-f]{64}$"
@@ -99,49 +96,30 @@ import "list"
 	"partitioningId":      string & =~"^[A-Za-z][A-Za-z0-9+.-]*:[^\\s]+$"
 	"partitioningDigest":  string & =~"^sha256:[0-9a-f]{64}$"
 	"expectedOutputRoles": [...(string & =~"^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$")] & list.MinItems(1)
-	if !list.UniqueItems(derivationSpec["expectedOutputRoles"]) { _|_ }
+	if !list.UniqueItems(relation["expectedOutputRoles"]) { _|_ }
 }
 
-#PlatformCompositionSpec: compositionSpec={
+#PlatformCompositionRelation: relation={
+	"relationKind":       "composition"
 	"mergePolicyId":      string & =~"^[A-Za-z][A-Za-z0-9+.-]*:[^\\s]+$"
 	"mergePolicyVersion": string
 	"mergePolicyDigest":  string & =~"^sha256:[0-9a-f]{64}$"
-	"totalOrderKey": [...string] & list.MinItems(1)
-	if !list.UniqueItems(compositionSpec["totalOrderKey"]) { _|_ }
+	"totalOrderKey":      [...string] & list.MinItems(1)
+	if !list.UniqueItems(relation["totalOrderKey"]) { _|_ }
 }
 
-#PlatformArtifactFields: {
+#PlatformArtifact: artifact={
 	"format":          "spicy-artifact"
 	"formatVersion":   "1.0"
-	"kind":            #PlatformArtifactKind
-	"spec":            _
-	"logicalId":       string & =~"^urn:spicy:artifact:(?:source-catalog|derivation|composition):[0-9a-f]{64}$"
+	"kind":            string & =~"^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$"
+	"spec":            {...}
+	"logicalId":       string & =~"^urn:[^\\s]*:[0-9a-f]{64}$"
 	"artifactDigest":  string & =~"^sha256:[0-9a-f]{64}$"
-	"inputs":          [..._]
+	"inputs":          [...#PlatformArtifactInput]
 	"memberManifests": [...#PlatformMemberManifestReference]
 	"counts":          #PlatformArtifactCounts
-	"coverage":        #PlatformArtifactCoverage
-}
-
-#PlatformSourceCatalogArtifact: sourceCatalog=#PlatformArtifactFields & {
-	"kind": "source-catalog"
-	"spec": #PlatformSourceCatalogSpec
-	"inputs": [...#PlatformArtifactInput]
-	"memberManifests": [...#PlatformMemberManifestReference] & list.MinItems(1)
-	if !list.UniqueItems(sourceCatalog["inputs"]) { _|_ }
-}
-
-#PlatformDerivationArtifact: derivation=#PlatformArtifactFields & {
-	"kind": "derivation"
-	"spec": #PlatformDerivationSpec
-	"inputs": [...#PlatformArtifactInput] & list.MinItems(1)
-	"memberManifests": [...#PlatformMemberManifestReference] & list.MinItems(1)
-	if !list.UniqueItems(derivation["inputs"]) { _|_ }
-}
-
-#PlatformCompositionArtifact: composition=#PlatformArtifactFields & {
-	"kind": "composition"
-	"spec": #PlatformCompositionSpec
-	"inputs": [...#PlatformCompositionInput] & list.MinItems(1)
-	if !list.UniqueItems(composition["inputs"]) { _|_ }
+	"producer":        #PlatformProducer
+	"knownLimits"?:    [...#PlatformKnownLimit] & list.MinItems(1)
+	"supersedes"?:     #PlatformSupersedes
+	if !list.UniqueItems(artifact["inputs"]) { _|_ }
 }

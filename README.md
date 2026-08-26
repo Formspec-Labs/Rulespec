@@ -2,8 +2,8 @@
 
 *Making rules legible to software.*
 
-**Working tree** Shared platform artifact protocol
-candidate · **Bridge contract** `rkaf-bridge/1.0` · **Conformance
+**Platform artifacts** `spicy-artifact/1.0` implemented locally, unpublished ·
+**Bridge contract** `rkaf-bridge/1.0` · **Conformance
 corpus** L1-L4 fixtures plus L0 carrier-mapping and vocabulary audits
 
 ---
@@ -83,14 +83,20 @@ The report cross-references every fixture against every layer. Behavior
 fixtures are produced by a small but exact Rust runtime that implements the
 five contracts described in `spec/rkaf-behavior.md`.
 
-The validator is packaged as `rulespec-conformance`, so a consumer can run it
-without this repository: the SHACL suite, compiled schemas, JSON-LD context and
-fixture corpus ship inside the wheel. It is not published to an index yet —
-build it from a compiled checkout:
+Rulespec has two non-duplicating distributions. Artifact consumers install the
+small `rulespec-artifacts` distribution for canonical JSON, framed-section and
+schema-bundle digests, container building, and structural verification. It has
+no RDF, JSON-LD, SHACL, `rdflib`, `pyshacl`, or RDF-canonicalization dependency.
+The full `rulespec-conformance` validator depends on it and adds the SHACL suite,
+compiled graph schemas, JSON-LD context, and Rulespec graph fixture corpus. A
+consumer can run either without this repository. Neither distribution is
+published to an index yet; build both wheels from a compiled checkout:
 
 ```bash
-make compile && uv build --wheel
-pip install dist/rulespec_conformance-*.whl
+make compile
+uv build --project packages/rulespec-artifacts --wheel --out-dir dist/artifacts
+uv build --wheel
+pip install dist/artifacts/rulespec_artifacts-*.whl dist/rulespec_conformance-*.whl
 rulespec-ci-validate --json your-graph.jsonld
 ```
 

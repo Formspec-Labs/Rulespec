@@ -11,7 +11,7 @@ from pathlib import Path
 from platform_artifact import (
     ROOT_OBJECT_KEY,
     MemberManifestReference,
-    SourceCatalogSpec,
+    Producer,
     build_artifact_root,
     canonical_json_bytes,
     describe_member_from_receipt,
@@ -44,19 +44,18 @@ def _valid_files() -> dict[str, bytes]:
         members=(member,),
     )
     root = build_artifact_root(
-        spec=SourceCatalogSpec(
-            catalog_id="urn:example:fixture-catalog",
-            source_system_id="urn:example:fixture-source",
-            source_system_version="1",
-            selection_policy_id="urn:example:fixture-selection",
-            selection_policy_version="1",
-            selection_policy_digest="sha256:" + "1" * 64,
-            requested_universe_set_digest="sha256:" + "2" * 64,
-            selected_source_set_digest="sha256:" + "3" * 64,
+        kind="fixture-artifact",
+        spec={"profile": "fixture/1"},
+        producer=Producer(
+            product="fixture-producer",
+            implementation_id="git:https://example.test/fixture@" + "1" * 40,
+            verifier_id="urn:example:fixture-verifier",
+            verifier_version="1.0.0",
+            verifier_implementation_id=(
+                "pkg:pypi/rulespec-artifacts@1.0.0?checksum=sha256:" + "2" * 64
+            ),
         ),
-        inputs=(),
         manifests=(manifest,),
-        accounted_input_count=1,
     )
     return {
         ROOT_OBJECT_KEY: canonical_json_bytes(root),
@@ -90,7 +89,7 @@ def _cases() -> dict[str, tuple[str, dict[str, bytes]]]:
     cases["unknown-root-field"] = ("invalid.schema", _with_root(valid, unknown))
 
     wrong_identity = _root(valid)
-    wrong_identity["logicalId"] = "urn:spicy:artifact:source-catalog:" + "0" * 64
+    wrong_identity["logicalId"] = "urn:spicy:artifact:fixture-artifact:" + "0" * 64
     cases["wrong-identity"] = ("invalid.identity", _with_root(valid, wrong_identity))
 
     unsafe = _root(valid)
@@ -119,17 +118,10 @@ def _cases() -> dict[str, tuple[str, dict[str, bytes]]]:
     counts["counts"]["memberCount"] = 2  # type: ignore[index]
     cases["counts"] = ("invalid.statistics", _with_root(valid, stamp_root(counts)))
 
-    incomplete = _root(valid)
-    incomplete["coverage"] = {
-        "accountedInputCount": 0,
-        "complete": False,
-        "unaccountedInputCount": 1,
-    }
-    incomplete["artifactDigest"] = expected_artifact_digest(incomplete)
-    cases["incomplete-coverage"] = (
-        "invalid.statistics",
-        _with_root(valid, incomplete),
-    )
+    mutable_producer = _root(valid)
+    mutable_producer["producer"]["implementationId"] = "git:https://example.test/main"  # type: ignore[index]
+    mutable_producer["artifactDigest"] = expected_artifact_digest(mutable_producer)
+    cases["mutable-producer"] = ("invalid.schema", _with_root(valid, mutable_producer))
     return cases
 
 

@@ -28,8 +28,8 @@ python3 -m unittest tools.test_rulespec_releases -v
 
 [`build_platform_artifact_fixtures.py`](build_platform_artifact_fixtures.py)
 rebuilds the common structural corpus shipped in the wheel. The cases exercise
-the one `rulespec_conformance.platform_artifact` root, canonical bytes,
-identity, manifest, membership, path, digest, count, and coverage checks.
+the one `rulespec_artifacts` root, canonical bytes, shared framed-section
+digester, identity, manifest, membership, path, digest, and count checks.
 
 ```sh
 python3 tools/build_platform_artifact_fixtures.py --check

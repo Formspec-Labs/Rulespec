@@ -12,8 +12,9 @@ Rulespec, SpicyRegs, RefSpec, or SpicySearch checkout.
 > read this document as a contract, so the corrections are stated here:
 >
 > 1. **Segment construction is not a Rulespec capability, and the duty is not
->    Rulespec's.** SpicyRegs owns source parsing, exact text, durable structural
->    passages, and model-input segmentation. The Extrapolator consumes segments a
+>    Rulespec's.** Under REF-048, DocSpec owns document parsing, exact captured
+>    text, durable structural passages, and model-input segmentation; SpicyRegs
+>    supplies source-native inputs. The Extrapolator consumes segments a
 >    publisher prepared. This repository has no segmenter: zero of its 79 Rust
 >    sources name a segment, and the only code that builds a `ProcessingSegment`
 >    is `fixture_only_prepared_segment`
@@ -123,8 +124,9 @@ extrapolation profile, invokes models, and emits evidence-linked structured
 document descriptions. It records the exact input segment and its reversible
 source mapping, the evidence-bound candidates, and the extraction and AI
 lineage — prompt and model identity included. It does not parse sources,
-tokenize, handle PDF or HTML, or build segments; those belong to SpicyRegs. It
-does not execute baseline validation or run a selection engine; it carries the
+tokenize, handle PDF or HTML, or build segments; under REF-048 those belong to
+DocSpec, while SpicyRegs supplies source-native inputs. It does not execute
+baseline validation or run a selection engine; it carries the
 receipts those processes must produce, and §7 records that no product owns them
 today.
 
@@ -352,8 +354,8 @@ not an inference from this document.
 | **Extrapolation-profile governance** | `profile_id`, `profile_version`, `usage_cap` | Who versions a profile, who may raise a usage cap, and what evidence a raise requires |
 
 One further gap is **owned but unbuilt**, and is listed separately so it is not
-mistaken for an unowned duty: SpicyRegs owns model-input segmentation and has a
-measured segmenter, but no publisher-emitted segment file is delivered to a
-Rulespec consumer yet. Until one is, the M2 fixture supplies a hand-authored
-stand-in behind an explicit fixture-only guard, and §3's "prepared segments go
-in" describes the contract rather than a running pipeline.
+mistaken for an unowned duty: DocSpec owns model-input segmentation under
+REF-048, but no publisher-emitted segment file is delivered to a Rulespec
+consumer yet. Until one is, the M2 fixture supplies a hand-authored stand-in
+behind an explicit fixture-only guard, and §3's "prepared segments go in"
+describes the contract rather than a running pipeline.

@@ -1,0 +1,19 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "rulespec-artifacts"
+version = "1.0.0"
+description = "Product-neutral construction and verification for immutable platform artifacts."
+requires-python = ">=3.12"
+license = { text = "See the Rulespec repository LICENSE and LICENSE-CODE files" }
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/rulespec_artifacts"]
+
+[tool.hatch.build.targets.wheel.force-include]
+"../../spec/platform-artifacts.md" = "rulespec_artifacts/_data/spec/platform-artifacts.md"
+"../../platform-fixtures" = "rulespec_artifacts/_data/platform-fixtures"
+"../../LICENSE" = "rulespec_artifacts/_data/LICENSE"
+"../../LICENSE-CODE" = "rulespec_artifacts/_data/LICENSE-CODE"

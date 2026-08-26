@@ -1,10 +1,18 @@
-"""Shim: the implementation is `rulespec_conformance.platform_artifact`."""
+"""Source-checkout shim for the standalone ``rulespec_artifacts`` package."""
 
 import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
+sys.path.insert(
+    0,
+    str(
+        Path(__file__).resolve().parents[1]
+        / "packages"
+        / "rulespec-artifacts"
+        / "src"
+    ),
+)
 
-from rulespec_conformance import platform_artifact as _impl  # noqa: E402
+import rulespec_artifacts as _impl  # noqa: E402
 
 sys.modules[__name__] = _impl

@@ -1,9 +1,8 @@
-"""Shared identity and structural verification for platform artifacts.
+"""Provider-neutral construction and verification for platform artifacts.
 
-Rulespec owns this byte-level protocol. Product packages supply kind-specific
-semantic checks and translate verified members into their own domain models.
-The module performs no network access and accepts member I/O through the narrow
-``MemberSource`` protocol.
+The package owns byte identity, manifests, membership, and bounded structural
+verification. Products inject storage and semantic checks; this module knows
+nothing about catalogs, documents, regulations, or search.
 """
 
 from __future__ import annotations
@@ -14,18 +13,18 @@ import hashlib
 import io
 import json
 import os
+import posixpath
 import re
 import sqlite3
 import stat
+import struct
 import tempfile
 from collections.abc import Iterable, Iterator, Mapping, Sequence
 from contextlib import AbstractContextManager, contextmanager
 from copy import deepcopy
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, BinaryIO, ClassVar, Protocol, Self, runtime_checkable
-
-from rulespec_conformance.conformance_lib import ROOT
+from typing import Any, BinaryIO, Protocol, Self, runtime_checkable
 
 FORMAT = "spicy-artifact"
 FORMAT_VERSION = "1.0"
@@ -38,19 +37,6 @@ DEFAULT_ROOT_BYTE_LIMIT = 1024 * 1024
 DEFAULT_MANIFEST_BYTE_LIMIT = 64 * 1024 * 1024
 DEFAULT_READ_CHUNK_BYTES = 1024 * 1024
 DEFAULT_MANIFEST_SPOOL_BYTES = 1024 * 1024
-SOURCE_CATALOG_ITEM_SCHEMA_ID = (
-    "https://rulespec.org/schemas/releases/source-catalog-release-v1/"
-    "source-items-v1.schema.json"
-)
-_SOURCE_CATALOG_ITEM_SCHEMA = (
-    ROOT
-    / "release-records"
-    / "schemas"
-    / "source-catalog-release-v1"
-    / "source-items-v1.schema.json"
-)
-
-ARTIFACT_KINDS = ("source-catalog", "derivation", "composition")
 DIAGNOSTIC_CODES = (
     "invalid.root-syntax",
     "invalid.format",
@@ -65,20 +51,21 @@ DIAGNOSTIC_CODES = (
     "invalid.limit",
 )
 
-_ROOT_FIELDS = frozenset(
+_ROOT_REQUIRED_FIELDS = frozenset(
     {
         "artifactDigest",
         "counts",
-        "coverage",
         "format",
         "formatVersion",
         "inputs",
         "kind",
         "logicalId",
         "memberManifests",
+        "producer",
         "spec",
     }
 )
+_ROOT_OPTIONAL_FIELDS = frozenset({"knownLimits", "supersedes"})
 _INPUT_FIELDS = frozenset({"artifactDigest", "logicalId", "role"})
 _MANIFEST_REFERENCE_FIELDS = frozenset(
     {
@@ -93,56 +80,57 @@ _MANIFEST_REFERENCE_FIELDS = frozenset(
         "totalRecordCount",
     }
 )
-_MEMBER_REQUIRED_FIELDS = frozenset(
-    {"byteSize", "mediaType", "objectKey", "role", "sha256"}
-)
+_MEMBER_COMMON_FIELDS = frozenset({"byteSize", "mediaType", "role"})
 _MEMBER_OPTIONAL_FIELDS = frozenset({"recordCount", "schemaId"})
 _COMMON_COUNT_FIELDS = frozenset(
     {"manifestCount", "memberCount", "totalMemberByteSize", "totalRecordCount"}
 )
-_COVERAGE_FIELDS = frozenset(
-    {"accountedInputCount", "complete", "unaccountedInputCount"}
+_PRODUCER_FIELDS = frozenset(
+    {
+        "implementationId",
+        "product",
+        "verifierId",
+        "verifierImplementationId",
+        "verifierVersion",
+    }
 )
-_KIND_SPEC_FIELDS = {
-    "source-catalog": frozenset(
-        {
-            "catalogId",
-            "requestedUniverseSetDigest",
-            "selectedSourceSetDigest",
-            "selectionPolicyDigest",
-            "selectionPolicyId",
-            "selectionPolicyVersion",
-            "sourceSystemId",
-            "sourceSystemVersion",
-        }
-    ),
-    "derivation": frozenset(
-        {
-            "expectedOutputRoles",
-            "parametersDigest",
-            "partitioningId",
-            "partitioningDigest",
-            "policyDigest",
-            "policyId",
-            "policyVersion",
-            "processorDigest",
-            "processorId",
-            "processorVersion",
-        }
-    ),
-    "composition": frozenset(
-        {
-            "mergePolicyDigest",
-            "mergePolicyId",
-            "mergePolicyVersion",
-            "totalOrderKey",
-        }
-    ),
-}
+_KNOWN_LIMIT_FIELDS = frozenset({"code", "scope", "statement", "evidenceDigests"})
+_SUPERSEDES_FIELDS = frozenset({"artifactDigest", "logicalId", "reason"})
+_DERIVATION_RELATION_FIELDS = frozenset(
+    {
+        "expectedOutputRoles",
+        "parametersDigest",
+        "partitioningDigest",
+        "partitioningId",
+        "policyDigest",
+        "policyId",
+        "policyVersion",
+        "processorDigest",
+        "processorId",
+        "processorVersion",
+        "relationKind",
+    }
+)
+_COMPOSITION_RELATION_FIELDS = frozenset(
+    {
+        "mergePolicyDigest",
+        "mergePolicyId",
+        "mergePolicyVersion",
+        "relationKind",
+        "totalOrderKey",
+    }
+)
 _SCOPE_KINDS = frozenset({"global", "partition"})
 _ROLE = re.compile(r"[a-z][a-z0-9]*(?:-[a-z0-9]+)*\Z")
 _QUALIFIED_SHA256 = re.compile(r"sha256:[0-9a-f]{64}\Z")
 _ABSOLUTE_ID = re.compile(r"[A-Za-z][A-Za-z0-9+.-]*:[^\s]+\Z")
+_LOGICAL_DIGEST_SUFFIX = re.compile(r"[0-9a-f]{64}\Z")
+_PUBLISHED_SHA256 = re.compile(
+    r"(?:^|[/:?#&=@])sha256[:=][0-9a-f]{64}(?:$|[/?#&])"
+)
+_GIT_OBJECT_ID = re.compile(
+    r"(?:^|[@/:])(?:[0-9a-f]{40}|[0-9a-f]{64})(?:$|[#?])"
+)
 
 
 @dataclass(frozen=True, slots=True)
@@ -183,14 +171,22 @@ def _string_bytes(value: str, *, path: str) -> bytes:
     try:
         return json.dumps(value, ensure_ascii=False, allow_nan=False).encode("utf-8")
     except UnicodeEncodeError as error:
-        _fail("invalid.root-syntax", path, f"text contains a lone Unicode surrogate: {error}")
+        _fail(
+            "invalid.root-syntax",
+            path,
+            f"text contains a lone Unicode surrogate: {error}",
+        )
 
 
 def _utf16_sort_key(value: str) -> bytes:
     try:
         return value.encode("utf-16-be")
     except UnicodeEncodeError as error:
-        _fail("invalid.root-syntax", "$", f"object key contains a lone Unicode surrogate: {error}")
+        _fail(
+            "invalid.root-syntax",
+            "$",
+            f"object key contains a lone Unicode surrogate: {error}",
+        )
 
 
 def _canonical_json_parts(value: Any, *, path: str) -> bytes:
@@ -209,10 +205,14 @@ def _canonical_json_parts(value: Any, *, path: str) -> bytes:
     if isinstance(value, str):
         return _string_bytes(value, path=path)
     if isinstance(value, (list, tuple)):
-        return b"[" + b",".join(
-            _canonical_json_parts(item, path=f"{path}/{index}")
-            for index, item in enumerate(value)
-        ) + b"]"
+        return (
+            b"["
+            + b",".join(
+                _canonical_json_parts(item, path=f"{path}/{index}")
+                for index, item in enumerate(value)
+            )
+            + b"]"
+        )
     if isinstance(value, Mapping):
         keys = list(value)
         if any(not isinstance(key, str) for key in keys):
@@ -244,7 +244,9 @@ class CanonicalSetDigester:
     def add(self, value: str) -> None:
         if not isinstance(value, str):
             raise TypeError("set digest values must be text")
-        if self._previous is not None and value <= self._previous:
+        if self._previous is not None and _utf16_sort_key(value) <= _utf16_sort_key(
+            self._previous
+        ):
             raise ValueError("set digest values must be sorted and distinct")
         payload = canonical_json_bytes(value)
         if not self._first:
@@ -266,14 +268,149 @@ def sha256_digest(value: bytes | Any) -> str:
     return "sha256:" + hashlib.sha256(payload).hexdigest()
 
 
-def source_catalog_item_schema_bytes() -> bytes:
-    """Return the one packaged source-item schema used by artifact producers."""
+@dataclass(frozen=True, slots=True)
+class FramedSection:
+    """One named, counted record stream for :func:`framed_section_digest`."""
 
-    payload = _SOURCE_CATALOG_ITEM_SCHEMA.read_bytes()
-    schema = json.loads(payload)
-    if schema.get("$id") != SOURCE_CATALOG_ITEM_SCHEMA_ID:
-        raise RuntimeError("packaged source-catalog item schema has the wrong identity")
-    return payload
+    name: str
+    count: int
+    records: Iterable[Any]
+
+
+def _u64(value: int, *, label: str) -> bytes:
+    if (
+        isinstance(value, bool)
+        or not isinstance(value, int)
+        or not 0 <= value < 1 << 64
+    ):
+        raise ValueError(f"{label} must be an unsigned 64-bit integer")
+    return struct.pack(">Q", value)
+
+
+def framed_section_digest(domain: str, sections: Iterable[FramedSection]) -> str:
+    """Digest ordered canonical records without materializing a corpus array."""
+
+    if not isinstance(domain, str) or not domain:
+        raise ValueError("digest domain must be nonempty text")
+    try:
+        domain_bytes = domain.encode("utf-8")
+    except UnicodeEncodeError as error:
+        raise ValueError("digest domain must be valid Unicode") from error
+    digest = hashlib.sha256(domain_bytes + b"\0")
+    names: set[str] = set()
+    for section in sections:
+        if not isinstance(section, FramedSection):
+            raise TypeError("sections must contain FramedSection values")
+        if not section.name or section.name in names:
+            raise ValueError("section names must be nonempty and distinct")
+        names.add(section.name)
+        try:
+            name_bytes = section.name.encode("utf-8")
+        except UnicodeEncodeError as error:
+            raise ValueError("section name must be valid Unicode") from error
+        digest.update(_u64(len(name_bytes), label="section name length"))
+        digest.update(name_bytes)
+        digest.update(_u64(section.count, label="section count"))
+        observed = 0
+        for record in section.records:
+            payload = canonical_json_bytes(record)
+            digest.update(_u64(len(payload), label="record length"))
+            digest.update(payload)
+            observed += 1
+            if observed > section.count:
+                raise ValueError(f"section {section.name!r} exceeds its declared count")
+        if observed != section.count:
+            raise ValueError(
+                f"section {section.name!r} declared {section.count} records but yielded {observed}"
+            )
+    return "sha256:" + digest.hexdigest()
+
+
+def _schema_path(value: str) -> str:
+    if (
+        not isinstance(value, str)
+        or not value
+        or "\\" in value
+        or value.startswith("/")
+    ):
+        raise ValueError(f"schema path is not normalized and relative: {value!r}")
+    normalized = posixpath.normpath(value)
+    if normalized != value or normalized in {".", ".."} or normalized.startswith("../"):
+        raise ValueError(f"schema path is not normalized and contained: {value!r}")
+    return normalized
+
+
+def _pointer_token(value: str) -> str:
+    return value.replace("~", "~0").replace("/", "~1")
+
+
+def _rewrite_schema_refs(value: Any, *, source_path: str, paths: frozenset[str]) -> Any:
+    if isinstance(value, list):
+        return [
+            _rewrite_schema_refs(item, source_path=source_path, paths=paths)
+            for item in value
+        ]
+    if not isinstance(value, Mapping):
+        return deepcopy(value)
+    result: dict[str, Any] = {}
+    for key, item in value.items():
+        if key != "$ref":
+            result[key] = _rewrite_schema_refs(
+                item, source_path=source_path, paths=paths
+            )
+            continue
+        if not isinstance(item, str):
+            raise TypeError(f"$ref in {source_path!r} must be text")
+        target_text, marker, fragment = item.partition("#")
+        if marker and fragment and not fragment.startswith("/"):
+            raise ValueError(
+                f"$ref in {source_path!r} must use a JSON Pointer fragment"
+            )
+        if target_text:
+            if _ABSOLUTE_ID.fullmatch(target_text):
+                raise ValueError(f"absolute $ref in {source_path!r} is forbidden")
+            target = _schema_path(
+                posixpath.normpath(
+                    posixpath.join(posixpath.dirname(source_path), target_text)
+                )
+            )
+        else:
+            target = source_path
+        if target not in paths:
+            raise ValueError(
+                f"$ref in {source_path!r} targets missing schema {target!r}"
+            )
+        suffix = f"/{fragment.lstrip('/')}" if fragment else ""
+        result[key] = f"#/$defs/{_pointer_token(target)}{suffix}"
+    return result
+
+
+def schema_bundle_digest(schemas: Mapping[str, Mapping[str, Any]]) -> str:
+    """Return the sole logical digest for a closed JSON Schema family."""
+
+    if not isinstance(schemas, Mapping) or not schemas:
+        raise ValueError("schema bundle must be a nonempty mapping")
+    normalized: dict[str, Mapping[str, Any]] = {}
+    for raw_path, raw_schema in schemas.items():
+        path = _schema_path(raw_path)
+        if path in normalized:
+            raise ValueError(f"duplicate normalized schema path: {path!r}")
+        if not isinstance(raw_schema, Mapping):
+            raise TypeError(f"schema {path!r} must be an object")
+        normalized[path] = raw_schema
+    paths = frozenset(normalized)
+    definitions: dict[str, Any] = {}
+    for path, schema in normalized.items():
+        selected = {
+            key: deepcopy(value) for key, value in schema.items() if key != "$id"
+        }
+        definitions[path] = _rewrite_schema_refs(
+            selected, source_path=path, paths=paths
+        )
+    payload = canonical_json_bytes({"$defs": definitions})
+    return (
+        "sha256:" + hashlib.sha256(b"rulespec-schema-bundle/1\0" + payload).hexdigest()
+    )
 
 
 def _reject_float(value: str) -> None:
@@ -293,7 +430,9 @@ def _reject_duplicate_keys(pairs: list[tuple[str, Any]]) -> dict[str, Any]:
     return result
 
 
-def parse_canonical_json(raw: bytes, *, path: str = "$", code: str = "invalid.root-syntax") -> Any:
+def parse_canonical_json(
+    raw: bytes, *, path: str = "$", code: str = "invalid.root-syntax"
+) -> Any:
     """Parse byte-exact canonical JSON.
 
     Raises:
@@ -321,7 +460,9 @@ def parse_canonical_json(raw: bytes, *, path: str = "$", code: str = "invalid.ro
     return value
 
 
-def _closed_mapping(value: object, fields: frozenset[str], *, path: str) -> Mapping[str, Any]:
+def _closed_mapping(
+    value: object, fields: frozenset[str], *, path: str
+) -> Mapping[str, Any]:
     if not isinstance(value, Mapping):
         _fail("invalid.schema", path, "value must be an object")
     actual = frozenset(value)
@@ -353,7 +494,11 @@ def _text(value: object, *, path: str) -> str:
 
 
 def _uint(value: object, *, path: str) -> int:
-    if isinstance(value, bool) or not isinstance(value, int) or not 0 <= value <= JSON_SAFE_INTEGER_MAX:
+    if (
+        isinstance(value, bool)
+        or not isinstance(value, int)
+        or not 0 <= value <= JSON_SAFE_INTEGER_MAX
+    ):
         _fail("invalid.schema", path, "value must be a JSON-safe unsigned integer")
     return value
 
@@ -361,7 +506,9 @@ def _uint(value: object, *, path: str) -> int:
 def _digest(value: object, *, path: str) -> str:
     selected = _text(value, path=path)
     if _QUALIFIED_SHA256.fullmatch(selected) is None:
-        _fail("invalid.schema", path, "value must be a qualified lowercase SHA-256 digest")
+        _fail(
+            "invalid.schema", path, "value must be a qualified lowercase SHA-256 digest"
+        )
     return selected
 
 
@@ -370,6 +517,27 @@ def _absolute_id(value: object, *, path: str) -> str:
     if _ABSOLUTE_ID.fullmatch(selected) is None:
         _fail("invalid.schema", path, "value must be an absolute identifier")
     return selected
+
+
+def _implementation_id(value: object, *, path: str) -> str:
+    selected = _absolute_id(value, path=path)
+    if (
+        _PUBLISHED_SHA256.search(selected) is None
+        and _GIT_OBJECT_ID.search(selected) is None
+    ):
+        _fail(
+            "invalid.schema",
+            path,
+            "implementation identity must contain a published digest or full Git object ID",
+        )
+    return selected
+
+
+def _logical_digest(logical_id: str, *, path: str) -> str:
+    suffix = logical_id.rsplit(":", 1)[-1]
+    if _LOGICAL_DIGEST_SUFFIX.fullmatch(suffix) is None:
+        _fail("invalid.schema", path, "logical ID must end in a 64-character digest")
+    return suffix
 
 
 def _role(value: object, *, path: str) -> str:
@@ -386,7 +554,11 @@ def _distinct_text_array(
     role_values: bool = False,
 ) -> tuple[str, ...]:
     selected = tuple(
-        (_role(item, path=f"{path}/{index}") if role_values else _text(item, path=f"{path}/{index}"))
+        (
+            _role(item, path=f"{path}/{index}")
+            if role_values
+            else _text(item, path=f"{path}/{index}")
+        )
         for index, item in enumerate(_array(value, path=path))
     )
     if not selected:
@@ -432,10 +604,14 @@ class ArtifactInput:
     @classmethod
     def from_dict(cls, value: object, *, path: str) -> Self:
         item = _closed_mapping(value, _INPUT_FIELDS, path=path)
+        logical_id = _absolute_id(item["logicalId"], path=f"{path}/logicalId")
+        _logical_digest(logical_id, path=f"{path}/logicalId")
         return cls(
             role=_role(item["role"], path=f"{path}/role"),
-            logical_id=_absolute_id(item["logicalId"], path=f"{path}/logicalId"),
-            artifact_digest=_digest(item["artifactDigest"], path=f"{path}/artifactDigest"),
+            logical_id=logical_id,
+            artifact_digest=_digest(
+                item["artifactDigest"], path=f"{path}/artifactDigest"
+            ),
         )
 
     def as_dict(self) -> dict[str, str]:
@@ -446,47 +622,116 @@ class ArtifactInput:
         }
 
 
-class ArtifactSpec(Protocol):
-    """Supply one closed kind-specific spec to the shared root builder."""
-
-    kind: ClassVar[str]
-
-    def as_dict(self) -> dict[str, object]: ...
-
-
 @dataclass(frozen=True, slots=True)
-class SourceCatalogSpec:
-    """Logical source-selection identity for a source catalog."""
+class Producer:
+    """Standard immutable identities for the publisher and product verifier."""
 
-    kind: ClassVar[str] = "source-catalog"
+    product: str
+    implementation_id: str
+    verifier_id: str
+    verifier_version: str
+    verifier_implementation_id: str
 
-    catalog_id: str
-    source_system_id: str
-    source_system_version: str
-    selection_policy_id: str
-    selection_policy_version: str
-    selection_policy_digest: str
-    requested_universe_set_digest: str
-    selected_source_set_digest: str
+    @classmethod
+    def from_dict(cls, value: object, *, path: str) -> Self:
+        item = _closed_mapping(value, _PRODUCER_FIELDS, path=path)
+        return cls(
+            product=_role(item["product"], path=f"{path}/product"),
+            implementation_id=_implementation_id(
+                item["implementationId"], path=f"{path}/implementationId"
+            ),
+            verifier_id=_absolute_id(item["verifierId"], path=f"{path}/verifierId"),
+            verifier_version=_text(
+                item["verifierVersion"], path=f"{path}/verifierVersion"
+            ),
+            verifier_implementation_id=_implementation_id(
+                item["verifierImplementationId"],
+                path=f"{path}/verifierImplementationId",
+            ),
+        )
 
-    def as_dict(self) -> dict[str, object]:
+    def as_dict(self) -> dict[str, str]:
         return {
-            "catalogId": self.catalog_id,
-            "requestedUniverseSetDigest": self.requested_universe_set_digest,
-            "selectedSourceSetDigest": self.selected_source_set_digest,
-            "selectionPolicyDigest": self.selection_policy_digest,
-            "selectionPolicyId": self.selection_policy_id,
-            "selectionPolicyVersion": self.selection_policy_version,
-            "sourceSystemId": self.source_system_id,
-            "sourceSystemVersion": self.source_system_version,
+            "implementationId": self.implementation_id,
+            "product": self.product,
+            "verifierId": self.verifier_id,
+            "verifierImplementationId": self.verifier_implementation_id,
+            "verifierVersion": self.verifier_version,
         }
 
 
 @dataclass(frozen=True, slots=True)
-class DerivationSpec:
-    """Logical processor, policy, and partition identity for a derivation."""
+class KnownLimit:
+    """One artifact-attached limitation with exact supporting evidence."""
 
-    kind: ClassVar[str] = "derivation"
+    code: str
+    scope: str
+    statement: str
+    evidence_digests: tuple[str, ...]
+
+    @classmethod
+    def from_dict(cls, value: object, *, path: str) -> Self:
+        item = _closed_mapping(value, _KNOWN_LIMIT_FIELDS, path=path)
+        evidence = tuple(
+            _digest(entry, path=f"{path}/evidenceDigests/{index}")
+            for index, entry in enumerate(
+                _array(item["evidenceDigests"], path=f"{path}/evidenceDigests")
+            )
+        )
+        if not evidence or evidence != tuple(
+            sorted(set(evidence), key=_utf16_sort_key)
+        ):
+            _fail(
+                "invalid.schema",
+                f"{path}/evidenceDigests",
+                "evidence digests must be nonempty, sorted, and distinct",
+            )
+        return cls(
+            code=_role(item["code"], path=f"{path}/code"),
+            scope=_role(item["scope"], path=f"{path}/scope"),
+            statement=_text(item["statement"], path=f"{path}/statement"),
+            evidence_digests=evidence,
+        )
+
+    def as_dict(self) -> dict[str, object]:
+        return {
+            "code": self.code,
+            "evidenceDigests": list(self.evidence_digests),
+            "scope": self.scope,
+            "statement": self.statement,
+        }
+
+
+@dataclass(frozen=True, slots=True)
+class Supersedes:
+    """Exact predecessor evidence for a product-owned current pointer."""
+
+    logical_id: str
+    artifact_digest: str
+    reason: str
+
+    @classmethod
+    def from_dict(cls, value: object, *, path: str) -> Self:
+        item = _closed_mapping(value, _SUPERSEDES_FIELDS, path=path)
+        return cls(
+            logical_id=_absolute_id(item["logicalId"], path=f"{path}/logicalId"),
+            artifact_digest=_digest(
+                item["artifactDigest"], path=f"{path}/artifactDigest"
+            ),
+            reason=_text(item["reason"], path=f"{path}/reason"),
+        )
+
+    def as_dict(self) -> dict[str, str]:
+        return {
+            "artifactDigest": self.artifact_digest,
+            "logicalId": self.logical_id,
+            "reason": self.reason,
+        }
+
+
+@dataclass(frozen=True, slots=True)
+class DerivationRelation:
+    """Optional shared description of a product-owned derivation."""
 
     processor_id: str
     processor_version: str
@@ -499,9 +744,48 @@ class DerivationSpec:
     partitioning_digest: str
     expected_output_roles: tuple[str, ...]
 
+    @classmethod
+    def from_dict(cls, value: object, *, path: str = "relation") -> Self:
+        item = _closed_mapping(value, _DERIVATION_RELATION_FIELDS, path=path)
+        if item["relationKind"] != "derivation":
+            _fail("invalid.schema", f"{path}/relationKind", "expected derivation")
+        roles = _distinct_text_array(
+            item["expectedOutputRoles"],
+            path=f"{path}/expectedOutputRoles",
+            role_values=True,
+        )
+        if roles != tuple(sorted(roles, key=_utf16_sort_key)):
+            _fail(
+                "invalid.schema",
+                f"{path}/expectedOutputRoles",
+                "expected output roles must be sorted",
+            )
+        return cls(
+            processor_id=_absolute_id(item["processorId"], path=f"{path}/processorId"),
+            processor_version=_text(
+                item["processorVersion"], path=f"{path}/processorVersion"
+            ),
+            processor_digest=_digest(
+                item["processorDigest"], path=f"{path}/processorDigest"
+            ),
+            policy_id=_absolute_id(item["policyId"], path=f"{path}/policyId"),
+            policy_version=_text(item["policyVersion"], path=f"{path}/policyVersion"),
+            policy_digest=_digest(item["policyDigest"], path=f"{path}/policyDigest"),
+            parameters_digest=_digest(
+                item["parametersDigest"], path=f"{path}/parametersDigest"
+            ),
+            partitioning_id=_absolute_id(
+                item["partitioningId"], path=f"{path}/partitioningId"
+            ),
+            partitioning_digest=_digest(
+                item["partitioningDigest"], path=f"{path}/partitioningDigest"
+            ),
+            expected_output_roles=roles,
+        )
+
     def as_dict(self) -> dict[str, object]:
         return {
-            "expectedOutputRoles": sorted(self.expected_output_roles),
+            "expectedOutputRoles": list(self.expected_output_roles),
             "parametersDigest": self.parameters_digest,
             "partitioningDigest": self.partitioning_digest,
             "partitioningId": self.partitioning_id,
@@ -511,25 +795,46 @@ class DerivationSpec:
             "processorDigest": self.processor_digest,
             "processorId": self.processor_id,
             "processorVersion": self.processor_version,
+            "relationKind": "derivation",
         }
 
 
 @dataclass(frozen=True, slots=True)
-class CompositionSpec:
-    """Logical merge policy and total order for a composition."""
-
-    kind: ClassVar[str] = "composition"
+class CompositionRelation:
+    """Optional shared description of a reference-only composition."""
 
     merge_policy_id: str
     merge_policy_version: str
     merge_policy_digest: str
     total_order_key: tuple[str, ...]
 
+    @classmethod
+    def from_dict(cls, value: object, *, path: str = "relation") -> Self:
+        item = _closed_mapping(value, _COMPOSITION_RELATION_FIELDS, path=path)
+        if item["relationKind"] != "composition":
+            _fail("invalid.schema", f"{path}/relationKind", "expected composition")
+        order = _distinct_text_array(
+            item["totalOrderKey"], path=f"{path}/totalOrderKey"
+        )
+        return cls(
+            merge_policy_id=_absolute_id(
+                item["mergePolicyId"], path=f"{path}/mergePolicyId"
+            ),
+            merge_policy_version=_text(
+                item["mergePolicyVersion"], path=f"{path}/mergePolicyVersion"
+            ),
+            merge_policy_digest=_digest(
+                item["mergePolicyDigest"], path=f"{path}/mergePolicyDigest"
+            ),
+            total_order_key=order,
+        )
+
     def as_dict(self) -> dict[str, object]:
         return {
             "mergePolicyDigest": self.merge_policy_digest,
             "mergePolicyId": self.merge_policy_id,
             "mergePolicyVersion": self.merge_policy_version,
+            "relationKind": "composition",
             "totalOrderKey": list(self.total_order_key),
         }
 
@@ -538,21 +843,43 @@ class CompositionSpec:
 class MemberDescriptor:
     """Describe one payload member declared by exactly one manifest."""
 
-    object_key: str
+    object_key: str | None
     role: str
     media_type: str
     byte_size: int
-    sha256: str
+    sha256: str | None
     record_count: int | None = None
     schema_id: str | None = None
+    blob_ref: str | None = None
 
     @classmethod
     def from_dict(cls, value: object, *, path: str) -> Self:
         if not isinstance(value, Mapping):
             _fail("invalid.schema", path, "member descriptor must be an object")
         fields = frozenset(value)
-        if not _MEMBER_REQUIRED_FIELDS <= fields <= _MEMBER_REQUIRED_FIELDS | _MEMBER_OPTIONAL_FIELDS:
-            _fail("invalid.schema", path, "member descriptor has missing or unknown fields")
+        allowed = (
+            _MEMBER_COMMON_FIELDS
+            | _MEMBER_OPTIONAL_FIELDS
+            | {
+                "blobRef",
+                "objectKey",
+                "sha256",
+            }
+        )
+        if not _MEMBER_COMMON_FIELDS <= fields <= allowed:
+            _fail(
+                "invalid.schema",
+                path,
+                "member descriptor has missing or unknown fields",
+            )
+        local = "objectKey" in value or "sha256" in value
+        external = "blobRef" in value
+        if external == local or (local and not {"objectKey", "sha256"} <= fields):
+            _fail(
+                "invalid.schema",
+                path,
+                "member must have exactly one local objectKey/sha256 or external blobRef",
+            )
         record_count = None
         if "recordCount" in value:
             record_count = _uint(value["recordCount"], path=f"{path}/recordCount")
@@ -565,23 +892,42 @@ class MemberDescriptor:
         except UnicodeEncodeError:
             _fail("invalid.schema", f"{path}/mediaType", "media type must be ASCII")
         return cls(
-            object_key=validate_object_key(value["objectKey"], path=f"{path}/objectKey"),
+            object_key=(
+                validate_object_key(value["objectKey"], path=f"{path}/objectKey")
+                if local
+                else None
+            ),
             role=_role(value["role"], path=f"{path}/role"),
             media_type=media_type,
             byte_size=_uint(value["byteSize"], path=f"{path}/byteSize"),
-            sha256=_digest(value["sha256"], path=f"{path}/sha256"),
+            sha256=_digest(value["sha256"], path=f"{path}/sha256") if local else None,
             record_count=record_count,
             schema_id=schema_id,
+            blob_ref=(
+                _digest(value["blobRef"], path=f"{path}/blobRef") if external else None
+            ),
         )
+
+    @property
+    def location_key(self) -> tuple[str, str]:
+        if self.object_key is not None:
+            return ("object-key", self.object_key)
+        if self.blob_ref is None:
+            raise RuntimeError("member descriptor has no location")
+        return ("blob-ref", self.blob_ref)
 
     def as_dict(self) -> dict[str, object]:
         value: dict[str, object] = {
             "byteSize": self.byte_size,
             "mediaType": self.media_type,
-            "objectKey": self.object_key,
             "role": self.role,
-            "sha256": self.sha256,
         }
+        if self.object_key is not None and self.sha256 is not None:
+            value.update({"objectKey": self.object_key, "sha256": self.sha256})
+        elif self.blob_ref is not None:
+            value["blobRef"] = self.blob_ref
+        else:
+            raise ValueError("member descriptor must have one valid location")
         if self.record_count is not None:
             value["recordCount"] = self.record_count
         if self.schema_id is not None:
@@ -612,7 +958,11 @@ class MemberManifestReference:
         scope_id = _text(item["scopeId"], path=f"{path}/scopeId")
         manifest_id = _text(item["manifestId"], path=f"{path}/manifestId")
         if manifest_id != f"{scope_kind}:{scope_id}":
-            _fail("invalid.schema", f"{path}/manifestId", "manifest ID differs from its scope")
+            _fail(
+                "invalid.schema",
+                f"{path}/manifestId",
+                "manifest ID differs from its scope",
+            )
         return cls(
             manifest_id=manifest_id,
             scope_kind=scope_kind,
@@ -624,7 +974,9 @@ class MemberManifestReference:
             total_member_byte_size=_uint(
                 item["totalMemberByteSize"], path=f"{path}/totalMemberByteSize"
             ),
-            total_record_count=_uint(item["totalRecordCount"], path=f"{path}/totalRecordCount"),
+            total_record_count=_uint(
+                item["totalRecordCount"], path=f"{path}/totalRecordCount"
+            ),
         )
 
     @classmethod
@@ -644,7 +996,12 @@ class MemberManifestReference:
             scope_kind=scope_kind,
             scope_id=scope_id,
             object_key=object_key,
-            members=sorted(members, key=lambda member: member.object_key),
+            members=sorted(
+                members,
+                key=lambda member: tuple(
+                    _utf16_sort_key(part) for part in member.location_key
+                ),
+            ),
         )
         return reference, output.getvalue()
 
@@ -669,6 +1026,60 @@ class MemberSource(Protocol):
     def keys(self) -> Iterable[str]: ...
 
     def open(self, object_key: str) -> AbstractContextManager[BinaryIO]: ...
+
+
+@dataclass(frozen=True, slots=True)
+class ImmutableMemberReceipt:
+    """Provider-issued identity for one immutable object-store version.
+
+    The storage adapter, not the artifact producer, supplies this receipt at
+    admission time.  Providers that cannot return an exact SHA-256 checksum,
+    byte size, and immutable version identifier must use ``MemberSource.open``
+    so Rulespec verifies the bytes directly.
+    """
+
+    object_key: str
+    byte_size: int
+    sha256: str
+    version_id: str
+
+    def __post_init__(self) -> None:
+        selected_key = validate_object_key(
+            self.object_key,
+            path="memberReceipt/objectKey",
+        )
+        selected_size = _uint(self.byte_size, path="memberReceipt/byteSize")
+        selected_digest = _digest(self.sha256, path="memberReceipt/sha256")
+        selected_version = _text(
+            self.version_id,
+            path="memberReceipt/versionId",
+        )
+        if selected_version == "null" or any(
+            character.isspace() for character in selected_version
+        ):
+            _fail(
+                "invalid.schema",
+                "memberReceipt/versionId",
+                "version ID must name a non-null immutable provider version",
+            )
+        object.__setattr__(self, "object_key", selected_key)
+        object.__setattr__(self, "byte_size", selected_size)
+        object.__setattr__(self, "sha256", selected_digest)
+        object.__setattr__(self, "version_id", selected_version)
+
+
+@runtime_checkable
+class ReceiptMemberSource(MemberSource, Protocol):
+    """Resolve members through exact provider checksum and version metadata."""
+
+    def receipt(self, object_key: str) -> ImmutableMemberReceipt: ...
+
+
+@runtime_checkable
+class BlobSource(Protocol):
+    """Open an immutable external blob by its qualified content digest."""
+
+    def open(self, blob_ref: str) -> AbstractContextManager[BinaryIO]: ...
 
 
 @dataclass(frozen=True, slots=True)
@@ -729,12 +1140,16 @@ class LocalFileStateIndex(Mapping[str, LocalFileState]):
         return LocalFileState(*row)
 
     def __getitem__(self, object_key: str) -> LocalFileState:
-        row = self._open_connection().execute(
-            "SELECT device, inode, state_size, modified_nanoseconds, "
-            "changed_nanoseconds, mode FROM expected "
-            "WHERE kind = 'payload' AND object_key = ?",
-            (object_key,),
-        ).fetchone()
+        row = (
+            self._open_connection()
+            .execute(
+                "SELECT device, inode, state_size, modified_nanoseconds, "
+                "changed_nanoseconds, mode FROM expected "
+                "WHERE kind = 'payload' AND object_key = ?",
+                (object_key,),
+            )
+            .fetchone()
+        )
         if row is None or any(value is None for value in row):
             raise KeyError(object_key)
         return self._state(row)
@@ -747,9 +1162,11 @@ class LocalFileStateIndex(Mapping[str, LocalFileState]):
             yield str(row[0])
 
     def __len__(self) -> int:
-        row = self._open_connection().execute(
-            "SELECT COUNT(*) FROM expected WHERE kind = 'payload'"
-        ).fetchone()
+        row = (
+            self._open_connection()
+            .execute("SELECT COUNT(*) FROM expected WHERE kind = 'payload'")
+            .fetchone()
+        )
         return int(row[0]) if row is not None else 0
 
     def close(self) -> None:
@@ -778,14 +1195,19 @@ class LocalMemberSource:
         try:
             descriptor = os.open(
                 unresolved,
-                os.O_RDONLY | getattr(os, "O_CLOEXEC", 0) | os.O_NOFOLLOW | os.O_DIRECTORY,
+                os.O_RDONLY
+                | getattr(os, "O_CLOEXEC", 0)
+                | os.O_NOFOLLOW
+                | os.O_DIRECTORY,
             )
         except FileNotFoundError as error:
             _fail("invalid.path", "$", f"artifact root is unavailable: {error}")
         except OSError as error:
             if error.errno in (errno.ELOOP, errno.ENOTDIR):
                 _fail("invalid.path", "$", "artifact root must be a real directory")
-            raise MemberSourceError(f"cannot open artifact root {unresolved}: {error}") from error
+            raise MemberSourceError(
+                f"cannot open artifact root {unresolved}: {error}"
+            ) from error
         try:
             root_state = os.fstat(descriptor)
             if not stat.S_ISDIR(root_state.st_mode):
@@ -808,7 +1230,9 @@ class LocalMemberSource:
         except OSError as error:
             if error.errno in (errno.ELOOP, errno.ENOTDIR):
                 _fail("invalid.path", "$", "artifact root must be a real directory")
-            raise MemberSourceError(f"cannot open artifact root {self.root}: {error}") from error
+            raise MemberSourceError(
+                f"cannot open artifact root {self.root}: {error}"
+            ) from error
         try:
             state = os.fstat(descriptor)
         except BaseException:
@@ -816,11 +1240,15 @@ class LocalMemberSource:
             raise
         if (state.st_dev, state.st_ino) != self._root_identity:
             os.close(descriptor)
-            raise MemberSourceError("artifact root changed after the member source was created")
+            raise MemberSourceError(
+                "artifact root changed after the member source was created"
+            )
         return descriptor
 
     @staticmethod
-    def _open_relative(directory_fd: int, name: str, *, directory: bool, path: str) -> int:
+    def _open_relative(
+        directory_fd: int, name: str, *, directory: bool, path: str
+    ) -> int:
         try:
             return os.open(
                 name,
@@ -834,7 +1262,9 @@ class LocalMemberSource:
                 _fail("invalid.path", path, "member path traverses a symbolic link")
             if directory and error.errno == errno.ENOTDIR:
                 _fail("invalid.path", path, "member path traverses a non-directory")
-            raise MemberSourceError(f"cannot open artifact member {path}: {error}") from error
+            raise MemberSourceError(
+                f"cannot open artifact member {path}: {error}"
+            ) from error
 
     def keys(self) -> Iterator[str]:
         def visit(directory_fd: int, prefix: tuple[str, ...]) -> Iterator[str]:
@@ -903,7 +1333,11 @@ class LocalMemberSource:
             after_state = LocalFileState.from_stat(after)
             current_state = LocalFileState.from_stat(current)
             if before_state != after_state or after_state != current_state:
-                _fail("invalid.member-digest", selected, "member changed while it was read")
+                _fail(
+                    "invalid.member-digest",
+                    selected,
+                    "member changed while it was read",
+                )
         finally:
             stream.close()
 
@@ -931,6 +1365,19 @@ class LocalMemberSource:
         finally:
             os.close(directory_fd)
         return member_fd
+
+
+class LocalBlobSource:
+    """Read blobs stored as ``sha256/<hex>`` under one local directory."""
+
+    def __init__(self, root: Path) -> None:
+        self._source = LocalMemberSource(root)
+
+    @contextmanager
+    def open(self, blob_ref: str) -> Iterator[BinaryIO]:
+        selected = _digest(blob_ref, path="blobRef")
+        with self._source.open(f"sha256/{selected.removeprefix('sha256:')}") as stream:
+            yield stream
 
 
 class _CanonicalArrayStream:
@@ -982,14 +1429,22 @@ class _CanonicalArrayStream:
                 try:
                     buffer += utf8.decode(raw, final=False)
                 except UnicodeError as error:
-                    _fail("invalid.manifest", self._path, f"manifest is not UTF-8: {error}")
+                    _fail(
+                        "invalid.manifest",
+                        self._path,
+                        f"manifest is not UTF-8: {error}",
+                    )
                 return True
             if not eof:
                 eof = True
                 try:
                     buffer += utf8.decode(b"", final=True)
                 except UnicodeError as error:
-                    _fail("invalid.manifest", self._path, f"manifest is not UTF-8: {error}")
+                    _fail(
+                        "invalid.manifest",
+                        self._path,
+                        f"manifest is not UTF-8: {error}",
+                    )
             return False
 
         try:
@@ -1004,14 +1459,20 @@ class _CanonicalArrayStream:
                 _fail("invalid.manifest", self._path, "member manifest header differs")
             position = len(expected_prefix)
             if position >= len(buffer) or buffer[position] != "[":
-                _fail("invalid.manifest", self._path, "member manifest has no members array")
+                _fail(
+                    "invalid.manifest",
+                    self._path,
+                    "member manifest has no members array",
+                )
             position += 1
             first = True
             while True:
                 while position >= len(buffer) and fill():
                     pass
                 if position >= len(buffer):
-                    _fail("invalid.manifest", self._path, "member manifest is truncated")
+                    _fail(
+                        "invalid.manifest", self._path, "member manifest is truncated"
+                    )
                 if first and buffer[position] == "]":
                     position += 1
                     break
@@ -1020,7 +1481,11 @@ class _CanonicalArrayStream:
                         position += 1
                         break
                     if buffer[position] != ",":
-                        _fail("invalid.manifest", self._path, "member manifest is not canonical")
+                        _fail(
+                            "invalid.manifest",
+                            self._path,
+                            "member manifest is not canonical",
+                        )
                     position += 1
                     while position >= len(buffer) and fill():
                         pass
@@ -1033,7 +1498,11 @@ class _CanonicalArrayStream:
                     except (json.JSONDecodeError, ValueError) as error:
                         if fill():
                             continue
-                        _fail("invalid.manifest", self._path, f"manifest entry is invalid: {error}")
+                        _fail(
+                            "invalid.manifest",
+                            self._path,
+                            f"manifest entry is invalid: {error}",
+                        )
                     break
                 raw_value = buffer[start:end]
                 try:
@@ -1041,7 +1510,11 @@ class _CanonicalArrayStream:
                 except ArtifactVerificationError as error:
                     _fail("invalid.manifest", self._path, error.issue.message)
                 if expected != raw_value:
-                    _fail("invalid.manifest", self._path, "manifest entry is not canonical JSON")
+                    _fail(
+                        "invalid.manifest",
+                        self._path,
+                        "manifest entry is not canonical JSON",
+                    )
                 yield value
                 first = False
                 position = end
@@ -1108,9 +1581,11 @@ def _manifest_framing(reference: MemberManifestReference) -> tuple[bytes, bytes]
         + canonical_json_bytes(reference.manifest_id)
         + b',"members":'
     )
-    suffix = b',"scope":' + canonical_json_bytes(
-        {"id": reference.scope_id, "kind": reference.scope_kind}
-    ) + b"}"
+    suffix = (
+        b',"scope":'
+        + canonical_json_bytes({"id": reference.scope_id, "kind": reference.scope_kind})
+        + b"}"
+    )
     return prefix, suffix
 
 
@@ -1149,14 +1624,17 @@ def write_member_manifest(
     member_count = 0
     total_member_byte_size = 0
     total_record_count = 0
-    previous_key: str | None = None
+    previous_key: tuple[str, str] | None = None
     with tempfile.SpooledTemporaryFile(max_size=spool_bytes, mode="w+b") as body:
         for index, raw_member in enumerate(members):
             member = MemberDescriptor.from_dict(
                 raw_member.as_dict(),
                 path=f"manifest/members/{index}",
             )
-            if previous_key is not None and member.object_key <= previous_key:
+            location_key = member.location_key
+            if previous_key is not None and tuple(
+                _utf16_sort_key(part) for part in location_key
+            ) <= tuple(_utf16_sort_key(part) for part in previous_key):
                 _fail(
                     "invalid.manifest",
                     selected_key,
@@ -1165,12 +1643,16 @@ def write_member_manifest(
             if member_count:
                 _write_all(body, b",")
             _write_all(body, canonical_json_bytes(member.as_dict()))
-            previous_key = member.object_key
+            previous_key = location_key
             member_count += 1
             total_member_byte_size += member.byte_size
             total_record_count += member.record_count or 0
             if body.tell() > byte_limit:
-                _fail("invalid.limit", selected_key, "member manifest exceeds its byte limit")
+                _fail(
+                    "invalid.limit",
+                    selected_key,
+                    "member manifest exceeds its byte limit",
+                )
 
         placeholder = MemberManifestReference(
             manifest_id=f"{scope_kind}:{selected_scope}",
@@ -1186,7 +1668,9 @@ def write_member_manifest(
         prefix, suffix = _manifest_framing(placeholder)
         byte_size = len(prefix) + 1 + body.tell() + 1 + len(suffix)
         if byte_size > byte_limit:
-            _fail("invalid.limit", selected_key, "member manifest exceeds its byte limit")
+            _fail(
+                "invalid.limit", selected_key, "member manifest exceeds its byte limit"
+            )
         digest = hashlib.sha256()
 
         def emit(payload: bytes) -> None:
@@ -1216,18 +1700,20 @@ def write_member_manifest(
     return reference
 
 
-def expected_logical_id(root: Mapping[str, Any]) -> str:
-    """Derive logical identity without physical pins or execution evidence."""
+def expected_logical_digest(root: Mapping[str, Any]) -> str:
+    """Derive the namespace-independent logical digest suffix."""
 
     kind = _text(root.get("kind"), path="$/kind")
-    if kind not in ARTIFACT_KINDS:
-        _fail("invalid.format", "$/kind", "artifact kind is not registered")
+    _role(kind, path="$/kind")
     inputs = tuple(
         ArtifactInput.from_dict(value, path=f"$/inputs/{index}")
         for index, value in enumerate(_array(root.get("inputs"), path="$/inputs"))
     )
     logical_inputs = [
-        {"logicalId": item.logical_id, "role": item.role}
+        {
+            "logicalDigest": _logical_digest(item.logical_id, path="$/inputs"),
+            "role": item.role,
+        }
         for item in inputs
     ]
     payload = {
@@ -1237,7 +1723,29 @@ def expected_logical_id(root: Mapping[str, Any]) -> str:
         "logicalInputs": logical_inputs,
         "spec": root.get("spec"),
     }
-    return f"urn:spicy:artifact:{kind}:" + sha256_digest(payload).removeprefix("sha256:")
+    return sha256_digest(payload).removeprefix("sha256:")
+
+
+def expected_logical_id(
+    root: Mapping[str, Any], *, namespace: str | None = None
+) -> str:
+    """Derive one logical ID, preserving a valid declared namespace by default."""
+
+    kind = _role(root.get("kind"), path="$/kind")
+    if namespace is None and isinstance(root.get("logicalId"), str):
+        namespace = str(root["logicalId"])[:-64]
+    selected = namespace or f"urn:spicy:artifact:{kind}:"
+    if (
+        not selected.startswith("urn:")
+        or not selected.endswith(":")
+        or kind not in selected
+    ):
+        _fail(
+            "invalid.identity",
+            "$/logicalId",
+            "logical ID namespace must be an absolute URN ending in ':' and include kind",
+        )
+    return selected + expected_logical_digest(root)
 
 
 def expected_artifact_digest(root: Mapping[str, Any]) -> str:
@@ -1248,105 +1756,118 @@ def expected_artifact_digest(root: Mapping[str, Any]) -> str:
     return sha256_digest(payload)
 
 
-def stamp_root(root: Mapping[str, Any]) -> dict[str, Any]:
+def stamp_root(
+    root: Mapping[str, Any], *, logical_id_namespace: str | None = None
+) -> dict[str, Any]:
     """Return a root copy carrying both derived identities."""
 
     stamped = deepcopy(dict(root))
     stamped.pop("logicalId", None)
     stamped.pop("artifactDigest", None)
-    stamped["logicalId"] = expected_logical_id(stamped)
+    stamped["logicalId"] = expected_logical_id(stamped, namespace=logical_id_namespace)
     stamped["artifactDigest"] = expected_artifact_digest(stamped)
     _validate_root(stamped)
     return stamped
 
 
-def _validate_kind_spec(kind: str, value: object, inputs: tuple[ArtifactInput, ...]) -> None:
-    path = "$/spec"
-    spec = _closed_mapping(value, _KIND_SPEC_FIELDS[kind], path=path)
-    if kind == "source-catalog":
-        for name in ("catalogId", "selectionPolicyId", "sourceSystemId"):
-            _absolute_id(spec[name], path=f"{path}/{name}")
-        for name in ("requestedUniverseSetDigest", "selectedSourceSetDigest", "selectionPolicyDigest"):
-            _digest(spec[name], path=f"{path}/{name}")
-        for name in ("selectionPolicyVersion", "sourceSystemVersion"):
-            _text(spec[name], path=f"{path}/{name}")
-        return
-    if kind == "derivation":
-        if not inputs:
-            _fail("invalid.schema", "$/inputs", "a derivation requires at least one input")
-        for name in ("partitioningId", "policyId", "processorId"):
-            _absolute_id(spec[name], path=f"{path}/{name}")
-        for name in ("parametersDigest", "partitioningDigest", "policyDigest", "processorDigest"):
-            _digest(spec[name], path=f"{path}/{name}")
-        for name in ("policyVersion", "processorVersion"):
-            _text(spec[name], path=f"{path}/{name}")
-        expected_roles = _distinct_text_array(
-            spec["expectedOutputRoles"],
-            path=f"{path}/expectedOutputRoles",
-            role_values=True,
+def _validate_root(
+    root: Mapping[str, Any],
+) -> tuple[tuple[ArtifactInput, ...], tuple[MemberManifestReference, ...]]:
+    fields = frozenset(root)
+    if (
+        not _ROOT_REQUIRED_FIELDS
+        <= fields
+        <= _ROOT_REQUIRED_FIELDS | _ROOT_OPTIONAL_FIELDS
+    ):
+        _fail(
+            "invalid.schema",
+            "$",
+            "root has missing or unknown fields",
         )
-        if expected_roles != tuple(sorted(expected_roles)):
-            _fail(
-                "invalid.schema",
-                f"{path}/expectedOutputRoles",
-                "expected output roles must be sorted",
-            )
-        return
-    if not inputs:
-        _fail("invalid.schema", "$/inputs", "a composition requires at least one member")
-    if any(item.role != "member" for item in inputs):
-        _fail("invalid.schema", "$/inputs", "composition inputs must use the member role")
-    _absolute_id(spec["mergePolicyId"], path=f"{path}/mergePolicyId")
-    _digest(spec["mergePolicyDigest"], path=f"{path}/mergePolicyDigest")
-    _text(spec["mergePolicyVersion"], path=f"{path}/mergePolicyVersion")
-    _distinct_text_array(spec["totalOrderKey"], path=f"{path}/totalOrderKey")
-
-
-def _validate_root(root: Mapping[str, Any]) -> tuple[tuple[ArtifactInput, ...], tuple[MemberManifestReference, ...]]:
-    item = _closed_mapping(root, _ROOT_FIELDS, path="$")
+    item = root
     if item["format"] != FORMAT or item["formatVersion"] != FORMAT_VERSION:
         _fail("invalid.format", "$", "artifact format or exact version is unsupported")
-    kind = _text(item["kind"], path="$/kind")
-    if kind not in ARTIFACT_KINDS:
-        _fail("invalid.format", "$/kind", "artifact kind is not registered")
+    _role(item["kind"], path="$/kind")
+    _mapping(item["spec"], path="$/spec")
+    Producer.from_dict(item["producer"], path="$/producer")
     inputs = tuple(
         ArtifactInput.from_dict(value, path=f"$/inputs/{index}")
         for index, value in enumerate(_array(item["inputs"], path="$/inputs"))
     )
-    input_values = [entry.as_dict() for entry in inputs]
-    if input_values != sorted(input_values, key=lambda value: (value["role"], value["logicalId"], value["artifactDigest"])):
-        _fail("invalid.schema", "$/inputs", "inputs must be sorted")
-    if len(input_values) != len({canonical_json_bytes(value) for value in input_values}):
-        _fail("invalid.schema", "$/inputs", "inputs must be distinct")
-    _validate_kind_spec(kind, item["spec"], inputs)
+    input_keys = tuple(
+        (entry.role, _logical_digest(entry.logical_id, path="$/inputs"))
+        for entry in inputs
+    )
+    ordered_input_keys = tuple(
+        sorted(
+            input_keys,
+            key=lambda value: tuple(_utf16_sort_key(part) for part in value),
+        )
+    )
+    if input_keys != ordered_input_keys or len(input_keys) != len(set(input_keys)):
+        _fail(
+            "invalid.schema",
+            "$/inputs",
+            "inputs must be sorted and distinct by role and logical digest",
+        )
 
     counts = _closed_mapping(item["counts"], _COMMON_COUNT_FIELDS, path="$/counts")
     for name in _COMMON_COUNT_FIELDS:
         _uint(counts[name], path=f"$/counts/{name}")
-    coverage = _closed_mapping(item["coverage"], _COVERAGE_FIELDS, path="$/coverage")
-    if not isinstance(coverage["complete"], bool):
-        _fail("invalid.schema", "$/coverage/complete", "value must be boolean")
-    _uint(coverage["accountedInputCount"], path="$/coverage/accountedInputCount")
-    unaccounted = _uint(
-        coverage["unaccountedInputCount"], path="$/coverage/unaccountedInputCount"
-    )
-    if not coverage["complete"] or unaccounted:
-        _fail("invalid.statistics", "$/coverage", "artifact coverage is incomplete")
+    if "knownLimits" in item:
+        limits = tuple(
+            KnownLimit.from_dict(value, path=f"$/knownLimits/{index}")
+            for index, value in enumerate(
+                _array(item["knownLimits"], path="$/knownLimits")
+            )
+        )
+        limit_keys = tuple((limit.scope, limit.code) for limit in limits)
+        if (
+            not limits
+            or limit_keys
+            != tuple(
+                sorted(
+                    limit_keys,
+                    key=lambda value: tuple(_utf16_sort_key(part) for part in value),
+                )
+            )
+            or len(limit_keys) != len(set(limit_keys))
+        ):
+            _fail(
+                "invalid.schema",
+                "$/knownLimits",
+                "known limits must be nonempty, sorted, and distinct",
+            )
+    if "supersedes" in item:
+        Supersedes.from_dict(item["supersedes"], path="$/supersedes")
 
     manifests = tuple(
         MemberManifestReference.from_dict(value, path=f"$/memberManifests/{index}")
-        for index, value in enumerate(_array(item["memberManifests"], path="$/memberManifests"))
+        for index, value in enumerate(
+            _array(item["memberManifests"], path="$/memberManifests")
+        )
     )
-    if kind != "composition" and not manifests:
-        _fail("invalid.schema", "$/memberManifests", "at least one member manifest is required")
-    manifest_order = [(entry.scope_kind, entry.scope_id, entry.object_key) for entry in manifests]
-    if manifest_order != sorted(manifest_order) or len(manifest_order) != len(set(manifest_order)):
-        _fail("invalid.schema", "$/memberManifests", "member manifests must be sorted and distinct")
+    manifest_order = [
+        (entry.scope_kind, entry.scope_id, entry.object_key) for entry in manifests
+    ]
+    if manifest_order != sorted(
+        manifest_order,
+        key=lambda value: tuple(_utf16_sort_key(part) for part in value),
+    ) or len(manifest_order) != len(set(manifest_order)):
+        _fail(
+            "invalid.schema",
+            "$/memberManifests",
+            "member manifests must be sorted and distinct",
+        )
 
     logical_id = _absolute_id(item["logicalId"], path="$/logicalId")
     expected_logical = expected_logical_id(item)
     if logical_id != expected_logical:
-        _fail("invalid.identity", "$/logicalId", f"expected {expected_logical}")
+        _fail(
+            "invalid.identity",
+            "$/logicalId",
+            f"expected digest suffix {expected_logical[-64:]}",
+        )
     artifact_digest = _digest(item["artifactDigest"], path="$/artifactDigest")
     expected_physical = expected_artifact_digest(item)
     if artifact_digest != expected_physical:
@@ -1354,7 +1875,9 @@ def _validate_root(root: Mapping[str, Any]) -> tuple[tuple[ArtifactInput, ...], 
     return inputs, manifests
 
 
-def _read_bounded(source: MemberSource, object_key: str, *, byte_limit: int, code: str) -> bytes:
+def _read_bounded(
+    source: MemberSource, object_key: str, *, byte_limit: int, code: str
+) -> bytes:
     chunks: list[bytes] = []
     total = 0
     try:
@@ -1362,34 +1885,87 @@ def _read_bounded(source: MemberSource, object_key: str, *, byte_limit: int, cod
             while chunk := stream.read(DEFAULT_READ_CHUNK_BYTES):
                 total += len(chunk)
                 if total > byte_limit:
-                    _fail("invalid.limit", object_key, f"file exceeds {byte_limit} bytes")
+                    _fail(
+                        "invalid.limit", object_key, f"file exceeds {byte_limit} bytes"
+                    )
                 chunks.append(chunk)
     except MemberNotFoundError:
-        _fail("invalid.membership-missing", object_key, "declared artifact file is absent")
+        _fail(
+            "invalid.membership-missing", object_key, "declared artifact file is absent"
+        )
     try:
         return b"".join(chunks)
     except MemoryError:
         _fail(code, object_key, "file could not be read within its declared bound")
 
 
-def _hash_member(source: MemberSource, member: MemberDescriptor) -> LocalFileState | None:
+def _hash_member(
+    source: MemberSource,
+    member: MemberDescriptor,
+    *,
+    blob_source: BlobSource | None,
+) -> LocalFileState | None:
     digest = hashlib.sha256()
     byte_size = 0
     local_state: LocalFileState | None = None
+    if member.object_key is not None:
+        selected_source: MemberSource | BlobSource = source
+        location = member.object_key
+        expected_digest = member.sha256
+        if isinstance(source, ReceiptMemberSource):
+            try:
+                receipt = source.receipt(location)
+            except MemberNotFoundError:
+                _fail(
+                    "invalid.membership-missing",
+                    location,
+                    "declared payload is absent",
+                )
+            if not isinstance(receipt, ImmutableMemberReceipt):
+                _fail(
+                    "invalid.member-digest",
+                    location,
+                    "member source returned an invalid immutable receipt",
+                )
+            if (
+                receipt.object_key != location
+                or receipt.byte_size != member.byte_size
+                or receipt.sha256 != expected_digest
+            ):
+                _fail(
+                    "invalid.member-digest",
+                    location,
+                    "immutable member receipt differs from its descriptor",
+                )
+            return None
+    else:
+        if blob_source is None or member.blob_ref is None:
+            _fail(
+                "invalid.membership-missing",
+                member.blob_ref or "blobRef",
+                "external member requires an injected BlobSource",
+            )
+        selected_source = blob_source
+        location = member.blob_ref
+        expected_digest = member.blob_ref
     try:
-        with source.open(member.object_key) as stream:
+        with selected_source.open(location) as stream:
             while block := stream.read(DEFAULT_READ_CHUNK_BYTES):
                 byte_size += len(block)
                 if byte_size > member.byte_size:
-                    _fail("invalid.member-digest", member.object_key, "member exceeds its declared size")
+                    _fail(
+                        "invalid.member-digest",
+                        location,
+                        "member exceeds its declared size",
+                    )
                 digest.update(block)
-            if isinstance(source, LocalMemberSource):
+            if member.object_key is not None and isinstance(source, LocalMemberSource):
                 local_state = LocalFileState.from_stat(os.fstat(stream.fileno()))
     except MemberNotFoundError:
-        _fail("invalid.membership-missing", member.object_key, "declared payload is absent")
+        _fail("invalid.membership-missing", location, "declared payload is absent")
     actual_digest = "sha256:" + digest.hexdigest()
-    if byte_size != member.byte_size or actual_digest != member.sha256:
-        _fail("invalid.member-digest", member.object_key, "member size or digest differs")
+    if byte_size != member.byte_size or actual_digest != expected_digest:
+        _fail("invalid.member-digest", location, "member size or digest differs")
     return local_state
 
 
@@ -1399,7 +1975,9 @@ def _open_required(source: MemberSource, object_key: str) -> Iterator[BinaryIO]:
         with source.open(object_key) as stream:
             yield stream
     except MemberNotFoundError:
-        _fail("invalid.membership-missing", object_key, "declared artifact file is absent")
+        _fail(
+            "invalid.membership-missing", object_key, "declared artifact file is absent"
+        )
 
 
 def describe_member(
@@ -1440,11 +2018,12 @@ def describe_member(
 
 def describe_member_from_receipt(
     *,
-    object_key: str,
+    object_key: str | None = None,
+    blob_ref: str | None = None,
     role: str,
     media_type: str,
     byte_size: int,
-    sha256: str,
+    sha256: str | None = None,
     record_count: int | None = None,
     schema_id: str | None = None,
 ) -> MemberDescriptor:
@@ -1453,10 +2032,14 @@ def describe_member_from_receipt(
     value: dict[str, object] = {
         "byteSize": byte_size,
         "mediaType": media_type,
-        "objectKey": object_key,
         "role": role,
-        "sha256": sha256,
     }
+    if object_key is not None:
+        value["objectKey"] = object_key
+    if sha256 is not None:
+        value["sha256"] = sha256
+    if blob_ref is not None:
+        value["blobRef"] = blob_ref
     if record_count is not None:
         value["recordCount"] = record_count
     if schema_id is not None:
@@ -1466,10 +2049,14 @@ def describe_member_from_receipt(
 
 def build_artifact_root(
     *,
-    spec: ArtifactSpec,
-    inputs: Sequence[ArtifactInput],
-    manifests: Sequence[MemberManifestReference],
-    accounted_input_count: int,
+    kind: str,
+    spec: Mapping[str, Any],
+    producer: Producer,
+    inputs: Sequence[ArtifactInput] = (),
+    manifests: Sequence[MemberManifestReference] = (),
+    known_limits: Sequence[KnownLimit] = (),
+    supersedes: Supersedes | None = None,
+    logical_id_namespace: str | None = None,
 ) -> dict[str, Any]:
     """Build and stamp the one closed artifact root from sealed manifests.
 
@@ -1481,40 +2068,54 @@ def build_artifact_root(
     ordered_inputs = tuple(
         sorted(
             inputs,
-            key=lambda item: (item.role, item.logical_id, item.artifact_digest),
+            key=lambda item: (
+                _utf16_sort_key(item.role),
+                _utf16_sort_key(
+                    _logical_digest(item.logical_id, path="build/inputs/logicalId")
+                ),
+            ),
         )
     )
     ordered_manifests = tuple(
         sorted(
             manifests,
-            key=lambda item: (item.scope_kind, item.scope_id, item.object_key),
+            key=lambda item: (
+                _utf16_sort_key(item.scope_kind),
+                _utf16_sort_key(item.scope_id),
+                _utf16_sort_key(item.object_key),
+            ),
         )
     )
-    return stamp_root(
-        {
-            "counts": {
-                "manifestCount": len(ordered_manifests),
-                "memberCount": sum(item.member_count for item in ordered_manifests),
-                "totalMemberByteSize": sum(
-                    item.total_member_byte_size for item in ordered_manifests
-                ),
-                "totalRecordCount": sum(
-                    item.total_record_count for item in ordered_manifests
-                ),
-            },
-            "coverage": {
-                "accountedInputCount": accounted_input_count,
-                "complete": True,
-                "unaccountedInputCount": 0,
-            },
-            "format": FORMAT,
-            "formatVersion": FORMAT_VERSION,
-            "inputs": [item.as_dict() for item in ordered_inputs],
-            "kind": spec.kind,
-            "memberManifests": [item.as_dict() for item in ordered_manifests],
-            "spec": spec.as_dict(),
-        }
+    ordered_limits = tuple(
+        sorted(
+            known_limits,
+            key=lambda item: (_utf16_sort_key(item.scope), _utf16_sort_key(item.code)),
+        )
     )
+    root: dict[str, Any] = {
+        "counts": {
+            "manifestCount": len(ordered_manifests),
+            "memberCount": sum(item.member_count for item in ordered_manifests),
+            "totalMemberByteSize": sum(
+                item.total_member_byte_size for item in ordered_manifests
+            ),
+            "totalRecordCount": sum(
+                item.total_record_count for item in ordered_manifests
+            ),
+        },
+        "format": FORMAT,
+        "formatVersion": FORMAT_VERSION,
+        "inputs": [item.as_dict() for item in ordered_inputs],
+        "kind": kind,
+        "memberManifests": [item.as_dict() for item in ordered_manifests],
+        "producer": producer.as_dict(),
+        "spec": deepcopy(dict(spec)),
+    }
+    if ordered_limits:
+        root["knownLimits"] = [item.as_dict() for item in ordered_limits]
+    if supersedes is not None:
+        root["supersedes"] = supersedes.as_dict()
+    return stamp_root(root, logical_id_namespace=logical_id_namespace)
 
 
 def _iter_manifest_members(
@@ -1539,7 +2140,7 @@ def _iter_manifest_members(
             prefix=prefix,
             suffix=suffix,
         )
-        previous_member_key: str | None = None
+        previous_member_key: tuple[str, str] | None = None
         member_count = 0
         total_member_byte_size = 0
         total_record_count = 0
@@ -1548,19 +2149,24 @@ def _iter_manifest_members(
                 value,
                 path=f"{reference.object_key}/{index}",
             )
-            if previous_member_key is not None and member.object_key <= previous_member_key:
+            member_key = member.location_key
+            if previous_member_key is not None and tuple(
+                _utf16_sort_key(part) for part in member_key
+            ) <= tuple(_utf16_sort_key(part) for part in previous_member_key):
                 _fail(
                     "invalid.manifest",
                     reference.object_key,
                     "members must be sorted and distinct within their manifest",
                 )
-            previous_member_key = member.object_key
+            previous_member_key = member_key
             member_count += 1
             total_member_byte_size += member.byte_size
             total_record_count += member.record_count or 0
             yield member
     if values.byte_size != reference.byte_size or values.sha256 != reference.sha256:
-        _fail("invalid.manifest", reference.object_key, "manifest size or digest differs")
+        _fail(
+            "invalid.manifest", reference.object_key, "manifest size or digest differs"
+        )
     if (
         member_count,
         total_member_byte_size,
@@ -1589,9 +2195,58 @@ def iter_member_descriptors(
         )
 
 
+def validate_derivation_relation(
+    artifact: VerifiedArtifact,
+    source: MemberSource,
+    relation: DerivationRelation,
+    *,
+    manifest_byte_limit: int = DEFAULT_MANIFEST_BYTE_LIMIT,
+) -> None:
+    """Check the product-neutral input and role rules for one derivation."""
+
+    selected = DerivationRelation.from_dict(relation.as_dict())
+    if not artifact.inputs:
+        _fail("invalid.schema", "$/inputs", "a derivation requires an input")
+    if artifact.member_count == 0:
+        _fail(
+            "invalid.schema",
+            "$/memberManifests",
+            "a derivation requires output members",
+        )
+    observed_roles = {
+        member.role
+        for member in iter_member_descriptors(
+            artifact,
+            source,
+            manifest_byte_limit=manifest_byte_limit,
+        )
+    }
+    expected_roles = set(selected.expected_output_roles)
+    if observed_roles != expected_roles:
+        _fail(
+            "invalid.schema",
+            "relation/expectedOutputRoles",
+            f"expected roles {sorted(expected_roles)}, observed {sorted(observed_roles)}",
+        )
+
+
+def validate_composition_relation(
+    artifact: VerifiedArtifact,
+    relation: CompositionRelation,
+) -> None:
+    """Check the product-neutral input rules for one composition."""
+
+    CompositionRelation.from_dict(relation.as_dict())
+    if not artifact.inputs:
+        _fail("invalid.schema", "$/inputs", "a composition requires member inputs")
+    if any(item.role != "member" for item in artifact.inputs):
+        _fail("invalid.schema", "$/inputs", "composition inputs must use role 'member'")
+
+
 def _admit(
     source: MemberSource,
     *,
+    blob_source: BlobSource | None,
     expected_pin: ArtifactPin | None,
     root_byte_limit: int,
     manifest_byte_limit: int,
@@ -1632,29 +2287,35 @@ def _admit(
             index = sqlite3.connect(index_path, check_same_thread=False)
         index.execute(
             "CREATE TABLE expected ("
-            "object_key TEXT PRIMARY KEY, kind TEXT NOT NULL, observed INTEGER NOT NULL DEFAULT 0, "
+            "location_key TEXT PRIMARY KEY, object_key TEXT, blob_ref TEXT, "
+            "kind TEXT NOT NULL, observed INTEGER NOT NULL DEFAULT 0, "
             "role TEXT, media_type TEXT, byte_size INTEGER, sha256 TEXT, "
             "record_count INTEGER, schema_id TEXT, device INTEGER, inode INTEGER, "
             "state_size INTEGER, modified_nanoseconds INTEGER, changed_nanoseconds INTEGER, "
             "mode INTEGER)"
         )
-        index.execute("CREATE TABLE derivation_roles (role TEXT PRIMARY KEY)")
         index.execute(
-            "INSERT INTO expected (object_key, kind) VALUES (?, 'protocol')",
-            (ROOT_OBJECT_KEY,),
+            "INSERT INTO expected (location_key, object_key, kind) VALUES (?, ?, 'protocol')",
+            (f"object-key:{ROOT_OBJECT_KEY}", ROOT_OBJECT_KEY),
         )
         for reference in manifest_references:
             try:
                 index.execute(
-                    "INSERT INTO expected (object_key, kind) VALUES (?, 'protocol')",
-                    (reference.object_key,),
+                    "INSERT INTO expected (location_key, object_key, kind) "
+                    "VALUES (?, ?, 'protocol')",
+                    (f"object-key:{reference.object_key}", reference.object_key),
                 )
             except sqlite3.IntegrityError:
-                _fail("invalid.manifest", reference.object_key, "manifest path is repeated")
+                _fail(
+                    "invalid.manifest",
+                    reference.object_key,
+                    "manifest path is repeated",
+                )
 
         member_count = 0
         total_member_byte_size = 0
         total_record_count = 0
+        evidence_digests = {item.artifact_digest for item in inputs}
         for reference in manifest_references:
             for member in _iter_manifest_members(
                 source,
@@ -1662,12 +2323,18 @@ def _admit(
                 manifest_byte_limit=manifest_byte_limit,
             ):
                 try:
+                    location_kind, location = member.location_key
+                    kind = "payload" if member.object_key is not None else "blob"
                     index.execute(
                         "INSERT INTO expected "
-                        "(object_key, kind, observed, role, media_type, byte_size, sha256, "
-                        "record_count, schema_id) VALUES (?, 'payload', 0, ?, ?, ?, ?, ?, ?)",
+                        "(location_key, object_key, blob_ref, kind, observed, role, media_type, "
+                        "byte_size, sha256, record_count, schema_id) "
+                        "VALUES (?, ?, ?, ?, 0, ?, ?, ?, ?, ?, ?)",
                         (
+                            f"{location_kind}:{location}",
                             member.object_key,
+                            member.blob_ref,
+                            kind,
                             member.role,
                             member.media_type,
                             member.byte_size,
@@ -1679,77 +2346,69 @@ def _admit(
                 except sqlite3.IntegrityError:
                     _fail(
                         "invalid.manifest",
-                        member.object_key,
+                        location,
                         "payload overlaps a protocol file or another manifest",
                     )
+                evidence_digests.add(member.sha256 or member.blob_ref or "")
                 member_count += 1
                 total_member_byte_size += member.byte_size
                 total_record_count += member.record_count or 0
 
-        if root["kind"] == "derivation":
-            expected_roles = _mapping(root["spec"], path="$/spec")["expectedOutputRoles"]
-            index.executemany(
-                "INSERT INTO derivation_roles (role) VALUES (?)",
-                ((role,) for role in expected_roles),
-            )
-            missing_role = index.execute(
-                "SELECT derivation_roles.role FROM derivation_roles "
-                "LEFT JOIN expected ON expected.kind = 'payload' "
-                "AND expected.role = derivation_roles.role "
-                "WHERE expected.object_key IS NULL ORDER BY derivation_roles.role LIMIT 1"
-            ).fetchone()
-            if missing_role is not None:
+        for index_value, value in enumerate(root.get("knownLimits", ())):
+            limit = KnownLimit.from_dict(value, path=f"$/knownLimits/{index_value}")
+            if any(digest not in evidence_digests for digest in limit.evidence_digests):
                 _fail(
                     "invalid.schema",
-                    "$/spec/expectedOutputRoles",
-                    f"declared output role is absent: {missing_role[0]}",
-                )
-            unexpected_role = index.execute(
-                "SELECT expected.role FROM expected "
-                "LEFT JOIN derivation_roles ON derivation_roles.role = expected.role "
-                "WHERE expected.kind = 'payload' AND derivation_roles.role IS NULL "
-                "ORDER BY expected.role LIMIT 1"
-            ).fetchone()
-            if unexpected_role is not None:
-                _fail(
-                    "invalid.schema",
-                    "$/spec/expectedOutputRoles",
-                    f"payload role is undeclared: {unexpected_role[0]}",
+                    f"$/knownLimits/{index_value}/evidenceDigests",
+                    "known-limit evidence must resolve to an input or member",
                 )
 
         first_extra: str | None = None
         for raw_key in source.keys():  # noqa: SIM118 - MemberSource is not a Mapping
             object_key = validate_object_key(raw_key, path=str(raw_key))
             row = index.execute(
-                "SELECT observed FROM expected WHERE object_key = ?",
-                (object_key,),
+                "SELECT observed FROM expected WHERE location_key = ?",
+                (f"object-key:{object_key}",),
             ).fetchone()
             if row is None or row[0]:
-                first_extra = min(first_extra, object_key) if first_extra else object_key
+                first_extra = (
+                    min(first_extra, object_key) if first_extra else object_key
+                )
                 continue
             index.execute(
                 "UPDATE expected SET observed = 1 WHERE object_key = ?",
                 (object_key,),
             )
         missing = index.execute(
-            "SELECT object_key FROM expected WHERE observed = 0 ORDER BY object_key LIMIT 1"
+            "SELECT object_key FROM expected WHERE kind IN ('protocol', 'payload') "
+            "AND observed = 0 ORDER BY object_key LIMIT 1"
         ).fetchone()
         if missing is not None:
-            _fail("invalid.membership-missing", missing[0], "declared artifact file is absent")
+            _fail(
+                "invalid.membership-missing",
+                missing[0],
+                "declared artifact file is absent",
+            )
         if first_extra is not None:
-            _fail("invalid.membership-extra", first_extra, "artifact contains an undeclared file")
+            _fail(
+                "invalid.membership-extra",
+                first_extra,
+                "artifact contains an undeclared file",
+            )
 
         capture_local_states = isinstance(source, LocalMemberSource)
         rows = index.execute(
-            "SELECT object_key, role, media_type, byte_size, sha256, record_count, schema_id "
-            "FROM expected WHERE kind = 'payload' ORDER BY object_key"
+            "SELECT object_key, role, media_type, byte_size, sha256, record_count, schema_id, "
+            "blob_ref FROM expected WHERE kind IN ('payload', 'blob') ORDER BY location_key"
         )
         for row in rows:
             member = MemberDescriptor(*row)
-            state = _hash_member(source, member)
-            if capture_local_states:
+            state = _hash_member(source, member, blob_source=blob_source)
+            if capture_local_states and member.object_key is not None:
                 if state is None:
-                    raise RuntimeError("local member admission did not capture a file state")
+                    raise RuntimeError(
+                        "local member admission did not capture a file state"
+                    )
                 index.execute(
                     "UPDATE expected SET device = ?, inode = ?, state_size = ?, "
                     "modified_nanoseconds = ?, changed_nanoseconds = ?, mode = ? "
@@ -1802,6 +2461,7 @@ def _admit(
 def verify_artifact(
     source: MemberSource,
     *,
+    blob_source: BlobSource | None = None,
     expected_pin: ArtifactPin | None = None,
     root_byte_limit: int = DEFAULT_ROOT_BYTE_LIMIT,
     manifest_byte_limit: int = DEFAULT_MANIFEST_BYTE_LIMIT,
@@ -1813,6 +2473,7 @@ def verify_artifact(
     try:
         artifact = _admit(
             source,
+            blob_source=blob_source,
             expected_pin=expected_pin,
             root_byte_limit=root_byte_limit,
             manifest_byte_limit=manifest_byte_limit,
@@ -1828,6 +2489,7 @@ def verify_artifact(
 def admit_artifact(
     source: MemberSource,
     *,
+    blob_source: BlobSource | None = None,
     expected_pin: ArtifactPin | None = None,
     root_byte_limit: int = DEFAULT_ROOT_BYTE_LIMIT,
     manifest_byte_limit: int = DEFAULT_MANIFEST_BYTE_LIMIT,
@@ -1842,6 +2504,7 @@ def admit_artifact(
 
     artifact = _admit(
         source,
+        blob_source=blob_source,
         expected_pin=expected_pin,
         root_byte_limit=root_byte_limit,
         manifest_byte_limit=manifest_byte_limit,
@@ -1853,7 +2516,6 @@ def admit_artifact(
 
 
 __all__ = [
-    "ARTIFACT_KINDS",
     "DIAGNOSTIC_CODES",
     "FORMAT",
     "FORMAT_VERSION",
@@ -1861,24 +2523,29 @@ __all__ = [
     "MEMBER_MANIFEST_MEDIA_TYPE",
     "MEMBER_MANIFEST_VERSION",
     "ROOT_OBJECT_KEY",
-    "SOURCE_CATALOG_ITEM_SCHEMA_ID",
     "ArtifactInput",
     "ArtifactPin",
-    "ArtifactSpec",
     "ArtifactVerificationError",
+    "BlobSource",
     "CanonicalSetDigester",
-    "CompositionSpec",
-    "DerivationSpec",
-    "LocalMemberSource",
+    "CompositionRelation",
+    "DerivationRelation",
+    "FramedSection",
+    "ImmutableMemberReceipt",
+    "KnownLimit",
+    "LocalBlobSource",
     "LocalFileState",
     "LocalFileStateIndex",
+    "LocalMemberSource",
     "MemberDescriptor",
     "MemberManifestReference",
     "MemberNotFoundError",
     "MemberSource",
     "MemberSourceError",
+    "Producer",
+    "ReceiptMemberSource",
     "SemanticVerifier",
-    "SourceCatalogSpec",
+    "Supersedes",
     "VerificationIssue",
     "VerificationResult",
     "VerifiedArtifact",
@@ -1888,12 +2555,16 @@ __all__ = [
     "describe_member",
     "describe_member_from_receipt",
     "expected_artifact_digest",
+    "expected_logical_digest",
     "expected_logical_id",
+    "framed_section_digest",
     "iter_member_descriptors",
     "parse_canonical_json",
+    "schema_bundle_digest",
     "sha256_digest",
-    "source_catalog_item_schema_bytes",
     "stamp_root",
+    "validate_composition_relation",
+    "validate_derivation_relation",
     "validate_object_key",
     "verify_artifact",
     "write_member_manifest",

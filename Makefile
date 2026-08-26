@@ -69,14 +69,17 @@ test: test-rust test-shapes test-audits test-conformance test-package
 # the one platform artifact implementation and its common structural fixtures.
 test-package:
 	rm -rf dist "$(PACKAGE_CHECK_DIR)"
+	uv run --project packages/rulespec-artifacts python -m unittest discover -s packages/rulespec-artifacts/tests -p 'test_*.py'
+	uv build --project packages/rulespec-artifacts --wheel --out-dir dist/artifacts
 	uv build --wheel
 	uv venv --python 3.12 "$(PACKAGE_CHECK_DIR)"
-	VIRTUAL_ENV="$(PACKAGE_CHECK_DIR)" uv pip install --quiet dist/*.whl
+	VIRTUAL_ENV="$(PACKAGE_CHECK_DIR)" uv pip install --quiet dist/artifacts/*.whl dist/*.whl
 	cd "$(PACKAGE_CHECK_DIR)" && ./bin/rulespec-ci-validate
 	cd "$(PACKAGE_CHECK_DIR)" && ./bin/python -m rulespec_conformance.contract
-	cd "$(PACKAGE_CHECK_DIR)" && ./bin/python -c 'from rulespec_conformance import platform_artifact as p; from rulespec_conformance.contract import resources; assert p.FORMAT == "spicy-artifact"; assert resources.platform_artifact_spec(); assert resources.json_schema("platform-artifact", family="platform")["$$defs"]; assert resources.platform_artifact_fixture_corpus()["cases"]; assert resources.platform_artifact_fixture("valid").is_dir()'
+	cd "$(PACKAGE_CHECK_DIR)" && ./bin/python -c 'from importlib.metadata import requires; import rulespec_artifacts as p; from rulespec_artifacts import resources; assert p.FORMAT == "spicy-artifact"; assert not requires("rulespec-artifacts"); assert resources.platform_artifact_spec(); assert resources.fixture_corpus()["cases"]; assert resources.fixture("valid").is_dir()'
+	cd "$(PACKAGE_CHECK_DIR)" && ./bin/python -c 'from pathlib import Path; from rulespec_artifacts import LocalMemberSource, verify_artifact; from rulespec_artifacts import resources; corpus=resources.fixture_corpus(); observed={case["name"]: verify_artifact(LocalMemberSource(Path(str(resources.fixture(case["name"]))))).code for case in corpus["cases"]}; assert observed == {case["name"]: case["expectedCode"] for case in corpus["cases"]}'
 	cd "$(PACKAGE_CHECK_DIR)" && ./bin/python -c 'import importlib.util; from importlib.metadata import entry_points; assert importlib.util.find_spec("rulespec_conformance.source_catalog_release") is None; assert importlib.util.find_spec("rulespec_conformance.document_release") is None; names = {item.name for item in entry_points(group="console_scripts")}; assert "rulespec-source-catalog-validate" not in names; assert "rulespec-document-validate" not in names'
-	cd "$(PACKAGE_CHECK_DIR)" && ./bin/python -c 'import tempfile; from pathlib import Path; from rulespec_conformance.platform_artifact import ArtifactInput, CompositionSpec, LocalMemberSource, ROOT_OBJECT_KEY, admit_artifact, build_artifact_root, canonical_json_bytes; temporary=tempfile.TemporaryDirectory(); root=Path(temporary.name); digest="sha256:" + "1" * 64; artifact=build_artifact_root(spec=CompositionSpec("urn:example:merge", "1", digest, ("score", "logical-id")), inputs=(ArtifactInput("member", "urn:example:source", digest),), manifests=(), accounted_input_count=1); (root / ROOT_OBJECT_KEY).write_bytes(canonical_json_bytes(artifact)); admitted=admit_artifact(LocalMemberSource(root)); assert admitted.root == artifact; temporary.cleanup()'
+	cd "$(PACKAGE_CHECK_DIR)" && ./bin/python -c 'import tempfile; from pathlib import Path; from rulespec_artifacts import LocalMemberSource, Producer, ROOT_OBJECT_KEY, admit_artifact, build_artifact_root, canonical_json_bytes; temporary=tempfile.TemporaryDirectory(); root=Path(temporary.name); producer=Producer("test-product", "git:https://example.test/product@" + "1" * 40, "urn:test:verifier", "1", "pkg:pypi/rulespec-artifacts@1.0.0?checksum=sha256:" + "2" * 64); artifact=build_artifact_root(kind="unknown-test-kind", spec={"fixture": "1"}, producer=producer); (root / ROOT_OBJECT_KEY).write_bytes(canonical_json_bytes(artifact)); admitted=admit_artifact(LocalMemberSource(root)); assert admitted.root == artifact; temporary.cleanup()'
 	rm -rf "$(PACKAGE_CHECK_DIR)"
 
 test-rust:

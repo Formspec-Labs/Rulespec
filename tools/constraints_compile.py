@@ -95,7 +95,7 @@ class ScalarTypeDef:
 @dataclass
 class PropDef:
     name: str
-    type_ref: str             # "string" | "int" | "float" | "bool" | "enum" | "named" | "enum_union" | "list"
+    type_ref: str             # "string" | "int" | "float" | "bool" | "enum" | "named" | "enum_union" | "list" | "json_object"
     enum_ref: Optional[str] = None
     named_ref: Optional[str] = None
     list_inner_enum: Optional[str] = None
@@ -970,6 +970,10 @@ def parse_property_line(line: str) -> Optional[PropDef]:
     if rhs.endswith("@rkafStrictList()"):
         p.list_allow_scalar = False
         rhs = rhs[: -len("@rkafStrictList()")].rstrip()
+
+    if rhs == "{...}":
+        p.type_ref = "json_object"
+        return p
 
     # JSON-LD one-or-many reference. The source explicitly admits the scalar
     # spelling and a non-empty array spelling; all generated carriers preserve
@@ -2150,20 +2154,15 @@ def target_json_schema(doc: ConstraintDoc, registry: Optional[dict] = None) -> s
         "$defs": schemas,
     }
     if _is_plain_json(doc):
-        envelope["oneOf"] = [
-            {"$ref": f"#/$defs/{name}"}
-            for name in (
-                "PlatformSourceCatalogArtifact",
-                "PlatformDerivationArtifact",
-                "PlatformCompositionArtifact",
-            )
-        ]
+        envelope["$ref"] = "#/$defs/PlatformArtifact"
     return json.dumps(envelope, indent=2)
 
 
 def property_to_jsonschema(
     p: PropDef, doc: ConstraintDoc, registry: Optional[dict] = None
 ) -> dict:
+    if p.type_ref == "json_object":
+        return {"type": "object"}
     if p.type_ref == "value_object":
         # JSON-LD value objects are mutually exclusive closed branches:
         # typed literal or RDF 1.1 language-tagged string.
@@ -2295,8 +2294,9 @@ def target_rust(
     ]
     if plain_json:
         out.append(
-            "// Plain data carriers only; admit bytes with rulespec_conformance.platform_artifact."
+            "// Plain data carriers only; admit bytes with rulespec_artifacts."
         )
+        out.append("// Rust guideline compliant 2026-02-21")
     out.extend(["", "use serde::{Deserialize, Serialize};", ""])
     for e in doc.enums:
         out.append(f"/// Closed Rulespec values for `{e.name}`.")
@@ -2335,6 +2335,21 @@ def target_rust(
 
     def rust_property_type(prop: PropDef) -> str:
         return _rust_type(prop, local_enums=local_enums, registry=registry)
+
+    def optional_serde_attribute(name: str) -> list[str]:
+        inline = (
+            f'    #[serde(rename = "{name}", '
+            'skip_serializing_if = "Option::is_none", default)]'
+        )
+        if plain_json and len(inline) >= 85:
+            return [
+                "    #[serde(",
+                f'        rename = "{name}",',
+                '        skip_serializing_if = "Option::is_none",',
+                "        default",
+                "    )]",
+            ]
+        return [inline]
 
     # Some composed conditionals narrow a broadly typed carrier field to a
     # cross-file enum without changing the struct field's broad Rust type.
@@ -2431,10 +2446,7 @@ def target_rust(
             rust_type = rust_property_type(prop)
             out.append(f"    /// JSON-LD member `{prop.name}`.")
             if prop.optional:
-                out.append(
-                    f'    #[serde(rename = "{prop.name}", '
-                    'skip_serializing_if = "Option::is_none", default)]'
-                )
+                out.extend(optional_serde_attribute(prop.name))
                 out.append(f"    pub {field_name}: Option<{rust_type}>,")
             else:
                 out.append(f'    #[serde(rename = "{prop.name}")]')
@@ -2485,22 +2497,7 @@ def target_rust(
             member_kind = "JSON member" if plain_json else "JSON-LD property"
             out.append(f"    /// {member_kind} `{p.name}`.")
             if p.optional:
-                optional_attr = (
-                    f'    #[serde(rename = "{p.name}", '
-                    'skip_serializing_if = "Option::is_none", default)]'
-                )
-                if plain_json and len(optional_attr) > 85:
-                    out.extend(
-                        [
-                            "    #[serde(",
-                            f'        rename = "{p.name}",',
-                            '        skip_serializing_if = "Option::is_none",',
-                            "        default",
-                            "    )]",
-                        ]
-                    )
-                else:
-                    out.append(optional_attr)
+                out.extend(optional_serde_attribute(p.name))
                 out.append(f"    pub {field_name}: Option<{ty}>,")
             else:
                 out.append(f'    #[serde(rename = "{p.name}")]')
@@ -2641,6 +2638,8 @@ _REGISTRY_RELPATHS: dict[str, str] = {}
 
 def _rust_type(p: PropDef, local_enums: Optional[set] = None,
                registry: Optional[dict] = None) -> str:
+    if p.type_ref == "json_object":
+        return "serde_json::Map<String, serde_json::Value>"
     if p.fixed_value is not None:
         if isinstance(p.fixed_value, bool):
             return "bool"
@@ -3075,6 +3074,13 @@ def target_typescript(
                     f'typeof record["{p.name}"] !== "string") '
                     f'errs.push("{p.name}: must be a string");'
                 )
+            if plain_json and p.type_ref == "json_object":
+                out.append(
+                    f'  if (record["{p.name}"] !== undefined && '
+                    f'(typeof record["{p.name}"] !== "object" || '
+                    f'record["{p.name}"] === null || Array.isArray(record["{p.name}"]))) '
+                    f'errs.push("{p.name}: must be an object");'
+                )
             if plain_json and p.type_ref == "bool" and p.fixed_value is None:
                 out.append(
                     f'  if (record["{p.name}"] !== undefined && '
@@ -3416,6 +3422,8 @@ def target_typescript(
 
 
 def _ts_type(p: PropDef) -> str:
+    if p.type_ref == "json_object":
+        return "Record<string, unknown>"
     if p.fixed_value is not None:
         return json.dumps(p.fixed_value)
     if p.type_ref == "value_object":

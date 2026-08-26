@@ -6,11 +6,21 @@ This directory holds the active normative specifications. The CUE source under `
 
 ### `platform-artifacts.md`
 
-The one cross-product byte format for source catalogs, derivations, and
-compositions. It defines the closed root, partition manifests, two identities,
-bounded structural verifier, diagnostics, and injected `MemberSource`. The
-installed conformance package owns the implementation; product repositories
-retain only their semantic checks and storage adapters.
+The normative specification for one opt-in cross-product byte format for arbitrary
+product-owned artifacts.
+It defines the closed root, opaque identity-bearing product specification,
+partition manifests, two identities, bounded structural verifier, diagnostics,
+injected member sources, closed producer and verifier pins, the shared streaming
+framed-section digester, offline `knownLimits`, namespace-independent logical
+digests,
+product-owned completeness, generic publication-succession evidence, and
+optional product-neutral relation helpers. The lightweight installed
+`rulespec-artifacts` package owns the implementation without RDF or SHACL
+dependencies; the full `rulespec-conformance` package depends on it. Product
+repositories retain only their semantic checks and storage adapters. The local
+1.0.0 artifact wheel implements the generic surface; it is not published yet.
+REF-048 supersedes the older decision row that assigned `DocumentRelease`
+ownership to SpicyRegs.
 
 ### `rkaf-core.md`
 

@@ -1,5 +1,40 @@
 # Product and release decisions
 
+## 2026-08-25: Separate the artifact runtime from graph conformance
+
+**Status:** Accepted
+
+### Decision
+
+The Rulespec-owned `rulespec-artifacts` distribution is the one generic
+platform-artifact runtime. It contains canonical JSON, the schema-bundle and
+streaming framed-section digesters, container types, builder, structural
+verifier, source protocols, diagnostics, specification, and structural fixtures.
+It has no RDF, JSON-LD, SHACL, `rdflib`, `pyshacl`, or RDF-canonicalization
+dependency.
+
+The full `rulespec-conformance` distribution depends on a compatible
+`rulespec-artifacts` major and does not copy that implementation or fixture
+corpus. Products that only exchange platform artifacts depend on the thin
+distribution. This narrows the 2026-08-11 choice below: keeping graph vocabulary
+and shape data in `rulespec-conformance` remains accepted, but it does not force
+the unrelated artifact runtime and RDF/SHACL dependency closure on every
+artifact consumer.
+
+Producer roots pin one immutable package, image, or exact Git commit plus the
+verifier tuple. Artifact members never carry duplicate source trees, wheels,
+images, or verifier code solely to prove those pins.
+
+### Practical consequences
+
+- `rulespec_artifacts` contains the one implementation and one structural
+  fixture corpus; `rulespec-conformance` depends on it.
+- The full validator's package test proves it uses the thin distribution. The
+  thin package test proves its installed dependency closure contains no graph
+  stack.
+- Products declare only framed-digest domains, sections, projections, ordering,
+  and duplicate rules. They call the installed shared implementation.
+
 ## 2026-08-11: The contract ships as an import, not a checkout
 
 **Status:** Accepted
@@ -42,6 +77,12 @@ what conforming requires.
 ## 2026-07-31: Separate source, vocabulary, extrapolation, and search ownership
 
 **Status:** Accepted
+
+**Ownership update (2026-08-25):** RefSpec REF-048 supersedes only this
+decision's assignment of exact document renditions, structural passages, and
+`DocumentRelease` to SpicyRegs. DocSpec now owns capture, document processing,
+and `DocumentRelease`; SpicyRegs retains source acquisition and faithful
+source-native publication. The other rows remain accepted.
 
 ### Decision
 
@@ -100,11 +141,12 @@ operations, model extraction, and search serving behind one application
 boundary. The implementation detail and compatibility rules are normative in
 [`spec/rulespec-releases.md`](../spec/rulespec-releases.md).
 
-> **Scope note (2026-08-02, annotation in place — nothing above is rewritten):**
-> the ownership table and the release-contents sentence stand. What the
-> Extrapolator *executes* is narrowed by the decision below: segment
-> construction moves to SpicyRegs, and the processes that produce baseline
-> validation, selection, and approval are parked with no owner.
+> **Scope note (updated 2026-08-25, annotation in place — nothing above is
+> rewritten):** REF-048 moves capture, representation, passage, and segment
+> construction to DocSpec while SpicyRegs retains source-native acquisition and
+> publication. What the Extrapolator executes remains narrowed below. Baseline
+> validation, selection, and approval remain parked unless a later accepted
+> decision assigns them.
 
 ## 2026-08-02: The Extrapolator consumes prepared segments and verifies receipts
 
@@ -118,10 +160,10 @@ in. Evidence-linked structured document descriptions come out, recording the
 exact input segment, source references, prompt, and model lineage.
 
 It does not parse sources, tokenize, handle PDF or HTML, or build segments.
-**SpicyRegs owns** source parsing, exact text, durable structural passages, and
-model-input segmentation, and its `structure-overlap-1800` segmenter preserves
-reversible source offsets and digests. **SpicySearch independently owns** search
-chunks, indexes, and ranking; retrieval windows are not extrapolation inputs.
+**DocSpec owns under REF-048** document parsing, exact captured text, durable
+structural passages, and model-input segmentation. SpicyRegs supplies only the
+pinned source-native inputs. **SpicySearch independently owns** search chunks,
+indexes, and ranking; retrieval windows are not extrapolation inputs.
 Rulespec may record consumed segment references and digests. It must not build a
 parallel document pipeline.
 

@@ -17,6 +17,7 @@ requires-python = ">=3.12"
 license = { text = "See LICENSE, LICENSE-CODE, and LICENSE-SPEC (dual, placeholders)" }
 
 dependencies = [
+    "rulespec-artifacts==1.0.0",
     "pyshacl>=0.31.0",
     "rdflib>=7.0.0",
     # 86/86 RDFC-1.0; 1.0.0 requires Python 3.12, matching the CI job.
@@ -39,15 +40,9 @@ packages = ["src/rulespec_conformance"]
 # outright when a force-include source is missing. Do not soften that.
 [tool.hatch.build.targets.wheel.force-include]
 "compiled" = "rulespec_conformance/_data/compiled"
-"spec/platform-artifacts.md" = "rulespec_conformance/_data/spec/platform-artifacts.md"
-"platform-fixtures" = "rulespec_conformance/_data/platform-fixtures"
 "shapes" = "rulespec_conformance/_data/shapes"
 "fixtures" = "rulespec_conformance/_data/fixtures"
 "context/rkaf-context.jsonld" = "rulespec_conformance/_data/context/rkaf-context.jsonld"
-# Source-catalog records keep their product schema; only their retired root and
-# member-manifest protocol was removed. The schema's public identity remains
-# stable while the platform root carries and pins its exact bytes.
-"release-records/schemas/source-catalog-release-v1/source-items-v1.schema.json" = "rulespec_conformance/_data/release-records/schemas/source-catalog-release-v1/source-items-v1.schema.json"
 # `rulespec_conformance.contract.VERSION` reads this, so the version a consumer
 # sees is the repository's own `VERSION` rather than a second copy of it that
 # `tools/version_sync.py` would have to keep in step.
@@ -60,3 +55,9 @@ packages = ["src/rulespec_conformance"]
 # No sdist target: an sdist cannot carry `compiled/` (gitignored, and a source
 # distribution that ships generated output is not a source distribution), so
 # building from one would fail at the force-include above. Wheel only.
+
+[tool.uv.workspace]
+members = ["packages/rulespec-artifacts"]
+
+[tool.uv.sources]
+rulespec-artifacts = { workspace = true }

@@ -204,7 +204,7 @@ class ResourceTests(unittest.TestCase):
     def test_platform_artifact_spec_and_closed_schema_resolve(self) -> None:
         self.assertIn("# Rulespec platform artifacts 1.0", resources.platform_artifact_spec())
         schema = resources.json_schema("platform-artifact", family="platform")
-        definition = schema["$defs"]["PlatformSourceCatalogArtifact"]
+        definition = schema["$defs"]["PlatformArtifact"]
         self.assertIs(definition["additionalProperties"], False)
         self.assertEqual(definition["properties"]["inputs"]["type"], "array")
         corpus = resources.platform_artifact_fixture_corpus()
