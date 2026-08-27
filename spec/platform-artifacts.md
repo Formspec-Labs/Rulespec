@@ -2,7 +2,7 @@
 
 Status: normative. REF-048 assigns catalog ownership and leaves this document
 only the generic byte format, identity rules, and structural verification. The
-local `rulespec-artifacts` 1.0.0 wheel implements this surface without product
+local `rulespec-artifacts` 1.0.9 wheel implements this surface without product
 schemas or graph dependencies, and `rulespec-conformance` consumes that wheel.
 Neither distribution is published yet.
 
@@ -441,6 +441,49 @@ package ships `LocalMemberSource` and a local content-addressed `BlobSource`;
 deployments adapt object stores at that outer edge. Rulespec itself performs no
 network access. A caller may omit `BlobSource` only when no declared member uses
 `blobRef`.
+
+For a child artifact or blob store inside one larger local distribution, the
+package exposes
+`PinnedLocalDirectory(parent_path, expected_identity=(device, inode))`. The
+optional expected identity lets a caller carry forward an already admitted
+parent identity: the constructor compares the same opened parent descriptor it
+will pin before returning, without a path re-stat or second open. Its
+`member_source(child_key)` and `blob_source(child_key)` methods accept only a
+normalized, contained relative child key. The returned source pins both the
+real parent directory and the child root. Every list or open operation reopens
+the parent, verifies its device and inode identity, and traverses the child and
+member paths through no-follow directory descriptors. A replaced parent or
+child, a symbolic link, or an escaped path fails closed. Products use this
+shared reader instead of copying local path-safety code.
+
+`LocalBlobSource` verifies the SHA-256 content address before it exposes local
+blob bytes on every open, then serves the same opened regular file while the
+member source checks that its file state stays unchanged. This keeps the local
+adapter's immutability check at the read boundary instead of relying on a prior
+admission or a digest-shaped filename.
+
+The local adapters coordinate cooperative processes that use these APIs.
+Deployments isolate mutually untrusted writers with separate operating-system
+accounts, filesystem permissions, or storage credentials. Within one local
+account, descriptor-relative traversal, kernel conditional creation, advisory
+locks, and digest verification provide path containment, crash recovery,
+concurrency control, and fail-closed reads; they are not an authorization
+boundary against another process that already has permission to rename or
+rewrite every path owned by that account.
+
+The package exposes `publish_directory_no_replace(source, destination)` for
+same-filesystem local directories. It syncs the complete real-file tree, coordinates
+cooperative writers through an advisory lock on the pinned destination parent,
+and uses the host kernel's no-replace directory rename. Process death releases
+the lock, no sentinel pathname is created, and an existing destination remains
+unchanged. Unsupported platforms fail before publication. Products use this
+shared primitive rather than maintaining a second lock or rename implementation.
+`publish_child_directory_no_replace` provides the same operation relative to
+already-open source and destination parent descriptors; the matching
+`PinnedLocalDirectory` method reopens and checks named pinned parents for callers
+without retained descriptors. `move_child_directory_no_replace` provides the
+underlying no-replace move for safe transaction cleanup without forcing a
+durability pass over bytes being discarded.
 
 Structural verification MUST, in order, check canonical and bounded root bytes,
 the exact version and closed generic root shape, kind grammar, opaque canonical

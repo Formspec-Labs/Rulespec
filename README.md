@@ -100,7 +100,11 @@ pip install dist/artifacts/rulespec_artifacts-*.whl dist/rulespec_conformance-*.
 rulespec-ci-validate --json your-graph.jsonld
 ```
 
-`make test-package` does exactly this and runs the result outside the checkout.
+`make test-package` runs both distributions outside the checkout. Its
+`test-package-artifacts` stage uses a separate empty environment and proves the
+artifact wheel does not install `rdflib`, `pyshacl`, or `rdfcanon`; its
+`test-package-conformance` stage then checks the full graph validator in a
+second environment.
 `tools/ci_validate.py` remains as a shim so in-checkout invocations keep
 working. L4 behavior validation is the Rust runtime and is not in the wheel.
 

@@ -7,6 +7,8 @@ from importlib import resources
 from importlib.resources.abc import Traversable
 from pathlib import Path
 
+from ._artifact import parse_canonical_json
+
 
 def _data() -> Traversable:
     packaged = resources.files("rulespec_artifacts") / "_data"
@@ -25,6 +27,16 @@ def fixture_corpus() -> dict[str, object]:
     )
     if not isinstance(value, dict):
         raise TypeError("platform fixture corpus must be a JSON object")
+    return value
+
+
+def canonical_json_corpus() -> dict[str, object]:
+    """Return the byte-exact canonical-JSON encoder corpus shipped in the wheel."""
+
+    raw = (_data() / "platform-fixtures" / "canonical-json" / "corpus.json").read_bytes()
+    value = parse_canonical_json(raw)
+    if not isinstance(value, dict):
+        raise TypeError("canonical-JSON fixture corpus must be a JSON object")
     return value
 
 

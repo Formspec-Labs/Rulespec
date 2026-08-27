@@ -18,7 +18,7 @@ optional product-neutral relation helpers. The lightweight installed
 `rulespec-artifacts` package owns the implementation without RDF or SHACL
 dependencies; the full `rulespec-conformance` package depends on it. Product
 repositories retain only their semantic checks and storage adapters. The local
-1.0.0 artifact wheel implements the generic surface; it is not published yet.
+1.0.9 artifact wheel implements the generic surface; it is not published yet.
 REF-048 supersedes the older decision row that assigned `DocumentRelease`
 ownership to SpicyRegs.
 

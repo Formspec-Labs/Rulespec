@@ -34,7 +34,7 @@ fn platform_artifact() -> serde_json::Value {
             "implementationId": format!("git:https://example.test/product@{}", "3".repeat(40)),
             "product": "test-product",
             "verifierId": "urn:example:verifier",
-            "verifierImplementationId": format!("pkg:pypi/rulespec-artifacts@1.0.0?sha256:{}", "4".repeat(64)),
+            "verifierImplementationId": format!("pkg:pypi/rulespec-artifacts@9.8.7?sha256:{}", "4".repeat(64)),
             "verifierVersion": "1.0.0"
         },
         "spec": {

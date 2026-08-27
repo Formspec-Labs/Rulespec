@@ -1,12 +1,18 @@
 from __future__ import annotations
 
 import contextlib
+import errno
+import fcntl
 import io
 import json
+import os
 import tempfile
 import unittest
 from pathlib import Path
 
+import canonical_corpus_runner
+from rulespec_artifacts import resources
+from rulespec_artifacts import __version__ as PACKAGE_VERSION
 from rulespec_artifacts import (
     ROOT_OBJECT_KEY,
     ArtifactInput,
@@ -20,6 +26,8 @@ from rulespec_artifacts import (
     LocalMemberSource,
     MemberManifestReference,
     MemberNotFoundError,
+    MemberSourceError,
+    PinnedLocalDirectory,
     Producer,
     admit_artifact,
     build_artifact_root,
@@ -27,7 +35,10 @@ from rulespec_artifacts import (
     describe_member,
     describe_member_from_receipt,
     framed_section_digest,
+    move_child_directory_no_replace,
     parse_canonical_json,
+    publish_child_directory_no_replace,
+    publish_directory_no_replace,
     schema_bundle_digest,
     sha256_digest,
     validate_composition_relation,
@@ -90,7 +101,8 @@ def producer(implementation: str = "1") -> Producer:
         verifier_id="urn:test:verifier",
         verifier_version="1.0.0",
         verifier_implementation_id=(
-            "pkg:pypi/rulespec-artifacts@1.0.0?checksum=sha256:" + "2" * 64
+            f"pkg:pypi/rulespec-artifacts@{PACKAGE_VERSION}?checksum=sha256:"
+            + "2" * 64
         ),
     )
 
@@ -138,6 +150,14 @@ def artifact_files(
 
 
 class CanonicalTests(unittest.TestCase):
+    def test_shared_golden_corpus_covers_encoder_and_parser_boundaries(self) -> None:
+        observations = canonical_corpus_runner.evaluate_corpus(
+            resources.canonical_json_corpus()
+        )
+        self.assertEqual(len(observations["encodeAccepted"]), 16)
+        self.assertEqual(len(observations["encodeRejected"]), 13)
+        self.assertEqual(len(observations["parseRejected"]), 15)
+
     def test_canonical_json_uses_utf16_order_and_refuses_floats(self) -> None:
         self.assertEqual(
             canonical_json_bytes({"\ue000": 1, "\U00010000": 2}),
@@ -434,6 +454,285 @@ class ArtifactTests(unittest.TestCase):
             target.write_bytes(payload)
             with LocalBlobSource(Path(directory)).open(digest) as stream:
                 self.assertEqual(stream.read(), payload)
+
+    def test_local_blob_source_verifies_content_address_on_every_open(self) -> None:
+        payload = b"blob"
+        digest = sha256_digest(payload)
+        with tempfile.TemporaryDirectory() as directory:
+            target = Path(directory) / "sha256" / digest.removeprefix("sha256:")
+            target.parent.mkdir()
+            target.write_bytes(payload)
+            source = LocalBlobSource(Path(directory))
+
+            with source.open(digest) as stream:
+                self.assertEqual(stream.read(), payload)
+
+            target.write_bytes(b"evil")
+            with self.assertRaises(ArtifactVerificationError) as changed:
+                with source.open(digest):
+                    pass
+            self.assertEqual(changed.exception.issue.code, "invalid.member-digest")
+
+    def test_pinned_local_directory_opens_child_member_and_blob_sources(self) -> None:
+        payload = b"blob"
+        digest = sha256_digest(payload)
+        with tempfile.TemporaryDirectory() as directory:
+            parent = Path(directory) / "distribution"
+            artifact = parent / "artifacts" / "child"
+            artifact.mkdir(parents=True)
+            (artifact / "member.txt").write_bytes(b"member")
+            blob = parent / "blobs" / "sha256" / digest.removeprefix("sha256:")
+            blob.parent.mkdir(parents=True)
+            blob.write_bytes(payload)
+
+            pinned = PinnedLocalDirectory(parent)
+            member_source = pinned.member_source("artifacts/child")
+            self.assertEqual(set(member_source.keys()), {"member.txt"})
+            with member_source.open("member.txt") as stream:
+                self.assertEqual(stream.read(), b"member")
+            with pinned.blob_source("blobs").open(digest) as stream:
+                self.assertEqual(stream.read(), payload)
+
+    def test_pinned_local_directory_rejects_escape_and_linked_child(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            parent = root / "distribution"
+            outside = root / "outside"
+            parent.mkdir()
+            outside.mkdir()
+            (parent / "linked").symlink_to(outside, target_is_directory=True)
+
+            pinned = PinnedLocalDirectory(parent)
+            with self.assertRaises(ArtifactVerificationError) as escaped:
+                pinned.member_source("../outside")
+            self.assertEqual(escaped.exception.issue.code, "invalid.path")
+            with self.assertRaises(ArtifactVerificationError) as linked:
+                pinned.member_source("linked")
+            self.assertEqual(linked.exception.issue.code, "invalid.path")
+
+    def test_pinned_local_directory_checks_expected_identity_after_swap(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            parent = root / "current"
+            replacement = root / "replacement"
+            parent.mkdir()
+            replacement.mkdir()
+            admitted = parent.stat()
+            expected_identity = (admitted.st_dev, admitted.st_ino)
+            replacement_state = replacement.stat()
+            self.assertNotEqual(
+                expected_identity,
+                (replacement_state.st_dev, replacement_state.st_ino),
+            )
+            PinnedLocalDirectory(parent, expected_identity=expected_identity)
+
+            parent.rename(root / "original")
+            replacement.rename(parent)
+
+            with self.assertRaisesRegex(
+                MemberSourceError,
+                "does not match its expected device and inode identity",
+            ):
+                PinnedLocalDirectory(parent, expected_identity=expected_identity)
+
+    def test_pinned_child_sources_reject_parent_replacement(self) -> None:
+        payload = b"blob"
+        digest = sha256_digest(payload)
+
+        def build_distribution(root: Path) -> None:
+            artifact = root / "artifact"
+            artifact.mkdir(parents=True)
+            (artifact / "member.txt").write_bytes(b"member")
+            blob = root / "blobs" / "sha256" / digest.removeprefix("sha256:")
+            blob.parent.mkdir(parents=True)
+            blob.write_bytes(payload)
+
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            parent = root / "current"
+            replacement = root / "replacement"
+            build_distribution(parent)
+            build_distribution(replacement)
+            pinned = PinnedLocalDirectory(parent)
+            member_source = pinned.member_source("artifact")
+            blob_source = pinned.blob_source("blobs")
+
+            parent.rename(root / "original")
+            replacement.rename(parent)
+
+            with self.assertRaisesRegex(MemberSourceError, "parent directory changed"):
+                tuple(member_source.keys())
+            with self.assertRaisesRegex(MemberSourceError, "parent directory changed"):
+                with member_source.open("member.txt"):
+                    pass
+            with self.assertRaisesRegex(MemberSourceError, "parent directory changed"):
+                with blob_source.open(digest):
+                    pass
+
+    def test_pinned_child_source_rejects_parent_symlink_replacement(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            parent = root / "current"
+            replacement = root / "replacement"
+            (parent / "artifact").mkdir(parents=True)
+            (parent / "artifact" / "member.txt").write_bytes(b"member")
+            (replacement / "artifact").mkdir(parents=True)
+            (replacement / "artifact" / "member.txt").write_bytes(b"member")
+            source = PinnedLocalDirectory(parent).member_source("artifact")
+
+            parent.rename(root / "original")
+            parent.symlink_to(replacement, target_is_directory=True)
+
+            with self.assertRaises(ArtifactVerificationError) as linked:
+                with source.open("member.txt"):
+                    pass
+            self.assertEqual(linked.exception.issue.code, "invalid.path")
+
+    def test_local_directory_publication_is_atomic_and_no_replace(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            source = root / "candidate"
+            destination = root / "published"
+            source.mkdir()
+            (source / "member.txt").write_bytes(b"candidate")
+
+            publish_directory_no_replace(source, destination)
+
+            self.assertFalse(source.exists())
+            self.assertEqual((destination / "member.txt").read_bytes(), b"candidate")
+            self.assertFalse((root / ".published.publish.lock").exists())
+
+            replacement = root / "replacement"
+            replacement.mkdir()
+            (replacement / "member.txt").write_bytes(b"replacement")
+            with self.assertRaises(FileExistsError):
+                publish_directory_no_replace(replacement, destination)
+            self.assertTrue(replacement.is_dir())
+            self.assertEqual((destination / "member.txt").read_bytes(), b"candidate")
+
+    def test_local_directory_publication_refuses_held_lock_then_recovers(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            source = root / "candidate"
+            destination = root / "published"
+            source.mkdir()
+            (source / "member.txt").write_bytes(b"candidate")
+            descriptor = os.open(root, os.O_RDONLY | os.O_DIRECTORY)
+            try:
+                fcntl.flock(descriptor, fcntl.LOCK_EX | fcntl.LOCK_NB)
+                with self.assertRaises(BlockingIOError) as held:
+                    publish_directory_no_replace(source, destination)
+                self.assertEqual(held.exception.errno, errno.EWOULDBLOCK)
+                self.assertTrue(source.is_dir())
+                self.assertFalse(destination.exists())
+            finally:
+                fcntl.flock(descriptor, fcntl.LOCK_UN)
+                os.close(descriptor)
+
+            publish_directory_no_replace(source, destination)
+            self.assertEqual((destination / "member.txt").read_bytes(), b"candidate")
+
+    def test_pinned_parent_publishes_one_exact_child_without_replacement(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            source_parent = root / "staging"
+            destination_parent = root / "artifacts"
+            source = source_parent / "candidate"
+            source.mkdir(parents=True)
+            destination_parent.mkdir()
+            (source / "member.txt").write_bytes(b"candidate")
+            identity = (source.stat().st_dev, source.stat().st_ino)
+            pinned_source = PinnedLocalDirectory(source_parent)
+            pinned_destination = PinnedLocalDirectory(destination_parent)
+
+            pinned_source.publish_child_directory_no_replace(
+                "candidate",
+                pinned_destination,
+                "published",
+                expected_source_identity=identity,
+            )
+
+            self.assertFalse(source.exists())
+            self.assertEqual(
+                (destination_parent / "published" / "member.txt").read_bytes(),
+                b"candidate",
+            )
+            replacement = source_parent / "replacement"
+            replacement.mkdir()
+            with self.assertRaises(FileExistsError):
+                pinned_source.publish_child_directory_no_replace(
+                    "replacement",
+                    pinned_destination,
+                    "published",
+                )
+
+    def test_pinned_parent_moves_cleanup_child_and_checks_identity(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            staging = root / "staging"
+            session = staging / "session"
+            session.mkdir(parents=True)
+            identity = (session.stat().st_dev, session.stat().st_ino)
+            pinned = PinnedLocalDirectory(staging)
+
+            pinned.move_child_directory_no_replace(
+                "session",
+                pinned,
+                "tombstone",
+                expected_source_identity=identity,
+            )
+
+            self.assertFalse(session.exists())
+            self.assertTrue((staging / "tombstone").is_dir())
+            replacement = staging / "replacement"
+            replacement.mkdir()
+            with self.assertRaisesRegex(MemberSourceError, "source changed"):
+                pinned.move_child_directory_no_replace(
+                    "replacement",
+                    pinned,
+                    "other",
+                    expected_source_identity=identity,
+                )
+
+    def test_descriptor_relative_child_operations_survive_parent_rename(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            parent = root / "transactions"
+            candidate = parent / "candidate"
+            cleanup = parent / "cleanup"
+            candidate.mkdir(parents=True)
+            cleanup.mkdir()
+            (candidate / "member.txt").write_bytes(b"candidate")
+            candidate_identity = (candidate.stat().st_dev, candidate.stat().st_ino)
+            cleanup_identity = (cleanup.stat().st_dev, cleanup.stat().st_ino)
+            descriptor = os.open(parent, os.O_RDONLY | os.O_DIRECTORY)
+            retained = root / "retained"
+            parent.rename(retained)
+            parent.symlink_to(root / "outside", target_is_directory=True)
+            try:
+                publish_child_directory_no_replace(
+                    descriptor,
+                    descriptor,
+                    "candidate",
+                    "published",
+                    expected_source_identity=candidate_identity,
+                )
+                move_child_directory_no_replace(
+                    descriptor,
+                    descriptor,
+                    "cleanup",
+                    "tombstone",
+                    expected_source_identity=cleanup_identity,
+                )
+            finally:
+                os.close(descriptor)
+
+            self.assertEqual(
+                (retained / "published" / "member.txt").read_bytes(),
+                b"candidate",
+            )
+            self.assertTrue((retained / "tombstone").is_dir())
+            self.assertTrue(parent.is_symlink())
 
 
 if __name__ == "__main__":

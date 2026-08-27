@@ -29,6 +29,20 @@ adapted for a specification + shape + fixture project.
   size, and immutable version receipt through the same `MemberSource` used for
   reads. Admission then avoids downloading large payloads solely to hash them;
   local and unversioned sources retain the full-byte verification path.
+- `PinnedLocalDirectory` opens child artifact and blob sources through one
+  pinned parent identity. It may compare the descriptor it pins with an
+  identity admitted earlier, without a path re-stat or second open. Each
+  operation reopens and verifies the parent, then traverses normalized child
+  and member paths with no-follow directory descriptors, so a swapped
+  distribution or linked escape fails closed.
+- `PinnedLocalDirectory` now also publishes or moves one exact child directory
+  through the shared descriptor-relative no-replace primitive, so product-owned
+  transaction stores do not copy the kernel rename implementation.
+- `publish_directory_no_replace` durably publishes local artifact
+  directories through an advisory lock on the pinned destination parent and
+  the host kernel's atomic no-replace rename. Process death releases
+  coordination without creating a poison sentinel, and an existing immutable
+  destination remains unchanged.
 - Moved the source-item semantic schema to DocSpec with the rest of
   `SourceCatalog` meaning. Rulespec retains only the generic artifact shape and
   structural implementation.

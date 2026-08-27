@@ -20,6 +20,7 @@ from platform_artifact import (
     sha256_digest,
     stamp_root,
 )
+from rulespec_artifacts import __version__ as ARTIFACT_PACKAGE_VERSION
 
 ROOT = Path(__file__).resolve().parents[1]
 FIXTURE_ROOT = ROOT / "platform-fixtures"
@@ -52,7 +53,9 @@ def _valid_files() -> dict[str, bytes]:
             verifier_id="urn:example:fixture-verifier",
             verifier_version="1.0.0",
             verifier_implementation_id=(
-                "pkg:pypi/rulespec-artifacts@1.0.0?checksum=sha256:" + "2" * 64
+                f"pkg:pypi/rulespec-artifacts@{ARTIFACT_PACKAGE_VERSION}"
+                "?checksum=sha256:"
+                + "2" * 64
             ),
         ),
         manifests=(manifest,),
@@ -142,6 +145,16 @@ def _write_tree(destination: Path) -> None:
     }
     destination.mkdir(parents=True, exist_ok=True)
     (destination / "corpus.json").write_bytes(canonical_json_bytes(corpus))
+    golden_path = FIXTURE_ROOT / "canonical-json" / "corpus.json"
+    golden_bytes = golden_path.read_bytes()
+    golden = parse_canonical_json(golden_bytes)
+    if not isinstance(golden, dict) or golden.get("format") != (
+        "rulespec-canonical-json-golden-corpus"
+    ):
+        raise ValueError("canonical-JSON golden corpus has an unknown format")
+    output_golden = destination / "canonical-json" / "corpus.json"
+    output_golden.parent.mkdir(parents=True, exist_ok=True)
+    output_golden.write_bytes(golden_bytes)
     for name, (_, files) in cases.items():
         case_root = destination / "cases" / name
         for object_key, payload in files.items():

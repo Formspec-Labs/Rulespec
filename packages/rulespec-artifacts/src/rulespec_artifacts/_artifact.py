@@ -8,6 +8,7 @@ nothing about catalogs, documents, regulations, or search.
 from __future__ import annotations
 
 import codecs
+import ctypes
 import errno
 import hashlib
 import io
@@ -18,6 +19,7 @@ import re
 import sqlite3
 import stat
 import struct
+import sys
 import tempfile
 from collections.abc import Iterable, Iterator, Mapping, Sequence
 from contextlib import AbstractContextManager, contextmanager
@@ -25,6 +27,11 @@ from copy import deepcopy
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, BinaryIO, Protocol, Self, runtime_checkable
+
+try:
+    import fcntl
+except ImportError:  # pragma: no cover - the local adapter fails closed off POSIX.
+    fcntl = None  # type: ignore[assignment]
 
 FORMAT = "spicy-artifact"
 FORMAT_VERSION = "1.0"
@@ -1178,10 +1185,34 @@ class LocalFileStateIndex(Mapping[str, LocalFileState]):
         self.close()
 
 
-class LocalMemberSource:
-    """Read one materialized artifact directory without following links."""
+class PinnedLocalDirectory:
+    """Pin one real directory and open child sources relative to its identity."""
 
-    def __init__(self, root: Path) -> None:
+    def __init__(
+        self,
+        parent_path: Path,
+        *,
+        expected_identity: tuple[int, int] | None = None,
+    ) -> None:
+        self._initialize(
+            parent_path,
+            label="parent directory",
+            expected_identity=expected_identity,
+        )
+
+    @classmethod
+    def _artifact_root(cls, root: Path) -> Self:
+        pin = cls.__new__(cls)
+        pin._initialize(root, label="artifact root", expected_identity=None)
+        return pin
+
+    def _initialize(
+        self,
+        path: Path,
+        *,
+        label: str,
+        expected_identity: tuple[int, int] | None,
+    ) -> None:
         if (
             not getattr(os, "O_NOFOLLOW", 0)
             or not getattr(os, "O_DIRECTORY", 0)
@@ -1191,7 +1222,7 @@ class LocalMemberSource:
             raise MemberSourceError(
                 "local artifact verification requires descriptor-relative no-follow filesystem access"
             )
-        unresolved = Path(root).absolute()
+        unresolved = Path(path).absolute()
         try:
             descriptor = os.open(
                 unresolved,
@@ -1201,21 +1232,27 @@ class LocalMemberSource:
                 | os.O_DIRECTORY,
             )
         except FileNotFoundError as error:
-            _fail("invalid.path", "$", f"artifact root is unavailable: {error}")
+            _fail("invalid.path", "$", f"{label} is unavailable: {error}")
         except OSError as error:
             if error.errno in (errno.ELOOP, errno.ENOTDIR):
-                _fail("invalid.path", "$", "artifact root must be a real directory")
+                _fail("invalid.path", "$", f"{label} must be a real directory")
             raise MemberSourceError(
-                f"cannot open artifact root {unresolved}: {error}"
+                f"cannot open {label} {unresolved}: {error}"
             ) from error
         try:
             root_state = os.fstat(descriptor)
             if not stat.S_ISDIR(root_state.st_mode):
-                _fail("invalid.path", "$", "artifact root must be a real directory")
-            self._root_identity = (root_state.st_dev, root_state.st_ino)
+                _fail("invalid.path", "$", f"{label} must be a real directory")
+            identity = (root_state.st_dev, root_state.st_ino)
+            if expected_identity is not None and identity != expected_identity:
+                raise MemberSourceError(
+                    f"{label} does not match its expected device and inode identity"
+                )
+            self._identity = identity
         finally:
             os.close(descriptor)
-        self.root = unresolved
+        self.path = unresolved
+        self._label = label
 
     @staticmethod
     def _open_flags(*, directory: bool = False) -> int:
@@ -1224,12 +1261,566 @@ class LocalMemberSource:
             flags |= os.O_DIRECTORY
         return flags
 
-    def _open_root(self) -> int:
+    def _open_pinned(self) -> int:
         try:
-            descriptor = os.open(self.root, self._open_flags(directory=True))
+            descriptor = os.open(self.path, self._open_flags(directory=True))
         except OSError as error:
             if error.errno in (errno.ELOOP, errno.ENOTDIR):
+                _fail("invalid.path", "$", f"{self._label} must be a real directory")
+            raise MemberSourceError(
+                f"cannot open {self._label} {self.path}: {error}"
+            ) from error
+        try:
+            state = os.fstat(descriptor)
+        except BaseException:
+            os.close(descriptor)
+            raise
+        if (state.st_dev, state.st_ino) != self._identity:
+            os.close(descriptor)
+            raise MemberSourceError(f"{self._label} changed after it was pinned")
+        return descriptor
+
+    @staticmethod
+    def _open_relative(
+        directory_fd: int, name: str, *, directory: bool, path: str
+    ) -> int:
+        try:
+            return os.open(
+                name,
+                PinnedLocalDirectory._open_flags(directory=directory),
+                dir_fd=directory_fd,
+            )
+        except FileNotFoundError as error:
+            raise MemberNotFoundError(path) from error
+        except OSError as error:
+            if error.errno == errno.ELOOP:
+                _fail("invalid.path", path, "member path traverses a symbolic link")
+            if directory and error.errno == errno.ENOTDIR:
+                _fail("invalid.path", path, "member path traverses a non-directory")
+            raise MemberSourceError(
+                f"cannot open artifact member {path}: {error}"
+            ) from error
+
+    def _open_child(self, child_key: str) -> int:
+        descriptor = self._open_pinned()
+        parts = child_key.split("/")
+        try:
+            for index, part in enumerate(parts):
+                child_fd = self._open_relative(
+                    descriptor,
+                    part,
+                    directory=True,
+                    path="/".join(parts[: index + 1]),
+                )
+                os.close(descriptor)
+                descriptor = child_fd
+            return descriptor
+        except BaseException:
+            os.close(descriptor)
+            raise
+
+    def member_source(self, child_key: str) -> LocalMemberSource:
+        """Return an artifact reader rooted at one pinned relative child."""
+
+        return LocalMemberSource._from_pinned_parent(self, child_key)
+
+    def blob_source(self, child_key: str) -> LocalBlobSource:
+        """Return a content-addressed blob reader at one pinned relative child."""
+
+        return LocalBlobSource._from_member_source(self.member_source(child_key))
+
+    def move_child_directory_no_replace(
+        self,
+        source_name: str,
+        destination_parent: PinnedLocalDirectory,
+        destination_name: str,
+        *,
+        expected_source_identity: tuple[int, int] | None = None,
+    ) -> None:
+        """Move one real child directory through a kernel no-replace rename."""
+
+        _move_pinned_child_directory_no_replace(
+            self,
+            source_name,
+            destination_parent,
+            destination_name,
+            expected_source_identity=expected_source_identity,
+        )
+
+    def publish_child_directory_no_replace(
+        self,
+        source_name: str,
+        destination_parent: PinnedLocalDirectory,
+        destination_name: str,
+        *,
+        expected_source_identity: tuple[int, int] | None = None,
+        wait_for_lock: bool = False,
+    ) -> None:
+        """Durably publish one real child directory without replacement."""
+
+        _publish_pinned_child_directory_no_replace(
+            self,
+            source_name,
+            destination_parent,
+            destination_name,
+            expected_source_identity=expected_source_identity,
+            wait_for_lock=wait_for_lock,
+        )
+
+
+def _local_child_name(value: str, *, label: str) -> str:
+    if (
+        not value
+        or value in {".", ".."}
+        or "/" in value
+        or "\\" in value
+        or "\x00" in value
+        or (len(value) >= 2 and value[1] == ":")
+    ):
+        raise ValueError(f"{label} must be one portable child name")
+    return value
+
+
+def _open_pinned_parent_pair(
+    source_parent: PinnedLocalDirectory,
+    destination_parent: PinnedLocalDirectory,
+) -> tuple[int, int]:
+    source_parent_fd = source_parent._open_pinned()
+    try:
+        destination_parent_fd = destination_parent._open_pinned()
+    except BaseException:
+        os.close(source_parent_fd)
+        raise
+    if os.fstat(source_parent_fd).st_dev != os.fstat(destination_parent_fd).st_dev:
+        os.close(source_parent_fd)
+        os.close(destination_parent_fd)
+        raise OSError(
+            errno.EXDEV,
+            "publication source and destination use different filesystems",
+        )
+    return source_parent_fd, destination_parent_fd
+
+
+def _require_local_directory_descriptor(descriptor: int, *, label: str) -> os.stat_result:
+    try:
+        state = os.fstat(descriptor)
+    except OSError as error:
+        raise MemberSourceError(f"cannot inspect {label}: {error}") from error
+    if not stat.S_ISDIR(state.st_mode):
+        raise MemberSourceError(f"{label} must be an open directory descriptor")
+    return state
+
+
+def _open_pinned_child_directory(
+    parent_fd: int,
+    name: str,
+    *,
+    expected_identity: tuple[int, int] | None,
+) -> tuple[int, tuple[int, int]]:
+    descriptor = PinnedLocalDirectory._open_relative(
+        parent_fd,
+        name,
+        directory=True,
+        path=name,
+    )
+    try:
+        state = os.fstat(descriptor)
+        identity = (state.st_dev, state.st_ino)
+        if expected_identity is not None and identity != expected_identity:
+            raise MemberSourceError("publication source changed after it was pinned")
+        return descriptor, identity
+    except BaseException:
+        os.close(descriptor)
+        raise
+
+
+def _require_absent_local_child(parent_fd: int, name: str) -> None:
+    try:
+        os.stat(name, dir_fd=parent_fd, follow_symlinks=False)
+    except FileNotFoundError:
+        return
+    raise FileExistsError(
+        errno.EEXIST,
+        "immutable publication destination already exists",
+        name,
+    )
+
+
+def _require_published_local_identity(
+    parent_fd: int,
+    name: str,
+    expected_identity: tuple[int, int],
+) -> None:
+    try:
+        state = os.stat(name, dir_fd=parent_fd, follow_symlinks=False)
+    except OSError as error:
+        raise MemberSourceError("published directory is unavailable") from error
+    if not stat.S_ISDIR(state.st_mode) or (state.st_dev, state.st_ino) != expected_identity:
+        raise MemberSourceError("published directory changed during publication")
+
+
+def _move_pinned_child_directory_no_replace(
+    source_parent: PinnedLocalDirectory,
+    source_name: str,
+    destination_parent: PinnedLocalDirectory,
+    destination_name: str,
+    *,
+    expected_source_identity: tuple[int, int] | None,
+) -> None:
+    source_parent_fd, destination_parent_fd = _open_pinned_parent_pair(
+        source_parent,
+        destination_parent,
+    )
+    try:
+        move_child_directory_no_replace(
+            source_parent_fd,
+            destination_parent_fd,
+            source_name,
+            destination_name,
+            expected_source_identity=expected_source_identity,
+        )
+    finally:
+        os.close(source_parent_fd)
+        os.close(destination_parent_fd)
+
+
+def _publish_pinned_child_directory_no_replace(
+    source_parent: PinnedLocalDirectory,
+    source_name: str,
+    destination_parent: PinnedLocalDirectory,
+    destination_name: str,
+    *,
+    expected_source_identity: tuple[int, int] | None,
+    wait_for_lock: bool = False,
+) -> None:
+    source_parent_fd, destination_parent_fd = _open_pinned_parent_pair(
+        source_parent,
+        destination_parent,
+    )
+    try:
+        publish_child_directory_no_replace(
+            source_parent_fd,
+            destination_parent_fd,
+            source_name,
+            destination_name,
+            expected_source_identity=expected_source_identity,
+            wait_for_lock=wait_for_lock,
+        )
+    finally:
+        os.close(source_parent_fd)
+        os.close(destination_parent_fd)
+
+
+def move_child_directory_no_replace(
+    source_parent_fd: int,
+    destination_parent_fd: int,
+    source_name: str,
+    destination_name: str,
+    *,
+    expected_source_identity: tuple[int, int] | None = None,
+) -> None:
+    """Move one child directory relative to already-pinned parent descriptors."""
+
+    selected_source = _local_child_name(source_name, label="publication source")
+    selected_destination = _local_child_name(
+        destination_name,
+        label="publication destination",
+    )
+    source_parent_state = _require_local_directory_descriptor(
+        source_parent_fd,
+        label="publication source parent",
+    )
+    destination_parent_state = _require_local_directory_descriptor(
+        destination_parent_fd,
+        label="publication destination parent",
+    )
+    if source_parent_state.st_dev != destination_parent_state.st_dev:
+        raise OSError(
+            errno.EXDEV,
+            "publication source and destination use different filesystems",
+        )
+    if (
+        source_parent_state.st_dev == destination_parent_state.st_dev
+        and source_parent_state.st_ino == destination_parent_state.st_ino
+        and selected_source == selected_destination
+    ):
+        raise ValueError("publication source and destination must be distinct")
+    source_fd, source_identity = _open_pinned_child_directory(
+        source_parent_fd,
+        selected_source,
+        expected_identity=expected_source_identity,
+    )
+    try:
+        _require_absent_local_child(destination_parent_fd, selected_destination)
+        _rename_local_directory_no_replace(
+            source_parent_fd,
+            selected_source,
+            destination_parent_fd,
+            selected_destination,
+        )
+        _require_published_local_identity(
+            destination_parent_fd,
+            selected_destination,
+            source_identity,
+        )
+    finally:
+        os.close(source_fd)
+
+
+def publish_child_directory_no_replace(
+    source_parent_fd: int,
+    destination_parent_fd: int,
+    source_name: str,
+    destination_name: str,
+    *,
+    expected_source_identity: tuple[int, int] | None = None,
+    wait_for_lock: bool = False,
+) -> None:
+    """Durably publish a child relative to already-pinned parent descriptors."""
+
+    if fcntl is None:
+        raise OSError(errno.ENOTSUP, "local publication requires POSIX advisory locks")
+    selected_source = _local_child_name(source_name, label="publication source")
+    selected_destination = _local_child_name(
+        destination_name,
+        label="publication destination",
+    )
+    source_parent_state = _require_local_directory_descriptor(
+        source_parent_fd,
+        label="publication source parent",
+    )
+    destination_parent_state = _require_local_directory_descriptor(
+        destination_parent_fd,
+        label="publication destination parent",
+    )
+    if source_parent_state.st_dev != destination_parent_state.st_dev:
+        raise OSError(
+            errno.EXDEV,
+            "publication source and destination use different filesystems",
+        )
+    if (
+        source_parent_state.st_ino == destination_parent_state.st_ino
+        and selected_source == selected_destination
+    ):
+        raise ValueError("publication source and destination must be distinct")
+    lock_fd = os.open(
+        ".",
+        PinnedLocalDirectory._open_flags(directory=True),
+        dir_fd=destination_parent_fd,
+    )
+    source_fd: int | None = None
+    locked = False
+    try:
+        try:
+            lock_operation = fcntl.LOCK_EX
+            if not wait_for_lock:
+                lock_operation |= fcntl.LOCK_NB
+            fcntl.flock(lock_fd, lock_operation)
+        except BlockingIOError as error:
+            raise BlockingIOError(
+                errno.EWOULDBLOCK,
+                "immutable publication destination is locked",
+                selected_destination,
+            ) from error
+        locked = True
+        source_fd, source_identity = _open_pinned_child_directory(
+            source_parent_fd,
+            selected_source,
+            expected_identity=expected_source_identity,
+        )
+        _require_absent_local_child(destination_parent_fd, selected_destination)
+        _sync_local_tree(source_fd, path=selected_source)
+        _rename_local_directory_no_replace(
+            source_parent_fd,
+            selected_source,
+            destination_parent_fd,
+            selected_destination,
+        )
+        _require_published_local_identity(
+            destination_parent_fd,
+            selected_destination,
+            source_identity,
+        )
+        os.fsync(source_parent_fd)
+        os.fsync(destination_parent_fd)
+    finally:
+        if source_fd is not None:
+            os.close(source_fd)
+        if locked:
+            fcntl.flock(lock_fd, fcntl.LOCK_UN)
+        os.close(lock_fd)
+
+
+def _sync_local_tree(directory_fd: int, *, path: str) -> None:
+    """Durably sync one real directory tree through no-follow descriptors."""
+
+    try:
+        entries = os.scandir(directory_fd)
+    except OSError as error:
+        raise MemberSourceError(f"cannot inspect publication tree {path}: {error}") from error
+    with entries:
+        for entry in entries:
+            child_path = f"{path}/{entry.name}"
+            try:
+                state = entry.stat(follow_symlinks=False)
+            except OSError as error:
+                raise MemberSourceError(
+                    f"cannot inspect publication member {child_path}: {error}"
+                ) from error
+            if stat.S_ISLNK(state.st_mode):
+                _fail("invalid.path", child_path, "publication tree contains a symbolic link")
+            if stat.S_ISDIR(state.st_mode):
+                child_fd = PinnedLocalDirectory._open_relative(
+                    directory_fd,
+                    entry.name,
+                    directory=True,
+                    path=child_path,
+                )
+                try:
+                    _sync_local_tree(child_fd, path=child_path)
+                finally:
+                    os.close(child_fd)
+                continue
+            if not stat.S_ISREG(state.st_mode):
+                _fail("invalid.path", child_path, "publication tree contains a special file")
+            member_fd = PinnedLocalDirectory._open_relative(
+                directory_fd,
+                entry.name,
+                directory=False,
+                path=child_path,
+            )
+            try:
+                os.fsync(member_fd)
+            finally:
+                os.close(member_fd)
+    os.fsync(directory_fd)
+
+
+def _rename_local_directory_no_replace(
+    source_parent_fd: int,
+    source_name: str,
+    destination_parent_fd: int,
+    destination_name: str,
+) -> None:
+    """Use the host kernel's atomic no-replace directory rename."""
+
+    libc = ctypes.CDLL(None, use_errno=True)
+    source_bytes = os.fsencode(source_name)
+    destination_bytes = os.fsencode(destination_name)
+    if sys.platform == "darwin" and hasattr(libc, "renameatx_np"):
+        rename = libc.renameatx_np
+        rename.argtypes = (
+            ctypes.c_int,
+            ctypes.c_char_p,
+            ctypes.c_int,
+            ctypes.c_char_p,
+            ctypes.c_uint,
+        )
+        rename.restype = ctypes.c_int
+        # RENAME_EXCL | RENAME_NOFOLLOW_ANY
+        result = rename(
+            source_parent_fd,
+            source_bytes,
+            destination_parent_fd,
+            destination_bytes,
+            0x4 | 0x10,
+        )
+    elif sys.platform.startswith("linux") and hasattr(libc, "renameat2"):
+        rename = libc.renameat2
+        rename.argtypes = (
+            ctypes.c_int,
+            ctypes.c_char_p,
+            ctypes.c_int,
+            ctypes.c_char_p,
+            ctypes.c_uint,
+        )
+        rename.restype = ctypes.c_int
+        result = rename(
+            source_parent_fd,
+            source_bytes,
+            destination_parent_fd,
+            destination_bytes,
+            1,  # RENAME_NOREPLACE
+        )
+    else:
+        raise OSError(
+            errno.ENOTSUP,
+            "local publication requires an atomic no-replace directory rename",
+        )
+    if result == 0:
+        return
+    error_number = ctypes.get_errno()
+    if error_number in {errno.EEXIST, errno.ENOTEMPTY}:
+        raise FileExistsError(
+            error_number,
+            "immutable publication destination already exists",
+            destination_name,
+        )
+    raise OSError(error_number, os.strerror(error_number), destination_name)
+
+
+def publish_directory_no_replace(source: Path, destination: Path) -> None:
+    """Durably publish one same-filesystem directory without replacement.
+
+    An advisory lock on the pinned destination parent coordinates cooperative
+    local writers. The operating system releases it after process death, and
+    no sentinel pathname can poison a retry. The kernel rename remains the
+    no-replace authority.
+    """
+
+    selected_source = Path(source).absolute()
+    selected_destination = Path(destination).absolute()
+    if selected_source == selected_destination:
+        raise ValueError("publication source and destination must be distinct")
+
+    source_parent = PinnedLocalDirectory(selected_source.parent)
+    destination_parent = PinnedLocalDirectory(selected_destination.parent)
+    source_parent.publish_child_directory_no_replace(
+        selected_source.name,
+        destination_parent,
+        selected_destination.name,
+    )
+
+
+class LocalMemberSource:
+    """Read one materialized artifact directory without following links."""
+
+    _open_relative = staticmethod(PinnedLocalDirectory._open_relative)
+
+    def __init__(self, root: Path) -> None:
+        self._parent = PinnedLocalDirectory._artifact_root(root)
+        self._child_key: str | None = None
+        self._root_identity = self._parent._identity
+        self.root = self._parent.path
+
+    @classmethod
+    def _from_pinned_parent(
+        cls, parent: PinnedLocalDirectory, child_key: str
+    ) -> Self:
+        selected = validate_object_key(child_key, path="childKey")
+        source = cls.__new__(cls)
+        source._parent = parent
+        source._child_key = selected
+        source.root = parent.path.joinpath(*selected.split("/"))
+        try:
+            descriptor = parent._open_child(selected)
+        except MemberNotFoundError as error:
+            _fail("invalid.path", "$", f"artifact root is unavailable: {error}")
+        try:
+            state = os.fstat(descriptor)
+            if not stat.S_ISDIR(state.st_mode):
                 _fail("invalid.path", "$", "artifact root must be a real directory")
+            source._root_identity = (state.st_dev, state.st_ino)
+        finally:
+            os.close(descriptor)
+        return source
+
+    def _open_root(self) -> int:
+        if self._child_key is None:
+            return self._parent._open_pinned()
+        try:
+            descriptor = self._parent._open_child(self._child_key)
+        except MemberNotFoundError as error:
             raise MemberSourceError(
                 f"cannot open artifact root {self.root}: {error}"
             ) from error
@@ -1244,27 +1835,6 @@ class LocalMemberSource:
                 "artifact root changed after the member source was created"
             )
         return descriptor
-
-    @staticmethod
-    def _open_relative(
-        directory_fd: int, name: str, *, directory: bool, path: str
-    ) -> int:
-        try:
-            return os.open(
-                name,
-                LocalMemberSource._open_flags(directory=directory),
-                dir_fd=directory_fd,
-            )
-        except FileNotFoundError as error:
-            raise MemberNotFoundError(path) from error
-        except OSError as error:
-            if error.errno == errno.ELOOP:
-                _fail("invalid.path", path, "member path traverses a symbolic link")
-            if directory and error.errno == errno.ENOTDIR:
-                _fail("invalid.path", path, "member path traverses a non-directory")
-            raise MemberSourceError(
-                f"cannot open artifact member {path}: {error}"
-            ) from error
 
     def keys(self) -> Iterator[str]:
         def visit(directory_fd: int, prefix: tuple[str, ...]) -> Iterator[str]:
@@ -1373,10 +1943,26 @@ class LocalBlobSource:
     def __init__(self, root: Path) -> None:
         self._source = LocalMemberSource(root)
 
+    @classmethod
+    def _from_member_source(cls, source: LocalMemberSource) -> Self:
+        blob_source = cls.__new__(cls)
+        blob_source._source = source
+        return blob_source
+
     @contextmanager
     def open(self, blob_ref: str) -> Iterator[BinaryIO]:
         selected = _digest(blob_ref, path="blobRef")
         with self._source.open(f"sha256/{selected.removeprefix('sha256:')}") as stream:
+            digest = hashlib.sha256()
+            while block := stream.read(DEFAULT_READ_CHUNK_BYTES):
+                digest.update(block)
+            if "sha256:" + digest.hexdigest() != selected:
+                _fail(
+                    "invalid.member-digest",
+                    selected,
+                    "local blob bytes differ from their content address",
+                )
+            stream.seek(0)
             yield stream
 
 
@@ -2542,6 +3128,7 @@ __all__ = [
     "MemberNotFoundError",
     "MemberSource",
     "MemberSourceError",
+    "PinnedLocalDirectory",
     "Producer",
     "ReceiptMemberSource",
     "SemanticVerifier",
@@ -2559,7 +3146,10 @@ __all__ = [
     "expected_logical_id",
     "framed_section_digest",
     "iter_member_descriptors",
+    "move_child_directory_no_replace",
     "parse_canonical_json",
+    "publish_child_directory_no_replace",
+    "publish_directory_no_replace",
     "schema_bundle_digest",
     "sha256_digest",
     "stamp_root",

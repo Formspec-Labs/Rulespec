@@ -17,11 +17,15 @@ CARGO_MANIFEST = --manifest-path crates/Cargo.toml
 # targets other than cue-vet). Run tools/install-cue.sh once to populate it.
 CUE           = .tools/cue
 
-.PHONY: all help build build-runtime-cli test test-rust test-shapes test-reference-corpora test-audits test-conformance test-package clean compile cue-vet
+.PHONY: all help build build-runtime-cli test test-rust test-shapes test-reference-corpora test-audits test-conformance test-package test-package-artifacts test-package-conformance test-artifact-encoder-compat clean compile cue-vet
 
-# Scratch venv for test-package. Outside the tree so the packaged validator is
-# exercised with no checkout in reach.
-PACKAGE_CHECK_DIR = $(shell printf '%s' "$${TMPDIR:-/tmp}")rulespec-package-check
+# Scratch venvs for installed-wheel checks. Each stays outside the tree so no
+# source checkout can satisfy an import. Keeping the artifact-only environment
+# separate also proves its dependency closure excludes the graph stack.
+ARTIFACT_PACKAGE_CHECK_DIR = $(shell printf '%s' "$${TMPDIR:-/tmp}")rulespec-artifact-package-check
+CONFORMANCE_PACKAGE_CHECK_DIR = $(shell printf '%s' "$${TMPDIR:-/tmp}")rulespec-conformance-package-check
+ARTIFACT_WHEEL_GLOB = dist/artifacts/rulespec_artifacts-*.whl
+PREVIOUS_ARTIFACT_WHEEL ?=
 
 all: build
 
@@ -35,7 +39,10 @@ help:
 	@echo "  make test-reference-corpora — validate shipped reference-corpus JSON-LD"
 	@echo "  make test-audits        — vocab, coverage, rename, constraints-parity, projector-parity, version-sync, semantic carriers"
 	@echo "  make test-conformance   — L1-L4 report plus L0 carrier-mapping audit"
-	@echo "  make test-package       — build the wheel and run it outside the checkout"
+	@echo "  make test-package       — run both installed-wheel checks outside the checkout"
+	@echo "  make test-package-artifacts — prove the artifact-only wheel and dependency closure"
+	@echo "  make test-package-conformance — prove the full graph validator wheel"
+	@echo "  make test-artifact-encoder-compat PREVIOUS_ARTIFACT_WHEEL=... — compare release encoders"
 	@echo "  make cue-vet            — validate CUE source syntax (requires tools/install-cue.sh)"
 	@echo "  make compile            — regenerate JSON Schema + Rust + SHACL + TS from CUE"
 	@echo "  make clean              — cargo clean"
@@ -57,30 +64,36 @@ build-runtime-cli:
 
 test: test-rust test-shapes test-audits test-conformance test-package
 
-# The distribution's claim is that a consumer needs no checkout. Only building
-# the wheel and running it from an empty environment outside the repository can
-# falsify it: a data directory left out of `force-include`, or a `compiled/`
-# tree that was never generated, fails here and in no other target.
-#
-# The last lines exercise the contract surface a consumer imports rather than runs:
-# schemas, SHACL and context resolved through `importlib.resources`, every enum
-# constant re-checked against the schema packaged beside it, and the term
-# registry answering for a term it declares and refusing one it retired, plus
-# the one platform artifact implementation and its common structural fixtures.
-test-package:
-	rm -rf dist "$(PACKAGE_CHECK_DIR)"
+# The artifact wheel and graph validator use separate environments. Installing
+# both together cannot prove that an artifact-only consumer avoids RDF/SHACL.
+test-package: test-package-conformance
+
+test-package-artifacts:
+	rm -rf dist/artifacts "$(ARTIFACT_PACKAGE_CHECK_DIR)"
 	uv run --project packages/rulespec-artifacts python -m unittest discover -s packages/rulespec-artifacts/tests -p 'test_*.py'
 	uv build --project packages/rulespec-artifacts --wheel --out-dir dist/artifacts
-	uv build --wheel
-	uv venv --python 3.12 "$(PACKAGE_CHECK_DIR)"
-	VIRTUAL_ENV="$(PACKAGE_CHECK_DIR)" uv pip install --quiet dist/artifacts/*.whl dist/*.whl
-	cd "$(PACKAGE_CHECK_DIR)" && ./bin/rulespec-ci-validate
-	cd "$(PACKAGE_CHECK_DIR)" && ./bin/python -m rulespec_conformance.contract
-	cd "$(PACKAGE_CHECK_DIR)" && ./bin/python -c 'from importlib.metadata import requires; import rulespec_artifacts as p; from rulespec_artifacts import resources; assert p.FORMAT == "spicy-artifact"; assert not requires("rulespec-artifacts"); assert resources.platform_artifact_spec(); assert resources.fixture_corpus()["cases"]; assert resources.fixture("valid").is_dir()'
-	cd "$(PACKAGE_CHECK_DIR)" && ./bin/python -c 'from pathlib import Path; from rulespec_artifacts import LocalMemberSource, verify_artifact; from rulespec_artifacts import resources; corpus=resources.fixture_corpus(); observed={case["name"]: verify_artifact(LocalMemberSource(Path(str(resources.fixture(case["name"]))))).code for case in corpus["cases"]}; assert observed == {case["name"]: case["expectedCode"] for case in corpus["cases"]}'
-	cd "$(PACKAGE_CHECK_DIR)" && ./bin/python -c 'import importlib.util; from importlib.metadata import entry_points; assert importlib.util.find_spec("rulespec_conformance.source_catalog_release") is None; assert importlib.util.find_spec("rulespec_conformance.document_release") is None; names = {item.name for item in entry_points(group="console_scripts")}; assert "rulespec-source-catalog-validate" not in names; assert "rulespec-document-validate" not in names'
-	cd "$(PACKAGE_CHECK_DIR)" && ./bin/python -c 'import tempfile; from pathlib import Path; from rulespec_artifacts import LocalMemberSource, Producer, ROOT_OBJECT_KEY, admit_artifact, build_artifact_root, canonical_json_bytes; temporary=tempfile.TemporaryDirectory(); root=Path(temporary.name); producer=Producer("test-product", "git:https://example.test/product@" + "1" * 40, "urn:test:verifier", "1", "pkg:pypi/rulespec-artifacts@1.0.0?checksum=sha256:" + "2" * 64); artifact=build_artifact_root(kind="unknown-test-kind", spec={"fixture": "1"}, producer=producer); (root / ROOT_OBJECT_KEY).write_bytes(canonical_json_bytes(artifact)); admitted=admit_artifact(LocalMemberSource(root)); assert admitted.root == artifact; temporary.cleanup()'
-	rm -rf "$(PACKAGE_CHECK_DIR)"
+	uv venv --python 3.12 "$(ARTIFACT_PACKAGE_CHECK_DIR)"
+	VIRTUAL_ENV="$(ARTIFACT_PACKAGE_CHECK_DIR)" uv pip install --quiet $(ARTIFACT_WHEEL_GLOB)
+	cd "$(ARTIFACT_PACKAGE_CHECK_DIR)" && ./bin/python -c 'import importlib.util; import rulespec_artifacts as package; from importlib.metadata import distributions, requires, version; excluded={"rdfcanon", "rdflib", "pyshacl"}; installed={item.metadata["Name"].lower() for item in distributions() if item.metadata["Name"]}; assert version("rulespec-artifacts") == package.__version__; assert not requires("rulespec-artifacts"); assert not installed & excluded; assert all(importlib.util.find_spec(name) is None for name in excluded)'
+	cd "$(ARTIFACT_PACKAGE_CHECK_DIR)" && ./bin/python -c 'import rulespec_artifacts as p; from rulespec_artifacts import resources; assert p.FORMAT == "spicy-artifact"; assert resources.platform_artifact_spec(); assert resources.fixture_corpus()["cases"]; assert resources.canonical_json_corpus()["encodeAccepted"]; assert resources.fixture("valid").is_dir()'
+	cd "$(ARTIFACT_PACKAGE_CHECK_DIR)" && ./bin/python "$(CURDIR)/packages/rulespec-artifacts/tests/canonical_corpus_runner.py"
+	cd "$(ARTIFACT_PACKAGE_CHECK_DIR)" && ./bin/python -c 'from pathlib import Path; from rulespec_artifacts import LocalMemberSource, verify_artifact; from rulespec_artifacts import resources; corpus=resources.fixture_corpus(); observed={case["name"]: verify_artifact(LocalMemberSource(Path(str(resources.fixture(case["name"]))))).code for case in corpus["cases"]}; assert observed == {case["name"]: case["expectedCode"] for case in corpus["cases"]}'
+	cd "$(ARTIFACT_PACKAGE_CHECK_DIR)" && ./bin/python -c 'import tempfile; import rulespec_artifacts as package; from pathlib import Path; from rulespec_artifacts import LocalMemberSource, Producer, ROOT_OBJECT_KEY, admit_artifact, build_artifact_root, canonical_json_bytes; temporary=tempfile.TemporaryDirectory(); root=Path(temporary.name); producer=Producer("test-product", "git:https://example.test/product@" + "1" * 40, "urn:test:verifier", "1", f"pkg:pypi/rulespec-artifacts@{package.__version__}?checksum=sha256:" + "2" * 64); artifact=build_artifact_root(kind="unknown-test-kind", spec={"fixture": "1"}, producer=producer); (root / ROOT_OBJECT_KEY).write_bytes(canonical_json_bytes(artifact)); admitted=admit_artifact(LocalMemberSource(root)); assert admitted.root == artifact; temporary.cleanup()'
+	rm -rf "$(ARTIFACT_PACKAGE_CHECK_DIR)"
+
+test-package-conformance: test-package-artifacts
+	rm -rf dist/conformance "$(CONFORMANCE_PACKAGE_CHECK_DIR)"
+	uv build --wheel --out-dir dist/conformance
+	uv venv --python 3.12 "$(CONFORMANCE_PACKAGE_CHECK_DIR)"
+	VIRTUAL_ENV="$(CONFORMANCE_PACKAGE_CHECK_DIR)" uv pip install --quiet $(ARTIFACT_WHEEL_GLOB) dist/conformance/*.whl
+	cd "$(CONFORMANCE_PACKAGE_CHECK_DIR)" && ./bin/rulespec-ci-validate
+	cd "$(CONFORMANCE_PACKAGE_CHECK_DIR)" && ./bin/python -m rulespec_conformance.contract
+	cd "$(CONFORMANCE_PACKAGE_CHECK_DIR)" && ./bin/python -c 'import importlib.util; from importlib.metadata import entry_points; assert importlib.util.find_spec("rulespec_conformance.source_catalog_release") is None; assert importlib.util.find_spec("rulespec_conformance.document_release") is None; names = {item.name for item in entry_points(group="console_scripts")}; assert "rulespec-source-catalog-validate" not in names; assert "rulespec-document-validate" not in names'
+	rm -rf "$(CONFORMANCE_PACKAGE_CHECK_DIR)"
+
+test-artifact-encoder-compat: test-package-artifacts
+	test -n "$(PREVIOUS_ARTIFACT_WHEEL)"
+	uv run --no-project --python 3.12 python tools/compare_artifact_encoders.py --previous-wheel "$(PREVIOUS_ARTIFACT_WHEEL)" --candidate-wheel $(ARTIFACT_WHEEL_GLOB)
 
 test-rust:
 	$(CARGO) test $(CARGO_MANIFEST) --workspace
