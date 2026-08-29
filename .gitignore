@@ -39,4 +39,3 @@ compiled/
 crates/target/
 node_modules/
 
-uv.lock
