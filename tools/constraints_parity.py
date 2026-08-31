@@ -150,14 +150,33 @@ FIXTURE_BINDINGS: list[tuple[str, str, str, str]] = [
     ("artifact", "Artifact",
      "fixtures/negatives/artifact-us-cfr-malformed-negative.jsonld", "PASS"),
     ("artifact", "Artifact",
+     "fixtures/negatives/artifact-us-cfr-uppercase-part-negative.jsonld", "PASS"),
+    ("artifact", "Artifact",
+     "fixtures/negatives/artifact-us-cfr-multiletter-part-negative.jsonld", "PASS"),
+    ("artifact", "Artifact",
+     "fixtures/negatives/artifact-us-frdoc-malformed-negative.jsonld", "PASS"),
+    ("artifact", "Artifact",
+     "fixtures/negatives/artifact-us-frdoc-oversize-sequence-negative.jsonld", "PASS"),
+    ("artifact", "Artifact",
+     "fixtures/negatives/artifact-us-frdoc-short-year-negative.jsonld", "PASS"),
+    ("artifact", "Artifact",
+     "fixtures/negatives/artifact-us-frdoc-legacy-year-negative.jsonld", "PASS"),
+    ("artifact", "Artifact",
      "fixtures/negatives/artifact-regulatory-scheme-unregistered-negative.jsonld",
      "PASS"),
     # US regulatory identity now lives in the profile overlay, which composes
     # the kernel #Artifact. Every US fixture is classified by the PROFILE.
     ("us-regulatory-artifact", "USRegulatoryArtifact", "fixtures/artifact-eli-positive.jsonld", "PASS"),
     ("us-regulatory-artifact", "USRegulatoryArtifact", "fixtures/artifact-us-cfr-positive.jsonld", "PASS"),
+    # A CFR part may carry a single lowercase letter (83 real parts) or a
+    # hyphen-number suffix (189 real parts, every one of them in title 41).
+    ("us-regulatory-artifact", "USRegulatoryArtifact", "fixtures/artifact-us-cfr-lettered-part-positive.jsonld", "PASS"),
+    ("us-regulatory-artifact", "USRegulatoryArtifact", "fixtures/artifact-us-cfr-hyphen-part-positive.jsonld", "PASS"),
     ("us-regulatory-artifact", "USRegulatoryArtifact", "fixtures/artifact-us-usc-positive.jsonld", "PASS"),
     ("us-regulatory-artifact", "USRegulatoryArtifact", "fixtures/artifact-us-frdoc-positive.jsonld", "PASS"),
+    # The three- and four-digit sequences of the 2010-2013 era: 28,862 real
+    # documents that the five-digit-only grammar could not spell.
+    ("us-regulatory-artifact", "USRegulatoryArtifact", "fixtures/artifact-us-frdoc-short-tail-positive.jsonld", "PASS"),
     ("us-regulatory-artifact", "USRegulatoryArtifact", "fixtures/artifact-us-regsgov-positive.jsonld", "PASS"),
     ("us-regulatory-artifact", "USRegulatoryArtifact", "fixtures/artifact-us-pl-positive.jsonld", "PASS"),
     ("us-regulatory-artifact", "USRegulatoryArtifact", "fixtures/artifact-us-eo-positive.jsonld", "PASS"),
@@ -171,8 +190,21 @@ FIXTURE_BINDINGS: list[tuple[str, str, str, str]] = [
     ("us-regulatory-artifact", "USRegulatoryArtifact", "fixtures/negatives/artifact-regulatory-identifier-missing-scheme-negative.jsonld", "FAIL"),
     ("us-regulatory-artifact", "USRegulatoryArtifact", "fixtures/negatives/artifact-regulatory-scheme-missing-identifier-negative.jsonld", "FAIL"),
     ("us-regulatory-artifact", "USRegulatoryArtifact", "fixtures/negatives/artifact-us-cfr-malformed-negative.jsonld", "FAIL"),
+    # The part alphabet is lowercase-only and single-letter-only. 26 CFR 16A is
+    # a real part published uppercase; the normalized citation is 26:16a, so
+    # the uppercase spelling is not a second identifier for it. No multi-letter
+    # part suffix exists anywhere in the index, so 15ab names nothing.
+    ("us-regulatory-artifact", "USRegulatoryArtifact", "fixtures/negatives/artifact-us-cfr-uppercase-part-negative.jsonld", "FAIL"),
+    ("us-regulatory-artifact", "USRegulatoryArtifact", "fixtures/negatives/artifact-us-cfr-multiletter-part-negative.jsonld", "FAIL"),
     ("us-regulatory-artifact", "USRegulatoryArtifact", "fixtures/negatives/artifact-us-usc-malformed-negative.jsonld", "FAIL"),
+    # The three boundaries of the widened frdoc sequence, each pinned by a real
+    # measurement: 286 modern values sit below the three-digit floor, zero reach
+    # a six-digit tail, and the two-digit-year legacy family (94-120124 is a
+    # real document) stays outside the space at every width.
     ("us-regulatory-artifact", "USRegulatoryArtifact", "fixtures/negatives/artifact-us-frdoc-malformed-negative.jsonld", "FAIL"),
+    ("us-regulatory-artifact", "USRegulatoryArtifact", "fixtures/negatives/artifact-us-frdoc-oversize-sequence-negative.jsonld", "FAIL"),
+    ("us-regulatory-artifact", "USRegulatoryArtifact", "fixtures/negatives/artifact-us-frdoc-short-year-negative.jsonld", "FAIL"),
+    ("us-regulatory-artifact", "USRegulatoryArtifact", "fixtures/negatives/artifact-us-frdoc-legacy-year-negative.jsonld", "FAIL"),
     ("us-regulatory-artifact", "USRegulatoryArtifact", "fixtures/negatives/artifact-us-regsgov-malformed-negative.jsonld", "FAIL"),
     ("us-regulatory-artifact", "USRegulatoryArtifact", "fixtures/negatives/artifact-us-pl-malformed-negative.jsonld", "FAIL"),
     ("us-regulatory-artifact", "USRegulatoryArtifact", "fixtures/negatives/artifact-us-eo-malformed-negative.jsonld", "FAIL"),

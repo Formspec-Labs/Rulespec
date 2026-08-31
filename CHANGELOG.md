@@ -125,8 +125,10 @@ adapted for a specification + shape + fixture project.
   re-examined and kept: the authoritative 46,547-RIN roster has zero values
   outside it, and the only published format statement found anywhere — the
   Fish and Wildlife Service handbook's "two letters followed by two numbers" —
-  is exactly what the production says. `rulemaking.cue` now records that the
-  narrowness is a decision rather than an omission.
+  is exactly what the production says. Widening it would move the contract away
+  from the only documented format and delete a consumer tripwire that is
+  currently doing its job, so all three RIN-touching CUE sites
+  (`rulemaking.cue` lines 42, 55, and the 92 lookaside) are untouched.
 
 ### Removed
 

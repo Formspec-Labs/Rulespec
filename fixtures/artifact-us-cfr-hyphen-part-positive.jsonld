@@ -1,0 +1,9 @@
+{
+  "@context": "../context/rkaf-context.jsonld",
+  "@id": "urn:rkaf:fixture:artifact:cfr-41-101-1",
+  "@type": "rkaf:Artifact",
+  "rkaf:hasArtifactIdentifier": "https://www.govinfo.gov/app/details/CFR-2024-title41-vol1/CFR-2024-title41-vol1-part101-1",
+  "rkaf:artifactIdentifierScheme": "rkaf:urn-persistent",
+  "rkaf:hasRegulatoryIdentifier": "urn:rkaf:us:cfr:41:101-1",
+  "rkaf:regulatoryIdentifierScheme": "rkaf:us-cfr"
+}

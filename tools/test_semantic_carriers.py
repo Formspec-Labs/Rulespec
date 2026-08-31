@@ -1485,8 +1485,13 @@ class ProfileIsolationCarrierTests(unittest.TestCase):
     # must reject each.
     PROFILE_ONLY_NEGATIVES = (
         "artifact-us-cfr-malformed-negative",
+        "artifact-us-cfr-uppercase-part-negative",
+        "artifact-us-cfr-multiletter-part-negative",
         "artifact-us-usc-malformed-negative",
         "artifact-us-frdoc-malformed-negative",
+        "artifact-us-frdoc-oversize-sequence-negative",
+        "artifact-us-frdoc-short-year-negative",
+        "artifact-us-frdoc-legacy-year-negative",
         "artifact-us-regsgov-malformed-negative",
         "artifact-us-pl-malformed-negative",
         "artifact-us-eo-malformed-negative",

@@ -39,13 +39,13 @@ import "list"
 		"rkaf:regulatoryIdentifierScheme": #USRegulatoryIdentifierScheme
 	}
 	if A["rkaf:regulatoryIdentifierScheme"] == "rkaf:us-cfr" {
-		"rkaf:hasRegulatoryIdentifier": string & =~"^urn:rkaf:us:cfr:[1-9][0-9]*:[0-9]+(\\.[0-9]+[a-z]{0,3}(-[0-9a-z]+)*)?$"
+		"rkaf:hasRegulatoryIdentifier": string & =~"^urn:rkaf:us:cfr:[1-9][0-9]*:[0-9]+([a-z]|-[0-9]+)?(\\.[0-9]+[a-z]{0,3}(-[0-9a-z]+)*)?$"
 	}
 	if A["rkaf:regulatoryIdentifierScheme"] == "rkaf:us-usc" {
 		"rkaf:hasRegulatoryIdentifier": string & =~"^urn:rkaf:us:usc:[1-9][0-9]*:[1-9][0-9]*[a-z]*(-[0-9a-z]+)*$"
 	}
 	if A["rkaf:regulatoryIdentifierScheme"] == "rkaf:us-frdoc" {
-		"rkaf:hasRegulatoryIdentifier": string & =~"^urn:rkaf:us:frdoc:[0-9]{4}-[0-9]{5}$"
+		"rkaf:hasRegulatoryIdentifier": string & =~"^urn:rkaf:us:frdoc:[0-9]{4}-[0-9]{3,5}$"
 	}
 	if A["rkaf:regulatoryIdentifierScheme"] == "rkaf:us-regsgov" {
 		"rkaf:hasRegulatoryIdentifier": string & =~"^urn:rkaf:us:regsgov:[A-Z0-9]+([-_][A-Z0-9]+)*$"

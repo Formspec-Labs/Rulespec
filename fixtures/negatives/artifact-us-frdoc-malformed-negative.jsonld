@@ -4,6 +4,6 @@
   "@type": "rkaf:Artifact",
   "rkaf:hasArtifactIdentifier": "urn:rkaf:fixture:snapshot:artifact-us-frdoc",
   "rkaf:artifactIdentifierScheme": "rkaf:partner-defined",
-  "rkaf:hasRegulatoryIdentifier": "urn:rkaf:us:frdoc:2024-366",
+  "rkaf:hasRegulatoryIdentifier": "urn:rkaf:us:frdoc:2024-36",
   "rkaf:regulatoryIdentifierScheme": "rkaf:us-frdoc"
 }

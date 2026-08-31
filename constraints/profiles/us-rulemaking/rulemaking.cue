@@ -55,7 +55,7 @@ import (
 	"foaf:primaryTopic":               string & =~"^urn:rkaf:us:rin:[0-9]{4}-[A-Z]{2}[0-9]{2}$"
 	"rkaf:agendaStage"?:               #AgendaStage
 	"rkaf:agendaPriority"?:            #AgendaPriority
-	"rkaf:agendaAffectsCitation"?:     [...(string & =~"^urn:rkaf:us:cfr:[1-9][0-9]*:[0-9]+(\\.[0-9]+[a-z]{0,3}(-[0-9a-z]+)*)?$")] & list.MinItems(1)
+	"rkaf:agendaAffectsCitation"?:     [...(string & =~"^urn:rkaf:us:cfr:[1-9][0-9]*:[0-9]+([a-z]|-[0-9]+)?(\\.[0-9]+[a-z]{0,3}(-[0-9a-z]+)*)?$")] & list.MinItems(1)
 	"rkaf:agendaAuthorityCitation"?:   [...(string & =~"^urn:rkaf:us:(usc:[1-9][0-9]*:[1-9][0-9]*[a-z]*(-[0-9a-z]+)*|pl:[1-9][0-9]*-[1-9][0-9]*)$")] & list.MinItems(1)
 }
 
@@ -97,7 +97,7 @@ import (
 	"rkaf:hasAuthority"?:              [...(string & =~"^[A-Za-z][A-Za-z0-9+.-]*:[^\\s]+$")] & list.MinItems(1)
 	"rkaf:hasDocket"?:                 [...(string & =~"^[A-Za-z][A-Za-z0-9+.-]*:[^\\s]+$")] & list.MinItems(1)
 	"rkaf:proceedingAffects"?:         [...(string & =~"^[A-Za-z][A-Za-z0-9+.-]*:[^\\s]+$")] & list.MinItems(1)
-	"rkaf:proceedingAffectsCitation"?: [...(string & =~"^urn:rkaf:us:cfr:[1-9][0-9]*:[0-9]+(\\.[0-9]+[a-z]{0,3}(-[0-9a-z]+)*)?$")] & list.MinItems(1)
+	"rkaf:proceedingAffectsCitation"?: [...(string & =~"^urn:rkaf:us:cfr:[1-9][0-9]*:[0-9]+([a-z]|-[0-9]+)?(\\.[0-9]+[a-z]{0,3}(-[0-9a-z]+)*)?$")] & list.MinItems(1)
 	"rkaf:proceedingProduces"?:        [...(string & =~"^[A-Za-z][A-Za-z0-9+.-]*:[^\\s]+$")] & list.MinItems(1)
 	"rkaf:proceedingSupersedes"?:      [...(string & =~"^[A-Za-z][A-Za-z0-9+.-]*:[^\\s]+$")] & list.MinItems(1)
 

@@ -6,7 +6,7 @@ build-backend = "hatchling.build"
 name = "rulespec-conformance"
 # Propagated from VERSION by tools/version_sync.py. PEP 440 normalises
 # `0.2.0-pre.N` to `0.2.0rcN`, so no translation is needed.
-version = "0.2.0-pre.15"
+version = "0.2.0-pre.16"
 description = "Rulespec conformance validator and contract: SHACL suite, compiled schemas, JSON-LD context, the rkaf vocabulary as importable constants, and the CI gate that applies them."
 readme = "README.md"
 requires-python = ">=3.12"
