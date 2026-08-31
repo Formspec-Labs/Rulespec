@@ -225,12 +225,16 @@ more Proceedings, and `rkaf:publishedInDocket` (0..*) links it to one or more
 Dockets. Both are optional; absence means unknown, never "no such membership".
 
 The `rkaf:us-frdoc` grammar is deliberately strict. If an official source
-document number does not match `YYYY-NNNNN`, the Artifact MUST still use its
-permanent federalregister.gov document URL as
+document number does not match `YYYY-NNN` through `YYYY-NNNNN` — a four-digit
+year, a hyphen, and a three- to five-digit sequence — the Artifact MUST still
+use its permanent federalregister.gov document URL as
 `rkaf:hasArtifactIdentifier` with `rkaf:artifactIdentifierScheme:
 rkaf:urn-persistent`, and the producer MUST NOT label the source value
 `rkaf:us-frdoc`. This is the normative fallback for legacy, correction, and
-other source-preserved forms.
+other source-preserved forms. It remains the fallback for the two-digit-year
+legacy form (`94-12253`), the letter-opening form (`E8-24348`), and the
+correction form (`C1-2010-1863`), none of which the grammar admits at any
+sequence width.
 
 Federal Register documents need no source-specific subclass. A Unified Agenda
 edition entry uses `rkaf:RegulatoryAgendaObservation`, the Artifact subclass
@@ -299,9 +303,9 @@ The US regulatory schemes use these canonical forms:
 
 | Scheme | Identifies | Canonical form and normalization |
 |---|---|---|
-| `rkaf:us-cfr` | A CFR part or section | `urn:rkaf:us:cfr:<title>:<part>[.<section>]`, for example `urn:rkaf:us:cfr:40:60`, `urn:rkaf:us:cfr:40:60.1`, or `urn:rkaf:us:cfr:40:60.5375a`. Title and part are decimal digits without spaces; title has no leading zero. A section may have a lowercase alphabetic suffix of up to three characters and internal lowercase alphanumeric hyphen suffixes. Subparts are outside this identifier grammar. |
+| `rkaf:us-cfr` | A CFR part or section | `urn:rkaf:us:cfr:<title>:<part>[.<section>]`, for example `urn:rkaf:us:cfr:40:60`, `urn:rkaf:us:cfr:40:60.1`, `urn:rkaf:us:cfr:7:15a`, `urn:rkaf:us:cfr:41:101-1`, or `urn:rkaf:us:cfr:40:60.5375a`. Title and part are written without spaces; title has decimal digits and no leading zero. A part is decimal digits which MAY carry either a single lowercase alphabetic suffix (`15a`) or a hyphen-number suffix (`101-1`), never both; normalize an alphabetic part suffix to lowercase. A section may have a lowercase alphabetic suffix of up to three characters and internal lowercase alphanumeric hyphen suffixes. Subparts are outside this identifier grammar. |
 | `rkaf:us-usc` | A U.S. Code section | `urn:rkaf:us:usc:<title>:<section>`, for example `urn:rkaf:us:usc:42:7411`. Omit subsection parentheses. Preserve internal hyphens and normalize alphabetic suffixes to lowercase. |
-| `rkaf:us-frdoc` | A Federal Register document | `urn:rkaf:us:frdoc:<document-number>`, for example `urn:rkaf:us:frdoc:2024-00366`. The document number is a four-digit year, a hyphen, and a five-digit sequence. Official source values outside this grammar use the permanent-publication fallback below. |
+| `rkaf:us-frdoc` | A Federal Register document | `urn:rkaf:us:frdoc:<document-number>`, for example `urn:rkaf:us:frdoc:2024-00366` or `urn:rkaf:us:frdoc:2011-237`. The document number is a four-digit year, a hyphen, and a three- to five-digit sequence. The sequence is the source spelling: it is neither padded nor stripped. Official source values outside this grammar use the permanent-publication fallback below. |
 | `rkaf:us-regsgov` | A regulations.gov docket, document, or comment | `urn:rkaf:us:regsgov:<agency-issued-id>`, for example `urn:rkaf:us:regsgov:EPA-HQ-OAR-2021-0317-0184` or `urn:rkaf:us:regsgov:EPA_FRDOC_0001`. Normalize ASCII letters to uppercase and preserve agency-issued hyphen or underscore separators. Single-segment and legacy identifiers remain source values; producers MUST NOT invent missing segments. Docket containers use the scheme on `rkaf:Docket`, while documents and comments use it on `rkaf:Artifact`; see `spec/rkaf-rulemaking.md`. |
 | `rkaf:us-pl` | A public law | `urn:rkaf:us:pl:<congress>-<law-number>`, for example `urn:rkaf:us:pl:117-58`. Both components are positive decimal integers without leading zeroes. |
 | `rkaf:us-eo` | An Executive order | `urn:rkaf:us:eo:<order-number>`, for example `urn:rkaf:us:eo:14094`. The order number is a positive decimal integer without leading zeroes. |
@@ -313,13 +317,14 @@ regulations.gov, Congress, and the Executive Office. This is
 composition-consistent minting under `spec/rkaf-core.md` §9.4.
 
 For an official Federal Register document number outside the
-`YYYY-NNNNN` grammar, a producer MUST identify the Artifact with its permanent
-`https://www.federalregister.gov/d/<source-value>` URL and
+`YYYY-NNN` … `YYYY-NNNNN` grammar, a producer MUST identify the Artifact with
+its permanent `https://www.federalregister.gov/d/<source-value>` URL and
 `rkaf:artifactIdentifierScheme: rkaf:urn-persistent`. It MUST NOT assert
 `rkaf:regulatoryIdentifierScheme: rkaf:us-frdoc` for the unsupported lexical
 form. Producers MAY retain the source value in provenance metadata. This
-fallback preserves the source document without broadening the normalized
-`rkaf:us-frdoc` citation space.
+fallback preserves the source document, and it is a fallback rather than a
+second citation space: a producer MUST NOT pad, strip, or otherwise rewrite a
+source value to bring it inside the grammar.
 
 The same fallback discipline applies to `rkaf:us-regsgov`: an agency-issued
 identifier outside the canonical grammar — including a legacy value with a

@@ -75,6 +75,59 @@ adapted for a specification + shape + fixture project.
   scratch venv: it re-checks every enum constant against the schema packaged
   beside it, so the two projections of one CUE tree cannot ship disagreeing.
 
+### Changed
+
+- **`rkaf:us-frdoc` admits a three- to five-digit sequence**
+  (`^urn:rkaf:us:frdoc:[0-9]{4}-[0-9]{3,5}$`, was `[0-9]{5}`), and
+  `spec/rkaf-rulemaking.md` §5 and §5.2 now say so. This is a **spec-text
+  change**, not a shape-over-strictness fix: the old shape matched the old
+  prose exactly, and §5.2's `MUST NOT` against broadening the space is
+  deliberately reversed. Measured on RefSpec's pinned
+  `federal_register.parquet` (1,004,233 distinct document numbers): the
+  widening admits **28,862** real documents — 2,599 with a three-digit tail
+  and 26,263 with a four-digit tail — moving RefSpec's first-class share from
+  45.0% to 47.9% and closing the population its decision REF-052 named as
+  unspellable. The four-year era is closed: short tails exist only in
+  2010–2013, and every year from 2014 is five-digit-only.
+  The ceiling stays five because **zero** modern-form values have a six-digit
+  tail and the largest sequence ever issued is 33,861 (2011), so a six-digit
+  tail needs the Register to triple its annual volume. The floor stays three
+  because that makes the space exactly co-extensive with the consumer shape
+  that reads it; the 286 modern values with one- or two-digit tails stay
+  outside the space and keep the permanent-URL fallback. The change is a
+  strict superset — every previously valid identifier keeps its meaning — and
+  it splits no identity: across all 480,566 admitted values there is **no**
+  document with two spellings, so no document gains a second first-class IRI.
+  This closes one of two identical short-tail holes; the letter-opening family
+  (`E8-24348`) keeps the fallback, as does the correction form.
+- **`rkaf:us-cfr` admits a suffixed part.** The part production becomes
+  `[0-9]+([a-z]|-[0-9]+)?` at all three CFR sites
+  (`us-regulatory-artifact.cue`, and both citation lists in `rulemaking.cue`),
+  and `spec/rkaf-rulemaking.md` §5.2 now describes it. Measured against the
+  OFR part-subject index (8,424 distinct `(title, part)` pairs): 272 parts are
+  not plain digits — 83 carry a single letter (`7 CFR 15a`, `42 CFR 59a`) and
+  189 carry a hyphen-number suffix (`41 CFR 101-1`), all 189 of them in title
+  41. Coverage rises from 96.77% to **100.00%** once an alphabetic suffix is
+  normalized to lowercase. Only four parts are published uppercase
+  (`26 CFR 16A`, `29 CFR 4022B`, `29 CFR 4041A`, `46 CFR 147A`) and folding
+  them is lossless: zero case-fold collisions across the whole index. Multi-letter
+  suffixes do not exist, so the section production `[a-z]{0,3}` was
+  deliberately not reused — `15abc` names nothing. This too is a strict
+  superset; `urn:rkaf:us:cfr:040:60.1` stays invalid because the leading zero
+  is on the **title**, which this change does not touch.
+- Both widenings ship in one `0.2.0-pre.16`. `CONTRIBUTING.md` says a
+  spec-text change bumps the second digit; that bump is the one already in
+  flight, because no `0.2.0` heading has been released and every change since
+  `0.1.1` is still accumulating in this prerelease series. Incrementing the
+  prerelease counter of an unreleased second-digit bump is therefore in-series.
+  Had `0.2.0` shipped, this would be `0.3.0-pre.1`.
+- `rkaf:us-rin` is deliberately **unchanged**. The `[0-9]{2}` tail was
+  re-examined and kept: the authoritative 46,547-RIN roster has zero values
+  outside it, and the only published format statement found anywhere — the
+  Fish and Wildlife Service handbook's "two letters followed by two numbers" —
+  is exactly what the production says. `rulemaking.cue` now records that the
+  narrowness is a decision rather than an omission.
+
 ### Removed
 
 - Retired the superseded `SourceCatalogRelease` v1 and `DocumentRelease` v2
