@@ -1,0 +1,30 @@
+{
+    "generation_info": {
+        "timestamp": "2026-09-01T20:44:09.397112+00:00",
+        "main_model": "gpt-5.6-sol",
+        "generator_version": "1.0.1",
+        "repo_path": "/Users/mikewolfd/Work/rulespec",
+        "commit_id": "961de3ccd42ebb7e4d8f7a43bc14160505af3ea7"
+    },
+    "statistics": {
+        "total_components": 971,
+        "leaf_nodes": 100,
+        "max_depth": 5
+    },
+    "files_generated": [
+        "overview.md",
+        "module_tree.json",
+        "first_module_tree.json",
+        "conformance_fixture_reporting.md",
+        "l0_mapping_audit.md",
+        "constraint_compiler_ast.md",
+        "conformance_assessment_and_certification.md",
+        "compiled_schema_binding.md",
+        "artifact_and_release_integrity.md",
+        "extrapolation_release_v2_verification.md",
+        "semantic_contract_compilation_and_binding.md",
+        "release_record_validation.md",
+        "contract_term_registry.md",
+        "platform_artifact_runtime.md"
+    ]
+}

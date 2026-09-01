@@ -1,0 +1,165 @@
+{
+    "semantic_contract_compilation_and_binding": {
+        "path": "",
+        "components": [
+            "tools/constraints_compile.py::ConstraintDoc",
+            "tools/constraints_compile.py::ShapeDef",
+            "tools/constraints_compile.py::PropDef",
+            "tools/constraints_compile.py::ConditionalBranch",
+            "tools/constraints_compile.py::OrderConstraint",
+            "tools/constraints_compile.py::NotEqualConstraint",
+            "tools/constraints_compile.py::DisjunctionBranch",
+            "tools/constraints_compile.py::EnumDef",
+            "tools/constraints_compile.py::EnumUnion",
+            "tools/constraints_compile.py::ScalarTypeDef",
+            "tools/constraints_compile.py::PatternMapDef",
+            "tools/constraints_compile.py::ObjectTypeDef",
+            "src/rulespec_conformance/contract/_term.py::Term"
+        ],
+        "children": {
+            "constraint_compiler_ast": {
+                "path": "tools/constraints_compile.py",
+                "components": [
+                    "tools/constraints_compile.py::ConstraintDoc",
+                    "tools/constraints_compile.py::ShapeDef",
+                    "tools/constraints_compile.py::PropDef",
+                    "tools/constraints_compile.py::ConditionalBranch",
+                    "tools/constraints_compile.py::OrderConstraint",
+                    "tools/constraints_compile.py::NotEqualConstraint",
+                    "tools/constraints_compile.py::DisjunctionBranch",
+                    "tools/constraints_compile.py::EnumDef",
+                    "tools/constraints_compile.py::EnumUnion",
+                    "tools/constraints_compile.py::ScalarTypeDef",
+                    "tools/constraints_compile.py::PatternMapDef",
+                    "tools/constraints_compile.py::ObjectTypeDef"
+                ],
+                "children": {}
+            },
+            "contract_term_registry": {
+                "path": "src/rulespec_conformance/contract/_term.py",
+                "components": [
+                    "src/rulespec_conformance/contract/_term.py::Term"
+                ],
+                "children": {}
+            }
+        }
+    },
+    "conformance_assessment_and_certification": {
+        "path": "",
+        "components": [
+            "src/rulespec_conformance/conformance_lib.py::SchemaBinding",
+            "tools/conformance_report.py::FixtureResult",
+            "tools/l0_mapping_audit.py::VocabularyRegistry",
+            "tools/l0_mapping_audit.py::MappingAudit"
+        ],
+        "children": {
+            "compiled_schema_binding": {
+                "path": "src/rulespec_conformance/conformance_lib.py",
+                "components": [
+                    "src/rulespec_conformance/conformance_lib.py::SchemaBinding"
+                ],
+                "children": {}
+            },
+            "conformance_fixture_reporting": {
+                "path": "tools/conformance_report.py",
+                "components": [
+                    "tools/conformance_report.py::FixtureResult"
+                ],
+                "children": {}
+            },
+            "l0_mapping_audit": {
+                "path": "tools/l0_mapping_audit.py",
+                "components": [
+                    "tools/l0_mapping_audit.py::VocabularyRegistry",
+                    "tools/l0_mapping_audit.py::MappingAudit"
+                ],
+                "children": {}
+            }
+        }
+    },
+    "artifact_and_release_integrity": {
+        "path": "",
+        "components": [
+            "packages/rulespec-artifacts/src/rulespec_artifacts/_artifact.py::ArtifactInput",
+            "packages/rulespec-artifacts/src/rulespec_artifacts/_artifact.py::ArtifactPin",
+            "packages/rulespec-artifacts/src/rulespec_artifacts/_artifact.py::BlobSource",
+            "packages/rulespec-artifacts/src/rulespec_artifacts/_artifact.py::CompositionRelation",
+            "packages/rulespec-artifacts/src/rulespec_artifacts/_artifact.py::DerivationRelation",
+            "packages/rulespec-artifacts/src/rulespec_artifacts/_artifact.py::FramedSection",
+            "packages/rulespec-artifacts/src/rulespec_artifacts/_artifact.py::ImmutableMemberReceipt",
+            "packages/rulespec-artifacts/src/rulespec_artifacts/_artifact.py::KnownLimit",
+            "packages/rulespec-artifacts/src/rulespec_artifacts/_artifact.py::LocalBlobSource",
+            "packages/rulespec-artifacts/src/rulespec_artifacts/_artifact.py::LocalFileState",
+            "packages/rulespec-artifacts/src/rulespec_artifacts/_artifact.py::LocalFileStateIndex",
+            "packages/rulespec-artifacts/src/rulespec_artifacts/_artifact.py::LocalMemberSource",
+            "packages/rulespec-artifacts/src/rulespec_artifacts/_artifact.py::MemberDescriptor",
+            "packages/rulespec-artifacts/src/rulespec_artifacts/_artifact.py::MemberManifestReference",
+            "packages/rulespec-artifacts/src/rulespec_artifacts/_artifact.py::MemberSource",
+            "packages/rulespec-artifacts/src/rulespec_artifacts/_artifact.py::PinnedLocalDirectory",
+            "packages/rulespec-artifacts/src/rulespec_artifacts/_artifact.py::Producer",
+            "packages/rulespec-artifacts/src/rulespec_artifacts/_artifact.py::ReceiptMemberSource",
+            "packages/rulespec-artifacts/src/rulespec_artifacts/_artifact.py::SemanticVerifier",
+            "packages/rulespec-artifacts/src/rulespec_artifacts/_artifact.py::Supersedes",
+            "packages/rulespec-artifacts/src/rulespec_artifacts/_artifact.py::VerificationIssue",
+            "packages/rulespec-artifacts/src/rulespec_artifacts/_artifact.py::VerificationResult",
+            "packages/rulespec-artifacts/src/rulespec_artifacts/_artifact.py::VerifiedArtifact",
+            "tools/rulespec_release.py::ValidationIssue",
+            "tools/rulespec_release.py::ExactReleaseIdentity",
+            "tools/rulespec_release.py::AtlasMembershipReader",
+            "tools/extrapolation_release_v2.py::AtlasMembershipReader",
+            "tools/extrapolation_release_v2.py::DocumentReleaseView",
+            "tools/extrapolation_release_v2.py::VerificationIssue",
+            "tools/extrapolation_release_v2.py::VerificationResult"
+        ],
+        "children": {
+            "platform_artifact_runtime": {
+                "path": "packages/rulespec-artifacts/src/rulespec_artifacts/_artifact.py",
+                "components": [
+                    "packages/rulespec-artifacts/src/rulespec_artifacts/_artifact.py::ArtifactInput",
+                    "packages/rulespec-artifacts/src/rulespec_artifacts/_artifact.py::ArtifactPin",
+                    "packages/rulespec-artifacts/src/rulespec_artifacts/_artifact.py::BlobSource",
+                    "packages/rulespec-artifacts/src/rulespec_artifacts/_artifact.py::CompositionRelation",
+                    "packages/rulespec-artifacts/src/rulespec_artifacts/_artifact.py::DerivationRelation",
+                    "packages/rulespec-artifacts/src/rulespec_artifacts/_artifact.py::FramedSection",
+                    "packages/rulespec-artifacts/src/rulespec_artifacts/_artifact.py::ImmutableMemberReceipt",
+                    "packages/rulespec-artifacts/src/rulespec_artifacts/_artifact.py::KnownLimit",
+                    "packages/rulespec-artifacts/src/rulespec_artifacts/_artifact.py::LocalBlobSource",
+                    "packages/rulespec-artifacts/src/rulespec_artifacts/_artifact.py::LocalFileState",
+                    "packages/rulespec-artifacts/src/rulespec_artifacts/_artifact.py::LocalFileStateIndex",
+                    "packages/rulespec-artifacts/src/rulespec_artifacts/_artifact.py::LocalMemberSource",
+                    "packages/rulespec-artifacts/src/rulespec_artifacts/_artifact.py::MemberDescriptor",
+                    "packages/rulespec-artifacts/src/rulespec_artifacts/_artifact.py::MemberManifestReference",
+                    "packages/rulespec-artifacts/src/rulespec_artifacts/_artifact.py::MemberSource",
+                    "packages/rulespec-artifacts/src/rulespec_artifacts/_artifact.py::PinnedLocalDirectory",
+                    "packages/rulespec-artifacts/src/rulespec_artifacts/_artifact.py::Producer",
+                    "packages/rulespec-artifacts/src/rulespec_artifacts/_artifact.py::ReceiptMemberSource",
+                    "packages/rulespec-artifacts/src/rulespec_artifacts/_artifact.py::SemanticVerifier",
+                    "packages/rulespec-artifacts/src/rulespec_artifacts/_artifact.py::Supersedes",
+                    "packages/rulespec-artifacts/src/rulespec_artifacts/_artifact.py::VerificationIssue",
+                    "packages/rulespec-artifacts/src/rulespec_artifacts/_artifact.py::VerificationResult",
+                    "packages/rulespec-artifacts/src/rulespec_artifacts/_artifact.py::VerifiedArtifact"
+                ],
+                "children": {}
+            },
+            "release_record_validation": {
+                "path": "tools/rulespec_release.py",
+                "components": [
+                    "tools/rulespec_release.py::ValidationIssue",
+                    "tools/rulespec_release.py::ExactReleaseIdentity",
+                    "tools/rulespec_release.py::AtlasMembershipReader"
+                ],
+                "children": {}
+            },
+            "extrapolation_release_v2_verification": {
+                "path": "tools/extrapolation_release_v2.py",
+                "components": [
+                    "tools/extrapolation_release_v2.py::AtlasMembershipReader",
+                    "tools/extrapolation_release_v2.py::DocumentReleaseView",
+                    "tools/extrapolation_release_v2.py::VerificationIssue",
+                    "tools/extrapolation_release_v2.py::VerificationResult"
+                ],
+                "children": {}
+            }
+        }
+    }
+}
