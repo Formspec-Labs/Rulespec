@@ -12,7 +12,8 @@
 ## The population
 
 394,128 of 1,004,233 real Federal Register `document_number` values — 39.2%,
-essentially every document before ~2000 — are the bare-numeric legacy shape
+every document from 1994 through August 2009 (era corrected by measurement
+2026-09-02 — see the second amendment) — are the bare-numeric legacy shape
 (`09-19806`, `94-120124`: two-digit year head, 3–6 digit tail). Measured over
 the pinned FR corpus; the figure is restated in RefSpec
 `registry/iri_minting.py`'s module notes and REF-052.
@@ -30,7 +31,7 @@ This request engages that fence rather than asking to erase it.
 
 ## Why it matters
 
-SpicySearch's body-text lane landed and the pre-2000 bodies are acquired and
+SpicySearch's body-text lane landed and the pre-2010 bodies are acquired and
 preserved. Served without identity, a third of history gets searchable text
 whose citations dead-end: links, joins, and cross-references stop at 61% of
 the corpus. The demand plan's D4 holds the honest line meanwhile (refuse,
@@ -151,3 +152,44 @@ also parses as modern-form across the form fence. Until that census exists,
 this space is *spellable but not yet proven unique*; the fixtures and the
 grammar stand either way, because the date qualifier was adopted on the
 strength of a demonstrated collision, not on an absence of one.
+
+**Census coverage is not a hole** (measured 2026-09-02): the pinned corpus
+runs 1994-01-03 → 2026-07-23 with **zero rows before 1994**, so the crawl's
+1994-onward reach exactly covers the population this space widens.
+
+## Amendment 2026-09-02 (second) — the era is wrong, and a larger gap is named
+
+Two corrections from an independent measurement pass (overseer session,
+re-derived here against a second corpus copy; 1,004,233 rows, all document
+numbers distinct; the three populations below partition it exactly).
+
+**1. "Pre-2000" is a decade off — the legacy form runs through 2009.**
+Measured spans: the bare-legacy `NN-` form spans **1994-01-03 → 2009-08-19**
+(395,498 documents); the modern `YYYY-` form does not begin until
+**2010-01-06** (480,852, through 2026-07-23). The count this document has
+always carried is right; only its era label was wrong. The correction raises
+the stakes rather than lowering them: the unspellable population is not a
+historical tail, it is **everything through August 2009**, including actively
+cited 2000s rulemakings.
+
+**2. A second, larger gap this space does not close: 127,883 documents
+(12.73%) match neither form.** Largest families: `E9-`/`E10-`-style
+(~119,500, 2003→2013), then `X00-` (~4,400), `C0-`/`C1-` corrections (~3,300,
+still issued — through 2026-07-13), `Z4-` (~350), `R0-`/`R1-`
+republications (~80), plus small malformed families that look like ingest
+defects (`03-26993Filed`, `00-23477-Filed`).
+
+The apparent conflict with RefSpec's "~10,231 letter-opening numbers go
+unread" **reconciles exactly, and the reconciliation is the useful fact**:
+RefSpec's prose grammar (`_FR_DOCUMENT_FORMS` — correction, republication,
+and a `[A-Za-z]\d-\d{4,5}` legacy form) *fullmatches* **117,292** of the
+127,883, leaving **10,591** unread — RefSpec's own documented figure, its
+deliberate recall decision. So the 117,292 are **detectable but unmintable**:
+RefSpec reads them, and no rulespec space spells them. That is a different
+defect from the one this ADR fixes, and after this space lands it is the
+largest remaining unspellable population by an order of magnitude.
+
+Not proposed here. It needs its own request, its own measured bounds, and
+its own decision about whether one sibling scheme covers the letter-opening
+families or each family earns its own. Recorded so the next request starts
+from measurement instead of rediscovery.
