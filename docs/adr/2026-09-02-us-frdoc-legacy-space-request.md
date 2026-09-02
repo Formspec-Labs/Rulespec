@@ -131,3 +131,23 @@ against the 1,004,233-row preserved `federal_register.parquet`, using
 395,498-row total matched exactly; heads spanned `00`–`99`. The same pass found
 zero bare-legacy rows with a null or empty `publication_date` and zero
 bare-legacy `document_number` values present on more than one parquet row.
+
+**The denominator on that last figure, stated so nobody cites it as a proof
+it is not** (raised by the overseer session 2026-09-02, and correct): zero
+within-parquet collisions is a *within-source* count over one rolled-up
+table, and that table is the deduped side of the very question. `00-111` is
+the demonstration — the parquet holds the 2000-01-14 Rule and the API holds
+the 2000-01-18 Notice, so the parquet reads zero precisely *because* a
+rollup dropped one. A cross-check that shares the filter measures the
+filter. This figure therefore licenses exactly one thing: the date qualifier
+costs no refusals in this source (0 missing dates). It does **not** establish
+that `(number, publication date)` uniquely identifies a document, which is
+the claim a RefSpec minting widening would rest on.
+
+What settles that: spicy9's `fr-full-collision-census.json` over the full
+crawl, answering both halves explicitly — (a) whether `(number, date)` is
+unique across the crawled Register, and (b) whether any legacy-form value
+also parses as modern-form across the form fence. Until that census exists,
+this space is *spellable but not yet proven unique*; the fixtures and the
+grammar stand either way, because the date qualifier was adopted on the
+strength of a demonstrated collision, not on an absence of one.

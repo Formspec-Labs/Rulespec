@@ -39,6 +39,16 @@ contains the `00-111`, 2000-01-14 Rule; the ADR amendment records the API's
 separate `00-111`, 2000-01-18 Notice. Their two valid identifiers differ by
 date.
 
+**And it proves less than it looks like it proves** (added by the
+orchestrator 2026-09-02): the count is within-source over a rolled-up table
+that is itself the deduped side of the question — the parquet reads zero
+*because* it dropped one half of `00-111`. It licenses "the date qualifier
+costs no refusals here" (0 missing dates) and nothing more; it does not
+establish `(number, date)` uniqueness, which is what a RefSpec minting
+widening would need. spicy9's full-crawl `fr-full-collision-census.json`
+settles that, and must answer the form-fence half too (does any legacy-form
+value also parse as modern-form?). See the ADR's denominator note.
+
 ## Fixtures
 
 Added seven positive fixtures: one parquet specimen for each measured tail
