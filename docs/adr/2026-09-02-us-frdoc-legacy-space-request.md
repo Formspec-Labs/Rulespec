@@ -193,3 +193,37 @@ Not proposed here. It needs its own request, its own measured bounds, and
 its own decision about whether one sibling scheme covers the letter-opening
 families or each family earns its own. Recorded so the next request starts
 from measurement instead of rediscovery.
+
+**And the measurement answers that scheme question: one scheme per family.**
+The two large families carry different semantics, verified 2026-09-02
+(overseer's finding, re-derived here against the pinned corpus):
+
+- **X is self-dating.** All **4,194** values of shape `X##-#####` encode
+  `{YY}-{seq}{MM}{DD}`, and the encoded date matches `publication_date` for
+  **4,194 of 4,194**. `X97-10423` is 1997, sequence 1, April 23. The number
+  carries its own date and validates against it, so an X scheme needs no
+  date argument and gains a built-in integrity check the legacy scheme
+  cannot have. It is also the cheapest slice of the 127,883 to close: the
+  grammar is fully determined by the data.
+- **E is a year code with legitimate spillover.** `E3`→2003 … `E9`→2009,
+  `E10`→2010, each spilling a few hundred documents into the following
+  January (E8: 29,979 in 2008 plus 318 in 2009). Year plus sequence, not a
+  date — so an E scheme needs an external date qualifier exactly the way
+  this one does.
+
+One sibling scheme covering both would have to accept the weaker of the two
+contracts and would discard X's self-validation. Per family, then.
+
+**The strip-collision surface, and why the refusal is pinned where it is.**
+The X family overlaps the legacy span rather than following it, so the two
+spaces are not disjoint by date. Measured: **4,401** letter-form numbers
+become well-formed legacy numbers when the leading letter is stripped, and
+**2,372** of those collide with a real, *different* legacy document. Raw
+they are lexically disjoint, so this space is safe as written; the exposure
+is any reader that treats the prefix as noise. Decisively, in **10** of
+those collisions the publication date is identical
+(`X97-10423`/`97-10423` both 1997-04-23; `X96-31209`/`96-31209` both
+1996-12-09; eight more) — for those the date qualifier cannot disambiguate
+at all. Hence `artifact-us-frdoc-legacy-letter-prefix-negative`, which pins
+the refusal on the raw letter form, one step before the point where no
+qualifier could save it.
