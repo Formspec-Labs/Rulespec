@@ -1,0 +1,10 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@id": "urn:rkaf:fixture:negative:artifact-us-frdoc-x-modern-form",
+  "@type": "rkaf:Artifact",
+  "rkaf:hasArtifactIdentifier": "urn:rkaf:fixture:snapshot:artifact-us-frdoc-x-modern-form",
+  "rkaf:artifactIdentifierScheme": "rkaf:partner-defined",
+  "rkaf:hasRegulatoryIdentifier": "urn:rkaf:us:frdoc-x:2024-00366",
+  "rkaf:regulatoryIdentifierScheme": "rkaf:us-frdoc-x",
+  "_comment": "Negative family boundary: modern-form 2024-00366 belongs to rkaf:us-frdoc, not rkaf:us-frdoc-x."
+}

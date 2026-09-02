@@ -1,0 +1,10 @@
+{
+  "@context": "../context/rkaf-context.jsonld",
+  "@id": "urn:rkaf:fixture:artifact:frdoc-x-X97-10423",
+  "@type": "rkaf:Artifact",
+  "rkaf:hasArtifactIdentifier": "https://www.federalregister.gov/documents/1997/04/23/X97-10423/biweekly-notice",
+  "rkaf:artifactIdentifierScheme": "rkaf:urn-persistent",
+  "rkaf:hasRegulatoryIdentifier": "urn:rkaf:us:frdoc-x:X97-10423",
+  "rkaf:regulatoryIdentifierScheme": "rkaf:us-frdoc-x",
+  "_comment": "Pinned corpus row: X97-10423 was published 1997-04-23 at 62 FR 19825. Read from the right, sequence=1 and MMDD=0423; this is the measured five-digit-tail positive."
+}

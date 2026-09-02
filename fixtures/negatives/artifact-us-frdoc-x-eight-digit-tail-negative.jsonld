@@ -1,0 +1,10 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@id": "urn:rkaf:fixture:negative:artifact-us-frdoc-x-eight-digit-tail",
+  "@type": "rkaf:Artifact",
+  "rkaf:hasArtifactIdentifier": "urn:rkaf:fixture:snapshot:artifact-us-frdoc-x-eight-digit-tail",
+  "rkaf:artifactIdentifierScheme": "rkaf:partner-defined",
+  "rkaf:hasRegulatoryIdentifier": "urn:rkaf:us:frdoc-x:X09-10001207",
+  "rkaf:regulatoryIdentifierScheme": "rkaf:us-frdoc-x",
+  "_comment": "Negative upper tail boundary: sequence=1000 plus MMDD=1207 exceeds the bounded three-digit sequence capacity."
+}

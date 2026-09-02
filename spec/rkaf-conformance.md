@@ -55,7 +55,7 @@ current `sha256:<64 lowercase hex>` contract digest. Every block in one
 document MUST use the same digest.
 
 ```yaml rkaf-l0-mapping
-rulespec_version: "sha256:f7fc0587b3da5ccdc690f8ce8f5119c899c375634de796f3cea5c4650aed0542"
+rulespec_version: "sha256:e9d02fb26fef5120c1c4e905a377554818c7d22abb9ad18bcdc44912f3557be5"
 mappings:
   - table: proceedings
     column: current_stage
@@ -139,6 +139,30 @@ predicate domains and class ranges from the current CUE contract, so an
 inverse relationship cannot silently become a forward relationship.
 A document MAY contain prose and other code blocks around the mapping blocks.
 
+### X-prefixed Federal Register identifiers [Normative]
+
+`rkaf:us-frdoc-x` registers the lexical space
+`^urn:rkaf:us:frdoc-x:X[0-9]{2}-[0-9]{5,7}$`. The published `X` is part of
+the identifier and MUST be preserved verbatim. A bare value such as
+`09-101207` is not an `rkaf:us-frdoc-x` identifier, and a producer MUST NOT
+strip the prefix to force the value into another Federal Register scheme.
+
+Read the digits after the hyphen from the right: the last four are `MMDD`,
+and the preceding one to three digits are the variable-width daily sequence.
+The two digits after `X` are the publication year's final two digits. The
+number is therefore self-dating and takes no external date qualifier. A
+producer minting from a catalog row MUST compare the encoded year, month, and
+day with `publication_date` and MUST refuse a mismatch as defective source
+data, not treat it as an ambiguity.
+
+The upper tail bound is a capacity decision. The pinned Federal Register
+corpus contains sequences only through 30, but the seven-digit ceiling allows
+sequences through 999 so an unusually busy future day does not strand a real
+document. The finite ceiling also fences the lexical space. The scheme covers
+all X-prefixed Federal Register documents; `document_type`, not the identifier,
+records genre or editorial tier. `spec/rkaf-rulemaking.md` §5.2 gives the
+canonical examples and measured population.
+
 ### Worked pattern — attestation as a table [Normative]
 
 `spec/rkaf-core.md` §3.1 and §4.7.3 place approval, rejection, and revocation
@@ -193,7 +217,7 @@ The mapping below is the worked example. It is audited by
 `tools/test_l0_mapping_audit.py`, so it is executable rather than illustrative:
 
 ```yaml rkaf-l0-mapping
-rulespec_version: "sha256:f7fc0587b3da5ccdc690f8ce8f5119c899c375634de796f3cea5c4650aed0542"
+rulespec_version: "sha256:e9d02fb26fef5120c1c4e905a377554818c7d22abb9ad18bcdc44912f3557be5"
 mappings:
   - table: attestations
     column: attestor_id
@@ -299,7 +323,7 @@ digest covers the selected text. The SourceFragment declares
 node and independently records evidence kind and function:
 
 ```yaml rkaf-l0-mapping
-rulespec_version: "sha256:f7fc0587b3da5ccdc690f8ce8f5119c899c375634de796f3cea5c4650aed0542"
+rulespec_version: "sha256:e9d02fb26fef5120c1c4e905a377554818c7d22abb9ad18bcdc44912f3557be5"
 mappings:
   - table: evidence_bindings
     column: assertion_iri

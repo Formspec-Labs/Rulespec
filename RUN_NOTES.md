@@ -1,157 +1,135 @@
-# `rkaf:us-frdoc-legacy` implementation run notes
+# `rkaf:us-frdoc-x` implementation run notes
 
 ## Result
 
-Implemented option B as amended: `rkaf:us-frdoc-legacy` uses the exact
-date-qualified lexical space
-`^urn:rkaf:us:frdoc-legacy:[0-9]{2}-[0-9]{1,6}:[0-9]{4}-[0-9]{2}-[0-9]{2}$`.
-The existing `rkaf:us-frdoc` grammar and its `94-120124` family-negative
-fixture remain unchanged. The release version is `0.2.0-pre.17`.
+Implemented the self-dating X-prefixed Federal Register document-number space
+as `rkaf:us-frdoc-x` with lexical shape
+`^urn:rkaf:us:frdoc-x:X[0-9]{2}-[0-9]{5,7}$`. The published `X` remains part
+of identity. The release version is `0.2.0-pre.18`.
 
-## Corpus derivation
+## Corpus re-derivation
 
-I queried
+I queried the read-only corpus
 `/Users/mikewolfd/Work/corpora/_preserved-2026-08-27/rulespec-stabilization-baseline-final/federal_register.parquet`
-with DuckDB v1.5.5. The parquet schema names the date column
-`publication_date` and stores it as `VARCHAR`.
+with DuckDB v1.5.5 before editing. The family predicate was
+`regexp_matches(document_number,'^X[0-9]{2}-[0-9]+$')`, deliberately broader
+than the proposed lexical space. I split at the hyphen, treated the final four
+tail digits as `MMDD`, and treated every preceding tail digit as the sequence.
 
-The family predicate was exactly
-`regexp_matches(document_number,'^[0-9]{2}-[0-9]+$')`. Grouping by
-`LENGTH(SPLIT_PART(document_number,'-',2))` produced:
+The results matched the brief exactly:
 
-| Tail length | Rows |
-|---:|---:|
-| 1 | 112 |
-| 2 | 1,258 |
-| 3 | 13,226 |
-| 4 | 119,770 |
-| 5 | 261,125 |
-| 6 | 7 |
+| Measurement | Re-derived result |
+|---|---:|
+| X-prefixed rows | 4,400 |
+| Tail width 5 | 4,194 |
+| Tail width 6 | 206 |
+| Sequence width 1 | 4,194 |
+| Sequence width 2 | 206 |
+| Maximum observed sequence | 30 |
+| Encoded date matches `publication_date` | 4,400/4,400 |
+| Missing publication dates | 0 |
 
-The totals match the brief: 1,004,233 parquet rows, 395,498 bare-legacy rows,
-and heads spanning `00`–`99`. The null-or-empty `publication_date` refusal
-population is **0 rows**. Grouping the family by `document_number` and keeping
-groups with `COUNT(*) > 1` found **0 colliding values** and **0 rows in
-collision groups** inside this rolled-up parquet.
+The specimen rows also matched: `X97-10423` was published 1997-04-23 at
+62 FR 19825, and `X09-101207` was published 2009-12-07 at 74 FR 64213.
 
-The zero within-parquet count does not contradict the amendment. The parquet
-contains the `00-111`, 2000-01-14 Rule; the ADR amendment records the API's
-separate `00-111`, 2000-01-18 Notice. Their two valid identifiers differ by
-date.
+## Bound decision
 
-**And it proves less than it looks like it proves** (added by the
-orchestrator 2026-09-02): the count is within-source over a rolled-up table
-that is itself the deduped side of the question — the parquet reads zero
-*because* it dropped one half of `00-111`. It licenses "the date qualifier
-costs no refusals here" (0 missing dates) and nothing more; it does not
-establish `(number, date)` uniqueness, which is what a RefSpec minting
-widening would need. spicy9's full-crawl `fr-full-collision-census.json`
-settles that, and must answer the form-fence half too (does any legacy-form
-value also parse as modern-form?). See the ADR's denominator note.
+Kept the proposed `{5,7}` tail bound. Observed sequences reach 30, but a
+seven-digit tail permits a three-digit sequence through 999 documents on one
+day. That is bounded capacity headroom rather than a tight fit to historical
+data. It avoids repeating the fixed-width failure that would already exclude
+206 real six-digit tails, while retaining a finite upper fence.
+
+The space takes no date qualifier. Producers read it from the right and compare
+the encoded year and `MMDD` with `publication_date`; a mismatch is defective
+source data. The scheme mints all 4,400 X-prefixed rows. `document_type`
+carries genre and editorial tier.
 
 ## Fixtures
 
-Added seven positive fixtures: one parquet specimen for each measured tail
-length, plus the API half of the `00-111` collision. The length-three specimen
-is the parquet half of that pair.
+Added nine fixtures, raising the conformance corpus from 531 to 540:
 
-| Tail | Number | Publication date | Evidence |
-|---:|---|---|---|
-| 1 | `00-1` | `2000-01-20` | parquet row |
-| 2 | `00-10` | `2000-01-04` | parquet row |
-| 3 | `00-111` | `2000-01-14` | parquet Rule row |
-| 4 | `00-1000` | `2000-01-18` | parquet row |
-| 5 | `00-02053` | `2000-02-04` | parquet row |
-| 6 | `94-120124` | `1994-04-28` | parquet row |
-| 3 | `00-111` | `2000-01-18` | ADR amendment, API Notice |
-
-Each positive fixture's `_comment` cites its number-and-date evidence. Added
-seven negatives for empty tail, seven-digit tail, one-digit head, three-digit
-head, modern form, missing date, and malformed date. Total fixtures added:
-**14** (7 positive, 7 negative).
+- Three positives: the real five-digit and six-digit specimens, plus a
+  clearly marked capacity-only seven-digit tail with sequence 999.
+- Six negatives: four-digit and eight-digit tails, one-digit and three-digit
+  year heads, missing `X`, and a modern-form value under the X scheme.
 
 ## Sites changed
 
 - `constraints/profiles/us-rulemaking/us-regulatory-artifact.cue`: added the
-  enum member and guarded grammar; updated the scheme count.
-- `spec/rkaf-rulemaking.md`: documented the sibling scheme, refusal rule,
-  collision rationale, and re-derived measurements in the normative §5/§5.2
-  home. `spec/rkaf-core.md` now says seven profile grammars.
-- `docs/adr/2026-09-02-us-frdoc-legacy-space-request.md`: restored the
-  amendment present in the sibling authoritative checkout and recorded the
-  local DuckDB re-derivation, null-date count, and within-parquet count.
-- `fixtures/artifact-us-frdoc-legacy-*-positive.jsonld` and
-  `fixtures/negatives/artifact-us-frdoc-legacy-*-negative.jsonld`: added the
-  14 cases above. The pre-existing `artifact-us-frdoc-legacy-year-negative`
-  file stayed byte-identical to the sibling baseline.
+  eighth enum member and the guarded X grammar.
+- `spec/rkaf-conformance.md`: added the normative self-dating, right-anchored,
+  prefix-preserving, and bounded-capacity rules.
+- `spec/rkaf-rulemaking.md` and `spec/rkaf-core.md`: added the canonical form,
+  fallback obligations, measurements, and eighth-scheme cross-reference.
+- `docs/adr/2026-09-02-us-frdoc-legacy-space-request.md`: recorded execution
+  and the bound rationale.
+- `fixtures/artifact-us-frdoc-x-*.jsonld` and
+  `fixtures/negatives/artifact-us-frdoc-x-*.jsonld`: added all nine cases.
 - `tools/constraints_parity.py`, `tools/test_semantic_carriers.py`, and
-  `tools/test_constraints_compile.py`: added positive/negative parity cases,
-  profile-isolation cases, the seventh scheme, and an exact-pattern assertion.
-- `src/rulespec_conformance/contract/enums.py` and `terms.py`: regenerated the
-  public Python enum and term exports from CUE.
-- `compiled/{json-schema,typescript,shacl,rego}/profiles/us-rulemaking/`
-  `us-regulatory-artifact.*`: regenerated all four portable targets. The
-  ignored `compiled/` tree now contains 234 generated files in total.
-- `crates/rkaf-core/src/generated/profiles/us_rulemaking/`
-  `us_regulatory_artifact.rs`: regenerated the Rust enum carrier.
+  `tools/test_constraints_compile.py`: registered every new boundary and the
+  exact generated pattern.
+- `compiled/{json-schema,typescript,shacl,rego}/profiles/us-rulemaking/`,
+  `crates/rkaf-core/src/generated/profiles/us_rulemaking/`, and
+  `src/rulespec_conformance/contract/{enums,terms}.py`: regenerated target and
+  public export files.
 - `spec/rkaf-conformance.md` and
-  `reference-corpora/us-rulemaking/v0.2/manifest.dcat.jsonld`: repinned by the
-  compiler to contract digest
-  `sha256:f7fc0587b3da5ccdc690f8ce8f5119c899c375634de796f3cea5c4650aed0542`;
-  the manifest's validation date is 2026-09-02.
+  `reference-corpora/us-rulemaking/v0.2/manifest.dcat.jsonld`: repinned to
+  `sha256:e9d02fb26fef5120c1c4e905a377554818c7d22abb9ad18bcdc44912f3557be5`.
 - `VERSION`, `pyproject.toml`, `crates/Cargo.toml`, `crates/Cargo.lock`,
-  `context/rkaf-context.jsonld`, and `uv.lock`: synchronized to pre.17
-  (`uv.lock` uses the PEP 440 form `0.2.0rc17`). `CHANGELOG.md` records the
-  feature and measurements.
+  `context/rkaf-context.jsonld`, and `uv.lock`: synchronized to pre.18;
+  `CHANGELOG.md` records the release change.
 
 ## Generation path
 
-The repository documents `make compile` as the entry point. It sets `PYTHON`
-and runs `tools/compile_all.sh`; that wrapper invokes
+The repository documents `make compile` as the canonical entry point. It sets
+`PYTHON` and invokes `tools/compile_all.sh`, which runs
 `tools/constraints_compile.py` for JSON Schema, TypeScript, SHACL, Rego, and
-Rust, then runs `tools/repin_contract_digest.py`. The repository path is
-`compiled/<target>/profiles/us-rulemaking/`, not the brief's
-`compiled/.../us-rulemaking/v0.2/`; `v0.2` belongs to the reference-corpus
-manifest path. No compiled output was hand-edited.
-
-The first `make compile` attempt stopped before generation because `uv` could
-not fetch uncached `rfc8785` without network access. The same canonical wrapper
-then passed with its supported `PYTHON=python3` override, using installed local
-dependencies. `tools/codegen_drift_audit.py` later recompiled the tree and
-confirmed byte-for-byte lock-step.
+Rust, then runs `tools/repin_contract_digest.py`. I ran that wrapper with the
+documented `PYTHON=python3` override after the default dependency-isolation
+invocation could not reach the package index. I then ran
+`tools/build_contract_exports.py` for the generated Python exports and
+`uv lock --offline` for the self-referenced wheel version. No generated target
+was hand-edited.
 
 ## Verification
 
-- PASS — CUE v0.10.0 `make cue-vet`, using the sibling checkout's binary that
-  matches `tools/install-cue.sh`'s exact pin. The worktree-local `.tools/cue`
-  was absent, so the default invocation failed before validation.
-- PASS — 307 audit unit tests after regenerating contract exports. The initial
-  run correctly caught the stale six-member Python export.
-- PASS — positive gate: 121 fixtures, 1,866 triples, 0 violations.
-- PASS — negative gate: every negative failed as expected, including all seven
-  new legacy negatives.
-- PASS — constraints parity: 0 core divergences; the two existing adversarial
-  findings remain documented.
-- PASS — conformance report: 530 fixtures, 0 divergences.
-- PASS — reference corpus through Rust and Python validators: 0 violations.
-- PASS — full Rust workspace tests; L4 coverage; all 13 projector-parity
-  checks; version sync; digest pins; contract exports; code-generation drift.
-- FAIL (pre-existing, unrelated) — `make test-audits` stops at
-  `tools/rename_audit.py`: one `brand-pkaf` string in
-  `wiki/temp/dependency_graphs/rulespec_dependency_graph.json`. The failing
-  file was not changed.
-- FAIL (test-launch configuration) — exact command `uv run pytest -q` selects
-  the global `/Users/mikewolfd/.pyenv/versions/3.12.9/bin/pytest`, because
-  pytest is not declared by this project, then stops with eight collection
-  import errors for `tools` and `rulespec_artifacts`. The project environment
-  imports both packages; the repository's documented `unittest` suite passes.
+- PASS — corpus measurement matched every stop condition.
+- PASS — canonical generation and contract digest repinning.
+- PASS — CUE v0.10.0 vet across core, profiles, semantic ranges, adversarial,
+  extraction, and platform constraints.
+- PASS — positive gate: 124 fixtures, 1,881 triples, 0 violations; every new
+  negative failed as expected; reference corpus passed Rust and Python.
+- PASS — `make test-conformance`: 540 fixtures, 0 divergences.
+- PASS — constraints parity: 0 core divergences; two documented adversarial
+  findings remain non-release-blocking.
+- PASS — Rust workspace tests, including 45 generated-carrier round trips,
+  runtime behavior, profile isolation, validators, and CLI tests.
+- PASS — 307 audit unit tests; L0-L3 and L4 coverage; 13/13 projector parity;
+  version sync; contract exports; digest pins; code-generation lock-step.
+- PASS — `UV_OFFLINE=1 make test-package-conformance`; the installed wheel's
+  CLI, packaged schemas/shapes/context, enums, terms, and exclusions passed.
+- BLOCKED OUTSIDE THIS CHANGE — the aggregate `make test-audits` target reaches
+  `tools/rename_audit.py` and reports one pre-existing lowercase legacy-brand
+  token embedded in `wiki/temp/dependency_graphs/rulespec_dependency_graph.json`.
+  The repository contains no documented generator for that generated file, so
+  the brief's stop rule applied and the file remains untouched. Every preceding
+  audit, including all 307 unit tests, passed.
 
-## Other observations
+## Wheel
 
-The brief names `spec/rkaf-conformance.md` as the scheme-documentation site,
-but that file contains no scheme table in either checkout. The repository
-declares `spec/rkaf-rulemaking.md` §5.2 as the normative home, so the scheme
-text landed there; generation touched `spec/rkaf-conformance.md` only to repin
-its embedded contract digest. Verification created only ignored local build
-artifacts under `.venv/`, `.pytest_cache/`, `compiled/`, `crates/target/`, and
-Python `__pycache__/` directories.
+`dist/conformance/rulespec_conformance-0.2.0rc18-py3-none-any.whl`
+
+SHA-256:
+`bd4816dac509ed0a9686fc94104d8463d6e05c53b8e2ce74e9d1ea9a67b76977`
+
+## Surprises
+
+The worktree-local `.tools/cue` was absent; an existing sibling checkout
+provided the exact repository-pinned CUE v0.10.0 binary. The default compile
+and first package-proof attempts tried to reach the package index. Generation
+passed with the Makefile's supported local-Python override, and the package
+proof passed with the already populated uv cache in offline mode. The sibling
+Python environment needed a temporary, non-repository import bridge for its
+missing `yaml`, `pyarrow`, and `rfc8785` packages; the pinned RDF packages
+remained those from the sibling environment.

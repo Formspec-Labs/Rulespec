@@ -9,6 +9,18 @@ adapted for a specification + shape + fixture project.
 
 ### Added
 
+- `rkaf:us-frdoc-x`, a self-dating sibling scheme for all 4,400 X-prefixed
+  Federal Register document numbers. Its canonical lexical space is
+  `^urn:rkaf:us:frdoc-x:X[0-9]{2}-[0-9]{5,7}$`: the published `X` is
+  preserved, the final four tail digits are read as `MMDD`, and the preceding
+  one to three digits are the variable-width daily sequence. A DuckDB
+  re-derivation over the pinned parquet found 4,194 five-digit tails and 206
+  six-digit tails, sequence widths one and two in the same counts, a maximum
+  observed sequence of 30, and 4,400/4,400 encoded dates matching
+  `publication_date`. The seven-digit ceiling supplies bounded headroom through
+  sequence 999. Three positives cover both observed widths and that capacity;
+  six negatives fence both tail widths, both year-head widths, the required X
+  prefix, and the modern-family boundary.
 - `rkaf:us-frdoc-legacy`, a date-qualified sibling scheme for legacy Federal
   Register document numbers. Its canonical form is
   `urn:rkaf:us:frdoc-legacy:<two-digit-head>-<one-to-six-digit-tail>:<YYYY-MM-DD>`;

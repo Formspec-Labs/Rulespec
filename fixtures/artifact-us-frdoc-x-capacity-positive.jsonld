@@ -1,0 +1,10 @@
+{
+  "@context": "../context/rkaf-context.jsonld",
+  "@id": "urn:rkaf:fixture:artifact:frdoc-x-capacity",
+  "@type": "rkaf:Artifact",
+  "rkaf:hasArtifactIdentifier": "urn:rkaf:fixture:snapshot:artifact-us-frdoc-x-capacity",
+  "rkaf:artifactIdentifierScheme": "rkaf:partner-defined",
+  "rkaf:hasRegulatoryIdentifier": "urn:rkaf:us:frdoc-x:X26-9991231",
+  "rkaf:regulatoryIdentifierScheme": "rkaf:us-frdoc-x",
+  "_comment": "Capacity fixture, not a real Federal Register specimen: sequence=999 and MMDD=1231 exercise the deliberate three-digit sequence headroom at the seven-digit tail ceiling."
+}

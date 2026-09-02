@@ -274,3 +274,21 @@ those collisions the publication date is identical
 at all. Hence `artifact-us-frdoc-legacy-letter-prefix-negative`, which pins
 the refusal on the raw letter form, one step before the point where no
 qualifier could save it.
+
+## Execution 2026-09-02 — `rkaf:us-frdoc-x` shipped in pre.18
+
+The X-family decision above ships as the sibling scheme `rkaf:us-frdoc-x`
+with lexical space
+`^urn:rkaf:us:frdoc-x:X[0-9]{2}-[0-9]{5,7}$`. The published `X` remains part
+of identity, the tail is read from the right as a one- to three-digit sequence
+followed by `MMDD`, and the number takes no separate date qualifier.
+
+The implementation re-derived all 4,400 rows from the preserved parquet:
+4,194 five-digit tails, 206 six-digit tails, the same counts at sequence
+widths one and two, maximum observed sequence 30, and 4,400/4,400 encoded
+dates matching `publication_date`. The `{5,7}` bound deliberately allows a
+three-digit sequence, up to 999 documents on one day. That is finite capacity
+headroom beyond observed data, chosen so the scheme does not repeat the
+fixed-width failure that would have stranded the existing 206 six-digit
+tails. The scheme mints all X-family documents and leaves genre or editorial
+tier to `document_type`.

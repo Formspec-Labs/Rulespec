@@ -1,0 +1,10 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@id": "urn:rkaf:fixture:negative:artifact-us-frdoc-x-missing-prefix",
+  "@type": "rkaf:Artifact",
+  "rkaf:hasArtifactIdentifier": "urn:rkaf:fixture:snapshot:artifact-us-frdoc-x-missing-prefix",
+  "rkaf:artifactIdentifierScheme": "rkaf:partner-defined",
+  "rkaf:hasRegulatoryIdentifier": "urn:rkaf:us:frdoc-x:09-101207",
+  "rkaf:regulatoryIdentifierScheme": "rkaf:us-frdoc-x",
+  "_comment": "Negative identity boundary: the published X is part of the identifier; bare 09-101207 is refused under this scheme."
+}

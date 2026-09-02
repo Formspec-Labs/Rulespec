@@ -1,0 +1,10 @@
+{
+  "@context": "../context/rkaf-context.jsonld",
+  "@id": "urn:rkaf:fixture:artifact:frdoc-x-X09-101207",
+  "@type": "rkaf:Artifact",
+  "rkaf:hasArtifactIdentifier": "https://www.federalregister.gov/documents/2009/12/07/X09-101207/no-title-available",
+  "rkaf:artifactIdentifierScheme": "rkaf:urn-persistent",
+  "rkaf:hasRegulatoryIdentifier": "urn:rkaf:us:frdoc-x:X09-101207",
+  "rkaf:regulatoryIdentifierScheme": "rkaf:us-frdoc-x",
+  "_comment": "Pinned corpus row: X09-101207 was published 2009-12-07 at 74 FR 64213. Read from the right, sequence=10 and MMDD=1207; this is the measured six-digit-tail positive."
+}

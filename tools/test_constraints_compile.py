@@ -2454,6 +2454,7 @@ class USRulemakingProfileTests(unittest.TestCase):
             "rkaf:us-usc",
             "rkaf:us-frdoc",
             "rkaf:us-frdoc-legacy",
+            "rkaf:us-frdoc-x",
             "rkaf:us-regsgov",
             "rkaf:us-pl",
             "rkaf:us-eo",
@@ -2469,6 +2470,10 @@ class USRulemakingProfileTests(unittest.TestCase):
             "^urn:rkaf:us:frdoc-legacy:[0-9]{2}-[0-9]{1,6}:"
             "[0-9]{4}-[0-9]{2}-[0-9]{2}$",
             conditions["rkaf:us-frdoc-legacy"],
+        )
+        self.assertEqual(
+            "^urn:rkaf:us:frdoc-x:X[0-9]{2}-[0-9]{5,7}$",
+            conditions["rkaf:us-frdoc-x"],
         )
 
         # hasRegulatoryIdentifier present REQUIRES a declared scheme.
