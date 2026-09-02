@@ -80,3 +80,41 @@ compiled profile and its minting-layer contract test
 Choose A, B, or C. B is recommended: it lifts the ceiling without touching a
 deliberately-pinned boundary, preserves published identity verbatim, and its
 blast radius is one enum member, one conditional, and fixtures.
+
+## Amendment 2026-09-02 — B chosen; the collision fact; the date qualifier
+
+**The owner chose B** (relayed via the supply plan's owner table on main,
+2026-09-02). During implementation, the supply lane's live FR crawl
+surfaced a fact that changes B's design: **legacy document numbers are not
+unique.** `00-111` names two different January-2000 documents — the FR API's
+`documents/00-111.json` is a 2000-01-18 notice, while the pinned
+`federal_register.parquet`'s `00-111` is a 2000-01-14 rule (the rollup
+silently kept one). A bare-number legacy IRI would therefore mint the same
+identifier for distinct documents — a false join key.
+
+**Ruling (orchestrator, within B): the legacy scheme is date-qualified.**
+
+```
+^urn:rkaf:us:frdoc-legacy:[0-9]{2}-[0-9]{1,6}:[0-9]{4}-[0-9]{2}-[0-9]{2}$
+```
+
+— the published number verbatim, then the document's publication date as the
+disambiguator. Why this and not the API's own resolution: the API resolution
+silently drops one of two real documents, against platform doctrine
+(refuse/record, never silently lose — the supply fix likewise *counts* the
+discarded observation rather than erasing it). Why the date is always
+available: REF-052 keeps prose reading of bare legacy refused, so legacy
+mints only from licensed catalog columns, and the column-bearing row carries
+`publication_date` — the column is both the license and the disambiguator
+source. A licensed row lacking a publication date refuses the mint (and is
+counted).
+
+The modern `rkaf:us-frdoc` space stays date-free on the assumption modern
+numbers are unique; if the full-history crawl falsifies that too, this
+amendment's mechanism extends. The collision count across the legacy range
+lands with the completed crawl and becomes a fixture-cited fact here.
+Consumer note: RefSpec's `mint_federal_register_document_iri` legacy branch
+takes the date alongside `column_licensed` when it re-vendors this release.
+Also corrected by measurement (2026-09-02): real legacy tails run 1–6
+digits (histogram 1→112, 2→1,258, 3→13,226, 4→119,770, 5→261,125, 6→7 over
+395,498 values), not the 3–6 this document originally guessed.
