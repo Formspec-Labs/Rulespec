@@ -194,6 +194,29 @@ its own decision about whether one sibling scheme covers the letter-opening
 families or each family earns its own. Recorded so the next request starts
 from measurement instead of rediscovery.
 
+**Unspellable is quieter than refused, and it is worth naming as its own
+outcome.** A value that matches no space produces no identity **and no
+error** — nothing refuses it, nothing counts it, and it simply never
+appears. That is a softer failure than a refusal and therefore easier to
+carry for years. Measured 2026-09-02 over the pinned 1,004,233-row corpus,
+against the three spaces that now ship (`us-frdoc`, `us-frdoc-legacy`,
+`us-frdoc-x`):
+
+- **123,769 values (12.3%) fall in none of them.** The bulk is the
+  letter-opening families discussed above.
+- **286 sit just below the modern floor**: a four-digit head with a one- or
+  two-digit tail (`2013-58`, `2012-22`). These are *modern-shaped* and still
+  unspellable, which makes them the easiest class to overlook — they look
+  like ordinary modern numbers.
+- **0 sit above the modern ceiling**, so the `[0-9]{3,5}` tail is not
+  cutting anything off at the top.
+
+The 286 are not proposed for admission here either; widening the modern
+floor is a recall decision with its own false-positive budget in prose, the
+same trade `identifier_shapes.py` already documents for the letter forms.
+They are recorded so the next request starts from a number, and so that
+"unspellable" stops being invisible in the way it has been.
+
 **And the measurement answers that scheme question: one scheme per family.**
 The two large families carry different semantics, verified 2026-09-02
 (overseer's finding, re-derived here against the pinned corpus):
