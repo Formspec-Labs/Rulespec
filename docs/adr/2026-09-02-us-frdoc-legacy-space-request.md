@@ -198,18 +198,35 @@ from measurement instead of rediscovery.
 The two large families carry different semantics, verified 2026-09-02
 (overseer's finding, re-derived here against the pinned corpus):
 
-- **X is self-dating.** All **4,194** values of shape `X##-#####` encode
-  `{YY}-{seq}{MM}{DD}`, and the encoded date matches `publication_date` for
-  **4,194 of 4,194**. `X97-10423` is 1997, sequence 1, April 23. The number
-  carries its own date and validates against it, so an X scheme needs no
-  date argument and gains a built-in integrity check the legacy scheme
-  cannot have. It is also the cheapest slice of the 127,883 to close: the
-  grammar is fully determined by the data.
-- **E is a year code with legitimate spillover.** `E3`→2003 … `E9`→2009,
-  `E10`→2010, each spilling a few hundred documents into the following
-  January (E8: 29,979 in 2008 plus 318 in 2009). Year plus sequence, not a
-  date — so an E scheme needs an external date qualifier exactly the way
-  this one does.
+- **X is self-dating — and its sequence is variable-width, so parse it
+  right-anchored.** The X family is **4,400** values, not the 4,194 first
+  reported: 4,194 with a five-digit tail plus **206 with a six-digit tail**.
+  The original count was filtered by the very shape it was meant to test
+  (`X##-#####` admits only a one-digit sequence by construction, so "all
+  4,194 match" was a tautology). Parsed **right-anchored** — the last four
+  digits are `MMDD`, the sequence is whatever precedes them — `X{YY}-{seq}{MMDD}`
+  matches `publication_date` for **4,400 of 4,400**. `X97-10423` is 1997,
+  sequence 1, April 23; `X09-101207` is 2009, sequence **10**, December 07,
+  and is a real distinct document (74 FR 64213, alongside `X09-11207` at
+  74 FR 64129 the same day). A busy day simply carries more documents than
+  one digit can number: 2009-12-07 ran to sequence 30.
+
+  **So an X space must be written `X[0-9]{2}-[0-9]{5,6}` at minimum, and
+  better still defined right-anchored**, or a future busier day breaks it
+  the same way. Written `[0-9]{5}` it would make 206 real documents
+  unspellable on the day it sealed — a gap created at birth, inside the work
+  whose purpose is closing one. Given the right shape, X still needs no date
+  argument and still gains the integrity check the legacy scheme cannot
+  have, and it remains the cheapest slice of the 127,883 to close.
+- **E is a year code with systematic spillover, and the year is not
+  reliable.** `E3`→2003 … `E9`→2009, `E10`→2010, and the spillover into the
+  following January is systematic across every head, not one head's quirk
+  (E6→2007: 271, E7→2008: 271, E8→2009: ~317, E9→2010: 368, E3→2004: 24).
+  Worse for any scheme tempted to read the year out of the number:
+  **`E4-20321` was published 2009-08-24** (74 FR 42649, verified against the
+  live Register) — five years off its nominal 2004. Year plus sequence, not
+  a date, and the year is not even a reliable year — so an E scheme needs an
+  external date qualifier exactly the way this one does.
 
 One sibling scheme covering both would have to accept the weaker of the two
 contracts and would discard X's self-validation. Per family, then.
@@ -218,9 +235,14 @@ contracts and would discard X's self-validation. Per family, then.
 The X family overlaps the legacy span rather than following it, so the two
 spaces are not disjoint by date. Measured: **4,401** letter-form numbers
 become well-formed legacy numbers when the leading letter is stripped, and
-**2,372** of those collide with a real, *different* legacy document. Raw
-they are lexically disjoint, so this space is safe as written; the exposure
-is any reader that treats the prefix as noise. Decisively, in **10** of
+**2,382** of those have a bare twin in the corpus — 2,372 published on a
+different date, 10 on the same date. Against the X family's 4,400 members
+that is **54.1%**: stripping the prefix corrupts the *majority* of X
+numbers, not an edge case, which is why X can never be normalised that way.
+(The 206 six-digit X numbers have zero twins, consistent with existing only
+on days busy enough to pass sequence nine.) Raw they are lexically disjoint,
+so this space is safe as written; the exposure is any reader that treats the
+prefix as noise. Decisively, in **10** of
 those collisions the publication date is identical
 (`X97-10423`/`97-10423` both 1997-04-23; `X96-31209`/`96-31209` both
 1996-12-09; eight more) — for those the date qualifier cannot disambiguate
