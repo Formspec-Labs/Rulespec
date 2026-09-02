@@ -508,7 +508,7 @@ experimental US rulemaking profile does so for agenda observations in
 `spec/rkaf-rulemaking.md`.
 
 US regulatory citation identity — `rkaf:hasRegulatoryIdentifier`,
-`rkaf:regulatoryIdentifierScheme`, their six canonical URN grammars, the
+`rkaf:regulatoryIdentifierScheme`, their seven canonical URN grammars, the
 cross-posting rule, and the permanent-URL fallbacks — is a jurisdiction
 profile, not a universal primitive. It is normatively defined in
 `spec/rkaf-rulemaking.md` §5.2, whose shapes compose this Artifact

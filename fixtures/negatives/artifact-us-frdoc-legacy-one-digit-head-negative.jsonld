@@ -1,0 +1,10 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@id": "urn:rkaf:fixture:negative:artifact-us-frdoc-legacy-one-digit-head",
+  "@type": "rkaf:Artifact",
+  "rkaf:hasArtifactIdentifier": "urn:rkaf:fixture:snapshot:artifact-us-frdoc-legacy-one-digit-head",
+  "rkaf:artifactIdentifierScheme": "rkaf:partner-defined",
+  "rkaf:hasRegulatoryIdentifier": "urn:rkaf:us:frdoc-legacy:2-123:2002-01-01",
+  "rkaf:regulatoryIdentifierScheme": "rkaf:us-frdoc-legacy",
+  "_comment": "Negative number boundary: a legacy document number requires a two-digit head."
+}

@@ -5,7 +5,7 @@ import "list"
 // US rulemaking profile — regulatory citation identity on an Artifact.
 //
 // These terms are NOT universal. `rkaf:hasRegulatoryIdentifier`,
-// `rkaf:regulatoryIdentifierScheme`, their six per-scheme grammars, and
+// `rkaf:regulatoryIdentifierScheme`, their seven per-scheme grammars, and
 // `rkaf:publishedInProceeding` are jurisdiction-specific, so the kernel
 // `#Artifact` (constraints/core/artifact.cue) no longer declares them. This
 // profile shape composes the kernel definition and overlays them; the
@@ -19,7 +19,8 @@ import "list"
 // kernel + profile sees the union of both shapes and a kernel-only consumer
 // sees no US term at all.
 #USRegulatoryIdentifierScheme: "rkaf:us-cfr" | "rkaf:us-usc" |
-	"rkaf:us-frdoc" | "rkaf:us-regsgov" | "rkaf:us-pl" | "rkaf:us-eo"
+	"rkaf:us-frdoc" | "rkaf:us-frdoc-legacy" | "rkaf:us-regsgov" |
+	"rkaf:us-pl" | "rkaf:us-eo"
 
 #USRegulatoryArtifact: A={
 	#Artifact
@@ -46,6 +47,9 @@ import "list"
 	}
 	if A["rkaf:regulatoryIdentifierScheme"] == "rkaf:us-frdoc" {
 		"rkaf:hasRegulatoryIdentifier": string & =~"^urn:rkaf:us:frdoc:[0-9]{4}-[0-9]{3,5}$"
+	}
+	if A["rkaf:regulatoryIdentifierScheme"] == "rkaf:us-frdoc-legacy" {
+		"rkaf:hasRegulatoryIdentifier": string & =~"^urn:rkaf:us:frdoc-legacy:[0-9]{2}-[0-9]{1,6}:[0-9]{4}-[0-9]{2}-[0-9]{2}$"
 	}
 	if A["rkaf:regulatoryIdentifierScheme"] == "rkaf:us-regsgov" {
 		"rkaf:hasRegulatoryIdentifier": string & =~"^urn:rkaf:us:regsgov:[A-Z0-9]+([-_][A-Z0-9]+)*$"

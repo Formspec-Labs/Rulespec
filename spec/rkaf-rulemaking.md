@@ -220,8 +220,9 @@ Federal Register documents remain ordinary `rkaf:Artifact` nodes.
 `rkaf:hasArtifactIdentifier` identifies the immutable publication, normally
 with its permanent federalregister.gov document URL, while
 `rkaf:hasRegulatoryIdentifier` may carry the normalized `rkaf:us-frdoc`
-identifier. `rkaf:publishedInProceeding` (0..*) links an Artifact to one or
-more Proceedings, and `rkaf:publishedInDocket` (0..*) links it to one or more
+identifier or the date-qualified `rkaf:us-frdoc-legacy` identifier.
+`rkaf:publishedInProceeding` (0..*) links an Artifact to one or more
+Proceedings, and `rkaf:publishedInDocket` (0..*) links it to one or more
 Dockets. Both are optional; absence means unknown, never "no such membership".
 
 The `rkaf:us-frdoc` grammar is deliberately strict. If an official source
@@ -230,11 +231,12 @@ year, a hyphen, and a three- to five-digit sequence — the Artifact MUST still
 use its permanent federalregister.gov document URL as
 `rkaf:hasArtifactIdentifier` with `rkaf:artifactIdentifierScheme:
 rkaf:urn-persistent`, and the producer MUST NOT label the source value
-`rkaf:us-frdoc`. This is the normative fallback for legacy, correction, and
-other source-preserved forms. It remains the fallback for the two-digit-year
-legacy form (`94-12253`), the letter-opening form (`E8-24348`), and the
-correction form (`C1-2010-1863`), none of which the grammar admits at any
-sequence width.
+`rkaf:us-frdoc`. Two-digit-year legacy numbers use the separate,
+date-qualified `rkaf:us-frdoc-legacy` scheme when a licensed catalog row also
+supplies the publication date. The permanent-publication identifier remains
+the normative fallback when that date is absent and for other source-preserved
+forms, including the letter-opening form (`E8-24348`) and the correction form
+(`C1-2010-1863`).
 
 Federal Register documents need no source-specific subclass. A Unified Agenda
 edition entry uses `rkaf:RegulatoryAgendaObservation`, the Artifact subclass
@@ -306,6 +308,7 @@ The US regulatory schemes use these canonical forms:
 | `rkaf:us-cfr` | A CFR part or section | `urn:rkaf:us:cfr:<title>:<part>[.<section>]`, for example `urn:rkaf:us:cfr:40:60`, `urn:rkaf:us:cfr:40:60.1`, `urn:rkaf:us:cfr:7:15a`, `urn:rkaf:us:cfr:41:101-1`, or `urn:rkaf:us:cfr:40:60.5375a`. Title and part are written without spaces; title has decimal digits and no leading zero. A part is decimal digits which MAY carry either a single lowercase alphabetic suffix (`15a`) or a hyphen-number suffix (`101-1`), never both; normalize an alphabetic part suffix to lowercase. A section may have a lowercase alphabetic suffix of up to three characters and internal lowercase alphanumeric hyphen suffixes. Subparts are outside this identifier grammar. |
 | `rkaf:us-usc` | A U.S. Code section | `urn:rkaf:us:usc:<title>:<section>`, for example `urn:rkaf:us:usc:42:7411`. Omit subsection parentheses. Preserve internal hyphens and normalize alphabetic suffixes to lowercase. |
 | `rkaf:us-frdoc` | A Federal Register document | `urn:rkaf:us:frdoc:<document-number>`, for example `urn:rkaf:us:frdoc:2024-00366` or `urn:rkaf:us:frdoc:2011-237`. The document number is a four-digit year, a hyphen, and a three- to five-digit sequence. The sequence is the source spelling: it is neither padded nor stripped. Official source values outside this grammar use the permanent-publication fallback below. |
+| `rkaf:us-frdoc-legacy` | A date-qualified legacy Federal Register document | `urn:rkaf:us:frdoc-legacy:<document-number>:<publication-date>`, for example `urn:rkaf:us:frdoc-legacy:94-120124:1994-04-28`. The document number is a two-digit head, a hyphen, and a one- to six-digit source-preserved tail. The final component is that document's ISO `YYYY-MM-DD` publication date. The date is part of identity because a legacy number can name more than one published document. Mint only from a licensed catalog row carrying both values; refuse a row whose publication date is null or empty. |
 | `rkaf:us-regsgov` | A regulations.gov docket, document, or comment | `urn:rkaf:us:regsgov:<agency-issued-id>`, for example `urn:rkaf:us:regsgov:EPA-HQ-OAR-2021-0317-0184` or `urn:rkaf:us:regsgov:EPA_FRDOC_0001`. Normalize ASCII letters to uppercase and preserve agency-issued hyphen or underscore separators. Single-segment and legacy identifiers remain source values; producers MUST NOT invent missing segments. Docket containers use the scheme on `rkaf:Docket`, while documents and comments use it on `rkaf:Artifact`; see `spec/rkaf-rulemaking.md`. |
 | `rkaf:us-pl` | A public law | `urn:rkaf:us:pl:<congress>-<law-number>`, for example `urn:rkaf:us:pl:117-58`. Both components are positive decimal integers without leading zeroes. |
 | `rkaf:us-eo` | An Executive order | `urn:rkaf:us:eo:<order-number>`, for example `urn:rkaf:us:eo:14094`. The order number is a positive decimal integer without leading zeroes. |
@@ -316,15 +319,30 @@ the identifier classes owned by the CFR, U.S. Code, Federal Register,
 regulations.gov, Congress, and the Executive Office. This is
 composition-consistent minting under `spec/rkaf-core.md` §9.4.
 
+The legacy bounds are measured rather than inferred. A DuckDB re-derivation on
+2026-09-02 over the pinned 1,004,233-row `federal_register.parquet`, using
+`regexp_matches(document_number,'^[0-9]{2}-[0-9]+$')`, found 395,498 matching
+rows. Tail lengths were 1: 112; 2: 1,258; 3: 13,226; 4: 119,770;
+5: 261,125; and 6: 7, with heads spanning `00` through `99`. All matching rows
+carried a nonempty `publication_date`, and no matching `document_number`
+appeared on more than one parquet row. The zero within-parquet collision count
+does not establish global uniqueness: the ADR amendment records two real
+documents numbered `00-111`, published on 2000-01-14 and 2000-01-18, after the
+rollup retained only the former.
+
 For an official Federal Register document number outside the
-`YYYY-NNN` … `YYYY-NNNNN` grammar, a producer MUST identify the Artifact with
-its permanent `https://www.federalregister.gov/d/<source-value>` URL and
+`YYYY-NNN` … `YYYY-NNNNN` grammar and the date-qualified legacy grammar, a
+producer MUST identify the Artifact with its permanent
+`https://www.federalregister.gov/d/<source-value>` URL and
 `rkaf:artifactIdentifierScheme: rkaf:urn-persistent`. It MUST NOT assert
-`rkaf:regulatoryIdentifierScheme: rkaf:us-frdoc` for the unsupported lexical
-form. Producers MAY retain the source value in provenance metadata. This
-fallback preserves the source document, and it is a fallback rather than a
-second citation space: a producer MUST NOT pad, strip, or otherwise rewrite a
-source value to bring it inside the grammar.
+`rkaf:regulatoryIdentifierScheme: rkaf:us-frdoc` or
+`rkaf:us-frdoc-legacy` for an unsupported lexical form. Producers MAY retain
+the source value in provenance metadata. This fallback preserves the source
+document, and it is a fallback rather than a third citation space: a producer
+MUST NOT pad, strip, or otherwise rewrite a source value to bring it inside a
+grammar. A producer also MUST refuse to mint `rkaf:us-frdoc-legacy` when the
+licensed row lacks a publication date; it MUST NOT infer the date from the
+two-digit head.
 
 The same fallback discipline applies to `rkaf:us-regsgov`: an agency-issued
 identifier outside the canonical grammar — including a legacy value with a

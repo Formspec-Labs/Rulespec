@@ -1,0 +1,10 @@
+{
+  "@context": "../context/rkaf-context.jsonld",
+  "@id": "urn:rkaf:fixture:artifact:frdoc-legacy-00-111-2000-01-18",
+  "@type": "rkaf:Artifact",
+  "rkaf:hasArtifactIdentifier": "urn:rkaf:fixture:snapshot:frdoc-legacy-00-111-2000-01-18",
+  "rkaf:artifactIdentifierScheme": "rkaf:partner-defined",
+  "rkaf:hasRegulatoryIdentifier": "urn:rkaf:us:frdoc-legacy:00-111:2000-01-18",
+  "rkaf:regulatoryIdentifierScheme": "rkaf:us-frdoc-legacy",
+  "_comment": "ADR 2026-09-02 Amendment source: Federal Register API documents/00-111.json identifies a Notice published 2000-01-18. Its date-qualified identifier stays distinct from the parquet's 2000-01-14 Rule."
+}

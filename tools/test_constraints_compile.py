@@ -2453,6 +2453,7 @@ class USRulemakingProfileTests(unittest.TestCase):
             "rkaf:us-cfr",
             "rkaf:us-usc",
             "rkaf:us-frdoc",
+            "rkaf:us-frdoc-legacy",
             "rkaf:us-regsgov",
             "rkaf:us-pl",
             "rkaf:us-eo",
@@ -2463,6 +2464,12 @@ class USRulemakingProfileTests(unittest.TestCase):
                 f"the profile lost the {scheme} canonical-form grammar",
             )
             self.assertTrue(conditions[scheme].startswith("^urn:rkaf:us:"))
+
+        self.assertEqual(
+            "^urn:rkaf:us:frdoc-legacy:[0-9]{2}-[0-9]{1,6}:"
+            "[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+            conditions["rkaf:us-frdoc-legacy"],
+        )
 
         # hasRegulatoryIdentifier present REQUIRES a declared scheme.
         self.assertIn(

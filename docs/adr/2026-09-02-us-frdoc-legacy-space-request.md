@@ -124,3 +124,10 @@ takes the date alongside `column_licensed` when it re-vendors this release.
 Also corrected by measurement (2026-09-02): real legacy tails run 1–6
 digits (histogram 1→112, 2→1,258, 3→13,226, 4→119,770, 5→261,125, 6→7 over
 395,498 values), not the 3–6 this document originally guessed.
+
+Implementation re-derived the amendment's bounds with DuckDB on 2026-09-02
+against the 1,004,233-row preserved `federal_register.parquet`, using
+`regexp_matches(document_number,'^[0-9]{2}-[0-9]+$')`. The histogram and
+395,498-row total matched exactly; heads spanned `00`–`99`. The same pass found
+zero bare-legacy rows with a null or empty `publication_date` and zero
+bare-legacy `document_number` values present on more than one parquet row.

@@ -9,6 +9,18 @@ adapted for a specification + shape + fixture project.
 
 ### Added
 
+- `rkaf:us-frdoc-legacy`, a date-qualified sibling scheme for legacy Federal
+  Register document numbers. Its canonical form is
+  `urn:rkaf:us:frdoc-legacy:<two-digit-head>-<one-to-six-digit-tail>:<YYYY-MM-DD>`;
+  the publication date prevents false joins when one legacy number names more
+  than one document. A DuckDB re-derivation over the pinned 1,004,233-row
+  parquet found 395,498 matching rows, with tail counts 112, 1,258, 13,226,
+  119,770, 261,125, and 7 for lengths one through six; zero rows lacked a
+  publication date, and zero document-number values collided inside the
+  parquet. Seven positive fixtures cover every tail length and both real
+  `00-111` documents; seven negatives fence the number family and required ISO
+  date. The modern `rkaf:us-frdoc` grammar and its legacy-family negative stay
+  unchanged.
 - The normative `spicy-artifact/1.0` target for arbitrary product-owned
   artifacts, with optional derivation and reference-only composition relation
   helpers and one required product-neutral producer record whose module and

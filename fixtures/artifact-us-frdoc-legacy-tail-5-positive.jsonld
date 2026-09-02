@@ -1,0 +1,10 @@
+{
+  "@context": "../context/rkaf-context.jsonld",
+  "@id": "urn:rkaf:fixture:artifact:frdoc-legacy-00-02053-2000-02-04",
+  "@type": "rkaf:Artifact",
+  "rkaf:hasArtifactIdentifier": "https://www.federalregister.gov/documents/2000/02/04/00-02053/minimum-wages-for-federal-and-federally-assisted-construction-general-wage-determination-decisions",
+  "rkaf:artifactIdentifierScheme": "rkaf:urn-persistent",
+  "rkaf:hasRegulatoryIdentifier": "urn:rkaf:us:frdoc-legacy:00-02053:2000-02-04",
+  "rkaf:regulatoryIdentifierScheme": "rkaf:us-frdoc-legacy",
+  "_comment": "Pinned corpus row: federal_register.parquet document_number=00-02053 and publication_date=2000-02-04. This is the measured five-digit-tail positive and preserves the source's leading zero."
+}

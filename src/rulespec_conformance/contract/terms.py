@@ -844,6 +844,7 @@ urn_persistent = Term("rkaf:urn-persistent")
 us_cfr = Term("rkaf:us-cfr")
 us_eo = Term("rkaf:us-eo")
 us_frdoc = Term("rkaf:us-frdoc")
+us_frdoc_legacy = Term("rkaf:us-frdoc-legacy")
 us_pl = Term("rkaf:us-pl")
 us_regsgov = Term("rkaf:us-regsgov")
 us_rin = Term("rkaf:us-rin")
@@ -1705,6 +1706,7 @@ _TERM_NAMES: tuple[str, ...] = (
     "us_cfr",
     "us_eo",
     "us_frdoc",
+    "us_frdoc_legacy",
     "us_pl",
     "us_regsgov",
     "us_rin",

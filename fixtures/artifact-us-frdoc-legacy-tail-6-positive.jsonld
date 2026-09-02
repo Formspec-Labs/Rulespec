@@ -1,0 +1,10 @@
+{
+  "@context": "../context/rkaf-context.jsonld",
+  "@id": "urn:rkaf:fixture:artifact:frdoc-legacy-94-120124-1994-04-28",
+  "@type": "rkaf:Artifact",
+  "rkaf:hasArtifactIdentifier": "https://www.federalregister.gov/documents/1994/04/28/94-120124/self-regulatory-organizations-chicago-stock-exchange-inc-order-approving-proposed-rule-change-to",
+  "rkaf:artifactIdentifierScheme": "rkaf:urn-persistent",
+  "rkaf:hasRegulatoryIdentifier": "urn:rkaf:us:frdoc-legacy:94-120124:1994-04-28",
+  "rkaf:regulatoryIdentifierScheme": "rkaf:us-frdoc-legacy",
+  "_comment": "Pinned corpus row: federal_register.parquet document_number=94-120124 and publication_date=1994-04-28. This is the measured six-digit-tail positive; the bare number remains a negative under rkaf:us-frdoc."
+}

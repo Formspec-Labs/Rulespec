@@ -1,0 +1,10 @@
+{
+  "@context": "../context/rkaf-context.jsonld",
+  "@id": "urn:rkaf:fixture:artifact:frdoc-legacy-00-10-2000-01-04",
+  "@type": "rkaf:Artifact",
+  "rkaf:hasArtifactIdentifier": "https://www.federalregister.gov/documents/2000/01/04/00-10/airworthiness-directives-british-aerospace-model-bac-1-11-200-and-400-series-airplanes",
+  "rkaf:artifactIdentifierScheme": "rkaf:urn-persistent",
+  "rkaf:hasRegulatoryIdentifier": "urn:rkaf:us:frdoc-legacy:00-10:2000-01-04",
+  "rkaf:regulatoryIdentifierScheme": "rkaf:us-frdoc-legacy",
+  "_comment": "Pinned corpus row: federal_register.parquet document_number=00-10 and publication_date=2000-01-04. This is the measured two-digit-tail positive."
+}

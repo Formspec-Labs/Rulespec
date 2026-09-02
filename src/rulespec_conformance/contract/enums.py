@@ -658,6 +658,7 @@ US_REGULATORY_IDENTIFIER_SCHEME: tuple[str, ...] = (
     "rkaf:us-cfr",
     "rkaf:us-usc",
     "rkaf:us-frdoc",
+    "rkaf:us-frdoc-legacy",
     "rkaf:us-regsgov",
     "rkaf:us-pl",
     "rkaf:us-eo",

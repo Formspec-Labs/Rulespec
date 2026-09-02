@@ -16,6 +16,9 @@ pub enum USRegulatoryIdentifierScheme {
     /// Wire value `rkaf:us-frdoc`.
     #[serde(rename = "rkaf:us-frdoc")]
     UsFrdoc,
+    /// Wire value `rkaf:us-frdoc-legacy`.
+    #[serde(rename = "rkaf:us-frdoc-legacy")]
+    UsFrdocLegacy,
     /// Wire value `rkaf:us-regsgov`.
     #[serde(rename = "rkaf:us-regsgov")]
     UsRegsgov,

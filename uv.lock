@@ -111,7 +111,7 @@ source = { editable = "packages/rulespec-artifacts" }
 
 [[package]]
 name = "rulespec-conformance"
-version = "0.2.0rc16"
+version = "0.2.0rc17"
 source = { editable = "." }
 dependencies = [
     { name = "pyshacl" },

@@ -1,0 +1,10 @@
+{
+  "@context": "../context/rkaf-context.jsonld",
+  "@id": "urn:rkaf:fixture:artifact:frdoc-legacy-00-111-2000-01-14",
+  "@type": "rkaf:Artifact",
+  "rkaf:hasArtifactIdentifier": "https://www.federalregister.gov/documents/2000/01/14/00-111/compliance-monitoring-and-miscellaneous-issues-relating-to-the-low-income-housing-credit",
+  "rkaf:artifactIdentifierScheme": "rkaf:urn-persistent",
+  "rkaf:hasRegulatoryIdentifier": "urn:rkaf:us:frdoc-legacy:00-111:2000-01-14",
+  "rkaf:regulatoryIdentifierScheme": "rkaf:us-frdoc-legacy",
+  "_comment": "Pinned corpus row: federal_register.parquet document_number=00-111 and publication_date=2000-01-14, document_type=Rule. This is the measured three-digit-tail positive and the parquet half of the collision pair."
+}
