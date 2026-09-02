@@ -1495,6 +1495,7 @@ class ProfileIsolationCarrierTests(unittest.TestCase):
         "artifact-us-frdoc-legacy-empty-tail-negative",
         "artifact-us-frdoc-legacy-seven-digit-tail-negative",
         "artifact-us-frdoc-legacy-one-digit-head-negative",
+        "artifact-us-frdoc-legacy-letter-prefix-negative",
         "artifact-us-frdoc-legacy-three-digit-head-negative",
         "artifact-us-frdoc-legacy-modern-form-negative",
         "artifact-us-frdoc-legacy-missing-date-negative",

@@ -1,0 +1,10 @@
+{
+  "@context": "../../context/rkaf-context.jsonld",
+  "@id": "urn:rkaf:fixture:negative:artifact-us-frdoc-legacy-letter-prefix",
+  "@type": "rkaf:Artifact",
+  "rkaf:hasArtifactIdentifier": "urn:rkaf:fixture:snapshot:artifact-us-frdoc-legacy-letter-prefix",
+  "rkaf:hasRegulatoryIdentifier": "urn:rkaf:us:frdoc-legacy:X05-10916:2005-09-16",
+  "rkaf:artifactIdentifierScheme": "rkaf:partner-defined",
+  "rkaf:regulatoryIdentifierScheme": "rkaf:us-frdoc-legacy",
+  "_comment": "A letter-form Federal Register number is not a legacy number, and its prefix is not noise. X05-10916 (published 2005-09-16) is real and refused here. Strip the letter and it becomes 05-10916, which is ALSO real -- a different document published 2005-06-03 -- so a normalizer that treats the prefix as noise mints a well-formed date-qualified identifier for the wrong document, indistinguishable from a genuine same-number-different-date pair. Measured 2026-09-02 over the pinned 1,004,233-row federal_register.parquet: 4,401 letter-form numbers strip to well-formed legacy numbers and 2,372 of those collide with a real, different legacy document. The grammar cannot refuse the stripped string (it is well-formed by construction), so this fixture pins the refusal one step earlier, at the raw form."
+}
