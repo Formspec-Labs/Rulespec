@@ -111,8 +111,14 @@ counted).
 
 The modern `rkaf:us-frdoc` space stays date-free on the assumption modern
 numbers are unique; if the full-history crawl falsifies that too, this
-amendment's mechanism extends. The collision count across the legacy range
-lands with the completed crawl and becomes a fixture-cited fact here.
+amendment's mechanism extends. The collision census across the full range
+lands with the completed crawl as a sidecar receipt at
+`~/Work/corpora/supply-2026-09-02/receipts/fr-full-collision-census.json`
+(per entry: documentNumber, observationCount, publicationDates, winner —
+newest date, the API's own resolution — digestsDistinct, and an explicit
+post2000 flag; beside discardedObservationCount and the release pins;
+derived from the release's own evidence, sealed format unmoved). Cite that
+receipt plus its release pin when restating collision facts here.
 Consumer note: RefSpec's `mint_federal_register_document_iri` legacy branch
 takes the date alongside `column_licensed` when it re-vendors this release.
 Also corrected by measurement (2026-09-02): real legacy tails run 1–6
