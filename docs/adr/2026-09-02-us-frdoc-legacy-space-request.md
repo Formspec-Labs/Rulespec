@@ -218,6 +218,25 @@ The two large families carry different semantics, verified 2026-09-02
   whose purpose is closing one. Given the right shape, X still needs no date
   argument and still gains the integrity check the legacy scheme cannot
   have, and it remains the cheapest slice of the 127,883 to close.
+
+  **What X is, and what a scheme keyed on it must not try to encode.** X is
+  an *overflow/typographic* prefix, not a document class. It spans genres:
+  1,949 Uncategorized, 1,615 Correction, 585 Notice, 164 Rule, 48 Proposed
+  Rule, 21 Presidential, 15 Sunshine Act, and 3,922 of 4,400 carry real
+  titles. The heavyweights are substantial published matter -- `X96-20828`
+  is the ~700-page FDA "Nicotine in Cigarettes and Smokeless Tobacco Is a
+  Drug" determination (Rules and Regulations, 61 FR 44619-45318),
+  `X02-80503` and `X02-60503` are 638 and 637 pages of *United States v.
+  Microsoft* public comments -- while the administrative end is equally real
+  (`X02-10911` "CONTENTS"; `X94-10303`, a 1,122-byte contents stub). An
+  earlier hypothesis that X marks Unified Agenda material is **false as a
+  family claim**: it holds on individual specimens but X falls on 250
+  distinct dates in 1994 alone, where a semiannual family would cluster on
+  two to six. So a scheme keyed on the prefix **cannot** encode genre or
+  editorial tier and should not try: **mint all 4,400**. Minting asserts
+  existence, not importance, and `document_type` already carries the tier.
+  A tier distinction, if wanted, keys on `document_type` or content and is a
+  separate decision from identity.
 - **E is a year code with systematic spillover, and the year is not
   reliable.** `E3`→2003 … `E9`→2009, `E10`→2010, and the spillover into the
   following January is systematic across every head, not one head's quirk
@@ -227,6 +246,12 @@ The two large families carry different semantics, verified 2026-09-02
   live Register) — five years off its nominal 2004. Year plus sequence, not
   a date, and the year is not even a reliable year — so an E scheme needs an
   external date qualifier exactly the way this one does.
+
+  **E tails are variable-width too -- the same trap as X, so do not assume a
+  fixed width there either.** Measured over the 119,517-member family:
+  69,418 five-digit tails, 44,385 four, 5,149 three, 514 two, and 51
+  one-digit. (`E8-71` is the single row that reconciles two independently
+  reported spillover counts, 318 vs 317.)
 
 One sibling scheme covering both would have to accept the weaker of the two
 contracts and would discard X's self-validation. Per family, then.
