@@ -548,6 +548,46 @@ def parse_canonical_json(
     return value
 
 
+def parse_admitted_json(
+    raw: bytes, *, path: str = "$", code: str = "invalid.root-syntax"
+) -> Any:
+    """Parse one row of an artifact whose member digest has already been checked.
+
+    Same refusals as :func:`parse_canonical_json` at parse time -- byte order
+    mark, invalid UTF-8, duplicate keys, floats, and the JSON constants -- but
+    it does not re-encode the parsed value to prove the bytes were canonical.
+
+    That proof belongs to the build gate. Admission has already streamed this
+    member, hashed it, and refused it unless the bytes matched the digest the
+    manifest declares, so re-deriving canonical form per row re-proves nothing
+    about integrity: it only re-checks that the producer wrote canonical bytes,
+    which no longer varies once the bytes are pinned. Measured on real catalog
+    rows, the re-encode was 7x the cost of the parse it followed.
+
+    Use it only while reading a member of an artifact admitted through
+    :func:`admit_artifact`. For bytes that have not been through that gate --
+    a root object, a manifest, anything read before or outside admission --
+    :func:`parse_canonical_json` is still the one to call, because there the
+    canonical form is the only thing establishing the bytes are what they claim.
+    """
+
+    if raw.startswith(b"\xef\xbb\xbf"):
+        _fail(code, path, "a UTF-8 byte order mark is forbidden")
+    try:
+        return json.loads(
+            raw.decode("utf-8"),
+            object_pairs_hook=_reject_duplicate_keys,
+            parse_float=_reject_float,
+            parse_constant=_reject_constant,
+        )
+    except ArtifactVerificationError as error:
+        if error.issue.code == code and error.issue.path == path:
+            raise
+        _fail(code, path, error.issue.message)
+    except (UnicodeError, json.JSONDecodeError, ValueError) as error:
+        _fail(code, path, f"invalid JSON: {error}")
+
+
 def _closed_mapping(
     value: object, fields: frozenset[str], *, path: str
 ) -> Mapping[str, Any]:
@@ -3228,6 +3268,7 @@ __all__ = [
     "framed_section_digest",
     "iter_member_descriptors",
     "move_child_directory_no_replace",
+    "parse_admitted_json",
     "parse_canonical_json",
     "publish_child_directory_no_replace",
     "publish_directory_no_replace",

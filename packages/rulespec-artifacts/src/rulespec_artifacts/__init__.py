@@ -3,4 +3,4 @@
 from ._artifact import *
 from ._artifact import __all__ as __all__
 
-__version__ = "1.0.10"
+__version__ = "1.0.11"
