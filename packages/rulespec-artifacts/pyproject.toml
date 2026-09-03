@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "rulespec-artifacts"
-version = "1.0.9"
+version = "1.0.10"
 description = "Product-neutral construction and verification for immutable platform artifacts."
 requires-python = ">=3.12"
 license = { text = "See the Rulespec repository LICENSE and LICENSE-CODE files" }
