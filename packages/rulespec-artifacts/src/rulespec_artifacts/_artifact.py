@@ -10,6 +10,7 @@ from __future__ import annotations
 import codecs
 import ctypes
 import errno
+import functools
 import hashlib
 import io
 import json
@@ -32,6 +33,26 @@ try:
     import fcntl
 except ImportError:  # pragma: no cover - the local adapter fails closed off POSIX.
     fcntl = None  # type: ignore[assignment]
+
+try:
+    # Optional accelerator for _string_bytes: msgspec.json.encode is ~9.6x
+    # faster than json.dumps on representative corpus strings and, like
+    # json.dumps, raises UnicodeEncodeError (not TypeError, unlike orjson) for
+    # a lone Unicode surrogate, so the fail-closed path below is unaffected by
+    # which encoder ran. Imported defensively so the package stays
+    # dependency-light: install the `fast` extra to get it, run unchanged
+    # (falling back to json.dumps) without it.
+    import msgspec
+except ImportError:  # pragma: no cover - exercised by tests via monkeypatch.
+    # Deliberately undeclared, in this package and in its wheel metadata: this
+    # wheel proves an empty dependency closure (`make test-package-artifacts`
+    # asserts `not requires("rulespec-artifacts")`), so msgspec is used only
+    # when a consumer's environment already provides it. Both encoders are
+    # byte-identical over the canonical profile -- control characters, non-BMP,
+    # combining marks, RTL, U+2028/U+2029 -- and both raise UnicodeEncodeError
+    # on a lone surrogate, so which one runs can never move a digest or change
+    # a refusal. It is an accelerator, never a behaviour.
+    msgspec = None  # type: ignore[assignment]
 
 FORMAT = "spicy-artifact"
 FORMAT_VERSION = "1.0"
@@ -174,9 +195,50 @@ def _fail(code: str, path: str, message: str) -> None:
     raise ArtifactVerificationError(VerificationIssue(code, path, message))
 
 
-def _string_bytes(value: str, *, path: str) -> bytes:
+# Bounds both caches below. The hot-path working set is object keys (schema
+# field names, repeated across every record) plus a small vocabulary of
+# repeated identifiers (kinds, roles, media types, statuses) -- at most a few
+# thousand distinct short strings for any one artifact schema, no matter how
+# many records a build processes. 65536 gives generous headroom above that
+# working set -- including e.g. a family of schemas sharing one process --
+# while still bounding memory (each cached entry is a short byte string, so
+# worst case is a few megabytes) instead of growing with the record count.
+# Payload values (titles, document numbers, ...) are overwhelmingly unique
+# per record: they cost a cache miss like before, and past this bound they
+# evict the hot keys instead of growing the cache without limit.
+_STRING_ENCODE_CACHE_MAXSIZE = 65536
+
+
+def _encode_string(value: str) -> bytes:
+    """Encode one JSON string value, using msgspec when it is importable."""
+
+    if msgspec is not None:
+        return msgspec.json.encode(value)
+    return json.dumps(value, ensure_ascii=False, allow_nan=False).encode("utf-8")
+
+
+@functools.lru_cache(maxsize=_STRING_ENCODE_CACHE_MAXSIZE)
+def _encode_string_cached(value: str) -> bytes | None:
+    # `path` is deliberately not a parameter here: it only ever varies the
+    # error message on the (rare, terminal) refusal path, so keeping it out
+    # of the cache key is what lets millions of repeated object keys and
+    # identifiers actually hit this cache. A string that cannot be encoded
+    # returns the sentinel None instead of letting the exception propagate,
+    # so the caller can fail with a path-specific message on every call
+    # without a lone surrogate poisoning the cache with a stale exception
+    # instance for every later occurrence of the same string.
     try:
-        return json.dumps(value, ensure_ascii=False, allow_nan=False).encode("utf-8")
+        return _encode_string(value)
+    except UnicodeEncodeError:
+        return None
+
+
+def _string_bytes(value: str, *, path: str) -> bytes:
+    encoded = _encode_string_cached(value)
+    if encoded is not None:
+        return encoded
+    try:
+        _encode_string(value)
     except UnicodeEncodeError as error:
         _fail(
             "invalid.root-syntax",
@@ -185,9 +247,28 @@ def _string_bytes(value: str, *, path: str) -> bytes:
         )
 
 
-def _utf16_sort_key(value: str) -> bytes:
+def _sort_key_bytes(value: str) -> bytes:
+    return value.encode("utf-16-be")
+
+
+@functools.lru_cache(maxsize=_STRING_ENCODE_CACHE_MAXSIZE)
+def _sort_key_bytes_cached(value: str) -> bytes | None:
+    # Same shape and same reason as _encode_string_cached: _utf16_sort_key
+    # runs once per object key per record on the same hot path, its path
+    # argument is always the fixed literal "$" rather than a real per-call
+    # path, and a failing string must not cache a stale exception.
     try:
-        return value.encode("utf-16-be")
+        return _sort_key_bytes(value)
+    except UnicodeEncodeError:
+        return None
+
+
+def _utf16_sort_key(value: str) -> bytes:
+    encoded = _sort_key_bytes_cached(value)
+    if encoded is not None:
+        return encoded
+    try:
+        _sort_key_bytes(value)
     except UnicodeEncodeError as error:
         _fail(
             "invalid.root-syntax",

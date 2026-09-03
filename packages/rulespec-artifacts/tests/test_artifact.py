@@ -11,8 +11,7 @@ import unittest
 from pathlib import Path
 
 import canonical_corpus_runner
-from rulespec_artifacts import resources
-from rulespec_artifacts import __version__ as PACKAGE_VERSION
+
 from rulespec_artifacts import (
     ROOT_OBJECT_KEY,
     ArtifactInput,
@@ -29,6 +28,7 @@ from rulespec_artifacts import (
     MemberSourceError,
     PinnedLocalDirectory,
     Producer,
+    _artifact,
     admit_artifact,
     build_artifact_root,
     canonical_json_bytes,
@@ -39,12 +39,14 @@ from rulespec_artifacts import (
     parse_canonical_json,
     publish_child_directory_no_replace,
     publish_directory_no_replace,
+    resources,
     schema_bundle_digest,
     sha256_digest,
     validate_composition_relation,
     validate_derivation_relation,
     verify_artifact,
 )
+from rulespec_artifacts import __version__ as PACKAGE_VERSION
 
 
 class MemorySource:
@@ -203,6 +205,185 @@ class CanonicalTests(unittest.TestCase):
         self.assertEqual(schema_bundle_digest(base), schema_bundle_digest(changed_ids))
         with self.assertRaisesRegex(ValueError, "missing schema"):
             schema_bundle_digest({"root.json": {"$ref": "missing.json"}})
+
+
+# RS-2: `_string_bytes` and `_utf16_sort_key` are the innermost hot-path
+# functions of canonical_json_bytes, called once per string/key across every
+# record of a build. These tests hold their optimized shape (an optional
+# msgspec accelerator, an lru_cache keyed only on the string) to the same
+# byte-identical, fail-closed behavior the unoptimized json.dumps call had.
+_HARD_CHARACTER_SET = (
+    [""]
+    + [chr(codepoint) for codepoint in range(0x20)]  # every C0 control
+    + [chr(0x7F)]  # DEL
+    + ['"', "\\", "a\"b\\c\td\ne\rf"]
+    + ["\U0001F600", "\U0001F4A9\U0001F680"]  # non-BMP emoji
+    + ["é", "ņ̃"]  # combining acute, combining tilde+cedilla
+    + ["مرحبا العالم"]  # Arabic RTL
+    + ["שלום"]  # Hebrew RTL
+    + [" ", " ", "line1 line2 line3"]
+    + ["x" * 200_000]  # very long plain string
+    + [("é\n\t\"\\" * 5_000)]  # very long string mixing multibyte + escapes
+)
+
+
+class StringEncodingTests(unittest.TestCase):
+    """Cover RS-2: the msgspec/json switch and the lru_cache on _string_bytes
+    and _utf16_sort_key stay byte-identical to, and fail exactly like, the
+    original uncached json.dumps-only implementation.
+    """
+
+    def setUp(self) -> None:
+        self._original_msgspec = _artifact.msgspec
+        _artifact._encode_string_cached.cache_clear()
+        _artifact._sort_key_bytes_cached.cache_clear()
+
+    def tearDown(self) -> None:
+        _artifact.msgspec = self._original_msgspec
+        _artifact._encode_string_cached.cache_clear()
+        _artifact._sort_key_bytes_cached.cache_clear()
+
+    def _string_bytes_forcing_msgspec(self, value: str, *, active: bool) -> bytes:
+        _artifact.msgspec = self._original_msgspec if active else None
+        _artifact._encode_string_cached.cache_clear()
+        return _artifact._string_bytes(value, path="$")
+
+    @unittest.skipUnless(_artifact.msgspec is not None, "msgspec is not installed")
+    def test_msgspec_and_json_paths_are_byte_identical(self) -> None:
+        for value in _HARD_CHARACTER_SET:
+            with self.subTest(value=repr(value)[:60]):
+                via_msgspec = self._string_bytes_forcing_msgspec(value, active=True)
+                via_json = self._string_bytes_forcing_msgspec(value, active=False)
+                self.assertEqual(via_msgspec, via_json)
+                # And both agree with a from-scratch json.dumps call, so the
+                # accelerator is measured against the ground truth, not just
+                # against itself.
+                self.assertEqual(
+                    via_json,
+                    json.dumps(value, ensure_ascii=False, allow_nan=False).encode("utf-8"),
+                )
+
+    def test_json_fallback_matches_json_dumps_when_msgspec_is_unavailable(self) -> None:
+        # Runs regardless of whether msgspec happens to be installed: forcing
+        # the module flag off is what proves the package "works unchanged
+        # where msgspec is absent," not just that the two happen to agree.
+        for value in _HARD_CHARACTER_SET:
+            with self.subTest(value=repr(value)[:60]):
+                encoded = self._string_bytes_forcing_msgspec(value, active=False)
+                self.assertEqual(
+                    encoded,
+                    json.dumps(value, ensure_ascii=False, allow_nan=False).encode("utf-8"),
+                )
+
+    def test_lone_surrogate_refuses_via_json_fallback(self) -> None:
+        for surrogate in ("\ud800", "\udc00"):
+            with self.subTest(surrogate=repr(surrogate)):
+                _artifact.msgspec = None
+                _artifact._encode_string_cached.cache_clear()
+                with self.assertRaises(ArtifactVerificationError) as ctx:
+                    _artifact._string_bytes(surrogate, path="$/example")
+                self.assertEqual(ctx.exception.issue.code, "invalid.root-syntax")
+                self.assertEqual(ctx.exception.issue.path, "$/example")
+                self.assertIn("lone Unicode surrogate", ctx.exception.issue.message)
+
+    @unittest.skipUnless(_artifact.msgspec is not None, "msgspec is not installed")
+    def test_lone_surrogate_refuses_via_msgspec(self) -> None:
+        for surrogate in ("\ud800", "\udc00"):
+            with self.subTest(surrogate=repr(surrogate)):
+                _artifact.msgspec = self._original_msgspec
+                _artifact._encode_string_cached.cache_clear()
+                with self.assertRaises(ArtifactVerificationError) as ctx:
+                    _artifact._string_bytes(surrogate, path="$/example")
+                self.assertEqual(ctx.exception.issue.code, "invalid.root-syntax")
+                self.assertEqual(ctx.exception.issue.path, "$/example")
+                self.assertIn("lone Unicode surrogate", ctx.exception.issue.message)
+                # msgspec really did run: it raises UnicodeEncodeError just as
+                # json.dumps does (unlike orjson, which raises TypeError and
+                # would slip past this handler), so both backends land on the
+                # same diagnostic code and path.
+                with self.assertRaises(UnicodeEncodeError):
+                    _artifact.msgspec.json.encode(surrogate)
+
+    def test_utf16_sort_key_lone_surrogate_refuses(self) -> None:
+        for surrogate in ("\ud800", "\udc00"):
+            with self.subTest(surrogate=repr(surrogate)):
+                _artifact._sort_key_bytes_cached.cache_clear()
+                with self.assertRaises(ArtifactVerificationError) as ctx:
+                    _artifact._utf16_sort_key(surrogate)
+                self.assertEqual(ctx.exception.issue.code, "invalid.root-syntax")
+                self.assertEqual(ctx.exception.issue.path, "$")
+                self.assertIn("lone Unicode surrogate", ctx.exception.issue.message)
+
+    def test_repeated_string_hits_the_cache_and_path_is_not_a_cache_key(self) -> None:
+        _artifact._encode_string_cached.cache_clear()
+        value = "document_number"
+        self.assertEqual(_artifact._encode_string_cached.cache_info().hits, 0)
+
+        first = _artifact._string_bytes(value, path="$/records/0/key")
+        after_first = _artifact._encode_string_cached.cache_info()
+        self.assertEqual(after_first.misses, 1)
+        self.assertEqual(after_first.hits, 0)
+
+        # A different path for the same string must still hit the cache --
+        # path is excluded from the cache key on purpose, or every call in a
+        # real build (where the path differs per record) would miss.
+        second = _artifact._string_bytes(value, path="$/records/1/key")
+        after_second = _artifact._encode_string_cached.cache_info()
+        self.assertEqual(after_second.misses, 1)
+        self.assertEqual(after_second.hits, 1)
+        self.assertEqual(first, second)
+
+    def test_repeated_sort_key_hits_the_cache(self) -> None:
+        _artifact._sort_key_bytes_cached.cache_clear()
+        value = "document_number"
+        _artifact._utf16_sort_key(value)
+        after_first = _artifact._sort_key_bytes_cached.cache_info()
+        self.assertEqual(after_first.misses, 1)
+        self.assertEqual(after_first.hits, 0)
+        _artifact._utf16_sort_key(value)
+        after_second = _artifact._sort_key_bytes_cached.cache_info()
+        self.assertEqual(after_second.misses, 1)
+        self.assertEqual(after_second.hits, 1)
+
+    def test_refusal_is_not_cached_as_a_stale_exception(self) -> None:
+        # Calling twice with a string that cannot be encoded must still
+        # refuse both times, each time reporting the path of that specific
+        # call -- proving no exception instance (bound to the first call's
+        # path) leaked out of the cache on the second call.
+        _artifact._encode_string_cached.cache_clear()
+        surrogate = "\udead"
+
+        with self.assertRaises(ArtifactVerificationError) as first:
+            _artifact._string_bytes(surrogate, path="$/first")
+        with self.assertRaises(ArtifactVerificationError) as second:
+            _artifact._string_bytes(surrogate, path="$/second")
+
+        self.assertEqual(first.exception.issue.code, "invalid.root-syntax")
+        self.assertEqual(second.exception.issue.code, "invalid.root-syntax")
+        self.assertEqual(first.exception.issue.path, "$/first")
+        self.assertEqual(second.exception.issue.path, "$/second")
+        self.assertIsNot(first.exception, second.exception)
+
+        # The cached layer stores the *fact* of failure (a None sentinel), so
+        # the second call is a cache hit -- but that sentinel is a plain
+        # value, not the exception, which is why the path came out right
+        # above instead of replaying the first call's path.
+        info = _artifact._encode_string_cached.cache_info()
+        self.assertEqual(info.misses, 1)
+        self.assertEqual(info.hits, 1)
+
+    def test_sort_key_refusal_is_not_cached_as_a_stale_exception(self) -> None:
+        _artifact._sort_key_bytes_cached.cache_clear()
+        surrogate = "\udead"
+
+        with self.assertRaises(ArtifactVerificationError):
+            _artifact._utf16_sort_key(surrogate)
+        with self.assertRaises(ArtifactVerificationError):
+            _artifact._utf16_sort_key(surrogate)
+
+        info = _artifact._sort_key_bytes_cached.cache_info()
+        self.assertEqual(info.misses, 1)
+        self.assertEqual(info.hits, 1)
 
 
 class ArtifactTests(unittest.TestCase):
