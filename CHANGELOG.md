@@ -5,7 +5,7 @@ All notable changes to Rulespec are documented in this file.
 The format is loosely based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 adapted for a specification + shape + fixture project.
 
-## Unreleased
+## 0.2.0-pre.18 — Platform artifacts, the contract package, and Federal Register identifier spaces
 
 ### Added
 
@@ -170,100 +170,9 @@ adapted for a specification + shape + fixture project.
 - Local file-state receipts can be read and closed after admission moves
   between worker threads without leaking a SQLite finalizer error.
 
-## 0.2.0-pre.9 — Vocabulary carriage and lifecycle closure
+### US regulatory identifiers, L0 conformance, and rulemaking module
 
-### Packaging
-
-- Packaged the conformance validator as `rulespec-conformance`, a
-  console-script distribution (`rulespec-ci-validate`). The SHACL suite,
-  compiled schemas, JSON-LD context and fixture corpus ship as package data, so
-  a consumer validates graphs without a Rulespec checkout. `conformance_lib`,
-  `reference_release_digest` and `ci_validate` moved to
-  `src/rulespec_conformance/`; the `tools/` names remain as shims. Not
-  published to an index; build it with `make compile && uv build --wheel`.
-- Added `make test-package`, which builds the wheel and runs it from an empty
-  environment outside the checkout. It is part of `make test` because no other
-  gate can catch a data directory missing from the distribution.
-- `tools/version_sync.py` now propagates `VERSION` into `pyproject.toml`. PEP
-  440 normalises `0.2.0-pre.9` to `0.2.0rc9`, so the string carries unchanged.
-- Re-keyed the M2 core release: `validator_artifacts` pins the validator's new
-  path, which re-derived the core release digest and every fixture pinning it.
-
-### Changed
-
-- Replaced flat SKOS text values with BCP 47 language maps. Preferred labels
-  carry one value per language; alternate and hidden labels, definitions,
-  examples, and SKOS notes carry one or more. Notation now uses explicit,
-  absolute datatype IRIs.
-- Preserved every in-scheme hierarchy relation, including multiple broader
-  parents, and required each target to be a typed concept in the same scheme.
-- Required `rkaf:registeredAt` on registered concepts and moved concept
-  deprecation, withdrawal, replacement, split, merge, promotion, and demotion
-  into one participant- and release-pinned lifecycle record. Events with
-  successors now require distinct predecessor and successor release IRIs.
-- Completed `rkaf:ConceptResolutionResult` with method, cache status, usage
-  ceiling, and conditional mapping evidence. The reference runtime now emits
-  the complete record deterministically.
-- Added the RefSpec `rkaf:openLabel` profile with required language, facet,
-  role, provenance, and evidence.
-
-### Validation
-
-- Added positive and negative fixtures for multilingual labels, label
-  collisions, typed notation, multiple parents, same-scheme typing, every
-  lifecycle operation and cardinality, open labels, and concept resolution.
-- Extended the constraint compiler, generated JSON Schema, SHACL, Rust,
-  TypeScript, CUE, and Rego outputs, and cross-target parity checks for the new
-  vocabulary carriers and conditional rules.
-- Added the `x-rkaf-not-equal` JSON Schema extension and shared Python and Rust
-  enforcement for CUE sibling-value inequalities. Generated SHACL, TypeScript,
-  and Rego validators enforce the same comparison.
-- Updated the negative-fixture gate to test authored JSON form alongside the
-  expanded RDF graph so JSON-LD distinctions that disappear during expansion
-  remain enforceable.
-
-## 0.2.0-pre.8 — Portable evidence and reference-resource semantics
-
-### Changed
-
-- Reduced `rkaf:assertionOrigin` to construction facts:
-  `humanAsserted`, `aiSuggested`, `imported`, and
-  `deterministicExtraction`. Added required `rkaf:epistemicBasis` to every
-  durable assertion. AI suggestions require lineage and a mechanically
-  enforced provisional usage cap; review remains an Attestation.
-- Made inverse `rkaf:EvidenceBinding` universal across every durable assertion
-  form. Fragment-backed bindings now require independent `rkaf:evidenceRole`
-  and `rkaf:evidentiaryFunction` values.
-- Normalized `rkaf:ConceptAssignment` and `rkaf:ConceptMapping` onto canonical
-  RelationshipAssertion fields and removed their shadow fields. Assignments
-  and mapping endpoints now pin exact reference-resource releases.
-- Replaced mutable `rkaf:conceptStatus` and inline mapping publication state
-  with immutable release membership, Attestations, and lifecycle records.
-- Added `rkaf:ReferenceResourceRelease`, including complete, partial, and
-  non-enumerated membership modes, immutable distributions, and an RDFC-1.0
-  semantic-manifest digest.
-- Added BCP 47 language-tagged `ValueAssertion` literals while retaining
-  native SKOS labels and definitions as the multilingual vocabulary carrier.
-- Added media-type, access-scope, and retention carriage across the relevant
-  artifacts, assertions, attestations, evidence bindings, and fragments.
-
-### Validation
-
-- Added migration-negative fixtures for retired origins, concept status,
-  assignment and mapping shadow fields, invalid release pins, invalid
-  membership modes, and invalid language-tagged literals.
-- Added a reproducible RDFC-1.0 reference-release digest tool, mutation and
-  canonical-escaping vectors, blank-node rejection, and production L3
-  integration. The positive, negative, and conformance-report gates now
-  recompute release digests rather than accepting a lexical SHA-256 value.
-- Pinned the conforming `rdfcanon==1.0.0` implementation, aligned CI with
-  `requirements.txt`, and made the default Makefile gate resolve Python 3.12.
-- Regenerated JSON Schema, SHACL, Rust, TypeScript, and OpenAPI outputs from
-  the CUE sources at version `0.2.0-pre.8`.
-
-## Unreleased — US regulatory identifiers, L0 conformance, and rulemaking module
-
-### Added
+#### Added
 
 - **`rkaf:declared-hypothesis`, a fifth `rkaf:noEvidenceReason` value**
   (Core §4.3, "Declared hypothesis"). It means the assertion is a deliberately
@@ -885,7 +794,7 @@ adapted for a specification + shape + fixture project.
   `rkaf:hasExtractionProvenance`, `rkaf:hasConfidence`, `rkaf:hasAccessScope`,
   `rkaf:supersedesAssertion`, and `rkaf:assertedAt`. All optional and additive.
 
-### Changed
+#### Changed
 
 - **Core §2.1 decides the direct-edge / reified-assertion pair** ("Projected
   edges and reified assertions"). The same edge could be stated twice — as a
@@ -1108,7 +1017,7 @@ adapted for a specification + shape + fixture project.
   `rkaf:ValueAssertion` closes over the same two values. The definition name
   and its values are unchanged.
 
-### Added — US regulatory identifiers, L0 conformance, and the rulemaking module
+#### Added — US regulatory identifiers, L0 conformance, and the rulemaking module
 
 - Six closed US regulatory-identifier values for CFR, U.S. Code, Federal
   Register document, regulations.gov document/comment, public-law, and
@@ -1141,7 +1050,7 @@ adapted for a specification + shape + fixture project.
   with a cross-target lineage fixture. The generic core composes public version
   lineage instead of minting Work or Expression classes.
 
-### Changed
+#### Changed
 
 - Incorporated the Spicy Regs full-corpus findings: proceeding stage is
   optional when unknown, CommentPeriod requires qualified PROV-O evidence, and
@@ -1237,13 +1146,104 @@ adapted for a specification + shape + fixture project.
   this file should not have to rediscover. All other 312 shared fixture rows
   are verdict-identical across L1/L2/L3.
 
-### Deferred by contract
+#### Deferred by contract
 
 - The Spicy Regs L0 certificate remains in the consumer repository beside its
   carrier mapping and corpus evidence; this repository does not mirror or
   overstate that external claim.
 - These changes remain Unreleased after `v0.2.0-pre.7`; that tag records the
   prerequisite consolidation and intentionally excludes this feature.
+
+## 0.2.0-pre.9 — Vocabulary carriage and lifecycle closure
+
+### Packaging
+
+- Packaged the conformance validator as `rulespec-conformance`, a
+  console-script distribution (`rulespec-ci-validate`). The SHACL suite,
+  compiled schemas, JSON-LD context and fixture corpus ship as package data, so
+  a consumer validates graphs without a Rulespec checkout. `conformance_lib`,
+  `reference_release_digest` and `ci_validate` moved to
+  `src/rulespec_conformance/`; the `tools/` names remain as shims. Not
+  published to an index; build it with `make compile && uv build --wheel`.
+- Added `make test-package`, which builds the wheel and runs it from an empty
+  environment outside the checkout. It is part of `make test` because no other
+  gate can catch a data directory missing from the distribution.
+- `tools/version_sync.py` now propagates `VERSION` into `pyproject.toml`. PEP
+  440 normalises `0.2.0-pre.9` to `0.2.0rc9`, so the string carries unchanged.
+- Re-keyed the M2 core release: `validator_artifacts` pins the validator's new
+  path, which re-derived the core release digest and every fixture pinning it.
+
+### Changed
+
+- Replaced flat SKOS text values with BCP 47 language maps. Preferred labels
+  carry one value per language; alternate and hidden labels, definitions,
+  examples, and SKOS notes carry one or more. Notation now uses explicit,
+  absolute datatype IRIs.
+- Preserved every in-scheme hierarchy relation, including multiple broader
+  parents, and required each target to be a typed concept in the same scheme.
+- Required `rkaf:registeredAt` on registered concepts and moved concept
+  deprecation, withdrawal, replacement, split, merge, promotion, and demotion
+  into one participant- and release-pinned lifecycle record. Events with
+  successors now require distinct predecessor and successor release IRIs.
+- Completed `rkaf:ConceptResolutionResult` with method, cache status, usage
+  ceiling, and conditional mapping evidence. The reference runtime now emits
+  the complete record deterministically.
+- Added the RefSpec `rkaf:openLabel` profile with required language, facet,
+  role, provenance, and evidence.
+
+### Validation
+
+- Added positive and negative fixtures for multilingual labels, label
+  collisions, typed notation, multiple parents, same-scheme typing, every
+  lifecycle operation and cardinality, open labels, and concept resolution.
+- Extended the constraint compiler, generated JSON Schema, SHACL, Rust,
+  TypeScript, CUE, and Rego outputs, and cross-target parity checks for the new
+  vocabulary carriers and conditional rules.
+- Added the `x-rkaf-not-equal` JSON Schema extension and shared Python and Rust
+  enforcement for CUE sibling-value inequalities. Generated SHACL, TypeScript,
+  and Rego validators enforce the same comparison.
+- Updated the negative-fixture gate to test authored JSON form alongside the
+  expanded RDF graph so JSON-LD distinctions that disappear during expansion
+  remain enforceable.
+
+## 0.2.0-pre.8 — Portable evidence and reference-resource semantics
+
+### Changed
+
+- Reduced `rkaf:assertionOrigin` to construction facts:
+  `humanAsserted`, `aiSuggested`, `imported`, and
+  `deterministicExtraction`. Added required `rkaf:epistemicBasis` to every
+  durable assertion. AI suggestions require lineage and a mechanically
+  enforced provisional usage cap; review remains an Attestation.
+- Made inverse `rkaf:EvidenceBinding` universal across every durable assertion
+  form. Fragment-backed bindings now require independent `rkaf:evidenceRole`
+  and `rkaf:evidentiaryFunction` values.
+- Normalized `rkaf:ConceptAssignment` and `rkaf:ConceptMapping` onto canonical
+  RelationshipAssertion fields and removed their shadow fields. Assignments
+  and mapping endpoints now pin exact reference-resource releases.
+- Replaced mutable `rkaf:conceptStatus` and inline mapping publication state
+  with immutable release membership, Attestations, and lifecycle records.
+- Added `rkaf:ReferenceResourceRelease`, including complete, partial, and
+  non-enumerated membership modes, immutable distributions, and an RDFC-1.0
+  semantic-manifest digest.
+- Added BCP 47 language-tagged `ValueAssertion` literals while retaining
+  native SKOS labels and definitions as the multilingual vocabulary carrier.
+- Added media-type, access-scope, and retention carriage across the relevant
+  artifacts, assertions, attestations, evidence bindings, and fragments.
+
+### Validation
+
+- Added migration-negative fixtures for retired origins, concept status,
+  assignment and mapping shadow fields, invalid release pins, invalid
+  membership modes, and invalid language-tagged literals.
+- Added a reproducible RDFC-1.0 reference-release digest tool, mutation and
+  canonical-escaping vectors, blank-node rejection, and production L3
+  integration. The positive, negative, and conformance-report gates now
+  recompute release digests rather than accepting a lexical SHA-256 value.
+- Pinned the conforming `rdfcanon==1.0.0` implementation, aligned CI with
+  `requirements.txt`, and made the default Makefile gate resolve Python 3.12.
+- Regenerated JSON Schema, SHACL, Rust, TypeScript, and OpenAPI outputs from
+  the CUE sources at version `0.2.0-pre.8`.
 
 ## v0.2.0-pre.7 — Constraint, runtime, and composition consolidation
 
