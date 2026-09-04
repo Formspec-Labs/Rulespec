@@ -117,7 +117,6 @@ dependencies = [
     { name = "pyshacl" },
     { name = "rdfcanon" },
     { name = "rdflib" },
-    { name = "rulespec-artifacts" },
 ]
 
 [package.metadata]
@@ -125,7 +124,6 @@ requires-dist = [
     { name = "pyshacl", specifier = ">=0.31.0" },
     { name = "rdfcanon", specifier = "==1.0.0" },
     { name = "rdflib", specifier = ">=7.0.0" },
-    { name = "rulespec-artifacts", editable = "packages/rulespec-artifacts" },
 ]
 
 [[package]]
