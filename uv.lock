@@ -106,7 +106,7 @@ html = [
 
 [[package]]
 name = "rulespec-artifacts"
-version = "1.0.10"
+version = "1.0.11"
 source = { editable = "packages/rulespec-artifacts" }
 
 [[package]]
