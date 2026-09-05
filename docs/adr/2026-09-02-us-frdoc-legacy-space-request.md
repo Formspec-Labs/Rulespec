@@ -270,7 +270,11 @@ The two large families carry different semantics, verified 2026-09-02
   **`E4-20321` was published 2009-08-24** (74 FR 42649, verified against the
   live Register) — five years off its nominal 2004. Year plus sequence, not
   a date, and the year is not even a reliable year — so an E scheme needs an
-  external date qualifier exactly the way this one does.
+  external date qualifier exactly the way this one does. *(Reversed
+  2026-09-05 by `2026-09-05-us-frdoc-e-space-request.md`: the qualifier's
+  job here is disambiguating collisions, and the E family, measured closed,
+  has none; the accepted scheme is bare, and a qualifier would split one
+  document into two IRIs wherever catalogs disagree on a date.)*
 
   **E tails are variable-width too -- the same trap as X, so do not assume a
   fixed width there either.** Measured over the 119,517-member family:
