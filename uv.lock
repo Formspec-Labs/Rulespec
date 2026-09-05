@@ -6,6 +6,7 @@ requires-python = ">=3.12"
 members = [
     "rulespec-artifacts",
     "rulespec-conformance",
+    "rulespec-projection",
 ]
 
 [[package]]
@@ -127,6 +128,11 @@ requires-dist = [
     { name = "rdflib", specifier = ">=7.0.0" },
     { name = "rulespec-artifacts", editable = "packages/rulespec-artifacts" },
 ]
+
+[[package]]
+name = "rulespec-projection"
+version = "0.1.0"
+source = { editable = "packages/rulespec-projection" }
 
 [[package]]
 name = "sortedcontainers"

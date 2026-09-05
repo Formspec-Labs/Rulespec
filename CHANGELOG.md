@@ -5,6 +5,25 @@ All notable changes to Rulespec are documented in this file.
 The format is loosely based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 adapted for a specification + shape + fixture project.
 
+## Unreleased
+
+### Added
+
+- `rulespec-projection`, a third distribution beside `rulespec-artifacts`:
+  the deterministic layer of the RKAF document projection, moved from
+  spicy-regs `docpipeline/rkaf_projection.py` at `8d9e7a2` (spicy-regs
+  `docs/disposition.md` item 4). It verifies every fragment by re-slicing the
+  stored text, mints canonical CFR/USC/RIN/FR-document/regs.gov IRIs, reifies
+  the relationship rows published tables already assert, re-verifies a model
+  layer's candidate rows, and assembles the JSON-LD document with its run
+  record. It depends on nothing outside the standard library; the two places
+  the producer read Parquet are declared seams (`SourceArtifact`, six
+  attributes; `PublishedTables`, one query) that the producer's own types
+  satisfy unchanged. Its 30 tests read six fixtures produced by running the
+  original code at `8d9e7a2`, so parity is with the producer, never with
+  itself. `make test-package-projection` proves the installed wheel's
+  dependency closure is empty and reruns the suite against the installed copy.
+
 ## 0.2.0-pre.18 — Platform artifacts, the contract package, and Federal Register identifier spaces
 
 ### Added

@@ -1,0 +1,22 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "rulespec-projection"
+version = "0.1.0"
+description = "The deterministic layer of the Rulespec (RKAF) document projection: verified fragments, canonical citation IRIs, and the assembled JSON-LD."
+readme = "README.md"
+requires-python = ">=3.12"
+license = { text = "See the Rulespec repository LICENSE and LICENSE-CODE files" }
+# No dependencies, on purpose. Everything here is standard library; the two
+# places the producer read Parquet are declared seams (SourceArtifact,
+# PublishedTables) the caller fills.
+dependencies = []
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/rulespec_projection"]
+
+[tool.hatch.build.targets.wheel.force-include]
+"../../LICENSE" = "rulespec_projection/_data/LICENSE"
+"../../LICENSE-CODE" = "rulespec_projection/_data/LICENSE-CODE"

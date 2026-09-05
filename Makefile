@@ -17,14 +17,16 @@ CARGO_MANIFEST = --manifest-path crates/Cargo.toml
 # targets other than cue-vet). Run tools/install-cue.sh once to populate it.
 CUE           = .tools/cue
 
-.PHONY: all help build build-runtime-cli test test-rust test-shapes test-reference-corpora test-audits test-conformance test-package test-package-artifacts test-package-conformance test-artifact-encoder-compat clean compile cue-vet
+.PHONY: all help build build-runtime-cli test test-rust test-shapes test-reference-corpora test-audits test-conformance test-package test-package-artifacts test-package-conformance test-package-projection test-artifact-encoder-compat clean compile cue-vet
 
 # Scratch venvs for installed-wheel checks. Each stays outside the tree so no
 # source checkout can satisfy an import. Keeping the artifact-only environment
 # separate also proves its dependency closure excludes the graph stack.
 ARTIFACT_PACKAGE_CHECK_DIR = $(shell printf '%s' "$${TMPDIR:-/tmp}")rulespec-artifact-package-check
 CONFORMANCE_PACKAGE_CHECK_DIR = $(shell printf '%s' "$${TMPDIR:-/tmp}")rulespec-conformance-package-check
+PROJECTION_PACKAGE_CHECK_DIR = $(shell printf '%s' "$${TMPDIR:-/tmp}")rulespec-projection-package-check
 ARTIFACT_WHEEL_GLOB = dist/artifacts/rulespec_artifacts-*.whl
+PROJECTION_WHEEL_GLOB = dist/projection/rulespec_projection-*.whl
 PREVIOUS_ARTIFACT_WHEEL ?=
 
 all: build
@@ -39,9 +41,10 @@ help:
 	@echo "  make test-reference-corpora — validate shipped reference-corpus JSON-LD"
 	@echo "  make test-audits        — vocab, coverage, rename, constraints-parity, projector-parity, version-sync, semantic carriers"
 	@echo "  make test-conformance   — L1-L4 report plus L0 carrier-mapping audit"
-	@echo "  make test-package       — run both installed-wheel checks outside the checkout"
+	@echo "  make test-package       — run every installed-wheel check outside the checkout"
 	@echo "  make test-package-artifacts — prove the artifact-only wheel and dependency closure"
 	@echo "  make test-package-conformance — prove the full graph validator wheel"
+	@echo "  make test-package-projection — prove the projection wheel and its empty dependency closure"
 	@echo "  make test-artifact-encoder-compat PREVIOUS_ARTIFACT_WHEEL=... — compare release encoders"
 	@echo "  make cue-vet            — validate CUE source syntax (requires tools/install-cue.sh)"
 	@echo "  make compile            — regenerate JSON Schema + Rust + SHACL + TS from CUE"
@@ -66,7 +69,7 @@ test: test-rust test-shapes test-audits test-conformance test-package
 
 # The artifact wheel and graph validator use separate environments. Installing
 # both together cannot prove that an artifact-only consumer avoids RDF/SHACL.
-test-package: test-package-conformance
+test-package: test-package-conformance test-package-projection
 
 test-package-artifacts:
 	rm -rf dist/artifacts "$(ARTIFACT_PACKAGE_CHECK_DIR)"
@@ -91,6 +94,20 @@ test-package-conformance: test-package-artifacts
 	cd "$(CONFORMANCE_PACKAGE_CHECK_DIR)" && ./bin/python -c 'import importlib.util; from importlib.metadata import entry_points; assert importlib.util.find_spec("rulespec_conformance.source_catalog_release") is None; assert importlib.util.find_spec("rulespec_conformance.document_release") is None; names = {item.name for item in entry_points(group="console_scripts")}; assert "rulespec-source-catalog-validate" not in names; assert "rulespec-document-validate" not in names'
 	rm -rf "$(CONFORMANCE_PACKAGE_CHECK_DIR)"
 
+# The projection wheel declares no dependencies and must import none: its price
+# was zero new dependencies, so the installed-wheel check proves the closure is
+# empty and then runs the package's own suite against the installed copy (the
+# parity fixtures were derived from spicy-regs 8d9e7a2, not from this code).
+test-package-projection:
+	rm -rf dist/projection "$(PROJECTION_PACKAGE_CHECK_DIR)"
+	uv run --project packages/rulespec-projection python -m unittest discover -s packages/rulespec-projection/tests -p 'test_*.py'
+	uv build --project packages/rulespec-projection --wheel --out-dir dist/projection
+	uv venv --python 3.12 "$(PROJECTION_PACKAGE_CHECK_DIR)"
+	VIRTUAL_ENV="$(PROJECTION_PACKAGE_CHECK_DIR)" uv pip install --quiet $(PROJECTION_WHEEL_GLOB)
+	cd "$(PROJECTION_PACKAGE_CHECK_DIR)" && ./bin/python -c 'import sys; import rulespec_projection as package; from importlib.metadata import distributions, requires, version; assert version("rulespec-projection") == package.__version__; assert not requires("rulespec-projection"); installed={item.metadata["Name"].lower() for item in distributions() if item.metadata["Name"]}; assert installed == {"rulespec-projection"}, installed; loaded=sorted(name for name in sys.modules if name.partition(".")[0] not in sys.stdlib_module_names and not name.startswith(("rulespec_projection", "_"))); assert loaded == [], loaded'
+	cd "$(PROJECTION_PACKAGE_CHECK_DIR)" && ./bin/python -m unittest discover -s "$(CURDIR)/packages/rulespec-projection/tests" -p 'test_*.py'
+	rm -rf "$(PROJECTION_PACKAGE_CHECK_DIR)"
+
 test-artifact-encoder-compat: test-package-artifacts
 	test -n "$(PREVIOUS_ARTIFACT_WHEEL)"
 	uv run --no-project --python 3.12 python tools/compare_artifact_encoders.py --previous-wheel "$(PREVIOUS_ARTIFACT_WHEEL)" --candidate-wheel $(ARTIFACT_WHEEL_GLOB)
@@ -112,7 +129,7 @@ test-reference-corpora:
 test-audits:
 	$(CARGO) build $(CARGO_MANIFEST) -p projector-harness
 	$(PYTHON) tools/vocab_audit.py
-	$(PYTHON) -m unittest tools.test_constraints_compile tools.test_l0_mapping_audit tools.test_semantic_carriers tools.test_reference_release_digest tools.test_rulespec_releases tools.test_extrapolation_release_v2 tools.test_atlas_membership_stub tools.test_platform_artifact tools.test_contract_exports -v
+	$(PYTHON) -m unittest tools.test_constraints_compile tools.test_l0_mapping_audit tools.test_semantic_carriers tools.test_reference_release_digest tools.test_rulespec_releases tools.test_extrapolation_release_v2 tools.test_atlas_membership_stub tools.test_platform_artifact tools.test_contract_exports tools.test_projection_terms tools.test_projection_conformance -v
 	$(PYTHON) tools/build_platform_artifact_fixtures.py --check
 	$(PYTHON) tools/build_contract_exports.py --check
 	$(PYTHON) tools/l0_mapping_audit.py

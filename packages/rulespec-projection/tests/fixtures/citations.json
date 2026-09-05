@@ -1,0 +1,628 @@
+{
+ "canonical_cfr_iri": [
+  {
+   "args": [
+    "9",
+    "381",
+    null
+   ],
+   "error": null,
+   "value": "urn:rkaf:us:cfr:9:381"
+  },
+  {
+   "args": [
+    "9",
+    "381",
+    "1"
+   ],
+   "error": null,
+   "value": "urn:rkaf:us:cfr:9:381.1"
+  },
+  {
+   "args": [
+    "40",
+    "60",
+    "60.1"
+   ],
+   "error": "ValueError: invalid CFR section: '60.1'",
+   "value": null
+  },
+  {
+   "args": [
+    "0",
+    "1",
+    null
+   ],
+   "error": null,
+   "value": "urn:rkaf:us:cfr:0:1"
+  },
+  {
+   "args": [
+    "9",
+    "",
+    null
+   ],
+   "error": "ValueError: invalid CFR identifier components: title='9', part=''",
+   "value": null
+  },
+  {
+   "args": [
+    "51",
+    "1",
+    null
+   ],
+   "error": null,
+   "value": "urn:rkaf:us:cfr:51:1"
+  }
+ ],
+ "canonical_pl_iri": [
+  {
+   "args": [
+    "85-172"
+   ],
+   "error": null,
+   "value": "urn:rkaf:us:pl:85-172"
+  },
+  {
+   "args": [
+    "Pub. L. 85-172"
+   ],
+   "error": "ValueError: invalid public-law number: 'Pub. L. 85-172'",
+   "value": null
+  },
+  {
+   "args": [
+    "117-58"
+   ],
+   "error": null,
+   "value": "urn:rkaf:us:pl:117-58"
+  },
+  {
+   "args": [
+    "nonsense"
+   ],
+   "error": "ValueError: invalid public-law number: 'nonsense'",
+   "value": null
+  }
+ ],
+ "canonical_regsgov_iri": [
+  {
+   "args": [
+    "TEST-2026-0001"
+   ],
+   "error": null,
+   "value": "urn:rkaf:us:regsgov:TEST-2026-0001"
+  },
+  {
+   "args": [
+    "FSIS-2026-0001-0002"
+   ],
+   "error": null,
+   "value": "urn:rkaf:us:regsgov:FSIS-2026-0001-0002"
+  },
+  {
+   "args": [
+    "Docket No. TEST-2026-0001"
+   ],
+   "error": "ValueError: invalid regulations.gov identifier: 'Docket No. TEST-2026-0001'",
+   "value": null
+  },
+  {
+   "args": [
+    "bad id"
+   ],
+   "error": "ValueError: invalid regulations.gov identifier: 'bad id'",
+   "value": null
+  }
+ ],
+ "canonical_rin_iri": [
+  {
+   "args": [
+    "0583-AE99"
+   ],
+   "error": null,
+   "value": "urn:rkaf:us:rin:0583-AE99"
+  },
+  {
+   "args": [
+    "0583-ae99"
+   ],
+   "error": null,
+   "value": "urn:rkaf:us:rin:0583-AE99"
+  },
+  {
+   "args": [
+    "AE99"
+   ],
+   "error": "ValueError: invalid RIN: 'AE99'",
+   "value": null
+  },
+  {
+   "args": [
+    ""
+   ],
+   "error": "ValueError: invalid RIN: ''",
+   "value": null
+  }
+ ],
+ "canonical_usc_iri": [
+  {
+   "args": [
+    "7",
+    "450"
+   ],
+   "error": null,
+   "value": "urn:rkaf:us:usc:7:450"
+  },
+  {
+   "args": [
+    "42",
+    "7401"
+   ],
+   "error": null,
+   "value": "urn:rkaf:us:usc:42:7401"
+  },
+  {
+   "args": [
+    "7",
+    "450a"
+   ],
+   "error": null,
+   "value": "urn:rkaf:us:usc:7:450a"
+  },
+  {
+   "args": [
+    "",
+    "450"
+   ],
+   "error": "ValueError: invalid U.S.C. identifier components: title='', section='450'",
+   "value": null
+  },
+  {
+   "args": [
+    "7",
+    ""
+   ],
+   "error": "ValueError: invalid U.S.C. identifier components: title='7', section=''",
+   "value": null
+  }
+ ],
+ "derived_from": "spicy-regs 8d9e7a2 src/spicy_regs/ontology/citations.py",
+ "docket_reference_as_stated": [
+  {
+   "args": [
+    "Docket No. TEST-2026-0001"
+   ],
+   "error": null,
+   "value": "Docket No. TEST-2026-0001"
+  },
+  {
+   "args": [
+    "  TEST-2026-0001 "
+   ],
+   "error": null,
+   "value": "TEST-2026-0001"
+  },
+  {
+   "args": [
+    "None"
+   ],
+   "error": null,
+   "value": ""
+  },
+  {
+   "args": [
+    "null"
+   ],
+   "error": null,
+   "value": ""
+  },
+  {
+   "args": [
+    "nan"
+   ],
+   "error": null,
+   "value": ""
+  },
+  {
+   "args": [
+    ""
+   ],
+   "error": null,
+   "value": ""
+  },
+  {
+   "args": [
+    "Docket No."
+   ],
+   "error": null,
+   "value": ""
+  },
+  {
+   "args": [
+    "Docket Nos. TEST-2026-0001; TEST-2026-0002"
+   ],
+   "error": null,
+   "value": "Docket Nos. TEST-2026-0001; TEST-2026-0002"
+  }
+ ],
+ "federal_register_identifier": [
+  {
+   "args": [
+    "2026-00001"
+   ],
+   "error": null,
+   "value": [
+    "rkaf:us-frdoc",
+    "urn:rkaf:us:frdoc:2026-00001"
+   ]
+  },
+  {
+   "args": [
+    "94-120124"
+   ],
+   "error": null,
+   "value": [
+    "rkaf:partner-defined",
+    "urn:spicy-regs:frdoc:94-120124"
+   ]
+  },
+  {
+   "args": [
+    "X97-10423"
+   ],
+   "error": null,
+   "value": [
+    "rkaf:partner-defined",
+    "urn:spicy-regs:frdoc:X97-10423"
+   ]
+  },
+  {
+   "args": [
+    "E9-31172"
+   ],
+   "error": null,
+   "value": [
+    "rkaf:partner-defined",
+    "urn:spicy-regs:frdoc:E9-31172"
+   ]
+  },
+  {
+   "args": [
+    "2013-58"
+   ],
+   "error": null,
+   "value": [
+    "rkaf:partner-defined",
+    "urn:spicy-regs:frdoc:2013-58"
+   ]
+  },
+  {
+   "args": [
+    ""
+   ],
+   "error": "ValueError: invalid Federal Register document number: ''",
+   "value": null
+  },
+  {
+   "args": [
+    "nonsense"
+   ],
+   "error": null,
+   "value": [
+    "rkaf:partner-defined",
+    "urn:spicy-regs:frdoc:nonsense"
+   ]
+  }
+ ],
+ "generator": "packages/rulespec-projection/tests/fixtures/derive.py, run against spicy-regs 8d9e7a2 on 2026-09-05",
+ "normalize_docket_reference": [
+  {
+   "args": [
+    "Docket No. TEST-2026-0001"
+   ],
+   "error": null,
+   "value": "TEST-2026-0001"
+  },
+  {
+   "args": [
+    "TEST-2026-0001"
+   ],
+   "error": null,
+   "value": "TEST-2026-0001"
+  },
+  {
+   "args": [
+    "test-2026-0001"
+   ],
+   "error": null,
+   "value": "TEST-2026-0001"
+  },
+  {
+   "args": [
+    "TEST 2026 0001"
+   ],
+   "error": null,
+   "value": null
+  },
+  {
+   "args": [
+    "not a docket"
+   ],
+   "error": null,
+   "value": null
+  },
+  {
+   "args": [
+    "FSIS-2026-0001-0002"
+   ],
+   "error": null,
+   "value": "FSIS-2026-0001-0002"
+  }
+ ],
+ "parse_authority_citation": [
+  {
+   "args": [
+    "7 U.S.C. 450"
+   ],
+   "error": null,
+   "value": [
+    {
+     "authority_type": "usc",
+     "executive_order": null,
+     "parse_status": "ok",
+     "pl_number": null,
+     "statute_at_large": null,
+     "usc_section": "450",
+     "usc_section_end": null,
+     "usc_title": "7"
+    }
+   ]
+  },
+  {
+   "args": [
+    "7 U.S.C. 450; 21 U.S.C. 451-470"
+   ],
+   "error": null,
+   "value": [
+    {
+     "authority_type": "usc",
+     "executive_order": null,
+     "parse_status": "partial",
+     "pl_number": null,
+     "statute_at_large": null,
+     "usc_section": "450",
+     "usc_section_end": null,
+     "usc_title": "7"
+    },
+    {
+     "authority_type": "usc",
+     "executive_order": null,
+     "parse_status": "partial",
+     "pl_number": null,
+     "statute_at_large": null,
+     "usc_section": "451",
+     "usc_section_end": "470",
+     "usc_title": "21"
+    }
+   ]
+  },
+  {
+   "args": [
+    "Pub. L. 85-172"
+   ],
+   "error": null,
+   "value": [
+    {
+     "authority_type": "public_law",
+     "executive_order": null,
+     "parse_status": "ok",
+     "pl_number": "85-172",
+     "statute_at_large": null,
+     "usc_section": null,
+     "usc_section_end": null,
+     "usc_title": null
+    }
+   ]
+  },
+  {
+   "args": [
+    "42 U.S.C. 7401 et seq."
+   ],
+   "error": null,
+   "value": [
+    {
+     "authority_type": "usc",
+     "executive_order": null,
+     "parse_status": "ok",
+     "pl_number": null,
+     "statute_at_large": null,
+     "usc_section": "7401",
+     "usc_section_end": null,
+     "usc_title": "42"
+    }
+   ]
+  },
+  {
+   "args": [
+    "26 U.S.C. 501"
+   ],
+   "error": null,
+   "value": [
+    {
+     "authority_type": "usc",
+     "executive_order": null,
+     "parse_status": "ok",
+     "pl_number": null,
+     "statute_at_large": null,
+     "usc_section": "501",
+     "usc_section_end": null,
+     "usc_title": "26"
+    }
+   ]
+  },
+  {
+   "args": [
+    "E.O. 12866"
+   ],
+   "error": null,
+   "value": [
+    {
+     "authority_type": "eo",
+     "executive_order": "12866",
+     "parse_status": "ok",
+     "pl_number": null,
+     "statute_at_large": null,
+     "usc_section": null,
+     "usc_section_end": null,
+     "usc_title": null
+    }
+   ]
+  },
+  {
+   "args": [
+    "nothing here"
+   ],
+   "error": null,
+   "value": [
+    {
+     "authority_type": "other",
+     "executive_order": null,
+     "parse_status": "failed",
+     "pl_number": null,
+     "statute_at_large": null,
+     "usc_section": null,
+     "usc_section_end": null,
+     "usc_title": null
+    }
+   ]
+  },
+  {
+   "args": [
+    "7 USC 450 and 451"
+   ],
+   "error": null,
+   "value": [
+    {
+     "authority_type": "usc",
+     "executive_order": null,
+     "parse_status": "partial",
+     "pl_number": null,
+     "statute_at_large": null,
+     "usc_section": "450",
+     "usc_section_end": null,
+     "usc_title": "7"
+    },
+    {
+     "authority_type": "usc",
+     "executive_order": null,
+     "parse_status": "partial",
+     "pl_number": null,
+     "statute_at_large": null,
+     "usc_section": "451",
+     "usc_section_end": null,
+     "usc_title": "7"
+    }
+   ]
+  }
+ ],
+ "parse_cfr_citation": [
+  {
+   "args": [
+    "9 CFR 381"
+   ],
+   "error": null,
+   "value": [
+    {
+     "part": "381",
+     "section": null,
+     "title": "9"
+    }
+   ]
+  },
+  {
+   "args": [
+    "9 CFR Part 381"
+   ],
+   "error": null,
+   "value": [
+    {
+     "part": "381",
+     "section": null,
+     "title": "9"
+    }
+   ]
+  },
+  {
+   "args": [
+    "9 CFR 381.1"
+   ],
+   "error": null,
+   "value": [
+    {
+     "part": "381",
+     "section": "1",
+     "title": "9"
+    }
+   ]
+  },
+  {
+   "args": [
+    "40 CFR Parts 60 and 63"
+   ],
+   "error": null,
+   "value": [
+    {
+     "part": "60",
+     "section": null,
+     "title": "40"
+    },
+    {
+     "part": "63",
+     "section": null,
+     "title": "40"
+    }
+   ]
+  },
+  {
+   "args": [
+    "9-381"
+   ],
+   "error": null,
+   "value": [
+    {
+     "part": "381",
+     "section": null,
+     "title": "9"
+    }
+   ]
+  },
+  {
+   "args": [
+    "not a citation"
+   ],
+   "error": null,
+   "value": []
+  },
+  {
+   "args": [
+    "9 CFR 381.1 through 381.9"
+   ],
+   "error": null,
+   "value": [
+    {
+     "part": "381",
+     "section": "1",
+     "title": "9"
+    }
+   ]
+  },
+  {
+   "args": [
+    "21 CFR 1.1-1.9"
+   ],
+   "error": null,
+   "value": []
+  }
+ ]
+}

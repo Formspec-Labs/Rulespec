@@ -1,0 +1,412 @@
+{
+ "artifact": {
+  "artifact_id": "artifact_b85d0398cc5aeddc889d2488",
+  "content_sha256": "a78c9a65c43e9a225dda6239a29cc559ca487fd9f9f4a2db9015676522c31589",
+  "field_sha256": {
+   "unified_agenda.abstract": "9c29ed3aaa396ea1ff26c9cb3c3af7accd053c56f0ba846c21623a6ef0dcf946",
+   "unified_agenda.cfr_references_json": "5cd14d2763fe13a5df27732ea7088741448482373d8cee826b514e2c0091f87a",
+   "unified_agenda.legal_authority_json": "267c5a2e4e763e7379780aeae7827c0eccc0812175030f2bcb760a13c690b04e",
+   "unified_agenda.priority_category": "18ff8648de9aabc9eb34917fa0fbc594c5859f91fc8812e9f1db818c3e1656cf",
+   "unified_agenda.rule_stage": "6bbf9910d381699d9555af19d4e5330b11b70fbc9844922347411108bde18ced",
+   "unified_agenda.title": "34dee5d671ab5830495c01bd2177f990f5ab7f0db4bbc82fade0e30fd2517098"
+  },
+  "profile_id": "unified-agenda-observation-v1",
+  "raw_fields": {
+   "unified_agenda.abstract": "FSIS proposes to amend 9 CFR 381 under 7 U.S.C. 450 to modernize poultry slaughter inspection.",
+   "unified_agenda.cfr_references_json": "[\"9 CFR 381\", \"not a citation\"]",
+   "unified_agenda.legal_authority_json": "[\"7 U.S.C. 450\", \"Pub. L. 85-172\"]",
+   "unified_agenda.priority_category": "Other Significant",
+   "unified_agenda.rule_stage": "Proposed Rule Stage",
+   "unified_agenda.title": "Modernization of Poultry Slaughter Inspection"
+  },
+  "subject_id": "{\"agenda_edition\":\"202510\",\"rin\":\"0583-AE99\"}"
+ },
+ "derived_from": "spicy-regs 8d9e7a2 src/spicy_regs/docpipeline/rkaf_projection.py",
+ "facts": {
+  "activities": [
+   {
+    "actor_id": "spicy-regs:authority-parser:v1",
+    "input_row": {
+     "actor_id": "spicy-regs:authority-parser:v1",
+     "agenda_edition": "202510",
+     "asserted_at": "2026-07-01T00:00:00Z",
+     "authority_raw": "7 U.S.C. 450",
+     "authority_type": "usc",
+     "parse_status": "partial",
+     "pl_number": null,
+     "rin": "0583-AE99",
+     "run_id": "test-run",
+     "usc_section": "450",
+     "usc_title": "7"
+    },
+    "instructions": "spicy-regs deterministic Unified Agenda authority-citation parse (authority_edges.parquet row)",
+    "key": "authority-parser",
+    "method": "rkaf:deterministicParse",
+    "model_ref": null,
+    "prompt_ref": null,
+    "run_id": "test-run",
+    "version": "v1"
+   }
+  ],
+  "artifact_identifiers": [
+   "https://www.reginfo.gov/public/do/eAgendaViewRule?pubId=202510&RIN=0583-AE99"
+  ],
+  "artifact_iri": "https://www.reginfo.gov/public/do/eAgendaViewRule?pubId=202510&RIN=0583-AE99",
+  "artifact_schemes": [
+   "rkaf:urn-persistent"
+  ],
+  "claimant_identity": null,
+  "edges": [
+   {
+    "activity_key": "authority-parser",
+    "asserted_at": "2026-07-01T00:00:00Z",
+    "claimant_identity": null,
+    "key": "authority",
+    "object": "urn:rkaf:us:usc:7:450",
+    "predicate": "rkaf:agendaAuthorityCitation",
+    "profile_edge": null,
+    "record_key": "0583-AE99:202510",
+    "subject": "urn:rkaf:us:rin:0583-AE99",
+    "surface_forms": [
+     "7 U.S.C. 450",
+     "7 USC 450"
+    ],
+    "table": "authority_edges"
+   }
+  ],
+  "evidence_field": "unified_agenda.abstract",
+  "extra_nodes": [
+   {
+    "@id": "https://www.reginfo.gov/public/do/eAgendaViewRule?pubId=202510&RIN=0583-AE99",
+    "@type": "rkaf:RegulatoryAgendaObservation",
+    "foaf:primaryTopic": "urn:rkaf:us:rin:0583-AE99",
+    "rkaf:agendaAffectsCitation": [
+     "urn:rkaf:us:cfr:9:381"
+    ],
+    "rkaf:agendaAuthorityCitation": [
+     "urn:rkaf:us:usc:7:450",
+     "urn:rkaf:us:pl:85-172"
+    ],
+    "rkaf:agendaPriority": "rkaf:agendaPriorityOtherSignificant",
+    "rkaf:agendaStage": "rkaf:agendaProposed",
+    "rkaf:artifactIdentifierScheme": [
+     "rkaf:urn-persistent"
+    ],
+    "rkaf:hasArtifactIdentifier": [
+     "https://www.reginfo.gov/public/do/eAgendaViewRule?pubId=202510&RIN=0583-AE99"
+    ]
+   },
+   {
+    "@id": "urn:rkaf:us:rin:0583-AE99",
+    "@type": "rkaf:RegulatoryAgendaItem",
+    "rkaf:agendaItemIdentifierScheme": "rkaf:us-rin",
+    "rkaf:hasAgendaItemIdentifier": "urn:rkaf:us:rin:0583-AE99"
+   }
+  ],
+  "notes": [
+   "finding: rkaf:RegulatoryAgendaObservation is documented as a profile subclass of rkaf:Artifact but no shapes file declares rdfs:subClassOf, so the observation must also be typed rkaf:Artifact for its own fragments to satisfy the oa:hasSource range"
+  ],
+  "profile_id": "unified-agenda-observation-v1",
+  "published_in_docket": [],
+  "published_in_proceeding": [],
+  "regulatory_identifier": null,
+  "regulatory_scheme": null
+ },
+ "generator": "packages/rulespec-projection/tests/fixtures/derive.py, run against spicy-regs 8d9e7a2 on 2026-09-05",
+ "result": {
+  "document": {
+   "@context": "./rkaf-context.jsonld",
+   "@graph": [
+    {
+     "@id": "https://www.reginfo.gov/public/do/eAgendaViewRule?pubId=202510&RIN=0583-AE99",
+     "@type": "rkaf:Artifact",
+     "rkaf:artifactIdentifierScheme": [
+      "rkaf:urn-persistent"
+     ],
+     "rkaf:hasArtifactIdentifier": [
+      "https://www.reginfo.gov/public/do/eAgendaViewRule?pubId=202510&RIN=0583-AE99"
+     ],
+     "rkaf:hasContentDigest": "sha256:9c29ed3aaa396ea1ff26c9cb3c3af7accd053c56f0ba846c21623a6ef0dcf946"
+    },
+    {
+     "@id": "https://www.reginfo.gov/public/do/eAgendaViewRule?pubId=202510&RIN=0583-AE99",
+     "@type": "rkaf:RegulatoryAgendaObservation",
+     "foaf:primaryTopic": "urn:rkaf:us:rin:0583-AE99",
+     "rkaf:agendaAffectsCitation": [
+      "urn:rkaf:us:cfr:9:381"
+     ],
+     "rkaf:agendaAuthorityCitation": [
+      "urn:rkaf:us:usc:7:450",
+      "urn:rkaf:us:pl:85-172"
+     ],
+     "rkaf:agendaPriority": "rkaf:agendaPriorityOtherSignificant",
+     "rkaf:agendaStage": "rkaf:agendaProposed",
+     "rkaf:artifactIdentifierScheme": [
+      "rkaf:urn-persistent"
+     ],
+     "rkaf:hasArtifactIdentifier": [
+      "https://www.reginfo.gov/public/do/eAgendaViewRule?pubId=202510&RIN=0583-AE99"
+     ]
+    },
+    {
+     "@id": "urn:rkaf:us:rin:0583-AE99",
+     "@type": "rkaf:RegulatoryAgendaItem",
+     "rkaf:agendaItemIdentifierScheme": "rkaf:us-rin",
+     "rkaf:hasAgendaItemIdentifier": "urn:rkaf:us:rin:0583-AE99"
+    },
+    {
+     "@id": "urn:rkaf:partner:spicy-regs:binding:authority",
+     "@type": "rkaf:EvidenceBinding",
+     "rkaf:bindsAssertion": "urn:rkaf:partner:spicy-regs:assertion:assertion_602240f27e2bd197",
+     "rkaf:bindsSourceFragment": [
+      "urn:rkaf:fragment:https%3A%2F%2Fwww.reginfo.gov%2Fpublic%2Fdo%2FeAgendaViewRule%3FpubId%3D202510%26RIN%3D0583-AE99:39:51:sha256-2d08e56d2f661c73de72de6e086159ec3843c476039dd4808512e4c22f3ab836"
+     ],
+     "rkaf:evidenceRole": "rkaf:textualEvidence",
+     "rkaf:evidentiaryFunction": "rkaf:supports"
+    },
+    {
+     "@id": "urn:rkaf:partner:spicy-regs:assertion:assertion_602240f27e2bd197",
+     "@type": "rkaf:RelationshipAssertion",
+     "prov:wasDerivedFrom": [
+      "urn:rkaf:partner:spicy-regs:record:authority_edges:0583-AE99:202510"
+     ],
+     "rkaf:assertedAt": "2026-07-01T00:00:00Z",
+     "rkaf:assertionOrigin": "rkaf:deterministicExtraction",
+     "rkaf:assertionPolarity": "rkaf:affirmed",
+     "rkaf:assertsObject": "urn:rkaf:us:usc:7:450",
+     "rkaf:assertsPredicate": "rkaf:agendaAuthorityCitation",
+     "rkaf:assertsSubject": "urn:rkaf:us:rin:0583-AE99",
+     "rkaf:epistemicBasis": "rkaf:deterministicDerivation",
+     "rkaf:hasExtractionProvenance": "urn:rkaf:partner:spicy-regs:activity:authority-parser",
+     "rkaf:usageEligibility": "rkaf:localOperationalUse"
+    },
+    {
+     "@id": "urn:rkaf:fragment:https%3A%2F%2Fwww.reginfo.gov%2Fpublic%2Fdo%2FeAgendaViewRule%3FpubId%3D202510%26RIN%3D0583-AE99:39:51:sha256-2d08e56d2f661c73de72de6e086159ec3843c476039dd4808512e4c22f3ab836#selector",
+     "@type": "oa:TextPositionSelector",
+     "oa:end": 51,
+     "oa:start": 39,
+     "rkaf:coordinateSystem": "rkaf:unicode-codepoint"
+    },
+    {
+     "@id": "urn:rkaf:fragment:https%3A%2F%2Fwww.reginfo.gov%2Fpublic%2Fdo%2FeAgendaViewRule%3FpubId%3D202510%26RIN%3D0583-AE99:39:51:sha256-2d08e56d2f661c73de72de6e086159ec3843c476039dd4808512e4c22f3ab836",
+     "@type": "rkaf:SourceFragment",
+     "oa:hasSelector": "urn:rkaf:fragment:https%3A%2F%2Fwww.reginfo.gov%2Fpublic%2Fdo%2FeAgendaViewRule%3FpubId%3D202510%26RIN%3D0583-AE99:39:51:sha256-2d08e56d2f661c73de72de6e086159ec3843c476039dd4808512e4c22f3ab836#selector",
+     "oa:hasSource": "https://www.reginfo.gov/public/do/eAgendaViewRule?pubId=202510&RIN=0583-AE99",
+     "rkaf:fragmentContentDigest": "sha256:2d08e56d2f661c73de72de6e086159ec3843c476039dd4808512e4c22f3ab836",
+     "rkaf:fragmentIdentityScheme": "rkaf:carrier-local-fragment",
+     "rkaf:selectorKind": [
+      "oa:TextPositionSelector"
+     ],
+     "rkaf:sourceArtifactDigest": "sha256:9c29ed3aaa396ea1ff26c9cb3c3af7accd053c56f0ba846c21623a6ef0dcf946"
+    },
+    {
+     "@id": "urn:rkaf:partner:spicy-regs:activity:authority-parser",
+     "@type": "rkaf:ExtractionActivity",
+     "rkaf:extractedBy": "urn:rkaf:partner:spicy-regs:actor:authority-parser",
+     "rkaf:extractionMethod": "rkaf:deterministicParse",
+     "rkaf:extractionRun": "urn:rkaf:partner:spicy-regs:run:test-run",
+     "rkaf:extractorVersion": "v1",
+     "rkaf:inputDigest": [
+      "sha256:94f152118ada2d1a8e9680d05eb650b6759d466e8d8572fa89b31ee57c36ef63"
+     ]
+    },
+    {
+     "@id": "urn:rkaf:partner:spicy-regs:record:authority_edges:0583-AE99:202510",
+     "@type": "prov:Entity"
+    }
+   ]
+  },
+  "run_record": {
+   "artifact": {
+    "artifact_id": "artifact_b85d0398cc5aeddc889d2488",
+    "artifact_iri": "https://www.reginfo.gov/public/do/eAgendaViewRule?pubId=202510&RIN=0583-AE99",
+    "available_fields": [
+     "unified_agenda.abstract",
+     "unified_agenda.cfr_references_json",
+     "unified_agenda.legal_authority_json",
+     "unified_agenda.priority_category",
+     "unified_agenda.rule_stage",
+     "unified_agenda.title"
+    ],
+    "content_digest": "sha256:9c29ed3aaa396ea1ff26c9cb3c3af7accd053c56f0ba846c21623a6ef0dcf946",
+    "projected_evidence_field": "unified_agenda.abstract",
+    "version_digest": "sha256:a78c9a65c43e9a225dda6239a29cc559ca487fd9f9f4a2db9015676522c31589"
+   },
+   "attestation": null,
+   "candidate_selection": {
+    "accepted_output_authorized": false,
+    "mode": "diagnosticReviewQueue",
+    "receipt": null,
+    "state": "notConfigured",
+    "usage_ceiling": "rkaf:reviewQueueOnly"
+   },
+   "contract_flags": {
+    "assertion_origin_deterministic": "rkaf:deterministicExtraction",
+    "document_docket_predicate": "rkaf:publishedInDocket",
+    "emit_document_docket_edge": true,
+    "emit_profile_edge_projections": true,
+    "model_attestation_decision": "rkaf:endorsedForReview",
+    "request_contract_digest_required_for": [
+     "rkaf:modelExtraction"
+    ],
+    "rulespec_constraint_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "rulespec_pin_state": "localCandidate",
+    "rulespec_source_revision": null,
+    "rulespec_version": "0.0.0-test"
+   },
+   "deterministic": {
+    "activities": [
+     "authority-parser"
+    ],
+    "edges": [
+     {
+      "assertion": "urn:rkaf:partner:spicy-regs:assertion:assertion_602240f27e2bd197",
+      "evidence": "urn:rkaf:fragment:https%3A%2F%2Fwww.reginfo.gov%2Fpublic%2Fdo%2FeAgendaViewRule%3FpubId%3D202510%26RIN%3D0583-AE99:39:51:sha256-2d08e56d2f661c73de72de6e086159ec3843c476039dd4808512e4c22f3ab836",
+      "grounded": true,
+      "key": "authority",
+      "object": "urn:rkaf:us:usc:7:450",
+      "predicate": "rkaf:agendaAuthorityCitation",
+      "subject": "urn:rkaf:us:rin:0583-AE99",
+      "table": "authority_edges"
+     }
+    ],
+    "fragments": [
+     {
+      "end": 51,
+      "key": "edge-authority",
+      "sha256": "2d08e56d2f661c73de72de6e086159ec3843c476039dd4808512e4c22f3ab836",
+      "source_field": "unified_agenda.abstract",
+      "start": 39,
+      "urn": "urn:rkaf:fragment:https%3A%2F%2Fwww.reginfo.gov%2Fpublic%2Fdo%2FeAgendaViewRule%3FpubId%3D202510%26RIN%3D0583-AE99:39:51:sha256-2d08e56d2f661c73de72de6e086159ec3843c476039dd4808512e4c22f3ab836"
+     }
+    ]
+   },
+   "generated_at": "2026-07-28T00:00:00Z",
+   "inputs": {
+    "corpus_dir": "corpus",
+    "profile_id": "unified-agenda-observation-v1",
+    "subject_id": "{\"agenda_edition\":\"202510\",\"rin\":\"0583-AE99\"}",
+    "tables_dir": "tables"
+   },
+   "judgments": {
+    "accepted": [],
+    "rejected": []
+   },
+   "model": null,
+   "node_count": 9,
+   "notes": [
+    "finding: rkaf:RegulatoryAgendaObservation is documented as a profile subclass of rkaf:Artifact but no shapes file declares rdfs:subClassOf, so the observation must also be typed rkaf:Artifact for its own fragments to satisfy the oa:hasSource range",
+    "Rulespec source_revision is null; this run names a local candidate and cannot support an immutable conformance claim.",
+    "No published candidate source was selected. Model results are diagnostic review-queue candidates only and cannot enter accepted output."
+   ],
+   "offset_verification": [
+    "== Source text state ==",
+    "profile          : unified-agenda-observation-v1",
+    "subject_id       : {\"agenda_edition\":\"202510\",\"rin\":\"0583-AE99\"}",
+    "artifact_id      : artifact_b85d0398cc5aeddc889d2488",
+    "version digest   : a78c9a65c43e9a225dda6239a29cc559ca487fd9f9f4a2db9015676522c31589  (source.py _content_digest; NOT hasContentDigest)",
+    "projected field  : unified_agenda.abstract",
+    "length           : 94 Unicode code points",
+    "sha256(UTF-8)    : 9c29ed3aaa396ea1ff26c9cb3c3af7accd053c56f0ba846c21623a6ef0dcf946",
+    "",
+    "== SourceFragment offset verification (unicode code points, half-open [start,end), re-sliced from the stored field) ==",
+    "  edge-authority [39,51)",
+    "     slice: \"7 U.S.C. 450\"",
+    "     sha256(region): 2d08e56d2f661c73de72de6e086159ec3843c476039dd4808512e4c22f3ab836",
+    "     urn: urn:rkaf:fragment:https%3A%2F%2Fwww.reginfo.gov%2Fpublic%2Fdo%2FeAgendaViewRule%3FpubId%3D202510%26RIN%3D0583-AE99:39:51:sha256-2d08e56d2f661c73de72de6e086159ec3843c476039dd4808512e4c22f3ab836",
+    "",
+    "assembled 9 graph nodes"
+   ],
+   "run_id": "rkaf-projection-20260728T000000Z",
+   "schema_version": "rkaf-document-projection-v2"
+  },
+  "transcript": [
+   "== Source text state ==",
+   "profile          : unified-agenda-observation-v1",
+   "subject_id       : {\"agenda_edition\":\"202510\",\"rin\":\"0583-AE99\"}",
+   "artifact_id      : artifact_b85d0398cc5aeddc889d2488",
+   "version digest   : a78c9a65c43e9a225dda6239a29cc559ca487fd9f9f4a2db9015676522c31589  (source.py _content_digest; NOT hasContentDigest)",
+   "projected field  : unified_agenda.abstract",
+   "length           : 94 Unicode code points",
+   "sha256(UTF-8)    : 9c29ed3aaa396ea1ff26c9cb3c3af7accd053c56f0ba846c21623a6ef0dcf946",
+   "",
+   "== SourceFragment offset verification (unicode code points, half-open [start,end), re-sliced from the stored field) ==",
+   "  edge-authority [39,51)",
+   "     slice: \"7 U.S.C. 450\"",
+   "     sha256(region): 2d08e56d2f661c73de72de6e086159ec3843c476039dd4808512e4c22f3ab836",
+   "     urn: urn:rkaf:fragment:https%3A%2F%2Fwww.reginfo.gov%2Fpublic%2Fdo%2FeAgendaViewRule%3FpubId%3D202510%26RIN%3D0583-AE99:39:51:sha256-2d08e56d2f661c73de72de6e086159ec3843c476039dd4808512e4c22f3ab836",
+   "",
+   "assembled 9 graph nodes"
+  ]
+ },
+ "row": {
+  "abstract": "FSIS proposes to amend 9 CFR 381 under 7 U.S.C. 450 to modernize poultry slaughter inspection.",
+  "agenda_edition": "202510",
+  "cfr_references_json": "[\"9 CFR 381\", \"not a citation\"]",
+  "legal_authority_json": "[\"7 U.S.C. 450\", \"Pub. L. 85-172\"]",
+  "priority_category": "Other Significant",
+  "rin": "0583-AE99",
+  "rule_stage": "Proposed Rule Stage",
+  "title": "Modernization of Poultry Slaughter Inspection",
+  "url": "https://www.reginfo.gov/public/do/eAgendaViewRule?pubId=202510&RIN=0583-AE99"
+ },
+ "settings": {
+  "asserted_at": "2026-07-28T00:00:00Z",
+  "corpus_dir": "corpus",
+  "prompt_concept_limit": 4,
+  "rulespec_constraint_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "rulespec_source_revision": null,
+  "rulespec_version": "0.0.0-test",
+  "tables_dir": "tables",
+  "vocabulary_default_language": "en"
+ },
+ "tables": {
+  "authority_edges": [
+   {
+    "actor_id": "spicy-regs:authority-parser:v1",
+    "agenda_edition": "202510",
+    "asserted_at": "2026-07-01T00:00:00Z",
+    "authority_raw": "7 U.S.C. 450",
+    "authority_type": "usc",
+    "parse_status": "partial",
+    "pl_number": null,
+    "rin": "0583-AE99",
+    "run_id": "test-run",
+    "usc_section": "450",
+    "usc_title": "7"
+   }
+  ],
+  "dockets": [
+   {
+    "docket_id": "TEST-2026-0001",
+    "title": "Poultry slaughter inspection docket"
+   }
+  ],
+  "proceedings": [
+   {
+    "actor_id": "spicy-regs:proceedings:v1",
+    "asserted_at": "2026-07-01T00:00:00Z",
+    "cfr_target_iris_json": "[\"urn:rkaf:us:cfr:9:381\"]",
+    "current_stage": "proposed",
+    "docket_ids_json": "[\"TEST-2026-0001\"]",
+    "fr_document_numbers_json": "[\"2026-00001\"]",
+    "proceeding_id": "proceeding_test",
+    "rin": "0583-AE99",
+    "run_id": "test-run"
+   }
+  ],
+  "rule_targets": [
+   {
+    "actor_id": "spicy-regs:rule-targets:v1",
+    "asserted_at": "2026-07-01T00:00:00Z",
+    "cfr_part": "381",
+    "cfr_ref": "9-381",
+    "cfr_section": null,
+    "cfr_title": "9",
+    "docket_id": "TEST-2026-0001",
+    "rin": "0583-AE99",
+    "run_id": "test-run"
+   }
+  ]
+ }
+}

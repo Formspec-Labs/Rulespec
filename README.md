@@ -83,28 +83,37 @@ The report cross-references every fixture against every layer. Behavior
 fixtures are produced by a small but exact Rust runtime that implements the
 five contracts described in `spec/rkaf-behavior.md`.
 
-Rulespec has two non-duplicating distributions. Artifact consumers install the
+Rulespec has three non-duplicating distributions. Artifact consumers install the
 small `rulespec-artifacts` distribution for canonical JSON, framed-section and
 schema-bundle digests, container building, and structural verification. It has
 no RDF, JSON-LD, SHACL, `rdflib`, `pyshacl`, or RDF-canonicalization dependency.
 The full `rulespec-conformance` validator depends on it and adds the SHACL suite,
 compiled graph schemas, JSON-LD context, and Rulespec graph fixture corpus. A
-consumer can run either without this repository. Neither distribution is
-published to an index yet; build both wheels from a compiled checkout:
+consumer can run either without this repository. Producers of Rulespec data
+install `rulespec-projection`, the deterministic layer of the document
+projection: it re-slices every fragment against the stored text, mints the
+canonical citation IRIs, reifies relationship rows the published tables already
+assert, and assembles the JSON-LD document with its run record. It depends on
+nothing outside the standard library and is the reference producer of the
+format this repository verifies. No distribution is published to an index yet;
+build the wheels from a compiled checkout:
 
 ```bash
 make compile
 uv build --project packages/rulespec-artifacts --wheel --out-dir dist/artifacts
+uv build --project packages/rulespec-projection --wheel --out-dir dist/projection
 uv build --wheel
 pip install dist/artifacts/rulespec_artifacts-*.whl dist/rulespec_conformance-*.whl
 rulespec-ci-validate --json your-graph.jsonld
 ```
 
-`make test-package` runs both distributions outside the checkout. Its
+`make test-package` runs every distribution outside the checkout. Its
 `test-package-artifacts` stage uses a separate empty environment and proves the
 artifact wheel does not install `rdflib`, `pyshacl`, or `rdfcanon`; its
 `test-package-conformance` stage then checks the full graph validator in a
-second environment.
+second environment; its `test-package-projection` stage installs the projection
+wheel alone, proves its dependency closure is empty, and reruns the package's
+suite, whose parity fixtures were produced by the producer it was moved from.
 `tools/ci_validate.py` remains as a shim so in-checkout invocations keep
 working. L4 behavior validation is the Rust runtime and is not in the wheel.
 
