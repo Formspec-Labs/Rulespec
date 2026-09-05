@@ -45,7 +45,6 @@ ALLOWLIST_RELATIVE = {
     "spec/README.md",                       # mentions the pre-rebrand PKAF v0.1.1 corpus as historical context
     ".github/workflows/constraints-parity.yml",  # CI step name documents the audit's intent
     "context/COMPOSE-PATTERNS.md",               # links to stack-level ADR 0149 by filename (URL contains "pkaf"); body uses Rulespec brand
-    "wiki/temp/dependency_graphs/rulespec_dependency_graph.json",  # generated dump embedding this script's source, patterns included
 }
 
 def walk(root: Path):
