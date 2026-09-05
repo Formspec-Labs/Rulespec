@@ -384,7 +384,7 @@
  ],
  "derived_from": "spicy-regs 8d9e7a2 src/spicy_regs/docpipeline/rkaf_projection.py",
  "evidence_field": "federal_register.body_html",
- "generator": "rulespec scratchpad derive_fixtures.py, 2026-09-05",
+ "generator": "packages/rulespec-projection/tests/fixtures/derive.py, run against spicy-regs 8d9e7a2 on 2026-09-05",
  "judgments": [
   {
    "alignment_method": "unique-exact",

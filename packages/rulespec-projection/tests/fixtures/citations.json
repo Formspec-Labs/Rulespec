@@ -315,7 +315,7 @@
    ]
   }
  ],
- "generator": "rulespec scratchpad derive_fixtures.py, 2026-09-05",
+ "generator": "packages/rulespec-projection/tests/fixtures/derive.py, run against spicy-regs 8d9e7a2 on 2026-09-05",
  "normalize_docket_reference": [
   {
    "args": [

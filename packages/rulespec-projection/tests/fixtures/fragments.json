@@ -28,7 +28,7 @@
   "plain-._~": "plain-._~",
   "漢字": "%E6%BC%A2%E5%AD%97"
  },
- "generator": "rulespec scratchpad derive_fixtures.py, 2026-09-05",
+ "generator": "packages/rulespec-projection/tests/fixtures/derive.py, run against spicy-regs 8d9e7a2 on 2026-09-05",
  "ground_literal": [
   {
    "fragment": {
