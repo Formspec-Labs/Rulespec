@@ -139,7 +139,26 @@ judgments, rejections = rp.verify_candidate_rows(fr_artifact, candidate_rows, ar
 judgments_bare, rejections_bare = rp.verify_candidate_rows(fr_artifact, [cand("k-bare", concept_id="urn:test:concept:c1", facet="subject", concept_label="Poultry inspection", definition="Inspection of poultry slaughter.")], artifact_iri=fr_facts.artifact_iri, evidence_field=field)
 model_fields = dict(model_id="fixture-model-2026", instructions_sha256="1" * 64, schema_sha256="2" * 64, input_context_sha256="3" * 64, run_directory="runs/fixture-run",
                     receipt_sha256="4" * 64, selector_version="anchored-v2", vocabulary_sha256="5" * 64, vocabulary_default_language="en",
-                    vocabulary_nodes=({"@id": "urn:test:concept:c1", "@type": "skos:Concept", "skos:prefLabel": "Poultry inspection"},),
+                    # The nodes the production vocabulary loader carried as manifest_nodes:
+                    # the release (rkaf:ReferenceResourceRelease, complete membership, its
+                    # digest computed by rulespec's reference_release_digest over these
+                    # exact triples), its distribution artifact, and the concept. The
+                    # conformance gate requires the assignment's release to be present and
+                    # to list the concept as a member.
+                    vocabulary_nodes=(
+                        {"@id": "urn:test:release:1", "@type": "rkaf:ReferenceResourceRelease",
+                         "dcterms:isVersionOf": "urn:test:registry:subject", "dcat:version": "2026.09.05",
+                         "dcterms:type": "skos:ConceptScheme", "rkaf:membershipMode": "rkaf:completeMembership",
+                         "prov:hadMember": ["urn:test:concept:c1", "urn:test:concept:c2"],
+                         "dcat:distribution": ["urn:test:distribution:subject"],
+                         "rkaf:referenceReleaseDigest": "sha256:df8353b65466d5d282e3a622197da2b6f1378142b9a27fa8a0bdf2eae0d24ee8"},
+                        {"@id": "urn:test:distribution:subject", "@type": "rkaf:Artifact",
+                         "rkaf:hasArtifactIdentifier": ["urn:test:distribution:subject"],
+                         "rkaf:artifactIdentifierScheme": ["rkaf:partner-defined"],
+                         "dcterms:format": "application/ld+json",
+                         "rkaf:hasContentDigest": "sha256:5555555555555555555555555555555555555555555555555555555555555555"},
+                        {"@id": "urn:test:concept:c1", "@type": "skos:Concept", "skos:prefLabel": "Poultry inspection"},
+                    ),
                     candidate_concept_count=2, call_count=1, candidate_selection_receipt={"asset": "fixture-atlas", "release": "urn:test:release:1"},
                     concept_domain_mapping_sha256="6" * 64, candidate_selection_sha256="7" * 64, candidate_selection_ledger=({"step": "select", "count": 2},),
                     segment_count=3, segments_projected=2, temperature=0.0)

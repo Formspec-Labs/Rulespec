@@ -505,6 +505,34 @@
   "vocabulary_default_language": "en",
   "vocabulary_nodes": [
    {
+    "@id": "urn:test:release:1",
+    "@type": "rkaf:ReferenceResourceRelease",
+    "dcat:distribution": [
+     "urn:test:distribution:subject"
+    ],
+    "dcat:version": "2026.09.05",
+    "dcterms:isVersionOf": "urn:test:registry:subject",
+    "dcterms:type": "skos:ConceptScheme",
+    "prov:hadMember": [
+     "urn:test:concept:c1",
+     "urn:test:concept:c2"
+    ],
+    "rkaf:membershipMode": "rkaf:completeMembership",
+    "rkaf:referenceReleaseDigest": "sha256:df8353b65466d5d282e3a622197da2b6f1378142b9a27fa8a0bdf2eae0d24ee8"
+   },
+   {
+    "@id": "urn:test:distribution:subject",
+    "@type": "rkaf:Artifact",
+    "dcterms:format": "application/ld+json",
+    "rkaf:artifactIdentifierScheme": [
+     "rkaf:partner-defined"
+    ],
+    "rkaf:hasArtifactIdentifier": [
+     "urn:test:distribution:subject"
+    ],
+    "rkaf:hasContentDigest": "sha256:5555555555555555555555555555555555555555555555555555555555555555"
+   },
+   {
     "@id": "urn:test:concept:c1",
     "@type": "skos:Concept",
     "skos:prefLabel": "Poultry inspection"
@@ -751,6 +779,34 @@
      "rkaf:hasExtractionProvenance": "urn:rkaf:partner:spicy-regs:activity:rule-targets",
      "rkaf:hasSourceClaimant": "urn:rkaf:partner:spicy-regs:claimant:cfr-target-9-381",
      "rkaf:usageEligibility": "rkaf:localOperationalUse"
+    },
+    {
+     "@id": "urn:test:release:1",
+     "@type": "rkaf:ReferenceResourceRelease",
+     "dcat:distribution": [
+      "urn:test:distribution:subject"
+     ],
+     "dcat:version": "2026.09.05",
+     "dcterms:isVersionOf": "urn:test:registry:subject",
+     "dcterms:type": "skos:ConceptScheme",
+     "prov:hadMember": [
+      "urn:test:concept:c1",
+      "urn:test:concept:c2"
+     ],
+     "rkaf:membershipMode": "rkaf:completeMembership",
+     "rkaf:referenceReleaseDigest": "sha256:df8353b65466d5d282e3a622197da2b6f1378142b9a27fa8a0bdf2eae0d24ee8"
+    },
+    {
+     "@id": "urn:test:distribution:subject",
+     "@type": "rkaf:Artifact",
+     "dcterms:format": "application/ld+json",
+     "rkaf:artifactIdentifierScheme": [
+      "rkaf:partner-defined"
+     ],
+     "rkaf:hasArtifactIdentifier": [
+      "urn:test:distribution:subject"
+     ],
+     "rkaf:hasContentDigest": "sha256:5555555555555555555555555555555555555555555555555555555555555555"
     },
     {
      "@id": "urn:test:concept:c1",
@@ -1267,7 +1323,7 @@
     "segment_count": 3,
     "segments_projected": 2
    },
-   "node_count": 39,
+   "node_count": 41,
    "notes": [
     "document docket TEST-2026-0002 is stated by the document but no published dockets row carries it, so rulemaking §5.3 forbids minting the Docket node and the edge is dropped",
     "Rulespec source_revision is null; this run names a local candidate and cannot support an immutable conformance claim.",
@@ -1302,7 +1358,7 @@
     "     sha256(region): 5447a453fa2c6745484cd33135ed3d1c671b6249f6c976a8d37d13aa8d6dd26c",
     "     urn: urn:rkaf:fragment:https%3A%2F%2Fwww.federalregister.gov%2Fd%2F2026-00001:111:139:sha256-5447a453fa2c6745484cd33135ed3d1c671b6249f6c976a8d37d13aa8d6dd26c",
     "",
-    "assembled 39 graph nodes"
+    "assembled 41 graph nodes"
    ],
    "run_id": "rkaf-projection-20260728T000000Z",
    "schema_version": "rkaf-document-projection-v2"
@@ -1335,7 +1391,7 @@
    "     sha256(region): 5447a453fa2c6745484cd33135ed3d1c671b6249f6c976a8d37d13aa8d6dd26c",
    "     urn: urn:rkaf:fragment:https%3A%2F%2Fwww.federalregister.gov%2Fd%2F2026-00001:111:139:sha256-5447a453fa2c6745484cd33135ed3d1c671b6249f6c976a8d37d13aa8d6dd26c",
    "",
-   "assembled 39 graph nodes"
+   "assembled 41 graph nodes"
   ]
  },
  "settings": {

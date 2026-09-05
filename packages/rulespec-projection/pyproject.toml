@@ -6,6 +6,7 @@ build-backend = "hatchling.build"
 name = "rulespec-projection"
 version = "0.1.0"
 description = "The deterministic layer of the Rulespec (RKAF) document projection: verified fragments, canonical citation IRIs, and the assembled JSON-LD."
+readme = "README.md"
 requires-python = ">=3.12"
 license = { text = "See the Rulespec repository LICENSE and LICENSE-CODE files" }
 # No dependencies, on purpose. Everything here is standard library; the two
