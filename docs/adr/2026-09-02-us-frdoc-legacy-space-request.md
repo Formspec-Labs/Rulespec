@@ -174,7 +174,9 @@ cited 2000s rulemakings.
 
 **2. A second, larger gap this space does not close: 127,883 documents
 (12.73%) match neither form.** Largest families: `E9-`/`E10-`-style
-(~119,500, 2003→2013), then `X00-` (~4,400), `C0-`/`C1-` corrections (~3,300,
+(119,517, 2003-10-07 → 2010-01-25 and closed — corrected 2026-09-05 by
+`2026-09-05-us-frdoc-e-space-request.md`; the "2013" first written here came
+from the malformed straggler `E3-2013-2261`, not the family), then `X00-` (~4,400), `C0-`/`C1-` corrections (~3,300,
 still issued — through 2026-07-13), `Z4-` (~350), `R0-`/`R1-`
 republications (~80), plus small malformed families that look like ingest
 defects (`03-26993Filed`, `00-23477-Filed`).
