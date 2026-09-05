@@ -1,0 +1,757 @@
+{
+ "artifact": {
+  "artifact_id": "artifact_f16204ddaf7c29b761e28d38",
+  "content_sha256": "1312010f7be3997e39a15e9c958e96a97d03d221e0ebd8e19c6ff62e08cf0950",
+  "field_sha256": {
+   "federal_register.abstract": "fe9e3c90143b9f234e53ae32f4e4898136606aa93419073c65d9986e85ac97c4",
+   "federal_register.agency_slugs": "db76c6227c11cebcf7e189b0a726d8b117c9e7454e8bcba453ad2cfb02bc39ce",
+   "federal_register.body_html": "81fc43cb783d3af02d33965685f5f8a876f11321295a087c6557413c68781a2b",
+   "federal_register.document_type": "aa1561677b1da0f7c6e2ef2ea3098f67e637ce020e39d464c23333bf56d6cf3a",
+   "federal_register.title": "8949f785b6e6df0c1ce4615278c79a6b76b07fc95184c90b0982a2b7429ee919"
+  },
+  "profile_id": "federal-register-document-v1",
+  "raw_fields": {
+   "federal_register.abstract": "A proposed rule.",
+   "federal_register.agency_slugs": "[\"food-safety-and-inspection-service\"]",
+   "federal_register.body_html": "<html><body><ul><li>9 CFR Part 381</li><li>[Docket No. TEST-2026-0001]</li></ul><p>This proposed rule concerns poultry slaughter inspection at establishments.</p><p>Authority: 7 U.S.C. 450 governs the program.</p><p>Establishments must keep inspection records. Inspection records are reviewed.</p></body></html>",
+   "federal_register.document_type": "Proposed Rule",
+   "federal_register.title": "Poultry slaughter inspection"
+  },
+  "subject_id": "2026-00001"
+ },
+ "derived_from": "spicy-regs 8d9e7a2 src/spicy_regs/docpipeline/rkaf_projection.py",
+ "facts": {
+  "activities": [
+   {
+    "actor_id": "spicy-regs:proceedings:v1",
+    "input_row": {
+     "actor_id": "spicy-regs:proceedings:v1",
+     "asserted_at": "2026-07-01T00:00:00Z",
+     "cfr_target_iris_json": "[\"urn:rkaf:us:cfr:9:381\"]",
+     "current_stage": "proposed",
+     "docket_ids_json": "[\"TEST-2026-0001\"]",
+     "fr_document_numbers_json": "[\"2026-00001\"]",
+     "proceeding_id": "proceeding_test",
+     "rin": "0583-AE99",
+     "run_id": "test-run"
+    },
+    "instructions": "spicy-regs deterministic proceeding assembly (proceedings.parquet row)",
+    "key": "proceedings",
+    "method": "rkaf:deterministicParse",
+    "model_ref": null,
+    "prompt_ref": null,
+    "run_id": "test-run",
+    "version": "v1"
+   },
+   {
+    "actor_id": "spicy-regs:authority-parser:v1",
+    "input_row": {
+     "actor_id": "spicy-regs:authority-parser:v1",
+     "agenda_edition": "202510",
+     "asserted_at": "2026-07-01T00:00:00Z",
+     "authority_raw": "7 U.S.C. 450",
+     "authority_type": "usc",
+     "parse_status": "partial",
+     "pl_number": null,
+     "rin": "0583-AE99",
+     "run_id": "test-run",
+     "usc_section": "450",
+     "usc_title": "7"
+    },
+    "instructions": "spicy-regs deterministic Unified Agenda authority-citation parse (authority_edges.parquet row)",
+    "key": "authority-parser",
+    "method": "rkaf:deterministicParse",
+    "model_ref": null,
+    "prompt_ref": null,
+    "run_id": "test-run",
+    "version": "v1"
+   },
+   {
+    "actor_id": "spicy-regs:rule-targets:v1",
+    "input_row": {
+     "actor_id": "spicy-regs:rule-targets:v1",
+     "asserted_at": "2026-07-01T00:00:00Z",
+     "cfr_part": "381",
+     "cfr_ref": "9-381",
+     "cfr_section": null,
+     "cfr_title": "9",
+     "docket_id": "TEST-2026-0001",
+     "rin": "0583-AE99",
+     "run_id": "test-run"
+    },
+    "instructions": "spicy-regs deterministic rule-targets extraction over docket documents and FR metadata (rule_targets.parquet row)",
+    "key": "rule-targets",
+    "method": "rkaf:deterministicParse",
+    "model_ref": null,
+    "prompt_ref": null,
+    "run_id": "test-run",
+    "version": "v1"
+   }
+  ],
+  "artifact_identifiers": [
+   "https://www.federalregister.gov/d/2026-00001"
+  ],
+  "artifact_iri": "https://www.federalregister.gov/d/2026-00001",
+  "artifact_schemes": [
+   "rkaf:urn-persistent"
+  ],
+  "claimant_identity": "https://www.federalregister.gov/agencies/food-safety-and-inspection-service",
+  "edges": [
+   {
+    "activity_key": "proceedings",
+    "asserted_at": "2026-07-01T00:00:00Z",
+    "claimant_identity": "https://www.federalregister.gov/agencies/food-safety-and-inspection-service",
+    "key": "published-in-proceeding",
+    "object": "urn:rkaf:partner:spicy-regs:proceeding:proceeding_test",
+    "predicate": "rkaf:publishedInProceeding",
+    "profile_edge": [
+     "https://www.federalregister.gov/d/2026-00001",
+     "rkaf:publishedInProceeding",
+     "urn:rkaf:partner:spicy-regs:proceeding:proceeding_test"
+    ],
+    "record_key": "proceeding_test",
+    "subject": "https://www.federalregister.gov/d/2026-00001",
+    "surface_forms": [],
+    "table": "proceedings"
+   },
+   {
+    "activity_key": "proceedings",
+    "asserted_at": "2026-07-01T00:00:00Z",
+    "claimant_identity": "https://www.federalregister.gov/agencies/food-safety-and-inspection-service",
+    "key": "docket-TEST-2026-0001",
+    "object": "urn:rkaf:us:regsgov:TEST-2026-0001",
+    "predicate": "rkaf:hasDocket",
+    "profile_edge": [
+     "urn:rkaf:partner:spicy-regs:proceeding:proceeding_test",
+     "rkaf:hasDocket",
+     "urn:rkaf:us:regsgov:TEST-2026-0001"
+    ],
+    "record_key": "proceeding_test",
+    "subject": "urn:rkaf:partner:spicy-regs:proceeding:proceeding_test",
+    "surface_forms": [
+     "Docket No. TEST-2026-0001",
+     "TEST-2026-0001"
+    ],
+    "table": "proceedings"
+   },
+   {
+    "activity_key": "authority-parser",
+    "asserted_at": "2026-07-01T00:00:00Z",
+    "claimant_identity": "https://www.federalregister.gov/agencies/food-safety-and-inspection-service",
+    "key": "authority",
+    "object": "urn:rkaf:us:usc:7:450",
+    "predicate": "rkaf:agendaAuthorityCitation",
+    "profile_edge": null,
+    "record_key": "0583-AE99:202510",
+    "subject": "urn:rkaf:us:rin:0583-AE99",
+    "surface_forms": [
+     "7 U.S.C. 450",
+     "7 USC 450"
+    ],
+    "table": "authority_edges"
+   },
+   {
+    "activity_key": "rule-targets",
+    "asserted_at": "2026-07-01T00:00:00Z",
+    "claimant_identity": "https://www.federalregister.gov/agencies/food-safety-and-inspection-service",
+    "key": "cfr-target-9-381",
+    "object": "urn:rkaf:us:cfr:9:381",
+    "predicate": "rkaf:proceedingAffectsCitation",
+    "profile_edge": [
+     "urn:rkaf:partner:spicy-regs:proceeding:proceeding_test",
+     "rkaf:proceedingAffectsCitation",
+     "urn:rkaf:us:cfr:9:381"
+    ],
+    "record_key": "TEST-2026-0001:9-381",
+    "subject": "urn:rkaf:partner:spicy-regs:proceeding:proceeding_test",
+    "surface_forms": [
+     "9 CFR Part 381",
+     "9 CFR part 381",
+     "9 CFR 381"
+    ],
+    "table": "rule_targets"
+   }
+  ],
+  "evidence_field": "federal_register.body_html",
+  "extra_nodes": [
+   {
+    "@id": "urn:rkaf:partner:spicy-regs:proceeding:proceeding_test",
+    "@type": "rkaf:Proceeding",
+    "rkaf:hasDocket": [
+     "urn:rkaf:us:regsgov:TEST-2026-0001"
+    ],
+    "rkaf:hasProceedingIdentifier": "urn:rkaf:partner:spicy-regs:proceeding:proceeding_test",
+    "rkaf:proceedingAffectsCitation": [
+     "urn:rkaf:us:cfr:9:381"
+    ],
+    "rkaf:proceedingIdentifierScheme": "rkaf:partner-defined",
+    "rkaf:proceedingStage": "rkaf:proceedingProposed"
+   },
+   {
+    "@id": "urn:rkaf:us:regsgov:TEST-2026-0001",
+    "@type": "rkaf:Docket",
+    "rkaf:docketIdentifierScheme": "rkaf:us-regsgov",
+    "rkaf:hasDocketIdentifier": "urn:rkaf:us:regsgov:TEST-2026-0001"
+   },
+   {
+    "@id": "urn:rkaf:us:rin:0583-AE99",
+    "@type": "rkaf:RegulatoryAgendaItem",
+    "rkaf:agendaItemIdentifierScheme": "rkaf:us-rin",
+    "rkaf:hasAgendaItemIdentifier": "urn:rkaf:us:rin:0583-AE99"
+   }
+  ],
+  "notes": [
+   "document docket TEST-2026-0002 is stated by the document but no published dockets row carries it, so rulemaking §5.3 forbids minting the Docket node and the edge is dropped"
+  ],
+  "profile_id": "federal-register-document-v1",
+  "published_in_docket": [
+   "urn:rkaf:us:regsgov:TEST-2026-0001"
+  ],
+  "published_in_proceeding": [
+   "urn:rkaf:partner:spicy-regs:proceeding:proceeding_test"
+  ],
+  "regulatory_identifier": "urn:rkaf:us:frdoc:2026-00001",
+  "regulatory_scheme": "rkaf:us-frdoc"
+ },
+ "generator": "rulespec scratchpad derive_fixtures.py, 2026-09-05",
+ "result": {
+  "document": {
+   "@context": "./rkaf-context.jsonld",
+   "@graph": [
+    {
+     "@id": "https://www.federalregister.gov/d/2026-00001",
+     "@type": "rkaf:Artifact",
+     "rkaf:artifactIdentifierScheme": [
+      "rkaf:urn-persistent"
+     ],
+     "rkaf:hasArtifactIdentifier": [
+      "https://www.federalregister.gov/d/2026-00001"
+     ],
+     "rkaf:hasContentDigest": "sha256:81fc43cb783d3af02d33965685f5f8a876f11321295a087c6557413c68781a2b",
+     "rkaf:hasRegulatoryIdentifier": "urn:rkaf:us:frdoc:2026-00001",
+     "rkaf:publishedInDocket": [
+      "urn:rkaf:us:regsgov:TEST-2026-0001"
+     ],
+     "rkaf:publishedInProceeding": [
+      "urn:rkaf:partner:spicy-regs:proceeding:proceeding_test"
+     ],
+     "rkaf:regulatoryIdentifierScheme": "rkaf:us-frdoc"
+    },
+    {
+     "@id": "urn:rkaf:partner:spicy-regs:proceeding:proceeding_test",
+     "@type": "rkaf:Proceeding",
+     "rkaf:hasDocket": [
+      "urn:rkaf:us:regsgov:TEST-2026-0001"
+     ],
+     "rkaf:hasProceedingIdentifier": "urn:rkaf:partner:spicy-regs:proceeding:proceeding_test",
+     "rkaf:proceedingAffectsCitation": [
+      "urn:rkaf:us:cfr:9:381"
+     ],
+     "rkaf:proceedingIdentifierScheme": "rkaf:partner-defined",
+     "rkaf:proceedingStage": "rkaf:proceedingProposed"
+    },
+    {
+     "@id": "urn:rkaf:us:regsgov:TEST-2026-0001",
+     "@type": "rkaf:Docket",
+     "rkaf:docketIdentifierScheme": "rkaf:us-regsgov",
+     "rkaf:hasDocketIdentifier": "urn:rkaf:us:regsgov:TEST-2026-0001"
+    },
+    {
+     "@id": "urn:rkaf:us:rin:0583-AE99",
+     "@type": "rkaf:RegulatoryAgendaItem",
+     "rkaf:agendaItemIdentifierScheme": "rkaf:us-rin",
+     "rkaf:hasAgendaItemIdentifier": "urn:rkaf:us:rin:0583-AE99"
+    },
+    {
+     "@id": "urn:rkaf:partner:spicy-regs:binding:published-in-proceeding",
+     "@type": "rkaf:EvidenceBinding",
+     "rkaf:bindsAssertion": "urn:rkaf:partner:spicy-regs:assertion:assertion_cfa8ee61e80d5d1c",
+     "rkaf:noEvidenceReason": "rkaf:inferred-from-warrant-class"
+    },
+    {
+     "@id": "urn:rkaf:partner:spicy-regs:assertion:assertion_cfa8ee61e80d5d1c",
+     "@type": "rkaf:RelationshipAssertion",
+     "prov:wasDerivedFrom": [
+      "urn:rkaf:partner:spicy-regs:record:proceedings:proceeding_test"
+     ],
+     "rkaf:assertedAt": "2026-07-01T00:00:00Z",
+     "rkaf:assertionOrigin": "rkaf:deterministicExtraction",
+     "rkaf:assertionPolarity": "rkaf:affirmed",
+     "rkaf:assertsObject": "urn:rkaf:partner:spicy-regs:proceeding:proceeding_test",
+     "rkaf:assertsPredicate": "rkaf:publishedInProceeding",
+     "rkaf:assertsSubject": "https://www.federalregister.gov/d/2026-00001",
+     "rkaf:epistemicBasis": "rkaf:deterministicDerivation",
+     "rkaf:hasExtractionProvenance": "urn:rkaf:partner:spicy-regs:activity:proceedings",
+     "rkaf:usageEligibility": "rkaf:localOperationalUse"
+    },
+    {
+     "@id": "urn:rkaf:partner:spicy-regs:binding:docket-TEST-2026-0001",
+     "@type": "rkaf:EvidenceBinding",
+     "rkaf:bindsAssertion": "urn:rkaf:partner:spicy-regs:assertion:assertion_85c735df0413fb36",
+     "rkaf:bindsSourceFragment": [
+      "urn:rkaf:fragment:https%3A%2F%2Fwww.federalregister.gov%2Fd%2F2026-00001:44:69:sha256-f8cb906c77bcc2748cf03f756d1c5d8589dcfdbf545500945044ff8ad7c3d425"
+     ],
+     "rkaf:evidenceRole": "rkaf:textualEvidence",
+     "rkaf:evidentiaryFunction": "rkaf:supports"
+    },
+    {
+     "@id": "urn:rkaf:partner:spicy-regs:claimant:docket-TEST-2026-0001",
+     "@type": "rkaf:SourceClaimant",
+     "rkaf:attributedInFragment": [
+      "urn:rkaf:fragment:https%3A%2F%2Fwww.federalregister.gov%2Fd%2F2026-00001:44:69:sha256-f8cb906c77bcc2748cf03f756d1c5d8589dcfdbf545500945044ff8ad7c3d425"
+     ],
+     "rkaf:claimantAttribution": "rkaf:claimantIsDocumentIssuer",
+     "rkaf:claimantIdentity": "https://www.federalregister.gov/agencies/food-safety-and-inspection-service",
+     "rkaf:claimsAssertion": "urn:rkaf:partner:spicy-regs:assertion:assertion_85c735df0413fb36"
+    },
+    {
+     "@id": "urn:rkaf:partner:spicy-regs:assertion:assertion_85c735df0413fb36",
+     "@type": "rkaf:RelationshipAssertion",
+     "prov:wasDerivedFrom": [
+      "urn:rkaf:partner:spicy-regs:record:proceedings:proceeding_test"
+     ],
+     "rkaf:assertedAt": "2026-07-01T00:00:00Z",
+     "rkaf:assertionOrigin": "rkaf:deterministicExtraction",
+     "rkaf:assertionPolarity": "rkaf:affirmed",
+     "rkaf:assertsObject": "urn:rkaf:us:regsgov:TEST-2026-0001",
+     "rkaf:assertsPredicate": "rkaf:hasDocket",
+     "rkaf:assertsSubject": "urn:rkaf:partner:spicy-regs:proceeding:proceeding_test",
+     "rkaf:epistemicBasis": "rkaf:deterministicDerivation",
+     "rkaf:hasExtractionProvenance": "urn:rkaf:partner:spicy-regs:activity:proceedings",
+     "rkaf:hasSourceClaimant": "urn:rkaf:partner:spicy-regs:claimant:docket-TEST-2026-0001",
+     "rkaf:usageEligibility": "rkaf:localOperationalUse"
+    },
+    {
+     "@id": "urn:rkaf:partner:spicy-regs:binding:authority",
+     "@type": "rkaf:EvidenceBinding",
+     "rkaf:bindsAssertion": "urn:rkaf:partner:spicy-regs:assertion:assertion_602240f27e2bd197",
+     "rkaf:bindsSourceFragment": [
+      "urn:rkaf:fragment:https%3A%2F%2Fwww.federalregister.gov%2Fd%2F2026-00001:176:188:sha256-2d08e56d2f661c73de72de6e086159ec3843c476039dd4808512e4c22f3ab836"
+     ],
+     "rkaf:evidenceRole": "rkaf:textualEvidence",
+     "rkaf:evidentiaryFunction": "rkaf:supports"
+    },
+    {
+     "@id": "urn:rkaf:partner:spicy-regs:claimant:authority",
+     "@type": "rkaf:SourceClaimant",
+     "rkaf:attributedInFragment": [
+      "urn:rkaf:fragment:https%3A%2F%2Fwww.federalregister.gov%2Fd%2F2026-00001:176:188:sha256-2d08e56d2f661c73de72de6e086159ec3843c476039dd4808512e4c22f3ab836"
+     ],
+     "rkaf:claimantAttribution": "rkaf:claimantIsDocumentIssuer",
+     "rkaf:claimantIdentity": "https://www.federalregister.gov/agencies/food-safety-and-inspection-service",
+     "rkaf:claimsAssertion": "urn:rkaf:partner:spicy-regs:assertion:assertion_602240f27e2bd197"
+    },
+    {
+     "@id": "urn:rkaf:partner:spicy-regs:assertion:assertion_602240f27e2bd197",
+     "@type": "rkaf:RelationshipAssertion",
+     "prov:wasDerivedFrom": [
+      "urn:rkaf:partner:spicy-regs:record:authority_edges:0583-AE99:202510"
+     ],
+     "rkaf:assertedAt": "2026-07-01T00:00:00Z",
+     "rkaf:assertionOrigin": "rkaf:deterministicExtraction",
+     "rkaf:assertionPolarity": "rkaf:affirmed",
+     "rkaf:assertsObject": "urn:rkaf:us:usc:7:450",
+     "rkaf:assertsPredicate": "rkaf:agendaAuthorityCitation",
+     "rkaf:assertsSubject": "urn:rkaf:us:rin:0583-AE99",
+     "rkaf:epistemicBasis": "rkaf:deterministicDerivation",
+     "rkaf:hasExtractionProvenance": "urn:rkaf:partner:spicy-regs:activity:authority-parser",
+     "rkaf:hasSourceClaimant": "urn:rkaf:partner:spicy-regs:claimant:authority",
+     "rkaf:usageEligibility": "rkaf:localOperationalUse"
+    },
+    {
+     "@id": "urn:rkaf:partner:spicy-regs:binding:cfr-target-9-381",
+     "@type": "rkaf:EvidenceBinding",
+     "rkaf:bindsAssertion": "urn:rkaf:partner:spicy-regs:assertion:assertion_b39679132b6601b7",
+     "rkaf:bindsSourceFragment": [
+      "urn:rkaf:fragment:https%3A%2F%2Fwww.federalregister.gov%2Fd%2F2026-00001:20:34:sha256-9170cad14efcb89a658d6b65b99e7dfb1c1ab143bdc5ef5f21c70769fe43be38"
+     ],
+     "rkaf:evidenceRole": "rkaf:textualEvidence",
+     "rkaf:evidentiaryFunction": "rkaf:supports"
+    },
+    {
+     "@id": "urn:rkaf:partner:spicy-regs:claimant:cfr-target-9-381",
+     "@type": "rkaf:SourceClaimant",
+     "rkaf:attributedInFragment": [
+      "urn:rkaf:fragment:https%3A%2F%2Fwww.federalregister.gov%2Fd%2F2026-00001:20:34:sha256-9170cad14efcb89a658d6b65b99e7dfb1c1ab143bdc5ef5f21c70769fe43be38"
+     ],
+     "rkaf:claimantAttribution": "rkaf:claimantIsDocumentIssuer",
+     "rkaf:claimantIdentity": "https://www.federalregister.gov/agencies/food-safety-and-inspection-service",
+     "rkaf:claimsAssertion": "urn:rkaf:partner:spicy-regs:assertion:assertion_b39679132b6601b7"
+    },
+    {
+     "@id": "urn:rkaf:partner:spicy-regs:assertion:assertion_b39679132b6601b7",
+     "@type": "rkaf:RelationshipAssertion",
+     "prov:wasDerivedFrom": [
+      "urn:rkaf:partner:spicy-regs:record:rule_targets:TEST-2026-0001:9-381"
+     ],
+     "rkaf:assertedAt": "2026-07-01T00:00:00Z",
+     "rkaf:assertionOrigin": "rkaf:deterministicExtraction",
+     "rkaf:assertionPolarity": "rkaf:affirmed",
+     "rkaf:assertsObject": "urn:rkaf:us:cfr:9:381",
+     "rkaf:assertsPredicate": "rkaf:proceedingAffectsCitation",
+     "rkaf:assertsSubject": "urn:rkaf:partner:spicy-regs:proceeding:proceeding_test",
+     "rkaf:epistemicBasis": "rkaf:deterministicDerivation",
+     "rkaf:hasExtractionProvenance": "urn:rkaf:partner:spicy-regs:activity:rule-targets",
+     "rkaf:hasSourceClaimant": "urn:rkaf:partner:spicy-regs:claimant:cfr-target-9-381",
+     "rkaf:usageEligibility": "rkaf:localOperationalUse"
+    },
+    {
+     "@id": "urn:rkaf:fragment:https%3A%2F%2Fwww.federalregister.gov%2Fd%2F2026-00001:44:69:sha256-f8cb906c77bcc2748cf03f756d1c5d8589dcfdbf545500945044ff8ad7c3d425#selector",
+     "@type": "oa:TextPositionSelector",
+     "oa:end": 69,
+     "oa:start": 44,
+     "rkaf:coordinateSystem": "rkaf:unicode-codepoint"
+    },
+    {
+     "@id": "urn:rkaf:fragment:https%3A%2F%2Fwww.federalregister.gov%2Fd%2F2026-00001:44:69:sha256-f8cb906c77bcc2748cf03f756d1c5d8589dcfdbf545500945044ff8ad7c3d425",
+     "@type": "rkaf:SourceFragment",
+     "oa:hasSelector": "urn:rkaf:fragment:https%3A%2F%2Fwww.federalregister.gov%2Fd%2F2026-00001:44:69:sha256-f8cb906c77bcc2748cf03f756d1c5d8589dcfdbf545500945044ff8ad7c3d425#selector",
+     "oa:hasSource": "https://www.federalregister.gov/d/2026-00001",
+     "rkaf:fragmentContentDigest": "sha256:f8cb906c77bcc2748cf03f756d1c5d8589dcfdbf545500945044ff8ad7c3d425",
+     "rkaf:fragmentIdentityScheme": "rkaf:carrier-local-fragment",
+     "rkaf:selectorKind": [
+      "oa:TextPositionSelector"
+     ],
+     "rkaf:sourceArtifactDigest": "sha256:81fc43cb783d3af02d33965685f5f8a876f11321295a087c6557413c68781a2b"
+    },
+    {
+     "@id": "urn:rkaf:fragment:https%3A%2F%2Fwww.federalregister.gov%2Fd%2F2026-00001:176:188:sha256-2d08e56d2f661c73de72de6e086159ec3843c476039dd4808512e4c22f3ab836#selector",
+     "@type": "oa:TextPositionSelector",
+     "oa:end": 188,
+     "oa:start": 176,
+     "rkaf:coordinateSystem": "rkaf:unicode-codepoint"
+    },
+    {
+     "@id": "urn:rkaf:fragment:https%3A%2F%2Fwww.federalregister.gov%2Fd%2F2026-00001:176:188:sha256-2d08e56d2f661c73de72de6e086159ec3843c476039dd4808512e4c22f3ab836",
+     "@type": "rkaf:SourceFragment",
+     "oa:hasSelector": "urn:rkaf:fragment:https%3A%2F%2Fwww.federalregister.gov%2Fd%2F2026-00001:176:188:sha256-2d08e56d2f661c73de72de6e086159ec3843c476039dd4808512e4c22f3ab836#selector",
+     "oa:hasSource": "https://www.federalregister.gov/d/2026-00001",
+     "rkaf:fragmentContentDigest": "sha256:2d08e56d2f661c73de72de6e086159ec3843c476039dd4808512e4c22f3ab836",
+     "rkaf:fragmentIdentityScheme": "rkaf:carrier-local-fragment",
+     "rkaf:selectorKind": [
+      "oa:TextPositionSelector"
+     ],
+     "rkaf:sourceArtifactDigest": "sha256:81fc43cb783d3af02d33965685f5f8a876f11321295a087c6557413c68781a2b"
+    },
+    {
+     "@id": "urn:rkaf:fragment:https%3A%2F%2Fwww.federalregister.gov%2Fd%2F2026-00001:20:34:sha256-9170cad14efcb89a658d6b65b99e7dfb1c1ab143bdc5ef5f21c70769fe43be38#selector",
+     "@type": "oa:TextPositionSelector",
+     "oa:end": 34,
+     "oa:start": 20,
+     "rkaf:coordinateSystem": "rkaf:unicode-codepoint"
+    },
+    {
+     "@id": "urn:rkaf:fragment:https%3A%2F%2Fwww.federalregister.gov%2Fd%2F2026-00001:20:34:sha256-9170cad14efcb89a658d6b65b99e7dfb1c1ab143bdc5ef5f21c70769fe43be38",
+     "@type": "rkaf:SourceFragment",
+     "oa:hasSelector": "urn:rkaf:fragment:https%3A%2F%2Fwww.federalregister.gov%2Fd%2F2026-00001:20:34:sha256-9170cad14efcb89a658d6b65b99e7dfb1c1ab143bdc5ef5f21c70769fe43be38#selector",
+     "oa:hasSource": "https://www.federalregister.gov/d/2026-00001",
+     "rkaf:fragmentContentDigest": "sha256:9170cad14efcb89a658d6b65b99e7dfb1c1ab143bdc5ef5f21c70769fe43be38",
+     "rkaf:fragmentIdentityScheme": "rkaf:carrier-local-fragment",
+     "rkaf:selectorKind": [
+      "oa:TextPositionSelector"
+     ],
+     "rkaf:sourceArtifactDigest": "sha256:81fc43cb783d3af02d33965685f5f8a876f11321295a087c6557413c68781a2b"
+    },
+    {
+     "@id": "urn:rkaf:partner:spicy-regs:activity:proceedings",
+     "@type": "rkaf:ExtractionActivity",
+     "rkaf:extractedBy": "urn:rkaf:partner:spicy-regs:actor:proceedings",
+     "rkaf:extractionMethod": "rkaf:deterministicParse",
+     "rkaf:extractionRun": "urn:rkaf:partner:spicy-regs:run:test-run",
+     "rkaf:extractorVersion": "v1",
+     "rkaf:inputDigest": [
+      "sha256:2da096cb291115e0cadd4d429e1179945433d188eb546dce0919764b6307403c"
+     ]
+    },
+    {
+     "@id": "urn:rkaf:partner:spicy-regs:activity:authority-parser",
+     "@type": "rkaf:ExtractionActivity",
+     "rkaf:extractedBy": "urn:rkaf:partner:spicy-regs:actor:authority-parser",
+     "rkaf:extractionMethod": "rkaf:deterministicParse",
+     "rkaf:extractionRun": "urn:rkaf:partner:spicy-regs:run:test-run",
+     "rkaf:extractorVersion": "v1",
+     "rkaf:inputDigest": [
+      "sha256:94f152118ada2d1a8e9680d05eb650b6759d466e8d8572fa89b31ee57c36ef63"
+     ]
+    },
+    {
+     "@id": "urn:rkaf:partner:spicy-regs:activity:rule-targets",
+     "@type": "rkaf:ExtractionActivity",
+     "rkaf:extractedBy": "urn:rkaf:partner:spicy-regs:actor:rule-targets",
+     "rkaf:extractionMethod": "rkaf:deterministicParse",
+     "rkaf:extractionRun": "urn:rkaf:partner:spicy-regs:run:test-run",
+     "rkaf:extractorVersion": "v1",
+     "rkaf:inputDigest": [
+      "sha256:6e32cd9468cc33bc89d856008c9095caa924353b647040875f8d458443443501"
+     ]
+    },
+    {
+     "@id": "urn:rkaf:partner:spicy-regs:record:authority_edges:0583-AE99:202510",
+     "@type": "prov:Entity"
+    },
+    {
+     "@id": "urn:rkaf:partner:spicy-regs:record:proceedings:proceeding_test",
+     "@type": "prov:Entity"
+    },
+    {
+     "@id": "urn:rkaf:partner:spicy-regs:record:rule_targets:TEST-2026-0001:9-381",
+     "@type": "prov:Entity"
+    }
+   ]
+  },
+  "run_record": {
+   "artifact": {
+    "artifact_id": "artifact_f16204ddaf7c29b761e28d38",
+    "artifact_iri": "https://www.federalregister.gov/d/2026-00001",
+    "available_fields": [
+     "federal_register.abstract",
+     "federal_register.agency_slugs",
+     "federal_register.body_html",
+     "federal_register.document_type",
+     "federal_register.title"
+    ],
+    "content_digest": "sha256:81fc43cb783d3af02d33965685f5f8a876f11321295a087c6557413c68781a2b",
+    "projected_evidence_field": "federal_register.body_html",
+    "version_digest": "sha256:1312010f7be3997e39a15e9c958e96a97d03d221e0ebd8e19c6ff62e08cf0950"
+   },
+   "attestation": null,
+   "candidate_selection": {
+    "accepted_output_authorized": false,
+    "mode": "diagnosticReviewQueue",
+    "receipt": null,
+    "state": "notConfigured",
+    "usage_ceiling": "rkaf:reviewQueueOnly"
+   },
+   "contract_flags": {
+    "assertion_origin_deterministic": "rkaf:deterministicExtraction",
+    "document_docket_predicate": "rkaf:publishedInDocket",
+    "emit_document_docket_edge": true,
+    "emit_profile_edge_projections": true,
+    "model_attestation_decision": "rkaf:endorsedForReview",
+    "request_contract_digest_required_for": [
+     "rkaf:modelExtraction"
+    ],
+    "rulespec_constraint_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "rulespec_pin_state": "localCandidate",
+    "rulespec_source_revision": null,
+    "rulespec_version": "0.0.0-test"
+   },
+   "deterministic": {
+    "activities": [
+     "authority-parser",
+     "proceedings",
+     "rule-targets"
+    ],
+    "edges": [
+     {
+      "assertion": "urn:rkaf:partner:spicy-regs:assertion:assertion_cfa8ee61e80d5d1c",
+      "grounded": false,
+      "key": "published-in-proceeding",
+      "object": "urn:rkaf:partner:spicy-regs:proceeding:proceeding_test",
+      "predicate": "rkaf:publishedInProceeding",
+      "reason": "no unique verbatim restatement of this citation in the projected field",
+      "subject": "https://www.federalregister.gov/d/2026-00001",
+      "table": "proceedings"
+     },
+     {
+      "assertion": "urn:rkaf:partner:spicy-regs:assertion:assertion_85c735df0413fb36",
+      "evidence": "urn:rkaf:fragment:https%3A%2F%2Fwww.federalregister.gov%2Fd%2F2026-00001:44:69:sha256-f8cb906c77bcc2748cf03f756d1c5d8589dcfdbf545500945044ff8ad7c3d425",
+      "grounded": true,
+      "key": "docket-TEST-2026-0001",
+      "object": "urn:rkaf:us:regsgov:TEST-2026-0001",
+      "predicate": "rkaf:hasDocket",
+      "subject": "urn:rkaf:partner:spicy-regs:proceeding:proceeding_test",
+      "table": "proceedings"
+     },
+     {
+      "assertion": "urn:rkaf:partner:spicy-regs:assertion:assertion_602240f27e2bd197",
+      "evidence": "urn:rkaf:fragment:https%3A%2F%2Fwww.federalregister.gov%2Fd%2F2026-00001:176:188:sha256-2d08e56d2f661c73de72de6e086159ec3843c476039dd4808512e4c22f3ab836",
+      "grounded": true,
+      "key": "authority",
+      "object": "urn:rkaf:us:usc:7:450",
+      "predicate": "rkaf:agendaAuthorityCitation",
+      "subject": "urn:rkaf:us:rin:0583-AE99",
+      "table": "authority_edges"
+     },
+     {
+      "assertion": "urn:rkaf:partner:spicy-regs:assertion:assertion_b39679132b6601b7",
+      "evidence": "urn:rkaf:fragment:https%3A%2F%2Fwww.federalregister.gov%2Fd%2F2026-00001:20:34:sha256-9170cad14efcb89a658d6b65b99e7dfb1c1ab143bdc5ef5f21c70769fe43be38",
+      "grounded": true,
+      "key": "cfr-target-9-381",
+      "object": "urn:rkaf:us:cfr:9:381",
+      "predicate": "rkaf:proceedingAffectsCitation",
+      "subject": "urn:rkaf:partner:spicy-regs:proceeding:proceeding_test",
+      "table": "rule_targets"
+     }
+    ],
+    "fragments": [
+     {
+      "end": 69,
+      "key": "edge-docket-TEST-2026-0001",
+      "sha256": "f8cb906c77bcc2748cf03f756d1c5d8589dcfdbf545500945044ff8ad7c3d425",
+      "source_field": "federal_register.body_html",
+      "start": 44,
+      "urn": "urn:rkaf:fragment:https%3A%2F%2Fwww.federalregister.gov%2Fd%2F2026-00001:44:69:sha256-f8cb906c77bcc2748cf03f756d1c5d8589dcfdbf545500945044ff8ad7c3d425"
+     },
+     {
+      "end": 188,
+      "key": "edge-authority",
+      "sha256": "2d08e56d2f661c73de72de6e086159ec3843c476039dd4808512e4c22f3ab836",
+      "source_field": "federal_register.body_html",
+      "start": 176,
+      "urn": "urn:rkaf:fragment:https%3A%2F%2Fwww.federalregister.gov%2Fd%2F2026-00001:176:188:sha256-2d08e56d2f661c73de72de6e086159ec3843c476039dd4808512e4c22f3ab836"
+     },
+     {
+      "end": 34,
+      "key": "edge-cfr-target-9-381",
+      "sha256": "9170cad14efcb89a658d6b65b99e7dfb1c1ab143bdc5ef5f21c70769fe43be38",
+      "source_field": "federal_register.body_html",
+      "start": 20,
+      "urn": "urn:rkaf:fragment:https%3A%2F%2Fwww.federalregister.gov%2Fd%2F2026-00001:20:34:sha256-9170cad14efcb89a658d6b65b99e7dfb1c1ab143bdc5ef5f21c70769fe43be38"
+     }
+    ]
+   },
+   "generated_at": "2026-07-28T00:00:00Z",
+   "inputs": {
+    "corpus_dir": "corpus",
+    "profile_id": "federal-register-document-v1",
+    "subject_id": "2026-00001",
+    "tables_dir": "tables"
+   },
+   "judgments": {
+    "accepted": [],
+    "rejected": []
+   },
+   "model": null,
+   "node_count": 27,
+   "notes": [
+    "document docket TEST-2026-0002 is stated by the document but no published dockets row carries it, so rulemaking §5.3 forbids minting the Docket node and the edge is dropped",
+    "Rulespec source_revision is null; this run names a local candidate and cannot support an immutable conformance claim.",
+    "No published candidate source was selected. Model results are diagnostic review-queue candidates only and cannot enter accepted output."
+   ],
+   "offset_verification": [
+    "== Source text state ==",
+    "profile          : federal-register-document-v1",
+    "subject_id       : 2026-00001",
+    "artifact_id      : artifact_f16204ddaf7c29b761e28d38",
+    "version digest   : 1312010f7be3997e39a15e9c958e96a97d03d221e0ebd8e19c6ff62e08cf0950  (source.py _content_digest; NOT hasContentDigest)",
+    "projected field  : federal_register.body_html",
+    "length           : 311 Unicode code points",
+    "sha256(UTF-8)    : 81fc43cb783d3af02d33965685f5f8a876f11321295a087c6557413c68781a2b",
+    "",
+    "== SourceFragment offset verification (unicode code points, half-open [start,end), re-sliced from the stored field) ==",
+    "  edge-docket-TEST-2026-0001 [44,69)",
+    "     slice: \"Docket No. TEST-2026-0001\"",
+    "     sha256(region): f8cb906c77bcc2748cf03f756d1c5d8589dcfdbf545500945044ff8ad7c3d425",
+    "     urn: urn:rkaf:fragment:https%3A%2F%2Fwww.federalregister.gov%2Fd%2F2026-00001:44:69:sha256-f8cb906c77bcc2748cf03f756d1c5d8589dcfdbf545500945044ff8ad7c3d425",
+    "  edge-authority [176,188)",
+    "     slice: \"7 U.S.C. 450\"",
+    "     sha256(region): 2d08e56d2f661c73de72de6e086159ec3843c476039dd4808512e4c22f3ab836",
+    "     urn: urn:rkaf:fragment:https%3A%2F%2Fwww.federalregister.gov%2Fd%2F2026-00001:176:188:sha256-2d08e56d2f661c73de72de6e086159ec3843c476039dd4808512e4c22f3ab836",
+    "  edge-cfr-target-9-381 [20,34)",
+    "     slice: \"9 CFR Part 381\"",
+    "     sha256(region): 9170cad14efcb89a658d6b65b99e7dfb1c1ab143bdc5ef5f21c70769fe43be38",
+    "     urn: urn:rkaf:fragment:https%3A%2F%2Fwww.federalregister.gov%2Fd%2F2026-00001:20:34:sha256-9170cad14efcb89a658d6b65b99e7dfb1c1ab143bdc5ef5f21c70769fe43be38",
+    "",
+    "assembled 27 graph nodes"
+   ],
+   "run_id": "rkaf-projection-20260728T000000Z",
+   "schema_version": "rkaf-document-projection-v2"
+  },
+  "transcript": [
+   "== Source text state ==",
+   "profile          : federal-register-document-v1",
+   "subject_id       : 2026-00001",
+   "artifact_id      : artifact_f16204ddaf7c29b761e28d38",
+   "version digest   : 1312010f7be3997e39a15e9c958e96a97d03d221e0ebd8e19c6ff62e08cf0950  (source.py _content_digest; NOT hasContentDigest)",
+   "projected field  : federal_register.body_html",
+   "length           : 311 Unicode code points",
+   "sha256(UTF-8)    : 81fc43cb783d3af02d33965685f5f8a876f11321295a087c6557413c68781a2b",
+   "",
+   "== SourceFragment offset verification (unicode code points, half-open [start,end), re-sliced from the stored field) ==",
+   "  edge-docket-TEST-2026-0001 [44,69)",
+   "     slice: \"Docket No. TEST-2026-0001\"",
+   "     sha256(region): f8cb906c77bcc2748cf03f756d1c5d8589dcfdbf545500945044ff8ad7c3d425",
+   "     urn: urn:rkaf:fragment:https%3A%2F%2Fwww.federalregister.gov%2Fd%2F2026-00001:44:69:sha256-f8cb906c77bcc2748cf03f756d1c5d8589dcfdbf545500945044ff8ad7c3d425",
+   "  edge-authority [176,188)",
+   "     slice: \"7 U.S.C. 450\"",
+   "     sha256(region): 2d08e56d2f661c73de72de6e086159ec3843c476039dd4808512e4c22f3ab836",
+   "     urn: urn:rkaf:fragment:https%3A%2F%2Fwww.federalregister.gov%2Fd%2F2026-00001:176:188:sha256-2d08e56d2f661c73de72de6e086159ec3843c476039dd4808512e4c22f3ab836",
+   "  edge-cfr-target-9-381 [20,34)",
+   "     slice: \"9 CFR Part 381\"",
+   "     sha256(region): 9170cad14efcb89a658d6b65b99e7dfb1c1ab143bdc5ef5f21c70769fe43be38",
+   "     urn: urn:rkaf:fragment:https%3A%2F%2Fwww.federalregister.gov%2Fd%2F2026-00001:20:34:sha256-9170cad14efcb89a658d6b65b99e7dfb1c1ab143bdc5ef5f21c70769fe43be38",
+   "",
+   "assembled 27 graph nodes"
+  ]
+ },
+ "row": {
+  "abstract": "A proposed rule.",
+  "agency_slugs": "[\"food-safety-and-inspection-service\"]",
+  "body_html": "<html><body><ul><li>9 CFR Part 381</li><li>[Docket No. TEST-2026-0001]</li></ul><p>This proposed rule concerns poultry slaughter inspection at establishments.</p><p>Authority: 7 U.S.C. 450 governs the program.</p><p>Establishments must keep inspection records. Inspection records are reviewed.</p></body></html>",
+  "docket_ids_json": "[\"TEST-2026-0001\", \"TEST-2026-0002\", \"Docket No. TEST-2026-0001\"]",
+  "document_number": "2026-00001",
+  "document_type": "Proposed Rule",
+  "title": "Poultry slaughter inspection",
+  "topics_json": "[\"Poultry and poultry products\"]"
+ },
+ "settings": {
+  "asserted_at": "2026-07-28T00:00:00Z",
+  "corpus_dir": "corpus",
+  "prompt_concept_limit": 4,
+  "rulespec_constraint_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "rulespec_source_revision": null,
+  "rulespec_version": "0.0.0-test",
+  "tables_dir": "tables",
+  "vocabulary_default_language": "en"
+ },
+ "tables": {
+  "authority_edges": [
+   {
+    "actor_id": "spicy-regs:authority-parser:v1",
+    "agenda_edition": "202510",
+    "asserted_at": "2026-07-01T00:00:00Z",
+    "authority_raw": "7 U.S.C. 450",
+    "authority_type": "usc",
+    "parse_status": "partial",
+    "pl_number": null,
+    "rin": "0583-AE99",
+    "run_id": "test-run",
+    "usc_section": "450",
+    "usc_title": "7"
+   }
+  ],
+  "dockets": [
+   {
+    "docket_id": "TEST-2026-0001",
+    "title": "Poultry slaughter inspection docket"
+   }
+  ],
+  "proceedings": [
+   {
+    "actor_id": "spicy-regs:proceedings:v1",
+    "asserted_at": "2026-07-01T00:00:00Z",
+    "cfr_target_iris_json": "[\"urn:rkaf:us:cfr:9:381\"]",
+    "current_stage": "proposed",
+    "docket_ids_json": "[\"TEST-2026-0001\"]",
+    "fr_document_numbers_json": "[\"2026-00001\"]",
+    "proceeding_id": "proceeding_test",
+    "rin": "0583-AE99",
+    "run_id": "test-run"
+   }
+  ],
+  "rule_targets": [
+   {
+    "actor_id": "spicy-regs:rule-targets:v1",
+    "asserted_at": "2026-07-01T00:00:00Z",
+    "cfr_part": "381",
+    "cfr_ref": "9-381",
+    "cfr_section": null,
+    "cfr_title": "9",
+    "docket_id": "TEST-2026-0001",
+    "rin": "0583-AE99",
+    "run_id": "test-run"
+   }
+  ]
+ }
+}

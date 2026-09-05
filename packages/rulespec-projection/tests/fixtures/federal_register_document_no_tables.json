@@ -1,0 +1,182 @@
+{
+ "artifact": {
+  "artifact_id": "artifact_f16204ddaf7c29b761e28d38",
+  "content_sha256": "1312010f7be3997e39a15e9c958e96a97d03d221e0ebd8e19c6ff62e08cf0950",
+  "field_sha256": {
+   "federal_register.abstract": "fe9e3c90143b9f234e53ae32f4e4898136606aa93419073c65d9986e85ac97c4",
+   "federal_register.agency_slugs": "db76c6227c11cebcf7e189b0a726d8b117c9e7454e8bcba453ad2cfb02bc39ce",
+   "federal_register.body_html": "81fc43cb783d3af02d33965685f5f8a876f11321295a087c6557413c68781a2b",
+   "federal_register.document_type": "aa1561677b1da0f7c6e2ef2ea3098f67e637ce020e39d464c23333bf56d6cf3a",
+   "federal_register.title": "8949f785b6e6df0c1ce4615278c79a6b76b07fc95184c90b0982a2b7429ee919"
+  },
+  "profile_id": "federal-register-document-v1",
+  "raw_fields": {
+   "federal_register.abstract": "A proposed rule.",
+   "federal_register.agency_slugs": "[\"food-safety-and-inspection-service\"]",
+   "federal_register.body_html": "<html><body><ul><li>9 CFR Part 381</li><li>[Docket No. TEST-2026-0001]</li></ul><p>This proposed rule concerns poultry slaughter inspection at establishments.</p><p>Authority: 7 U.S.C. 450 governs the program.</p><p>Establishments must keep inspection records. Inspection records are reviewed.</p></body></html>",
+   "federal_register.document_type": "Proposed Rule",
+   "federal_register.title": "Poultry slaughter inspection"
+  },
+  "subject_id": "2026-00001"
+ },
+ "derived_from": "spicy-regs 8d9e7a2 src/spicy_regs/docpipeline/rkaf_projection.py",
+ "facts": {
+  "activities": [],
+  "artifact_identifiers": [
+   "https://www.federalregister.gov/d/2026-00001"
+  ],
+  "artifact_iri": "https://www.federalregister.gov/d/2026-00001",
+  "artifact_schemes": [
+   "rkaf:urn-persistent"
+  ],
+  "claimant_identity": "https://www.federalregister.gov/agencies/food-safety-and-inspection-service",
+  "edges": [],
+  "evidence_field": "federal_register.body_html",
+  "extra_nodes": [],
+  "notes": [
+   "document docket TEST-2026-0001 is stated by the document but no published dockets row carries it, so rulemaking §5.3 forbids minting the Docket node and the edge is dropped",
+   "document docket TEST-2026-0002 is stated by the document but no published dockets row carries it, so rulemaking §5.3 forbids minting the Docket node and the edge is dropped",
+   "document docket TEST-2026-0001 is stated by the document but no published dockets row carries it, so rulemaking §5.3 forbids minting the Docket node and the edge is dropped"
+  ],
+  "profile_id": "federal-register-document-v1",
+  "published_in_docket": [],
+  "published_in_proceeding": [],
+  "regulatory_identifier": "urn:rkaf:us:frdoc:2026-00001",
+  "regulatory_scheme": "rkaf:us-frdoc"
+ },
+ "generator": "rulespec scratchpad derive_fixtures.py, 2026-09-05",
+ "result": {
+  "document": {
+   "@context": "./rkaf-context.jsonld",
+   "@graph": [
+    {
+     "@id": "https://www.federalregister.gov/d/2026-00001",
+     "@type": "rkaf:Artifact",
+     "rkaf:artifactIdentifierScheme": [
+      "rkaf:urn-persistent"
+     ],
+     "rkaf:hasArtifactIdentifier": [
+      "https://www.federalregister.gov/d/2026-00001"
+     ],
+     "rkaf:hasContentDigest": "sha256:81fc43cb783d3af02d33965685f5f8a876f11321295a087c6557413c68781a2b",
+     "rkaf:hasRegulatoryIdentifier": "urn:rkaf:us:frdoc:2026-00001",
+     "rkaf:regulatoryIdentifierScheme": "rkaf:us-frdoc"
+    }
+   ]
+  },
+  "run_record": {
+   "artifact": {
+    "artifact_id": "artifact_f16204ddaf7c29b761e28d38",
+    "artifact_iri": "https://www.federalregister.gov/d/2026-00001",
+    "available_fields": [
+     "federal_register.abstract",
+     "federal_register.agency_slugs",
+     "federal_register.body_html",
+     "federal_register.document_type",
+     "federal_register.title"
+    ],
+    "content_digest": "sha256:81fc43cb783d3af02d33965685f5f8a876f11321295a087c6557413c68781a2b",
+    "projected_evidence_field": "federal_register.body_html",
+    "version_digest": "sha256:1312010f7be3997e39a15e9c958e96a97d03d221e0ebd8e19c6ff62e08cf0950"
+   },
+   "attestation": null,
+   "candidate_selection": {
+    "accepted_output_authorized": false,
+    "mode": "diagnosticReviewQueue",
+    "receipt": null,
+    "state": "notConfigured",
+    "usage_ceiling": "rkaf:reviewQueueOnly"
+   },
+   "contract_flags": {
+    "assertion_origin_deterministic": "rkaf:deterministicExtraction",
+    "document_docket_predicate": "rkaf:publishedInDocket",
+    "emit_document_docket_edge": true,
+    "emit_profile_edge_projections": true,
+    "model_attestation_decision": "rkaf:endorsedForReview",
+    "request_contract_digest_required_for": [
+     "rkaf:modelExtraction"
+    ],
+    "rulespec_constraint_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "rulespec_pin_state": "localCandidate",
+    "rulespec_source_revision": null,
+    "rulespec_version": "0.0.0-test"
+   },
+   "deterministic": {
+    "activities": [],
+    "edges": [],
+    "fragments": []
+   },
+   "generated_at": "2026-07-28T00:00:00Z",
+   "inputs": {
+    "corpus_dir": "corpus",
+    "profile_id": "federal-register-document-v1",
+    "subject_id": "2026-00001",
+    "tables_dir": "tables"
+   },
+   "judgments": {
+    "accepted": [],
+    "rejected": []
+   },
+   "model": null,
+   "node_count": 1,
+   "notes": [
+    "document docket TEST-2026-0001 is stated by the document but no published dockets row carries it, so rulemaking §5.3 forbids minting the Docket node and the edge is dropped",
+    "document docket TEST-2026-0002 is stated by the document but no published dockets row carries it, so rulemaking §5.3 forbids minting the Docket node and the edge is dropped",
+    "document docket TEST-2026-0001 is stated by the document but no published dockets row carries it, so rulemaking §5.3 forbids minting the Docket node and the edge is dropped",
+    "Rulespec source_revision is null; this run names a local candidate and cannot support an immutable conformance claim.",
+    "No published candidate source was selected. Model results are diagnostic review-queue candidates only and cannot enter accepted output."
+   ],
+   "offset_verification": [
+    "== Source text state ==",
+    "profile          : federal-register-document-v1",
+    "subject_id       : 2026-00001",
+    "artifact_id      : artifact_f16204ddaf7c29b761e28d38",
+    "version digest   : 1312010f7be3997e39a15e9c958e96a97d03d221e0ebd8e19c6ff62e08cf0950  (source.py _content_digest; NOT hasContentDigest)",
+    "projected field  : federal_register.body_html",
+    "length           : 311 Unicode code points",
+    "sha256(UTF-8)    : 81fc43cb783d3af02d33965685f5f8a876f11321295a087c6557413c68781a2b",
+    "",
+    "== SourceFragment offset verification (unicode code points, half-open [start,end), re-sliced from the stored field) ==",
+    "",
+    "assembled 1 graph nodes"
+   ],
+   "run_id": "rkaf-projection-20260728T000000Z",
+   "schema_version": "rkaf-document-projection-v2"
+  },
+  "transcript": [
+   "== Source text state ==",
+   "profile          : federal-register-document-v1",
+   "subject_id       : 2026-00001",
+   "artifact_id      : artifact_f16204ddaf7c29b761e28d38",
+   "version digest   : 1312010f7be3997e39a15e9c958e96a97d03d221e0ebd8e19c6ff62e08cf0950  (source.py _content_digest; NOT hasContentDigest)",
+   "projected field  : federal_register.body_html",
+   "length           : 311 Unicode code points",
+   "sha256(UTF-8)    : 81fc43cb783d3af02d33965685f5f8a876f11321295a087c6557413c68781a2b",
+   "",
+   "== SourceFragment offset verification (unicode code points, half-open [start,end), re-sliced from the stored field) ==",
+   "",
+   "assembled 1 graph nodes"
+  ]
+ },
+ "row": {
+  "abstract": "A proposed rule.",
+  "agency_slugs": "[\"food-safety-and-inspection-service\"]",
+  "body_html": "<html><body><ul><li>9 CFR Part 381</li><li>[Docket No. TEST-2026-0001]</li></ul><p>This proposed rule concerns poultry slaughter inspection at establishments.</p><p>Authority: 7 U.S.C. 450 governs the program.</p><p>Establishments must keep inspection records. Inspection records are reviewed.</p></body></html>",
+  "docket_ids_json": "[\"TEST-2026-0001\", \"TEST-2026-0002\", \"Docket No. TEST-2026-0001\"]",
+  "document_number": "2026-00001",
+  "document_type": "Proposed Rule",
+  "title": "Poultry slaughter inspection",
+  "topics_json": "[\"Poultry and poultry products\"]"
+ },
+ "settings": {
+  "asserted_at": "2026-07-28T00:00:00Z",
+  "corpus_dir": "corpus",
+  "prompt_concept_limit": 4,
+  "rulespec_constraint_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "rulespec_source_revision": null,
+  "rulespec_version": "0.0.0-test",
+  "tables_dir": "tables",
+  "vocabulary_default_language": "en"
+ },
+ "tables": {}
+}

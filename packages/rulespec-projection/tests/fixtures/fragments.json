@@ -1,0 +1,237 @@
+{
+ "artifact": {
+  "artifact_id": "artifact_f16204ddaf7c29b761e28d38",
+  "content_sha256": "1312010f7be3997e39a15e9c958e96a97d03d221e0ebd8e19c6ff62e08cf0950",
+  "field_sha256": {
+   "federal_register.abstract": "fe9e3c90143b9f234e53ae32f4e4898136606aa93419073c65d9986e85ac97c4",
+   "federal_register.agency_slugs": "db76c6227c11cebcf7e189b0a726d8b117c9e7454e8bcba453ad2cfb02bc39ce",
+   "federal_register.body_html": "81fc43cb783d3af02d33965685f5f8a876f11321295a087c6557413c68781a2b",
+   "federal_register.document_type": "aa1561677b1da0f7c6e2ef2ea3098f67e637ce020e39d464c23333bf56d6cf3a",
+   "federal_register.title": "8949f785b6e6df0c1ce4615278c79a6b76b07fc95184c90b0982a2b7429ee919"
+  },
+  "profile_id": "federal-register-document-v1",
+  "raw_fields": {
+   "federal_register.abstract": "A proposed rule.",
+   "federal_register.agency_slugs": "[\"food-safety-and-inspection-service\"]",
+   "federal_register.body_html": "<html><body><ul><li>9 CFR Part 381</li><li>[Docket No. TEST-2026-0001]</li></ul><p>This proposed rule concerns poultry slaughter inspection at establishments.</p><p>Authority: 7 U.S.C. 450 governs the program.</p><p>Establishments must keep inspection records. Inspection records are reviewed.</p></body></html>",
+   "federal_register.document_type": "Proposed Rule",
+   "federal_register.title": "Poultry slaughter inspection"
+  },
+  "subject_id": "2026-00001"
+ },
+ "artifact_iri": "https://www.federalregister.gov/d/2026-00001",
+ "derived_from": "spicy-regs 8d9e7a2 src/spicy_regs/docpipeline/rkaf_projection.py",
+ "encode_for_uri": {
+  "%41": "%2541",
+  "a b/c?d=é": "a%20b%2Fc%3Fd%3D%C3%A9",
+  "https://www.federalregister.gov/d/2026-00001": "https%3A%2F%2Fwww.federalregister.gov%2Fd%2F2026-00001",
+  "plain-._~": "plain-._~",
+  "漢字": "%E6%BC%A2%E5%AD%97"
+ },
+ "generator": "rulespec scratchpad derive_fixtures.py, 2026-09-05",
+ "ground_literal": [
+  {
+   "fragment": {
+    "end": 69,
+    "key": "ground",
+    "source_field": "federal_register.body_html",
+    "start": 44,
+    "text": "Docket No. TEST-2026-0001",
+    "text_sha256": "f8cb906c77bcc2748cf03f756d1c5d8589dcfdbf545500945044ff8ad7c3d425",
+    "urn": "urn:rkaf:fragment:https%3A%2F%2Fwww.federalregister.gov%2Fd%2F2026-00001:44:69:sha256-f8cb906c77bcc2748cf03f756d1c5d8589dcfdbf545500945044ff8ad7c3d425"
+   },
+   "surface_forms": [
+    "Docket No. TEST-2026-0001",
+    "TEST-2026-0001"
+   ]
+  },
+  {
+   "fragment": {
+    "end": 279,
+    "key": "ground",
+    "source_field": "federal_register.body_html",
+    "start": 261,
+    "text": "Inspection records",
+    "text_sha256": "c65d2421af72fac9671b170170d4272454a9bc28db6c33d54c6c34c3cfc150b5",
+    "urn": "urn:rkaf:fragment:https%3A%2F%2Fwww.federalregister.gov%2Fd%2F2026-00001:261:279:sha256-c65d2421af72fac9671b170170d4272454a9bc28db6c33d54c6c34c3cfc150b5"
+   },
+   "surface_forms": [
+    "Inspection records"
+   ]
+  },
+  {
+   "fragment": {
+    "end": 259,
+    "key": "ground",
+    "source_field": "federal_register.body_html",
+    "start": 241,
+    "text": "inspection records",
+    "text_sha256": "4fe45c610bfcfdf992a3e847a1ce8dc1022215a4b205f818bbafde34a5b8e34b",
+    "urn": "urn:rkaf:fragment:https%3A%2F%2Fwww.federalregister.gov%2Fd%2F2026-00001:241:259:sha256-4fe45c610bfcfdf992a3e847a1ce8dc1022215a4b205f818bbafde34a5b8e34b"
+   },
+   "surface_forms": [
+    "inspection records"
+   ]
+  },
+  {
+   "fragment": null,
+   "surface_forms": [
+    "absent phrase"
+   ]
+  },
+  {
+   "fragment": {
+    "end": 34,
+    "key": "ground",
+    "source_field": "federal_register.body_html",
+    "start": 20,
+    "text": "9 CFR Part 381",
+    "text_sha256": "9170cad14efcb89a658d6b65b99e7dfb1c1ab143bdc5ef5f21c70769fe43be38",
+    "urn": "urn:rkaf:fragment:https%3A%2F%2Fwww.federalregister.gov%2Fd%2F2026-00001:20:34:sha256-9170cad14efcb89a658d6b65b99e7dfb1c1ab143bdc5ef5f21c70769fe43be38"
+   },
+   "surface_forms": [
+    "",
+    "9 CFR Part 381"
+   ]
+  },
+  {
+   "fragment": null,
+   "surface_forms": [
+    "9 CFR part 381",
+    "9 CFR 381"
+   ]
+  }
+ ],
+ "resolve_exact_evidence_offsets": [
+  {
+   "quote": "poultry",
+   "resolution": {
+    "end": 118,
+    "interval": "half-open",
+    "method": "unique-exact-match",
+    "start": 111,
+    "unit": "unicode-codepoints"
+   }
+  },
+  {
+   "quote": "Inspection records",
+   "resolution": {
+    "end": 279,
+    "interval": "half-open",
+    "method": "unique-exact-match",
+    "start": 261,
+    "unit": "unicode-codepoints"
+   }
+  },
+  {
+   "quote": "inspection",
+   "resolution": null
+  },
+  {
+   "quote": "zzz",
+   "resolution": null
+  },
+  {
+   "quote": "",
+   "resolution": null
+  }
+ ],
+ "verify_fragment": [
+  {
+   "args": {
+    "end": 139,
+    "expected_text": "poultry slaughter inspection",
+    "source_field": "federal_register.body_html",
+    "start": 111
+   },
+   "error": null,
+   "fragment": {
+    "end": 139,
+    "key": "exact",
+    "source_field": "federal_register.body_html",
+    "start": 111,
+    "text": "poultry slaughter inspection",
+    "text_sha256": "5447a453fa2c6745484cd33135ed3d1c671b6249f6c976a8d37d13aa8d6dd26c",
+    "urn": "urn:rkaf:fragment:https%3A%2F%2Fwww.federalregister.gov%2Fd%2F2026-00001:111:139:sha256-5447a453fa2c6745484cd33135ed3d1c671b6249f6c976a8d37d13aa8d6dd26c"
+   },
+   "name": "exact"
+  },
+  {
+   "args": {
+    "end": 188,
+    "source_field": "federal_register.body_html",
+    "start": 176
+   },
+   "error": null,
+   "fragment": {
+    "end": 188,
+    "key": "no-expected-text",
+    "source_field": "federal_register.body_html",
+    "start": 176,
+    "text": "7 U.S.C. 450",
+    "text_sha256": "2d08e56d2f661c73de72de6e086159ec3843c476039dd4808512e4c22f3ab836",
+    "urn": "urn:rkaf:fragment:https%3A%2F%2Fwww.federalregister.gov%2Fd%2F2026-00001:176:188:sha256-2d08e56d2f661c73de72de6e086159ec3843c476039dd4808512e4c22f3ab836"
+   },
+   "name": "no-expected-text"
+  },
+  {
+   "args": {
+    "end": 5,
+    "source_field": "federal_register.body_html",
+    "start": 10
+   },
+   "error": "end-before-start: [10,5) is outside federal_register.body_html (length 311 code points)",
+   "fragment": null,
+   "name": "end-before-start"
+  },
+  {
+   "args": {
+    "end": 312,
+    "source_field": "federal_register.body_html",
+    "start": 0
+   },
+   "error": "past-end: [0,312) is outside federal_register.body_html (length 311 code points)",
+   "fragment": null,
+   "name": "past-end"
+  },
+  {
+   "args": {
+    "end": 140,
+    "expected_text": "poultry slaughter inspection",
+    "source_field": "federal_register.body_html",
+    "start": 111
+   },
+   "error": "drifted: federal_register.body_html[111:140] is 'poultry slaughter inspection ', not the expected 'poultry slaughter inspection'",
+   "fragment": null,
+   "name": "drifted"
+  },
+  {
+   "args": {
+    "end": 1,
+    "source_field": "federal_register.nope",
+    "start": 0
+   },
+   "error": "missing-field: the artifact carries no field 'federal_register.nope'",
+   "fragment": null,
+   "name": "missing-field"
+  },
+  {
+   "args": {
+    "end": 0,
+    "source_field": "federal_register.body_html",
+    "start": 0
+   },
+   "error": null,
+   "fragment": {
+    "end": 0,
+    "key": "empty-region",
+    "source_field": "federal_register.body_html",
+    "start": 0,
+    "text": "",
+    "text_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "urn": "urn:rkaf:fragment:https%3A%2F%2Fwww.federalregister.gov%2Fd%2F2026-00001:0:0:sha256-e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+   },
+   "name": "empty-region"
+  }
+ ]
+}

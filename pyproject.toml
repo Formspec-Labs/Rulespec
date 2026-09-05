@@ -60,7 +60,7 @@ packages = ["src/rulespec_conformance"]
 # building from one would fail at the force-include above. Wheel only.
 
 [tool.uv.workspace]
-members = ["packages/rulespec-artifacts"]
+members = ["packages/rulespec-artifacts", "packages/rulespec-projection"]
 
 [tool.uv.sources]
 rulespec-artifacts = { workspace = true }
