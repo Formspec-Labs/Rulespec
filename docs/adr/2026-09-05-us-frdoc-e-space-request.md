@@ -188,3 +188,19 @@ same path.
 3. **When to cut** — not now. The day SpicySearch or RefSpec names the
    2003–2010 Register as a served gap, this document is the bounds and the
    fixture list; nothing here needs re-measuring first.
+
+## Ruling 2026-09-05 — A accepted, heads sealed, cut deferred
+
+The owner accepted option A (relayed by the overseer session, 2026-09-05:
+"do it all I accept", in reply to a list that named this request's three
+decisions). Recorded here as the decision of record:
+
+1. **Bare sibling scheme.** `rkaf:us-frdoc-e` with lexical space
+   `^urn:rkaf:us:frdoc-e:E(3|4|5|6|7|8|9|10)-[0-9]{1,5}$`; the published
+   number is the identity, verbatim, with no date qualifier. Reasoning as
+   above: the family is closed and has no collisions to disambiguate.
+2. **Heads sealed** to the eight measured heads, because nothing can join a
+   closed family.
+3. **Cut deferred.** Nothing is cut and no version moves with this ruling.
+   The cut is `0.2.0-pre.19`, on the adoption checklist above, the day a
+   consumer names the 2003–2010 Register as a served gap.
